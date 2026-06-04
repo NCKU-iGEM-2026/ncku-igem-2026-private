@@ -2,9 +2,13 @@
 
 This repository **MUST** contain all coding assets to generate your team's wiki (HTML, CSS, JavaScript, TypeScript, Python, etc).
 
-Images, photos, icons and fonts **MUST** be stored on `static.igem.wiki` using [tools.igem.org](https://tools.igem.org), and Videos **must** be embedded from [iGEM Video Universe](https://video.igem.org).
+Images, photos, icons and fonts **MUST** be stored on `static.igem.wiki` using [the uploads tool](https://teams.igem.org/go/deliverables/wiki/uploads), and Videos **must** be embedded from [iGEM Video Universe](https://video.igem.org); see [the Video & Audio page](https://teams.igem.org/go/deliverables/wiki/videos-and-audios) for guidance on adding video and audio.
 
-For up-to-date requirements, resources, help and guidance, visit [competition.igem.org/deliverables/team-wiki](https://competition.igem.org/deliverables/team-wiki).
+**Everything your wiki loads (CSS, JavaScript, fonts, images) must be served from iGEM infrastructure.** Do not link to external or third-party CDNs (for example Google Fonts, jsDelivr, cdnjs) — upload the files you need via [the uploads tool](https://teams.igem.org/go/deliverables/wiki/uploads) and reference them from `static.igem.wiki` instead.
+
+For up-to-date requirements, resources, help and guidance, visit [teams.igem.org/go/deliverables/wiki](https://teams.igem.org/go/deliverables/wiki).
+
+> **Using an AI assistant (e.g. Claude Code)?** Please read [.claude/RESPONSIBLE_AI_USE.md](.claude/RESPONSIBLE_AI_USE.md) first. You remain fully responsible for everything you publish: never fabricate scientific results, data, or citations.
 
 ## Getting started
 
@@ -43,12 +47,16 @@ The static assets are in the `static` directory. The layout and templates are in
   * [GitLab Pages](https://docs.gitlab.com/ee/user/project/pages/)
   * [Python](https://www.python.org): Programming language
   * [Flask](https://palletsprojects.com/projects/flask): Python framework
-  * [Fronzen-Flask](https://pypi.org/project/Frozen-Flask): Library that builds the wiki to be deployed as a static website
+  * [Frozen-Flask](https://pypi.org/project/Frozen-Flask): Library that builds the wiki to be deployed as a static website
   * [Bootstrap](https://getbootstrap.com/docs/5.3/components): CSS and JS components used
 
 ### Building locally (advanced users)
 
 To work locally with this project, follow the steps below:
+
+#### Important
+
+Ensure you are using Python `>=3.8` (Python 3.12 recommended) to avoid compatibility issues. You can check your Python version by running `python3 --version` in your terminal.
 
 #### Install
 ```bash
