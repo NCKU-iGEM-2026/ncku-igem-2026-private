@@ -16,3 +16,301 @@ body { padding-top: 56px; }
 /* footer */
 footer a { color: white; font-weight: bold; text-decoration: none; }
 footer a:hover { color: white; text-decoration: underline; }
+
+@font-face {
+  font-family: "Chango";
+  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/chango-regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===== Team notebook / scrapbook ===== */
+.notebook {
+  position: relative;
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+.notebook-radio { display: none; }
+
+.notebook-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 2.75rem;
+  position: relative;
+  z-index: 2;
+}
+
+.notebook-sidebar {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  z-index: 100;
+}
+
+.notebook-mode-toggle,
+.notebook-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 1rem;
+  font-family: "Chango", cursive;
+  font-size: 0.85rem;
+  color: #4a3f35;
+  background: #fff3d0;
+  border: 2px dashed #d8b26a;
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  cursor: pointer;
+  box-shadow: -2px 2px 8px rgba(0,0,0,0.15);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.notebook-mode-toggle:hover,
+.notebook-reset:hover { background: #ffe6a8; transform: translateX(-4px); }
+.notebook-mode-toggle:active,
+.notebook-reset:active { transform: translateX(0); }
+
+.notebook-reset { display: none; }
+body.decoration-mode .notebook-reset { display: inline-flex; }
+
+.notebook-tab {
+  display: inline-block;
+  font-family: "Chango", cursive;
+  font-size: 1.4rem;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: #4a3f35;
+  padding: 0.4rem 1.1rem 0.35rem;
+  cursor: pointer;
+  opacity: 0.55;
+  transform: translateY(6px) rotate(-2deg);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.notebook-tabs label:nth-child(2) { transform: translateY(6px) rotate(1deg); }
+.notebook-tabs label:nth-child(3) { transform: translateY(6px) rotate(-1.5deg); }
+.notebook-tabs label:nth-child(4) { transform: translateY(6px) rotate(1.5deg); }
+
+.tab-leader { background: linear-gradient(180deg, transparent 38%, #e6ff9b 38%); }
+.tab-wet { background: linear-gradient(180deg, transparent 38%, #cdffb3 38%); }
+.tab-dry { background: linear-gradient(180deg, transparent 38%, #a2efaa 38%); }
+.tab-hp  { background: linear-gradient(180deg, transparent 38%, #a9efc4 38%); }
+
+#page-leader:checked ~ .notebook-tabs .tab-leader,
+#page-wet:checked    ~ .notebook-tabs .tab-wet,
+#page-dry:checked    ~ .notebook-tabs .tab-dry,
+#page-hp:checked     ~ .notebook-tabs .tab-hp {
+  opacity: 1;
+  transform: translateY(0) rotate(0deg) scale(1.08);
+}
+
+.notebook-book {
+  position: relative;
+  display: grid;
+  perspective: 1400px;
+  background-color: #fffdf7;
+  background-image: radial-gradient(circle, #d7dce3 1.4px, transparent 1.6px);
+  background-size: 24px 24px;
+  border-radius: 4px 18px 18px 4px;
+  box-shadow: 0 16px 32px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(0,0,0,0.05);
+  padding: 3rem 2.5rem 2.5rem 4rem;
+  min-height: 620px;
+}
+
+.notebook-spiral {
+  position: absolute;
+  left: -12px;
+  top: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 3;
+}
+
+.notebook-spiral span {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #dfe3e8;
+  box-shadow: inset 0 0 0 4px #fffdf7, 0 2px 3px rgba(0,0,0,0.25);
+}
+
+.notebook-page {
+  grid-area: 1 / 1 / 2 / 2;
+  position: relative;
+  opacity: 0;
+  transform: rotateY(-25deg) translateX(-12px);
+  transform-origin: left center;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none;
+}
+
+#page-leader:checked ~ .notebook-book #content-leader,
+#page-wet:checked    ~ .notebook-book #content-wet,
+#page-dry:checked    ~ .notebook-book #content-dry,
+#page-hp:checked     ~ .notebook-book #content-hp {
+  opacity: 1;
+  transform: rotateY(0deg) translateX(0);
+  pointer-events: auto;
+}
+
+.page-tag {
+  display: inline-block;
+  font-family: "Chango", cursive;
+  font-size: 1.5rem;
+  color: #4a3f35;
+  padding: 0.1rem 0.6rem;
+  margin-bottom: 1.5rem;
+  transform: rotate(-3deg);
+}
+
+.tag-leader { background: linear-gradient(180deg, transparent 55%, #e6ff9b 55%); }
+.tag-wet { background: linear-gradient(180deg, transparent 55%, #cdffb3 55%); }
+.tag-dry { background: linear-gradient(180deg, transparent 55%, #a2efaa 55%); }
+.tag-hp  { background: linear-gradient(180deg, transparent 55%, #a9efc4 55%); }
+
+.team-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.team-grid + .team-grid {
+  margin-top: 2rem;
+}
+
+.polaroid {
+  --rot: 0deg;
+  position: relative;
+  width: 180px;
+  background: #fdfdfa;
+  padding: 12px 12px 18px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+  transform: rotate(var(--rot));
+  opacity: 0.75;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease;
+}
+
+body.decoration-mode .polaroid {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body.decoration-mode .polaroid.dragging {
+  cursor: grabbing;
+  z-index: 50;
+  transition: none;
+}
+
+body.decoration-mode .polaroid:hover {
+  transform: rotate(var(--rot));
+  opacity: 0.75;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+}
+
+body.decoration-mode .polaroid:hover .polaroid-overlay {
+  opacity: 0;
+}
+
+body.decoration-mode .polaroid.dragging {
+  opacity: 1;
+}
+
+.polaroid::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 60px;
+  height: 20px;
+  background: rgba(255, 214, 145, 0.55);
+  transform: translateX(-50%) rotate(-3deg);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  z-index: 2;
+}
+
+.polaroid:hover {
+  transform: rotate(0deg) scale(1.12);
+  opacity: 1;
+  box-shadow: 0 16px 30px rgba(0,0,0,0.5);
+  z-index: 10;
+}
+
+.polaroid-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.polaroid-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+.photo-placeholder { font-size: 3rem; opacity: 0.5; }
+
+.polaroid-caption {
+  text-align: center;
+  margin-top: 12px;
+  font-family: "Chango", cursive;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.polaroid-role {
+  text-align: center;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.polaroid-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 20, 20, 0.92);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.polaroid:hover .polaroid-overlay { opacity: 1; }
+
+.polaroid-overlay h4 { margin-bottom: 0.25rem; font-weight: bold; }
+.polaroid-overlay .role {
+  color: #6fd499;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.polaroid-overlay .quote { font-style: italic; font-size: 0.85rem; margin-bottom: 0.75rem; }
+.polaroid-overlay .camera-meta {
+  font-size: 0.75rem;
+  color: #ccc;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  padding-top: 0.5rem;
+  width: 100%;
+}
+.polaroid-overlay .camera-meta span { display: block; }
