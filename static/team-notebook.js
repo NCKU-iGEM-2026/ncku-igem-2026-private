@@ -52,7 +52,7 @@
     card.addEventListener('pointerup', onUp);
   }
 
-  function resetNotebook(scroll) {
+  function resetNotebook() {
     document.querySelectorAll('.polaroid.is-dragged').forEach(function (card) {
       card.style.position = '';
       card.style.left = '';
@@ -60,25 +60,22 @@
       card.style.margin = '';
       card.classList.remove('is-dragged');
     });
-
-    if (scroll) {
-      var tabs = document.querySelector('.notebook-tabs');
-      if (tabs) {
-        tabs.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
   }
 
   function toggleDecorationMode() {
     var toggleBtn = document.querySelector('.notebook-mode-toggle');
     if (!toggleBtn) return;
 
+    var icon = toggleBtn.querySelector('.notebook-icon');
+    var tooltip = toggleBtn.querySelector('.notebook-tooltip');
+
     var active = document.body.classList.toggle('decoration-mode');
-    toggleBtn.textContent = active ? '🏃‍♀️ Exit Decoration Mode' : '🎨 Decoration Mode';
+    if (icon) icon.textContent = active ? '🏃‍♀️' : '🎨';
+    if (tooltip) tooltip.textContent = active ? 'Exit Decoration Mode' : 'Decoration Mode';
     toggleBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
 
     if (!active) {
-      resetNotebook(false);
+      resetNotebook();
     }
   }
 
@@ -89,9 +86,7 @@
 
     var resetBtn = document.querySelector('.notebook-reset');
     if (resetBtn) {
-      resetBtn.addEventListener('click', function () {
-        resetNotebook(true);
-      });
+      resetBtn.addEventListener('click', resetNotebook);
     }
 
     var toggleBtn = document.querySelector('.notebook-mode-toggle');
