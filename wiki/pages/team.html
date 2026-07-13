@@ -7,11 +7,12 @@
 <div class="my-5">
   <div class="notebook">
 
-    <!-- 四個頁籤的開關，隱藏不顯示，靠下面的 label 觸發 -->
+    <!-- 五個頁籤的開關，隱藏不顯示，靠下面的 label 觸發 -->
     <input type="radio" name="team-page" id="page-leader" class="notebook-radio" checked>
     <input type="radio" name="team-page" id="page-wet" class="notebook-radio">
     <input type="radio" name="team-page" id="page-dry" class="notebook-radio">
     <input type="radio" name="team-page" id="page-hp" class="notebook-radio">
+    <input type="radio" name="team-page" id="page-professor" class="notebook-radio">
 
     <!-- 頁籤：點擊切換頁面 -->
     <div class="notebook-tabs">
@@ -19,6 +20,7 @@
       <label for="page-wet" class="notebook-tab tab-wet">Wet</label>
       <label for="page-dry" class="notebook-tab tab-dry">Dry</label>
       <label for="page-hp" class="notebook-tab tab-hp">Human Practice</label>
+      <label for="page-professor" class="notebook-tab tab-professor">Professor</label>
     </div>
 
     <div class="notebook-book">
@@ -258,6 +260,26 @@
         </div>
       </div>
 
+      <!-- Professor 頁面：先放預留卡片，等有照片再換上 -->
+      <div class="notebook-page" id="content-professor">
+        <span class="page-tag tag-professor">Professor</span>
+
+        <div class="team-grid">
+
+          <div class="polaroid" style="--rot: -3deg;">
+            <div class="polaroid-photo">
+              <span class="photo-placeholder">📷</span>
+            </div>
+            <div class="polaroid-caption">name</div>
+            <div class="polaroid-role">position</div>
+            <div class="polaroid-overlay">
+              <h4>name</h4>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
 
     <div class="notebook-sidebar">
@@ -273,6 +295,45 @@
   </div>
 </div>
 
+<!--
+  網路相機拍照區塊。特效框圖檔還沒畫好，先把功能（開相機、切換特效、拍照下載）架好，
+  等美萱畫好特效框上傳到 static.igem.wiki 後，把網址填進 static/webcam-booth.js
+  最上面的 FRAME_URLS 陣列就可以了，不用改這裡的 HTML。
+-->
+<div class="my-5">
+  <div class="webcam-layout">
+    <div class="webcam-filters">
+      <button type="button" class="webcam-filter-btn active" data-filter="0">1</button>
+      <button type="button" class="webcam-filter-btn" data-filter="1">2</button>
+      <button type="button" class="webcam-filter-btn" data-filter="2">3</button>
+      <button type="button" class="webcam-filter-btn" data-filter="3">4</button>
+      <button type="button" class="webcam-filter-btn" data-filter="4">5</button>
+    </div>
+
+    <div class="webcam-booth">
+      <div class="webcam-booth-header">
+        <span class="webcam-booth-title">Team Photo Booth</span>
+        <button type="button" class="webcam-booth-close" aria-label="Close camera">×</button>
+      </div>
+
+      <div class="webcam-stage">
+        <video class="webcam-video" autoplay playsinline muted></video>
+        <canvas class="webcam-overlay-canvas"></canvas>
+        <div class="webcam-placeholder">
+          <span>📷</span>
+          <p>Click "Start Camera" below</p>
+        </div>
+      </div>
+
+      <div class="webcam-controls">
+        <button type="button" class="webcam-shutter" aria-label="Take photo" disabled></button>
+        <button type="button" class="webcam-start">Start Camera</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="{{ url_for('static', filename = 'team-notebook.js') }}"></script>
+<script src="{{ url_for('static', filename = 'webcam-booth.js') }}"></script>
 
 {% endblock %}

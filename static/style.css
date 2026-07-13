@@ -1,5 +1,11 @@
 body { padding-top: 64px; }
-.navbar { height: 64px; overflow: visible; padding-top: 0; padding-bottom: 0; }
+.navbar {
+  height: 64px;
+  overflow: visible;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: transform 0.3s ease;
+}
 .navbar .container-fluid { padding-left: 150px; }
 .navbar-brand {
   position: absolute;
@@ -25,6 +31,10 @@ body.navbar-scrolled .navbar-brand img {
   width: 70px;
   height: 70px;
 }
+
+body.navbar-hidden .navbar {
+  transform: translateY(-100%);
+}
 @font-face {
   font-family: "Changa";
   src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-medium.ttf") format("truetype");
@@ -48,17 +58,16 @@ body.navbar-scrolled .navbar-brand img {
   .navbar .dropdown-menu {
     display: block;
     margin-top: 0;
-    opacity: 0;
+    transform-origin: top;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(8px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    clip-path: inset(0 0 100% 0);
+    transition: clip-path 0.45s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.45s;
   }
   .navbar .dropdown:hover .dropdown-menu {
-    opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateY(0);
+    clip-path: inset(0 0 0% 0);
   }
 }
 
@@ -242,12 +251,14 @@ body.decoration-mode .notebook-reset { display: flex; }
 .tab-leader { background: #e6ff9b; }
 .tab-wet { background: #cdffb3; }
 .tab-dry { background: #a2efaa; }
-.tab-hp  { background: #a9efc4; width: 135px; }
+.tab-hp  { background: #a9efc4; width: 115px; }
+.tab-professor { background: #b4fadf; width: 115px; }
 
-#page-leader:checked ~ .notebook-tabs .tab-leader,
-#page-wet:checked    ~ .notebook-tabs .tab-wet,
-#page-dry:checked    ~ .notebook-tabs .tab-dry,
-#page-hp:checked     ~ .notebook-tabs .tab-hp {
+#page-leader:checked    ~ .notebook-tabs .tab-leader,
+#page-wet:checked       ~ .notebook-tabs .tab-wet,
+#page-dry:checked       ~ .notebook-tabs .tab-dry,
+#page-hp:checked        ~ .notebook-tabs .tab-hp,
+#page-professor:checked ~ .notebook-tabs .tab-professor {
   opacity: 1;
   transform: translateX(-28px);
   box-shadow: -2px 3px 8px rgba(0,0,0,0.25);
@@ -296,10 +307,11 @@ body.decoration-mode .notebook-reset { display: flex; }
   pointer-events: none;
 }
 
-#page-leader:checked ~ .notebook-book #content-leader,
-#page-wet:checked    ~ .notebook-book #content-wet,
-#page-dry:checked    ~ .notebook-book #content-dry,
-#page-hp:checked     ~ .notebook-book #content-hp {
+#page-leader:checked    ~ .notebook-book #content-leader,
+#page-wet:checked       ~ .notebook-book #content-wet,
+#page-dry:checked       ~ .notebook-book #content-dry,
+#page-hp:checked        ~ .notebook-book #content-hp,
+#page-professor:checked ~ .notebook-book #content-professor {
   opacity: 1;
   transform: rotateY(0deg) translateX(0);
   pointer-events: auto;
@@ -320,6 +332,7 @@ body.decoration-mode .notebook-reset { display: flex; }
 .tag-wet { background: linear-gradient(180deg, transparent 55%, #cdffb3 55%); }
 .tag-dry { background: linear-gradient(180deg, transparent 55%, #a2efaa 55%); }
 .tag-hp  { background: linear-gradient(180deg, transparent 55%, #a9efc4 55%); }
+.tag-professor { background: linear-gradient(180deg, transparent 55%, #b4fadf 55%); }
 
 .team-grid {
   display: flex;
@@ -484,7 +497,193 @@ body.decoration-mode .polaroid.dragging {
 
   @media (min-width: 992px) {
     .custom-nav-short {
-      width: 140px; 
+      width: 140px;
       position: relative;
     }
   }
+
+/* ===== Team photo booth ===== */
+.webcam-layout {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1.5rem;
+  max-width: 1150px;
+  margin: 3rem auto 0;
+  background: #fffdf7;
+  border: 3px dashed #d8b26a;
+  border-radius: 16px;
+  box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+  padding: 0 0 0 1.5rem;
+  flex-wrap: wrap;
+}
+
+.webcam-booth {
+  flex: 1 1 500px;
+  max-width: 850px;
+  border-top-right-radius: 13px;
+  border-bottom-right-radius: 13px;
+  overflow: hidden;
+}
+
+.webcam-booth-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: #f0ffcd;
+  color: #333;
+}
+
+.webcam-booth-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.webcam-booth-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.webcam-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #1a1a1a;
+  overflow: hidden;
+}
+
+.webcam-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: none;
+}
+
+.webcam-overlay-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.webcam-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #ccc;
+  font-family: "Changa", sans-serif;
+  text-align: center;
+  padding: 1rem;
+}
+
+.webcam-placeholder span { font-size: 3rem; }
+
+.webcam-flash {
+  position: relative;
+}
+
+.webcam-flash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0.8;
+  animation: webcamFlash 0.2s ease;
+  pointer-events: none;
+}
+
+@keyframes webcamFlash {
+  from { opacity: 0.8; }
+  to { opacity: 0; }
+}
+
+.webcam-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding: 1rem 3rem 1rem 1.25rem;
+  background: #f0ffcd;
+  flex-wrap: wrap;
+}
+
+.webcam-filters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-content: start;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+}
+
+.webcam-filter-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.15);
+  background: #fdfdfa;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #2b1e17;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.15);
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.webcam-filter-btn:hover { transform: scale(1.1); }
+
+.webcam-filter-btn.active {
+  background: #f0ffcd;
+  color: #333;
+  border: 2px solid #075a3e;
+  box-shadow: 0 0 0 3px rgba(7,90,62,0.35), 2px 2px 6px rgba(0,0,0,0.2);
+}
+
+.webcam-shutter {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 4px solid #075a3e;
+  background: #fff;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.webcam-shutter:hover { transform: translateX(-50%) scale(1.08); }
+
+.webcam-shutter:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: translateX(-50%);
+}
+
+.webcam-start {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  padding: 0.5rem 1.1rem;
+  border-radius: 20px;
+  border: 2px dashed #d8b26a;
+  background: #fff3d0;
+  color: #4a3f35;
+  cursor: pointer;
+}
+
+.webcam-start:hover { background: #ffe6a8; }
