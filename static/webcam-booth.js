@@ -15,7 +15,7 @@
   var FRAME_RECTS = [
     { x: 0, y: 0, width: 1, height: 1 }, // 特效 1
     { x: 0, y: 0.4, width: 0.6, height: 0.6 }, // 特效 2
-    { x: 0.3, y: 0.4, width: 0.6, height: 0.7}, // 特效 3
+    { x: 0.4, y: 0.4, width: 0.6, height: 0.7}, // 特效 3
     { x: 0, y: 0, width: 1, height: 1 }, // 特效 4
     { x: 0, y: 0, width: 1, height: 1 }  // 特效 5
   ];
