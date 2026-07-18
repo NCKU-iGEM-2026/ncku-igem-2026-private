@@ -34,6 +34,7 @@
         return;
       }
       var img = new Image();
+      img.crossOrigin = 'anonymous';
       img.src = url;
       frameImages[i] = img;
     });
@@ -71,7 +72,7 @@
 
   function startCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert('這個瀏覽器不支援相機功能');
+      alert('browser does not support camera');
       return;
     }
 
@@ -87,7 +88,7 @@
         drawLoop();
       })
       .catch(function (err) {
-        alert('無法開啟相機：' + err.message);
+        alert('camera error' + err.message);
       });
   }
 
@@ -143,9 +144,17 @@
 
     flashEffect();
 
+    var dataUrl;
+    try {
+      dataUrl = shot.toDataURL('image/png');
+    } catch (err) {
+      alert('fail to download' + err.message);
+      return;
+    }
+
     var link = document.createElement('a');
     link.download = 'ncku-tainan-photobooth.png';
-    link.href = shot.toDataURL('image/png');
+    link.href = dataUrl;
     link.click();
   }
 
