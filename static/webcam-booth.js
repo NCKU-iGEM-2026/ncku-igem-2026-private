@@ -5,7 +5,7 @@
     null, // 特效 1
     "https://static.igem.wiki/teams/6379/wiki/filter/asiagodtone.avif", // 特效 2
     "https://static.igem.wiki/teams/6379/wiki/filter/asiagodtone2.avif", // 特效 3
-    null, // 特效 4
+    "https://static.igem.wiki/teams/6379/wiki/filter/alston.avif", // 特效 4
     null  // 特效 5
   ];
 
@@ -16,7 +16,7 @@
     { x: 0, y: 0, width: 1, height: 1 }, // 特效 1
     { x: 0, y: 0.4, width: 0.6, height: 0.6 }, // 特效 2
     { x: 0.4, y: 0.4, width: 0.6, height: 0.7}, // 特效 3
-    { x: 0, y: 0, width: 1, height: 1 }, // 特效 4
+    { x: 0.4, y: 0.4, width: 0.6, height: 0.7}, // 特效 4
     { x: 0, y: 0, width: 1, height: 1 }  // 特效 5
   ];
 
