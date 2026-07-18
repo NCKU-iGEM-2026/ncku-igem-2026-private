@@ -1,12 +1,23 @@
 (function () {
-  // 特效框圖檔還沒畫好前先留空，之後美萱畫好上傳到 static.igem.wiki 後
+  // 特效框圖檔還沒畫好前先留空，之後美宣畫好上傳到 static.igem.wiki 後
   // 把對應的網址填進這裡就好，其他程式邏輯都不用動。
   var FRAME_URLS = [
     null, // 特效 1
-    null, // 特效 2
-    null, // 特效 3
+    "https://static.igem.wiki/teams/6379/wiki/filter/asiagodtone.avif", // 特效 2
+    "https://static.igem.wiki/teams/6379/wiki/filter/asiagodtone2.avif", // 特效 3
     null, // 特效 4
     null  // 特效 5
+  ];
+
+  // 每個特效框圖案要畫在畫面的哪個位置、多大，數字是相對畫面的比例 (0~1)。
+  // 沒有特別設定的濾鏡預設是滿版；如果某個特效框圖案本身偏大/偏小或要放在
+  // 角落，改這裡對應的 x / y / width / height 就好，相機畫面不受影響。
+  var FRAME_RECTS = [
+    { x: 0, y: 0, width: 1, height: 1 }, // 特效 1
+    { x: 0, y: 0.4, width: 0.6, height: 0.6 }, // 特效 2
+    { x: 0.3, y: 0.4, width: 0.6, height: 0.7}, // 特效 3
+    { x: 0, y: 0, width: 1, height: 1 }, // 特效 4
+    { x: 0, y: 0, width: 1, height: 1 }  // 特效 5
   ];
 
   var stage, video, canvas, ctx, placeholder;
@@ -33,15 +44,28 @@
     canvas.height = stage.clientHeight;
   }
 
+  function getFrameRect(index) {
+    return FRAME_RECTS[index] || FRAME_RECTS[0] || { x: 0, y: 0, width: 1, height: 1 };
+  }
+
+  function drawFrame(context, index, width, height) {
+    var frame = frameImages[index];
+    if (!frame || !frame.complete || !frame.naturalWidth) return;
+
+    var rect = getFrameRect(index);
+    context.drawImage(
+      frame,
+      rect.x * width,
+      rect.y * height,
+      rect.width * width,
+      rect.height * height
+    );
+  }
+
   function drawLoop() {
     if (!stream) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    var frame = frameImages[activeFilter];
-    if (frame && frame.complete && frame.naturalWidth) {
-      ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
-    }
-
+    drawFrame(ctx, activeFilter, canvas.width, canvas.height);
     rafId = requestAnimationFrame(drawLoop);
   }
 
@@ -73,6 +97,7 @@
       stream.getTracks().forEach(function (t) { t.stop(); });
       stream = null;
     }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     video.style.display = 'none';
     placeholder.style.display = 'flex';
     shutterBtn.disabled = true;
@@ -114,10 +139,7 @@
     shotCtx.drawImage(video, -shot.width, 0, shot.width, shot.height);
     shotCtx.restore();
 
-    var frame = frameImages[activeFilter];
-    if (frame && frame.complete && frame.naturalWidth) {
-      shotCtx.drawImage(frame, 0, 0, shot.width, shot.height);
-    }
+    drawFrame(shotCtx, activeFilter, shot.width, shot.height);
 
     flashEffect();
 
