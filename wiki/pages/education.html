@@ -1,9 +1,374 @@
 {% extends "layout.html" %}
-  
+
 {% block title %}Education{% endblock %}
-{% block lead %}很多可以放{% endblock %}
 
 {% block page_content %}
 
+<div class="edu-detail-layout">
+  <aside class="edu-sidebar">
+    <div class="edu-sidebar-track"></div>
+    <div class="edu-sidebar-indicator"></div>
+
+    <div class="edu-sidebar-group" data-group="overview">
+      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-overview" data-target="session-overview">Overview</a>
+    </div>
+
+    <div class="edu-sidebar-group" data-group="elementary">
+      <p class="edu-sidebar-group-title">Elementary Science Tour</p>
+      <ul class="edu-sidebar-list">
+        <li><a class="edu-sidebar-link" href="#session-puyan" data-target="session-puyan">Puyan Elementary School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-xigang" data-target="session-xigang">Xigang Elementary School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-dujia" data-target="session-dujia">Dujia Elementary School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-huanya" data-target="session-huanya">Huanya Elementary School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-zhaigang" data-target="session-zhaigang">Zhaigang Elementary School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-heshun" data-target="session-heshun">Heshun Elementary School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-annei" data-target="session-annei">Annei Elementary School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-zhuqiao" data-target="session-zhuqiao">Zhuqiao Elementary School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-sanci" data-target="session-sanci">Sanci Elementary School</a></li>
+      </ul>
+    </div>
+
+    <div class="edu-sidebar-group" data-group="highschool">
+      <p class="edu-sidebar-group-title">High School Workshops</p>
+      <ul class="edu-sidebar-list">
+        <li><a class="edu-sidebar-link" href="#session-xihu" data-target="session-xihu">National Xihu Senior High School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-ncku" data-target="session-ncku">National Cheng Kung University (NCKU)</a></li>
+      </ul>
+    </div>
+
+    <div class="edu-sidebar-group" data-group="community">
+      <p class="edu-sidebar-group-title">Community Outreach</p>
+      <ul class="edu-sidebar-list">
+        <li><a class="edu-sidebar-link" href="#session-littlesun" data-target="session-littlesun">Little Sun Association</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <div class="edu-sessions">
+  <section id="session-overview" class="edu-session-block edu-overview-block">
+
+  <!-- Impact Dashboard -->
+  <div class="edu-dashboard">
+  <div class="edu-stat-tile">
+    <div class="edu-stat-number">14</div>
+    <div class="edu-stat-label">Sessions</div>
+  </div>
+  <div class="edu-stat-tile">
+    <div class="edu-stat-number">11+</div>
+    <div class="edu-stat-label">Schools &amp; Institutions</div>
+  </div>
+  <div class="edu-stat-tile">
+    <div class="edu-stat-number">150+</div>
+    <div class="edu-stat-label">Students</div>
+  </div>
+</div>
+
+<!--
+  地圖是用真實的台灣縣市界線資料（TopoJSON）在瀏覽器端即時解碼、畫成 SVG，
+  不是接外部地圖圖磚，也沒有用任何外部函式庫，解碼邏輯都寫在 taiwan-map.js。
+  圖釘位置依各活動地點的實際經緯度換算，跟地圖用同一套投影，位置對得起來。
+  地圖跟下面的圖例維持 14 場活動（去過兩次的學校各算一場）。
+-->
+<div class="edu-map-row">
+  <div class="edu-map" id="edu-map" data-src="{{ url_for('static', filename='taiwan-counties.topo.json') }}">
+    <a class="edu-pin edu-pin-highschool" data-category="highschool" href="#session-xihu">1</a>
+    <a class="edu-pin" data-category="elementary" href="#session-puyan">2</a>
+    <a class="edu-pin" data-category="elementary" href="#session-xigang">3</a>
+    <a class="edu-pin" data-category="elementary" href="#session-dujia">4</a>
+    <a class="edu-pin" data-category="elementary" href="#session-xigang">5</a>
+    <a class="edu-pin" data-category="elementary" href="#session-huanya">6</a>
+    <a class="edu-pin" data-category="elementary" href="#session-zhaigang">7</a>
+    <a class="edu-pin edu-pin-highschool" data-category="highschool" href="#session-ncku">8</a>
+    <a class="edu-pin edu-pin-community" data-category="community" href="#session-littlesun">9</a>
+    <a class="edu-pin" data-category="elementary" href="#session-heshun">10</a>
+    <a class="edu-pin" data-category="elementary" href="#session-annei">11</a>
+    <a class="edu-pin" data-category="elementary" href="#session-heshun">12</a>
+    <a class="edu-pin" data-category="elementary" href="#session-zhuqiao">13</a>
+    <a class="edu-pin" data-category="elementary" href="#session-sanci">14</a>
+  </div>
+
+  <!-- Pillar filter tabs -->
+  <div class="edu-filters">
+    <button type="button" class="edu-filter-btn active" data-category="all">All</button>
+    <button type="button" class="edu-filter-btn" data-category="elementary">Elementary Science Tour</button>
+    <button type="button" class="edu-filter-btn" data-category="highschool">High School Workshops</button>
+    <button type="button" class="edu-filter-btn" data-category="community">Community Outreach</button>
+  </div>
+</div>
+
+  </section>
+
+<!-- Session detail modals -->
+
+<div class="modal fade edu-modal" id="edu-modal-1" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">National Xihu Senior High School — 3D玩家出任務</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Advanced High School Workshops</p>
+        <p><strong>日期：</strong>5/23</p>
+        <p><strong>地點：</strong>彰化縣</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-2" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Puyan Elementary School Science Camp</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>5/24</p>
+        <p><strong>地點：</strong>彰化縣</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-3" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Xigang Elementary School Science Camp (I)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>7/13 - 7/14</p>
+        <p><strong>地點：</strong>台南市</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-4" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Dujia Elementary School Science Camp</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>7/15 - 7/16</p>
+        <p><strong>地點：</strong>台南市七股區</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-5" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Xigang Elementary School Science Camp (II)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>7/20 - 7/21</p>
+        <p><strong>地點：</strong>台南市</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-6" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Huanya Elementary School Science Camp</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>7/22 - 7/23</p>
+        <p><strong>地點：</strong>台南市鹽水區</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-7" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Zhaigang Elementary School Science Camp</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>7/30 - 7/31</p>
+        <p><strong>地點：</strong>台南市學甲區</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-8" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">National Cheng Kung University (NCKU) — 那些年我們一起追的女孩</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Advanced High School Workshops</p>
+        <p><strong>日期：</strong>8/2 - 8/3</p>
+        <p><strong>地點：</strong>台南市（國立成功大學）</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-9" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Little Sun Association Science Camp</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Community &amp; Diversity Outreach</p>
+        <p><strong>日期：</strong>8/5</p>
+        <p><strong>地點：</strong>台南市</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-10" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Heshun Elementary School Science Camp (I)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>8/6 - 8/7</p>
+        <p><strong>地點：</strong>台南市安南區</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-11" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Annei Elementary School Science Camp</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>8/10 - 8/11</p>
+        <p><strong>地點：</strong>台南市鹽水區</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-12" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Heshun Elementary School Science Camp (II)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>8/13 - 8/14</p>
+        <p><strong>地點：</strong>台南市安南區</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-13" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Zhuqiao Elementary School Science Camp</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>8/17 - 8/18</p>
+        <p><strong>地點：</strong>台南市七股區</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade edu-modal" id="edu-modal-14" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Sanci Elementary School Science Camp</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-photo"><span>📷</span></div>
+        <p><strong>Pillar：</strong>Rural &amp; Local Elementary Science Tour</p>
+        <p><strong>日期：</strong>8/20 - 8/21</p>
+        <p><strong>地點：</strong>台南市北門區</p>
+        <p><strong>活動內容：</strong>請填入活動內容說明</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="session-puyan" class="edu-session-block"><h3>Puyan Elementary School</h3></section>
+  <section id="session-xigang" class="edu-session-block"><h3>Xigang Elementary School</h3></section>
+  <section id="session-dujia" class="edu-session-block"><h3>Dujia Elementary School</h3></section>
+  <section id="session-huanya" class="edu-session-block"><h3>Huanya Elementary School</h3></section>
+  <section id="session-zhaigang" class="edu-session-block"><h3>Zhaigang Elementary School</h3></section>
+  <section id="session-heshun" class="edu-session-block"><h3>Heshun Elementary School</h3></section>
+  <section id="session-annei" class="edu-session-block"><h3>Annei Elementary School</h3></section>
+  <section id="session-zhuqiao" class="edu-session-block"><h3>Zhuqiao Elementary School</h3></section>
+  <section id="session-sanci" class="edu-session-block"><h3>Sanci Elementary School</h3></section>
+  <section id="session-xihu" class="edu-session-block"><h3>National Xihu Senior High School</h3></section>
+  <section id="session-ncku" class="edu-session-block"><h3>National Cheng Kung University (NCKU)</h3></section>
+  <section id="session-littlesun" class="edu-session-block"><h3>Little Sun Association</h3></section>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename = 'taiwan-map.js') }}"></script>
+<script src="{{ url_for('static', filename = 'education.js') }}"></script>
+<script src="{{ url_for('static', filename = 'education-sidebar.js') }}"></script>
 
 {% endblock %}
