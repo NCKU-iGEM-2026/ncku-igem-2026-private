@@ -12,7 +12,7 @@
 
   function init() {
     var buttons = Array.prototype.slice.call(document.querySelectorAll('.edu-filter-btn'));
-    var cards = Array.prototype.slice.call(document.querySelectorAll('.edu-pin, .edu-legend-item'));
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.edu-pin'));
     if (!buttons.length || !cards.length) return;
 
     buttons.forEach(function (btn) {
