@@ -595,7 +595,7 @@ function updateUI() {
       var pct = ((cur + 2) / range) * 100;
       var previewPct = ((preview + 2) / range) * 100;
       html += "<div class=\"sdg-row\"><div class=\"sdg-badge " + (cur >= GOAL ? "goal" : "") + "\">SDG " + s.id + "</div>" +
-        "<div class=\"progress-bar\"><div class=\"progress-fill " + (cur < 0 ? "negative" : "") + "\" style=\"width:" + pct + "%\"></div>" +
+        "<div class=\"sdg-progress-bar\"><div class=\"progress-fill " + (cur < 0 ? "negative" : "") + "\" style=\"width:" + pct + "%\"></div>" +
         (delta !== 0 ? "<div class=\"progress-preview " + (delta < 0 ? "negative" : "") + "\" style=\"left:0;width:" + Math.max(pct, previewPct) + "%;\"></div>" : "") +
         "<div class=\"progress-text\">" + (cur >= GOAL ? t("goal") : cur) + (delta ? " -> " + preview : "") +
         (s.immune ? " [immune]" : "") + "</div></div></div>" +
@@ -611,7 +611,7 @@ function updateUI() {
   p.hand.forEach(function(card, idx) {
     var cannot = state.modeAction === "play" && card.type === "veto";
     var div = document.createElement("div");
-    div.className = "card " + (card.kind === "event" ? "event" : "special") +
+    div.className = "hand-card " + (card.kind === "event" ? "event" : "special") +
       (state.selectedCards.indexOf(idx) !== -1 ? " selected" : "") + (cannot ? " disabled-card" : "");
     var effect = "";
     if (card.kind === "event") {
@@ -620,8 +620,8 @@ function updateUI() {
     } else {
       effect = "<div class=\"card-effect\">" + cardDesc(card) + "</div>";
     }
-    div.innerHTML = "<div class=\"card-header\">" + (card.kind === "event" ? t("historyEvent") : t("specialCard")) + "</div>" +
-      "<div class=\"card-body\"><div class=\"card-name\">" + cardTitle(card) + "</div>" + effect + "</div>";
+    div.innerHTML = "<div class=\"hand-card-header\">" + (card.kind === "event" ? t("historyEvent") : t("specialCard")) + "</div>" +
+      "<div class=\"hand-card-body\"><div class=\"card-name\">" + cardTitle(card) + "</div>" + effect + "</div>";
     if (!p.isAI && !cannot && !state.inputLocked && !state.isGameOver) {
       (function(i) { div.onclick = function() { onCardClick(i); }; })(idx);
     }
