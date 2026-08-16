@@ -1,9 +1,231 @@
 {% extends "layout.html" %}
-  
+
 {% block title %}Notebook{% endblock %}
-{% block lead %}子標題{% endblock %}
+{% block lead %}紀錄我們的實驗設計、流程與階段性成果（DBTL Cycle）{% endblock %}
 
 {% block page_content %}
 
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+
+      <p class="lead">合成生物學核心遵循 <strong>DBTL（Design&ndash;Build&ndash;Test&ndash;Learn，設計&ndash;構建&ndash;測試&ndash;學習）</strong> 循環。</p>
+
+      <!-- 1. 實驗基本資訊 -->
+      <article class="shadow p-5 bg-white rounded mb-5">
+        <h2 class="mb-4" style="color: #2c3e50; border-bottom: 3px solid #1abc9c; padding-bottom: 10px;">
+          1. 實驗基本資訊
+        </h2>
+        <div class="table-responsive">
+          <table class="table table-borderless align-middle mb-4">
+            <tbody>
+              <tr><th class="text-nowrap" style="width: 220px;">專案/實驗名稱</th><td>利用 retron 生產 ALS5-1 aptamer</td></tr>
+              <tr><th>實驗負責人</th><td></td></tr>
+              <tr><th>日期</th><td>2026-05-22</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h5>實驗目的與核心假設（Hypothesis）</h5>
+        <blockquote class="blockquote border-start border-3 ps-3" style="border-color: #1abc9c !important;">
+          <p class="mb-0">把 lyse 跟 retron 的 plasmid 放入同一隻菌。當 lyse 系統接收到 AHL 訊號後，讓 aptamer 釋出，看 biofilm 有沒有被抑制。</p>
+        </blockquote>
+      </article>
+
+      <!-- 2. Design -->
+      <article class="shadow p-5 bg-white rounded mb-5">
+        <h2 class="mb-4" style="color: #2c3e50; border-bottom: 3px solid #1abc9c; padding-bottom: 10px;">
+          2. 設計階段（Design）
+        </h2>
+        <p>此階段專注於生物元件（BioBricks）的挑選與系統架構。</p>
+
+        <h4 class="mt-4">2.1 基因電路圖（Genetic Circuit Diagram）</h4>
+        <p><strong>系統邏輯：</strong>lyse 接收到 AHL 訊號後誘導裂解，釋放 aptamer。</p>
+        <p><strong>電路架構描述：</strong>再等等（待補充）。</p>
+
+        <h4 class="mt-4">2.2 元件清單（Parts Registry）</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>元件類型 (Type)</th>
+                <th>元件名稱 (Name)</th>
+                <th>來源/ID (Ref/Registry)</th>
+                <th>序列/長度 (bp)</th>
+                <th>備註/功能 (Function)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>啟動子 (Promoter)</td><td>T7 promoter</td><td></td><td>19</td><td></td></tr>
+              <tr><td>核糖體結合位 (RBS)</td><td>5' UTR with RBS (Olins and Rangwala, 1989)</td><td></td><td>23</td><td></td></tr>
+              <tr><td>RT</td><td>Eco67</td><td></td><td>2063</td><td></td></tr>
+              <tr><td>Aptamer</td><td>Cb-2</td><td></td><td>92</td><td></td></tr>
+              <tr><td>終止子 (Terminator)</td><td>3' UTR with RBS</td><td></td><td>48</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="mt-4">2.3 底盤生物與載體（Chassis &amp; Vector）</h4>
+        <ul>
+          <li><strong>底盤細胞 (Chassis Host)：</strong>Top10 / BL21(AI) <em>E. coli</em></li>
+          <li><strong>質體載體 (Plasmid Backbone)：</strong>pTwist</li>
+        </ul>
+      </article>
+
+      <!-- 3. Build -->
+      <article class="shadow p-5 bg-white rounded mb-5">
+        <h2 class="mb-4" style="color: #2c3e50; border-bottom: 3px solid #1abc9c; padding-bottom: 10px;">
+          3. 構建階段（Build）
+        </h2>
+        <p>此階段著重於 DNA 片段的取得與組裝方法。</p>
+
+        <h4 class="mt-4">3.1 DNA 取得策略</h4>
+        <ul>
+          <li><strong>商業基因合成 (Gene Synthesis)：</strong>委託廠商合成優化密碼子後的序列。</li>
+          <li><strong>PCR 擴增 (PCR Amplification)：</strong>自基因組/既有質體擴增（引子設計附於文末）。</li>
+        </ul>
+
+        <h4 class="mt-4">3.2 DNA 組裝方法（Assembly Method）</h4>
+        <ul>
+          <li>Gibson Assembly / HiFi Assembly（長片段、多片段無縫組裝）</li>
+          <li>Golden Gate Assembly（利用 BsaI/BsmBI Type IIS 限制酶限制性選殖）</li>
+          <li>傳統限制酶選殖 (Restriction Cloning)：[EcoRI / PstI]</li>
+          <li>酵母體內同源重組 (Yeast Homologous Recombination)</li>
+        </ul>
+
+        <h4 class="mt-4">3.3 轉殖與篩選（Transformation &amp; Screening）</h4>
+        <div class="row">
+          <div class="col-md-4">
+            <h6>轉殖方法</h6>
+            <ul>
+              <li>熱休克化學轉殖</li>
+              <li>電擊轉殖</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h6>篩選機制</h6>
+            <ul>
+              <li>抗生素抗性</li>
+              <li>藍白斑篩選</li>
+              <li>螢光篩選</li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h6>驗證方式</h6>
+            <ul>
+              <li>菌落 PCR (Colony PCR)</li>
+              <li>限制酶切 (Restriction Digest)</li>
+              <li>新一代/次世代定序 (Sanger / NGS Sequencing)</li>
+            </ul>
+            <p class="mb-0">會跑膠確認 aptamer 有被製造。</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- 4. Test -->
+      <article class="shadow p-5 bg-white rounded mb-5">
+        <h2 class="mb-4" style="color: #2c3e50; border-bottom: 3px solid #1abc9c; padding-bottom: 10px;">
+          4. 測試階段（Test）
+        </h2>
+        <p>驗證構建好的生物系統是否如預期運作。接下來的實驗重點都是為了驗證以下內容：</p>
+        <ul>
+          <li><strong>Plasmid 層級：</strong></li>
+          <li><strong>產物層級：</strong>Cb-2 被成功製造，並且 lambda phage SRRz 基因可以成功被誘導並且 lyse 過後釋放出 aptamer 抑制。</li>
+          <li><strong>序列層級：</strong></li>
+        </ul>
+
+        <h5 class="mt-4">一、配盤</h5>
+        <p>LB culture 使用 Chloramphenicol selection，濃度為 50 &micro;g/mL。</p>
+
+        <h4 class="mt-4">4.1 實驗組與對照組設計（Controls）</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <tbody>
+              <tr><th style="width: 220px;">正對照組 (Positive Control)</th><td></td></tr>
+              <tr><th>負對照組 (Negative Control)</th><td>無 retron，有 sfGFP plasmid，加入 AHL，對照螢光強度。</td></tr>
+              <tr><th>實驗組 (Experimental Group)</th><td>有 retron 和 sfGFP plasmid，加入 AHL，看螢光表現量是否下降。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="mt-4">4.2 表型與功能測試定量方法（Assays）</h4>
+        <ul>
+          <li><strong>轉錄層次 (Transcription)：</strong>RT-qPCR、RNA-Seq</li>
+          <li>
+            <strong>轉譯層次 (Translation/Protein)：</strong>SDS-PAGE、Western Blot、螢光顯微鏡/流式細胞儀 (FACS)
+            <br>TRIzol 跑膠看有沒有 92 bp 的序列。
+          </li>
+          <li><strong>代謝/產物層次 (Metabolite)：</strong>HPLC、GC-MS、微盤讀取儀吸光度 (OD600/特定波長)</li>
+        </ul>
+
+        <h4 class="mt-4">4.3 培養與誘導條件</h4>
+        <ul>
+          <li><strong>培養基：</strong>LB</li>
+          <li><strong>工作體積與環境：</strong>500 mL 錐形瓶，37&deg;C</li>
+        </ul>
+      </article>
+
+      <!-- 5. Learn -->
+      <article class="shadow p-5 bg-white rounded mb-5">
+        <h2 class="mb-4" style="color: #2c3e50; border-bottom: 3px solid #1abc9c; padding-bottom: 10px;">
+          5. 學習階段（Learn）
+        </h2>
+        <p>數據分析與模型的迭代優化。</p>
+        <h5 class="mt-4">預期數據結果圖表</h5>
+        <p>有 retron plasmid 的組別，螢光表現量下降。</p>
+        <h5 class="mt-4">數學模型/計算生物學輔助</h5>
+        <p class="text-muted">（待補充）</p>
+        <h5 class="mt-4">故障排除與下一步（Troubleshooting &amp; Next Steps）</h5>
+        <p class="mb-0">如果沒成功，要檢驗 aptamer 是否成功生成，或是換 ALS5-1 再做一次；或者重新設計 plasmid。</p>
+      </article>
+
+      <!-- 6. Biosafety -->
+      <article class="shadow p-5 bg-white rounded mb-5">
+        <h2 class="mb-4" style="color: #2c3e50; border-bottom: 3px solid #1abc9c; padding-bottom: 10px;">
+          6. 生物安全與倫理評估（Biosafety）
+        </h2>
+        <ul>
+          <li><strong>生物安全等級 (Biosafety Level)：</strong>BSL-1 / BSL-2</li>
+          <li><strong>基因改造生物 (GMO) 管制與銷毀：</strong>實驗結束後所有菌液與耗材須經 121&deg;C 高壓滅菌（Autoclave）20 分鐘後方可丟棄。</li>
+        </ul>
+      </article>
+
+      <!-- Appendix -->
+      <article class="shadow p-5 bg-white rounded mb-5">
+        <h2 class="mb-4" style="color: #2c3e50; border-bottom: 3px solid #1abc9c; padding-bottom: 10px;">
+          附錄
+        </h2>
+
+        <h4>附錄 1：引子（Primers）與材料清單</h4>
+        <ul>
+          <li>Forward Primer: 5'-[5' 接頭序列] + [特定結合序列]-3'</li>
+          <li>Reverse Primer: 5'-[5' 接頭序列] + [特定結合序列]-3'</li>
+        </ul>
+
+        <h4 class="mt-4">附錄 2：實驗時間</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>實驗日期</th>
+                <th>實驗內容</th>
+                <th>預計時間</th>
+                <th>D</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td></td><td>配盤 (LB-Km agar)</td><td>2 hr</td><td></td></tr>
+              <tr><td></td><td>換 ori</td><td></td><td></td></tr>
+              <tr><td></td><td>culture top10 再轉殖 plasmid 進 top10</td><td></td><td></td></tr>
+              <tr><td></td><td>將 sfGFP 的 plasmid 轉殖進 BL21</td><td></td><td></td></tr>
+              <tr><td></td><td>將 retron 與 sfGFP 一起轉殖進同一 BL21</td><td></td><td></td></tr>
+              <tr><td></td><td>加入 AHL，看螢光是否表現</td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</div>
 
 {% endblock %}
