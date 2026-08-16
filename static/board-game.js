@@ -2,145 +2,191 @@
 var GOAL = 2; // track runs -2..GOAL
 var HAND_LIMIT = 5;
 
-/* ========== strings ========== */
-var STRINGS = {
-  title: "The Green Cabinet", chooseMode: "Choose Game Mode",
-  pvc: "Solo / Bot Mode (PvC)", pvp: "Multiplayer (PvP)",
-  pvpTitle: "Multiplayer", localPlay: "Same Device (Local)", onlinePlay: "Online Rooms",
-  back: "Back", setup: "Game Setup", playerCount: "Players", enterDraft: "Enter SDG Draft",
-  draftTitle: "SDG Goal Draft", confirmSDG: "Confirm SDG Selection",
-  discardMode: "Discard Mode", playMode: "Play Cards", cancel: "Cancel",
-  deck: "Deck", discard: "Discard", hand: "Current Hand", confirmAction: "Confirm Action",
-  log: "Game Log", victory: "Victory!", playAgain: "Play Again",
-  human: "Human", easyBot: "Easy Bot", basicBot: "Basic Bot", advanceBot: "Advance Bot",
-  player: "Player", turnOf: "Turn:", select2: "pick 2 SDGs", selected: "Selected",
-  actionPhase: "Action Phase", flipPhase: "Reveal Phase", drawPhase: "Draw Phase",
-  botThinking: "Bot thinking...", discardPhase: "Discard: select then confirm",
-  playPhase: "Play mode (max", cards: "cards)",
-  gameStart: "Draft complete. Game start!", pleaseStart: "Please take action.",
-  reshuffle: "Deck empty. Reshuffled.", discarded: "discarded", played: "played",
-  forward: "Forward", backward: "Backward", special: "Special",
-  historyEvent: "Event", specialCard: "Special", sanctioned: "Sanctioned", goal: "GOAL",
-  selectTarget: "Select target player", selectOwnCard: "Select your card to give",
-  selectTheirCard: "Select card to take", selectOwnSDG: "Select your SDG",
-  selectTheirSDG: "Select opponent's SDG", selectFromDiscard: "Pick from discard",
-  selectSDGSwap: "Select SDG to swap", noValid: "No valid targets",
-  useVeto: "Use Veto?", yes: "Yes", no: "No",
-  capacityChoose: "Capacity: choose one to discard",
-  aiDraft: "is choosing 2 SDG goals...", aiPlay: "is deciding plays...",
-  aiTarget: "is selecting targets...", next: "Next", onlineSoon: "Online mode coming soon.",
-  max2: "Full (2)", picks: "picked", flipReveal: "revealed",
-  resetCard: "Back to Square One", reverseCard: "Stance Reversal"
+/* ========== i18n ========== */
+var translations = {
+  zh: {
+    title: "The Green Cabinet", chooseMode: "選擇遊戲模式",
+    pvc: "單機／機器人模式 (PvC)", pvp: "多人對戰模式 (PvP)",
+    pvpTitle: "多人對戰", localPlay: "同一裝置 (Local)", onlinePlay: "線上房間",
+    back: "返回", setup: "遊戲設定", playerCount: "玩家人數", enterDraft: "進入 SDG 選牌",
+    draftTitle: "SDG 目標選牌", confirmSDG: "確認選擇 SDG",
+    discardMode: "棄牌模式", playMode: "出牌", cancel: "取消選擇",
+    deck: "牌堆", discard: "棄牌堆", hand: "目前手牌", confirmAction: "確認執行",
+    log: "遊戲紀錄", victory: "勝利！", playAgain: "再玩一次",
+    human: "人類玩家", easyBot: "新手機器人", basicBot: "一般機器人", advanceBot: "進階機器人",
+    player: "玩家", turnOf: "輪到：", select2: "選擇 2 張 SDG", selected: "已選",
+    actionPhase: "行動階段", flipPhase: "翻牌階段", drawPhase: "抽牌階段",
+    botThinking: "機器人思考中...", discardPhase: "棄牌模式：選好後請確認",
+    playPhase: "出牌模式（最多", cards: "張）",
+    gameStart: "SDG 選牌完成，遊戲開始！", pleaseStart: "請開始行動。",
+    reshuffle: "牌堆已用盡，重新洗牌。", discarded: "棄掉了", played: "打出了",
+    forward: "前進", backward: "後退", special: "特殊效果",
+    historyEvent: "歷史事件", specialCard: "特殊功能", sanctioned: "制裁中", goal: "達標",
+    selectTarget: "選擇目標玩家", selectOwnCard: "選擇要給出的手牌",
+    selectTheirCard: "選擇要拿取的手牌", selectOwnSDG: "選擇自己的 SDG",
+    selectTheirSDG: "選擇對方的 SDG", selectFromDiscard: "從棄牌堆選一張",
+    selectSDGSwap: "選擇要交換的 SDG", noValid: "沒有符合條件的目標",
+    useVeto: "是否使用否決權？", yes: "使用", no: "不使用",
+    capacityChoose: "能力建構：請選擇棄置一張",
+    aiDraft: "正在思考要選哪 2 張 SDG...", aiPlay: "正在決定出牌...",
+    aiTarget: "正在選擇目標...", next: "下一步", onlineSoon: "線上模式即將推出，目前請先使用本地模式。",
+    max2: "已滿（2人）", picks: "人已選", flipReveal: "翻牌",
+    resetCard: "捲土重來", reverseCard: "立場反轉", deckFlip: "牌堆",
+    winSuffix: " 達成兩項 SDG 目標，獲得勝利！", winLog: "獲勝！"
+  },
+  en: {
+    title: "The Green Cabinet", chooseMode: "Choose Game Mode",
+    pvc: "Solo / Bot Mode (PvC)", pvp: "Multiplayer (PvP)",
+    pvpTitle: "Multiplayer", localPlay: "Same Device (Local)", onlinePlay: "Online Rooms",
+    back: "Back", setup: "Game Setup", playerCount: "Players", enterDraft: "Enter SDG Draft",
+    draftTitle: "SDG Goal Draft", confirmSDG: "Confirm SDG Selection",
+    discardMode: "Discard Mode", playMode: "Play Cards", cancel: "Cancel",
+    deck: "Deck", discard: "Discard", hand: "Current Hand", confirmAction: "Confirm Action",
+    log: "Game Log", victory: "Victory!", playAgain: "Play Again",
+    human: "Human", easyBot: "Easy Bot", basicBot: "Basic Bot", advanceBot: "Advance Bot",
+    player: "Player", turnOf: "Turn:", select2: "pick 2 SDGs", selected: "Selected",
+    actionPhase: "Action Phase", flipPhase: "Reveal Phase", drawPhase: "Draw Phase",
+    botThinking: "Bot thinking...", discardPhase: "Discard: select then confirm",
+    playPhase: "Play mode (max", cards: "cards)",
+    gameStart: "Draft complete. Game start!", pleaseStart: "Please take action.",
+    reshuffle: "Deck empty. Reshuffled.", discarded: "discarded", played: "played",
+    forward: "Forward", backward: "Backward", special: "Special",
+    historyEvent: "Event", specialCard: "Special", sanctioned: "Sanctioned", goal: "GOAL",
+    selectTarget: "Select target player", selectOwnCard: "Select your card to give",
+    selectTheirCard: "Select card to take", selectOwnSDG: "Select your SDG",
+    selectTheirSDG: "Select opponent's SDG", selectFromDiscard: "Pick from discard",
+    selectSDGSwap: "Select SDG to swap", noValid: "No valid targets",
+    useVeto: "Use Veto?", yes: "Yes", no: "No",
+    capacityChoose: "Capacity: choose one to discard",
+    aiDraft: "is choosing 2 SDG goals...", aiPlay: "is deciding plays...",
+    aiTarget: "is selecting targets...", next: "Next", onlineSoon: "Online mode coming soon.",
+    max2: "Full (2)", picks: "picked", flipReveal: "revealed",
+    resetCard: "Back to Square One", reverseCard: "Stance Reversal", deckFlip: "Deck",
+    winSuffix: " completes both SDG goals!", winLog: "WINS!"
+  }
 };
 
-var SDG_NAMES = {1:"No Poverty",2:"Zero Hunger",3:"Good Health",4:"Quality Education",5:"Gender Equality",6:"Clean Water",7:"Affordable Energy",8:"Decent Work",9:"Industry Innovation",10:"Reduced Inequalities",11:"Sustainable Cities",12:"Responsible Consumption",13:"Climate Action",14:"Life Below Water",15:"Life on Land",16:"Peace & Justice",17:"Partnerships"};
+var SDG_NAMES = {
+  zh: {1:"消除貧窮",2:"消除飢餓",3:"健康與福祉",4:"優質教育",5:"性別平等",6:"淨水與衛生",7:"可負擔的潔淨能源",8:"尊嚴就業與經濟發展",9:"產業創新與基礎建設",10:"減少不平等",11:"永續城市與社區",12:"責任消費與生產",13:"氣候行動",14:"保育海洋生態",15:"保育陸域生態",16:"和平正義與健全制度",17:"多元夥伴關係"},
+  en: {1:"No Poverty",2:"Zero Hunger",3:"Good Health",4:"Quality Education",5:"Gender Equality",6:"Clean Water",7:"Affordable Energy",8:"Decent Work",9:"Industry Innovation",10:"Reduced Inequalities",11:"Sustainable Cities",12:"Responsible Consumption",13:"Climate Action",14:"Life Below Water",15:"Life on Land",16:"Peace & Justice",17:"Partnerships"}
+};
 
-function t(key) { return STRINGS[key] || key; }
-function sdgName(id) { return SDG_NAMES[id] || id; }
+var currentLang = localStorage.getItem("tgc_lang") || "zh";
+function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.zh[key] || key; }
+function sdgName(id) { return (SDG_NAMES[currentLang] && SDG_NAMES[currentLang][id]) || id; }
+function cardTitle(c) { return currentLang === "en" ? (c.title_en || c.title_zh) : (c.title_zh || c.title_en); }
+function cardSub(c) { return currentLang === "en" ? (c.subtitle_en || "") : (c.subtitle_zh || ""); }
+function cardDesc(c) { return currentLang === "en" ? (c.description_en || c.description_zh || "") : (c.description_zh || c.description_en || ""); }
 
 function applyI18n() {
   document.querySelectorAll("[data-i18n]").forEach(function(el) {
     var key = el.getAttribute("data-i18n");
-    if (STRINGS[key]) el.textContent = STRINGS[key];
+    if (translations[currentLang][key]) el.textContent = translations[currentLang][key];
   });
+  document.getElementById("langSelect").value = currentLang;
   if (document.getElementById("gameScreen").classList.contains("active")) updateUI();
   if (document.getElementById("draftScreen").classList.contains("active")) renderDraft();
   if (document.getElementById("setupScreen").classList.contains("active"))
     renderNameInputs(state.mode === "pvp-local" ? "pvp" : "pvc");
 }
+document.getElementById("langSelect").onchange = function() {
+  currentLang = this.value;
+  localStorage.setItem("tgc_lang", currentLang);
+  applyI18n();
+};
 
 /* ========== CARD DATABASE ========== */
 var eventCards = [
-  {title:"Financial Crisis",subtitle:"2008 CE",description:"The U.S. subprime mortgage market collapsed; Lehman Brothers filed for bankruptcy.",forward:[],backward:[1,8]},
-  {title:"Typhoon Morakot",subtitle:"2009 CE",description:"Record-breaking rainfall devastated southern Taiwan, wiping out Xiaolin Village.",forward:[],backward:[11]},
-  {title:"Burning of Books",subtitle:"213 BCE",description:"Qin Shi Huang ordered classical texts burned and scholars buried alive.",forward:[],backward:[4]},
-  {title:"Cape Town Day Zero",subtitle:"2018 CE",description:"Cape Town faced severe drought as reservoirs nearly ran dry.",forward:[],backward:[6]},
-  {title:"Russo-Ukrainian War",subtitle:"2014-present",description:"Conflict destroyed infrastructure and disrupted food and energy supply chains.",forward:[],backward:[2,17]},
-  {title:"East African Famine",subtitle:"Recurring",description:"Drought and conflict repeatedly pushed East Africa into severe famine.",forward:[17],backward:[1,2]},
-  {title:"Afghanistan Girls' Education Ban",subtitle:"2021 CE",description:"After the Taliban retook power, girls were banned from secondary education.",forward:[],backward:[4,5,10]},
-  {title:"HK Lead-in-Water Scandal",subtitle:"2015 CE",description:"Excessive lead levels found in tap water at Hong Kong public housing.",forward:[],backward:[3,6,11]},
-  {title:"Oil Crisis",subtitle:"1973 CE",description:"Middle Eastern oil embargo sent prices soaring worldwide.",forward:[7],backward:[9]},
-  {title:"COVID-19 Lockdowns",subtitle:"2020 CE",description:"Nationwide lockdowns halted economies but helped contain the virus.",forward:[3],backward:[8,17]},
-  {title:"Fukushima Disaster",subtitle:"2011 CE",description:"Earthquake and tsunami crippled Fukushima nuclear plant.",forward:[],backward:[3,7,14]},
-  {title:"Apartheid",subtitle:"1948-1994",description:"South Africa enforced racial segregation and discrimination.",forward:[],backward:[4,10,16]},
-  {title:"Rise of Fast Fashion",subtitle:"2000s-present",description:"Cheap, rapidly produced clothing became the dominant model.",forward:[],backward:[12,13]},
-  {title:"Australian Bushfires",subtitle:"2019-2020",description:"Worst wildfire season on record burned vast forests.",forward:[],backward:[13,15]},
-  {title:"Deepwater Horizon Oil Spill",subtitle:"2010 CE",description:"Oil rig explosion spilled massive crude into the Gulf of Mexico.",forward:[],backward:[6,14]},
-  {title:"Illegal Logging",subtitle:"Ongoing",description:"Illegal logging of valuable timber damages forest ecosystems.",forward:[],backward:[12,15]},
-  {title:"The Black Death",subtitle:"14th century",description:"Plague swept Eurasia, killing tens of millions.",forward:[],backward:[1]},
-  {title:"The Cold War",subtitle:"1947-1991",description:"US-USSR rivalry with arms race shaped global politics.",forward:[],backward:[9,17]},
-  {title:"Suez Canal Blockage",subtitle:"2021 CE",description:"Ever Given ran aground, blocking the Suez Canal.",forward:[],backward:[8,9,17]},
-  {title:"Foot Binding",subtitle:"c.10th-20th c.",description:"Custom forcing girls' feet into deformity for beauty standards.",forward:[],backward:[5,16]},
-  {title:"Honor Killing",subtitle:"Ongoing",description:"Women subjected to violence in the name of family honor.",forward:[],backward:[5,16]},
-  {title:"Large-Scale Blackouts",subtitle:"",description:"Power grids collapse, cutting electricity across wide areas.",forward:[],backward:[7]},
-  {title:"Overpackaging Culture",subtitle:"Modern",description:"Excessive packaging wastes huge amounts of resources.",forward:[],backward:[12,15]},
-  {title:"Ghost Fishing Nets",subtitle:"Modern",description:"Abandoned nets drift, entangling and killing marine animals.",forward:[],backward:[12,14]},
-  {title:"Witch Trials",subtitle:"15th-17th c.",description:"Widespread persecution of accused witches in Europe.",forward:[],backward:[5]},
-  {title:"Same-Sex Marriage Legalization",subtitle:"Multiple countries",description:"Multiple countries legalized same-sex marriage.",forward:[5,10,16],backward:[]},
-  {title:"Modern Tap Water Systems",subtitle:"Modern era",description:"Modern tap water systems provide clean water and sanitation.",forward:[3,6],backward:[]},
-  {title:"Earth Hour",subtitle:"Annually",description:"Global event switching off lights to raise climate awareness.",forward:[7,12,13],backward:[]},
-  {title:"Iceland's Equal Pay Law",subtitle:"2018 CE",description:"Iceland required companies to prove equal pay for equal work.",forward:[5,10],backward:[]},
-  {title:"National Health Insurance",subtitle:"1995 Taiwan",description:"Taiwan launched NHI, making healthcare accessible.",forward:[3,10],backward:[]},
-  {title:"France's Anti-Food-Waste Law",subtitle:"2018 CE",description:"France banned supermarkets from discarding unsold food.",forward:[2,12],backward:[]},
-  {title:"EU 2035 Combustion Car Ban",subtitle:"From 2035",description:"EU bans new fossil-fuel car sales from 2035.",forward:[7,11],backward:[]},
-  {title:"Expo 2025 Osaka",subtitle:"2025 CE",description:"Nations showcased innovation and international cooperation.",forward:[9,17],backward:[]},
-  {title:"Coldplay Music of the Spheres Tour",subtitle:"2022-present",description:"Tour used renewable energy and kinetic dance floors.",forward:[7,13],backward:[]},
-  {title:"UN Millennium Development Goals",subtitle:"2000 CE",description:"UN set MDGs mobilizing global efforts to cut poverty.",forward:[1,8],backward:[]},
-  {title:"The Green Revolution",subtitle:"1960s-1990s",description:"Crop innovations boosted food production; ecological trade-offs.",forward:[1,2,9],backward:[15]},
-  {title:"New Zealand Women's Suffrage",subtitle:"1893 CE",description:"New Zealand became the first country to grant women the vote.",forward:[5,10,16],backward:[]},
-  {title:"Rise of the Internet",subtitle:"1990s-present",description:"Internet spread rapidly; early access gaps also emerged.",forward:[4,9],backward:[10]},
-  {title:"High Speed Rail Opens",subtitle:"2007 Taiwan",description:"Taiwan HSR cut north-south travel time drastically.",forward:[8,9,11],backward:[]},
-  {title:"Sponge City Initiative",subtitle:"2010s-present",description:"Permeable surfaces improve flood resilience.",forward:[11,13],backward:[]},
-  {title:"Earth Day",subtitle:"April 22",description:"Annual global environmental awareness campaigns.",forward:[12,14,15],backward:[]},
-  {title:"Single-Use Plastic Bans",subtitle:"Worldwide",description:"Countries banned single-use plastics to curb pollution.",forward:[12,14,15],backward:[]},
-  {title:"Commercial Whaling Moratorium",subtitle:"1986 CE",description:"IWC enacted a global moratorium on commercial whaling.",forward:[14],backward:[]},
-  {title:"Beach Cleanup Movements",subtitle:"Modern",description:"Community beach cleanups reduce ocean and coastal litter.",forward:[11,14,15],backward:[]},
-  {title:"Establishment of National Parks",subtitle:"Since 1872",description:"Countries designated national parks to protect ecosystems.",forward:[15],backward:[]},
-  {title:"Endangered Species Recovery",subtitle:"Modern",description:"Captive breeding and habitat restoration help species recover.",forward:[15],backward:[]},
-  {title:"Universal Declaration of Human Rights",subtitle:"1948 CE",description:"UN adopted the UDHR establishing basic rights for all.",forward:[5,10,16],backward:[]},
-  {title:"COVID Vaccine Cooperation",subtitle:"2020-2021",description:"COVAX enabled countries to share vaccine resources.",forward:[3,17],backward:[]},
-  {title:"Human Genome Project",subtitle:"1990-2003",description:"International scientists mapped the human genome.",forward:[3,9,17],backward:[]},
-  {title:"Yu the Great Tames the Flood",subtitle:"c.2000 BCE",description:"Yu tamed Yellow River floods by channeling water.",forward:[6,9,11],backward:[]},
-  {title:"Shang Yang's Reforms",subtitle:"356-338 BCE",description:"Shang Yang implemented legal and land reforms in Qin.",forward:[8,16],backward:[]},
-  {title:"Imperial Examination System",subtitle:"605 CE",description:"Sui established exams letting commoners rise by merit.",forward:[4,8,16],backward:[]},
-  {title:"Athenian Democracy",subtitle:"508 BCE",description:"Athens established direct citizen participation in politics.",forward:[10,16],backward:[]},
-  {title:"The Renaissance",subtitle:"14th-17th c.",description:"European revival in art, science, and humanist thought.",forward:[4,9],backward:[]},
-  {title:"Gutenberg's Printing Press",subtitle:"c.1440s",description:"Movable type enabled mass book production.",forward:[4,10],backward:[]},
-  {title:"Invention of the Steam Engine",subtitle:"c.1712-1769",description:"Steam engine sparked a power revolution for industry.",forward:[7,8],backward:[]},
-  {title:"The Industrial Revolution",subtitle:"18th-19th c.",description:"Massive productivity gains with heavy early pollution.",forward:[8],backward:[13]},
-  {title:"Columbus Reaches the Americas",subtitle:"1492 CE",description:"Opened hemispheric contact but brought colonial exploitation.",forward:[8,17],backward:[10]},
-  {title:"Social Housing Policy",subtitle:"Modern",description:"Governments build affordable housing for lower incomes.",forward:[1],backward:[]},
-  {title:"Brazil's Bolsa Família",subtitle:"2003 CE",description:"Conditional cash transfers requiring school and vaccines.",forward:[1,2,4],backward:[]},
-  {title:"Founding of IRRI",subtitle:"1960 CE",description:"Develops high-yield rice varieties for Asia.",forward:[2,9],backward:[]},
-  {title:"Wikipedia Launches",subtitle:"2001 CE",description:"Free collaboratively edited online encyclopedia.",forward:[4,17],backward:[]},
-  {title:"Iceland First Elected Woman President",subtitle:"1980 CE",description:"Iceland elected the world's first directly elected female president.",forward:[5],backward:[]},
-  {title:"London Sewer System",subtitle:"1859-1875",description:"Modern sewers solved cholera and sewage overflow.",forward:[3,6,11],backward:[]},
-  {title:"Desalination Technology Spreads",subtitle:"Modern",description:"Helps water-scarce regions secure freshwater.",forward:[6,9],backward:[]},
-  {title:"LED Lighting Adoption",subtitle:"2000s-present",description:"LEDs replaced traditional lighting, cutting electricity use.",forward:[7,12],backward:[]},
-  {title:"Coral Reef Restoration",subtitle:"Modern",description:"Coral farming and transplantation help reefs regrow.",forward:[13,14],backward:[]},
-  {title:"Shark Fin Bans",subtitle:"Worldwide",description:"Bans on shark fin trade curb overfishing.",forward:[12,14],backward:[]},
-  {title:"Sea Turtle Conservation",subtitle:"Modern",description:"Beach patrols and nesting protection help turtles recover.",forward:[14,15],backward:[]},
-  {title:"Primary Forest Logging Bans",subtitle:"Worldwide",description:"Bans on logging primary forests protect carbon sinks.",forward:[13,15],backward:[]},
-  {title:"Minimum Wage Laws",subtitle:"Worldwide",description:"Minimum wage standards guarantee baseline income.",forward:[1],backward:[]},
-  {title:"Invention of Drip Irrigation",subtitle:"1960s Israel",description:"Delivers water precisely to roots, improving efficiency.",forward:[2,6],backward:[]},
-  {title:"Founding of Food Banks",subtitle:"Since 1967",description:"Connect surplus food with families in need.",forward:[1,2,12],backward:[]},
-  {title:"International Women's Day",subtitle:"March 8",description:"Global day advocating women's rights and equality.",forward:[5],backward:[]},
-  {title:"Child Marriage Bans",subtitle:"Worldwide",description:"Laws ban child marriage to protect children's rights.",forward:[3,5,16],backward:[]},
-  {title:"Founding of Girls Who Code",subtitle:"2012 CE",description:"Works to close the tech gender gap via coding education.",forward:[4,5],backward:[]},
-  {title:"Rainwater Harvesting Systems",subtitle:"Modern",description:"Buildings collect rainwater for irrigation and flushing.",forward:[6,11],backward:[]}
+  {title_zh:"金融海嘯",title_en:"Financial Crisis",subtitle_zh:"西元2008年",subtitle_en:"2008 CE",description_zh:"美國次級房貸市場崩盤，雷曼兄弟宣告破產，引發骨牌效應。",description_en:"The U.S. subprime mortgage market collapsed; Lehman Brothers filed for bankruptcy.",forward:[],backward:[1,8]},
+  {title_zh:"莫拉克颱風",title_en:"Typhoon Morakot",subtitle_zh:"西元2009年",subtitle_en:"2009 CE",description_zh:"帶來破紀錄豪雨，重創南台灣，小林村遭土石流滅村。",description_en:"Record-breaking rainfall devastated southern Taiwan, wiping out Xiaolin Village.",forward:[],backward:[11]},
+  {title_zh:"焚書坑儒",title_en:"Burning of Books",subtitle_zh:"西元前213年",subtitle_en:"213 BCE",description_zh:"秦始皇下令焚燒諸子百家典籍，並坑殺方士儒生，箝制思想言論。",description_en:"Qin Shi Huang ordered classical texts burned and scholars buried alive.",forward:[],backward:[4]},
+  {title_zh:"開普敦Day Zero",title_en:"Cape Town Day Zero",subtitle_zh:"西元2018年",subtitle_en:"2018 CE",description_zh:"南非開普敦遭遇嚴重乾旱，水庫存量逼近枯竭，全市面臨限水危機。",description_en:"Cape Town faced severe drought as reservoirs nearly ran dry.",forward:[],backward:[6]},
+  {title_zh:"烏俄戰爭",title_en:"Russo-Ukrainian War",subtitle_zh:"西元2014年至今",subtitle_en:"2014-present",description_zh:"俄羅斯與烏克蘭爆發武裝衝突，戰火摧毀基礎建設，糧食與能源供應鏈受創。",description_en:"Conflict destroyed infrastructure and disrupted food and energy supply chains.",forward:[],backward:[2,17]},
+  {title_zh:"東非飢荒",title_en:"East African Famine",subtitle_zh:"長期反覆發生",subtitle_en:"Recurring",description_zh:"乾旱與衝突交織，東非多國反覆陷入嚴重飢荒，糧食安全岌岌可危。",description_en:"Drought and conflict repeatedly pushed East Africa into severe famine.",forward:[17],backward:[1,2]},
+  {title_zh:"阿富汗限制女性受教育",title_en:"Afghanistan Girls' Education Ban",subtitle_zh:"西元2021年",subtitle_en:"2021 CE",description_zh:"塔利班重掌政權後禁止女性接受中學以上教育，女性受教權大幅倒退。",description_en:"After the Taliban retook power, girls were banned from secondary education.",forward:[],backward:[4,5,10]},
+  {title_zh:"香港食水含鉛事件",title_en:"HK Lead-in-Water Scandal",subtitle_zh:"西元2015年",subtitle_en:"2015 CE",description_zh:"香港部分公共屋邨食水被驗出含鉛量超標，居民健康受到威脅。",description_en:"Excessive lead levels found in tap water at Hong Kong public housing.",forward:[],backward:[3,6,11]},
+  {title_zh:"石油危機",title_en:"Oil Crisis",subtitle_zh:"西元1973年",subtitle_en:"1973 CE",description_zh:"中東產油國禁運石油，全球油價暴漲，各國經濟陷入衰退。",description_en:"Middle Eastern oil embargo sent prices soaring worldwide.",forward:[7],backward:[9]},
+  {title_zh:"COVID-19封城",title_en:"COVID-19 Lockdowns",subtitle_zh:"西元2020年",subtitle_en:"2020 CE",description_zh:"新冠疫情爆發，各國實施封鎖措施，經濟活動大幅停擺。",description_en:"Nationwide lockdowns halted economies but helped contain the virus.",forward:[3],backward:[8,17]},
+  {title_zh:"福島核災",title_en:"Fukushima Disaster",subtitle_zh:"西元2011年",subtitle_en:"2011 CE",description_zh:"東日本大地震引發海嘯，重創福島核電廠，造成輻射外洩。",description_en:"Earthquake and tsunami crippled Fukushima nuclear plant.",forward:[],backward:[3,7,14]},
+  {title_zh:"種族隔離制度",title_en:"Apartheid",subtitle_zh:"西元1948年至1994年",subtitle_en:"1948-1994",description_zh:"南非政府依種族實施隔離與差別待遇，長期剝奪黑人基本權利。",description_en:"South Africa enforced racial segregation and discrimination.",forward:[],backward:[4,10,16]},
+  {title_zh:"快時尚盛行",title_en:"Rise of Fast Fashion",subtitle_zh:"約2000年代至今",subtitle_en:"2000s-present",description_zh:"平價快速時尚崛起，服飾快速生產與淘汰成為主流消費模式。",description_en:"Cheap, rapidly produced clothing became the dominant model.",forward:[],backward:[12,13]},
+  {title_zh:"澳洲森林大火",title_en:"Australian Bushfires",subtitle_zh:"西元2019年至2020年",subtitle_en:"2019-2020",description_zh:"澳洲遭遇史上最嚴重森林大火，燒毀大片林地，無數野生動物喪生。",description_en:"Worst wildfire season on record burned vast forests.",forward:[],backward:[13,15]},
+  {title_zh:"墨西哥灣漏油事故",title_en:"Deepwater Horizon Oil Spill",subtitle_zh:"西元2010年",subtitle_en:"2010 CE",description_zh:"深水地平線鑽油平台爆炸，大量原油外洩污染墨西哥灣。",description_en:"Oil rig explosion spilled massive crude into the Gulf of Mexico.",forward:[],backward:[6,14]},
+  {title_zh:"山老鼠盛行",title_en:"Illegal Logging",subtitle_zh:"長期存在，當代持續中",subtitle_en:"Ongoing",description_zh:"台灣山區長期存在盜伐珍貴林木的非法行為，破壞山林生態。",description_en:"Illegal logging of valuable timber damages forest ecosystems.",forward:[],backward:[12,15]},
+  {title_zh:"黑死病",title_en:"The Black Death",subtitle_zh:"14世紀",subtitle_en:"14th century",description_zh:"鼠疫在歐亞大陸大流行，造成數千萬人死亡，社會結構全面動搖。",description_en:"Plague swept Eurasia, killing tens of millions.",forward:[],backward:[1]},
+  {title_zh:"冷戰",title_en:"The Cold War",subtitle_zh:"西元1947年至1991年",subtitle_en:"1947-1991",description_zh:"美蘇兩大陣營長期對峙，軍備競賽與代理人戰爭牽動全球局勢。",description_en:"US-USSR rivalry with arms race shaped global politics.",forward:[],backward:[9,17]},
+  {title_zh:"蘇伊士運河堵塞",title_en:"Suez Canal Blockage",subtitle_zh:"西元2021年",subtitle_en:"2021 CE",description_zh:"貨櫃輪長賜號擱淺堵住蘇伊士運河，全球海運供應鏈大亂。",description_en:"Ever Given ran aground, blocking the Suez Canal.",forward:[],backward:[8,9,17]},
+  {title_zh:"裹小腳",title_en:"Foot Binding",subtitle_zh:"約10世紀至20世紀初",subtitle_en:"c.10th-20th c.",description_zh:"中國古代盛行纏足習俗，女性自幼被迫束腳變形以符合審美標準。",description_en:"Custom forcing girls' feet into deformity for beauty standards.",forward:[],backward:[5,16]},
+  {title_zh:"榮譽殺人",title_en:"Honor Killing",subtitle_zh:"持續至今",subtitle_en:"Ongoing",description_zh:"部分地區以「維護家族名譽」為由，對違反傳統規範的女性施以私刑。",description_en:"Women subjected to violence in the name of family honor.",forward:[],backward:[5,16]},
+  {title_zh:"大規模停電",title_en:"Large-Scale Blackouts",subtitle_zh:"",subtitle_en:"",description_zh:"電網因天災、設備老舊或超載等因素癱瘓，大範圍地區陷入停電。",description_en:"Power grids collapse, cutting electricity across wide areas.",forward:[],backward:[7]},
+  {title_zh:"過度包裝文化",title_en:"Overpackaging Culture",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"商品為求精美與促銷，層層包裝造成大量不必要的資源浪費。",description_en:"Excessive packaging wastes huge amounts of resources.",forward:[],backward:[12,15]},
+  {title_zh:"幽靈漁網",title_en:"Ghost Fishing Nets",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"廢棄或遺失的漁網持續漂流海中，纏繞並困死大量海洋生物。",description_en:"Abandoned nets drift, entangling and killing marine animals.",forward:[],backward:[12,14]},
+  {title_zh:"獵巫運動",title_en:"Witch Trials",subtitle_zh:"15世紀至17世紀",subtitle_en:"15th-17th c.",description_zh:"歐洲曾大規模迫害「女巫」，數萬名女性遭指控並處以極刑。",description_en:"Widespread persecution of accused witches in Europe.",forward:[],backward:[5]},
+  {title_zh:"同性婚姻法通過",title_en:"Same-Sex Marriage Legalization",subtitle_zh:"多國陸續完成立法",subtitle_en:"Multiple countries",description_zh:"多國陸續完成同性婚姻合法化，保障婚姻平權。",description_en:"Multiple countries legalized same-sex marriage.",forward:[5,10,16],backward:[]},
+  {title_zh:"建立自來水系統",title_en:"Modern Tap Water Systems",subtitle_zh:"近代至今",subtitle_en:"Modern era",description_zh:"現代自來水系統普及，提供乾淨用水與衛生保障。",description_en:"Modern tap water systems provide clean water and sanitation.",forward:[3,6],backward:[]},
+  {title_zh:"世界關燈日",title_en:"Earth Hour",subtitle_zh:"每年3月最後一個週六",subtitle_en:"Annually",description_zh:"全球響應每年關燈一小時，喚起節能與氣候意識。",description_en:"Global event switching off lights to raise climate awareness.",forward:[7,12,13],backward:[]},
+  {title_zh:"冰島同工同酬",title_en:"Iceland's Equal Pay Law",subtitle_zh:"西元2018年",subtitle_en:"2018 CE",description_zh:"冰島立法強制企業證明同工同酬，打擊性別薪資差距。",description_en:"Iceland required companies to prove equal pay for equal work.",forward:[5,10],backward:[]},
+  {title_zh:"全民健保制度上路",title_en:"National Health Insurance",subtitle_zh:"1995年（台灣）",subtitle_en:"1995 Taiwan",description_zh:"台灣實施全民健康保險，讓醫療照護不再是有錢人的特權。",description_en:"Taiwan launched NHI, making healthcare accessible.",forward:[3,10],backward:[]},
+  {title_zh:"法國反食物浪費法",title_en:"France's Anti-Food-Waste Law",subtitle_zh:"西元2018年",subtitle_en:"2018 CE",description_zh:"法國立法禁止超市丟棄未售出食物，要求捐贈給慈善機構。",description_en:"France banned supermarkets from discarding unsold food.",forward:[2,12],backward:[]},
+  {title_zh:"歐盟2035禁售燃油車",title_en:"EU 2035 Combustion Car Ban",subtitle_zh:"2035年起生效",subtitle_en:"From 2035",description_zh:"歐盟通過2035年起禁售新燃油車，加速交通運具電動化。",description_en:"EU bans new fossil-fuel car sales from 2035.",forward:[7,11],backward:[]},
+  {title_zh:"大阪世博",title_en:"Expo 2025 Osaka",subtitle_zh:"西元2025年",subtitle_en:"2025 CE",description_zh:"2025年大阪世博匯聚各國展現創新科技與國際合作成果。",description_en:"Nations showcased innovation and international cooperation.",forward:[9,17],backward:[]},
+  {title_zh:"Coldplay世界巡迴演唱會",title_en:"Coldplay Music of the Spheres Tour",subtitle_zh:"西元2022年至今",subtitle_en:"2022-present",description_zh:"巡演大量採用可再生能源與觀眾發電地板，減少演唱會碳足跡。",description_en:"Tour used renewable energy and kinetic dance floors.",forward:[7,13],backward:[]},
+  {title_zh:"聯合國千禧年減貧計畫",title_en:"UN Millennium Development Goals",subtitle_zh:"西元2000年",subtitle_en:"2000 CE",description_zh:"聯合國訂定千禧年發展目標，全球合力推動減貧與經濟發展。",description_en:"UN set MDGs mobilizing global efforts to cut poverty.",forward:[1,8],backward:[]},
+  {title_zh:"綠色革命",title_en:"The Green Revolution",subtitle_zh:"1960年代至1990年代",subtitle_en:"1960s-1990s",description_zh:"農業技術與品種改良大幅提升糧食產量，但也帶來生態代價。",description_en:"Crop innovations boosted food production; ecological trade-offs.",forward:[1,2,9],backward:[15]},
+  {title_zh:"紐西蘭女性投票權",title_en:"New Zealand Women's Suffrage",subtitle_zh:"西元1893年",subtitle_en:"1893 CE",description_zh:"紐西蘭成為全球第一個賦予女性投票權的國家。",description_en:"New Zealand became the first country to grant women the vote.",forward:[5,10,16],backward:[]},
+  {title_zh:"網際網路普及",title_en:"Rise of the Internet",subtitle_zh:"1990年代至今",subtitle_en:"1990s-present",description_zh:"網路快速普及全球，但發展初期城鄉與貧富之間的落差明顯。",description_en:"Internet spread rapidly; early access gaps also emerged.",forward:[4,9],backward:[10]},
+  {title_zh:"高速鐵路通車",title_en:"High Speed Rail Opens",subtitle_zh:"2007年（台灣）",subtitle_en:"2007 Taiwan",description_zh:"台灣高鐵通車，大幅縮短南北交通時間，帶動區域發展。",description_en:"Taiwan HSR cut north-south travel time drastically.",forward:[8,9,11],backward:[]},
+  {title_zh:"海綿城市計畫",title_en:"Sponge City Initiative",subtitle_zh:"2010年代至今",subtitle_en:"2010s-present",description_zh:"城市透過透水鋪面與綠地設計提升防洪韌性，因應極端氣候。",description_en:"Permeable surfaces improve flood resilience.",forward:[11,13],backward:[]},
+  {title_zh:"世界地球日",title_en:"Earth Day",subtitle_zh:"每年4月22日",subtitle_en:"April 22",description_zh:"每年4月22日全球舉辦環保活動，喚起大眾對地球生態的重視。",description_en:"Annual global environmental awareness campaigns.",forward:[12,14,15],backward:[]},
+  {title_zh:"禁用一次性塑膠",title_en:"Single-Use Plastic Bans",subtitle_zh:"多國陸續立法",subtitle_en:"Worldwide",description_zh:"多國陸續立法禁用一次性塑膠製品，減少塑膠污染。",description_en:"Countries banned single-use plastics to curb pollution.",forward:[12,14,15],backward:[]},
+  {title_zh:"全球禁捕商業捕鯨",title_en:"Commercial Whaling Moratorium",subtitle_zh:"西元1986年",subtitle_en:"1986 CE",description_zh:"國際捕鯨委員會實施全球商業捕鯨禁令，鯨魚族群逐漸恢復。",description_en:"IWC enacted a global moratorium on commercial whaling.",forward:[14],backward:[]},
+  {title_zh:"減塑淨灘活動",title_en:"Beach Cleanup Movements",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"民間團體與政府推動海灘清潔行動，減少海洋與海岸垃圾。",description_en:"Community beach cleanups reduce ocean and coastal litter.",forward:[11,14,15],backward:[]},
+  {title_zh:"國家公園設立",title_en:"Establishment of National Parks",subtitle_zh:"1872年首座起",subtitle_en:"Since 1872",description_zh:"各國劃設國家公園保護原始生態與自然景觀。",description_en:"Countries designated national parks to protect ecosystems.",forward:[15],backward:[]},
+  {title_zh:"復育瀕危物種",title_en:"Endangered Species Recovery",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"保育組織透過人工繁殖與棲地復育，協助瀕危物種族群逐漸回升。",description_en:"Captive breeding and habitat restoration help species recover.",forward:[15],backward:[]},
+  {title_zh:"世界人權宣言",title_en:"Universal Declaration of Human Rights",subtitle_zh:"西元1948年",subtitle_en:"1948 CE",description_zh:"聯合國通過世界人權宣言，確立人人享有基本人權的普世價值。",description_en:"UN adopted the UDHR establishing basic rights for all.",forward:[5,10,16],backward:[]},
+  {title_zh:"COVID-19疫苗國際合作",title_en:"COVID Vaccine Cooperation",subtitle_zh:"西元2020年至2021年",subtitle_en:"2020-2021",description_zh:"COVAX等機制促成各國共享疫苗資源，加速全球接種進度。",description_en:"COVAX enabled countries to share vaccine resources.",forward:[3,17],backward:[]},
+  {title_zh:"人類基因組計畫",title_en:"Human Genome Project",subtitle_zh:"西元1990年至2003年",subtitle_en:"1990-2003",description_zh:"國際科學家合作解碼人類基因組，開啟精準醫療新時代。",description_en:"International scientists mapped the human genome.",forward:[3,9,17],backward:[]},
+  {title_zh:"大禹治水",title_en:"Yu the Great Tames the Flood",subtitle_zh:"約西元前2000年",subtitle_en:"c.2000 BCE",description_zh:"相傳大禹以疏導取代圍堵治理黃河水患，奠定治水工程典範。",description_en:"Yu tamed Yellow River floods by channeling water.",forward:[6,9,11],backward:[]},
+  {title_zh:"商鞅變法",title_en:"Shang Yang's Reforms",subtitle_zh:"西元前356年至前338年",subtitle_en:"356-338 BCE",description_zh:"商鞅在秦國推行法制與土地改革，強化國力與治理效率。",description_en:"Shang Yang implemented legal and land reforms in Qin.",forward:[8,16],backward:[]},
+  {title_zh:"科舉制度建立",title_en:"Imperial Examination System",subtitle_zh:"西元605年",subtitle_en:"605 CE",description_zh:"隋朝建立科舉制度，讓平民也能透過考試晉身官場。",description_en:"Sui established exams letting commoners rise by merit.",forward:[4,8,16],backward:[]},
+  {title_zh:"雅典民主制度",title_en:"Athenian Democracy",subtitle_zh:"西元前508年",subtitle_en:"508 BCE",description_zh:"古雅典建立公民直接參與政治的民主制度，影響後世政治發展。",description_en:"Athens established direct citizen participation in politics.",forward:[10,16],backward:[]},
+  {title_zh:"文藝復興",title_en:"The Renaissance",subtitle_zh:"14世紀至17世紀",subtitle_en:"14th-17th c.",description_zh:"歐洲文藝復興帶動藝術、科學與人文思想的全面復興。",description_en:"European revival in art, science, and humanist thought.",forward:[4,9],backward:[]},
+  {title_zh:"古騰堡活字印刷",title_en:"Gutenberg's Printing Press",subtitle_zh:"約1440年代",subtitle_en:"c.1440s",description_zh:"古騰堡發明活字印刷術，讓書籍大量生產，知識傳播加速。",description_en:"Movable type enabled mass book production.",forward:[4,10],backward:[]},
+  {title_zh:"蒸汽機發明",title_en:"Invention of the Steam Engine",subtitle_zh:"約1712年至1769年",subtitle_en:"c.1712-1769",description_zh:"蒸汽機的發明帶來動力革命，推動工業與交通運輸大幅發展。",description_en:"Steam engine sparked a power revolution for industry.",forward:[7,8],backward:[]},
+  {title_zh:"工業革命",title_en:"The Industrial Revolution",subtitle_zh:"18世紀中至19世紀",subtitle_en:"18th-19th c.",description_zh:"工業革命帶動生產力大躍進，但初期也伴隨高污染與高工時。",description_en:"Massive productivity gains with heavy early pollution.",forward:[8],backward:[13]},
+  {title_zh:"哥倫布發現新大陸",title_en:"Columbus Reaches the Americas",subtitle_zh:"西元1492年",subtitle_en:"1492 CE",description_zh:"哥倫布抵達美洲開啟東西半球交流，但也帶來殖民剝削。",description_en:"Opened hemispheric contact but brought colonial exploitation.",forward:[8,17],backward:[10]},
+  {title_zh:"社會住宅政策",title_en:"Social Housing Policy",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"政府興建社會住宅，提供中低收入戶可負擔的居住選擇。",description_en:"Governments build affordable housing for lower incomes.",forward:[1],backward:[]},
+  {title_zh:"巴西「家庭補助金」",title_en:"Brazil's Bolsa Família",subtitle_zh:"西元2003年",subtitle_en:"2003 CE",description_zh:"巴西政府提供條件式現金補助，要求受助家庭送孩子上學並接種疫苗。",description_en:"Conditional cash transfers requiring school and vaccines.",forward:[1,2,4],backward:[]},
+  {title_zh:"國際稻米研究所（IRRI）成立",title_en:"Founding of IRRI",subtitle_zh:"西元1960年",subtitle_en:"1960 CE",description_zh:"IRRI致力研發高產稻米品種，協助亞洲多國提升糧食產量。",description_en:"Develops high-yield rice varieties for Asia.",forward:[2,9],backward:[]},
+  {title_zh:"維基百科誕生",title_en:"Wikipedia Launches",subtitle_zh:"西元2001年",subtitle_en:"2001 CE",description_zh:"維基百科以協作方式建立免費線上百科全書，開放全球共同編輯。",description_en:"Free collaboratively edited online encyclopedia.",forward:[4,17],backward:[]},
+  {title_zh:"冰島選出全球首位民選女性總統",title_en:"Iceland First Elected Woman President",subtitle_zh:"西元1980年",subtitle_en:"1980 CE",description_zh:"冰島選出Vigdís Finnbogadóttir，成為全球首位經直接民選產生的女性元首。",description_en:"Iceland elected the world's first directly elected female president.",forward:[5],backward:[]},
+  {title_zh:"倫敦下水道系統建立",title_en:"London Sewer System",subtitle_zh:"西元1859年至1875年",subtitle_en:"1859-1875",description_zh:"倫敦興建現代下水道系統，解決霍亂與污水氾濫問題。",description_en:"Modern sewers solved cholera and sewage overflow.",forward:[3,6,11],backward:[]},
+  {title_zh:"海水淡化技術普及",title_en:"Desalination Technology Spreads",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"海水淡化技術日益成熟，協助缺水地區取得穩定淡水來源。",description_en:"Helps water-scarce regions secure freshwater.",forward:[6,9],backward:[]},
+  {title_zh:"LED照明普及",title_en:"LED Lighting Adoption",subtitle_zh:"2000年代至今",subtitle_en:"2000s-present",description_zh:"LED燈泡逐漸取代傳統燈泡，大幅降低照明耗電量。",description_en:"LEDs replaced traditional lighting, cutting electricity use.",forward:[7,12],backward:[]},
+  {title_zh:"珊瑚礁復育計畫",title_en:"Coral Reef Restoration",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"科學家透過人工復育與移植技術，協助受損珊瑚礁重新生長。",description_en:"Coral farming and transplantation help reefs regrow.",forward:[13,14],backward:[]},
+  {title_zh:"禁用魚翅政策",title_en:"Shark Fin Bans",subtitle_zh:"多國陸續立法",subtitle_en:"Worldwide",description_zh:"多國與航空公司禁止魚翅交易與運輸，抑制過度捕撈鯊魚。",description_en:"Bans on shark fin trade curb overfishing.",forward:[12,14],backward:[]},
+  {title_zh:"海龜保育計畫",title_en:"Sea Turtle Conservation",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"保育團體透過巡護海灘、保護產卵地協助海龜族群逐漸復育。",description_en:"Beach patrols and nesting protection help turtles recover.",forward:[14,15],backward:[]},
+  {title_zh:"天然林禁伐政策",title_en:"Primary Forest Logging Bans",subtitle_zh:"多國陸續立法",subtitle_en:"Worldwide",description_zh:"多國立法禁止砍伐原始天然林，保護森林碳匯與生物多樣性。",description_en:"Bans on logging primary forests protect carbon sinks.",forward:[13,15],backward:[]},
+  {title_zh:"最低工資制度",title_en:"Minimum Wage Laws",subtitle_zh:"各國陸續實施",subtitle_en:"Worldwide",description_zh:"政府訂立最低工資標準，保障勞工基本收入水準。",description_en:"Minimum wage standards guarantee baseline income.",forward:[1],backward:[]},
+  {title_zh:"滴灌技術發明",title_en:"Invention of Drip Irrigation",subtitle_zh:"1960年代（以色列）",subtitle_en:"1960s Israel",description_zh:"滴灌技術精準供水給作物根部，大幅提升灌溉用水效率。",description_en:"Delivers water precisely to roots, improving efficiency.",forward:[2,6],backward:[]},
+  {title_zh:"糧食銀行成立",title_en:"Founding of Food Banks",subtitle_zh:"1967年首創",subtitle_en:"Since 1967",description_zh:"糧食銀行媒合多餘食物與有需要的家庭，減少浪費並協助弱勢。",description_en:"Connect surplus food with families in need.",forward:[1,2,12],backward:[]},
+  {title_zh:"國際婦女節",title_en:"International Women's Day",subtitle_zh:"每年3月8日",subtitle_en:"March 8",description_zh:"每年3月8日全球紀念並倡議女性權益與性別平等。",description_en:"Global day advocating women's rights and equality.",forward:[5],backward:[]},
+  {title_zh:"禁止童婚法",title_en:"Child Marriage Bans",subtitle_zh:"多國陸續立法",subtitle_en:"Worldwide",description_zh:"多國立法禁止未成年結婚，保護兒童權益與身心發展。",description_en:"Laws ban child marriage to protect children's rights.",forward:[3,5,16],backward:[]},
+  {title_zh:"Girls Who Code成立",title_en:"Founding of Girls Who Code",subtitle_zh:"西元2012年",subtitle_en:"2012 CE",description_zh:"非營利組織Girls Who Code致力縮小科技領域性別落差，推動女性程式教育。",description_en:"Works to close the tech gender gap via coding education.",forward:[4,5],backward:[]},
+  {title_zh:"雨水回收系統",title_en:"Rainwater Harvesting Systems",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"建築物設置雨水回收系統，收集雨水再利用於澆灌與沖廁。",description_en:"Buildings collect rainwater for irrigation and flushing.",forward:[6,11],backward:[]}
 ];
 
 var specialCards = [
-  {title:"Sustainable Transition",type:"sustain",description:"Swap one of your SDGs with an unused one; progress is kept."},
-  {title:"Veto",type:"veto",description:"Cancel a special card about to resolve; it is discarded unused."},
-  {title:"Policy Exemption",type:"immunity",description:"Choose one of your SDGs; immune to negatives this turn."},
-  {title:"Back to Square One",type:"reset",description:"Reset any non-GOAL SDG progress to zero."},
-  {title:"International Sanctions",type:"sanction",description:"Target player cannot play or discard next Action Phase."},
-  {title:"Capacity Building",type:"capacity",description:"Draw one extra in Draw Phase; discard one of those drawn."},
-  {title:"Stance Reversal",type:"reverse",description:"Flip the sign of any SDG's progress (+2 -> -2, -1 -> +1)."},
-  {title:"Lessons from History",type:"history",description:"Look at top 5 discard cards; take 1, return rest in order."},
-  {title:"MOU",type:"tradeHand",description:"Swap one chosen hand card with another player."},
-  {title:"Goal Realignment",type:"swapSDG",description:"Swap one SDG each with another player; progress kept."}
+  {title_zh:"永續轉型",title_en:"Sustainable Transition",type:"sustain",description_zh:"將自己一張未使用的 SDG 替換成新的，並保留原本的進度。",description_en:"Swap one of your SDGs with an unused one; progress is kept."},
+  {title_zh:"否決權",title_en:"Veto",type:"veto",description_zh:"取消一張即將生效的特殊牌，該牌直接棄置且不生效。",description_en:"Cancel a special card about to resolve; it is discarded unused."},
+  {title_zh:"政策豁免",title_en:"Policy Exemption",type:"immunity",description_zh:"指定自己一張 SDG，本回合免受負面效果影響。",description_en:"Choose one of your SDGs; immune to negatives this turn."},
+  {title_zh:"捲土重來",title_en:"Back to Square One",type:"reset",description_zh:"將任一玩家一張尚未達標的 SDG 進度歸零。",description_en:"Reset any non-GOAL SDG progress to zero."},
+  {title_zh:"國際制裁",title_en:"International Sanctions",type:"sanction",description_zh:"指定的玩家下一個行動階段無法出牌或棄牌。",description_en:"Target player cannot play or discard next Action Phase."},
+  {title_zh:"能力建構",title_en:"Capacity Building",type:"capacity",description_zh:"抽牌階段多抽 1 張，並從中棄置 1 張。",description_en:"Draw one extra in Draw Phase; discard one of those drawn."},
+  {title_zh:"立場反轉",title_en:"Stance Reversal",type:"reverse",description_zh:"將任一 SDG 的進度正負反轉（+2 變 -2，-1 變 +1）。",description_en:"Flip the sign of any SDG's progress (+2 -> -2, -1 -> +1)."},
+  {title_zh:"歷史借鏡",title_en:"Lessons from History",type:"history",description_zh:"檢視棄牌堆最上方 5 張，選 1 張加入手牌，其餘依序放回。",description_en:"Look at top 5 discard cards; take 1, return rest in order."},
+  {title_zh:"合作備忘錄",title_en:"MOU",type:"tradeHand",description_zh:"與任一玩家交換一張各自指定的手牌。",description_en:"Swap one chosen hand card with another player."},
+  {title_zh:"目標重整",title_en:"Goal Realignment",type:"swapSDG",description_zh:"與任一玩家交換一張 SDG，進度保留。",description_en:"Swap one SDG each with another player; progress kept."}
 ];
 
 /* ========== STATE ========== */
@@ -224,9 +270,9 @@ function showCardAnnouncement(playerName, card, options) {
     if (state.isGameOver) { resolve(); return; }
     state.inputLocked = true;
     document.getElementById("announcePlayer").textContent = playerName + " " + t("played");
-    document.getElementById("announceCardName").textContent = card.title;
-    document.getElementById("announceSub").textContent = card.subtitle || (card.kind === "event" ? t("historyEvent") : t("specialCard"));
-    document.getElementById("announceDesc").textContent = card.description || "";
+    document.getElementById("announceCardName").textContent = cardTitle(card);
+    document.getElementById("announceSub").textContent = cardSub(card) || (card.kind === "event" ? t("historyEvent") : t("specialCard"));
+    document.getElementById("announceDesc").textContent = cardDesc(card);
 
     var effectsEl = document.getElementById("announceEffects");
     effectsEl.innerHTML = "";
@@ -235,20 +281,20 @@ function showCardAnnouncement(playerName, card, options) {
       affected.forEach(function(a) {
         var tag = document.createElement("span");
         tag.className = "sticky-note " + (a.delta > 0 ? "up" : "down");
-        tag.textContent = "SDG " + a.id + " " + (a.delta > 0 ? "+" : "") + a.delta;
+        tag.textContent = "SDG " + a.id + " " + (a.delta > 0 ? "📈" : "📉") + " " + (a.delta > 0 ? "+" : "") + a.delta;
         effectsEl.appendChild(tag);
       });
     } else if (card.kind === "event") {
       (card.forward || []).forEach(function(id) {
         var tag = document.createElement("span");
         tag.className = "sticky-note up";
-        tag.textContent = "SDG " + id + " +1";
+        tag.textContent = "SDG " + id + " 📈 +1";
         effectsEl.appendChild(tag);
       });
       (card.backward || []).forEach(function(id) {
         var tag = document.createElement("span");
         tag.className = "sticky-note down";
-        tag.textContent = "SDG " + id + " -1";
+        tag.textContent = "SDG " + id + " 📉 -1";
         effectsEl.appendChild(tag);
       });
     } else {
@@ -423,7 +469,9 @@ function startGame() {
   state.deck = [];
   eventCards.forEach(function(c) {
     state.deck.push({
-      title: c.title, subtitle: c.subtitle, description: c.description,
+      title_zh: c.title_zh, title_en: c.title_en,
+      subtitle_zh: c.subtitle_zh, subtitle_en: c.subtitle_en,
+      description_zh: c.description_zh, description_en: c.description_en,
       forward: (c.forward || []).slice(), backward: (c.backward || []).slice(),
       kind: "event", id: Math.random().toString(36).slice(2)
     });
@@ -431,7 +479,8 @@ function startGame() {
   specialCards.forEach(function(c) {
     for (var i = 0; i < 2; i++) {
       state.deck.push({
-        title: c.title, type: c.type, description: c.description,
+        title_zh: c.title_zh, title_en: c.title_en, type: c.type,
+        description_zh: c.description_zh, description_en: c.description_en,
         kind: "special", id: Math.random().toString(36).slice(2) + i
       });
     }
@@ -569,10 +618,10 @@ function updateUI() {
       effect = "<div class=\"card-fwd\">" + (card.forward.length ? t("forward") + ":" + card.forward.join(",") : "") + "</div>" +
                "<div class=\"card-bwd\">" + (card.backward.length ? t("backward") + ":" + card.backward.join(",") : "") + "</div>";
     } else {
-      effect = "<div class=\"card-effect\">" + (card.description || "") + "</div>";
+      effect = "<div class=\"card-effect\">" + cardDesc(card) + "</div>";
     }
     div.innerHTML = "<div class=\"card-header\">" + (card.kind === "event" ? t("historyEvent") : t("specialCard")) + "</div>" +
-      "<div class=\"card-body\"><div class=\"card-name\">" + card.title + "</div>" + effect + "</div>";
+      "<div class=\"card-body\"><div class=\"card-name\">" + cardTitle(card) + "</div>" + effect + "</div>";
     if (!p.isAI && !cannot && !state.inputLocked && !state.isGameOver) {
       (function(i) { div.onclick = function() { onCardClick(i); }; })(idx);
     }
@@ -627,7 +676,7 @@ function executeDiscard() {
   state.selectedCards.slice().sort(function(a,b){return b-a;}).forEach(function(i) {
     var c = p.hand.splice(i, 1)[0];
     state.discard.push(c);
-    log(p.name + " " + t("discarded") + ": " + c.title);
+    log(p.name + " " + t("discarded") + ": " + cardTitle(c));
   });
   state.selectedCards = []; state.modeAction = null;
   endActionPhase();
@@ -656,7 +705,7 @@ async function executePlay() {
       (card.backward || []).forEach(function(id) { affected.push({id:id, delta:-1}); });
     }
     await showCardAnnouncement(p.name, card, { affectedSDGs: affected });
-    log(p.name + " " + t("played") + ": " + card.title, card.kind === "event" ? "up" : "special");
+    log(p.name + " " + t("played") + ": " + cardTitle(card), card.kind === "event" ? "up" : "special");
     updateUI();
     await new Promise(function(r) { resolveCard(card, false, r); });
   }
@@ -670,25 +719,31 @@ function askVeto(card, caster) {
       var idx = pl.hand.findIndex(function(c) { return c.type === "veto"; });
       if (idx >= 0 && !pl.isAI) holders.push({ pl: pl, idx: idx });
     });
-    var autoVetoed = false;
+    var advanceHolder = null;
     state.players.forEach(function(pl) {
-      if (autoVetoed || !pl.isAI || pl.difficulty !== "advance") return;
+      if (advanceHolder || !pl.isAI || pl.difficulty !== "advance") return;
       var idx = pl.hand.findIndex(function(c) { return c.type === "veto"; });
       if (idx >= 0 && pl !== caster && (card.type === "reset" || card.type === "sanction" || card.type === "reverse")) {
-        pl.hand.splice(idx, 1);
-        state.discard.push({ type: "veto", title: "Veto", kind: "special" });
-        log(pl.name + " Veto!", "ai");
-        autoVetoed = true;
-        resolve(true);
+        advanceHolder = { pl: pl, idx: idx };
       }
     });
-    if (autoVetoed) return;
+    if (advanceHolder) {
+      showAINotice("[" + advanceHolder.pl.name + "] " + t("aiTarget"));
+      trackTimeout(function() {
+        hideAINotice();
+        advanceHolder.pl.hand.splice(advanceHolder.idx, 1);
+        state.discard.push({ type: "veto", title_zh: "否決權", title_en: "Veto", kind: "special" });
+        log(advanceHolder.pl.name + " Veto!", "ai");
+        resolve(true);
+      }, 1000);
+      return;
+    }
     if (!holders.length) { resolve(false); return; }
     var h = holders[0];
-    showModal(t("useVeto"), "<p>" + h.pl.name + ": " + card.title + "</p>", [
+    showModal(t("useVeto"), "<p>" + h.pl.name + ": " + cardTitle(card) + "</p>", [
       { label: t("yes"), class: "success", fn: function() {
         h.pl.hand.splice(h.idx, 1);
-        state.discard.push({ type: "veto", title: "Veto", kind: "special" });
+        state.discard.push({ type: "veto", title_zh: "否決權", title_en: "Veto", kind: "special" });
         log(h.pl.name + " Veto!", "special");
         resolve(true);
       }},
@@ -722,8 +777,8 @@ async function doFlipPhase() {
     var affected = [];
     (card.forward || []).forEach(function(id) { affected.push({id:id, delta:1}); });
     (card.backward || []).forEach(function(id) { affected.push({id:id, delta:-1}); });
-    log(t("flipReveal") + ": " + card.title, "sys");
-    await showCardAnnouncement("Deck", card, { affectedSDGs: affected });
+    log(t("flipReveal") + ": " + cardTitle(card), "sys");
+    await showCardAnnouncement(t("deckFlip"), card, { affectedSDGs: affected });
     await new Promise(function(r) { resolveEvent(card, false, r); });
     break;
   }
@@ -751,7 +806,7 @@ function doDrawPhase() {
       finishTurn();
     } else {
       var body = "<div class=\"modal-list\">" + drawn.map(function(c, i) {
-        return "<button data-i=\"" + i + "\">" + c.title + "</button>";
+        return "<button data-i=\"" + i + "\">" + cardTitle(c) + "</button>";
       }).join("") + "</div>";
       showModal(t("capacityChoose"), body, []);
       setTimeout(function() {
@@ -825,7 +880,7 @@ async function maybeTriggerAI() {
         (card.backward || []).forEach(function(id) { affected.push({id:id, delta:-1}); });
       }
       await showCardAnnouncement(p.name, card, { affectedSDGs: affected });
-      log(p.name + " " + t("played") + ": " + card.title, "ai");
+      log(p.name + " " + t("played") + ": " + cardTitle(card), "ai");
       await new Promise(function(r) { resolveCard(card, true, r); });
     }
   } else {
@@ -833,7 +888,7 @@ async function maybeTriggerAI() {
     for (var j = 0; j < n2; j++) {
       var c = p.hand.pop();
       state.discard.push(c);
-      log(p.name + " " + t("discarded") + ": " + c.title, "ai");
+      log(p.name + " " + t("discarded") + ": " + cardTitle(c), "ai");
     }
   }
   state.isAIThinking = false;
@@ -989,13 +1044,13 @@ function resolveSpecial(card, isAI, done) {
         hideAINotice();
         var c = state.discard.pop();
         p.hand.push(c);
-        log(p.name + " History: " + c.title, "special");
+        log(p.name + " History: " + cardTitle(c), "special");
         done();
       }, 1000);
     } else {
       var body = "<div class=\"modal-list\">" + top.map(function(c, i) {
         var realIdx = state.discard.length - top.length + i;
-        return "<button data-i=\"" + realIdx + "\">" + c.title + "</button>";
+        return "<button data-i=\"" + realIdx + "\">" + cardTitle(c) + "</button>";
       }).join("") + "</div>";
       showModal(t("selectFromDiscard"), body, []);
       setTimeout(function() {
@@ -1004,7 +1059,7 @@ function resolveSpecial(card, isAI, done) {
             var i = parseInt(btn.getAttribute("data-i"), 10);
             var c = state.discard.splice(i, 1)[0];
             p.hand.push(c);
-            log(p.name + " History: " + c.title, "special");
+            log(p.name + " History: " + cardTitle(c), "special");
             hideModal();
             done();
           };
@@ -1099,7 +1154,7 @@ function resolveSpecial(card, isAI, done) {
     return;
   }
 
-  log(card.title + " OK", "special");
+  log(cardTitle(card) + " OK", "special");
   done();
 }
 
@@ -1157,7 +1212,7 @@ function pickAnySDG(title, cb) {
 }
 function pickHandCard(player, title, cb) {
   var body = "<div class=\"modal-list\">" + player.hand.map(function(c, i) {
-    return "<button data-i=\"" + i + "\">" + c.title + "</button>";
+    return "<button data-i=\"" + i + "\">" + cardTitle(c) + "</button>";
   }).join("") + "</div>";
   showModal(title, body, []);
   setTimeout(function() {
@@ -1181,8 +1236,8 @@ function checkWin() {
       state.inputLocked = true;
       hideAINotice();
       showScreen("winScreen");
-      document.getElementById("winnerText").textContent = pl.name + " completes both SDG goals!";
-      log(pl.name + " WINS!", "win");
+      document.getElementById("winnerText").textContent = pl.name + t("winSuffix");
+      log(pl.name + " " + t("winLog"), "win");
       return;
     }
   }
