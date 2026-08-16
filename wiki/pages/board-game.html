@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+
+{% block title %}Board Game{% endblock %}
+{% block lead %}An SDG-themed party game — draft your goals, play history cards, and race to complete both of your SDG targets.{% endblock %}
+
+{% block page_content %}
+
+<div class="board-game-page">
+
+<div id="ai-notice"><div class="ai-notice-box" id="aiNoticeText"></div></div>
+
+<div id="card-play-modal">
+  <div class="card-announce-box">
+    <div class="card-announce-player" id="announcePlayer"></div>
+    <div class="card-announce-name" id="announceCardName"></div>
+    <div class="card-announce-target" id="announceTarget"></div>
+    <div class="card-announce-desc" id="announceDesc"></div>
+    <div class="card-announce-effects" id="announceEffects"></div>
+  </div>
+</div>
+
+<div id="mainMenu" class="screen active">
+  <h1 data-i18n="title">SDG Board Game</h1>
+  <div class="menu-box">
+    <p style="color:var(--muted);margin-bottom:16px;" data-i18n="chooseMode">Choose Game Mode</p>
+    <button class="large success" id="btnPVC" data-i18n="pvc">Solo / Bot Mode (PVC)</button>
+    <button class="large" id="btnPVP" data-i18n="pvp">Multiplayer (PVP)</button>
+  </div>
+</div>
+
+<div id="pvpMenu" class="screen">
+  <h1 data-i18n="pvpTitle">Multiplayer</h1>
+  <div class="menu-box">
+    <button class="large success" id="btnLocal" data-i18n="localPlay">Same Device (Local)</button>
+    <button class="large" id="btnOnline" data-i18n="onlinePlay">Online Rooms</button>
+    <button class="large danger" id="btnBackMain" style="margin-top:16px;" data-i18n="back">Back</button>
+  </div>
+</div>
+
+<div id="setupScreen" class="screen">
+  <h1 data-i18n="setup">Game Setup</h1>
+  <div class="setup-box">
+    <h2 data-i18n="playerCount">Players</h2>
+    <select id="playerCount">
+      <option value="3">3</option>
+      <option value="4" selected>4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+    </select>
+    <div id="nameInputs" style="margin-top:14px;"></div>
+    <button id="startBtn" class="success" style="width:100%;margin-top:16px;padding:12px;" data-i18n="enterDraft">Enter SDG Draft</button>
+    <button class="danger" id="btnBackFromSetup" style="width:100%;margin-top:8px;" data-i18n="back">Back</button>
+  </div>
+</div>
+
+<div id="draftScreen" class="screen">
+  <h1 data-i18n="draftTitle">SDG Goal Draft</h1>
+  <div class="draft-status" id="draftStatus"></div>
+  <div class="draft-selected-count" id="draftCount"></div>
+  <div class="draft-grid" id="draftGrid"></div>
+  <div style="text-align:center;margin-top:12px;">
+    <button id="btnConfirmDraft" class="success" disabled data-i18n="confirmSDG">Confirm SDG Selection</button>
+  </div>
+  <div id="draftPicks" style="margin-top:14px;text-align:center;color:var(--muted);"></div>
+</div>
+
+<div id="gameScreen" class="screen">
+  <div class="game-layout">
+    <div class="board">
+      <div class="phase-bar">
+        <div>
+          <span class="phase-label" id="phaseLabel"></span>
+          <span id="turnInfo" style="margin-left:10px;"></span>
+        </div>
+        <div id="actionButtons">
+          <button id="btnDiscardMode" data-i18n="discardMode">Discard Mode</button>
+          <button id="btnPlayMode" class="success" data-i18n="playMode">Play Cards</button>
+          <button id="btnCancelAction" style="display:none;" data-i18n="cancel">Cancel</button>
+        </div>
+      </div>
+      <div class="players-grid" id="playersGrid"></div>
+      <div class="deck-info">
+        <span><span data-i18n="deck">Deck</span>: <strong id="deckCount">0</strong></span>
+        <span><span data-i18n="discard">Discard</span>: <strong id="discardCount">0</strong></span>
+      </div>
+      <div class="hand-area">
+        <h2><span data-i18n="hand">Current Hand</span> <span id="handCount"></span></h2>
+        <div class="hand-cards" id="handCards"></div>
+        <div class="confirm-bar" id="confirmBar" style="display:none;">
+          <button id="btnConfirmAction" class="success" data-i18n="confirmAction">Confirm Action</button>
+        </div>
+      </div>
+    </div>
+    <div class="log-panel">
+      <h2 data-i18n="log">Game Log</h2>
+      <div class="log-content" id="logContent"></div>
+    </div>
+  </div>
+</div>
+
+<div id="winScreen" class="screen">
+  <div class="win-screen">
+    <h1 data-i18n="victory">Victory!</h1>
+    <p id="winnerText" style="font-size:1.3rem;margin:16px 0;"></p>
+    <button onclick="location.reload()" class="success" data-i18n="playAgain">Play Again</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+</div>
+
+<script src="{{ url_for('static', filename = 'board-game.js') }}"></script>
+
+{% endblock %}
