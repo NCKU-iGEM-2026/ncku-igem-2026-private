@@ -1029,3 +1029,142 @@ footer a:hover { color: white; text-decoration: underline; }
     padding-left: 1rem;
   }
 }
+
+/* ===== SDG Board Game ===== */
+/* All rules below are scoped under .board-game-page so this self-contained
+   widget's tag-level styling (button, input, h1, h2, .card, .modal, ...)
+   never leaks into the rest of the site. */
+.board-game-page {
+  --wood-light: #f4f1ea; --wood-mid: #e8e5da; --wood-dark: #d5cbb8;
+  --paper: #fcfbf7; --ink: #3d3229; --ink-soft: #5c4e42; --border: #4a3b32;
+  --teal: #2a9d8f; --teal-dark: #1f7a6f; --blue: #457b9d; --red: #c44536;
+  --gold: #c9a227; --muted: #8a7a6a;
+  font-family: "Segoe UI", "Noto Sans TC", system-ui, sans-serif;
+  background: linear-gradient(160deg, var(--wood-light), var(--wood-mid), var(--wood-dark));
+  color: var(--ink); line-height: 1.5;
+  border-radius: 16px; padding: 18px; margin-bottom: 2rem;
+}
+.board-game-page, .board-game-page * { box-sizing: border-box; margin: 0; padding: 0; }
+.board-game-page .screen { display: none; padding: 18px; max-width: 1380px; margin: 0 auto; }
+.board-game-page .screen.active { display: block; }
+.board-game-page h1 { text-align: center; margin-bottom: 16px; font-size: clamp(1.5rem, 3.8vw, 2.1rem); color: var(--border); }
+.board-game-page h2 { margin: 12px 0 8px; color: var(--teal-dark); font-size: 1.1rem; }
+.board-game-page button {
+  background: var(--blue); color: #fff; border: 2px solid #3a6a88; padding: 10px 18px;
+  border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600;
+  box-shadow: 0 3px 0 #2c5470; transition: 0.12s;
+}
+.board-game-page button:hover { filter: brightness(1.06); }
+.board-game-page button:active { transform: translateY(2px); box-shadow: 0 1px 0 #2c5470; }
+.board-game-page button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.board-game-page button.danger { background: var(--red); border-color: #a3382c; box-shadow: 0 3px 0 #8b2e24; }
+.board-game-page button.success { background: var(--teal); border-color: #238b7f; box-shadow: 0 3px 0 #1a6b62; }
+.board-game-page button.large { padding: 14px 26px; font-size: 1.05rem; width: 100%; max-width: 340px; margin: 8px auto; display: block; }
+.board-game-page input, .board-game-page select { background: var(--paper); border: 2px solid #c4b8a8; color: var(--ink); padding: 8px 12px; border-radius: 7px; font-size: 0.95rem; }
+.board-game-page .menu-box, .board-game-page .setup-box {
+  background: var(--paper); padding: 26px; border-radius: 12px; max-width: 500px; margin: 0 auto;
+  text-align: center; border: 2px solid var(--border); box-shadow: 0 6px 20px rgba(74,59,50,0.12);
+}
+.board-game-page .player-setup { margin: 10px 0; display: grid; grid-template-columns: 70px 1fr 160px; gap: 8px; align-items: center; text-align: left; }
+.board-game-page .player-setup label { font-size: 0.88rem; color: var(--muted); }
+.board-game-page .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; margin: 14px 0; }
+.board-game-page .sdg-pick {
+  background: var(--paper); border: 2px solid #c4b8a8; border-radius: 10px; padding: 11px 7px;
+  text-align: center; cursor: pointer; transition: 0.15s; user-select: none;
+}
+.board-game-page .sdg-pick:hover:not(.disabled):not(.selected) { border-color: var(--teal); transform: translateY(-2px); }
+.board-game-page .sdg-pick.disabled { opacity: 0.35; cursor: not-allowed; }
+.board-game-page .sdg-pick.selected { border-color: var(--teal); background: #e6f5f3; box-shadow: 0 0 0 2px var(--teal); }
+.board-game-page .draft-status { text-align: center; margin: 10px 0; font-size: 1.08rem; color: var(--teal-dark); font-weight: 600; }
+.board-game-page .draft-selected-count { text-align: center; color: var(--muted); margin-bottom: 6px; }
+.board-game-page .game-layout { display: grid; grid-template-columns: 1fr 290px; gap: 14px; }
+@media (max-width: 960px) { .board-game-page .game-layout { grid-template-columns: 1fr; } .board-game-page .log-panel { max-height: 260px; } }
+.board-game-page .board { background: var(--paper); border-radius: 12px; padding: 14px; border: 2px solid var(--border); box-shadow: 0 6px 18px rgba(74,59,50,0.1); }
+.board-game-page .players-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.board-game-page .player-card { background: #f9f7f2; border: 2px solid #c4b8a8; border-radius: 10px; padding: 10px; position: relative; }
+.board-game-page .player-card.current { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(42,157,143,0.3); }
+.board-game-page .player-card.sanctioned::after { content: attr(data-sanction); position: absolute; top: 5px; right: 7px; background: var(--red); color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 5px; }
+.board-game-page .player-card.ai-tag::before { content: "Bot"; position: absolute; top: 5px; left: 7px; background: #6b5b4f; color: #fff; font-size: 0.6rem; padding: 2px 5px; border-radius: 4px; }
+.board-game-page .player-name { font-weight: 700; font-size: 0.98rem; margin-bottom: 6px; padding-left: 24px; }
+.board-game-page .sdg-row { display: flex; gap: 6px; margin-bottom: 3px; align-items: center; }
+.board-game-page .sdg-badge { background: #e8e0d4; border: 1px solid #c4b8a8; border-radius: 6px; padding: 3px 6px; font-size: 0.78rem; min-width: 60px; text-align: center; font-weight: 600; }
+.board-game-page .sdg-badge.goal { background: linear-gradient(135deg, #e8c547, #c9a227); border-color: #a88b1a; }
+.board-game-page .sdg-badge.frozen { outline: 2px solid #457b9d; }
+.board-game-page .progress-bar { flex: 1; height: 18px; background: #e5dfd4; border-radius: 9px; overflow: hidden; position: relative; border: 1px solid #c4b8a8; }
+.board-game-page .progress-fill { height: 100%; background: linear-gradient(90deg, #2a9d8f, #40b5a6); transition: width 0.5s ease; }
+.board-game-page .progress-fill.negative { background: linear-gradient(90deg, #c44536, #e06b5e); }
+.board-game-page .progress-preview { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(90deg, rgba(42,157,143,0.35), rgba(42,157,143,0.35) 4px, rgba(42,157,143,0.12) 4px, rgba(42,157,143,0.12) 8px); border: 2px dashed #2a9d8f; border-radius: 9px; pointer-events: none; }
+.board-game-page .progress-preview.negative { background: repeating-linear-gradient(90deg, rgba(196,69,54,0.4), rgba(196,69,54,0.4) 4px, rgba(196,69,54,0.15) 4px, rgba(196,69,54,0.15) 8px); border-color: #c44536; }
+.board-game-page .progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; z-index: 2; }
+.board-game-page .progress-labels { display: flex; justify-content: space-between; font-size: 0.58rem; color: var(--muted); margin-top: 1px; padding: 0 2px; }
+.board-game-page .hand-area { background: #f5f2eb; border-radius: 10px; padding: 12px; margin-top: 10px; border: 1px solid #d5cbb8; }
+.board-game-page .hand-cards { display: flex; flex-wrap: wrap; gap: 10px; min-height: 115px; }
+.board-game-page .card {
+  background: var(--paper); border: 2px solid var(--border); border-radius: 10px; padding: 0; width: 142px;
+  font-size: 0.74rem; cursor: pointer; transition: 0.18s; overflow: hidden; box-shadow: 0 4px 10px rgba(74,59,50,0.12);
+}
+.board-game-page .card:hover { transform: translateY(-8px) scale(1.04); border-color: var(--gold); }
+.board-game-page .card.selected { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); transform: translateY(-6px); }
+.board-game-page .card.disabled-card { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.board-game-page .card-header { padding: 4px 8px; font-size: 0.65rem; font-weight: 700; }
+.board-game-page .card.event .card-header { background: #e8a54b; color: #3d3229; }
+.board-game-page .card.special .card-header { background: #7b6b9e; color: #fff; }
+.board-game-page .card-body { padding: 7px; }
+.board-game-page .card-name { font-weight: 700; margin-bottom: 3px; font-size: 0.8rem; }
+.board-game-page .card-effect { color: var(--muted); font-size: 0.68rem; }
+.board-game-page .card-fwd { color: #1f7a6f; }
+.board-game-page .card-bwd { color: #a3382c; }
+.board-game-page .deck-info { display: flex; gap: 14px; margin: 10px 0; font-size: 0.88rem; color: var(--muted); }
+.board-game-page .phase-bar { background: #ebe6dc; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border: 1px solid #d5cbb8; }
+.board-game-page .phase-label { font-weight: 700; color: var(--teal-dark); }
+.board-game-page .ai-thinking { color: #6b5b4f; animation: boardGamePulse 1.2s infinite; }
+@keyframes boardGamePulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.board-game-page .log-panel { background: var(--paper); border-radius: 12px; padding: 12px; height: calc(100vh - 40px); max-height: 840px; display: flex; flex-direction: column; border: 2px solid var(--border); }
+.board-game-page .log-content { flex: 1; overflow-y: auto; font-size: 0.8rem; color: var(--ink-soft); }
+.board-game-page .log-entry { padding: 4px 0; border-bottom: 1px solid #ebe6dc; }
+.board-game-page .log-entry.sys { color: var(--blue); }
+.board-game-page .log-entry.win { color: var(--teal-dark); font-weight: 700; }
+.board-game-page .log-entry.ai { color: #6b5b4f; }
+.board-game-page .log-entry.up { color: #1f7a6f; }
+.board-game-page .log-entry.down { color: #a3382c; }
+.board-game-page .log-entry.special { color: #8b6914; }
+.board-game-page .modal-overlay { position: fixed; inset: 0; background: rgba(61,50,41,0.45); display: none; align-items: center; justify-content: center; z-index: 2000; }
+.board-game-page .modal-overlay.show { display: flex; }
+.board-game-page .modal { background: var(--paper); border-radius: 12px; padding: 22px; max-width: 480px; width: 92%; max-height: 85vh; overflow-y: auto; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+.board-game-page .modal h3 { margin-bottom: 12px; color: var(--teal-dark); }
+.board-game-page .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+.board-game-page .modal-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; max-height: 280px; overflow-y: auto; }
+.board-game-page .modal-list button { font-size: 0.82rem; padding: 8px 12px; }
+.board-game-page .win-screen { text-align: center; padding: 48px 20px; }
+.board-game-page .win-screen h1 { color: var(--gold); }
+.board-game-page .confirm-bar { margin-top: 10px; display: flex; gap: 10px; justify-content: center; }
+.board-game-page #card-play-modal {
+  position: fixed; inset: 0; background: rgba(61,50,41,0.4); display: flex; align-items: center; justify-content: center;
+  z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.board-game-page #card-play-modal.show { opacity: 1; pointer-events: auto; }
+.board-game-page #card-play-modal.fade-out { opacity: 0; }
+.board-game-page .card-announce-box {
+  background: var(--paper); border: 3px solid var(--border); border-radius: 14px; padding: 28px 36px;
+  max-width: 420px; width: 90%; text-align: center; box-shadow: 0 12px 32px rgba(74,59,50,0.2);
+  transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1);
+}
+.board-game-page #card-play-modal.show .card-announce-box { transform: scale(1); }
+.board-game-page .card-announce-player { font-size: 1rem; color: var(--blue); margin-bottom: 4px; font-weight: 600; }
+.board-game-page .card-announce-name { font-size: 1.55rem; font-weight: 800; color: var(--border); margin-bottom: 8px; }
+.board-game-page .card-announce-target { font-size: 0.92rem; color: var(--gold); margin-bottom: 8px; font-weight: 600; display: none; }
+.board-game-page .card-announce-desc { font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 14px; }
+.board-game-page .card-announce-effects { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+.board-game-page .effect-tag { background: #f0ebe3; border: 1.5px solid #c4b8a8; border-radius: 16px; padding: 4px 11px; font-size: 0.82rem; font-weight: 600; }
+.board-game-page .effect-tag.up { color: #1f7a6f; border-color: #2a9d8f; }
+.board-game-page .effect-tag.down { color: #a3382c; border-color: #c44536; }
+.board-game-page .effect-tag.special { color: #6b5b4f; }
+.board-game-page #ai-notice {
+  position: fixed; inset: 0; background: rgba(61,50,41,0.35); display: none; align-items: center; justify-content: center; z-index: 9000;
+}
+.board-game-page #ai-notice.show { display: flex; }
+.board-game-page .ai-notice-box {
+  background: var(--paper); border: 3px solid var(--border); border-radius: 12px; padding: 22px 32px;
+  max-width: 420px; text-align: center; font-size: 1.05rem; font-weight: 600; color: var(--ink);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+}
