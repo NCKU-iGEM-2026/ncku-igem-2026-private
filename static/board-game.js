@@ -97,157 +97,628 @@ document.getElementById("langSelect").onchange = function() {
 
 /* ========== CARD DATABASE ========== */
 var eventCards = [
-  {title_zh:"金融海嘯",title_en:"Financial Crisis",subtitle_zh:"西元2008年",subtitle_en:"2008 CE",description_zh:"美國次級房貸市場崩盤，雷曼兄弟宣告破產，引發骨牌效應。",description_en:"The U.S. subprime mortgage market collapsed; Lehman Brothers filed for bankruptcy.",forward:[],backward:[1,8]},
-  {title_zh:"莫拉克颱風",title_en:"Typhoon Morakot",subtitle_zh:"西元2009年",subtitle_en:"2009 CE",description_zh:"帶來破紀錄豪雨，重創南台灣，小林村遭土石流滅村。",description_en:"Record-breaking rainfall devastated southern Taiwan, wiping out Xiaolin Village.",forward:[],backward:[11]},
-  {title_zh:"焚書坑儒",title_en:"Burning of Books",subtitle_zh:"西元前213年",subtitle_en:"213 BCE",description_zh:"秦始皇下令焚燒諸子百家典籍，並坑殺方士儒生，箝制思想言論。",description_en:"Qin Shi Huang ordered classical texts burned and scholars buried alive.",forward:[],backward:[4]},
-  {title_zh:"開普敦Day Zero",title_en:"Cape Town Day Zero",subtitle_zh:"西元2018年",subtitle_en:"2018 CE",description_zh:"南非開普敦遭遇嚴重乾旱，水庫存量逼近枯竭，全市面臨限水危機。",description_en:"Cape Town faced severe drought as reservoirs nearly ran dry.",forward:[],backward:[6]},
-  {title_zh:"烏俄戰爭",title_en:"Russo-Ukrainian War",subtitle_zh:"西元2014年至今",subtitle_en:"2014-present",description_zh:"俄羅斯與烏克蘭爆發武裝衝突，戰火摧毀基礎建設，糧食與能源供應鏈受創。",description_en:"Conflict destroyed infrastructure and disrupted food and energy supply chains.",forward:[],backward:[2,17]},
-  {title_zh:"東非飢荒",title_en:"East African Famine",subtitle_zh:"長期反覆發生",subtitle_en:"Recurring",description_zh:"乾旱與衝突交織，東非多國反覆陷入嚴重飢荒，糧食安全岌岌可危。",description_en:"Drought and conflict repeatedly pushed East Africa into severe famine.",forward:[17],backward:[1,2]},
-  {title_zh:"阿富汗限制女性受教育",title_en:"Afghanistan Girls' Education Ban",subtitle_zh:"西元2021年",subtitle_en:"2021 CE",description_zh:"塔利班重掌政權後禁止女性接受中學以上教育，女性受教權大幅倒退。",description_en:"After the Taliban retook power, girls were banned from secondary education.",forward:[],backward:[4,5,10]},
-  {title_zh:"香港食水含鉛事件",title_en:"HK Lead-in-Water Scandal",subtitle_zh:"西元2015年",subtitle_en:"2015 CE",description_zh:"香港部分公共屋邨食水被驗出含鉛量超標，居民健康受到威脅。",description_en:"Excessive lead levels found in tap water at Hong Kong public housing.",forward:[],backward:[3,6,11]},
-  {title_zh:"石油危機",title_en:"Oil Crisis",subtitle_zh:"西元1973年",subtitle_en:"1973 CE",description_zh:"中東產油國禁運石油，全球油價暴漲，各國經濟陷入衰退。",description_en:"Middle Eastern oil embargo sent prices soaring worldwide.",forward:[7],backward:[9]},
-  {title_zh:"COVID-19封城",title_en:"COVID-19 Lockdowns",subtitle_zh:"西元2020年",subtitle_en:"2020 CE",description_zh:"新冠疫情爆發，各國實施封鎖措施，經濟活動大幅停擺。",description_en:"Nationwide lockdowns halted economies but helped contain the virus.",forward:[3],backward:[8,17]},
-  {title_zh:"福島核災",title_en:"Fukushima Disaster",subtitle_zh:"西元2011年",subtitle_en:"2011 CE",description_zh:"東日本大地震引發海嘯，重創福島核電廠，造成輻射外洩。",description_en:"Earthquake and tsunami crippled Fukushima nuclear plant.",forward:[],backward:[3,7,14]},
-  {title_zh:"種族隔離制度",title_en:"Apartheid",subtitle_zh:"西元1948年至1994年",subtitle_en:"1948-1994",description_zh:"南非政府依種族實施隔離與差別待遇，長期剝奪黑人基本權利。",description_en:"South Africa enforced racial segregation and discrimination.",forward:[],backward:[4,10,16]},
-  {title_zh:"快時尚盛行",title_en:"Rise of Fast Fashion",subtitle_zh:"約2000年代至今",subtitle_en:"2000s-present",description_zh:"平價快速時尚崛起，服飾快速生產與淘汰成為主流消費模式。",description_en:"Cheap, rapidly produced clothing became the dominant model.",forward:[],backward:[12,13]},
-  {title_zh:"澳洲森林大火",title_en:"Australian Bushfires",subtitle_zh:"西元2019年至2020年",subtitle_en:"2019-2020",description_zh:"澳洲遭遇史上最嚴重森林大火，燒毀大片林地，無數野生動物喪生。",description_en:"Worst wildfire season on record burned vast forests.",forward:[],backward:[13,15]},
-  {title_zh:"墨西哥灣漏油事故",title_en:"Deepwater Horizon Oil Spill",subtitle_zh:"西元2010年",subtitle_en:"2010 CE",description_zh:"深水地平線鑽油平台爆炸，大量原油外洩污染墨西哥灣。",description_en:"Oil rig explosion spilled massive crude into the Gulf of Mexico.",forward:[],backward:[6,14]},
-  {title_zh:"山老鼠盛行",title_en:"Illegal Logging",subtitle_zh:"長期存在，當代持續中",subtitle_en:"Ongoing",description_zh:"台灣山區長期存在盜伐珍貴林木的非法行為，破壞山林生態。",description_en:"Illegal logging of valuable timber damages forest ecosystems.",forward:[],backward:[12,15]},
-  {title_zh:"黑死病",title_en:"The Black Death",subtitle_zh:"14世紀",subtitle_en:"14th century",description_zh:"鼠疫在歐亞大陸大流行，造成數千萬人死亡，社會結構全面動搖。",description_en:"Plague swept Eurasia, killing tens of millions.",forward:[],backward:[1]},
-  {title_zh:"冷戰",title_en:"The Cold War",subtitle_zh:"西元1947年至1991年",subtitle_en:"1947-1991",description_zh:"美蘇兩大陣營長期對峙，軍備競賽與代理人戰爭牽動全球局勢。",description_en:"US-USSR rivalry with arms race shaped global politics.",forward:[],backward:[9,17]},
-  {title_zh:"蘇伊士運河堵塞",title_en:"Suez Canal Blockage",subtitle_zh:"西元2021年",subtitle_en:"2021 CE",description_zh:"貨櫃輪長賜號擱淺堵住蘇伊士運河，全球海運供應鏈大亂。",description_en:"Ever Given ran aground, blocking the Suez Canal.",forward:[],backward:[8,9,17]},
-  {title_zh:"裹小腳",title_en:"Foot Binding",subtitle_zh:"約10世紀至20世紀初",subtitle_en:"c.10th-20th c.",description_zh:"中國古代盛行纏足習俗，女性自幼被迫束腳變形以符合審美標準。",description_en:"Custom forcing girls' feet into deformity for beauty standards.",forward:[],backward:[5,16]},
-  {title_zh:"榮譽殺人",title_en:"Honor Killing",subtitle_zh:"持續至今",subtitle_en:"Ongoing",description_zh:"部分地區以「維護家族名譽」為由，對違反傳統規範的女性施以私刑。",description_en:"Women subjected to violence in the name of family honor.",forward:[],backward:[5,16]},
-  {title_zh:"大規模停電",title_en:"Large-Scale Blackouts",subtitle_zh:"",subtitle_en:"",description_zh:"電網因天災、設備老舊或超載等因素癱瘓，大範圍地區陷入停電。",description_en:"Power grids collapse, cutting electricity across wide areas.",forward:[],backward:[7]},
-  {title_zh:"過度包裝文化",title_en:"Overpackaging Culture",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"商品為求精美與促銷，層層包裝造成大量不必要的資源浪費。",description_en:"Excessive packaging wastes huge amounts of resources.",forward:[],backward:[12,15]},
-  {title_zh:"幽靈漁網",title_en:"Ghost Fishing Nets",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"廢棄或遺失的漁網持續漂流海中，纏繞並困死大量海洋生物。",description_en:"Abandoned nets drift, entangling and killing marine animals.",forward:[],backward:[12,14]},
-  {title_zh:"獵巫運動",title_en:"Witch Trials",subtitle_zh:"15世紀至17世紀",subtitle_en:"15th-17th c.",description_zh:"歐洲曾大規模迫害「女巫」，數萬名女性遭指控並處以極刑。",description_en:"Widespread persecution of accused witches in Europe.",forward:[],backward:[5]},
-  {title_zh:"同性婚姻法通過",title_en:"Same-Sex Marriage Legalization",subtitle_zh:"多國陸續完成立法",subtitle_en:"Multiple countries",description_zh:"多國陸續完成同性婚姻合法化，保障婚姻平權。",description_en:"Multiple countries legalized same-sex marriage.",forward:[5,10,16],backward:[]},
-  {title_zh:"建立自來水系統",title_en:"Modern Tap Water Systems",subtitle_zh:"近代至今",subtitle_en:"Modern era",description_zh:"現代自來水系統普及，提供乾淨用水與衛生保障。",description_en:"Modern tap water systems provide clean water and sanitation.",forward:[3,6],backward:[]},
-  {title_zh:"世界關燈日",title_en:"Earth Hour",subtitle_zh:"每年3月最後一個週六",subtitle_en:"Annually",description_zh:"全球響應每年關燈一小時，喚起節能與氣候意識。",description_en:"Global event switching off lights to raise climate awareness.",forward:[7,12,13],backward:[]},
-  {title_zh:"冰島同工同酬",title_en:"Iceland's Equal Pay Law",subtitle_zh:"西元2018年",subtitle_en:"2018 CE",description_zh:"冰島立法強制企業證明同工同酬，打擊性別薪資差距。",description_en:"Iceland required companies to prove equal pay for equal work.",forward:[5,10],backward:[]},
-  {title_zh:"全民健保制度上路",title_en:"National Health Insurance",subtitle_zh:"1995年（台灣）",subtitle_en:"1995 Taiwan",description_zh:"台灣實施全民健康保險，讓醫療照護不再是有錢人的特權。",description_en:"Taiwan launched NHI, making healthcare accessible.",forward:[3,10],backward:[]},
-  {title_zh:"法國反食物浪費法",title_en:"France's Anti-Food-Waste Law",subtitle_zh:"西元2018年",subtitle_en:"2018 CE",description_zh:"法國立法禁止超市丟棄未售出食物，要求捐贈給慈善機構。",description_en:"France banned supermarkets from discarding unsold food.",forward:[2,12],backward:[]},
-  {title_zh:"歐盟2035禁售燃油車",title_en:"EU 2035 Combustion Car Ban",subtitle_zh:"2035年起生效",subtitle_en:"From 2035",description_zh:"歐盟通過2035年起禁售新燃油車，加速交通運具電動化。",description_en:"EU bans new fossil-fuel car sales from 2035.",forward:[7,11],backward:[]},
-  {title_zh:"大阪世博",title_en:"Expo 2025 Osaka",subtitle_zh:"西元2025年",subtitle_en:"2025 CE",description_zh:"2025年大阪世博匯聚各國展現創新科技與國際合作成果。",description_en:"Nations showcased innovation and international cooperation.",forward:[9,17],backward:[]},
-  {title_zh:"Coldplay世界巡迴演唱會",title_en:"Coldplay Music of the Spheres Tour",subtitle_zh:"西元2022年至今",subtitle_en:"2022-present",description_zh:"巡演大量採用可再生能源與觀眾發電地板，減少演唱會碳足跡。",description_en:"Tour used renewable energy and kinetic dance floors.",forward:[7,13],backward:[]},
-  {title_zh:"聯合國千禧年減貧計畫",title_en:"UN Millennium Development Goals",subtitle_zh:"西元2000年",subtitle_en:"2000 CE",description_zh:"聯合國訂定千禧年發展目標，全球合力推動減貧與經濟發展。",description_en:"UN set MDGs mobilizing global efforts to cut poverty.",forward:[1,8],backward:[]},
-  {title_zh:"綠色革命",title_en:"The Green Revolution",subtitle_zh:"1960年代至1990年代",subtitle_en:"1960s-1990s",description_zh:"農業技術與品種改良大幅提升糧食產量，但也帶來生態代價。",description_en:"Crop innovations boosted food production; ecological trade-offs.",forward:[1,2,9],backward:[15]},
-  {title_zh:"紐西蘭女性投票權",title_en:"New Zealand Women's Suffrage",subtitle_zh:"西元1893年",subtitle_en:"1893 CE",description_zh:"紐西蘭成為全球第一個賦予女性投票權的國家。",description_en:"New Zealand became the first country to grant women the vote.",forward:[5,10,16],backward:[]},
-  {title_zh:"網際網路普及",title_en:"Rise of the Internet",subtitle_zh:"1990年代至今",subtitle_en:"1990s-present",description_zh:"網路快速普及全球，但發展初期城鄉與貧富之間的落差明顯。",description_en:"Internet spread rapidly; early access gaps also emerged.",forward:[4,9],backward:[10]},
-  {title_zh:"高速鐵路通車",title_en:"High Speed Rail Opens",subtitle_zh:"2007年（台灣）",subtitle_en:"2007 Taiwan",description_zh:"台灣高鐵通車，大幅縮短南北交通時間，帶動區域發展。",description_en:"Taiwan HSR cut north-south travel time drastically.",forward:[8,9,11],backward:[]},
-  {title_zh:"海綿城市計畫",title_en:"Sponge City Initiative",subtitle_zh:"2010年代至今",subtitle_en:"2010s-present",description_zh:"城市透過透水鋪面與綠地設計提升防洪韌性，因應極端氣候。",description_en:"Permeable surfaces improve flood resilience.",forward:[11,13],backward:[]},
-  {title_zh:"世界地球日",title_en:"Earth Day",subtitle_zh:"每年4月22日",subtitle_en:"April 22",description_zh:"每年4月22日全球舉辦環保活動，喚起大眾對地球生態的重視。",description_en:"Annual global environmental awareness campaigns.",forward:[12,14,15],backward:[]},
-  {title_zh:"禁用一次性塑膠",title_en:"Single-Use Plastic Bans",subtitle_zh:"多國陸續立法",subtitle_en:"Worldwide",description_zh:"多國陸續立法禁用一次性塑膠製品，減少塑膠污染。",description_en:"Countries banned single-use plastics to curb pollution.",forward:[12,14,15],backward:[]},
-  {title_zh:"全球禁捕商業捕鯨",title_en:"Commercial Whaling Moratorium",subtitle_zh:"西元1986年",subtitle_en:"1986 CE",description_zh:"國際捕鯨委員會實施全球商業捕鯨禁令，鯨魚族群逐漸恢復。",description_en:"IWC enacted a global moratorium on commercial whaling.",forward:[14],backward:[]},
-  {title_zh:"減塑淨灘活動",title_en:"Beach Cleanup Movements",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"民間團體與政府推動海灘清潔行動，減少海洋與海岸垃圾。",description_en:"Community beach cleanups reduce ocean and coastal litter.",forward:[11,14,15],backward:[]},
-  {title_zh:"國家公園設立",title_en:"Establishment of National Parks",subtitle_zh:"1872年首座起",subtitle_en:"Since 1872",description_zh:"各國劃設國家公園保護原始生態與自然景觀。",description_en:"Countries designated national parks to protect ecosystems.",forward:[15],backward:[]},
-  {title_zh:"復育瀕危物種",title_en:"Endangered Species Recovery",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"保育組織透過人工繁殖與棲地復育，協助瀕危物種族群逐漸回升。",description_en:"Captive breeding and habitat restoration help species recover.",forward:[15],backward:[]},
-  {title_zh:"世界人權宣言",title_en:"Universal Declaration of Human Rights",subtitle_zh:"西元1948年",subtitle_en:"1948 CE",description_zh:"聯合國通過世界人權宣言，確立人人享有基本人權的普世價值。",description_en:"UN adopted the UDHR establishing basic rights for all.",forward:[5,10,16],backward:[]},
-  {title_zh:"COVID-19疫苗國際合作",title_en:"COVID Vaccine Cooperation",subtitle_zh:"西元2020年至2021年",subtitle_en:"2020-2021",description_zh:"COVAX等機制促成各國共享疫苗資源，加速全球接種進度。",description_en:"COVAX enabled countries to share vaccine resources.",forward:[3,17],backward:[]},
-  {title_zh:"人類基因組計畫",title_en:"Human Genome Project",subtitle_zh:"西元1990年至2003年",subtitle_en:"1990-2003",description_zh:"國際科學家合作解碼人類基因組，開啟精準醫療新時代。",description_en:"International scientists mapped the human genome.",forward:[3,9,17],backward:[]},
-  {title_zh:"大禹治水",title_en:"Yu the Great Tames the Flood",subtitle_zh:"約西元前2000年",subtitle_en:"c.2000 BCE",description_zh:"相傳大禹以疏導取代圍堵治理黃河水患，奠定治水工程典範。",description_en:"Yu tamed Yellow River floods by channeling water.",forward:[6,9,11],backward:[]},
-  {title_zh:"商鞅變法",title_en:"Shang Yang's Reforms",subtitle_zh:"西元前356年至前338年",subtitle_en:"356-338 BCE",description_zh:"商鞅在秦國推行法制與土地改革，強化國力與治理效率。",description_en:"Shang Yang implemented legal and land reforms in Qin.",forward:[8,16],backward:[]},
-  {title_zh:"科舉制度建立",title_en:"Imperial Examination System",subtitle_zh:"西元605年",subtitle_en:"605 CE",description_zh:"隋朝建立科舉制度，讓平民也能透過考試晉身官場。",description_en:"Sui established exams letting commoners rise by merit.",forward:[4,8,16],backward:[]},
-  {title_zh:"雅典民主制度",title_en:"Athenian Democracy",subtitle_zh:"西元前508年",subtitle_en:"508 BCE",description_zh:"古雅典建立公民直接參與政治的民主制度，影響後世政治發展。",description_en:"Athens established direct citizen participation in politics.",forward:[10,16],backward:[]},
-  {title_zh:"文藝復興",title_en:"The Renaissance",subtitle_zh:"14世紀至17世紀",subtitle_en:"14th-17th c.",description_zh:"歐洲文藝復興帶動藝術、科學與人文思想的全面復興。",description_en:"European revival in art, science, and humanist thought.",forward:[4,9],backward:[]},
-  {title_zh:"古騰堡活字印刷",title_en:"Gutenberg's Printing Press",subtitle_zh:"約1440年代",subtitle_en:"c.1440s",description_zh:"古騰堡發明活字印刷術，讓書籍大量生產，知識傳播加速。",description_en:"Movable type enabled mass book production.",forward:[4,10],backward:[]},
-  {title_zh:"蒸汽機發明",title_en:"Invention of the Steam Engine",subtitle_zh:"約1712年至1769年",subtitle_en:"c.1712-1769",description_zh:"蒸汽機的發明帶來動力革命，推動工業與交通運輸大幅發展。",description_en:"Steam engine sparked a power revolution for industry.",forward:[7,8],backward:[]},
-  {title_zh:"工業革命",title_en:"The Industrial Revolution",subtitle_zh:"18世紀中至19世紀",subtitle_en:"18th-19th c.",description_zh:"工業革命帶動生產力大躍進，但初期也伴隨高污染與高工時。",description_en:"Massive productivity gains with heavy early pollution.",forward:[8],backward:[13]},
-  {title_zh:"哥倫布發現新大陸",title_en:"Columbus Reaches the Americas",subtitle_zh:"西元1492年",subtitle_en:"1492 CE",description_zh:"哥倫布抵達美洲開啟東西半球交流，但也帶來殖民剝削。",description_en:"Opened hemispheric contact but brought colonial exploitation.",forward:[8,17],backward:[10]},
-  {title_zh:"社會住宅政策",title_en:"Social Housing Policy",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"政府興建社會住宅，提供中低收入戶可負擔的居住選擇。",description_en:"Governments build affordable housing for lower incomes.",forward:[1],backward:[]},
-  {title_zh:"巴西「家庭補助金」",title_en:"Brazil's Bolsa Família",subtitle_zh:"西元2003年",subtitle_en:"2003 CE",description_zh:"巴西政府提供條件式現金補助，要求受助家庭送孩子上學並接種疫苗。",description_en:"Conditional cash transfers requiring school and vaccines.",forward:[1,2,4],backward:[]},
-  {title_zh:"國際稻米研究所（IRRI）成立",title_en:"Founding of IRRI",subtitle_zh:"西元1960年",subtitle_en:"1960 CE",description_zh:"IRRI致力研發高產稻米品種，協助亞洲多國提升糧食產量。",description_en:"Develops high-yield rice varieties for Asia.",forward:[2,9],backward:[]},
-  {title_zh:"維基百科誕生",title_en:"Wikipedia Launches",subtitle_zh:"西元2001年",subtitle_en:"2001 CE",description_zh:"維基百科以協作方式建立免費線上百科全書，開放全球共同編輯。",description_en:"Free collaboratively edited online encyclopedia.",forward:[4,17],backward:[]},
-  {title_zh:"冰島選出全球首位民選女性總統",title_en:"Iceland First Elected Woman President",subtitle_zh:"西元1980年",subtitle_en:"1980 CE",description_zh:"冰島選出Vigdís Finnbogadóttir，成為全球首位經直接民選產生的女性元首。",description_en:"Iceland elected the world's first directly elected female president.",forward:[5],backward:[]},
-  {title_zh:"倫敦下水道系統建立",title_en:"London Sewer System",subtitle_zh:"西元1859年至1875年",subtitle_en:"1859-1875",description_zh:"倫敦興建現代下水道系統，解決霍亂與污水氾濫問題。",description_en:"Modern sewers solved cholera and sewage overflow.",forward:[3,6,11],backward:[]},
-  {title_zh:"海水淡化技術普及",title_en:"Desalination Technology Spreads",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"海水淡化技術日益成熟，協助缺水地區取得穩定淡水來源。",description_en:"Helps water-scarce regions secure freshwater.",forward:[6,9],backward:[]},
-  {title_zh:"LED照明普及",title_en:"LED Lighting Adoption",subtitle_zh:"2000年代至今",subtitle_en:"2000s-present",description_zh:"LED燈泡逐漸取代傳統燈泡，大幅降低照明耗電量。",description_en:"LEDs replaced traditional lighting, cutting electricity use.",forward:[7,12],backward:[]},
-  {title_zh:"珊瑚礁復育計畫",title_en:"Coral Reef Restoration",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"科學家透過人工復育與移植技術，協助受損珊瑚礁重新生長。",description_en:"Coral farming and transplantation help reefs regrow.",forward:[13,14],backward:[]},
-  {title_zh:"禁用魚翅政策",title_en:"Shark Fin Bans",subtitle_zh:"多國陸續立法",subtitle_en:"Worldwide",description_zh:"多國與航空公司禁止魚翅交易與運輸，抑制過度捕撈鯊魚。",description_en:"Bans on shark fin trade curb overfishing.",forward:[12,14],backward:[]},
-  {title_zh:"海龜保育計畫",title_en:"Sea Turtle Conservation",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"保育團體透過巡護海灘、保護產卵地協助海龜族群逐漸復育。",description_en:"Beach patrols and nesting protection help turtles recover.",forward:[14,15],backward:[]},
-  {title_zh:"天然林禁伐政策",title_en:"Primary Forest Logging Bans",subtitle_zh:"多國陸續立法",subtitle_en:"Worldwide",description_zh:"多國立法禁止砍伐原始天然林，保護森林碳匯與生物多樣性。",description_en:"Bans on logging primary forests protect carbon sinks.",forward:[13,15],backward:[]},
-  {title_zh:"最低工資制度",title_en:"Minimum Wage Laws",subtitle_zh:"各國陸續實施",subtitle_en:"Worldwide",description_zh:"政府訂立最低工資標準，保障勞工基本收入水準。",description_en:"Minimum wage standards guarantee baseline income.",forward:[1],backward:[]},
-  {title_zh:"滴灌技術發明",title_en:"Invention of Drip Irrigation",subtitle_zh:"1960年代（以色列）",subtitle_en:"1960s Israel",description_zh:"滴灌技術精準供水給作物根部，大幅提升灌溉用水效率。",description_en:"Delivers water precisely to roots, improving efficiency.",forward:[2,6],backward:[]},
-  {title_zh:"糧食銀行成立",title_en:"Founding of Food Banks",subtitle_zh:"1967年首創",subtitle_en:"Since 1967",description_zh:"糧食銀行媒合多餘食物與有需要的家庭，減少浪費並協助弱勢。",description_en:"Connect surplus food with families in need.",forward:[1,2,12],backward:[]},
-  {title_zh:"國際婦女節",title_en:"International Women's Day",subtitle_zh:"每年3月8日",subtitle_en:"March 8",description_zh:"每年3月8日全球紀念並倡議女性權益與性別平等。",description_en:"Global day advocating women's rights and equality.",forward:[5],backward:[]},
-  {title_zh:"禁止童婚法",title_en:"Child Marriage Bans",subtitle_zh:"多國陸續立法",subtitle_en:"Worldwide",description_zh:"多國立法禁止未成年結婚，保護兒童權益與身心發展。",description_en:"Laws ban child marriage to protect children's rights.",forward:[3,5,16],backward:[]},
-  {title_zh:"Girls Who Code成立",title_en:"Founding of Girls Who Code",subtitle_zh:"西元2012年",subtitle_en:"2012 CE",description_zh:"非營利組織Girls Who Code致力縮小科技領域性別落差，推動女性程式教育。",description_en:"Works to close the tech gender gap via coding education.",forward:[4,5],backward:[]},
-  {title_zh:"雨水回收系統",title_en:"Rainwater Harvesting Systems",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"建築物設置雨水回收系統，收集雨水再利用於澆灌與沖廁。",description_en:"Buildings collect rainwater for irrigation and flushing.",forward:[6,11],backward:[]}
+  {
+    title_zh:"金融海嘯", title_en:"Financial Crisis",
+    subtitle_zh:"西元2008年", subtitle_en:"2008 CE",
+    description_zh:"美國次級房貸市場崩盤，雷曼兄弟宣告破產，骨牌效應迅速蔓延全球，堪稱二戰後最嚴重的全球經濟危機之一。",
+    description_en:"The U.S. subprime mortgage market collapsed, Lehman Brothers filed for bankruptcy, and the shockwaves rippled across the globe. Widely considered one of the worst economic crises since WWII.",
+    forward:[], backward:[1, 8],
+    notes:{1:{zh:"存款蒸發，一夜變月光族 QQ",en:"Savings gone overnight, hello paycheck-to-paycheck"},8:{zh:"失業潮爆發，經濟成長直接躺平",en:"Layoffs everywhere, growth just face-planted"}}
+  },
+  {
+    title_zh:"莫拉克颱風", title_en:"Typhoon Morakot",
+    subtitle_zh:"西元2009年", subtitle_en:"2009 CE",
+    description_zh:"帶來破紀錄豪雨，重創南台灣，小林村遭土石流滅村，多處聚落基礎建設全毀。",
+    description_en:"Record-breaking rainfall devastated southern Taiwan, wiping out Xiaolin Village in a landslide and destroying infrastructure across communities.",
+    forward:[], backward:[11],
+    notes:{11:{zh:"家園一夕全毀，重建路超漫長",en:"Whole villages gone overnight, rebuilding's a long road"}}
+  },
+  {
+    title_zh:"焚書坑儒", title_en:"The Burning of Books and Burying of Scholars",
+    subtitle_zh:"西元前213年", subtitle_en:"213 BCE",
+    description_zh:"秦始皇下令焚燒諸子百家典籍，並坑殺方士儒生，箝制思想與學術傳承。",
+    description_en:"Qin Shi Huang ordered classical texts burned and Confucian scholars buried alive, crushing free thought and scholarship.",
+    forward:[], backward:[4],
+    notes:{4:{zh:"知識直接被查封，讀書人瑟瑟發抖",en:"Knowledge got straight-up banned, scholars shaking"}}
+  },
+  {
+    title_zh:"開普敦Day Zero", title_en:"Cape Town Day Zero",
+    subtitle_zh:"西元2018年", subtitle_en:"2018 CE",
+    description_zh:"南非開普敦遭遇嚴重乾旱，水庫存量逼近枯竭，全市面臨關閉自來水供應的危機。",
+    description_en:"Cape Town, South Africa faced severe drought as reservoirs nearly ran dry, threatening a city-wide water shutoff.",
+    forward:[], backward:[6],
+    notes:{6:{zh:"水龍頭快要關到底，全城搶水",en:"Taps almost ran dry, city-wide water panic"}}
+  },
+  {
+    title_zh:"烏俄戰爭", title_en:"Russo-Ukrainian War",
+    subtitle_zh:"西元2014年至今", subtitle_en:"2014 CE - present",
+    description_zh:"俄羅斯與烏克蘭爆發武裝衝突，戰火摧毀基礎建設，糧食與能源供應鏈受到重創。",
+    description_en:"Armed conflict between Russia and Ukraine destroyed infrastructure and disrupted global food and energy supply chains.",
+    forward:[], backward:[2, 17],
+    notes:{2:{zh:"烏克蘭是糧倉，戰火一燒全球糧價跟著抖",en:"Ukraine's the world's breadbasket, war sent grain prices soaring"},17:{zh:"國際合作被迫重新洗牌，制裁與結盟滿天飛",en:"International alliances got reshuffled overnight, sanctions everywhere"}}
+  },
+  {
+    title_zh:"東非飢荒", title_en:"East African Famine",
+    subtitle_zh:"長期反覆發生（以2011年最嚴重）", subtitle_en:"Recurring (worst in 2011)",
+    description_zh:"乾旱與衝突交織，東非多國反覆陷入嚴重飢荒，糧食安全長期告急。",
+    description_en:"Drought and conflict repeatedly pushed East African nations into severe famine, with food security in constant crisis.",
+    forward:[17], backward:[1, 2],
+    notes:{1:{zh:"貧窮線一再被戰亂跟乾旱往下拖",en:"Poverty deepened as war and drought kept hitting the same region"},2:{zh:"糧食短缺常態化，孩子吃不飽",en:"Chronic food shortages, kids going hungry"},17:{zh:"國際援助湧入，多方一起撐住局面",en:"International aid stepped up to help hold the line"}}
+  },
+  {
+    title_zh:"阿富汗限制女性受教育", title_en:"Afghanistan Restricts Girls' Education",
+    subtitle_zh:"西元2021年", subtitle_en:"2021 CE",
+    description_zh:"塔利班重掌政權後禁止女性接受中學以上教育，女性受教權大幅倒退。",
+    description_en:"After the Taliban retook power, girls were banned from secondary and higher education, sharply reversing progress on women's education.",
+    forward:[], backward:[4, 5, 10],
+    notes:{4:{zh:"教室的門直接對女生關上",en:"Classroom doors slammed shut for girls"},5:{zh:"性別平等瞬間開倒車",en:"Gender equality took a massive step backward"},10:{zh:"半數人口被排除在社會之外",en:"Half the population locked out of society"}}
+  },
+  {
+    title_zh:"香港食水含鉛事件", title_en:"Hong Kong Lead-in-Water Scandal",
+    subtitle_zh:"西元2015年", subtitle_en:"2015 CE",
+    description_zh:"香港部分公共屋邨食水被驗出含鉛量超標，居民健康受威脅。",
+    description_en:"Excessive lead levels were found in tap water at several Hong Kong public housing estates, threatening residents' health.",
+    forward:[], backward:[3, 6, 11],
+    notes:{3:{zh:"SDG3：喝口水都要提心吊膽",en:"Even drinking water became a health scare"},6:{zh:"乾淨用水品質亮紅燈",en:"Clean water quality failed the test"},11:{zh:"社區住宅安全信任感崩盤",en:"Trust in community housing safety took a hit"}}
+  },
+  {
+    title_zh:"石油危機", title_en:"Oil Crisis",
+    subtitle_zh:"西元1973年", subtitle_en:"1973 CE",
+    description_zh:"中東產油國禁運石油，全球油價暴漲，各國經濟陷入衰退。",
+    description_en:"Middle Eastern oil producers imposed an embargo, oil prices soared, and economies worldwide slid into recession.",
+    forward:[7], backward:[9],
+    notes:{7:{zh:"各國被迫發展替代能源，加速能源轉型",en:"Countries scrambled to develop alternative energy, speeding up the energy transition"},9:{zh:"工業生產全面卡關，供應鏈大亂",en:"Industrial production ground to a halt, supply chains in chaos"}}
+  },
+  {
+    title_zh:"COVID-19封城", title_en:"COVID-19 Lockdowns",
+    subtitle_zh:"西元2020年", subtitle_en:"2020 CE",
+    description_zh:"新冠疫情爆發，各國實施封鎖措施，經濟活動大幅停擺。",
+    description_en:"COVID-19 spread globally, prompting nationwide lockdowns that brought economic activity to a standstill.",
+    forward:[3], backward:[8, 17],
+    notes:{3:{zh:"病毒傳播被壓下來，救了不少命",en:"Virus spread got contained, saving countless lives"},8:{zh:"店都關了，打工人沒班可上",en:"Shops shut down, workers left without jobs"},17:{zh:"各國防疫各自為政，合作與摩擦並存",en:"Countries went their own way on pandemic response, mixing cooperation and friction"}}
+  },
+  {
+    title_zh:"福島核災", title_en:"Fukushima Nuclear Disaster",
+    subtitle_zh:"西元2011年", subtitle_en:"2011 CE",
+    description_zh:"東日本大地震引發海嘯，重創福島核電廠，造成輻射外洩。",
+    description_en:"The Tohoku earthquake and tsunami crippled the Fukushima nuclear plant, causing a radiation leak.",
+    forward:[], backward:[3, 7, 14],
+    notes:{3:{zh:"輻射外洩，居民健康風險飆升",en:"Radiation leak sent health risks soaring"},7:{zh:"核能安全信任度重挫",en:"Public trust in nuclear energy took a hit"},14:{zh:"含輻射廢水排放，海洋生態遭殃",en:"Radioactive wastewater release harmed marine ecosystems"}}
+  },
+  {
+    title_zh:"種族隔離制度", title_en:"Apartheid",
+    subtitle_zh:"西元1948年至1994年（南非）", subtitle_en:"1948 CE - 1994 CE (South Africa)",
+    description_zh:"南非政府依種族實施隔離與差別待遇，長期剝奪黑人基本權利。",
+    description_en:"South Africa's government enforced racial segregation and discrimination, systematically denying Black citizens basic rights.",
+    forward:[], backward:[4, 10, 16],
+    notes:{4:{zh:"有色人種被排除在優質教育之外",en:"Non-white citizens shut out of quality education"},10:{zh:"制度性不平等寫進法律裡",en:"Inequality literally written into law"},16:{zh:"公義與人權形同虛設",en:"Justice and human rights existed only on paper"}}
+  },
+  {
+    title_zh:"快時尚盛行", title_en:"Rise of Fast Fashion",
+    subtitle_zh:"約2000年代至今", subtitle_en:"Roughly 2000s - present",
+    description_zh:"平價快速時尚崛起，服飾快速生產與淘汰成為主流消費模式。",
+    description_en:"Fast fashion took off, with cheap, rapidly produced and discarded clothing becoming the dominant consumption model.",
+    forward:[], backward:[12, 13],
+    notes:{12:{zh:"衣服穿沒幾次就丟，浪費爆表",en:"Clothes tossed after a few wears, waste through the roof"},13:{zh:"紡織業碳排放居高不下",en:"Textile industry emissions stay sky-high"}}
+  },
+  {
+    title_zh:"澳洲森林大火", title_en:"Australian Bushfires",
+    subtitle_zh:"西元2019年至2020年", subtitle_en:"2019 CE - 2020 CE",
+    description_zh:"澳洲遭遇史上最嚴重森林大火，燒毀大片林地，無數野生動物喪生。",
+    description_en:"Australia suffered its worst wildfire season on record, burning vast forests and killing countless wildlife.",
+    forward:[], backward:[13, 15],
+    notes:{13:{zh:"極端氣候加乾旱，火勢一發不可收拾",en:"Extreme heat and drought fueled fires that spiraled out of control"},15:{zh:"棲地大面積燒毀，物種瀕臨滅絕",en:"Habitats destroyed on a massive scale, species pushed toward extinction"}}
+  },
+  {
+    title_zh:"墨西哥灣漏油事故", title_en:"Deepwater Horizon Oil Spill",
+    subtitle_zh:"西元2010年", subtitle_en:"2010 CE",
+    description_zh:"深水地平線鑽油平台爆炸，大量原油外洩污染墨西哥灣。",
+    description_en:"The Deepwater Horizon oil rig exploded, spilling massive amounts of crude oil into the Gulf of Mexico.",
+    forward:[], backward:[6, 14],
+    notes:{6:{zh:"沿岸水質嚴重污染",en:"Coastal water quality took a severe hit"},14:{zh:"海洋生態遭原油重創",en:"Marine ecosystems devastated by the oil spill"}}
+  },
+  {
+    title_zh:"山老鼠盛行", title_en:"Illegal Logging (\"Mountain Rats\")",
+    subtitle_zh:"長期存在，當代持續中", subtitle_en:"Ongoing, present-day (Taiwan)",
+    description_zh:"台灣山區長期存在盜伐珍貴林木的非法行為，破壞山林生態。",
+    description_en:"Illegal logging of valuable timber has long persisted in Taiwan's mountains, damaging forest ecosystems.",
+    forward:[], backward:[12, 15],
+    notes:{12:{zh:"珍貴木材被非法盜採販售",en:"Precious timber illegally cut and sold"},15:{zh:"森林生態系統遭嚴重破壞",en:"Forest ecosystems seriously damaged"}}
+  },
+  {
+    title_zh:"黑死病", title_en:"The Black Death",
+    subtitle_zh:"14世紀（約1347年至1351年）", subtitle_en:"14th century (c. 1347-1351)",
+    description_zh:"鼠疫在歐亞大陸大流行，造成數千萬人死亡，社會結構受到重創。",
+    description_en:"The Black Death plague swept across Eurasia, killing tens of millions and devastating social structures.",
+    forward:[], backward:[1],
+    notes:{1:{zh:"勞動力銳減，經濟與生計全面崩壞",en:"Labor force collapsed, livelihoods and economies fell apart"}}
+  },
+  {
+    title_zh:"冷戰", title_en:"The Cold War",
+    subtitle_zh:"西元1947年至1991年", subtitle_en:"1947 CE - 1991 CE",
+    description_zh:"美蘇兩大陣營長期對峙，軍備競賽與代理人戰爭牽動全球局勢。",
+    description_en:"The US and USSR engaged in prolonged rivalry, with an arms race and proxy wars shaping global politics.",
+    forward:[], backward:[9, 17],
+    notes:{9:{zh:"軍備競賽拉高科技投入，但方向偏向軍事",en:"Arms race drove tech investment, but mostly toward weapons"},17:{zh:"世界分成兩大陣營，合作變得超級困難",en:"World split into two camps, cooperation got a lot harder"}}
+  },
+  {
+    title_zh:"蘇伊士運河堵塞", title_en:"Suez Canal Blockage",
+    subtitle_zh:"西元2021年", subtitle_en:"2021 CE",
+    description_zh:"貨櫃輪長賜號擱淺堵住蘇伊士運河，全球海運供應鏈大打結。",
+    description_en:"The container ship Ever Given ran aground and blocked the Suez Canal, snarling global shipping supply chains.",
+    forward:[], backward:[8, 9, 17],
+    notes:{8:{zh:"全球貿易停擺，損失以天計算",en:"Global trade ground to a halt, losses piled up by the day"},9:{zh:"供應鏈基礎設施瞬間卡死",en:"Supply chain infrastructure got jammed overnight"},17:{zh:"各國緊急協調搶通航道",en:"Countries scrambled to coordinate and clear the channel"}}
+  },
+  {
+    title_zh:"裹小腳", title_en:"Foot Binding",
+    subtitle_zh:"約10世紀至20世紀初（中國）", subtitle_en:"c. 10th century - early 20th century (China)",
+    description_zh:"中國古代盛行纏足習俗，女性自幼被迫束腳變形以符合審美標準。",
+    description_en:"Foot binding was a widespread custom in imperial China, forcing girls' feet into deformity to fit beauty standards.",
+    forward:[], backward:[5, 16],
+    notes:{5:{zh:"女性身體被迫服從畸形審美",en:"Women's bodies forced to conform to a painful ideal"},16:{zh:"陋習長期未受法律有效制止",en:"The practice went largely unchecked by law for centuries"}}
+  },
+  {
+    title_zh:"榮譽殺人", title_en:"Honor Killing",
+    subtitle_zh:"持續至今", subtitle_en:"Ongoing, present-day",
+    description_zh:"部分地區以「維護家族名譽」為由，對違反傳統規範的女性施以暴力甚至殺害。",
+    description_en:"In some regions, women who defy traditional norms are subjected to violence or killed in the name of \"family honor.\"",
+    forward:[], backward:[5, 16],
+    notes:{5:{zh:"女性生命安全被家族「面子」凌駕",en:"Women's safety sacrificed for family \"honor\""},16:{zh:"私刑凌駕司法，暴力被默許",en:"Vigilante violence overrides justice, often going unpunished"}}
+  },
+  {
+    title_zh:"大規模停電", title_en:"Large-Scale Blackouts",
+    subtitle_zh:"", subtitle_en:"",
+    description_zh:"電網因天災、設備老舊或超載等因素癱瘓，大範圍地區同時斷電。",
+    description_en:"Power grids collapse due to disasters, aging infrastructure, or overload, cutting electricity across wide areas.",
+    forward:[], backward:[7],
+    notes:{7:{zh:"電力系統一夕癱瘓，全城陷入黑暗",en:"Power system goes down overnight, whole city goes dark"}}
+  },
+  {
+    title_zh:"過度包裝文化", title_en:"Overpackaging Culture",
+    subtitle_zh:"當代", subtitle_en:"Modern",
+    description_zh:"商品為求精美與促銷，層層包裝造成大量不必要的資源浪費。",
+    description_en:"Products are wrapped in excessive layers of packaging for aesthetics or promotion, wasting huge amounts of resources.",
+    forward:[], backward:[12, 15],
+    notes:{12:{zh:"一顆餅乾包三層，垃圾比商品還多",en:"One cookie, three layers of packaging, more trash than product"},15:{zh:"包裝原料多來自森林資源，過度消耗",en:"Packaging materials often drain forest resources"}}
+  },
+  {
+    title_zh:"幽靈漁網", title_en:"Ghost Fishing Nets",
+    subtitle_zh:"當代", subtitle_en:"Modern",
+    description_zh:"廢棄或遺失的漁網持續漂流海中，纏繞並困死大量海洋生物。",
+    description_en:"Abandoned or lost fishing nets drift through the ocean, entangling and killing large numbers of marine animals.",
+    forward:[], backward:[12, 14],
+    notes:{12:{zh:"漁具用完就丟，海洋變垃圾場",en:"Gear tossed and forgotten, ocean turned dumping ground"},14:{zh:"海龜海豚被纏死，慘不忍睹",en:"Turtles and dolphins entangled and killed"}}
+  },
+  {
+    title_zh:"獵巫運動", title_en:"Witch Trials",
+    subtitle_zh:"15世紀至17世紀（歐洲）", subtitle_en:"15th century - 17th century (Europe)",
+    description_zh:"歐洲曾大規模迫害「女巫」，數萬名女性遭指控並處死。",
+    description_en:"Europe saw widespread persecution of accused \"witches,\" with tens of thousands of women tried and executed.",
+    forward:[], backward:[5],
+    notes:{5:{zh:"女性因偏見與恐懼被大量迫害處死",en:"Women mass-persecuted and executed out of fear and prejudice"}}
+  },
+  {
+    title_zh:"同性婚姻法通過", title_en:"Same-Sex Marriage Legalization",
+    subtitle_zh:"多國陸續完成立法（首例：2001年荷蘭）", subtitle_en:"Countries legalized progressively (first: Netherlands, 2001)",
+    description_zh:"多國陸續完成同性婚姻合法化，保障婚姻平權。",
+    description_en:"Multiple countries legalized same-sex marriage, securing marriage equality.",
+    forward:[5, 10, 16], backward:[],
+    notes:{5:{zh:"性別平等往前一大步",en:"Big win for gender equality"},10:{zh:"不再因性傾向被差別對待",en:"No more discrimination based on who you love"},16:{zh:"法律終於站在平等這邊",en:"The law finally caught up with equality"}}
+  },
+  {
+    title_zh:"建立自來水系統", title_en:"Modern Tap Water Systems",
+    subtitle_zh:"近代至今", subtitle_en:"Modern era - present",
+    description_zh:"現代自來水系統普及，提供乾淨用水與衛生保障。",
+    description_en:"Modern tap water systems spread widely, providing clean water and sanitation.",
+    forward:[3, 6], backward:[],
+    notes:{3:{zh:"喝水不再擔心生病",en:"Clean water means fewer waterborne illnesses"},6:{zh:"乾淨用水觸手可及",en:"Safe water within reach for everyone"}}
+  },
+  {
+    title_zh:"世界關燈日", title_en:"Earth Hour",
+    subtitle_zh:"每年3月最後一個週六（自2007年起）", subtitle_en:"Last Saturday of March annually (since 2007)",
+    description_zh:"全球響應每年關燈一小時，喚起節能與氣候意識。",
+    description_en:"A global annual event where people switch off lights for an hour to raise energy and climate awareness.",
+    forward:[7, 12, 13], backward:[],
+    notes:{7:{zh:"省電意識全民有感",en:"Boosted awareness of energy saving"},12:{zh:"提醒大家想想消費習慣",en:"Got people thinking about consumption"},13:{zh:"全球一起為氣候發聲",en:"A worldwide moment for climate action"}}
+  },
+  {
+    title_zh:"冰島同工同酬", title_en:"Iceland's Equal Pay Law",
+    subtitle_zh:"2018年", subtitle_en:"2018 CE",
+    description_zh:"冰島立法強制企業證明同工同酬，打擊性別薪資差距。",
+    description_en:"Iceland passed a law requiring companies to prove equal pay for equal work, tackling the gender pay gap.",
+    forward:[5, 10], backward:[],
+    notes:{5:{zh:"男女同工同酬終於有法可管",en:"Equal pay finally has legal teeth"},10:{zh:"薪資不平等被制度正面對決",en:"Wage inequality gets confronted head-on"}}
+  },
+  {
+    title_zh:"全民健保制度上路", title_en:"National Health Insurance Launch",
+    subtitle_zh:"1995年（台灣）", subtitle_en:"1995 CE (Taiwan)",
+    description_zh:"台灣實施全民健康保險，讓醫療照護不再是有錢人的特權。",
+    description_en:"Taiwan launched National Health Insurance, making healthcare accessible regardless of income.",
+    forward:[3, 10], backward:[],
+    notes:{3:{zh:"看病不再是壓垮家庭的負擔",en:"Getting sick no longer means going broke"},10:{zh:"不分貧富都能獲得醫療照顧",en:"Healthcare access no longer depends on wealth"}}
+  },
+  {
+    title_zh:"法國反食物浪費法", title_en:"France's Anti-Food-Waste Law",
+    subtitle_zh:"2018年", subtitle_en:"2018 CE",
+    description_zh:"法國立法禁止超市丟棄未售出食物，要求捐贈給慈善機構。",
+    description_en:"France banned supermarkets from discarding unsold food, requiring donations to charities instead.",
+    forward:[2, 12], backward:[],
+    notes:{2:{zh:"多餘食物送到真正需要的人手上",en:"Surplus food reaches people who actually need it"},12:{zh:"從源頭減少浪費",en:"Waste gets cut off at the source"}}
+  },
+  {
+    title_zh:"歐盟2035禁售燃油車", title_en:"EU 2035 Combustion Car Ban",
+    subtitle_zh:"2025年通過（2035年起生效）", subtitle_en:"Passed 2025 (effective from 2035)",
+    description_zh:"歐盟通過2035年起禁售新燃油車，加速交通運具電動化。",
+    description_en:"The EU passed a law banning new fossil-fuel car sales from 2035, accelerating the shift to electric vehicles.",
+    forward:[7, 11], backward:[],
+    notes:{7:{zh:"交通能源轉向乾淨動力",en:"Transport energy shifts toward cleaner power"},11:{zh:"城市空氣品質有望改善",en:"Cities get a shot at cleaner air"}}
+  },
+  {
+    title_zh:"大阪世博", title_en:"Expo 2025 Osaka",
+    subtitle_zh:"2025年", subtitle_en:"2025 CE",
+    description_zh:"2025年大阪世博匯聚各國展現創新科技與國際合作成果。",
+    description_en:"Expo 2025 Osaka brought nations together to showcase innovation and international cooperation.",
+    forward:[9, 17], backward:[],
+    notes:{9:{zh:"各國拿出壓箱寶展示創新科技",en:"Countries showed off their latest innovations"},17:{zh:"全球齊聚一堂交流合作",en:"A global stage for collaboration"}}
+  },
+  {
+    title_zh:"Coldplay世界巡迴演唱會「Music of the Spheres」", title_en:"Coldplay's Music of the Spheres World Tour",
+    subtitle_zh:"2022年至今", subtitle_en:"2022 CE - present",
+    description_zh:"巡演大量採用可再生能源與觀眾發電地板，減少演唱會碳足跡。",
+    description_en:"The tour widely used renewable energy and kinetic dance floors to cut its carbon footprint.",
+    forward:[7, 13], backward:[],
+    notes:{7:{zh:"演唱會也能用乾淨能源供電",en:"Even concerts can run on clean energy"},13:{zh:"巨型演出示範低碳可能性",en:"A massive show proving low-carbon is possible"}}
+  },
+  {
+    title_zh:"聯合國千禧年減貧計畫", title_en:"UN Millennium Development Goals",
+    subtitle_zh:"2000年", subtitle_en:"2000 CE",
+    description_zh:"聯合國訂定千禧年發展目標，全球合力推動減貧與經濟發展。",
+    description_en:"The UN set the Millennium Development Goals, mobilizing global efforts to cut poverty and drive growth.",
+    forward:[1, 8], backward:[],
+    notes:{1:{zh:"全球貧窮人口大幅下降",en:"Global poverty rates dropped significantly"},8:{zh:"帶動開發中國家經濟成長",en:"Boosted economic growth in developing nations"}}
+  },
+  {
+    title_zh:"綠色革命", title_en:"The Green Revolution",
+    subtitle_zh:"1960年代至1990年代", subtitle_en:"1960s - 1990s",
+    description_zh:"農業技術與品種改良大幅提升糧食產量，緩解全球飢荒問題。",
+    description_en:"Agricultural innovations and improved crop varieties dramatically boosted food production, easing global hunger.",
+    forward:[1, 2, 9], backward:[],
+    notes:{1:{zh:"農民收入跟著產量一起提升",en:"Farmer incomes rose along with yields"},2:{zh:"糧食產量大爆發，飢荒緩解",en:"Food production surged, hunger eased"},9:{zh:"農業技術大躍進",en:"A major leap in agricultural technology"}}
+  },
+  {
+    title_zh:"紐西蘭女性投票權", title_en:"New Zealand Women's Suffrage",
+    subtitle_zh:"1893年", subtitle_en:"1893 CE",
+    description_zh:"紐西蘭成為全球第一個賦予女性投票權的國家。",
+    description_en:"New Zealand became the first country in the world to grant women the right to vote.",
+    forward:[5, 10, 16], backward:[],
+    notes:{5:{zh:"女性終於能在選票上發聲",en:"Women finally got a voice at the ballot box"},10:{zh:"政治參與不再只有男性",en:"Political participation no longer men-only"},16:{zh:"民主制度往平等邁進一步",en:"Democracy took a step toward equality"}}
+  },
+  {
+    title_zh:"網際網路普及", title_en:"Rise of the Internet",
+    subtitle_zh:"1990年代至今", subtitle_en:"1990s - present",
+    description_zh:"網路快速普及全球，但發展初期城鄉與貧富之間的落差同時浮現。",
+    description_en:"The internet spread rapidly worldwide, though early access gaps between rich and poor, urban and rural, also emerged.",
+    forward:[4, 9], backward:[10],
+    notes:{4:{zh:"知識與學習資源大爆發",en:"Access to knowledge and learning resources exploded"},9:{zh:"帶動全球資訊科技基礎建設",en:"Drove massive growth in global digital infrastructure"},10:{zh:"初期資源集中在已開發地區，貧富資訊落差反而擴大",en:"Early access concentrated in wealthier regions, widening the information gap"}}
+  },
+  {
+    title_zh:"高速鐵路通車", title_en:"High Speed Rail Opens",
+    subtitle_zh:"2007年（台灣）", subtitle_en:"2007 CE (Taiwan)",
+    description_zh:"台灣高鐵通車，大幅縮短南北交通時間，帶動區域發展。",
+    description_en:"Taiwan High Speed Rail opened, drastically cutting north-south travel time and spurring regional development.",
+    forward:[8, 9, 11], backward:[],
+    notes:{8:{zh:"帶動沿線經濟與就業機會",en:"Boosted jobs and economy along the route"},9:{zh:"展現高速運輸基礎建設實力",en:"Showcased high-speed transit infrastructure"},11:{zh:"城市之間的距離感大幅縮短",en:"Cities felt a lot closer together"}}
+  },
+  {
+    title_zh:"海綿城市計畫", title_en:"Sponge City Initiative",
+    subtitle_zh:"2010年代至今", subtitle_en:"2010s - present",
+    description_zh:"城市透過透水鋪面與綠地設計提升防洪韌性，因應極端降雨。",
+    description_en:"Cities adopted permeable surfaces and green spaces to improve flood resilience against extreme rainfall.",
+    forward:[11, 13], backward:[],
+    notes:{11:{zh:"城市排水更聰明，淹水少一點",en:"Smarter drainage means less flooding"},13:{zh:"提升應對極端氣候的韌性",en:"Boosted resilience to extreme weather"}}
+  },
+  {
+    title_zh:"世界地球日", title_en:"Earth Day",
+    subtitle_zh:"每年4月22日（自1970年起）", subtitle_en:"April 22 annually (since 1970)",
+    description_zh:"每年4月22日全球舉辦環保活動，喚起大眾對地球生態的重視。",
+    description_en:"Held every April 22nd, Earth Day mobilizes global environmental awareness campaigns.",
+    forward:[12, 14, 15], backward:[],
+    notes:{12:{zh:"提醒大家想想消費習慣",en:"Gets people rethinking consumption habits"},14:{zh:"海洋保育話題被看見",en:"Puts ocean conservation in the spotlight"},15:{zh:"陸地生態保育跟著被關注",en:"Raises attention on land ecosystems"}}
+  },
+  {
+    title_zh:"禁用一次性塑膠", title_en:"Single-Use Plastic Bans",
+    subtitle_zh:"多國陸續立法（歐盟自2021年起）", subtitle_en:"Adopted progressively (EU since 2021)",
+    description_zh:"多國陸續立法禁用一次性塑膠製品，減少塑膠污染。",
+    description_en:"Multiple countries banned single-use plastics to curb plastic pollution.",
+    forward:[12, 14, 15], backward:[],
+    notes:{12:{zh:"源頭減少一次性垃圾",en:"Cuts disposable waste at the source"},14:{zh:"海洋少一點塑膠垃圾",en:"Less plastic ending up in the ocean"},15:{zh:"陸地生態也跟著鬆一口氣",en:"Land ecosystems get a break too"}}
+  },
+  {
+    title_zh:"全球禁捕商業捕鯨", title_en:"Global Commercial Whaling Moratorium",
+    subtitle_zh:"1986年", subtitle_en:"1986 CE",
+    description_zh:"國際捕鯨委員會實施全球商業捕鯨禁令，鯨魚族群逐漸恢復。",
+    description_en:"The International Whaling Commission enacted a global moratorium on commercial whaling, allowing whale populations to recover.",
+    forward:[14], backward:[],
+    notes:{14:{zh:"鯨魚終於能喘口氣休養生息",en:"Whale populations finally got a chance to recover"}}
+  },
+  {
+    title_zh:"減塑淨灘活動", title_en:"Beach Cleanup Movements",
+    subtitle_zh:"當代", subtitle_en:"Modern",
+    description_zh:"民間團體與政府推動海灘清潔行動，減少海洋與海岸垃圾。",
+    description_en:"Community groups and governments organized beach cleanups to reduce ocean and coastal litter.",
+    forward:[11, 14, 15], backward:[],
+    notes:{11:{zh:"社區一起動手讓環境變乾淨",en:"Communities pitching in to clean up together"},14:{zh:"海洋垃圾少一點是一點",en:"Every bit of ocean trash removed counts"},15:{zh:"沿岸生態也跟著受惠",en:"Coastal ecosystems benefit too"}}
+  },
+  {
+    title_zh:"國家公園設立", title_en:"Establishment of National Parks",
+    subtitle_zh:"1872年首座（美國黃石）起至今", subtitle_en:"Since 1872 (Yellowstone, first in the world)",
+    description_zh:"各國劃設國家公園保護原始生態與自然景觀。",
+    description_en:"Countries designated national parks to protect pristine ecosystems and natural landscapes.",
+    forward:[15], backward:[],
+    notes:{15:{zh:"珍貴棲地被正式劃界保護",en:"Precious habitats officially protected"}}
+  },
+  {
+    title_zh:"復育瀕危物種", title_en:"Endangered Species Recovery",
+    subtitle_zh:"當代", subtitle_en:"Modern",
+    description_zh:"保育組織透過人工繁殖與棲地復育，協助瀕危物種族群回升。",
+    description_en:"Conservation groups use captive breeding and habitat restoration to help endangered species recover.",
+    forward:[15], backward:[],
+    notes:{15:{zh:"瀕危物種數量慢慢回升",en:"Endangered species slowly bouncing back"}}
+  },
+  {
+    title_zh:"世界人權宣言", title_en:"Universal Declaration of Human Rights",
+    subtitle_zh:"1948年", subtitle_en:"1948 CE",
+    description_zh:"聯合國通過世界人權宣言，確立人人享有基本人權的普世原則。",
+    description_en:"The UN adopted the Universal Declaration of Human Rights, establishing basic rights for all people.",
+    forward:[5, 10, 16], backward:[],
+    notes:{5:{zh:"性別平等被寫入普世人權",en:"Gender equality enshrined as a universal right"},10:{zh:"人人生而平等有了國際共識",en:"Equality got international consensus"},16:{zh:"人權與正義有了共同標準",en:"A shared standard for justice and rights"}}
+  },
+  {
+    title_zh:"COVID-19疫苗國際合作", title_en:"COVID-19 Vaccine International Cooperation",
+    subtitle_zh:"2020年至2021年", subtitle_en:"2020 - 2021",
+    description_zh:"COVAX等機制促成各國共享疫苗資源，加速全球接種進度。",
+    description_en:"Mechanisms like COVAX enabled countries to share vaccine resources, speeding up global vaccination.",
+    forward:[3, 17], backward:[],
+    notes:{3:{zh:"疫苗更快送到需要的地方",en:"Vaccines reached people faster"},17:{zh:"全球一起分工合作對抗疫情",en:"Countries teamed up to fight the pandemic together"}}
+  },
+  {
+    title_zh:"人類基因組計畫", title_en:"Human Genome Project",
+    subtitle_zh:"1990年至2003年", subtitle_en:"1990 - 2003",
+    description_zh:"國際科學家合作解碼人類基因組，開啟精準醫療新時代。",
+    description_en:"International scientists collaborated to map the human genome, opening the era of precision medicine.",
+    forward:[3, 9, 17], backward:[],
+    notes:{3:{zh:"為精準醫療打開大門",en:"Paved the way for precision medicine"},9:{zh:"生技研究能量大躍進",en:"A huge leap for biotech research"},17:{zh:"跨國科學合作的經典案例",en:"A textbook case of international science collaboration"}}
+  },
+  {
+    title_zh:"大禹治水", title_en:"Yu the Great Tames the Flood",
+    subtitle_zh:"約西元前2000年（傳說時代）", subtitle_en:"c. 2000 BCE (legendary era)",
+    description_zh:"相傳大禹以疏導取代圍堵治理黃河水患，奠定治水工程典範。",
+    description_en:"Legend has it Yu the Great tamed the Yellow River floods by channeling rather than blocking water, setting an engineering precedent.",
+    forward:[6, 9, 11], backward:[],
+    notes:{6:{zh:"水患治理讓水資源不再是災難",en:"Flood control turned water from disaster to resource"},9:{zh:"疏導工法成為後世工程典範",en:"His methods became an engineering blueprint"},11:{zh:"聚落終於能安心定居",en:"Settlements could finally live in peace"}}
+  },
+  {
+    title_zh:"商鞅變法", title_en:"Shang Yang's Reforms",
+    subtitle_zh:"西元前356年至前338年", subtitle_en:"356 - 338 BCE",
+    description_zh:"商鞅在秦國推行法制與土地改革，強化國力與治理效能。",
+    description_en:"Shang Yang implemented legal and land reforms in Qin, strengthening state power and governance.",
+    forward:[8, 16], backward:[],
+    notes:{8:{zh:"土地與稅制改革帶動生產力",en:"Land and tax reforms boosted productivity"},16:{zh:"法制取代人治，制度更透明",en:"Rule of law replaced arbitrary rule, more transparent governance"}}
+  },
+  {
+    title_zh:"科舉制度建立", title_en:"Imperial Examination System",
+    subtitle_zh:"西元605年", subtitle_en:"605 CE",
+    description_zh:"隋朝建立科舉制度，讓平民也能透過考試晉身官場。",
+    description_en:"The Sui dynasty established the imperial examination system, letting commoners rise through merit.",
+    forward:[4, 8, 16], backward:[],
+    notes:{4:{zh:"讀書變成翻身的機會",en:"Education became a path to a better life"},8:{zh:"階級流動帶動人才發揮",en:"Social mobility unlocked talent"},16:{zh:"選才制度相對公平透明",en:"A relatively fair, merit-based selection system"}}
+  },
+  {
+    title_zh:"雅典民主制度", title_en:"Athenian Democracy",
+    subtitle_zh:"西元前508年", subtitle_en:"508 BCE",
+    description_zh:"古雅典建立公民直接參與政治的民主制度，影響後世政治體系。",
+    description_en:"Ancient Athens established direct citizen participation in politics, influencing political systems ever since.",
+    forward:[10, 16], backward:[],
+    notes:{10:{zh:"公民（雖有限）獲得政治參與權",en:"Citizens (albeit a limited group) gained a political voice"},16:{zh:"權力不再只掌握在少數貴族手裡",en:"Power no longer concentrated solely among nobles"}}
+  },
+  {
+    title_zh:"文藝復興", title_en:"The Renaissance",
+    subtitle_zh:"14世紀至17世紀", subtitle_en:"14th - 17th century",
+    description_zh:"歐洲文藝復興帶動藝術、科學與人文思想的全面復興。",
+    description_en:"The European Renaissance sparked a revival in art, science, and humanist thought.",
+    forward:[4, 9], backward:[],
+    notes:{4:{zh:"知識與教育重新被重視",en:"Knowledge and education came back into focus"},9:{zh:"科學與技術創新百花齊放",en:"Scientific and technical innovation flourished"}}
+  },
+  {
+    title_zh:"古騰堡活字印刷", title_en:"Gutenberg's Printing Press",
+    subtitle_zh:"約1440年代", subtitle_en:"c. 1440s",
+    description_zh:"古騰堡發明活字印刷術，讓書籍大量生產，知識傳播加速。",
+    description_en:"Gutenberg's movable type printing press enabled mass book production, accelerating the spread of knowledge.",
+    forward:[4, 10], backward:[],
+    notes:{4:{zh:"書本變便宜，知識不再是貴族專屬",en:"Books got cheap, knowledge stopped being an elite privilege"},10:{zh:"識字與資訊取得門檻大幅降低",en:"Barriers to literacy and information dropped sharply"}}
+  },
+  {
+    title_zh:"蒸汽機發明", title_en:"Invention of the Steam Engine",
+    subtitle_zh:"約1712年至1769年", subtitle_en:"c. 1712 - 1769",
+    description_zh:"蒸汽機的發明帶來動力革命，推動工業與交通運輸大幅進展。",
+    description_en:"The invention of the steam engine sparked a power revolution, driving major advances in industry and transport.",
+    forward:[7, 8], backward:[],
+    notes:{7:{zh:"動力來源不再只靠人力獸力",en:"Power sources moved beyond muscle power"},8:{zh:"生產力與經濟活動大幅提升",en:"Productivity and economic activity surged"}}
+  },
+  {
+    title_zh:"工業革命", title_en:"The Industrial Revolution",
+    subtitle_zh:"18世紀中至19世紀", subtitle_en:"Mid-18th - 19th century",
+    description_zh:"工業革命帶動生產力大躍進，但初期高污染、高工時也付出環境與勞動代價。",
+    description_en:"The Industrial Revolution drove massive productivity gains, but early factories brought heavy pollution and grueling labor conditions.",
+    forward:[8], backward:[13],
+    notes:{8:{zh:"生產力與經濟規模大幅躍進",en:"Productivity and economic output surged"},13:{zh:"高污染、高排放，對氣候造成長期負擔",en:"Heavy pollution and emissions left a long-term climate burden"}}
+  },
+  {
+    title_zh:"哥倫布發現新大陸", title_en:"Columbus Reaches the Americas",
+    subtitle_zh:"1492年", subtitle_en:"1492 CE",
+    description_zh:"哥倫布抵達美洲開啟東西半球交流，但也帶來殖民剝削與原住民浩劫。",
+    description_en:"Columbus's arrival in the Americas opened contact between hemispheres, but also brought colonial exploitation and devastation to Indigenous peoples.",
+    forward:[8, 17], backward:[10],
+    notes:{8:{zh:"開啟跨大西洋貿易，商業版圖大幅擴張",en:"Opened transatlantic trade, expanding commercial reach"},10:{zh:"殖民與奴役重創原住民，加劇全球不平等",en:"Colonization and enslavement devastated Indigenous peoples, deepening global inequality"},17:{zh:"東西半球從此建立起接觸與往來",en:"Established lasting contact between hemispheres"}}
+  },
+  {
+    title_zh:"社會住宅政策", title_en:"Social Housing Policy",
+    subtitle_zh:"當代", subtitle_en:"Modern",
+    description_zh:"政府興建社會住宅，提供中低收入戶可負擔的居住選擇。",
+    description_en:"Governments build social housing to provide affordable options for low- and middle-income households.",
+    forward:[1], backward:[],
+    notes:{1:{zh:"租屋壓力減輕，貧窮循環有機會被打破",en:"Eases housing costs, helps break the poverty cycle"}}
+  },
+  {
+    title_zh:"巴西「家庭補助金」（Bolsa Família）", title_en:"Brazil's Bolsa Família Program",
+    subtitle_zh:"2003年", subtitle_en:"2003 CE",
+    description_zh:"巴西政府提供條件式現金補助，要求受助家庭送孩子上學並施打疫苗。",
+    description_en:"Brazil's conditional cash transfer program requires recipient families to keep kids in school and vaccinated.",
+    forward:[1, 2, 4], backward:[],
+    notes:{1:{zh:"直接現金挹注，貧困家庭喘口氣",en:"Direct cash support gave poor families breathing room"},2:{zh:"家庭有能力買糧食",en:"Families could afford food"},4:{zh:"孩子上學率明顯提升",en:"School attendance rates rose significantly"}}
+  },
+  {
+    title_zh:"國際稻米研究所（IRRI）成立", title_en:"Founding of IRRI",
+    subtitle_zh:"1960年", subtitle_en:"1960 CE",
+    description_zh:"IRRI致力研發高產稻米品種，協助亞洲多國提升糧食產量。",
+    description_en:"IRRI develops high-yield rice varieties, helping Asian countries boost food production.",
+    forward:[2, 9], backward:[],
+    notes:{2:{zh:"改良稻種讓更多人吃得飽",en:"Improved rice varieties mean more people get fed"},9:{zh:"農業科研能量大幅提升",en:"Major boost to agricultural research capacity"}}
+  },
+  {
+    title_zh:"維基百科誕生", title_en:"Wikipedia Launches",
+    subtitle_zh:"2001年", subtitle_en:"2001 CE",
+    description_zh:"維基百科以協作方式建立免費線上百科全書，開放全球共同編輯。",
+    description_en:"Wikipedia launched as a free, collaboratively edited online encyclopedia open to contributors worldwide.",
+    forward:[4, 17], backward:[],
+    notes:{4:{zh:"免費知識人人可得",en:"Free knowledge accessible to everyone"},17:{zh:"全球網友一起協作貢獻",en:"A global community collaborating together"}}
+  },
+  {
+    title_zh:"冰島選出全球首位民選女性總統", title_en:"Iceland Elects First Female Elected President",
+    subtitle_zh:"1980年", subtitle_en:"1980 CE",
+    description_zh:"冰島選出Vigdís Finnbogadóttir為全球首位經直接民選產生的女性總統。",
+    description_en:"Iceland elected Vigdís Finnbogadóttir as the world's first directly elected female president.",
+    forward:[5], backward:[],
+    notes:{5:{zh:"女性領導力站上世界舞台",en:"Women's leadership took center stage globally"}}
+  },
+  {
+    title_zh:"倫敦下水道系統建立", title_en:"London Sewer System",
+    subtitle_zh:"1859年至1875年", subtitle_en:"1859 - 1875",
+    description_zh:"倫敦興建現代下水道系統，解決霍亂與污水氾濫問題。",
+    description_en:"London built a modern sewer system, solving cholera outbreaks and sewage overflow.",
+    forward:[3, 6, 11], backward:[],
+    notes:{3:{zh:"霍亂疫情大幅減少",en:"Cholera outbreaks dropped sharply"},6:{zh:"污水不再直接排入水源",en:"Sewage stopped contaminating water sources"},11:{zh:"城市衛生環境大幅改善",en:"Urban sanitation improved dramatically"}}
+  },
+  {
+    title_zh:"海水淡化技術普及", title_en:"Desalination Technology Spreads",
+    subtitle_zh:"當代", subtitle_en:"Modern",
+    description_zh:"海水淡化技術日益成熟，協助缺水地區取得穩定淡水來源。",
+    description_en:"Desalination technology matured, helping water-scarce regions secure a stable freshwater supply.",
+    forward:[6, 9], backward:[],
+    notes:{6:{zh:"缺水地區也能有乾淨水喝",en:"Water-scarce regions get access to clean water"},9:{zh:"水資源技術跨出新一步",en:"A tech leap forward for water infrastructure"}}
+  },
+  {
+    title_zh:"LED照明普及", title_en:"LED Lighting Adoption",
+    subtitle_zh:"2000年代至今", subtitle_en:"2000s - present",
+    description_zh:"LED燈泡逐漸取代傳統燈泡，大幅降低照明耗電量。",
+    description_en:"LED bulbs gradually replaced traditional lighting, cutting electricity use significantly.",
+    forward:[7, 12], backward:[],
+    notes:{7:{zh:"照明用電效率大提升",en:"Lighting efficiency jumped way up"},12:{zh:"資源使用更有效率",en:"More efficient use of resources"}}
+  },
+  {
+    title_zh:"珊瑚礁復育計畫", title_en:"Coral Reef Restoration Projects",
+    subtitle_zh:"當代", subtitle_en:"Modern",
+    description_zh:"科學家透過人工復育與移植技術，協助受損珊瑚礁重新生長。",
+    description_en:"Scientists use coral farming and transplantation to help damaged reefs regrow.",
+    forward:[13, 14], backward:[],
+    notes:{13:{zh:"提升海洋生態對氣候變遷的韌性",en:"Boosts marine resilience to climate change"},14:{zh:"珊瑚礁生態系逐漸恢復生機",en:"Reef ecosystems slowly coming back to life"}}
+  },
+  {
+    title_zh:"禁用魚翅政策", title_en:"Shark Fin Bans",
+    subtitle_zh:"多國陸續立法", subtitle_en:"Adopted progressively worldwide",
+    description_zh:"多國與航空公司禁止魚翅交易與運輸，抑制過度捕撈鯊魚。",
+    description_en:"Countries and airlines banned shark fin trade and transport, curbing shark overfishing.",
+    forward:[12, 14], backward:[],
+    notes:{12:{zh:"消費行為往永續方向調整",en:"Consumption habits shifting toward sustainability"},14:{zh:"鯊魚族群壓力減輕",en:"Less pressure on shark populations"}}
+  },
+  {
+    title_zh:"海龜保育計畫", title_en:"Sea Turtle Conservation Programs",
+    subtitle_zh:"當代", subtitle_en:"Modern",
+    description_zh:"保育團體透過巡護海灘、保護產卵地協助海龜族群復育。",
+    description_en:"Conservation groups patrol beaches and protect nesting sites to help sea turtle populations recover.",
+    forward:[14, 15], backward:[],
+    notes:{14:{zh:"海龜數量緩步回升",en:"Sea turtle numbers slowly climbing back"},15:{zh:"沿岸孵化棲地受到保護",en:"Coastal nesting habitats protected"}}
+  },
+  {
+    title_zh:"天然林禁伐政策", title_en:"Primary Forest Logging Bans",
+    subtitle_zh:"多國陸續立法", subtitle_en:"Adopted progressively worldwide",
+    description_zh:"多國立法禁止砍伐原始天然林，保護森林碳匯與生物多樣性。",
+    description_en:"Countries banned logging of primary natural forests, protecting carbon sinks and biodiversity.",
+    forward:[13, 15], backward:[],
+    notes:{13:{zh:"森林碳匯能力被保留下來",en:"Forest carbon storage capacity preserved"},15:{zh:"原始生態系免於被砍伐破壞",en:"Pristine ecosystems spared from logging"}}
+  },
+  {
+    title_zh:"最低工資制度", title_en:"Minimum Wage Laws",
+    subtitle_zh:"各國陸續實施", subtitle_en:"Adopted progressively worldwide",
+    description_zh:"政府訂立最低工資標準，保障勞工基本收入水準。",
+    description_en:"Governments set minimum wage standards to guarantee workers a baseline income.",
+    forward:[1], backward:[],
+    notes:{1:{zh:"工資有底線，貧窮風險降低",en:"A wage floor reduces the risk of falling into poverty"}}
+  },
+  {
+    title_zh:"滴灌技術發明", title_en:"Invention of Drip Irrigation",
+    subtitle_zh:"1960年代（以色列）", subtitle_en:"1960s (Israel)",
+    description_zh:"滴灌技術精準供水給作物根部，大幅提升灌溉用水效率。",
+    description_en:"Drip irrigation delivers water precisely to crop roots, dramatically improving irrigation efficiency.",
+    forward:[2, 6], backward:[],
+    notes:{2:{zh:"缺水地區也能穩定種出糧食",en:"Even dry regions can grow food reliably"},6:{zh:"灌溉用水浪費大幅減少",en:"Cuts irrigation water waste significantly"}}
+  },
+  {
+    title_zh:"糧食銀行成立", title_en:"Founding of Food Banks",
+    subtitle_zh:"1967年首創（美國）", subtitle_en:"First founded 1967 (United States)",
+    description_zh:"糧食銀行媒合多餘食物與有需要的家庭，減少浪費並協助弱勢。",
+    description_en:"Food banks connect surplus food with families in need, reducing waste while supporting the vulnerable.",
+    forward:[1, 2, 12], backward:[],
+    notes:{1:{zh:"弱勢家庭生活負擔減輕",en:"Eases the burden on struggling families"},2:{zh:"食物直接送到需要的人手上",en:"Food gets to people who need it"},12:{zh:"食物浪費被有效攔截",en:"Food waste intercepted effectively"}}
+  },
+  {
+    title_zh:"國際婦女節（3/8）", title_en:"International Women's Day",
+    subtitle_zh:"每年3月8日", subtitle_en:"March 8 annually",
+    description_zh:"每年3月8日全球紀念並倡議女性權益與性別平等。",
+    description_en:"Celebrated every March 8th worldwide to advocate for women's rights and gender equality.",
+    forward:[5], backward:[],
+    notes:{5:{zh:"性別平等議題每年都被重新看見",en:"Keeps gender equality in the spotlight every year"}}
+  },
+  {
+    title_zh:"禁止童婚法", title_en:"Child Marriage Bans",
+    subtitle_zh:"多國陸續立法", subtitle_en:"Adopted progressively worldwide",
+    description_zh:"多國立法禁止未成年結婚，保護兒童權益與身心發展。",
+    description_en:"Countries passed laws banning child marriage to protect children's rights and development.",
+    forward:[3, 5, 16], backward:[],
+    notes:{3:{zh:"早婚早育的健康風險降低",en:"Fewer health risks from early pregnancy"},5:{zh:"女童不再被迫提前進入婚姻",en:"Girls no longer forced into early marriage"},16:{zh:"兒童權益受到法律保障",en:"Children's rights protected by law"}}
+  },
+  {
+    title_zh:"Girls Who Code成立", title_en:"Founding of Girls Who Code",
+    subtitle_zh:"2012年", subtitle_en:"2012 CE",
+    description_zh:"非營利組織Girls Who Code致力縮小科技領域性別落差，鼓勵女孩學習程式。",
+    description_en:"The nonprofit Girls Who Code works to close the tech gender gap by encouraging girls to learn programming.",
+    forward:[4, 5], backward:[],
+    notes:{4:{zh:"程式教育資源更容易觸及女孩",en:"Coding education made more accessible to girls"},5:{zh:"科技領域性別落差被正視",en:"Tech's gender gap gets real attention"}}
+  },
+  {
+    title_zh:"雨水回收系統", title_en:"Rainwater Harvesting Systems",
+    subtitle_zh:"當代", subtitle_en:"Modern",
+    description_zh:"建築物設置雨水回收系統，收集雨水再利用於澆灌與沖廁。",
+    description_en:"Buildings install rainwater harvesting systems to collect and reuse water for irrigation and flushing.",
+    forward:[6, 11], backward:[],
+    notes:{6:{zh:"水資源被更有效率地重複利用",en:"Water gets reused more efficiently"},11:{zh:"城市對缺水的抵抗力提升",en:"Cities become more resilient to water shortages"}}
+  }
 ];
 
-/* Per-SDG annotations shown on the sticky notes, transcribed from the team's
-   bilingual card spreadsheet and keyed by title_en + SDG number.
-   An SDG with no entry here simply renders as a plain badge, so this map can be
-   filled in incrementally. `en` is still outstanding for every card: the PDF
-   export clipped those cells mid-sentence, so they need the source file. */
-var CARD_NOTES = {
-  "Financial Crisis": {1:{zh:"存款蒸發，一夜變月光族"}},
-  "Afghanistan Girls' Education Ban": {4:{zh:"教室的門直接對女生關上"},5:{zh:"性別平等瞬間開倒車"},10:{zh:"半數人口被排除在社會之外"}},
-  "HK Lead-in-Water Scandal": {6:{zh:"乾淨用水品質亮紅燈"},11:{zh:"社區住宅安全信任感崩盤"}},
-  "COVID-19 Lockdowns": {8:{zh:"店都關了，打工人沒班可上"}},
-  "Fukushima Disaster": {7:{zh:"核能安全信任度重挫"}},
-  "Apartheid": {10:{zh:"制度性不平等寫進法律裡"},16:{zh:"公義與人權形同虛設"}},
-  "Rise of Fast Fashion": {13:{zh:"紡織業碳排放居高不下"}},
-  "Deepwater Horizon Oil Spill": {6:{zh:"沿岸水質嚴重污染"},14:{zh:"海洋生態遭原油重創"}},
-  "Illegal Logging": {12:{zh:"珍貴木材被非法盜採販售"},15:{zh:"森林生態系統遭嚴重破壞"}},
-  "Suez Canal Blockage": {8:{zh:"全球貿易停擺，損失以天計"},9:{zh:"供應鏈基礎設施瞬間卡死"},17:{zh:"各國緊急協調搶通航道"}},
-  "Foot Binding": {5:{zh:"女性身體被迫服從畸形審美"},16:{zh:"陋習長期未受法律有效制止"}},
-  "Honor Killing": {16:{zh:"私刑凌駕司法，暴力被默許"}},
-  "Ghost Fishing Nets": {12:{zh:"漁具用完就丟，海洋變垃圾"},14:{zh:"海龜海豚被纏死，慘不忍睹"}},
-  "Same-Sex Marriage Legalization": {5:{zh:"性別平等往前一大步"},10:{zh:"不再因性傾向被差別對待"},16:{zh:"法律終於站在平等這邊"}},
-  "Modern Tap Water Systems": {3:{zh:"喝水不再擔心生病"},6:{zh:"乾淨用水觸手可及"}},
-  "Earth Hour": {7:{zh:"省電意識全民有感"},12:{zh:"提醒大家想想消費習慣"},13:{zh:"全球一起為氣候發聲"}},
-  "Iceland's Equal Pay Law": {5:{zh:"男女同工同酬終於有法可管"},10:{zh:"薪資不平等被制度正面對決"}},
-  "National Health Insurance": {3:{zh:"看病不再是壓垮家庭的負擔"},10:{zh:"不分貧富都能獲得醫療照顧"}},
-  "France's Anti-Food-Waste Law": {2:{zh:"多餘食物送到真正需要的人"},12:{zh:"從源頭減少浪費"}},
-  "EU 2035 Combustion Car Ban": {7:{zh:"交通能源轉向乾淨動力"},11:{zh:"城市空氣品質有望改善"}},
-  "Expo 2025 Osaka": {17:{zh:"全球齊聚一堂交流合作"}},
-  "Coldplay Music of the Spheres Tour": {7:{zh:"演唱會也能用乾淨能源供電"},13:{zh:"巨型演出示範低碳可能性"}},
-  "UN Millennium Development Goals": {1:{zh:"全球貧窮人口大幅下降"},8:{zh:"帶動開發中國家經濟成長"}},
-  "The Green Revolution": {1:{zh:"農民收入跟著產量一起提升"},2:{zh:"糧食產量大爆發，飢荒緩解"},9:{zh:"農業技術大躍進"}},
-  "New Zealand Women's Suffrage": {5:{zh:"女性終於能在選票上發聲"},10:{zh:"政治參與不再只有男性"},16:{zh:"民主制度往平等邁進一步"}},
-  "Rise of the Internet": {4:{zh:"知識與學習資源大爆發"},9:{zh:"帶動全球資訊科技基礎建設"},10:{zh:"初期資源集中在已開發地區"}},
-  "High Speed Rail Opens": {8:{zh:"帶動沿線經濟與就業機會"},9:{zh:"展現高速運輸基礎建設實力"},11:{zh:"城市之間的距離感大幅縮短"}},
-  "Sponge City Initiative": {13:{zh:"提升應對極端氣候的韌性"}},
-  "Earth Day": {12:{zh:"提醒大家想想消費習慣"},14:{zh:"海洋保育話題被看見"},15:{zh:"陸地生態保育跟著被關注"}},
-  "Single-Use Plastic Bans": {12:{zh:"源頭減少一次性垃圾"},14:{zh:"海洋少一點塑膠垃圾"},15:{zh:"陸地生態也跟著鬆一口氣"}},
-  "Commercial Whaling Moratorium": {14:{zh:"鯨魚終於能喘口氣休養生息"}},
-  "Beach Cleanup Movements": {11:{zh:"社區一起動手讓環境變乾淨"},14:{zh:"海洋垃圾少一點是一點"},15:{zh:"沿岸生態也跟著受惠"}},
-  "Establishment of National Parks": {15:{zh:"珍貴棲地被正式劃界保護"}},
-  "Endangered Species Recovery": {15:{zh:"瀕危物種數量慢慢回升"}},
-  "Universal Declaration of Human Rights": {5:{zh:"性別平等被寫入普世人權"},10:{zh:"人人生而平等有了國際共識"},16:{zh:"人權與正義有了共同標準"}},
-  "COVID Vaccine Cooperation": {3:{zh:"疫苗更快送到需要的地方"},17:{zh:"全球一起分工合作對抗疫情"}},
-  "Human Genome Project": {3:{zh:"為精準醫療打開大門"},9:{zh:"生技研究能量大躍進"},17:{zh:"跨國科學合作的經典案例"}},
-  "Yu the Great Tames the Flood": {9:{zh:"疏導工法成為後世工程典範"},11:{zh:"聚落終於能安心定居"}},
-  "Shang Yang's Reforms": {8:{zh:"土地與稅制改革帶動生產力"},16:{zh:"法制取代人治，制度更透明"}},
-  "Imperial Examination System": {4:{zh:"讀書變成翻身的機會"},8:{zh:"階級流動帶動人才發揮"},16:{zh:"選才制度相對公平透明"}},
-  "Athenian Democracy": {16:{zh:"權力不再只掌握在少數貴族"}},
-  "The Renaissance": {4:{zh:"知識與教育重新被重視"},9:{zh:"科學與技術創新百花齊放"}},
-  "Invention of the Steam Engine": {7:{zh:"動力來源不再只靠人力獸力"},8:{zh:"生產力與經濟活動大幅提升"}},
-  "The Industrial Revolution": {8:{zh:"生產力與經濟規模大幅躍進"}},
-  "Brazil's Bolsa Família": {2:{zh:"家庭有能力買糧食"},4:{zh:"孩子上學率明顯提升"}},
-  "Founding of IRRI": {2:{zh:"改良稻種讓更多人吃得飽"},9:{zh:"農業科研能量大幅提升"}},
-  "Wikipedia Launches": {4:{zh:"免費知識人人可得"},17:{zh:"全球網友一起協作貢獻"}},
-  "Iceland First Elected Woman President": {5:{zh:"女性領導力站上世界舞台"}},
-  "London Sewer System": {3:{zh:"霍亂疫情大幅減少"},6:{zh:"污水不再直接排入水源"},11:{zh:"城市衛生環境大幅改善"}},
-  "Desalination Technology Spreads": {6:{zh:"缺水地區也能有乾淨水喝"},9:{zh:"水資源技術跨出新一步"}},
-  "LED Lighting Adoption": {7:{zh:"照明用電效率大提升"},12:{zh:"資源使用更有效率"}},
-  "Coral Reef Restoration": {14:{zh:"珊瑚礁生態系逐漸恢復生機"}},
-  "Shark Fin Bans": {12:{zh:"消費行為往永續方向調整"},14:{zh:"鯊魚族群壓力減輕"}},
-  "Sea Turtle Conservation": {14:{zh:"海龜數量緩步回升"},15:{zh:"沿岸孵化棲地受到保護"}},
-  "Primary Forest Logging Bans": {13:{zh:"森林碳匯能力被保留下來"},15:{zh:"原始生態系免於被砍伐破壞"}},
-  "Minimum Wage Laws": {1:{zh:"工資有底線，貧窮風險降低"}},
-  "Invention of Drip Irrigation": {2:{zh:"缺水地區也能穩定種出糧食"},6:{zh:"灌溉用水浪費大幅減少"}},
-  "Founding of Food Banks": {1:{zh:"弱勢家庭生活負擔減輕"},2:{zh:"食物直接送到需要的人手上"},12:{zh:"食物浪費被有效攔截"}},
-  "Child Marriage Bans": {3:{zh:"早婚早育的健康風險降低"},5:{zh:"女童不再被迫提前進入婚姻"},16:{zh:"兒童權益受到法律保障"}},
-  "Founding of Girls Who Code": {5:{zh:"科技領域性別落差被正視"}},
-  "Rainwater Harvesting Systems": {11:{zh:"城市對缺水的抵抗力提升"}}
-};
-
+/* Annotations live on each card in eventCards (notes: {sdgId: {zh, en}}),
+   generated verbatim from the team's bilingual card spreadsheet. */
 function sdgNote(card, sdgId) {
-  var perCard = card && card.title_en ? CARD_NOTES[card.title_en] : null;
-  var entry = perCard ? perCard[sdgId] : null;
+  var entry = card && card.notes ? card.notes[sdgId] : null;
   if (!entry) return "";
   return (currentLang === "en" ? entry.en : entry.zh) || "";
 }
@@ -577,6 +1048,7 @@ function startGame() {
       subtitle_zh: c.subtitle_zh, subtitle_en: c.subtitle_en,
       description_zh: c.description_zh, description_en: c.description_en,
       forward: (c.forward || []).slice(), backward: (c.backward || []).slice(),
+      notes: c.notes,
       kind: "event", id: Math.random().toString(36).slice(2)
     });
   });
