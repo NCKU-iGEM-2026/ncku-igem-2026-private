@@ -176,6 +176,82 @@ var eventCards = [
   {title_zh:"雨水回收系統",title_en:"Rainwater Harvesting Systems",subtitle_zh:"當代",subtitle_en:"Modern",description_zh:"建築物設置雨水回收系統，收集雨水再利用於澆灌與沖廁。",description_en:"Buildings collect rainwater for irrigation and flushing.",forward:[6,11],backward:[]}
 ];
 
+/* Per-SDG annotations shown on the sticky notes, transcribed from the team's
+   bilingual card spreadsheet and keyed by title_en + SDG number.
+   An SDG with no entry here simply renders as a plain badge, so this map can be
+   filled in incrementally. `en` is still outstanding for every card: the PDF
+   export clipped those cells mid-sentence, so they need the source file. */
+var CARD_NOTES = {
+  "Financial Crisis": {1:{zh:"存款蒸發，一夜變月光族"}},
+  "Afghanistan Girls' Education Ban": {4:{zh:"教室的門直接對女生關上"},5:{zh:"性別平等瞬間開倒車"},10:{zh:"半數人口被排除在社會之外"}},
+  "HK Lead-in-Water Scandal": {6:{zh:"乾淨用水品質亮紅燈"},11:{zh:"社區住宅安全信任感崩盤"}},
+  "COVID-19 Lockdowns": {8:{zh:"店都關了，打工人沒班可上"}},
+  "Fukushima Disaster": {7:{zh:"核能安全信任度重挫"}},
+  "Apartheid": {10:{zh:"制度性不平等寫進法律裡"},16:{zh:"公義與人權形同虛設"}},
+  "Rise of Fast Fashion": {13:{zh:"紡織業碳排放居高不下"}},
+  "Deepwater Horizon Oil Spill": {6:{zh:"沿岸水質嚴重污染"},14:{zh:"海洋生態遭原油重創"}},
+  "Illegal Logging": {12:{zh:"珍貴木材被非法盜採販售"},15:{zh:"森林生態系統遭嚴重破壞"}},
+  "Suez Canal Blockage": {8:{zh:"全球貿易停擺，損失以天計"},9:{zh:"供應鏈基礎設施瞬間卡死"},17:{zh:"各國緊急協調搶通航道"}},
+  "Foot Binding": {5:{zh:"女性身體被迫服從畸形審美"},16:{zh:"陋習長期未受法律有效制止"}},
+  "Honor Killing": {16:{zh:"私刑凌駕司法，暴力被默許"}},
+  "Ghost Fishing Nets": {12:{zh:"漁具用完就丟，海洋變垃圾"},14:{zh:"海龜海豚被纏死，慘不忍睹"}},
+  "Same-Sex Marriage Legalization": {5:{zh:"性別平等往前一大步"},10:{zh:"不再因性傾向被差別對待"},16:{zh:"法律終於站在平等這邊"}},
+  "Modern Tap Water Systems": {3:{zh:"喝水不再擔心生病"},6:{zh:"乾淨用水觸手可及"}},
+  "Earth Hour": {7:{zh:"省電意識全民有感"},12:{zh:"提醒大家想想消費習慣"},13:{zh:"全球一起為氣候發聲"}},
+  "Iceland's Equal Pay Law": {5:{zh:"男女同工同酬終於有法可管"},10:{zh:"薪資不平等被制度正面對決"}},
+  "National Health Insurance": {3:{zh:"看病不再是壓垮家庭的負擔"},10:{zh:"不分貧富都能獲得醫療照顧"}},
+  "France's Anti-Food-Waste Law": {2:{zh:"多餘食物送到真正需要的人"},12:{zh:"從源頭減少浪費"}},
+  "EU 2035 Combustion Car Ban": {7:{zh:"交通能源轉向乾淨動力"},11:{zh:"城市空氣品質有望改善"}},
+  "Expo 2025 Osaka": {17:{zh:"全球齊聚一堂交流合作"}},
+  "Coldplay Music of the Spheres Tour": {7:{zh:"演唱會也能用乾淨能源供電"},13:{zh:"巨型演出示範低碳可能性"}},
+  "UN Millennium Development Goals": {1:{zh:"全球貧窮人口大幅下降"},8:{zh:"帶動開發中國家經濟成長"}},
+  "The Green Revolution": {1:{zh:"農民收入跟著產量一起提升"},2:{zh:"糧食產量大爆發，飢荒緩解"},9:{zh:"農業技術大躍進"}},
+  "New Zealand Women's Suffrage": {5:{zh:"女性終於能在選票上發聲"},10:{zh:"政治參與不再只有男性"},16:{zh:"民主制度往平等邁進一步"}},
+  "Rise of the Internet": {4:{zh:"知識與學習資源大爆發"},9:{zh:"帶動全球資訊科技基礎建設"},10:{zh:"初期資源集中在已開發地區"}},
+  "High Speed Rail Opens": {8:{zh:"帶動沿線經濟與就業機會"},9:{zh:"展現高速運輸基礎建設實力"},11:{zh:"城市之間的距離感大幅縮短"}},
+  "Sponge City Initiative": {13:{zh:"提升應對極端氣候的韌性"}},
+  "Earth Day": {12:{zh:"提醒大家想想消費習慣"},14:{zh:"海洋保育話題被看見"},15:{zh:"陸地生態保育跟著被關注"}},
+  "Single-Use Plastic Bans": {12:{zh:"源頭減少一次性垃圾"},14:{zh:"海洋少一點塑膠垃圾"},15:{zh:"陸地生態也跟著鬆一口氣"}},
+  "Commercial Whaling Moratorium": {14:{zh:"鯨魚終於能喘口氣休養生息"}},
+  "Beach Cleanup Movements": {11:{zh:"社區一起動手讓環境變乾淨"},14:{zh:"海洋垃圾少一點是一點"},15:{zh:"沿岸生態也跟著受惠"}},
+  "Establishment of National Parks": {15:{zh:"珍貴棲地被正式劃界保護"}},
+  "Endangered Species Recovery": {15:{zh:"瀕危物種數量慢慢回升"}},
+  "Universal Declaration of Human Rights": {5:{zh:"性別平等被寫入普世人權"},10:{zh:"人人生而平等有了國際共識"},16:{zh:"人權與正義有了共同標準"}},
+  "COVID Vaccine Cooperation": {3:{zh:"疫苗更快送到需要的地方"},17:{zh:"全球一起分工合作對抗疫情"}},
+  "Human Genome Project": {3:{zh:"為精準醫療打開大門"},9:{zh:"生技研究能量大躍進"},17:{zh:"跨國科學合作的經典案例"}},
+  "Yu the Great Tames the Flood": {9:{zh:"疏導工法成為後世工程典範"},11:{zh:"聚落終於能安心定居"}},
+  "Shang Yang's Reforms": {8:{zh:"土地與稅制改革帶動生產力"},16:{zh:"法制取代人治，制度更透明"}},
+  "Imperial Examination System": {4:{zh:"讀書變成翻身的機會"},8:{zh:"階級流動帶動人才發揮"},16:{zh:"選才制度相對公平透明"}},
+  "Athenian Democracy": {16:{zh:"權力不再只掌握在少數貴族"}},
+  "The Renaissance": {4:{zh:"知識與教育重新被重視"},9:{zh:"科學與技術創新百花齊放"}},
+  "Invention of the Steam Engine": {7:{zh:"動力來源不再只靠人力獸力"},8:{zh:"生產力與經濟活動大幅提升"}},
+  "The Industrial Revolution": {8:{zh:"生產力與經濟規模大幅躍進"}},
+  "Brazil's Bolsa Família": {2:{zh:"家庭有能力買糧食"},4:{zh:"孩子上學率明顯提升"}},
+  "Founding of IRRI": {2:{zh:"改良稻種讓更多人吃得飽"},9:{zh:"農業科研能量大幅提升"}},
+  "Wikipedia Launches": {4:{zh:"免費知識人人可得"},17:{zh:"全球網友一起協作貢獻"}},
+  "Iceland First Elected Woman President": {5:{zh:"女性領導力站上世界舞台"}},
+  "London Sewer System": {3:{zh:"霍亂疫情大幅減少"},6:{zh:"污水不再直接排入水源"},11:{zh:"城市衛生環境大幅改善"}},
+  "Desalination Technology Spreads": {6:{zh:"缺水地區也能有乾淨水喝"},9:{zh:"水資源技術跨出新一步"}},
+  "LED Lighting Adoption": {7:{zh:"照明用電效率大提升"},12:{zh:"資源使用更有效率"}},
+  "Coral Reef Restoration": {14:{zh:"珊瑚礁生態系逐漸恢復生機"}},
+  "Shark Fin Bans": {12:{zh:"消費行為往永續方向調整"},14:{zh:"鯊魚族群壓力減輕"}},
+  "Sea Turtle Conservation": {14:{zh:"海龜數量緩步回升"},15:{zh:"沿岸孵化棲地受到保護"}},
+  "Primary Forest Logging Bans": {13:{zh:"森林碳匯能力被保留下來"},15:{zh:"原始生態系免於被砍伐破壞"}},
+  "Minimum Wage Laws": {1:{zh:"工資有底線，貧窮風險降低"}},
+  "Invention of Drip Irrigation": {2:{zh:"缺水地區也能穩定種出糧食"},6:{zh:"灌溉用水浪費大幅減少"}},
+  "Founding of Food Banks": {1:{zh:"弱勢家庭生活負擔減輕"},2:{zh:"食物直接送到需要的人手上"},12:{zh:"食物浪費被有效攔截"}},
+  "Child Marriage Bans": {3:{zh:"早婚早育的健康風險降低"},5:{zh:"女童不再被迫提前進入婚姻"},16:{zh:"兒童權益受到法律保障"}},
+  "Founding of Girls Who Code": {5:{zh:"科技領域性別落差被正視"}},
+  "Rainwater Harvesting Systems": {11:{zh:"城市對缺水的抵抗力提升"}}
+};
+
+function sdgNote(card, sdgId) {
+  var perCard = card && card.title_en ? CARD_NOTES[card.title_en] : null;
+  var entry = perCard ? perCard[sdgId] : null;
+  if (!entry) return "";
+  return (currentLang === "en" ? entry.en : entry.zh) || "";
+}
+
 var specialCards = [
   {title_zh:"永續轉型",title_en:"Sustainable Transition",type:"sustain",description_zh:"將自己一張未使用的 SDG 替換成新的，並保留原本的進度。",description_en:"Swap one of your SDGs with an unused one; progress is kept."},
   {title_zh:"否決權",title_en:"Veto",type:"veto",description_zh:"取消一張即將生效的特殊牌，該牌直接棄置且不生效。",description_en:"Cancel a special card about to resolve; it is discarded unused."},
@@ -196,7 +272,7 @@ var state = {
   deck: [], discard: [], unusedSDGs: [],
   selectedCards: [], modeAction: null, maxPlay: 2,
   capacityActive: false, isAIThinking: false,
-  draftCounts: {}, draftCurrentPlayer: 0, draftSelected: [],
+  draftCounts: {}, draftCurrentPlayer: 0, draftSelected: [], aiDraftPending: false,
   previewDeltas: {},
   cardNextResolver: null
 };
@@ -263,6 +339,38 @@ function showAINotice(text) {
 }
 function hideAINotice() { document.getElementById("ai-notice").classList.remove("show"); }
 
+/* One sticky note per moved SDG, carrying the step change and, where the team
+   has supplied one, the annotation for that SDG on that card. */
+function makeStickyNote(card, sdgId, delta) {
+  var note = document.createElement("span");
+  var text = sdgNote(card, sdgId);
+  note.className = "sticky-note " + (delta > 0 ? "up" : "down") + (text ? "" : " plain");
+
+  var head = document.createElement("div");
+  head.className = "sticky-note-head";
+  var sdg = document.createElement("span");
+  sdg.className = "sticky-note-sdg";
+  sdg.textContent = "SDG " + sdgId;
+  var d = document.createElement("span");
+  d.className = "sticky-note-delta";
+  d.textContent = (delta > 0 ? "📈 +" : "📉 ") + delta;
+  head.appendChild(sdg);
+  head.appendChild(d);
+  note.appendChild(head);
+
+  if (text) {
+    var title = document.createElement("div");
+    title.className = "sticky-note-title";
+    title.textContent = sdgName(sdgId);
+    note.appendChild(title);
+    var body = document.createElement("div");
+    body.className = "sticky-note-text";
+    body.textContent = text;
+    note.appendChild(body);
+  }
+  return note;
+}
+
 /* Manual Next card announcement (no auto timer) */
 function showCardAnnouncement(playerName, card, options) {
   options = options || {};
@@ -279,33 +387,24 @@ function showCardAnnouncement(playerName, card, options) {
     var affected = options.affectedSDGs || [];
     if (affected.length) {
       affected.forEach(function(a) {
-        var tag = document.createElement("span");
-        tag.className = "sticky-note " + (a.delta > 0 ? "up" : "down");
-        tag.textContent = "SDG " + a.id + " " + (a.delta > 0 ? "📈" : "📉") + " " + (a.delta > 0 ? "+" : "") + a.delta;
-        effectsEl.appendChild(tag);
+        effectsEl.appendChild(makeStickyNote(card, a.id, a.delta));
       });
     } else if (card.kind === "event") {
       (card.forward || []).forEach(function(id) {
-        var tag = document.createElement("span");
-        tag.className = "sticky-note up";
-        tag.textContent = "SDG " + id + " 📈 +1";
-        effectsEl.appendChild(tag);
+        effectsEl.appendChild(makeStickyNote(card, id, 1));
       });
       (card.backward || []).forEach(function(id) {
-        var tag = document.createElement("span");
-        tag.className = "sticky-note down";
-        tag.textContent = "SDG " + id + " 📉 -1";
-        effectsEl.appendChild(tag);
+        effectsEl.appendChild(makeStickyNote(card, id, -1));
       });
     } else {
       var tag = document.createElement("span");
-      tag.className = "sticky-note special";
+      tag.className = "sticky-note special plain";
       tag.textContent = t("special");
       effectsEl.appendChild(tag);
     }
     if (options.targetName) {
       var tn = document.createElement("span");
-      tn.className = "sticky-note special";
+      tn.className = "sticky-note special plain";
       tn.textContent = "-> " + options.targetName;
       effectsEl.appendChild(tn);
     }
@@ -386,6 +485,7 @@ function startDraft() {
   for (var k = 1; k <= 17; k++) state.draftCounts[k] = 0;
   state.draftCurrentPlayer = 0;
   state.draftSelected = [];
+  state.aiDraftPending = false;
   showScreen("draftScreen");
   renderDraft();
 }
@@ -415,7 +515,10 @@ function renderDraft() {
     return pl.name + ": " + (pl.sdgs.map(function(x){ return "SDG "+x.id; }).join(", ") || "-");
   }).join(" | ");
   document.getElementById("btnConfirmDraft").disabled = state.draftSelected.length !== 2 || p.isAI;
-  if (p.isAI) {
+  // aiDraftPick() re-renders to show its picks highlighted, so only arm the
+  // timer once per bot — otherwise a stale one fires after the draft moved on.
+  if (p.isAI && !state.aiDraftPending) {
+    state.aiDraftPending = true;
     showAINotice("[" + p.name + "] " + t("aiDraft"));
     log("[" + p.name + "] " + t("aiDraft"), "ai");
     trackTimeout(function() { hideAINotice(); aiDraftPick(); }, 1000);
@@ -438,6 +541,7 @@ function confirmDraftPick(ids) {
     state.draftCounts[id] = (state.draftCounts[id] || 0) + 1;
   });
   state.draftSelected = [];
+  state.aiDraftPending = false;
   state.draftCurrentPlayer++;
   if (state.draftCurrentPlayer >= state.players.length) { startGame(); return; }
   renderDraft();
@@ -445,7 +549,7 @@ function confirmDraftPick(ids) {
 function aiDraftPick() {
   if (state.isGameOver) return;
   var p = state.players[state.draftCurrentPlayer];
-  if (!p.isAI) return;
+  if (!p || !p.isAI) { state.aiDraftPending = false; return; }
   var avail = [];
   for (var id = 1; id <= 17; id++) {
     if ((state.draftCounts[id] || 0) < 2) avail.push(id);
