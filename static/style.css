@@ -937,25 +937,31 @@ footer a:hover { color: white; text-decoration: underline; }
   }
 }
 
-/* ===== SDG Board Game ===== */
+/* ===== The Green Cabinet (SDG Board Game) ===== */
 /* All rules below are scoped under .board-game-page so this self-contained
    widget's tag-level styling (button, input, h1, h2, .card, .modal, ...)
    never leaks into the rest of the site. */
 .board-game-page {
   --wood-light: #f4f1ea; --wood-mid: #e8e5da; --wood-dark: #d5cbb8;
-  --paper: #fcfbf7; --ink: #3d3229; --ink-soft: #5c4e42; --border: #4a3b32;
-  --teal: #2a9d8f; --teal-dark: #1f7a6f; --blue: #457b9d; --red: #c44536;
-  --gold: #c9a227; --muted: #8a7a6a;
+  --paper: #fdfbf7; --paper2: #f4efe6; --ink: #3d3229; --ink2: #5c4e42; --border: #4a3b32;
+  --teal: #2a9d8f; --blue: #457b9d; --red: #c44536; --gold: #c9a227; --muted: #8a7a6a;
+  --sticky-y: #fff3a3; --sticky-p: #ffcce0; --sticky-g: #c8f0d4;
   font-family: "Segoe UI", "Noto Sans TC", system-ui, sans-serif;
   background: linear-gradient(160deg, var(--wood-light), var(--wood-mid), var(--wood-dark));
-  color: var(--ink); line-height: 1.5;
+  color: var(--ink); line-height: 1.5; position: relative;
   border-radius: 16px; padding: 18px; margin-bottom: 2rem;
 }
 .board-game-page, .board-game-page * { box-sizing: border-box; margin: 0; padding: 0; }
-.board-game-page .screen { display: none; padding: 18px; max-width: 1380px; margin: 0 auto; }
+.board-game-page .lang-bar {
+  position: absolute; top: 10px; right: 14px; z-index: 50;
+  background: var(--paper); border: 2px solid var(--border); border-radius: 8px;
+  padding: 6px 12px; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.board-game-page .lang-bar select { border: 1px solid #c4b8a8; border-radius: 5px; padding: 3px 6px; background: #fff; }
+.board-game-page .screen { display: none; padding: 18px; max-width: 1400px; margin: 0 auto; }
 .board-game-page .screen.active { display: block; }
-.board-game-page h1 { text-align: center; margin-bottom: 16px; font-size: clamp(1.5rem, 3.8vw, 2.1rem); color: var(--border); }
-.board-game-page h2 { margin: 12px 0 8px; color: var(--teal-dark); font-size: 1.1rem; }
+.board-game-page h1 { text-align: center; margin-bottom: 14px; font-size: clamp(1.5rem, 3.8vw, 2.15rem); color: var(--border); }
+.board-game-page h2 { margin: 10px 0 8px; color: var(--teal); font-size: 1.08rem; }
 .board-game-page button {
   background: var(--blue); color: #fff; border: 2px solid #3a6a88; padding: 10px 18px;
   border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600;
@@ -969,20 +975,67 @@ footer a:hover { color: white; text-decoration: underline; }
 .board-game-page button.large { padding: 14px 26px; font-size: 1.05rem; width: 100%; max-width: 340px; margin: 8px auto; display: block; }
 .board-game-page input, .board-game-page select { background: var(--paper); border: 2px solid #c4b8a8; color: var(--ink); padding: 8px 12px; border-radius: 7px; font-size: 0.95rem; }
 .board-game-page .menu-box, .board-game-page .setup-box {
-  background: var(--paper); padding: 26px; border-radius: 12px; max-width: 500px; margin: 0 auto;
+  background: var(--paper); padding: 26px; border-radius: 12px; max-width: 520px; margin: 0 auto;
   text-align: center; border: 2px solid var(--border); box-shadow: 0 6px 20px rgba(74,59,50,0.12);
 }
-.board-game-page .player-setup { margin: 10px 0; display: grid; grid-template-columns: 70px 1fr 160px; gap: 8px; align-items: center; text-align: left; }
+.board-game-page .player-setup { margin: 10px 0; display: grid; grid-template-columns: 70px 1fr 170px; gap: 8px; align-items: center; text-align: left; }
 .board-game-page .player-setup label { font-size: 0.88rem; color: var(--muted); }
+/* ---- Rules walkthrough shown before the draft ---- */
+.board-game-page .tutorial-box {
+  background: var(--paper); border: 2px solid var(--border); border-radius: 12px;
+  max-width: 940px; margin: 0 auto; padding: 20px 24px 18px;
+  box-shadow: 0 6px 20px rgba(74,59,50,0.12);
+}
+.board-game-page .tutorial-progress {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px dashed #d5cbb8;
+}
+.board-game-page .tutorial-step-num { font-size: 0.85rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.board-game-page .tutorial-dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.board-game-page .tutorial-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #ded6c8; border: 1px solid #c4b8a8; transition: 0.2s;
+}
+.board-game-page .tutorial-dot.done { background: var(--teal); border-color: var(--teal); }
+.board-game-page .tutorial-dot.current { background: var(--gold); border-color: #a88b1a; transform: scale(1.35); }
+.board-game-page .tutorial-pane { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+@media (max-width: 780px) { .board-game-page .tutorial-pane { grid-template-columns: 1fr; gap: 18px; } }
+.board-game-page .tutorial-lang { min-width: 0; }
+.board-game-page .tutorial-lang + .tutorial-lang { border-left: 1px solid #e8dcc8; padding-left: 22px; }
+@media (max-width: 780px) {
+  .board-game-page .tutorial-lang + .tutorial-lang { border-left: none; padding-left: 0; border-top: 1px dashed #d5cbb8; padding-top: 16px; }
+}
+.board-game-page .tutorial-lang-tag {
+  display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--muted); background: #f0ebe3; border: 1px solid #ded6c8;
+  border-radius: 10px; padding: 2px 9px; margin-bottom: 8px;
+}
+.board-game-page .tutorial-lang h2 { margin: 0 0 10px; color: var(--teal); font-size: 1.12rem; line-height: 1.35; }
+.board-game-page .tutorial-lang ul { list-style: none; margin: 0; padding: 0; }
+.board-game-page .tutorial-lang li {
+  position: relative; padding-left: 16px; margin-bottom: 9px;
+  font-size: 0.9rem; line-height: 1.6; color: var(--ink2);
+}
+.board-game-page .tutorial-lang li::before {
+  content: ""; position: absolute; left: 0; top: 0.62em;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+}
+.board-game-page .tutorial-actions {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-top: 20px; padding-top: 16px; border-top: 1px dashed #d5cbb8;
+}
+.board-game-page .tutorial-actions button { min-width: 176px; }
+
 .board-game-page .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; margin: 14px 0; }
 .board-game-page .sdg-pick {
   background: var(--paper); border: 2px solid #c4b8a8; border-radius: 10px; padding: 11px 7px;
   text-align: center; cursor: pointer; transition: 0.15s; user-select: none;
 }
 .board-game-page .sdg-pick:hover:not(.disabled):not(.selected) { border-color: var(--teal); transform: translateY(-2px); }
-.board-game-page .sdg-pick.disabled { opacity: 0.35; cursor: not-allowed; }
+.board-game-page .sdg-pick.disabled { opacity: 0.32; cursor: not-allowed; filter: grayscale(0.6); }
 .board-game-page .sdg-pick.selected { border-color: var(--teal); background: #e6f5f3; box-shadow: 0 0 0 2px var(--teal); }
-.board-game-page .draft-status { text-align: center; margin: 10px 0; font-size: 1.08rem; color: var(--teal-dark); font-weight: 600; }
+.board-game-page .sdg-pick .pick-count { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+.board-game-page .draft-status { text-align: center; margin: 10px 0; font-size: 1.08rem; color: var(--teal); font-weight: 600; }
 .board-game-page .draft-selected-count { text-align: center; color: var(--muted); margin-bottom: 6px; }
 .board-game-page .game-layout { display: grid; grid-template-columns: 1fr 290px; gap: 14px; }
 @media (max-width: 960px) { .board-game-page .game-layout { grid-template-columns: 1fr; } .board-game-page .log-panel { max-height: 260px; } }
@@ -996,9 +1049,8 @@ footer a:hover { color: white; text-decoration: underline; }
 .board-game-page .sdg-row { display: flex; gap: 6px; margin-bottom: 3px; align-items: center; }
 .board-game-page .sdg-badge { background: #e8e0d4; border: 1px solid #c4b8a8; border-radius: 6px; padding: 3px 6px; font-size: 0.78rem; min-width: 60px; text-align: center; font-weight: 600; }
 .board-game-page .sdg-badge.goal { background: linear-gradient(135deg, #e8c547, #c9a227); border-color: #a88b1a; }
-.board-game-page .sdg-badge.frozen { outline: 2px solid #457b9d; }
-.board-game-page .progress-bar { flex: 1; height: 18px; background: #e5dfd4; border-radius: 9px; overflow: hidden; position: relative; border: 1px solid #c4b8a8; }
-.board-game-page .progress-fill { height: 100%; background: linear-gradient(90deg, #2a9d8f, #40b5a6); transition: width 0.5s ease; }
+.board-game-page .sdg-progress-bar { display: block; flex: 1; height: 18px; background: #e5dfd4; border-radius: 9px; overflow: hidden; position: relative; border: 1px solid #c4b8a8; }
+.board-game-page .progress-fill { height: 100%; background: linear-gradient(90deg, #2a9d8f, #40b5a6); transition: width 0.45s ease; }
 .board-game-page .progress-fill.negative { background: linear-gradient(90deg, #c44536, #e06b5e); }
 .board-game-page .progress-preview { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(90deg, rgba(42,157,143,0.35), rgba(42,157,143,0.35) 4px, rgba(42,157,143,0.12) 4px, rgba(42,157,143,0.12) 8px); border: 2px dashed #2a9d8f; border-radius: 9px; pointer-events: none; }
 .board-game-page .progress-preview.negative { background: repeating-linear-gradient(90deg, rgba(196,69,54,0.4), rgba(196,69,54,0.4) 4px, rgba(196,69,54,0.15) 4px, rgba(196,69,54,0.15) 8px); border-color: #c44536; }
@@ -1006,72 +1058,152 @@ footer a:hover { color: white; text-decoration: underline; }
 .board-game-page .progress-labels { display: flex; justify-content: space-between; font-size: 0.58rem; color: var(--muted); margin-top: 1px; padding: 0 2px; }
 .board-game-page .hand-area { background: #f5f2eb; border-radius: 10px; padding: 12px; margin-top: 10px; border: 1px solid #d5cbb8; }
 .board-game-page .hand-cards { display: flex; flex-wrap: wrap; gap: 10px; min-height: 115px; }
-.board-game-page .card {
-  background: var(--paper); border: 2px solid var(--border); border-radius: 10px; padding: 0; width: 142px;
+.board-game-page .hand-card {
+  background: var(--paper); border: 2px solid var(--border); border-radius: 10px; padding: 0; width: 148px;
   font-size: 0.74rem; cursor: pointer; transition: 0.18s; overflow: hidden; box-shadow: 0 4px 10px rgba(74,59,50,0.12);
 }
-.board-game-page .card:hover { transform: translateY(-8px) scale(1.04); border-color: var(--gold); }
-.board-game-page .card.selected { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); transform: translateY(-6px); }
-.board-game-page .card.disabled-card { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-.board-game-page .card-header { padding: 4px 8px; font-size: 0.65rem; font-weight: 700; }
-.board-game-page .card.event .card-header { background: #e8a54b; color: #3d3229; }
-.board-game-page .card.special .card-header { background: #7b6b9e; color: #fff; }
-.board-game-page .card-body { padding: 7px; }
+.board-game-page .hand-card:hover { transform: translateY(-8px) scale(1.04); border-color: var(--gold); }
+.board-game-page .hand-card.selected { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); transform: translateY(-6px); }
+.board-game-page .hand-card.disabled-card { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.board-game-page .hand-card-header { padding: 4px 8px; font-size: 0.65rem; font-weight: 700; }
+.board-game-page .hand-card.event .hand-card-header { background: #e8a54b; color: #3d3229; }
+.board-game-page .hand-card.special .hand-card-header { background: #7b6b9e; color: #fff; }
+.board-game-page .hand-card-body { padding: 7px; }
 .board-game-page .card-name { font-weight: 700; margin-bottom: 3px; font-size: 0.8rem; }
 .board-game-page .card-effect { color: var(--muted); font-size: 0.68rem; }
 .board-game-page .card-fwd { color: #1f7a6f; }
 .board-game-page .card-bwd { color: #a3382c; }
 .board-game-page .deck-info { display: flex; gap: 14px; margin: 10px 0; font-size: 0.88rem; color: var(--muted); }
 .board-game-page .phase-bar { background: #ebe6dc; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border: 1px solid #d5cbb8; }
-.board-game-page .phase-label { font-weight: 700; color: var(--teal-dark); }
+.board-game-page .phase-label { font-weight: 700; color: var(--teal); }
 .board-game-page .ai-thinking { color: #6b5b4f; animation: boardGamePulse 1.2s infinite; }
 @keyframes boardGamePulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 .board-game-page .log-panel { background: var(--paper); border-radius: 12px; padding: 12px; height: calc(100vh - 40px); max-height: 840px; display: flex; flex-direction: column; border: 2px solid var(--border); }
-.board-game-page .log-content { flex: 1; overflow-y: auto; font-size: 0.8rem; color: var(--ink-soft); }
+.board-game-page .log-content { flex: 1; overflow-y: auto; font-size: 0.8rem; color: var(--ink2); }
 .board-game-page .log-entry { padding: 4px 0; border-bottom: 1px solid #ebe6dc; }
 .board-game-page .log-entry.sys { color: var(--blue); }
-.board-game-page .log-entry.win { color: var(--teal-dark); font-weight: 700; }
+.board-game-page .log-entry.win { color: var(--teal); font-weight: 700; }
 .board-game-page .log-entry.ai { color: #6b5b4f; }
 .board-game-page .log-entry.up { color: #1f7a6f; }
 .board-game-page .log-entry.down { color: #a3382c; }
 .board-game-page .log-entry.special { color: #8b6914; }
 .board-game-page .modal-overlay { position: fixed; inset: 0; background: rgba(61,50,41,0.45); display: none; align-items: center; justify-content: center; z-index: 2000; }
 .board-game-page .modal-overlay.show { display: flex; }
-.board-game-page .modal { background: var(--paper); border-radius: 12px; padding: 22px; max-width: 480px; width: 92%; max-height: 85vh; overflow-y: auto; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
-.board-game-page .modal h3 { margin-bottom: 12px; color: var(--teal-dark); }
+.board-game-page .tgc-dialog { display: block; position: static; opacity: 1; pointer-events: auto; background: var(--paper); border-radius: 12px; padding: 22px; max-width: 480px; width: 92%; max-height: 85vh; overflow-y: auto; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+.board-game-page .tgc-dialog h3 { margin-bottom: 12px; color: var(--teal); }
 .board-game-page .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
 .board-game-page .modal-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; max-height: 280px; overflow-y: auto; }
 .board-game-page .modal-list button { font-size: 0.82rem; padding: 8px 12px; }
 .board-game-page .win-screen { text-align: center; padding: 48px 20px; }
 .board-game-page .win-screen h1 { color: var(--gold); }
 .board-game-page .confirm-bar { margin-top: 10px; display: flex; gap: 10px; justify-content: center; }
+
+/* Notebook torn-page card announcement modal */
 .board-game-page #card-play-modal {
-  position: fixed; inset: 0; background: rgba(61,50,41,0.4); display: flex; align-items: center; justify-content: center;
+  position: fixed; inset: 0; background: rgba(61,50,41,0.42);
+  display: flex; align-items: center; justify-content: center;
   z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
 }
 .board-game-page #card-play-modal.show { opacity: 1; pointer-events: auto; }
-.board-game-page #card-play-modal.fade-out { opacity: 0; }
-.board-game-page .card-announce-box {
-  background: var(--paper); border: 3px solid var(--border); border-radius: 14px; padding: 28px 36px;
-  max-width: 420px; width: 90%; text-align: center; box-shadow: 0 12px 32px rgba(74,59,50,0.2);
-  transform: scale(0.92); transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1);
+.board-game-page .tgc-torn-page {
+  position: relative;
+  background:
+    linear-gradient(90deg, transparent 0, transparent 28px, #e8dcc8 28px, #e8dcc8 30px, transparent 30px),
+    repeating-linear-gradient(0deg, transparent, transparent 27px, #d4cfc4 27px, #d4cfc4 28px),
+    linear-gradient(160deg, var(--paper), var(--paper2));
+  border: 1px solid #c9bfa8;
+  border-radius: 2px 12px 12px 2px;
+  padding: 28px 32px 22px 42px;
+  max-width: 480px; width: 92%;
+  /* Sticky notes make this page tall; keep it inside the viewport so the
+     Next button below is always reachable. */
+  max-height: 88vh; overflow-y: auto;
+  box-shadow: 5px 5px 15px rgba(0,0,0,0.15), inset 0 0 40px rgba(255,255,255,0.3);
+  transform: rotate(-0.6deg) scale(0.94);
+  transition: transform 0.35s cubic-bezier(0.34,1.3,0.64,1);
 }
-.board-game-page #card-play-modal.show .card-announce-box { transform: scale(1); }
-.board-game-page .card-announce-player { font-size: 1rem; color: var(--blue); margin-bottom: 4px; font-weight: 600; }
-.board-game-page .card-announce-name { font-size: 1.55rem; font-weight: 800; color: var(--border); margin-bottom: 8px; }
-.board-game-page .card-announce-target { font-size: 0.92rem; color: var(--gold); margin-bottom: 8px; font-weight: 600; display: none; }
-.board-game-page .card-announce-desc { font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 14px; }
-.board-game-page .card-announce-effects { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
-.board-game-page .effect-tag { background: #f0ebe3; border: 1.5px solid #c4b8a8; border-radius: 16px; padding: 4px 11px; font-size: 0.82rem; font-weight: 600; }
-.board-game-page .effect-tag.up { color: #1f7a6f; border-color: #2a9d8f; }
-.board-game-page .effect-tag.down { color: #a3382c; border-color: #c44536; }
-.board-game-page .effect-tag.special { color: #6b5b4f; }
+.board-game-page #card-play-modal.show .tgc-torn-page { transform: rotate(0deg) scale(1); }
+.board-game-page .tgc-torn-page::before {
+  content: ""; position: absolute; left: -6px; top: 8%; bottom: 8%; width: 14px;
+  background: radial-gradient(circle at 4px 12px, transparent 5px, #c9bfa8 5.5px, #c9bfa8 7px, transparent 7.5px) 0 0 / 14px 28px;
+  opacity: 0.7;
+}
+.board-game-page .tgc-torn-page::after {
+  content: ""; position: absolute; top: -2px; left: 10%; right: 8%; height: 8px;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06) 20%, transparent 40%, rgba(0,0,0,0.05) 70%, transparent);
+  border-radius: 50%;
+}
+.board-game-page .card-announce-player { font-size: 0.95rem; color: var(--blue); margin-bottom: 4px; font-weight: 600; }
+/* Reveal Phase flip: not a player's move, so it is labelled and tinted apart. */
+.board-game-page .card-announce-player.reveal {
+  color: var(--gold); font-size: 0.82rem; letter-spacing: 0.02em;
+  display: inline-block; background: #fdf3d6; border: 1px dashed #d8b26a;
+  border-radius: 12px; padding: 3px 11px; margin-bottom: 8px;
+}
+.board-game-page .card-announce-name { font-size: 1.5rem; font-weight: 800; color: var(--border); margin-bottom: 4px; line-height: 1.25; }
+.board-game-page .card-announce-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; font-style: italic; }
+.board-game-page .card-announce-desc {
+  font-size: 0.9rem; color: var(--ink2); margin-bottom: 16px; line-height: 1.55;
+  border-left: 3px solid #e8dcc8; padding-left: 12px;
+}
+/* Sticky notes pinned onto the notepaper. Each carries the SDG it moves,
+   the step change, and the team's annotation for that SDG. */
+.board-game-page .card-announce-effects {
+  display: flex; flex-wrap: wrap; gap: 14px 12px;
+  justify-content: center; margin: 6px 0 20px;
+}
+.board-game-page .sticky-note {
+  position: relative;
+  flex: 0 1 auto;
+  width: 178px; min-height: 92px;
+  padding: 14px 12px 12px;
+  text-align: left;
+  font-size: 0.82rem; font-weight: 600; line-height: 1.35;
+  border-radius: 1px;
+  /* Lifted corner: darker at the bottom-right so it reads as a peeling note. */
+  box-shadow: 2px 4px 7px rgba(0,0,0,0.18), inset 0 -14px 18px -14px rgba(0,0,0,0.12);
+}
+.board-game-page .sticky-note.up { background: var(--sticky-g); transform: rotate(-2deg); color: #1a5c4a; }
+.board-game-page .sticky-note.down { background: var(--sticky-p); transform: rotate(3deg); color: #8b2e3a; }
+.board-game-page .sticky-note.special { background: var(--sticky-y); transform: rotate(-2deg); color: #5c4a12; }
+/* Strip of washi tape holding the note to the page. */
+.board-game-page .sticky-note::before {
+  content: ""; position: absolute; top: -9px; left: 50%;
+  width: 54px; height: 18px; transform: translateX(-50%) rotate(-1.5deg);
+  background: rgba(255,255,255,0.55);
+  border-left: 1px solid rgba(0,0,0,0.05); border-right: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+}
+/* Curled bottom-right corner. */
+.board-game-page .sticky-note::after {
+  content: ""; position: absolute; right: 0; bottom: 0; width: 16px; height: 16px;
+  background: linear-gradient(315deg, rgba(0,0,0,0.10) 50%, transparent 50%);
+}
+.board-game-page .sticky-note-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 6px; margin-bottom: 2px;
+}
+.board-game-page .sticky-note-sdg { font-size: 0.9rem; font-weight: 800; }
+.board-game-page .sticky-note-delta { font-size: 0.9rem; font-weight: 800; white-space: nowrap; }
+.board-game-page .sticky-note-title {
+  font-size: 0.72rem; font-weight: 700; opacity: 0.75;
+  margin-bottom: 5px; padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(0,0,0,0.18);
+}
+.board-game-page .sticky-note-text { font-size: 0.76rem; font-weight: 500; opacity: 0.95; }
+/* Plain badge used when a card has no per-SDG annotation to show. */
+.board-game-page .sticky-note.plain { width: auto; min-width: 104px; min-height: 0; padding: 10px 14px; text-align: center; }
+.board-game-page .sticky-note.plain .sticky-note-head { justify-content: center; }
+.board-game-page .card-announce-next { text-align: center; }
+.board-game-page .card-announce-next button { min-width: 140px; font-size: 1rem; }
+
 .board-game-page #ai-notice {
-  position: fixed; inset: 0; background: rgba(61,50,41,0.35); display: none; align-items: center; justify-content: center; z-index: 9000;
+  position: fixed; inset: 0; background: rgba(61,50,41,0.32);
+  display: none; align-items: center; justify-content: center; z-index: 9000;
 }
 .board-game-page #ai-notice.show { display: flex; }
 .board-game-page .ai-notice-box {
-  background: var(--paper); border: 3px solid var(--border); border-radius: 12px; padding: 22px 32px;
-  max-width: 420px; text-align: center; font-size: 1.05rem; font-weight: 600; color: var(--ink);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+  background: var(--paper); border: 3px solid var(--border); border-radius: 12px;
+  padding: 22px 32px; max-width: 420px; text-align: center; font-size: 1.05rem;
+  font-weight: 600; box-shadow: 0 10px 28px rgba(0,0,0,0.15);
 }
