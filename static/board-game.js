@@ -987,9 +987,202 @@ function startDraft() {
   state.draftCurrentPlayer = 0;
   state.draftSelected = [];
   state.aiDraftPending = false;
+  startTutorial();
+}
+
+/* ========== RULES WALKTHROUGH ==========
+   Shown between setup and the draft, so finishing it drops straight into play.
+   Both languages sit on the page together rather than following the toggle. */
+var TUTORIAL_STEPS = [
+  {
+    zh: { title: "歡迎來到 The Green Cabinet", body: [
+      "你將扮演一個政治陣營的領導者，帶領自己的陣營推進 2 項永續發展目標（SDGs）。",
+      "在象徵國際議會的舞台上提出政策、運用歷史事件與特殊策略工具，讓自己的目標前進，也可以干擾其他陣營。",
+      "核心概念：永續發展不是單一路線，每個政策都可能同時帶來不同影響。"
+    ]},
+    en: { title: "Welcome to The Green Cabinet", body: [
+      "You lead a political camp, and your camp has 2 Sustainable Development Goals (SDGs) to advance.",
+      "On a stage standing in for an international assembly, you propose policies and use historical events and special tools to push your goals forward — or hold rival camps back.",
+      "The core idea: sustainability is never a single path, and every policy can cut more than one way."
+    ]}
+  },
+  {
+    zh: { title: "遊戲目標", body: [
+      "每位玩家開始時取得：1 個個人軌道板、2 張 SDG 目標牌、5 張功能牌。",
+      "你的 2 張 SDG 目標牌會公開放置，所有人都看得到你在追求什麼。",
+      "第一位讓自己 2 張 SDG 目標牌全部抵達 GOAL 的玩家獲勝。"
+    ]},
+    en: { title: "How You Win", body: [
+      "Every player starts with 1 personal track board, 2 SDG goal cards, and 5 action cards.",
+      "Your 2 goal cards sit face up, so everyone can see what you are working toward.",
+      "The first player to bring both of their SDG goals all the way to GOAL wins."
+    ]}
+  },
+  {
+    zh: { title: "個人軌道板", body: [
+      "每張 SDG 目標牌都從起始點 0 出發，距離 GOAL 有 2 格。",
+      "起始點之前還有 -1、-2 兩格，所以目標可以被推進，也可以被推退。",
+      "重要規則：目標牌一旦抵達 GOAL 就會鎖定，之後不再受任何功能牌影響。"
+    ]},
+    en: { title: "Your Progress Track", body: [
+      "Each goal card starts at 0, which is 2 steps away from GOAL.",
+      "There are also -1 and -2 spaces below the start, so goals can be pushed backward as well as forward.",
+      "Key rule: once a goal reaches GOAL it is locked, and no action card can touch it again."
+    ]}
+  },
+  {
+    zh: { title: "目標牌", body: [
+      "目標牌對應聯合國 17 項永續發展目標，共 17 種，每種 2 張。",
+      "每位玩家抽 2 張目標牌，而且不能拿到相同種類的目標。",
+      "因為每種只有 2 張，同一個 SDG 最多只會有 2 位玩家同時追求。"
+    ]},
+    en: { title: "Goal Cards", body: [
+      "The goal cards match the UN's 17 Sustainable Development Goals: 17 kinds, 2 copies of each.",
+      "Each player takes 2 goal cards, and never two of the same kind.",
+      "Because there are only 2 copies of each, at most 2 players can chase the same SDG."
+    ]}
+  },
+  {
+    zh: { title: "功能牌：歷史與現代事件", body: [
+      "大部分功能牌以歷史事件、現代事件、政策、法律、公約、科技突破、社會運動、災害與環境事件為主題。",
+      "每張牌會讓 1～3 個 SDG 前進或後退，而且是影響「所有玩家」持有的同編號目標。",
+      "正向事件比負向事件多，讓整體遊戲比較有建設感。",
+      "也有雙重效果的牌：例如「COVID-19 封城」讓 SDG3 前進、SDG8 後退，因為防疫有助健康，但封城衝擊經濟。"
+    ]},
+    en: { title: "Action Cards: Real Events", body: [
+      "Most action cards come from real history: events, policies, laws, treaties, technological breakthroughs, social movements, disasters and environmental crises.",
+      "Each card moves 1-3 SDGs forward or backward, and it affects that SDG for every player holding it — not just you.",
+      "Positive events outnumber negative ones, so the game keeps a constructive feel.",
+      "Some cards cut both ways: 'COVID-19 Lockdowns' moves SDG3 forward but SDG8 back, because containment helped health while lockdowns hurt the economy."
+    ]}
+  },
+  {
+    zh: { title: "特殊功能牌（共 8 種）", body: [
+      "永續轉型：換掉自己一張目標牌，新目標沿用原本的步數，不歸零。",
+      "否決權：任何玩家即將使用特殊功能牌時，可立刻打出以抵銷該牌效果。",
+      "政策豁免：指定自己一張目標牌，本回合免疫所有負面效果；正面效果仍生效。",
+      "捲土重來：指定任一張尚未達標的目標牌，將其步數歸零。",
+      "國際制裁：指定一名玩家，其下一回合的行動階段無法出牌也無法棄牌。",
+      "能力建構：補牌階段多抽 1 張，再從抽到的牌中棄掉 1 張。",
+      "立場反轉：指定任一張目標牌，將其步數正負互換。",
+      "歷史借鏡：檢視棄牌堆最上方 5 張，選 1 張加入手牌，其餘依原順序放回。"
+    ]},
+    en: { title: "Special Action Cards (8 in total)", body: [
+      "Sustainable Transition: swap one of your goals for an unused one, keeping its exact progress.",
+      "Veto: when any player is about to resolve a special card, play this at once to cancel it.",
+      "Policy Exemption: one of your goals is immune to all negative effects this round; positive effects still land.",
+      "Back to Square One: reset any goal that has not yet reached GOAL back to zero.",
+      "International Sanctions: the chosen player may neither play nor discard during their next Action Phase.",
+      "Capacity Building: draw 1 extra card in the Draw Phase, then discard 1 of the cards drawn.",
+      "Stance Reversal: flip any goal's progress from positive to negative or back.",
+      "Lessons from History: look at the top 5 cards of the discard pile, take 1, and return the rest in order."
+    ]}
+  },
+  {
+    zh: { title: "回合流程 ① 行動階段", body: [
+      "輪到你時，你可以選擇棄牌，或是使用功能牌。",
+      "棄牌：可以棄掉任意張手牌，棄牌不會觸發卡片效果。",
+      "使用功能牌：打出並執行效果，每回合最多執行 2 張。",
+      "你可以幫助自己、干擾其他玩家、影響所有人，或操作 SDG 之間的關係。"
+    ]},
+    en: { title: "Turn Flow ① Action Phase", body: [
+      "On your turn you may either discard, or play action cards.",
+      "Discard: throw away any number of cards from your hand; discarding never triggers their effects.",
+      "Play: resolve the cards you play, up to 2 per turn.",
+      "You can help yourself, disrupt a rival, affect everyone at once, or work the relationships between SDGs."
+    ]}
+  },
+  {
+    zh: { title: "回合流程 ② 翻牌階段", body: [
+      "行動階段結束後，從抽牌堆頂端翻開一張牌，立刻執行它的效果。",
+      "這張牌會影響所有玩家，包括你自己，是每回合最大的變數。",
+      "如果翻到的是特殊功能牌，就把它放入棄牌堆，然後重新翻開下一張。"
+    ]},
+    en: { title: "Turn Flow ② Reveal Phase", body: [
+      "Once your action phase ends, flip the top card of the deck and resolve it immediately.",
+      "It affects every player, you included — the biggest swing of each turn.",
+      "If the flipped card is a special action card, discard it and flip the next one instead."
+    ]}
+  },
+  {
+    zh: { title: "回合流程 ③ 補牌階段", body: [
+      "從抽牌堆補牌，把手牌補回 5 張，然後換下一位玩家。",
+      "如果抽牌堆用完了，就把棄牌堆重新洗牌，形成新的抽牌堆。"
+    ]},
+    en: { title: "Turn Flow ③ Draw Phase", body: [
+      "Draw from the deck until your hand is back to 5 cards, then play passes to the next player.",
+      "If the deck runs out, shuffle the discard pile to form a new deck."
+    ]}
+  },
+  {
+    zh: { title: "這款遊戲想說的事", body: [
+      "SDGs 之間彼此連動：一個政策可能同時影響多個目標。",
+      "永續發展存在取捨：有些事件會讓一項目標前進、另一項目標後退。",
+      "合作與競爭並存：你可以和別人合作，也可以阻礙競爭者。",
+      "用歷史理解 SDGs：遊戲事件橫跨古代到現代，讓我們看見 SDGs 雖然 2015 年才正式形成，但人類早就一直在面對貧窮、教育、平等、能源、環境、和平與國際合作等問題。"
+    ]},
+    en: { title: "What This Game Is About", body: [
+      "The SDGs are interconnected: a single policy can move several goals at once.",
+      "Sustainability involves trade-offs: some events push one goal forward while setting another back.",
+      "Cooperation and competition coexist: you can work with others, or stand in their way.",
+      "History makes the SDGs legible: the events span antiquity to today, showing that although the SDGs were only formalised in 2015, humanity has long wrestled with poverty, education, equality, energy, environment, peace and international cooperation."
+    ]}
+  }
+];
+
+var tutorialIndex = 0;
+
+function startTutorial() {
+  tutorialIndex = 0;
+  showScreen("tutorialScreen");
+  renderTutorial();
+}
+
+function renderTutorial() {
+  var step = TUTORIAL_STEPS[tutorialIndex];
+  var last = tutorialIndex === TUTORIAL_STEPS.length - 1;
+
+  document.getElementById("tutorialStepNum").textContent =
+    (tutorialIndex + 1) + " / " + TUTORIAL_STEPS.length;
+
+  var dots = document.getElementById("tutorialDots");
+  dots.innerHTML = "";
+  TUTORIAL_STEPS.forEach(function(_, i) {
+    var d = document.createElement("span");
+    d.className = "tutorial-dot" + (i === tutorialIndex ? " current" : (i < tutorialIndex ? " done" : ""));
+    dots.appendChild(d);
+  });
+
+  ["zh", "en"].forEach(function(lang) {
+    var suffix = lang === "zh" ? "Zh" : "En";
+    document.getElementById("tutorialTitle" + suffix).textContent = step[lang].title;
+    var ul = document.getElementById("tutorialBody" + suffix);
+    ul.innerHTML = "";
+    step[lang].body.forEach(function(line) {
+      var li = document.createElement("li");
+      li.textContent = line;
+      ul.appendChild(li);
+    });
+  });
+
+  document.getElementById("btnTutorialNext").textContent = last ? "開始遊戲 Start game" : "下一步 Next";
+  document.getElementById("tutorialScreen").scrollIntoView({ block: "start" });
+}
+
+function finishTutorial() {
   showScreen("draftScreen");
   renderDraft();
 }
+
+document.getElementById("btnTutorialNext").onclick = function() {
+  if (tutorialIndex < TUTORIAL_STEPS.length - 1) {
+    tutorialIndex++;
+    renderTutorial();
+  } else {
+    finishTutorial();
+  }
+};
+document.getElementById("btnTutorialSkip").onclick = finishTutorial;
 
 /* ========== DRAFT: same SDG may be picked by up to 2 players ========== */
 function renderDraft() {
