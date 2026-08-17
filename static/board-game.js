@@ -1,5 +1,5 @@
 /* ========== CONSTANTS ========== */
-var GOAL = 2; // track runs -2..GOAL
+var GOAL = 3; // track runs -2..GOAL
 var HAND_LIMIT = 5;
 
 /* ========== i18n ========== */
@@ -811,6 +811,16 @@ function log(msg, type) {
   el.scrollTop = el.scrollHeight;
 }
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+/* Tick marks under each progress bar, derived from GOAL so the scale and the
+   labels can never drift apart if the goal distance is retuned. */
+var _trackLabelsCache = null;
+function trackLabelsHtml() {
+  if (_trackLabelsCache) return _trackLabelsCache;
+  var out = "";
+  for (var v = -2; v <= GOAL; v++) out += "<span>" + (v === GOAL ? "GOAL" : v) + "</span>";
+  _trackLabelsCache = out;
+  return out;
+}
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });
   document.getElementById(id).classList.add("active");
@@ -1028,12 +1038,12 @@ var TUTORIAL_STEPS = [
   },
   {
     zh: { title: "個人軌道板", body: [
-      "每張 SDG 目標牌都從起始點 0 出發，距離 GOAL 有 2 格。",
+      "每張 SDG 目標牌都從起始點 0 出發，距離 GOAL 有 3 格。",
       "起始點之前還有 -1、-2 兩格，所以目標可以被推進，也可以被推退。",
       "重要規則：目標牌一旦抵達 GOAL 就會鎖定，之後不再受任何功能牌影響。"
     ]},
     en: { title: "Your Progress Track", body: [
-      "Each goal card starts at 0, which is 2 steps away from GOAL.",
+      "Each goal card starts at 0, which is 3 steps away from GOAL.",
       "There are also -1 and -2 spaces below the start, so goals can be pushed backward as well as forward.",
       "Key rule: once a goal reaches GOAL it is locked, and no action card can touch it again."
     ]}
@@ -1406,7 +1416,7 @@ function updateUI() {
         (delta !== 0 ? "<div class=\"progress-preview " + (delta < 0 ? "negative" : "") + "\" style=\"left:0;width:" + Math.max(pct, previewPct) + "%;\"></div>" : "") +
         "<div class=\"progress-text\">" + (cur >= GOAL ? t("goal") : cur) + (delta ? " -> " + preview : "") +
         (s.immune ? " [immune]" : "") + "</div></div></div>" +
-        "<div class=\"progress-labels\"><span>-2</span><span>-1</span><span>0</span><span>1</span><span>GOAL</span></div>" +
+        "<div class=\"progress-labels\">" + trackLabelsHtml() + "</div>" +
         "<div style=\"font-size:0.66rem;color:#8a7a6a;margin-bottom:2px;\">" + sdgName(s.id) + "</div>";
     });
     div.innerHTML = html;
