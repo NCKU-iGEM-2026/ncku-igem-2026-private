@@ -22,9 +22,8 @@ var translations = {
     reshuffle: "牌堆已用盡，重新洗牌。", discarded: "棄掉了", played: "打出了",
     forward: "前進", backward: "後退", special: "特殊效果",
     historyEvent: "歷史事件", specialCard: "特殊功能", sanctioned: "制裁中", goal: "達標",
-    selectTarget: "選擇目標玩家", selectOwnCard: "選擇要給出的手牌",
-    selectTheirCard: "選擇要拿取的手牌", selectOwnSDG: "選擇自己的 SDG",
-    selectTheirSDG: "選擇對方的 SDG", selectFromDiscard: "從棄牌堆選一張",
+    selectTarget: "選擇目標玩家", selectOwnSDG: "選擇自己的 SDG",
+    selectFromDiscard: "從棄牌堆選一張",
     selectSDGSwap: "選擇要交換的 SDG", noValid: "沒有符合條件的目標",
     useVeto: "是否使用否決權？", yes: "使用", no: "不使用",
     capacityChoose: "能力建構：請選擇棄置一張",
@@ -32,6 +31,7 @@ var translations = {
     aiTarget: "正在選擇目標...", next: "下一步", onlineSoon: "線上模式即將推出，目前請先使用本地模式。",
     max2: "已滿（2人）", picks: "人已選", flipReveal: "翻牌",
     resetCard: "捲土重來", reverseCard: "立場反轉", deckFlip: "牌堆",
+    sanctionSkip: "受國際制裁，本回合行動階段無法出牌也無法棄牌", immuneBlocked: "受政策豁免保護，不受影響",
     winSuffix: " 達成兩項 SDG 目標，獲得勝利！", winLog: "獲勝！"
   },
   en: {
@@ -52,9 +52,8 @@ var translations = {
     reshuffle: "Deck empty. Reshuffled.", discarded: "discarded", played: "played",
     forward: "Forward", backward: "Backward", special: "Special",
     historyEvent: "Event", specialCard: "Special", sanctioned: "Sanctioned", goal: "GOAL",
-    selectTarget: "Select target player", selectOwnCard: "Select your card to give",
-    selectTheirCard: "Select card to take", selectOwnSDG: "Select your SDG",
-    selectTheirSDG: "Select opponent's SDG", selectFromDiscard: "Pick from discard",
+    selectTarget: "Select target player", selectOwnSDG: "Select your SDG",
+    selectFromDiscard: "Pick from discard",
     selectSDGSwap: "Select SDG to swap", noValid: "No valid targets",
     useVeto: "Use Veto?", yes: "Yes", no: "No",
     capacityChoose: "Capacity: choose one to discard",
@@ -62,6 +61,7 @@ var translations = {
     aiTarget: "is selecting targets...", next: "Next", onlineSoon: "Online mode coming soon.",
     max2: "Full (2)", picks: "picked", flipReveal: "revealed",
     resetCard: "Back to Square One", reverseCard: "Stance Reversal", deckFlip: "Deck",
+    sanctionSkip: "is sanctioned: no cards may be played or discarded this Action Phase", immuneBlocked: "is exempt and unaffected",
     winSuffix: " completes both SDG goals!", winLog: "WINS!"
   }
 };
@@ -724,16 +724,46 @@ function sdgNote(card, sdgId) {
 }
 
 var specialCards = [
-  {title_zh:"永續轉型",title_en:"Sustainable Transition",type:"sustain",description_zh:"將自己一張未使用的 SDG 替換成新的，並保留原本的進度。",description_en:"Swap one of your SDGs with an unused one; progress is kept."},
-  {title_zh:"否決權",title_en:"Veto",type:"veto",description_zh:"取消一張即將生效的特殊牌，該牌直接棄置且不生效。",description_en:"Cancel a special card about to resolve; it is discarded unused."},
-  {title_zh:"政策豁免",title_en:"Policy Exemption",type:"immunity",description_zh:"指定自己一張 SDG，本回合免受負面效果影響。",description_en:"Choose one of your SDGs; immune to negatives this turn."},
-  {title_zh:"捲土重來",title_en:"Back to Square One",type:"reset",description_zh:"將任一玩家一張尚未達標的 SDG 進度歸零。",description_en:"Reset any non-GOAL SDG progress to zero."},
-  {title_zh:"國際制裁",title_en:"International Sanctions",type:"sanction",description_zh:"指定的玩家下一個行動階段無法出牌或棄牌。",description_en:"Target player cannot play or discard next Action Phase."},
-  {title_zh:"能力建構",title_en:"Capacity Building",type:"capacity",description_zh:"抽牌階段多抽 1 張，並從中棄置 1 張。",description_en:"Draw one extra in Draw Phase; discard one of those drawn."},
-  {title_zh:"立場反轉",title_en:"Stance Reversal",type:"reverse",description_zh:"將任一 SDG 的進度正負反轉（+2 變 -2，-1 變 +1）。",description_en:"Flip the sign of any SDG's progress (+2 -> -2, -1 -> +1)."},
-  {title_zh:"歷史借鏡",title_en:"Lessons from History",type:"history",description_zh:"檢視棄牌堆最上方 5 張，選 1 張加入手牌，其餘依序放回。",description_en:"Look at top 5 discard cards; take 1, return rest in order."},
-  {title_zh:"合作備忘錄",title_en:"MOU",type:"tradeHand",description_zh:"與任一玩家交換一張各自指定的手牌。",description_en:"Swap one chosen hand card with another player."},
-  {title_zh:"目標重整",title_en:"Goal Realignment",type:"swapSDG",description_zh:"與任一玩家交換一張 SDG，進度保留。",description_en:"Swap one SDG each with another player; progress kept."}
+  {
+    title_zh:"永續轉型", title_en:"Sustainable Transition", type:"sustain",
+    description_zh:"從尚未被任何玩家使用的目標牌堆中抽一張，用它替換掉自己手上正在追蹤的一張SDG目標牌；替換後，新目標牌的進度直接沿用被換掉那張目標牌原本的步數位置（不歸零）。",
+    description_en:"Draw one card from the unused target card deck and swap it in for one of your own target cards. The new target card keeps the exact same progress (step count) as the card it replaced — it does not reset to zero."
+  },
+  {
+    title_zh:"否決權", title_en:"Veto", type:"veto",
+    description_zh:"當任何玩家即將使用一張特殊功能牌時，你可以立即打出「否決權」，宣告抵銷該張特殊功能牌的效果；被抵銷的特殊功能牌視為完全未發生，直接進入棄牌堆。",
+    description_en:"At any time, when a player (including yourself) is about to resolve a Special Action card, you may play Veto to cancel that card's effect. The countered card is discarded and treated as if it were never played."
+  },
+  {
+    title_zh:"政策豁免", title_en:"Policy Exemption", type:"immunity",
+    description_zh:"指定自己的一張目標牌，宣告該目標牌在本回合內免疫所有負面效果（包含後退、歸零、正負交換等）；正面效果仍正常生效。",
+    description_en:"Choose one of your own target cards. For the current round, that card is immune to all negative effects (setbacks, resets, sign-flips, etc.). Positive effects still apply normally."
+  },
+  {
+    title_zh:"捲土重來", title_en:"Back to Square One", type:"reset",
+    description_zh:"指定任意一張目標牌（可為自己或其他玩家的），將該目標牌的步數直接歸零，回到起始點；已抵達GOAL的目標牌已鎖定，不受此效果影響。",
+    description_en:"Choose any target card — yours or another player's — and reset its progress to zero, sending it back to the starting point. Target cards that have already reached GOAL are locked and unaffected."
+  },
+  {
+    title_zh:"國際制裁", title_en:"International Sanctions", type:"sanction",
+    description_zh:"指定一名玩家，該玩家在下一個回合的行動階段中，無法執行卡牌也無法棄牌。",
+    description_en:"Choose a target player. During their next turn's Action Phase, that player cannot take any action at all — they may not play cards, and they may not discard."
+  },
+  {
+    title_zh:"能力建構", title_en:"Capacity Building", type:"capacity",
+    description_zh:"在補牌階段額外多抽1張牌（比平常多抽一張），從所有抽到的牌中挑選1張棄置，其餘正常收入手牌（仍受手牌上限5張限制）。",
+    description_en:"During your Draw Phase, draw one extra card. From all the cards drawn this phase, discard any one card of your choice, and keep the rest in hand (still subject to the normal 5-card hand limit)."
+  },
+  {
+    title_zh:"立場反轉", title_en:"Stance Reversal", type:"reverse",
+    description_zh:"指定任意一張目標牌，將其目前的步數正負互換（例如原本+2格變成-2格，原本-1格變成+1格）；可指定自己或其他玩家的目標牌。",
+    description_en:"Choose any target card and flip its current progress from positive to negative or vice versa (e.g., a card at +2 becomes -2, a card at -1 becomes +1). Can target your own or another player's card."
+  },
+  {
+    title_zh:"歷史借鏡", title_en:"Lessons from History", type:"history",
+    description_zh:"檢視棄牌堆最上方的5張牌（不足5張則全部檢視），從中選擇1張加入手牌，其餘依原順序放回棄牌堆頂端。",
+    description_en:"Look at the top 5 cards of the discard pile (or all of them if fewer than 5 remain). Choose 1 to add to your hand, then return the rest to the top of the discard pile in their original order."
+  }
 ];
 
 /* ========== STATE ========== */
@@ -1314,17 +1344,23 @@ function askVeto(card, caster) {
       }, 1000);
       return;
     }
-    if (!holders.length) { resolve(false); return; }
-    var h = holders[0];
-    showModal(t("useVeto"), "<p>" + h.pl.name + ": " + cardTitle(card) + "</p>", [
-      { label: t("yes"), class: "success", fn: function() {
-        h.pl.hand.splice(h.idx, 1);
-        state.discard.push({ type: "veto", title_zh: "否決權", title_en: "Veto", kind: "special" });
-        log(h.pl.name + " Veto!", "special");
-        resolve(true);
-      }},
-      { label: t("no"), class: "danger", fn: function() { resolve(false); }}
-    ]);
+    // Any holder may counter, so offer it to each in turn until one accepts.
+    var i = 0;
+    (function askNext() {
+      if (state.isGameOver || i >= holders.length) { resolve(false); return; }
+      var pl = holders[i++].pl;
+      var idx = pl.hand.findIndex(function(c) { return c.type === "veto"; });
+      if (idx < 0) { askNext(); return; }
+      showModal(t("useVeto"), "<p>" + pl.name + ": " + cardTitle(card) + "</p>", [
+        { label: t("yes"), class: "success", fn: function() {
+          pl.hand.splice(idx, 1);
+          state.discard.push({ type: "veto", title_zh: "否決權", title_en: "Veto", kind: "special" });
+          log(pl.name + " Veto!", "special");
+          resolve(true);
+        }},
+        { label: t("no"), class: "danger", fn: askNext }
+      ]);
+    })();
   });
 }
 
@@ -1409,6 +1445,9 @@ function finishTurn() {
   var next = (state.currentPlayer + 1) % state.players.length;
   getCurrentPlayer().sanctioned = false;
   state.currentPlayer = next;
+  // Policy Exemption covers "this round", so it holds through the caster's own
+  // reveal phase and every opponent's turn, and lapses as their next turn opens.
+  state.players[next].sdgs.forEach(function(s) { s.immune = false; });
   state.phase = "action";
   state.modeAction = null;
   log("--- " + t("turnOf") + " " + getCurrentPlayer().name + " ---", "sys");
@@ -1416,16 +1455,23 @@ function finishTurn() {
   if (!state.isGameOver) { updateUI(); maybeTriggerAI(); }
 }
 
-/* ========== AI ========== */
+/* ========== TURN START ========== */
 async function maybeTriggerAI() {
   if (state.isGameOver) return;
   var p = getCurrentPlayer();
-  if (!p || !p.isAI || state.phase !== "action") return;
+  if (!p || state.phase !== "action") return;
+  // A sanctioned player may neither play nor discard, so there is no action for
+  // them to take — skip straight to the reveal phase. Without this a sanctioned
+  // human is stuck: both action buttons refuse, and nothing ends the turn.
   if (p.sanctioned) {
-    log(p.name + " " + t("sanctioned"), "ai");
-    endActionPhase();
+    log(p.name + " " + t("sanctionSkip"), p.isAI ? "ai" : "sys");
+    showAINotice(p.name + " " + t("sanctionSkip"));
+    await delay(1200);
+    hideAINotice();
+    if (!state.isGameOver) endActionPhase();
     return;
   }
+  if (!p.isAI) return;
   state.isAIThinking = true;
   updateUI();
   showAINotice("[" + p.name + "] " + t("aiPlay"));
@@ -1536,7 +1582,7 @@ function resolveSpecial(card, isAI, done) {
         state.players.forEach(function(pl) {
           if (pl === p) return;
           pl.sdgs.forEach(function(s) {
-            if (s.progress > 0 && s.progress < GOAL && (!best || s.progress > best.s.progress))
+            if (s.progress > 0 && isValidNeg(s) && (!best || s.progress > best.s.progress))
               best = { pl: pl, s: s };
           });
         });
@@ -1548,11 +1594,12 @@ function resolveSpecial(card, isAI, done) {
       }, 1000);
     } else {
       pickAnySDG(t("resetCard"), function(pl, si) {
-        if (pl.sdgs[si].progress >= GOAL) { log(t("noValid")); done(); return; }
-        pl.sdgs[si].progress = 0;
-        log("[" + p.name + "] -> [" + pl.name + "] " + t("resetCard") + " SDG " + pl.sdgs[si].id, "special");
+        var s = pl.sdgs[si];
+        if (!isValidNeg(s)) { log(pl.name + " SDG " + s.id + " " + t("immuneBlocked"), "special"); done(); return; }
+        s.progress = 0;
+        log("[" + p.name + "] -> [" + pl.name + "] " + t("resetCard") + " SDG " + s.id, "special");
         done();
-      });
+      }, done);
     }
     return;
   }
@@ -1566,7 +1613,7 @@ function resolveSpecial(card, isAI, done) {
         state.players.forEach(function(pl) {
           if (pl === p) return;
           pl.sdgs.forEach(function(s) {
-            if (s.progress > 0 && s.progress < GOAL && (!best || s.progress > best.s.progress))
+            if (s.progress > 0 && isValidNeg(s) && (!best || s.progress > best.s.progress))
               best = { pl: pl, s: s };
           });
         });
@@ -1578,11 +1625,12 @@ function resolveSpecial(card, isAI, done) {
       }, 1000);
     } else {
       pickAnySDG(t("reverseCard"), function(pl, si) {
-        if (pl.sdgs[si].progress >= GOAL) { log(t("noValid")); done(); return; }
-        pl.sdgs[si].progress = clamp(-pl.sdgs[si].progress, -2, GOAL);
-        log("[" + p.name + "] -> [" + pl.name + "] " + t("reverseCard") + " SDG " + pl.sdgs[si].id + " -> " + pl.sdgs[si].progress, "special");
+        var s = pl.sdgs[si];
+        if (!isValidNeg(s)) { log(pl.name + " SDG " + s.id + " " + t("immuneBlocked"), "special"); done(); return; }
+        s.progress = clamp(-s.progress, -2, GOAL);
+        log("[" + p.name + "] -> [" + pl.name + "] " + t("reverseCard") + " SDG " + s.id + " -> " + s.progress, "special");
         done();
-      });
+      }, done);
     }
     return;
   }
@@ -1646,86 +1694,32 @@ function resolveSpecial(card, isAI, done) {
   }
 
   if (card.type === "sustain") {
+    // Draw from the unused-goal deck, skipping any goal this player already
+    // tracks so nobody ends up holding the same SDG twice. The replaced goal
+    // goes back to the bottom, and the new one inherits its step position.
+    var takeUnused = function(player) {
+      for (var i = state.unusedSDGs.length - 1; i >= 0; i--) {
+        var id = state.unusedSDGs[i];
+        var held = player.sdgs.some(function(s) { return s.id === id; });
+        if (!held) return state.unusedSDGs.splice(i, 1)[0];
+      }
+      return null;
+    };
+    var swapGoal = function(si) {
+      var old = p.sdgs[si];
+      var newId = takeUnused(p);
+      if (newId === null) { log(t("noValid")); done(); return; }
+      state.unusedSDGs.unshift(old.id);
+      p.sdgs[si] = { id: newId, progress: old.progress, immune: old.immune };
+      log(p.name + " " + cardTitle(card) + ": SDG " + old.id + " -> SDG " + newId + " (" + old.progress + ")", "special");
+      done();
+    };
     if (!state.unusedSDGs.length) { log(t("noValid")); done(); return; }
     if (isAI) {
       showAINotice("[" + p.name + "] " + t("aiTarget"));
-      trackTimeout(function() {
-        hideAINotice();
-        var newId = state.unusedSDGs.pop();
-        var old = p.sdgs[0];
-        state.unusedSDGs.push(old.id);
-        p.sdgs[0] = { id: newId, progress: old.progress, immune: false };
-        log(p.name + " Transition -> SDG " + newId, "special");
-        done();
-      }, 1000);
+      trackTimeout(function() { hideAINotice(); swapGoal(0); }, 1000);
     } else {
-      pickSDG(p, t("selectSDGSwap"), function(si) {
-        var old = p.sdgs[si];
-        var newId = state.unusedSDGs.pop();
-        state.unusedSDGs.push(old.id);
-        p.sdgs[si] = { id: newId, progress: old.progress, immune: false };
-        log(p.name + " Transition -> SDG " + newId, "special");
-        done();
-      });
-    }
-    return;
-  }
-
-  if (card.type === "tradeHand") {
-    var opps3 = state.players.filter(function(pl) { return pl !== p && pl.hand.length; });
-    if (!opps3.length || !p.hand.length) { log(t("noValid")); done(); return; }
-    if (isAI) {
-      showAINotice("[" + p.name + "] " + t("aiTarget"));
-      trackTimeout(function() {
-        hideAINotice();
-        var target = randChoice(opps3);
-        var myC = p.hand.pop(), tC = target.hand.pop();
-        p.hand.push(tC); target.hand.push(myC);
-        log("[" + p.name + "] -> [" + target.name + "] MOU", "special");
-        done();
-      }, 1000);
-    } else {
-      pickPlayer(opps3, t("selectTarget"), function(target) {
-        pickHandCard(p, t("selectOwnCard"), function(mi) {
-          pickHandCard(target, t("selectTheirCard"), function(ti) {
-            var myC = p.hand.splice(mi, 1)[0];
-            var tC = target.hand.splice(ti, 1)[0];
-            p.hand.push(tC); target.hand.push(myC);
-            log("[" + p.name + "] -> [" + target.name + "] MOU", "special");
-            done();
-          });
-        });
-      });
-    }
-    return;
-  }
-
-  if (card.type === "swapSDG") {
-    var opps2 = state.players.filter(function(pl) { return pl !== p; });
-    if (!opps2.length) { done(); return; }
-    if (isAI) {
-      showAINotice("[" + p.name + "] " + t("aiTarget"));
-      trackTimeout(function() {
-        hideAINotice();
-        var target = randChoice(opps2);
-        var tmp = p.sdgs[0];
-        p.sdgs[0] = target.sdgs[0];
-        target.sdgs[0] = tmp;
-        log("[" + p.name + "] -> [" + target.name + "] Goal Realignment", "special");
-        done();
-      }, 1000);
-    } else {
-      pickPlayer(opps2, t("selectTarget"), function(target) {
-        pickSDG(p, t("selectOwnSDG"), function(mi) {
-          pickSDG(target, t("selectTheirSDG"), function(ti) {
-            var tmp = p.sdgs[mi];
-            p.sdgs[mi] = target.sdgs[ti];
-            target.sdgs[ti] = tmp;
-            log("[" + p.name + "] -> [" + target.name + "] Goal Realignment", "special");
-            done();
-          });
-        });
-      });
+      pickSDG(p, t("selectSDGSwap"), swapGoal);
     }
     return;
   }
@@ -1765,15 +1759,20 @@ function pickSDG(player, title, cb) {
     });
   }, 30);
 }
-function pickAnySDG(title, cb) {
+/* Targets for Back to Square One / Stance Reversal. GOAL-locked cards and cards
+   under Policy Exemption cannot be hit, so they are not offered as choices. */
+function pickAnySDG(title, cb, onNoTarget) {
   var body = "<div class=\"modal-list\">";
+  var count = 0;
   state.players.forEach(function(pl, pi) {
     pl.sdgs.forEach(function(s, si) {
-      if (s.progress >= GOAL) return;
+      if (!isValidNeg(s)) return;
+      count++;
       body += "<button data-p=\"" + pi + "\" data-s=\"" + si + "\">" + pl.name + " SDG " + s.id + " (" + s.progress + ")</button>";
     });
   });
   body += "</div>";
+  if (!count) { log(t("noValid")); (onNoTarget || function() {})(); return; }
   showModal(title, body, []);
   setTimeout(function() {
     document.querySelectorAll("#modalBody button").forEach(function(btn) {
@@ -1786,22 +1785,6 @@ function pickAnySDG(title, cb) {
     });
   }, 30);
 }
-function pickHandCard(player, title, cb) {
-  var body = "<div class=\"modal-list\">" + player.hand.map(function(c, i) {
-    return "<button data-i=\"" + i + "\">" + cardTitle(c) + "</button>";
-  }).join("") + "</div>";
-  showModal(title, body, []);
-  setTimeout(function() {
-    document.querySelectorAll("#modalBody button").forEach(function(btn) {
-      btn.onclick = function() {
-        var i = parseInt(btn.getAttribute("data-i"), 10);
-        hideModal();
-        cb(i);
-      };
-    });
-  }, 30);
-}
-
 function checkWin() {
   for (var i = 0; i < state.players.length; i++) {
     var pl = state.players[i];
