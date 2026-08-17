@@ -30,7 +30,8 @@ var translations = {
     aiDraft: "正在思考要選哪 2 張 SDG...", aiPlay: "正在決定出牌...",
     aiTarget: "正在選擇目標...", next: "下一步", onlineSoon: "線上模式即將推出，目前請先使用本地模式。",
     max2: "已滿（2人）", picks: "人已選", flipReveal: "翻牌",
-    resetCard: "捲土重來", reverseCard: "立場反轉", deckFlip: "牌堆",
+    resetCard: "捲土重來", reverseCard: "立場反轉",
+    revealHeading: "翻牌階段 · 從抽牌堆頂端翻開", revealNote: "此牌不屬於任何玩家，效果對所有人生效",
     sanctionSkip: "受國際制裁，本回合行動階段無法出牌也無法棄牌", immuneBlocked: "受政策豁免保護，不受影響",
     winSuffix: " 達成兩項 SDG 目標，獲得勝利！", winLog: "獲勝！"
   },
@@ -60,7 +61,8 @@ var translations = {
     aiDraft: "is choosing 2 SDG goals...", aiPlay: "is deciding plays...",
     aiTarget: "is selecting targets...", next: "Next", onlineSoon: "Online mode coming soon.",
     max2: "Full (2)", picks: "picked", flipReveal: "revealed",
-    resetCard: "Back to Square One", reverseCard: "Stance Reversal", deckFlip: "Deck",
+    resetCard: "Back to Square One", reverseCard: "Stance Reversal",
+    revealHeading: "Reveal Phase · flipped from the top of the deck", revealNote: "Nobody played this — it applies to every player",
     sanctionSkip: "is sanctioned: no cards may be played or discarded this Action Phase", immuneBlocked: "is exempt and unaffected",
     winSuffix: " completes both SDG goals!", winLog: "WINS!"
   }
@@ -872,15 +874,21 @@ function makeStickyNote(card, sdgId, delta) {
   return note;
 }
 
-/* Manual Next card announcement (no auto timer) */
+/* Manual Next card announcement (no auto timer).
+   options.reveal marks the Reveal Phase flip, which nobody plays — it is turned
+   over from the deck — so it must not be announced as "<name> played". */
 function showCardAnnouncement(playerName, card, options) {
   options = options || {};
   return new Promise(function(resolve) {
     if (state.isGameOver) { resolve(); return; }
     state.inputLocked = true;
-    document.getElementById("announcePlayer").textContent = playerName + " " + t("played");
+    var whoEl = document.getElementById("announcePlayer");
+    whoEl.textContent = options.reveal ? t("revealHeading") : playerName + " " + t("played");
+    whoEl.className = "card-announce-player" + (options.reveal ? " reveal" : "");
     document.getElementById("announceCardName").textContent = cardTitle(card);
-    document.getElementById("announceSub").textContent = cardSub(card) || (card.kind === "event" ? t("historyEvent") : t("specialCard"));
+    document.getElementById("announceSub").textContent = options.reveal
+      ? t("revealNote")
+      : (cardSub(card) || (card.kind === "event" ? t("historyEvent") : t("specialCard")));
     document.getElementById("announceDesc").textContent = cardDesc(card);
 
     var effectsEl = document.getElementById("announceEffects");
@@ -1583,7 +1591,7 @@ async function doFlipPhase() {
     (card.forward || []).forEach(function(id) { affected.push({id:id, delta:1}); });
     (card.backward || []).forEach(function(id) { affected.push({id:id, delta:-1}); });
     log(t("flipReveal") + ": " + cardTitle(card), "sys");
-    await showCardAnnouncement(t("deckFlip"), card, { affectedSDGs: affected });
+    await showCardAnnouncement("", card, { affectedSDGs: affected, reveal: true });
     await new Promise(function(r) { resolveEvent(card, false, r); });
     break;
   }
