@@ -46,6 +46,7 @@ var translations = {
     lobbyNeedMore: "至少需要 4 位玩家才能開始。", hostTag: "房主",
     connectionLost: "連線中斷，正在重新連線…",
     youTag: "你", handsLabel: "手牌", waitingOthers: "等待其他玩家確認",
+    waitingChoice: "等待這位玩家做出選擇：",
     ackedYou: "你已確認", ackProgress: "已確認",
     notYourTurn: "現在不是你的回合", waitingTurn: "等待其他玩家行動…",
     winSuffix: " 達成兩項 SDG 目標，獲得勝利！", winLog: "獲勝！"
@@ -92,6 +93,7 @@ var translations = {
     lobbyNeedMore: "At least 4 players are needed to start.", hostTag: "Host",
     connectionLost: "Connection lost, reconnecting…",
     youTag: "you", handsLabel: "hand", waitingOthers: "Waiting for the other players",
+    waitingChoice: "Waiting for this player to choose:",
     ackedYou: "You are ready", ackProgress: "Ready",
     notYourTurn: "It is not your turn", waitingTurn: "Waiting for the other players…",
     winSuffix: " completes both SDG goals!", winLog: "WINS!"
@@ -805,6 +807,7 @@ var state = {
   deck: [], discard: [], unusedSDGs: [],
   selectedCards: [], modeAction: null, maxPlay: 2,
   capacityActive: false, isAIThinking: false,
+  stage: "lobby",   // lobby | draft | game — drives which screen every device shows
   draftCounts: {}, draftCurrentPlayer: 0, draftSelected: [], aiDraftPending: false,
   previewDeltas: {},
   cardNextResolver: null
@@ -814,11 +817,18 @@ var state = {
    Only the host runs the rules; everyone else mirrors what the host publishes.
    Snapshots carry the authoritative game data and leave purely local UI state
    (timers, the pending Next resolver, the current selection) alone. */
+/* draftSelected and selectedCards are deliberately absent: they are what the
+   person in front of this device has highlighted but not committed, so sharing
+   them would light up other people's screens with someone else's half-made
+   choice — and enable their confirm button. */
 var SHARED_KEYS = [
   "isGameOver", "players", "currentPlayer", "phase",
   "deck", "discard", "unusedSDGs", "maxPlay", "capacityActive",
-  "draftCounts", "draftCurrentPlayer", "draftSelected"
+  "draftCounts", "draftCurrentPlayer", "stage"
 ];
+/* Keys the game expects to be arrays. Firebase drops empty arrays on write, so
+   a missing one has to come back as [] rather than leaving a stale value. */
+var SHARED_ARRAY_KEYS = ["players", "deck", "discard", "unusedSDGs"];
 
 function snapshotState() {
   var out = {};
@@ -830,18 +840,33 @@ function snapshotState() {
 function applySnapshot(snap) {
   if (!snap) return;
   SHARED_KEYS.forEach(function(k) {
-    if (snap[k] === undefined) return;
+    var isArr = SHARED_ARRAY_KEYS.indexOf(k) !== -1;
+    if (snap[k] === undefined) {
+      // An absent array means the host emptied it, not that it is unchanged.
+      if (isArr) state[k] = [];
+      return;
+    }
     var v = snap[k];
-    // A missing array comes back as undefined/object from the wire; normalise.
-    if (Array.isArray(state[k]) && !Array.isArray(v)) v = v ? objectToArray(v) : [];
+    if (isArr && !Array.isArray(v)) v = objectToArray(v);
     state[k] = v;
   });
   (state.players || []).forEach(function(p) {
-    if (!Array.isArray(p.hand)) p.hand = p.hand ? objectToArray(p.hand) : [];
-    if (!Array.isArray(p.sdgs)) p.sdgs = p.sdgs ? objectToArray(p.sdgs) : [];
+    p.hand = objectToArray(p.hand).map(normaliseCard);
+    p.sdgs = objectToArray(p.sdgs);
   });
-  if (!Array.isArray(state.deck)) state.deck = [];
-  if (!Array.isArray(state.discard)) state.discard = [];
+  state.deck = objectToArray(state.deck).map(normaliseCard);
+  state.discard = objectToArray(state.discard).map(normaliseCard);
+  state.unusedSDGs = objectToArray(state.unusedSDGs);
+}
+
+/* Firebase stores no key at all for an empty array, so a card whose forward or
+   backward list is empty arrives without those fields — and the renderer reads
+   .length off them. Put the empty lists back before anything touches a card. */
+function normaliseCard(card) {
+  if (!card || typeof card !== "object") return card;
+  card.forward = objectToArray(card.forward);
+  card.backward = objectToArray(card.backward);
+  return card;
 }
 
 /* Firebase turns sparse arrays into objects keyed by index; turn them back. */
@@ -1072,7 +1097,11 @@ var online = {
   roomSub: null,
   room: null,
   stepId: null,      // announcement currently awaiting acknowledgement
-  order: []          // playerId per seat, so seat <-> device stays stable
+  order: [],         // playerId per seat, so seat <-> device stays stable
+  pendingStep: null,
+  pendingPrompt: null,
+  shownPromptId: null,
+  doneActions: {}    // guest intents already applied, so none runs twice
 };
 
 function setStatus(elId, msg, kind) {
@@ -1177,9 +1206,12 @@ function enterLobby() {
     if (!online.active) beginOnlineGame(room);
     if (!online.isHost && room.state) {
       applySnapshot(room.state);
-      if (!state.isGameOver) updateUI();
+      followHostStage();
     }
+    hostHandleActions(room);
     syncStep(room);
+    syncPrompt(room);
+    syncPromptReply(room);
     if (state.isGameOver) checkWin();
   }, function(err) {
     if (err && err.message === "stream-interrupted") {
@@ -1205,6 +1237,7 @@ document.getElementById("btnLobbyStart").onclick = function() {
   state.draftCurrentPlayer = 0;
   state.draftSelected = [];
   state.aiDraftPending = false;
+  state.stage = "draft";
 
   Net.patch("rooms/" + online.code, {
     phase: "playing",
@@ -1224,10 +1257,85 @@ function beginOnlineGame(room) {
   startTutorial();
 }
 
+/* Guests follow the host from screen to screen. Anyone still reading the
+   tutorial is left alone; they catch up the moment they finish it. */
+function followHostStage(leavingTutorial) {
+  if (!state.players.length || state.isGameOver) return;
+  // Don't yank someone out of the tutorial mid-read — unless they just finished
+  // it, in which case this call is exactly how they leave it.
+  if (!leavingTutorial &&
+      document.getElementById("tutorialScreen").classList.contains("active")) return;
+
+  if (state.stage === "game") {
+    if (!document.getElementById("gameScreen").classList.contains("active")) showScreen("gameScreen");
+    updateUI();
+  } else if (state.stage === "draft") {
+    if (!document.getElementById("draftScreen").classList.contains("active")) showScreen("draftScreen");
+    renderDraft();
+  }
+}
+
 /* Host mirrors its authoritative state out after every change. */
 function publishState() {
   if (!online.active || !online.isHost || !online.code) return;
   Net.put("rooms/" + online.code + "/state", snapshotState()).catch(function() {});
+}
+
+/* ---- Guest intents ----
+   Only the host runs the rules, so a guest never mutates the game directly.
+   It posts what it wants to do and the host validates and performs it. Cards
+   are named by id rather than by hand position, because the guest's view of
+   the hand can be a moment behind the host's. */
+function sendIntent(intent) {
+  if (!online.code) return;
+  intent.playerId = online.playerId;
+  intent.ts = Date.now();
+  Net.push("rooms/" + online.code + "/actions", intent).catch(function() {});
+}
+
+function hostHandleActions(room) {
+  if (!online.isHost || !room || !room.actions) return;
+  Object.keys(room.actions).sort().forEach(function(key) {
+    if (online.doneActions[key]) return;
+    online.doneActions[key] = true;
+    var a = room.actions[key];
+    Net.remove("rooms/" + online.code + "/actions/" + key).catch(function() {});
+    applyIntent(a);
+  });
+}
+
+function applyIntent(a) {
+  if (!a || !a.playerId) return;
+  var seat = online.order.indexOf(a.playerId);
+  if (seat < 0) return;
+
+  if (a.type === "draft") {
+    if (seat !== state.draftCurrentPlayer) return;   // not their pick to make
+    confirmDraftPick(objectToArray(a.ids));
+    return;
+  }
+
+  if (seat !== state.currentPlayer || state.phase !== "action") return;
+  var p = state.players[seat];
+  var ids = objectToArray(a.cardIds || []);
+  var idx = [];
+  ids.forEach(function(id) {
+    for (var i = 0; i < p.hand.length; i++) {
+      if (p.hand[i].id === id && idx.indexOf(i) === -1) { idx.push(i); return; }
+    }
+  });
+  if (!idx.length) return;
+
+  state.selectedCards = idx;
+  if (a.type === "discard") { state.modeAction = "discard"; executeDiscard(); }
+  else if (a.type === "play") { state.modeAction = "play"; executePlay(); }
+}
+
+/* Card ids for the current selection, so an intent survives reordering. */
+function selectedCardIds() {
+  var p = viewerPlayer();
+  return state.selectedCards.map(function(i) { return p.hand[i] && p.hand[i].id; })
+    .filter(function(x) { return !!x; });
 }
 
 function renderLobby(room) {
@@ -1323,7 +1431,7 @@ function syncStep(room) {
     online.stepId = step.id;
     state.inputLocked = true;
     document.getElementById("btnCardNext").disabled = false;
-    renderAnnouncement(step.playerName, step.card, {
+    renderAnnouncement(step.playerName, normaliseCard(step.card), {
       reveal: step.reveal,
       targetName: step.targetName,
       affectedSDGs: objectToArray(step.affected)
@@ -1430,6 +1538,7 @@ function startDraft() {
   state.draftCurrentPlayer = 0;
   state.draftSelected = [];
   state.aiDraftPending = false;
+  state.stage = "draft";
   startTutorial();
 }
 
@@ -1613,6 +1722,9 @@ function renderTutorial() {
 }
 
 function finishTutorial() {
+  // Online, the host may already have moved past the draft while this player
+  // was still reading, so land on whatever stage the table is actually at.
+  if (online.active && !online.isHost) { followHostStage(true); return; }
   showScreen("draftScreen");
   renderDraft();
 }
@@ -1630,6 +1742,9 @@ document.getElementById("btnTutorialSkip").onclick = finishTutorial;
 /* ========== DRAFT: same SDG may be picked by up to 2 players ========== */
 function renderDraft() {
   if (state.isGameOver) return;
+  // The draft has its own render path, so it needs its own mirror-out; without
+  // this the host would draft alone while everyone else stayed on seat 0.
+  if (online.active && online.isHost) publishState();
   var p = state.players[state.draftCurrentPlayer];
   document.getElementById("draftStatus").textContent = t("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "") + " - " + t("select2");
   document.getElementById("draftCount").textContent = t("selected") + " " + state.draftSelected.length + " / 2";
@@ -1643,7 +1758,8 @@ function renderDraft() {
     div.className = "sdg-pick" + (full && !sel ? " disabled" : "") + (sel ? " selected" : "");
     div.innerHTML = "<strong>SDG " + id + "</strong><br><span style=\"font-size:0.72rem;color:#8a7a6a;\">" + sdgName(id) + "</span>" +
       "<div class=\"pick-count\">" + (full ? t("max2") : cnt + " " + t("picks")) + "</div>";
-    if (!full && !p.isAI) {
+    // Online, only the device whose seat is drafting may touch the grid.
+    if (!full && !p.isAI && (!online.active || state.draftCurrentPlayer === viewerIndex())) {
       (function(sid) { div.onclick = function() { toggleDraftSelect(sid); }; })(id);
     }
     grid.appendChild(div);
@@ -1651,7 +1767,9 @@ function renderDraft() {
   document.getElementById("draftPicks").textContent = state.players.map(function(pl) {
     return pl.name + ": " + (pl.sdgs.map(function(x){ return "SDG "+x.id; }).join(", ") || "-");
   }).join(" | ");
-  document.getElementById("btnConfirmDraft").disabled = state.draftSelected.length !== 2 || p.isAI;
+  document.getElementById("btnConfirmDraft").disabled =
+    state.draftSelected.length !== 2 || p.isAI ||
+    (online.active && state.draftCurrentPlayer !== viewerIndex());
   // aiDraftPick() re-renders to show its picks highlighted, so only arm the
   // timer once per bot — otherwise a stale one fires after the draft moved on.
   if (p.isAI && !state.aiDraftPending) {
@@ -1669,7 +1787,14 @@ function toggleDraftSelect(id) {
 }
 document.getElementById("btnConfirmDraft").onclick = function() {
   if (state.draftSelected.length !== 2) return;
-  confirmDraftPick(state.draftSelected.slice());
+  var ids = state.draftSelected.slice();
+  if (online.active && !online.isHost) {
+    sendIntent({ type: "draft", ids: ids });
+    state.draftSelected = [];
+    document.getElementById("btnConfirmDraft").disabled = true;
+    return;
+  }
+  confirmDraftPick(ids);
 };
 function confirmDraftPick(ids) {
   var p = state.players[state.draftCurrentPlayer];
@@ -1701,6 +1826,7 @@ function aiDraftPick() {
 }
 
 function startGame() {
+  state.stage = "game";
   state.unusedSDGs = [];
   for (var id = 1; id <= 17; id++) {
     var left = 2 - (state.draftCounts[id] || 0);
@@ -1792,6 +1918,9 @@ function updateUI() {
   if (state.isGameOver) return;
   var p = getCurrentPlayer();
   if (!p) return;
+  // The host redraws after every rules change, which makes this the one place
+  // that reliably mirrors the authoritative state out to the other devices.
+  if (online.active && online.isHost) publishState();
   var viewer = viewerPlayer() || p;
   document.getElementById("turnInfo").textContent = t("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "");
   document.getElementById("deckCount").textContent = state.deck.length;
@@ -1906,6 +2035,11 @@ document.getElementById("btnCancelAction").onclick = function() {
 };
 document.getElementById("btnConfirmAction").onclick = function() {
   if (state.inputLocked || state.isGameOver || !state.selectedCards.length) return;
+  if (online.active && !online.isHost) {
+    sendIntent({ type: state.modeAction === "discard" ? "discard" : "play", cardIds: selectedCardIds() });
+    state.selectedCards = []; state.modeAction = null; updateUI();
+    return;
+  }
   if (state.modeAction === "discard") executeDiscard();
   else executePlay();
 };
@@ -2068,21 +2202,13 @@ function doDrawPhase() {
       p.hand = p.hand.concat(drawn);
       finishTurn();
     } else {
-      var body = "<div class=\"modal-list\">" + drawn.map(function(c, i) {
-        return "<button data-i=\"" + i + "\">" + cardTitle(c) + "</button>";
-      }).join("") + "</div>";
-      showModal(t("capacityChoose"), body, []);
-      setTimeout(function() {
-        document.querySelectorAll("#modalBody button").forEach(function(btn) {
-          btn.onclick = function() {
-            var i = parseInt(btn.getAttribute("data-i"), 10);
-            state.discard.push(drawn.splice(i, 1)[0]);
-            p.hand = p.hand.concat(drawn);
-            hideModal();
-            finishTurn();
-          };
-        });
-      }, 30);
+      askChoice(state.currentPlayer, t("capacityChoose"), drawn.map(function(c, i) {
+        return { label: cardTitle(c), value: i };
+      }), function(i) {
+        state.discard.push(drawn.splice(i, 1)[0]);
+        p.hand = p.hand.concat(drawn);
+        finishTurn();
+      });
     }
   } else {
     p.hand = p.hand.concat(drawn);
@@ -2326,24 +2452,16 @@ function resolveSpecial(card, isAI, done) {
       // Remember the offered cards themselves, not their positions: the pile
       // can grow between showing this list and the player choosing, and a
       // stale index would then take the wrong card.
-      var body = "<div class=\"modal-list\">" + top.map(function(c, i) {
-        return "<button data-i=\"" + i + "\">" + cardTitle(c) + "</button>";
-      }).join("") + "</div>";
-      showModal(t("selectFromDiscard"), body, []);
-      setTimeout(function() {
-        document.querySelectorAll("#modalBody button").forEach(function(btn) {
-          btn.onclick = function() {
-            var i = parseInt(btn.getAttribute("data-i"), 10);
-            var picked = top[i];
-            var at = state.discard.indexOf(picked);
-            var c = at >= 0 ? state.discard.splice(at, 1)[0] : picked;
-            p.hand.push(c);
-            log(p.name + " History: " + cardTitle(c), "special");
-            hideModal();
-            done();
-          };
-        });
-      }, 30);
+      askChoice(state.currentPlayer, t("selectFromDiscard"), top.map(function(c, i) {
+        return { label: cardTitle(c), value: i };
+      }), function(i) {
+        var picked = top[i];
+        var at = state.discard.indexOf(picked);
+        var c = at >= 0 ? state.discard.splice(at, 1)[0] : picked;
+        p.hand.push(c);
+        log(p.name + " History: " + cardTitle(c), "special");
+        done();
+      });
     }
     return;
   }
@@ -2384,61 +2502,125 @@ function resolveSpecial(card, isAI, done) {
 }
 
 /* Selection helpers */
+/* ---- One primitive behind every choice the rules ask a player to make ----
+   Offline it is just a modal. Online the choice belongs to a specific seat, so
+   it is published for that device to answer while everyone else waits: the
+   player who played the card is the one who picks its target, even though the
+   host is the machine actually running the rules. */
+function askChoice(seat, title, options, cb) {
+  if (!options.length) { cb(null); return; }
+
+  if (!online.active) { showChoiceModal(title, options, cb); return; }
+
+  if (seat === viewerIndex()) showChoiceModal(title, options, cb);
+  else showWaitingForChoice(title, seat);
+
+  if (!online.isHost) return;   // only the host waits on the answer
+  var pid = "q" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  online.pendingPrompt = { id: pid, cb: cb, seat: seat };
+  Net.put("rooms/" + online.code + "/prompt", {
+    id: pid, seat: seat, title: title,
+    options: options.map(function(o) { return { label: o.label, value: o.value }; })
+  }).catch(function() {});
+}
+
+function showChoiceModal(title, options, cb) {
+  var body = "<div class=\"modal-list\">" + options.map(function(o, i) {
+    return "<button data-i=\"" + i + "\">" + o.label + "</button>";
+  }).join("") + "</div>";
+  showModal(title, body, []);
+  setTimeout(function() {
+    document.querySelectorAll("#modalBody button").forEach(function(btn) {
+      btn.onclick = function() {
+        var i = parseInt(btn.getAttribute("data-i"), 10);
+        hideModal();
+        answerChoice(options[i].value, cb);
+      };
+    });
+  }, 30);
+}
+
+/* Everyone who is not choosing sees who they are waiting on. */
+function showWaitingForChoice(title, seat) {
+  var who = (state.players[seat] && state.players[seat].name) || "";
+  showModal(title, "<p>" + t("waitingChoice") + "<br><strong>" + who + "</strong></p>", []);
+}
+
+function answerChoice(value, cb) {
+  if (online.active && !online.isHost) {
+    Net.put("rooms/" + online.code + "/promptReply",
+            { id: (online.room && online.room.prompt && online.room.prompt.id) || "", value: value })
+      .catch(function() {});
+    return;   // the host applies it and the result comes back in the state
+  }
+  if (online.active && online.isHost) {
+    Net.remove("rooms/" + online.code + "/prompt").catch(function() {});
+    online.pendingPrompt = null;
+  }
+  cb(value);
+}
+
+/* Guests render whatever prompt is addressed to their seat, and clear it when
+   the host takes it down. */
+function syncPrompt(room) {
+  var p = room && room.prompt;
+  if (!p) {
+    if (online.shownPromptId) { online.shownPromptId = null; hideModal(); }
+    return;
+  }
+  if (online.shownPromptId === p.id) return;
+  online.shownPromptId = p.id;
+  var options = objectToArray(p.options);
+  if (p.seat === viewerIndex()) {
+    showChoiceModal(p.title, options, function() {});
+  } else if (!online.isHost) {
+    showWaitingForChoice(p.title, p.seat);
+  }
+}
+
+/* Host side: a guest answered, so finish the rule that was waiting. */
+function syncPromptReply(room) {
+  if (!online.isHost) return;
+  var reply = room && room.promptReply;
+  if (!reply || !online.pendingPrompt || reply.id !== online.pendingPrompt.id) return;
+  var cb = online.pendingPrompt.cb;
+  online.pendingPrompt = null;
+  online.shownPromptId = null;
+  hideModal();
+  Net.remove("rooms/" + online.code + "/prompt").catch(function() {});
+  Net.remove("rooms/" + online.code + "/promptReply").catch(function() {});
+  cb(reply.value);
+}
+
+function seatOf(player) { return state.players.indexOf(player); }
+
 function pickPlayer(list, title, cb) {
-  var body = "<div class=\"modal-list\">" + list.map(function(pl) {
-    return "<button data-i=\"" + state.players.indexOf(pl) + "\">" + pl.name + "</button>";
-  }).join("") + "</div>";
-  showModal(title, body, []);
-  setTimeout(function() {
-    document.querySelectorAll("#modalBody button").forEach(function(btn) {
-      btn.onclick = function() {
-        var i = parseInt(btn.getAttribute("data-i"), 10);
-        hideModal();
-        cb(state.players[i]);
-      };
-    });
-  }, 30);
+  askChoice(state.currentPlayer, title, list.map(function(pl) {
+    return { label: pl.name, value: state.players.indexOf(pl) };
+  }), function(v) { cb(state.players[v]); });
 }
+
 function pickSDG(player, title, cb) {
-  var body = "<div class=\"modal-list\">" + player.sdgs.map(function(s, i) {
-    return "<button data-i=\"" + i + "\">SDG " + s.id + " (" + s.progress + ")</button>";
-  }).join("") + "</div>";
-  showModal(title, body, []);
-  setTimeout(function() {
-    document.querySelectorAll("#modalBody button").forEach(function(btn) {
-      btn.onclick = function() {
-        var i = parseInt(btn.getAttribute("data-i"), 10);
-        hideModal();
-        cb(i);
-      };
-    });
-  }, 30);
+  askChoice(seatOf(player), title, player.sdgs.map(function(s, i) {
+    return { label: "SDG " + s.id + " (" + s.progress + ")", value: i };
+  }), function(v) { cb(v); });
 }
+
 /* Targets for Back to Square One / Stance Reversal. GOAL-locked cards and cards
    under Policy Exemption cannot be hit, so they are not offered as choices. */
 function pickAnySDG(title, cb, onNoTarget) {
-  var body = "<div class=\"modal-list\">";
-  var count = 0;
+  var options = [];
   state.players.forEach(function(pl, pi) {
     pl.sdgs.forEach(function(s, si) {
       if (!isValidNeg(s)) return;
-      count++;
-      body += "<button data-p=\"" + pi + "\" data-s=\"" + si + "\">" + pl.name + " SDG " + s.id + " (" + s.progress + ")</button>";
+      options.push({ label: pl.name + " SDG " + s.id + " (" + s.progress + ")", value: pi + ":" + si });
     });
   });
-  body += "</div>";
-  if (!count) { log(t("noValid")); (onNoTarget || function() {})(); return; }
-  showModal(title, body, []);
-  setTimeout(function() {
-    document.querySelectorAll("#modalBody button").forEach(function(btn) {
-      btn.onclick = function() {
-        var pi = parseInt(btn.getAttribute("data-p"), 10);
-        var si = parseInt(btn.getAttribute("data-s"), 10);
-        hideModal();
-        cb(state.players[pi], si);
-      };
-    });
-  }, 30);
+  if (!options.length) { log(t("noValid")); (onNoTarget || function() {})(); return; }
+  askChoice(state.currentPlayer, title, options, function(v) {
+    var parts = String(v).split(":");
+    cb(state.players[Number(parts[0])], Number(parts[1]));
+  });
 }
 function checkWin() {
   for (var i = 0; i < state.players.length; i++) {
