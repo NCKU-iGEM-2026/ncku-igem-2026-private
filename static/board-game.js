@@ -45,6 +45,9 @@ var translations = {
     lobbyWaitHost: "等待房主開始遊戲…", lobbyHostHint: "把房間代碼給其他人，湊齊 4 人以上就能開始。",
     lobbyNeedMore: "至少需要 4 位玩家才能開始。", hostTag: "房主",
     connectionLost: "連線中斷，正在重新連線…",
+    youTag: "你", handsLabel: "手牌", waitingOthers: "等待其他玩家確認",
+    ackedYou: "你已確認", ackProgress: "已確認",
+    notYourTurn: "現在不是你的回合", waitingTurn: "等待其他玩家行動…",
     winSuffix: " 達成兩項 SDG 目標，獲得勝利！", winLog: "獲勝！"
   },
   en: {
@@ -88,6 +91,9 @@ var translations = {
     lobbyWaitHost: "Waiting for the host to start…", lobbyHostHint: "Share the room code; you can start once 4 players have joined.",
     lobbyNeedMore: "At least 4 players are needed to start.", hostTag: "Host",
     connectionLost: "Connection lost, reconnecting…",
+    youTag: "you", handsLabel: "hand", waitingOthers: "Waiting for the other players",
+    ackedYou: "You are ready", ackProgress: "Ready",
+    notYourTurn: "It is not your turn", waitingTurn: "Waiting for the other players…",
     winSuffix: " completes both SDG goals!", winLog: "WINS!"
   }
 };
@@ -804,6 +810,59 @@ var state = {
   cardNextResolver: null
 };
 
+/* ---- Shared-state plumbing for online play ----
+   Only the host runs the rules; everyone else mirrors what the host publishes.
+   Snapshots carry the authoritative game data and leave purely local UI state
+   (timers, the pending Next resolver, the current selection) alone. */
+var SHARED_KEYS = [
+  "isGameOver", "players", "currentPlayer", "phase",
+  "deck", "discard", "unusedSDGs", "maxPlay", "capacityActive",
+  "draftCounts", "draftCurrentPlayer", "draftSelected"
+];
+
+function snapshotState() {
+  var out = {};
+  SHARED_KEYS.forEach(function(k) { out[k] = state[k]; });
+  // Firebase drops empty arrays/objects, so mark them to rebuild faithfully.
+  return JSON.parse(JSON.stringify(out));
+}
+
+function applySnapshot(snap) {
+  if (!snap) return;
+  SHARED_KEYS.forEach(function(k) {
+    if (snap[k] === undefined) return;
+    var v = snap[k];
+    // A missing array comes back as undefined/object from the wire; normalise.
+    if (Array.isArray(state[k]) && !Array.isArray(v)) v = v ? objectToArray(v) : [];
+    state[k] = v;
+  });
+  (state.players || []).forEach(function(p) {
+    if (!Array.isArray(p.hand)) p.hand = p.hand ? objectToArray(p.hand) : [];
+    if (!Array.isArray(p.sdgs)) p.sdgs = p.sdgs ? objectToArray(p.sdgs) : [];
+  });
+  if (!Array.isArray(state.deck)) state.deck = [];
+  if (!Array.isArray(state.discard)) state.discard = [];
+}
+
+/* Firebase turns sparse arrays into objects keyed by index; turn them back. */
+function objectToArray(obj) {
+  if (Array.isArray(obj)) return obj;
+  if (!obj || typeof obj !== "object") return [];
+  return Object.keys(obj)
+    .sort(function(a, b) { return Number(a) - Number(b); })
+    .map(function(k) { return obj[k]; });
+}
+
+/* Whose hand this device is allowed to see. Offline the device is passed
+   around, so that is whoever is taking their turn; online it is fixed to the
+   seat this device joined as, which is what keeps hands private. */
+function viewerIndex() {
+  if (online.active && online.seat !== null && online.seat !== undefined) return online.seat;
+  return state.currentPlayer;
+}
+function viewerPlayer() { return state.players[viewerIndex()]; }
+function isViewersTurn() { return viewerIndex() === state.currentPlayer; }
+
 function trackTimeout(fn, ms) {
   if (state.isGameOver) return null;
   var id = setTimeout(function() {
@@ -908,14 +967,12 @@ function makeStickyNote(card, sdgId, delta) {
   return note;
 }
 
-/* Manual Next card announcement (no auto timer).
-   options.reveal marks the Reveal Phase flip, which nobody plays — it is turned
-   over from the deck — so it must not be announced as "<name> played". */
-function showCardAnnouncement(playerName, card, options) {
+/* Paint the announcement. Kept separate from waiting on it, because online
+   every device renders the same card but only the host drives what happens
+   after everyone has acknowledged it. */
+function renderAnnouncement(playerName, card, options) {
   options = options || {};
-  return new Promise(function(resolve) {
-    if (state.isGameOver) { resolve(); return; }
-    state.inputLocked = true;
+  {
     var whoEl = document.getElementById("announcePlayer");
     whoEl.textContent = options.reveal ? t("revealHeading") : playerName + " " + t("played");
     whoEl.className = "card-announce-player" + (options.reveal ? " reveal" : "");
@@ -952,17 +1009,37 @@ function showCardAnnouncement(playerName, card, options) {
       effectsEl.appendChild(tn);
     }
 
-    var modal = document.getElementById("card-play-modal");
-    modal.classList.add("show");
-    state.cardNextResolver = function() {
-      modal.classList.remove("show");
-      state.inputLocked = false;
-      state.cardNextResolver = null;
-      resolve();
-    };
-  });
+    document.getElementById("card-play-modal").classList.add("show");
+  }
 }
+
+function hideAnnouncement() {
+  document.getElementById("card-play-modal").classList.remove("show");
+  document.getElementById("ackStatus").textContent = "";
+  document.getElementById("btnCardNext").disabled = false;
+  state.inputLocked = false;
+  state.cardNextResolver = null;
+}
+
+/* Offline this resolves on this device's own Next click. Online the host
+   publishes the step, every device shows it, and it only resolves once every
+   seat has acknowledged — so nobody's screen races ahead of the table. */
+function showCardAnnouncement(playerName, card, options) {
+  options = options || {};
+  if (state.isGameOver) return Promise.resolve();
+  state.inputLocked = true;
+  renderAnnouncement(playerName, card, options);
+
+  if (!online.active) {
+    return new Promise(function(resolve) {
+      state.cardNextResolver = function() { hideAnnouncement(); resolve(); };
+    });
+  }
+  return hostPublishStep(playerName, card, options);
+}
+
 document.getElementById("btnCardNext").onclick = function() {
+  if (online.active) { sendAck(); return; }
   if (state.cardNextResolver) state.cardNextResolver();
 };
 
@@ -990,9 +1067,12 @@ var online = {
   active: false,     // playing over the network rather than on one device
   code: null,
   playerId: null,
+  seat: null,        // this device's index into state.players
   isHost: false,
   roomSub: null,
-  room: null
+  room: null,
+  stepId: null,      // announcement currently awaiting acknowledgement
+  order: []          // playerId per seat, so seat <-> device stays stable
 };
 
 function setStatus(elId, msg, kind) {
@@ -1090,12 +1170,64 @@ function enterLobby() {
     online.room = room;
     if (!room) { leaveRoom(); return; }
     online.isHost = room.host === online.playerId;
-    renderLobby(room);
+
+    if (room.phase === "lobby") { renderLobby(room); return; }
+
+    // Game running: adopt the host's state, then reconcile the shared step.
+    if (!online.active) beginOnlineGame(room);
+    if (!online.isHost && room.state) {
+      applySnapshot(room.state);
+      if (!state.isGameOver) updateUI();
+    }
+    syncStep(room);
+    if (state.isGameOver) checkWin();
   }, function(err) {
     if (err && err.message === "stream-interrupted") {
       setStatus("lobbyStatus", t("connectionLost"), "error");
     }
   });
+}
+
+/* The host turns the lobby roster into real players and starts the game;
+   everyone else follows the published state. */
+document.getElementById("btnLobbyStart").onclick = function() {
+  if (!online.isHost) return;
+  var roster = lobbyRoster(online.room);
+  if (roster.length < 4) return;
+
+  state.players = roster.map(function(r) {
+    return { name: r.name, isAI: false, difficulty: "basic", sdgs: [], hand: [], sanctioned: false, capacityNext: false };
+  });
+  state.isGameOver = false;
+  clearAllTimers();
+  state.draftCounts = {};
+  for (var k = 1; k <= 17; k++) state.draftCounts[k] = 0;
+  state.draftCurrentPlayer = 0;
+  state.draftSelected = [];
+  state.aiDraftPending = false;
+
+  Net.patch("rooms/" + online.code, {
+    phase: "playing",
+    order: roster.map(function(r) { return r.id; }),
+    state: snapshotState()
+  }).catch(function() {});
+};
+
+function beginOnlineGame(room) {
+  online.active = true;
+  online.order = objectToArray(room.order || []);
+  online.seat = online.order.indexOf(online.playerId);
+  if (online.seat < 0) online.seat = 0;
+  state.mode = "online";
+  if (!online.isHost && room.state) applySnapshot(room.state);
+  showScreen("tutorialScreen");
+  startTutorial();
+}
+
+/* Host mirrors its authoritative state out after every change. */
+function publishState() {
+  if (!online.active || !online.isHost || !online.code) return;
+  Net.put("rooms/" + online.code + "/state", snapshotState()).catch(function() {});
 }
 
 function renderLobby(room) {
@@ -1127,6 +1259,94 @@ function renderLobby(room) {
   startBtn.disabled = !enough;
   if (!online.isHost) setStatus("lobbyStatus", t("lobbyWaitHost"));
   else setStatus("lobbyStatus", enough ? t("lobbyHostHint") : t("lobbyNeedMore"), enough ? "" : "error");
+}
+
+/* ---- Synchronised "everyone presses Next" barrier ----
+   The host writes the step it wants shown; every device renders it and writes
+   its own acknowledgement. The host's promise resolves only when the count of
+   acknowledgements reaches the number of seats. */
+function hostPublishStep(playerName, card, options) {
+  var stepId = "s" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  var payload = {
+    id: stepId,
+    playerName: playerName || "",
+    reveal: !!options.reveal,
+    targetName: options.targetName || "",
+    affected: options.affectedSDGs || [],
+    card: {
+      title_zh: card.title_zh, title_en: card.title_en,
+      subtitle_zh: card.subtitle_zh || "", subtitle_en: card.subtitle_en || "",
+      description_zh: card.description_zh || "", description_en: card.description_en || "",
+      forward: card.forward || [], backward: card.backward || [],
+      notes: card.notes || null, kind: card.kind, type: card.type || null
+    }
+  };
+  online.stepId = stepId;
+  return new Promise(function(resolve) {
+    online.pendingStep = { id: stepId, resolve: resolve };
+    Net.put("rooms/" + online.code + "/step", payload).catch(function() {});
+    // The host acknowledges through the same path as everyone else.
+    renderAckStatus(0);
+  });
+}
+
+function sendAck() {
+  if (!online.code || !online.stepId) return;
+  document.getElementById("btnCardNext").disabled = true;
+  document.getElementById("ackStatus").textContent = t("ackedYou") + " · " + t("waitingOthers");
+  Net.put("rooms/" + online.code + "/acks/" + online.stepId + "/" + online.playerId, true)
+    .catch(function() {});
+}
+
+function renderAckStatus(count) {
+  var total = (state.players || []).length || online.order.length;
+  var el = document.getElementById("ackStatus");
+  if (!el || !online.active) return;
+  el.textContent = t("ackProgress") + " " + count + " / " + total;
+}
+
+/* Called on every room update: drives the announcement for guests, keeps the
+   ack counter live for everyone, and lets the host continue once all are in. */
+function syncStep(room) {
+  var step = room && room.step;
+  var acks = (room && room.acks && step && room.acks[step.id]) || {};
+  var count = Object.keys(acks).length;
+  var total = (state.players || []).length || online.order.length;
+
+  if (!step) {
+    if (online.stepId) { online.stepId = null; hideAnnouncement(); }
+    return;
+  }
+
+  if (online.stepId !== step.id) {
+    // A step this device has not shown yet.
+    online.stepId = step.id;
+    state.inputLocked = true;
+    document.getElementById("btnCardNext").disabled = false;
+    renderAnnouncement(step.playerName, step.card, {
+      reveal: step.reveal,
+      targetName: step.targetName,
+      affectedSDGs: objectToArray(step.affected)
+    });
+  }
+  renderAckStatus(count);
+  if (acks[online.playerId]) {
+    document.getElementById("btnCardNext").disabled = true;
+    document.getElementById("ackStatus").textContent =
+      count >= total ? t("ackProgress") + " " + count + " / " + total
+                     : t("ackedYou") + " · " + t("waitingOthers");
+  }
+
+  if (online.isHost && total > 0 && count >= total && online.pendingStep &&
+      online.pendingStep.id === step.id) {
+    var done = online.pendingStep.resolve;
+    online.pendingStep = null;
+    Net.remove("rooms/" + online.code + "/step").catch(function() {});
+    Net.remove("rooms/" + online.code + "/acks/" + step.id).catch(function() {});
+    online.stepId = null;
+    hideAnnouncement();
+    done();
+  }
 }
 
 function leaveRoom() {
@@ -1552,10 +1772,14 @@ function updateUI() {
   if (state.isGameOver) return;
   var p = getCurrentPlayer();
   if (!p) return;
+  var viewer = viewerPlayer() || p;
   document.getElementById("turnInfo").textContent = t("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "");
   document.getElementById("deckCount").textContent = state.deck.length;
   document.getElementById("discardCount").textContent = state.discard.length;
-  document.getElementById("handCount").textContent = "(" + p.hand.length + "/" + HAND_LIMIT + ")";
+  document.getElementById("handCount").textContent = "(" + viewer.hand.length + "/" + HAND_LIMIT + ")";
+  // Online, the hand shown is always this device's own, so label it.
+  var handOwner = document.getElementById("handOwner");
+  if (handOwner) handOwner.textContent = online.active ? "· " + viewer.name : "";
   var phaseText = t("actionPhase");
   if (state.isAIThinking) phaseText = t("botThinking");
   else if (state.phase === "flip") phaseText = t("flipPhase");
@@ -1565,7 +1789,10 @@ function updateUI() {
   document.getElementById("phaseLabel").textContent = phaseText;
   document.getElementById("phaseLabel").className = "phase-label" + (state.isAIThinking ? " ai-thinking" : "");
 
-  var humanTurn = !p.isAI && state.phase === "action" && !state.isAIThinking && !state.inputLocked && !state.isGameOver;
+  // Online, only the device whose seat is up may act; offline the device is
+  // handed around, so the current player is always the one holding it.
+  var humanTurn = !p.isAI && isViewersTurn() && state.phase === "action" &&
+    !state.isAIThinking && !state.inputLocked && !state.isGameOver;
   var btnD = document.getElementById("btnDiscardMode");
   var btnP = document.getElementById("btnPlayMode");
   var btnC = document.getElementById("btnCancelAction");
@@ -1588,8 +1815,14 @@ function updateUI() {
     div.className = "player-card" + (idx === state.currentPlayer ? " current" : "") +
       (pl.sanctioned ? " sanctioned" : "") + (pl.isAI ? " ai-tag" : "");
     div.setAttribute("data-sanction", t("sanctioned"));
+    if (online.active && idx === viewerIndex()) div.className += " viewer";
     var html = "<div class=\"player-name\">" + pl.name + (idx === state.currentPlayer ? " (current)" : "") +
-      (pl.isAI ? " [" + pl.difficulty + "]" : "") + "</div>";
+      (pl.isAI ? " [" + pl.difficulty + "]" : "") +
+      (online.active && idx === viewerIndex() ? " <span class=\"you-tag\">" + t("youTag") + "</span>" : "") +
+      // Hands stay hidden online; only the size is public.
+      (online.active && idx !== viewerIndex()
+        ? " <span class=\"hand-count-tag\">" + t("handsLabel") + " " + pl.hand.length + "</span>" : "") +
+      "</div>";
     pl.sdgs.forEach(function(s, si) {
       var cur = s.progress;
       var delta = (state.previewDeltas[idx] && state.previewDeltas[idx][si]) || 0;
@@ -1608,9 +1841,11 @@ function updateUI() {
     grid.appendChild(div);
   });
 
+  // Always this device's own hand — never the current player's, or an online
+  // opponent could read your cards simply by waiting for their turn.
   var handEl = document.getElementById("handCards");
   handEl.innerHTML = "";
-  p.hand.forEach(function(card, idx) {
+  viewer.hand.forEach(function(card, idx) {
     var cannot = state.modeAction === "play" && card.type === "veto";
     var div = document.createElement("div");
     div.className = "hand-card " + (card.kind === "event" ? "event" : "special") +
@@ -1624,7 +1859,7 @@ function updateUI() {
     }
     div.innerHTML = "<div class=\"hand-card-header\">" + (card.kind === "event" ? t("historyEvent") : t("specialCard")) + "</div>" +
       "<div class=\"hand-card-body\"><div class=\"card-name\">" + cardTitle(card) + "</div>" + effect + "</div>";
-    if (!p.isAI && !cannot && !state.inputLocked && !state.isGameOver) {
+    if (!p.isAI && isViewersTurn() && !cannot && !state.inputLocked && !state.isGameOver) {
       (function(i) { div.onclick = function() { onCardClick(i); }; })(idx);
     }
     handEl.appendChild(div);
@@ -2068,16 +2303,20 @@ function resolveSpecial(card, isAI, done) {
         done();
       }, 1000);
     } else {
+      // Remember the offered cards themselves, not their positions: the pile
+      // can grow between showing this list and the player choosing, and a
+      // stale index would then take the wrong card.
       var body = "<div class=\"modal-list\">" + top.map(function(c, i) {
-        var realIdx = state.discard.length - top.length + i;
-        return "<button data-i=\"" + realIdx + "\">" + cardTitle(c) + "</button>";
+        return "<button data-i=\"" + i + "\">" + cardTitle(c) + "</button>";
       }).join("") + "</div>";
       showModal(t("selectFromDiscard"), body, []);
       setTimeout(function() {
         document.querySelectorAll("#modalBody button").forEach(function(btn) {
           btn.onclick = function() {
             var i = parseInt(btn.getAttribute("data-i"), 10);
-            var c = state.discard.splice(i, 1)[0];
+            var picked = top[i];
+            var at = state.discard.indexOf(picked);
+            var c = at >= 0 ? state.discard.splice(at, 1)[0] : picked;
             p.hand.push(c);
             log(p.name + " History: " + cardTitle(c), "special");
             hideModal();
