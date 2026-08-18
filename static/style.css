@@ -35,6 +35,33 @@ body.navbar-scrolled .navbar-brand img {
 body.navbar-hidden .navbar {
   transform: translateY(-100%);
 }
+
+/* Below the lg breakpoint the burger button appears, but .navbar-brand is
+   absolutely positioned and its 250px artwork sat right on top of it, so the
+   menu could not be tapped at all on phones and tablets. Keep the logo inside
+   the bar here and the button clear of it; the desktop layout is untouched. */
+@media (max-width: 991.98px) {
+  .navbar .container-fluid { padding-left: 12px; padding-right: 12px; }
+  .navbar-brand { position: static; top: auto; left: auto; }
+  .navbar-brand img,
+  body.navbar-scrolled .navbar-brand img { width: 52px; height: 52px; }
+
+  .navbar-toggler { position: relative; z-index: 5; margin-left: auto; }
+
+  /* The bar is a fixed 64px, so the opened list hangs outside it and would
+     otherwise sit unreadable over the page. Give it its own panel. */
+  .navbar-collapse {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: #075a3e;
+    padding: 4px 16px 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+}
 @font-face {
   font-family: "Changa";
   src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-medium.ttf") format("truetype");
