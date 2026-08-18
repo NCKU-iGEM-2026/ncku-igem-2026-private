@@ -1718,6 +1718,9 @@ function renderTutorial() {
   });
 
   document.getElementById("btnTutorialNext").textContent = last ? "開始遊戲 Start game" : "下一步 Next";
+  // Disabled rather than hidden on the first step, so the row does not shift
+  // under the cursor as you move through the walkthrough.
+  document.getElementById("btnTutorialPrev").disabled = tutorialIndex === 0;
   document.getElementById("tutorialScreen").scrollIntoView({ block: "start" });
 }
 
@@ -1736,6 +1739,9 @@ document.getElementById("btnTutorialNext").onclick = function() {
   } else {
     finishTutorial();
   }
+};
+document.getElementById("btnTutorialPrev").onclick = function() {
+  if (tutorialIndex > 0) { tutorialIndex--; renderTutorial(); }
 };
 document.getElementById("btnTutorialSkip").onclick = finishTutorial;
 
