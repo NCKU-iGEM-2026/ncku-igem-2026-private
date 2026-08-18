@@ -33,6 +33,22 @@ var translations = {
     resetCard: "捲土重來", reverseCard: "立場反轉",
     revealHeading: "翻牌階段 · 從抽牌堆頂端翻開", revealNote: "此牌不屬於任何玩家，效果對所有人生效",
     sanctionSkip: "受國際制裁，本回合行動階段無法出牌也無法棄牌", immuneBlocked: "受政策豁免保護，不受影響",
+    onlineTitle: "線上房間", yourName: "你的暱稱", roomCode: "房間代碼",
+    createRoom: "建立房間", joinRoom: "加入房間", lobbyTitle: "房間大廳",
+    startOnline: "開始遊戲", leaveRoom: "離開房間",
+    onlineNotConfigured: "線上模式尚未設定資料庫網址，請先使用「同一裝置遊玩」。",
+    onlineChecking: "正在連線…", onlineReady: "已連線，可以建立或加入房間。",
+    onlineUnreachable: "無法連線到伺服器，請改用「同一裝置遊玩」。",
+    needName: "請先輸入暱稱。", needCode: "請輸入 4 位房間代碼。",
+    roomNotFound: "找不到這個房間，請確認代碼。", roomFull: "房間已滿（上限 8 人）。",
+    roomStarted: "這個房間已經開始遊戲了。",
+    lobbyWaitHost: "等待房主開始遊戲…", lobbyHostHint: "把房間代碼給其他人，湊齊 4 人以上就能開始。",
+    lobbyNeedMore: "至少需要 4 位玩家才能開始。", hostTag: "房主",
+    connectionLost: "連線中斷，正在重新連線…",
+    youTag: "你", handsLabel: "手牌", waitingOthers: "等待其他玩家確認",
+    waitingChoice: "等待這位玩家做出選擇：",
+    ackedYou: "你已確認", ackProgress: "已確認",
+    notYourTurn: "現在不是你的回合", waitingTurn: "等待其他玩家行動…",
     winSuffix: " 達成兩項 SDG 目標，獲得勝利！", winLog: "獲勝！"
   },
   en: {
@@ -64,6 +80,22 @@ var translations = {
     resetCard: "Back to Square One", reverseCard: "Stance Reversal",
     revealHeading: "Reveal Phase · flipped from the top of the deck", revealNote: "Nobody played this — it applies to every player",
     sanctionSkip: "is sanctioned: no cards may be played or discarded this Action Phase", immuneBlocked: "is exempt and unaffected",
+    onlineTitle: "Online Rooms", yourName: "Your name", roomCode: "Room code",
+    createRoom: "Create a room", joinRoom: "Join room", lobbyTitle: "Room Lobby",
+    startOnline: "Start game", leaveRoom: "Leave room",
+    onlineNotConfigured: "Online play has no database URL configured yet — please use Same Device for now.",
+    onlineChecking: "Connecting…", onlineReady: "Connected. Create or join a room.",
+    onlineUnreachable: "Cannot reach the server — please use Same Device instead.",
+    needName: "Please enter a name first.", needCode: "Enter the 4-character room code.",
+    roomNotFound: "No room with that code.", roomFull: "That room is full (8 players max).",
+    roomStarted: "That room has already started.",
+    lobbyWaitHost: "Waiting for the host to start…", lobbyHostHint: "Share the room code; you can start once 4 players have joined.",
+    lobbyNeedMore: "At least 4 players are needed to start.", hostTag: "Host",
+    connectionLost: "Connection lost, reconnecting…",
+    youTag: "you", handsLabel: "hand", waitingOthers: "Waiting for the other players",
+    waitingChoice: "Waiting for this player to choose:",
+    ackedYou: "You are ready", ackProgress: "Ready",
+    notYourTurn: "It is not your turn", waitingTurn: "Waiting for the other players…",
     winSuffix: " completes both SDG goals!", winLog: "WINS!"
   }
 };
@@ -775,10 +807,86 @@ var state = {
   deck: [], discard: [], unusedSDGs: [],
   selectedCards: [], modeAction: null, maxPlay: 2,
   capacityActive: false, isAIThinking: false,
+  stage: "lobby",   // lobby | draft | game — drives which screen every device shows
   draftCounts: {}, draftCurrentPlayer: 0, draftSelected: [], aiDraftPending: false,
   previewDeltas: {},
   cardNextResolver: null
 };
+
+/* ---- Shared-state plumbing for online play ----
+   Only the host runs the rules; everyone else mirrors what the host publishes.
+   Snapshots carry the authoritative game data and leave purely local UI state
+   (timers, the pending Next resolver, the current selection) alone. */
+/* draftSelected and selectedCards are deliberately absent: they are what the
+   person in front of this device has highlighted but not committed, so sharing
+   them would light up other people's screens with someone else's half-made
+   choice — and enable their confirm button. */
+var SHARED_KEYS = [
+  "isGameOver", "players", "currentPlayer", "phase",
+  "deck", "discard", "unusedSDGs", "maxPlay", "capacityActive",
+  "draftCounts", "draftCurrentPlayer", "stage"
+];
+/* Keys the game expects to be arrays. Firebase drops empty arrays on write, so
+   a missing one has to come back as [] rather than leaving a stale value. */
+var SHARED_ARRAY_KEYS = ["players", "deck", "discard", "unusedSDGs"];
+
+function snapshotState() {
+  var out = {};
+  SHARED_KEYS.forEach(function(k) { out[k] = state[k]; });
+  // Firebase drops empty arrays/objects, so mark them to rebuild faithfully.
+  return JSON.parse(JSON.stringify(out));
+}
+
+function applySnapshot(snap) {
+  if (!snap) return;
+  SHARED_KEYS.forEach(function(k) {
+    var isArr = SHARED_ARRAY_KEYS.indexOf(k) !== -1;
+    if (snap[k] === undefined) {
+      // An absent array means the host emptied it, not that it is unchanged.
+      if (isArr) state[k] = [];
+      return;
+    }
+    var v = snap[k];
+    if (isArr && !Array.isArray(v)) v = objectToArray(v);
+    state[k] = v;
+  });
+  (state.players || []).forEach(function(p) {
+    p.hand = objectToArray(p.hand).map(normaliseCard);
+    p.sdgs = objectToArray(p.sdgs);
+  });
+  state.deck = objectToArray(state.deck).map(normaliseCard);
+  state.discard = objectToArray(state.discard).map(normaliseCard);
+  state.unusedSDGs = objectToArray(state.unusedSDGs);
+}
+
+/* Firebase stores no key at all for an empty array, so a card whose forward or
+   backward list is empty arrives without those fields — and the renderer reads
+   .length off them. Put the empty lists back before anything touches a card. */
+function normaliseCard(card) {
+  if (!card || typeof card !== "object") return card;
+  card.forward = objectToArray(card.forward);
+  card.backward = objectToArray(card.backward);
+  return card;
+}
+
+/* Firebase turns sparse arrays into objects keyed by index; turn them back. */
+function objectToArray(obj) {
+  if (Array.isArray(obj)) return obj;
+  if (!obj || typeof obj !== "object") return [];
+  return Object.keys(obj)
+    .sort(function(a, b) { return Number(a) - Number(b); })
+    .map(function(k) { return obj[k]; });
+}
+
+/* Whose hand this device is allowed to see. Offline the device is passed
+   around, so that is whoever is taking their turn; online it is fixed to the
+   seat this device joined as, which is what keeps hands private. */
+function viewerIndex() {
+  if (online.active && online.seat !== null && online.seat !== undefined) return online.seat;
+  return state.currentPlayer;
+}
+function viewerPlayer() { return state.players[viewerIndex()]; }
+function isViewersTurn() { return viewerIndex() === state.currentPlayer; }
 
 function trackTimeout(fn, ms) {
   if (state.isGameOver) return null;
@@ -884,14 +992,12 @@ function makeStickyNote(card, sdgId, delta) {
   return note;
 }
 
-/* Manual Next card announcement (no auto timer).
-   options.reveal marks the Reveal Phase flip, which nobody plays — it is turned
-   over from the deck — so it must not be announced as "<name> played". */
-function showCardAnnouncement(playerName, card, options) {
+/* Paint the announcement. Kept separate from waiting on it, because online
+   every device renders the same card but only the host drives what happens
+   after everyone has acknowledged it. */
+function renderAnnouncement(playerName, card, options) {
   options = options || {};
-  return new Promise(function(resolve) {
-    if (state.isGameOver) { resolve(); return; }
-    state.inputLocked = true;
+  {
     var whoEl = document.getElementById("announcePlayer");
     whoEl.textContent = options.reveal ? t("revealHeading") : playerName + " " + t("played");
     whoEl.className = "card-announce-player" + (options.reveal ? " reveal" : "");
@@ -928,17 +1034,37 @@ function showCardAnnouncement(playerName, card, options) {
       effectsEl.appendChild(tn);
     }
 
-    var modal = document.getElementById("card-play-modal");
-    modal.classList.add("show");
-    state.cardNextResolver = function() {
-      modal.classList.remove("show");
-      state.inputLocked = false;
-      state.cardNextResolver = null;
-      resolve();
-    };
-  });
+    document.getElementById("card-play-modal").classList.add("show");
+  }
 }
+
+function hideAnnouncement() {
+  document.getElementById("card-play-modal").classList.remove("show");
+  document.getElementById("ackStatus").textContent = "";
+  document.getElementById("btnCardNext").disabled = false;
+  state.inputLocked = false;
+  state.cardNextResolver = null;
+}
+
+/* Offline this resolves on this device's own Next click. Online the host
+   publishes the step, every device shows it, and it only resolves once every
+   seat has acknowledged — so nobody's screen races ahead of the table. */
+function showCardAnnouncement(playerName, card, options) {
+  options = options || {};
+  if (state.isGameOver) return Promise.resolve();
+  state.inputLocked = true;
+  renderAnnouncement(playerName, card, options);
+
+  if (!online.active) {
+    return new Promise(function(resolve) {
+      state.cardNextResolver = function() { hideAnnouncement(); resolve(); };
+    });
+  }
+  return hostPublishStep(playerName, card, options);
+}
+
 document.getElementById("btnCardNext").onclick = function() {
+  if (online.active) { sendAck(); return; }
   if (state.cardNextResolver) state.cardNextResolver();
 };
 
@@ -955,7 +1081,414 @@ document.getElementById("btnLocal").onclick = function() {
   showScreen("setupScreen");
   renderNameInputs("pvp");
 };
-document.getElementById("btnOnline").onclick = function() { alert(t("onlineSoon")); };
+document.getElementById("btnOnline").onclick = openOnlineMenu;
+
+/* ========== ONLINE ROOMS ==========
+   One device is the host and owns the game state; the others send intents and
+   render what they receive. Everything degrades to a message rather than an
+   error when the database is unset or unreachable, so a frozen wiki with a
+   dead backend still looks intact. */
+var online = {
+  active: false,     // playing over the network rather than on one device
+  code: null,
+  playerId: null,
+  seat: null,        // this device's index into state.players
+  isHost: false,
+  roomSub: null,
+  room: null,
+  stepId: null,      // announcement currently awaiting acknowledgement
+  order: [],         // playerId per seat, so seat <-> device stays stable
+  pendingStep: null,
+  pendingPrompt: null,
+  shownPromptId: null,
+  doneActions: {}    // guest intents already applied, so none runs twice
+};
+
+function setStatus(elId, msg, kind) {
+  var el = document.getElementById(elId);
+  el.textContent = msg;
+  el.className = "online-status" + (kind ? " " + kind : "");
+}
+
+function openOnlineMenu() {
+  showScreen("onlineMenu");
+  document.getElementById("onlineCode").value = "";
+  var nameInput = document.getElementById("onlineName");
+  if (!nameInput.value) nameInput.value = t("player") + Math.floor(Math.random() * 90 + 10);
+
+  var create = document.getElementById("btnCreateRoom");
+  var join = document.getElementById("btnJoinRoom");
+  create.disabled = true; join.disabled = true;
+
+  if (!Net.configured()) {
+    setStatus("onlineStatus", t("onlineNotConfigured"), "error");
+    return;
+  }
+  setStatus("onlineStatus", t("onlineChecking"));
+  Net.ping().then(function() {
+    setStatus("onlineStatus", t("onlineReady"), "ok");
+    create.disabled = false; join.disabled = false;
+  }).catch(function() {
+    setStatus("onlineStatus", t("onlineUnreachable"), "error");
+  });
+}
+
+document.getElementById("btnBackFromOnline").onclick = function() { showScreen("pvpMenu"); };
+
+function myName() {
+  return (document.getElementById("onlineName").value || "").trim();
+}
+
+document.getElementById("btnCreateRoom").onclick = function() {
+  if (!myName()) { setStatus("onlineStatus", t("needName"), "error"); return; }
+  var code = makeRoomCode();
+  online.playerId = localPlayerId();
+  var room = {
+    host: online.playerId,
+    phase: "lobby",
+    createdAt: Date.now(),
+    players: {}
+  };
+  room.players[online.playerId] = { name: myName(), seat: 0, joinedAt: Date.now() };
+  Net.put("rooms/" + code, room).then(function() {
+    online.code = code;
+    online.isHost = true;
+    enterLobby();
+  }).catch(function() {
+    setStatus("onlineStatus", t("onlineUnreachable"), "error");
+  });
+};
+
+document.getElementById("btnJoinRoom").onclick = function() {
+  if (!myName()) { setStatus("onlineStatus", t("needName"), "error"); return; }
+  var code = (document.getElementById("onlineCode").value || "").trim().toUpperCase();
+  if (code.length !== 4) { setStatus("onlineStatus", t("needCode"), "error"); return; }
+  online.playerId = localPlayerId();
+  Net.get("rooms/" + code).then(function(room) {
+    if (!room) { setStatus("onlineStatus", t("roomNotFound"), "error"); return; }
+    var players = room.players || {};
+    var already = players[online.playerId];
+    if (room.phase !== "lobby" && !already) { setStatus("onlineStatus", t("roomStarted"), "error"); return; }
+    if (!already && Object.keys(players).length >= 8) { setStatus("onlineStatus", t("roomFull"), "error"); return; }
+    var seat = already ? already.seat : Object.keys(players).length;
+    return Net.put("rooms/" + code + "/players/" + online.playerId,
+                   { name: myName(), seat: seat, joinedAt: Date.now() }).then(function() {
+      online.code = code;
+      online.isHost = room.host === online.playerId;
+      enterLobby();
+    });
+  }).catch(function() {
+    setStatus("onlineStatus", t("onlineUnreachable"), "error");
+  });
+};
+
+function lobbyRoster(room) {
+  var players = (room && room.players) || {};
+  return Object.keys(players).map(function(id) {
+    return { id: id, name: players[id].name, seat: players[id].seat, joinedAt: players[id].joinedAt || 0 };
+  }).sort(function(a, b) { return a.joinedAt - b.joinedAt; });
+}
+
+function enterLobby() {
+  showScreen("lobbyScreen");
+  document.getElementById("lobbyCode").textContent = online.code;
+  renderLobby(null);
+
+  if (online.roomSub) online.roomSub.close();
+  online.roomSub = Net.subscribe("rooms/" + online.code, function(room) {
+    online.room = room;
+    if (!room) { leaveRoom(); return; }
+    online.isHost = room.host === online.playerId;
+
+    if (room.phase === "lobby") { renderLobby(room); return; }
+
+    // Game running: adopt the host's state, then reconcile the shared step.
+    if (!online.active) beginOnlineGame(room);
+    if (!online.isHost && room.state) {
+      applySnapshot(room.state);
+      followHostStage();
+    }
+    hostHandleActions(room);
+    syncStep(room);
+    syncPrompt(room);
+    syncPromptReply(room);
+    if (state.isGameOver) checkWin();
+  }, function(err) {
+    if (err && err.message === "stream-interrupted") {
+      setStatus("lobbyStatus", t("connectionLost"), "error");
+    }
+  });
+}
+
+/* The host turns the lobby roster into real players and starts the game;
+   everyone else follows the published state. */
+document.getElementById("btnLobbyStart").onclick = function() {
+  if (!online.isHost) return;
+  var roster = lobbyRoster(online.room);
+  if (roster.length < 4) return;
+
+  state.players = roster.map(function(r) {
+    return { name: r.name, isAI: false, difficulty: "basic", sdgs: [], hand: [], sanctioned: false, capacityNext: false };
+  });
+  state.isGameOver = false;
+  clearAllTimers();
+  state.draftCounts = {};
+  for (var k = 1; k <= 17; k++) state.draftCounts[k] = 0;
+  state.draftCurrentPlayer = 0;
+  state.draftSelected = [];
+  state.aiDraftPending = false;
+  state.stage = "draft";
+
+  Net.patch("rooms/" + online.code, {
+    phase: "playing",
+    order: roster.map(function(r) { return r.id; }),
+    state: snapshotState()
+  }).catch(function() {});
+};
+
+function beginOnlineGame(room) {
+  online.active = true;
+  online.order = objectToArray(room.order || []);
+  online.seat = online.order.indexOf(online.playerId);
+  if (online.seat < 0) online.seat = 0;
+  state.mode = "online";
+  if (!online.isHost && room.state) applySnapshot(room.state);
+  showScreen("tutorialScreen");
+  startTutorial();
+}
+
+/* Guests follow the host from screen to screen. Anyone still reading the
+   tutorial is left alone; they catch up the moment they finish it. */
+function followHostStage(leavingTutorial) {
+  if (!state.players.length || state.isGameOver) return;
+  // Don't yank someone out of the tutorial mid-read — unless they just finished
+  // it, in which case this call is exactly how they leave it.
+  if (!leavingTutorial &&
+      document.getElementById("tutorialScreen").classList.contains("active")) return;
+
+  if (state.stage === "game") {
+    if (!document.getElementById("gameScreen").classList.contains("active")) showScreen("gameScreen");
+    updateUI();
+  } else if (state.stage === "draft") {
+    if (!document.getElementById("draftScreen").classList.contains("active")) showScreen("draftScreen");
+    renderDraft();
+  }
+}
+
+/* Host mirrors its authoritative state out after every change. */
+function publishState() {
+  if (!online.active || !online.isHost || !online.code) return;
+  Net.put("rooms/" + online.code + "/state", snapshotState()).catch(function() {});
+}
+
+/* ---- Guest intents ----
+   Only the host runs the rules, so a guest never mutates the game directly.
+   It posts what it wants to do and the host validates and performs it. Cards
+   are named by id rather than by hand position, because the guest's view of
+   the hand can be a moment behind the host's. */
+function sendIntent(intent) {
+  if (!online.code) return;
+  intent.playerId = online.playerId;
+  intent.ts = Date.now();
+  Net.push("rooms/" + online.code + "/actions", intent).catch(function() {});
+}
+
+function hostHandleActions(room) {
+  if (!online.isHost || !room || !room.actions) return;
+  Object.keys(room.actions).sort().forEach(function(key) {
+    if (online.doneActions[key]) return;
+    online.doneActions[key] = true;
+    var a = room.actions[key];
+    Net.remove("rooms/" + online.code + "/actions/" + key).catch(function() {});
+    applyIntent(a);
+  });
+}
+
+function applyIntent(a) {
+  if (!a || !a.playerId) return;
+  var seat = online.order.indexOf(a.playerId);
+  if (seat < 0) return;
+
+  if (a.type === "draft") {
+    if (seat !== state.draftCurrentPlayer) return;   // not their pick to make
+    confirmDraftPick(objectToArray(a.ids));
+    return;
+  }
+
+  if (seat !== state.currentPlayer || state.phase !== "action") return;
+  var p = state.players[seat];
+  var ids = objectToArray(a.cardIds || []);
+  var idx = [];
+  ids.forEach(function(id) {
+    for (var i = 0; i < p.hand.length; i++) {
+      if (p.hand[i].id === id && idx.indexOf(i) === -1) { idx.push(i); return; }
+    }
+  });
+  if (!idx.length) return;
+
+  state.selectedCards = idx;
+  if (a.type === "discard") { state.modeAction = "discard"; executeDiscard(); }
+  else if (a.type === "play") { state.modeAction = "play"; executePlay(); }
+}
+
+/* Card ids for the current selection, so an intent survives reordering. */
+function selectedCardIds() {
+  var p = viewerPlayer();
+  return state.selectedCards.map(function(i) { return p.hand[i] && p.hand[i].id; })
+    .filter(function(x) { return !!x; });
+}
+
+function renderLobby(room) {
+  var list = document.getElementById("lobbyPlayers");
+  var roster = lobbyRoster(room);
+  list.innerHTML = "";
+  roster.forEach(function(p, i) {
+    var li = document.createElement("li");
+    if (p.id === online.playerId) li.className = "self";
+    var seat = document.createElement("span");
+    seat.className = "lobby-seat";
+    seat.textContent = i + 1;
+    var name = document.createElement("span");
+    name.textContent = p.name;
+    li.appendChild(seat);
+    li.appendChild(name);
+    if (room && room.host === p.id) {
+      var tag = document.createElement("span");
+      tag.className = "lobby-host-tag";
+      tag.textContent = t("hostTag");
+      li.appendChild(tag);
+    }
+    list.appendChild(li);
+  });
+
+  var startBtn = document.getElementById("btnLobbyStart");
+  var enough = roster.length >= 4;
+  startBtn.style.display = online.isHost ? "" : "none";
+  startBtn.disabled = !enough;
+  if (!online.isHost) setStatus("lobbyStatus", t("lobbyWaitHost"));
+  else setStatus("lobbyStatus", enough ? t("lobbyHostHint") : t("lobbyNeedMore"), enough ? "" : "error");
+}
+
+/* ---- Synchronised "everyone presses Next" barrier ----
+   The host writes the step it wants shown; every device renders it and writes
+   its own acknowledgement. The host's promise resolves only when the count of
+   acknowledgements reaches the number of seats. */
+function hostPublishStep(playerName, card, options) {
+  var stepId = "s" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  var payload = {
+    id: stepId,
+    playerName: playerName || "",
+    reveal: !!options.reveal,
+    targetName: options.targetName || "",
+    affected: options.affectedSDGs || [],
+    card: {
+      title_zh: card.title_zh, title_en: card.title_en,
+      subtitle_zh: card.subtitle_zh || "", subtitle_en: card.subtitle_en || "",
+      description_zh: card.description_zh || "", description_en: card.description_en || "",
+      forward: card.forward || [], backward: card.backward || [],
+      notes: card.notes || null, kind: card.kind, type: card.type || null
+    }
+  };
+  online.stepId = stepId;
+  return new Promise(function(resolve) {
+    online.pendingStep = { id: stepId, resolve: resolve };
+    Net.put("rooms/" + online.code + "/step", payload).catch(function() {});
+    // The host acknowledges through the same path as everyone else.
+    renderAckStatus(0);
+  });
+}
+
+function sendAck() {
+  if (!online.code || !online.stepId) return;
+  document.getElementById("btnCardNext").disabled = true;
+  document.getElementById("ackStatus").textContent = t("ackedYou") + " · " + t("waitingOthers");
+  Net.put("rooms/" + online.code + "/acks/" + online.stepId + "/" + online.playerId, true)
+    .catch(function() {});
+}
+
+function renderAckStatus(count) {
+  var total = (state.players || []).length || online.order.length;
+  var el = document.getElementById("ackStatus");
+  if (!el || !online.active) return;
+  el.textContent = t("ackProgress") + " " + count + " / " + total;
+}
+
+/* Called on every room update: drives the announcement for guests, keeps the
+   ack counter live for everyone, and lets the host continue once all are in. */
+function syncStep(room) {
+  var step = room && room.step;
+  var acks = (room && room.acks && step && room.acks[step.id]) || {};
+  var count = Object.keys(acks).length;
+  var total = (state.players || []).length || online.order.length;
+
+  if (!step) {
+    if (online.stepId) { online.stepId = null; hideAnnouncement(); }
+    return;
+  }
+
+  if (online.stepId !== step.id) {
+    // A step this device has not shown yet.
+    online.stepId = step.id;
+    state.inputLocked = true;
+    document.getElementById("btnCardNext").disabled = false;
+    renderAnnouncement(step.playerName, normaliseCard(step.card), {
+      reveal: step.reveal,
+      targetName: step.targetName,
+      affectedSDGs: objectToArray(step.affected)
+    });
+  }
+  renderAckStatus(count);
+  if (acks[online.playerId]) {
+    document.getElementById("btnCardNext").disabled = true;
+    document.getElementById("ackStatus").textContent =
+      count >= total ? t("ackProgress") + " " + count + " / " + total
+                     : t("ackedYou") + " · " + t("waitingOthers");
+  }
+
+  if (online.isHost && total > 0 && count >= total && online.pendingStep &&
+      online.pendingStep.id === step.id) {
+    var done = online.pendingStep.resolve;
+    online.pendingStep = null;
+    Net.remove("rooms/" + online.code + "/step").catch(function() {});
+    Net.remove("rooms/" + online.code + "/acks/" + step.id).catch(function() {});
+    online.stepId = null;
+    hideAnnouncement();
+    done();
+  }
+}
+
+function leaveRoom() {
+  var code = online.code, pid = online.playerId, room = online.room;
+  if (online.roomSub) { online.roomSub.close(); online.roomSub = null; }
+
+  if (code && pid) {
+    var players = (room && room.players) || {};
+    var others = Object.keys(players).filter(function(id) { return id !== pid; });
+    if (!others.length) {
+      // Last one out bins the whole room; otherwise abandoned rooms pile up in
+      // the database forever, since nothing server-side ever sweeps them.
+      Net.remove("rooms/" + code).catch(function() {});
+    } else {
+      Net.remove("rooms/" + code + "/players/" + pid).catch(function() {});
+      if (room && room.host === pid) {
+        // Don't strand the others with a room nobody can start: hand the host
+        // role to whoever joined earliest among those still here.
+        others.sort(function(a, b) { return (players[a].joinedAt || 0) - (players[b].joinedAt || 0); });
+        Net.patch("rooms/" + code, { host: others[0] }).catch(function() {});
+      }
+    }
+  }
+
+  online.active = false;
+  online.code = null;
+  online.room = null;
+  online.isHost = false;
+  online.seat = null;
+  online.stepId = null;
+  online.pendingStep = null;
+  showScreen("onlineMenu");
+}
+document.getElementById("btnLeaveRoom").onclick = leaveRoom;
 document.getElementById("btnBackFromSetup").onclick = function() { showScreen("mainMenu"); };
 
 function renderNameInputs(mode) {
@@ -1005,6 +1538,7 @@ function startDraft() {
   state.draftCurrentPlayer = 0;
   state.draftSelected = [];
   state.aiDraftPending = false;
+  state.stage = "draft";
   startTutorial();
 }
 
@@ -1184,10 +1718,16 @@ function renderTutorial() {
   });
 
   document.getElementById("btnTutorialNext").textContent = last ? "開始遊戲 Start game" : "下一步 Next";
+  // Disabled rather than hidden on the first step, so the row does not shift
+  // under the cursor as you move through the walkthrough.
+  document.getElementById("btnTutorialPrev").disabled = tutorialIndex === 0;
   document.getElementById("tutorialScreen").scrollIntoView({ block: "start" });
 }
 
 function finishTutorial() {
+  // Online, the host may already have moved past the draft while this player
+  // was still reading, so land on whatever stage the table is actually at.
+  if (online.active && !online.isHost) { followHostStage(true); return; }
   showScreen("draftScreen");
   renderDraft();
 }
@@ -1200,11 +1740,17 @@ document.getElementById("btnTutorialNext").onclick = function() {
     finishTutorial();
   }
 };
+document.getElementById("btnTutorialPrev").onclick = function() {
+  if (tutorialIndex > 0) { tutorialIndex--; renderTutorial(); }
+};
 document.getElementById("btnTutorialSkip").onclick = finishTutorial;
 
 /* ========== DRAFT: same SDG may be picked by up to 2 players ========== */
 function renderDraft() {
   if (state.isGameOver) return;
+  // The draft has its own render path, so it needs its own mirror-out; without
+  // this the host would draft alone while everyone else stayed on seat 0.
+  if (online.active && online.isHost) publishState();
   var p = state.players[state.draftCurrentPlayer];
   document.getElementById("draftStatus").textContent = t("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "") + " - " + t("select2");
   document.getElementById("draftCount").textContent = t("selected") + " " + state.draftSelected.length + " / 2";
@@ -1218,7 +1764,8 @@ function renderDraft() {
     div.className = "sdg-pick" + (full && !sel ? " disabled" : "") + (sel ? " selected" : "");
     div.innerHTML = "<strong>SDG " + id + "</strong><br><span style=\"font-size:0.72rem;color:#8a7a6a;\">" + sdgName(id) + "</span>" +
       "<div class=\"pick-count\">" + (full ? t("max2") : cnt + " " + t("picks")) + "</div>";
-    if (!full && !p.isAI) {
+    // Online, only the device whose seat is drafting may touch the grid.
+    if (!full && !p.isAI && (!online.active || state.draftCurrentPlayer === viewerIndex())) {
       (function(sid) { div.onclick = function() { toggleDraftSelect(sid); }; })(id);
     }
     grid.appendChild(div);
@@ -1226,7 +1773,9 @@ function renderDraft() {
   document.getElementById("draftPicks").textContent = state.players.map(function(pl) {
     return pl.name + ": " + (pl.sdgs.map(function(x){ return "SDG "+x.id; }).join(", ") || "-");
   }).join(" | ");
-  document.getElementById("btnConfirmDraft").disabled = state.draftSelected.length !== 2 || p.isAI;
+  document.getElementById("btnConfirmDraft").disabled =
+    state.draftSelected.length !== 2 || p.isAI ||
+    (online.active && state.draftCurrentPlayer !== viewerIndex());
   // aiDraftPick() re-renders to show its picks highlighted, so only arm the
   // timer once per bot — otherwise a stale one fires after the draft moved on.
   if (p.isAI && !state.aiDraftPending) {
@@ -1244,7 +1793,14 @@ function toggleDraftSelect(id) {
 }
 document.getElementById("btnConfirmDraft").onclick = function() {
   if (state.draftSelected.length !== 2) return;
-  confirmDraftPick(state.draftSelected.slice());
+  var ids = state.draftSelected.slice();
+  if (online.active && !online.isHost) {
+    sendIntent({ type: "draft", ids: ids });
+    state.draftSelected = [];
+    document.getElementById("btnConfirmDraft").disabled = true;
+    return;
+  }
+  confirmDraftPick(ids);
 };
 function confirmDraftPick(ids) {
   var p = state.players[state.draftCurrentPlayer];
@@ -1276,6 +1832,7 @@ function aiDraftPick() {
 }
 
 function startGame() {
+  state.stage = "game";
   state.unusedSDGs = [];
   for (var id = 1; id <= 17; id++) {
     var left = 2 - (state.draftCounts[id] || 0);
@@ -1367,10 +1924,17 @@ function updateUI() {
   if (state.isGameOver) return;
   var p = getCurrentPlayer();
   if (!p) return;
+  // The host redraws after every rules change, which makes this the one place
+  // that reliably mirrors the authoritative state out to the other devices.
+  if (online.active && online.isHost) publishState();
+  var viewer = viewerPlayer() || p;
   document.getElementById("turnInfo").textContent = t("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "");
   document.getElementById("deckCount").textContent = state.deck.length;
   document.getElementById("discardCount").textContent = state.discard.length;
-  document.getElementById("handCount").textContent = "(" + p.hand.length + "/" + HAND_LIMIT + ")";
+  document.getElementById("handCount").textContent = "(" + viewer.hand.length + "/" + HAND_LIMIT + ")";
+  // Online, the hand shown is always this device's own, so label it.
+  var handOwner = document.getElementById("handOwner");
+  if (handOwner) handOwner.textContent = online.active ? "· " + viewer.name : "";
   var phaseText = t("actionPhase");
   if (state.isAIThinking) phaseText = t("botThinking");
   else if (state.phase === "flip") phaseText = t("flipPhase");
@@ -1380,7 +1944,10 @@ function updateUI() {
   document.getElementById("phaseLabel").textContent = phaseText;
   document.getElementById("phaseLabel").className = "phase-label" + (state.isAIThinking ? " ai-thinking" : "");
 
-  var humanTurn = !p.isAI && state.phase === "action" && !state.isAIThinking && !state.inputLocked && !state.isGameOver;
+  // Online, only the device whose seat is up may act; offline the device is
+  // handed around, so the current player is always the one holding it.
+  var humanTurn = !p.isAI && isViewersTurn() && state.phase === "action" &&
+    !state.isAIThinking && !state.inputLocked && !state.isGameOver;
   var btnD = document.getElementById("btnDiscardMode");
   var btnP = document.getElementById("btnPlayMode");
   var btnC = document.getElementById("btnCancelAction");
@@ -1403,8 +1970,14 @@ function updateUI() {
     div.className = "player-card" + (idx === state.currentPlayer ? " current" : "") +
       (pl.sanctioned ? " sanctioned" : "") + (pl.isAI ? " ai-tag" : "");
     div.setAttribute("data-sanction", t("sanctioned"));
+    if (online.active && idx === viewerIndex()) div.className += " viewer";
     var html = "<div class=\"player-name\">" + pl.name + (idx === state.currentPlayer ? " (current)" : "") +
-      (pl.isAI ? " [" + pl.difficulty + "]" : "") + "</div>";
+      (pl.isAI ? " [" + pl.difficulty + "]" : "") +
+      (online.active && idx === viewerIndex() ? " <span class=\"you-tag\">" + t("youTag") + "</span>" : "") +
+      // Hands stay hidden online; only the size is public.
+      (online.active && idx !== viewerIndex()
+        ? " <span class=\"hand-count-tag\">" + t("handsLabel") + " " + pl.hand.length + "</span>" : "") +
+      "</div>";
     pl.sdgs.forEach(function(s, si) {
       var cur = s.progress;
       var delta = (state.previewDeltas[idx] && state.previewDeltas[idx][si]) || 0;
@@ -1423,9 +1996,11 @@ function updateUI() {
     grid.appendChild(div);
   });
 
+  // Always this device's own hand — never the current player's, or an online
+  // opponent could read your cards simply by waiting for their turn.
   var handEl = document.getElementById("handCards");
   handEl.innerHTML = "";
-  p.hand.forEach(function(card, idx) {
+  viewer.hand.forEach(function(card, idx) {
     var cannot = state.modeAction === "play" && card.type === "veto";
     var div = document.createElement("div");
     div.className = "hand-card " + (card.kind === "event" ? "event" : "special") +
@@ -1439,7 +2014,7 @@ function updateUI() {
     }
     div.innerHTML = "<div class=\"hand-card-header\">" + (card.kind === "event" ? t("historyEvent") : t("specialCard")) + "</div>" +
       "<div class=\"hand-card-body\"><div class=\"card-name\">" + cardTitle(card) + "</div>" + effect + "</div>";
-    if (!p.isAI && !cannot && !state.inputLocked && !state.isGameOver) {
+    if (!p.isAI && isViewersTurn() && !cannot && !state.inputLocked && !state.isGameOver) {
       (function(i) { div.onclick = function() { onCardClick(i); }; })(idx);
     }
     handEl.appendChild(div);
@@ -1466,6 +2041,11 @@ document.getElementById("btnCancelAction").onclick = function() {
 };
 document.getElementById("btnConfirmAction").onclick = function() {
   if (state.inputLocked || state.isGameOver || !state.selectedCards.length) return;
+  if (online.active && !online.isHost) {
+    sendIntent({ type: state.modeAction === "discard" ? "discard" : "play", cardIds: selectedCardIds() });
+    state.selectedCards = []; state.modeAction = null; updateUI();
+    return;
+  }
   if (state.modeAction === "discard") executeDiscard();
   else executePlay();
 };
@@ -1628,21 +2208,13 @@ function doDrawPhase() {
       p.hand = p.hand.concat(drawn);
       finishTurn();
     } else {
-      var body = "<div class=\"modal-list\">" + drawn.map(function(c, i) {
-        return "<button data-i=\"" + i + "\">" + cardTitle(c) + "</button>";
-      }).join("") + "</div>";
-      showModal(t("capacityChoose"), body, []);
-      setTimeout(function() {
-        document.querySelectorAll("#modalBody button").forEach(function(btn) {
-          btn.onclick = function() {
-            var i = parseInt(btn.getAttribute("data-i"), 10);
-            state.discard.push(drawn.splice(i, 1)[0]);
-            p.hand = p.hand.concat(drawn);
-            hideModal();
-            finishTurn();
-          };
-        });
-      }, 30);
+      askChoice(state.currentPlayer, t("capacityChoose"), drawn.map(function(c, i) {
+        return { label: cardTitle(c), value: i };
+      }), function(i) {
+        state.discard.push(drawn.splice(i, 1)[0]);
+        p.hand = p.hand.concat(drawn);
+        finishTurn();
+      });
     }
   } else {
     p.hand = p.hand.concat(drawn);
@@ -1883,23 +2455,19 @@ function resolveSpecial(card, isAI, done) {
         done();
       }, 1000);
     } else {
-      var body = "<div class=\"modal-list\">" + top.map(function(c, i) {
-        var realIdx = state.discard.length - top.length + i;
-        return "<button data-i=\"" + realIdx + "\">" + cardTitle(c) + "</button>";
-      }).join("") + "</div>";
-      showModal(t("selectFromDiscard"), body, []);
-      setTimeout(function() {
-        document.querySelectorAll("#modalBody button").forEach(function(btn) {
-          btn.onclick = function() {
-            var i = parseInt(btn.getAttribute("data-i"), 10);
-            var c = state.discard.splice(i, 1)[0];
-            p.hand.push(c);
-            log(p.name + " History: " + cardTitle(c), "special");
-            hideModal();
-            done();
-          };
-        });
-      }, 30);
+      // Remember the offered cards themselves, not their positions: the pile
+      // can grow between showing this list and the player choosing, and a
+      // stale index would then take the wrong card.
+      askChoice(state.currentPlayer, t("selectFromDiscard"), top.map(function(c, i) {
+        return { label: cardTitle(c), value: i };
+      }), function(i) {
+        var picked = top[i];
+        var at = state.discard.indexOf(picked);
+        var c = at >= 0 ? state.discard.splice(at, 1)[0] : picked;
+        p.hand.push(c);
+        log(p.name + " History: " + cardTitle(c), "special");
+        done();
+      });
     }
     return;
   }
@@ -1940,61 +2508,125 @@ function resolveSpecial(card, isAI, done) {
 }
 
 /* Selection helpers */
+/* ---- One primitive behind every choice the rules ask a player to make ----
+   Offline it is just a modal. Online the choice belongs to a specific seat, so
+   it is published for that device to answer while everyone else waits: the
+   player who played the card is the one who picks its target, even though the
+   host is the machine actually running the rules. */
+function askChoice(seat, title, options, cb) {
+  if (!options.length) { cb(null); return; }
+
+  if (!online.active) { showChoiceModal(title, options, cb); return; }
+
+  if (seat === viewerIndex()) showChoiceModal(title, options, cb);
+  else showWaitingForChoice(title, seat);
+
+  if (!online.isHost) return;   // only the host waits on the answer
+  var pid = "q" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+  online.pendingPrompt = { id: pid, cb: cb, seat: seat };
+  Net.put("rooms/" + online.code + "/prompt", {
+    id: pid, seat: seat, title: title,
+    options: options.map(function(o) { return { label: o.label, value: o.value }; })
+  }).catch(function() {});
+}
+
+function showChoiceModal(title, options, cb) {
+  var body = "<div class=\"modal-list\">" + options.map(function(o, i) {
+    return "<button data-i=\"" + i + "\">" + o.label + "</button>";
+  }).join("") + "</div>";
+  showModal(title, body, []);
+  setTimeout(function() {
+    document.querySelectorAll("#modalBody button").forEach(function(btn) {
+      btn.onclick = function() {
+        var i = parseInt(btn.getAttribute("data-i"), 10);
+        hideModal();
+        answerChoice(options[i].value, cb);
+      };
+    });
+  }, 30);
+}
+
+/* Everyone who is not choosing sees who they are waiting on. */
+function showWaitingForChoice(title, seat) {
+  var who = (state.players[seat] && state.players[seat].name) || "";
+  showModal(title, "<p>" + t("waitingChoice") + "<br><strong>" + who + "</strong></p>", []);
+}
+
+function answerChoice(value, cb) {
+  if (online.active && !online.isHost) {
+    Net.put("rooms/" + online.code + "/promptReply",
+            { id: (online.room && online.room.prompt && online.room.prompt.id) || "", value: value })
+      .catch(function() {});
+    return;   // the host applies it and the result comes back in the state
+  }
+  if (online.active && online.isHost) {
+    Net.remove("rooms/" + online.code + "/prompt").catch(function() {});
+    online.pendingPrompt = null;
+  }
+  cb(value);
+}
+
+/* Guests render whatever prompt is addressed to their seat, and clear it when
+   the host takes it down. */
+function syncPrompt(room) {
+  var p = room && room.prompt;
+  if (!p) {
+    if (online.shownPromptId) { online.shownPromptId = null; hideModal(); }
+    return;
+  }
+  if (online.shownPromptId === p.id) return;
+  online.shownPromptId = p.id;
+  var options = objectToArray(p.options);
+  if (p.seat === viewerIndex()) {
+    showChoiceModal(p.title, options, function() {});
+  } else if (!online.isHost) {
+    showWaitingForChoice(p.title, p.seat);
+  }
+}
+
+/* Host side: a guest answered, so finish the rule that was waiting. */
+function syncPromptReply(room) {
+  if (!online.isHost) return;
+  var reply = room && room.promptReply;
+  if (!reply || !online.pendingPrompt || reply.id !== online.pendingPrompt.id) return;
+  var cb = online.pendingPrompt.cb;
+  online.pendingPrompt = null;
+  online.shownPromptId = null;
+  hideModal();
+  Net.remove("rooms/" + online.code + "/prompt").catch(function() {});
+  Net.remove("rooms/" + online.code + "/promptReply").catch(function() {});
+  cb(reply.value);
+}
+
+function seatOf(player) { return state.players.indexOf(player); }
+
 function pickPlayer(list, title, cb) {
-  var body = "<div class=\"modal-list\">" + list.map(function(pl) {
-    return "<button data-i=\"" + state.players.indexOf(pl) + "\">" + pl.name + "</button>";
-  }).join("") + "</div>";
-  showModal(title, body, []);
-  setTimeout(function() {
-    document.querySelectorAll("#modalBody button").forEach(function(btn) {
-      btn.onclick = function() {
-        var i = parseInt(btn.getAttribute("data-i"), 10);
-        hideModal();
-        cb(state.players[i]);
-      };
-    });
-  }, 30);
+  askChoice(state.currentPlayer, title, list.map(function(pl) {
+    return { label: pl.name, value: state.players.indexOf(pl) };
+  }), function(v) { cb(state.players[v]); });
 }
+
 function pickSDG(player, title, cb) {
-  var body = "<div class=\"modal-list\">" + player.sdgs.map(function(s, i) {
-    return "<button data-i=\"" + i + "\">SDG " + s.id + " (" + s.progress + ")</button>";
-  }).join("") + "</div>";
-  showModal(title, body, []);
-  setTimeout(function() {
-    document.querySelectorAll("#modalBody button").forEach(function(btn) {
-      btn.onclick = function() {
-        var i = parseInt(btn.getAttribute("data-i"), 10);
-        hideModal();
-        cb(i);
-      };
-    });
-  }, 30);
+  askChoice(seatOf(player), title, player.sdgs.map(function(s, i) {
+    return { label: "SDG " + s.id + " (" + s.progress + ")", value: i };
+  }), function(v) { cb(v); });
 }
+
 /* Targets for Back to Square One / Stance Reversal. GOAL-locked cards and cards
    under Policy Exemption cannot be hit, so they are not offered as choices. */
 function pickAnySDG(title, cb, onNoTarget) {
-  var body = "<div class=\"modal-list\">";
-  var count = 0;
+  var options = [];
   state.players.forEach(function(pl, pi) {
     pl.sdgs.forEach(function(s, si) {
       if (!isValidNeg(s)) return;
-      count++;
-      body += "<button data-p=\"" + pi + "\" data-s=\"" + si + "\">" + pl.name + " SDG " + s.id + " (" + s.progress + ")</button>";
+      options.push({ label: pl.name + " SDG " + s.id + " (" + s.progress + ")", value: pi + ":" + si });
     });
   });
-  body += "</div>";
-  if (!count) { log(t("noValid")); (onNoTarget || function() {})(); return; }
-  showModal(title, body, []);
-  setTimeout(function() {
-    document.querySelectorAll("#modalBody button").forEach(function(btn) {
-      btn.onclick = function() {
-        var pi = parseInt(btn.getAttribute("data-p"), 10);
-        var si = parseInt(btn.getAttribute("data-s"), 10);
-        hideModal();
-        cb(state.players[pi], si);
-      };
-    });
-  }, 30);
+  if (!options.length) { log(t("noValid")); (onNoTarget || function() {})(); return; }
+  askChoice(state.currentPlayer, title, options, function(v) {
+    var parts = String(v).split(":");
+    cb(state.players[Number(parts[0])], Number(parts[1]));
+  });
 }
 function checkWin() {
   for (var i = 0; i < state.players.length; i++) {
