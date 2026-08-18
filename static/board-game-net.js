@@ -24,7 +24,7 @@
    =========================================================================== */
 
 var ONLINE_CONFIG = {
-  databaseUrl: ""
+  databaseUrl: "https://igem-boardgame-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
 /* Overridable for local testing without touching the shipped config. */
@@ -123,11 +123,14 @@ var Net = (function () {
     push: function (p, v) { return request("POST", p, v); },
     remove: function (p) { return request("DELETE", p); },
     subscribe: subscribe,
-    /* Reachability probe so the UI can degrade instead of hanging. */
+    /* Reachability probe so the UI can degrade instead of hanging.
+       Deliberately reads inside rooms/: the recommended rules close the
+       database root, so probing the root would always look unreachable even
+       when everything is configured correctly. */
     ping: function () {
       if (!configured()) return Promise.reject(new Error("not-configured"));
       return Promise.race([
-        request("GET", "__ping"),
+        request("GET", "rooms/__ping"),
         new Promise(function (_, rej) { setTimeout(function () { rej(new Error("timeout")); }, 6000); })
       ]);
     }

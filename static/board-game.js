@@ -1350,14 +1350,34 @@ function syncStep(room) {
 }
 
 function leaveRoom() {
+  var code = online.code, pid = online.playerId, room = online.room;
   if (online.roomSub) { online.roomSub.close(); online.roomSub = null; }
-  if (online.code && online.playerId) {
-    Net.remove("rooms/" + online.code + "/players/" + online.playerId).catch(function() {});
+
+  if (code && pid) {
+    var players = (room && room.players) || {};
+    var others = Object.keys(players).filter(function(id) { return id !== pid; });
+    if (!others.length) {
+      // Last one out bins the whole room; otherwise abandoned rooms pile up in
+      // the database forever, since nothing server-side ever sweeps them.
+      Net.remove("rooms/" + code).catch(function() {});
+    } else {
+      Net.remove("rooms/" + code + "/players/" + pid).catch(function() {});
+      if (room && room.host === pid) {
+        // Don't strand the others with a room nobody can start: hand the host
+        // role to whoever joined earliest among those still here.
+        others.sort(function(a, b) { return (players[a].joinedAt || 0) - (players[b].joinedAt || 0); });
+        Net.patch("rooms/" + code, { host: others[0] }).catch(function() {});
+      }
+    }
   }
+
   online.active = false;
   online.code = null;
   online.room = null;
   online.isHost = false;
+  online.seat = null;
+  online.stepId = null;
+  online.pendingStep = null;
   showScreen("onlineMenu");
 }
 document.getElementById("btnLeaveRoom").onclick = leaveRoom;
