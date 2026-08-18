@@ -33,6 +33,18 @@ var translations = {
     resetCard: "捲土重來", reverseCard: "立場反轉",
     revealHeading: "翻牌階段 · 從抽牌堆頂端翻開", revealNote: "此牌不屬於任何玩家，效果對所有人生效",
     sanctionSkip: "受國際制裁，本回合行動階段無法出牌也無法棄牌", immuneBlocked: "受政策豁免保護，不受影響",
+    onlineTitle: "線上房間", yourName: "你的暱稱", roomCode: "房間代碼",
+    createRoom: "建立房間", joinRoom: "加入房間", lobbyTitle: "房間大廳",
+    startOnline: "開始遊戲", leaveRoom: "離開房間",
+    onlineNotConfigured: "線上模式尚未設定資料庫網址，請先使用「同一裝置遊玩」。",
+    onlineChecking: "正在連線…", onlineReady: "已連線，可以建立或加入房間。",
+    onlineUnreachable: "無法連線到伺服器，請改用「同一裝置遊玩」。",
+    needName: "請先輸入暱稱。", needCode: "請輸入 4 位房間代碼。",
+    roomNotFound: "找不到這個房間，請確認代碼。", roomFull: "房間已滿（上限 8 人）。",
+    roomStarted: "這個房間已經開始遊戲了。",
+    lobbyWaitHost: "等待房主開始遊戲…", lobbyHostHint: "把房間代碼給其他人，湊齊 4 人以上就能開始。",
+    lobbyNeedMore: "至少需要 4 位玩家才能開始。", hostTag: "房主",
+    connectionLost: "連線中斷，正在重新連線…",
     winSuffix: " 達成兩項 SDG 目標，獲得勝利！", winLog: "獲勝！"
   },
   en: {
@@ -64,6 +76,18 @@ var translations = {
     resetCard: "Back to Square One", reverseCard: "Stance Reversal",
     revealHeading: "Reveal Phase · flipped from the top of the deck", revealNote: "Nobody played this — it applies to every player",
     sanctionSkip: "is sanctioned: no cards may be played or discarded this Action Phase", immuneBlocked: "is exempt and unaffected",
+    onlineTitle: "Online Rooms", yourName: "Your name", roomCode: "Room code",
+    createRoom: "Create a room", joinRoom: "Join room", lobbyTitle: "Room Lobby",
+    startOnline: "Start game", leaveRoom: "Leave room",
+    onlineNotConfigured: "Online play has no database URL configured yet — please use Same Device for now.",
+    onlineChecking: "Connecting…", onlineReady: "Connected. Create or join a room.",
+    onlineUnreachable: "Cannot reach the server — please use Same Device instead.",
+    needName: "Please enter a name first.", needCode: "Enter the 4-character room code.",
+    roomNotFound: "No room with that code.", roomFull: "That room is full (8 players max).",
+    roomStarted: "That room has already started.",
+    lobbyWaitHost: "Waiting for the host to start…", lobbyHostHint: "Share the room code; you can start once 4 players have joined.",
+    lobbyNeedMore: "At least 4 players are needed to start.", hostTag: "Host",
+    connectionLost: "Connection lost, reconnecting…",
     winSuffix: " completes both SDG goals!", winLog: "WINS!"
   }
 };
@@ -955,7 +979,168 @@ document.getElementById("btnLocal").onclick = function() {
   showScreen("setupScreen");
   renderNameInputs("pvp");
 };
-document.getElementById("btnOnline").onclick = function() { alert(t("onlineSoon")); };
+document.getElementById("btnOnline").onclick = openOnlineMenu;
+
+/* ========== ONLINE ROOMS ==========
+   One device is the host and owns the game state; the others send intents and
+   render what they receive. Everything degrades to a message rather than an
+   error when the database is unset or unreachable, so a frozen wiki with a
+   dead backend still looks intact. */
+var online = {
+  active: false,     // playing over the network rather than on one device
+  code: null,
+  playerId: null,
+  isHost: false,
+  roomSub: null,
+  room: null
+};
+
+function setStatus(elId, msg, kind) {
+  var el = document.getElementById(elId);
+  el.textContent = msg;
+  el.className = "online-status" + (kind ? " " + kind : "");
+}
+
+function openOnlineMenu() {
+  showScreen("onlineMenu");
+  document.getElementById("onlineCode").value = "";
+  var nameInput = document.getElementById("onlineName");
+  if (!nameInput.value) nameInput.value = t("player") + Math.floor(Math.random() * 90 + 10);
+
+  var create = document.getElementById("btnCreateRoom");
+  var join = document.getElementById("btnJoinRoom");
+  create.disabled = true; join.disabled = true;
+
+  if (!Net.configured()) {
+    setStatus("onlineStatus", t("onlineNotConfigured"), "error");
+    return;
+  }
+  setStatus("onlineStatus", t("onlineChecking"));
+  Net.ping().then(function() {
+    setStatus("onlineStatus", t("onlineReady"), "ok");
+    create.disabled = false; join.disabled = false;
+  }).catch(function() {
+    setStatus("onlineStatus", t("onlineUnreachable"), "error");
+  });
+}
+
+document.getElementById("btnBackFromOnline").onclick = function() { showScreen("pvpMenu"); };
+
+function myName() {
+  return (document.getElementById("onlineName").value || "").trim();
+}
+
+document.getElementById("btnCreateRoom").onclick = function() {
+  if (!myName()) { setStatus("onlineStatus", t("needName"), "error"); return; }
+  var code = makeRoomCode();
+  online.playerId = localPlayerId();
+  var room = {
+    host: online.playerId,
+    phase: "lobby",
+    createdAt: Date.now(),
+    players: {}
+  };
+  room.players[online.playerId] = { name: myName(), seat: 0, joinedAt: Date.now() };
+  Net.put("rooms/" + code, room).then(function() {
+    online.code = code;
+    online.isHost = true;
+    enterLobby();
+  }).catch(function() {
+    setStatus("onlineStatus", t("onlineUnreachable"), "error");
+  });
+};
+
+document.getElementById("btnJoinRoom").onclick = function() {
+  if (!myName()) { setStatus("onlineStatus", t("needName"), "error"); return; }
+  var code = (document.getElementById("onlineCode").value || "").trim().toUpperCase();
+  if (code.length !== 4) { setStatus("onlineStatus", t("needCode"), "error"); return; }
+  online.playerId = localPlayerId();
+  Net.get("rooms/" + code).then(function(room) {
+    if (!room) { setStatus("onlineStatus", t("roomNotFound"), "error"); return; }
+    var players = room.players || {};
+    var already = players[online.playerId];
+    if (room.phase !== "lobby" && !already) { setStatus("onlineStatus", t("roomStarted"), "error"); return; }
+    if (!already && Object.keys(players).length >= 8) { setStatus("onlineStatus", t("roomFull"), "error"); return; }
+    var seat = already ? already.seat : Object.keys(players).length;
+    return Net.put("rooms/" + code + "/players/" + online.playerId,
+                   { name: myName(), seat: seat, joinedAt: Date.now() }).then(function() {
+      online.code = code;
+      online.isHost = room.host === online.playerId;
+      enterLobby();
+    });
+  }).catch(function() {
+    setStatus("onlineStatus", t("onlineUnreachable"), "error");
+  });
+};
+
+function lobbyRoster(room) {
+  var players = (room && room.players) || {};
+  return Object.keys(players).map(function(id) {
+    return { id: id, name: players[id].name, seat: players[id].seat, joinedAt: players[id].joinedAt || 0 };
+  }).sort(function(a, b) { return a.joinedAt - b.joinedAt; });
+}
+
+function enterLobby() {
+  showScreen("lobbyScreen");
+  document.getElementById("lobbyCode").textContent = online.code;
+  renderLobby(null);
+
+  if (online.roomSub) online.roomSub.close();
+  online.roomSub = Net.subscribe("rooms/" + online.code, function(room) {
+    online.room = room;
+    if (!room) { leaveRoom(); return; }
+    online.isHost = room.host === online.playerId;
+    renderLobby(room);
+  }, function(err) {
+    if (err && err.message === "stream-interrupted") {
+      setStatus("lobbyStatus", t("connectionLost"), "error");
+    }
+  });
+}
+
+function renderLobby(room) {
+  var list = document.getElementById("lobbyPlayers");
+  var roster = lobbyRoster(room);
+  list.innerHTML = "";
+  roster.forEach(function(p, i) {
+    var li = document.createElement("li");
+    if (p.id === online.playerId) li.className = "self";
+    var seat = document.createElement("span");
+    seat.className = "lobby-seat";
+    seat.textContent = i + 1;
+    var name = document.createElement("span");
+    name.textContent = p.name;
+    li.appendChild(seat);
+    li.appendChild(name);
+    if (room && room.host === p.id) {
+      var tag = document.createElement("span");
+      tag.className = "lobby-host-tag";
+      tag.textContent = t("hostTag");
+      li.appendChild(tag);
+    }
+    list.appendChild(li);
+  });
+
+  var startBtn = document.getElementById("btnLobbyStart");
+  var enough = roster.length >= 4;
+  startBtn.style.display = online.isHost ? "" : "none";
+  startBtn.disabled = !enough;
+  if (!online.isHost) setStatus("lobbyStatus", t("lobbyWaitHost"));
+  else setStatus("lobbyStatus", enough ? t("lobbyHostHint") : t("lobbyNeedMore"), enough ? "" : "error");
+}
+
+function leaveRoom() {
+  if (online.roomSub) { online.roomSub.close(); online.roomSub = null; }
+  if (online.code && online.playerId) {
+    Net.remove("rooms/" + online.code + "/players/" + online.playerId).catch(function() {});
+  }
+  online.active = false;
+  online.code = null;
+  online.room = null;
+  online.isHost = false;
+  showScreen("onlineMenu");
+}
+document.getElementById("btnLeaveRoom").onclick = leaveRoom;
 document.getElementById("btnBackFromSetup").onclick = function() { showScreen("mainMenu"); };
 
 function renderNameInputs(mode) {
