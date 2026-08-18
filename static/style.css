@@ -9,7 +9,8 @@ body { padding-top: 64px; }
 .navbar .container-fluid { padding-left: 150px; }
 .navbar-brand {
   position: absolute;
-  top: -53px;
+  /* Tracks the logo size above so the overhang stays proportional. */
+  top: clamp(-53px, calc(-0.212 * (100vw - 872px)), -26px);
   left: 24px;
   font-size: 1.7rem;
   padding-top: 0;
@@ -18,8 +19,11 @@ body { padding-top: 64px; }
 }
 
 .navbar-brand img {
-  width: 250px;
-  height: 250px;
+  /* Grows with the viewport instead of jumping: 120px where the menu needs the
+     room (992px) up to the full 250px from ~1122px on. Keeping this continuous
+     is what stops the bar visibly re-flowing as a window is resized. */
+  width: clamp(120px, calc(100vw - 872px), 250px);
+  height: clamp(120px, calc(100vw - 872px), 250px);
   transition: width 0.3s ease, height 0.3s ease;
 }
 
@@ -34,6 +38,17 @@ body.navbar-scrolled .navbar-brand img {
 
 body.navbar-hidden .navbar {
   transform: translateY(-100%);
+}
+
+/* The footer's social links are only as big as their glyph -- 23px on a phone,
+   well under a comfortable tap target, and sat 16px apart. Give them a 44px hit
+   area without changing how large the icon looks. */
+.footer .hover-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 /* Back to top -------------------------------------------------------------
@@ -298,6 +313,53 @@ footer a:hover { color: white; text-decoration: underline; }
   z-index: 6;
 }
 
+/* The binder tabs hang off the notebook at left:100%, so they sat outside the
+   container at every width below 1440px -- the page scrolled sideways and the
+   labels were cut off (on a phone only "Le" of "Leader" was readable, leaving
+   the section switcher unusable). Keep the tab look on wide screens by
+   reserving room for them inside the notebook, and lay them out as a plain row
+   above the book where there is no room beside it. */
+@media (min-width: 992px) {
+  .notebook-tabs { left: auto; right: 0; }
+  .notebook-book { margin-right: 123px; }   /* widest tab is 115px + 8px gap */
+}
+
+@media (max-width: 991.98px) {
+  .notebook-tabs {
+    position: static;
+    top: auto;
+    left: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .notebook-tab,
+  .tab-hp,
+  .tab-professor {
+    width: auto;
+    min-width: 88px;
+    min-height: 44px;            /* comfortable to tap */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+  /* Sliding the active tab sideways only makes sense beside the book. */
+  #page-leader:checked    ~ .notebook-tabs .tab-leader,
+  #page-wet:checked       ~ .notebook-tabs .tab-wet,
+  #page-dry:checked       ~ .notebook-tabs .tab-dry,
+  #page-hp:checked        ~ .notebook-tabs .tab-hp,
+  #page-professor:checked ~ .notebook-tabs .tab-professor {
+    transform: none;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    outline: 2px solid #4a3f35;
+  }
+}
+
 .notebook-book {
   position: relative;
   display: grid;
@@ -484,7 +546,11 @@ footer a:hover { color: white; text-decoration: underline; }
 */
    @media (min-width: 992px) {
     .custom-nav-width {
-      width: 180px; 
+      /* 180px x 5 plus Home is 1040px, which does not fit until ~1350px and
+         pushed "Team" off the right edge from 992px up. Scale down to 140px so
+         every section is reachable at every width, reaching the drawn size at
+         1350px. */
+      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1754), 180px);
       position: relative;
     }
   
@@ -503,10 +569,11 @@ footer a:hover { color: white; text-decoration: underline; }
 
   @media (min-width: 992px) {
     .custom-nav-short {
-      width: 140px;
+      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.1316), 140px);
       position: relative;
     }
   }
+
 
 /* ===== Team photo booth ===== */
 .webcam-layout {
@@ -554,6 +621,13 @@ footer a:hover { color: white; text-decoration: underline; }
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
+  /* The glyph alone is only 24px; give it a proper tap target. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
 }
 
 .webcam-stage {
@@ -775,7 +849,12 @@ footer a:hover { color: white; text-decoration: underline; }
   flex: 0 0 auto;
 }
 
-@media (max-width: 760px) {
+/* Side by side, the 450px map plus the nowrap filter column needs about 700px
+   and neither part can shrink, so justify-content:center pushed the pair out of
+   the container on both sides between 761px and ~955px -- the left edge of the
+   map went negative, putting some of its pins out of reach. Stack them until
+   the row genuinely fits. */
+@media (max-width: 991.98px) {
   .edu-map-row {
     flex-direction: column;
   }
@@ -784,8 +863,10 @@ footer a:hover { color: white; text-decoration: underline; }
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    margin-top: 1.5rem;      /* the 20rem offset only suits the side-by-side layout */
   }
 }
+
 
 .edu-map-svg {
   display: block;
@@ -1076,6 +1157,17 @@ footer a:hover { color: white; text-decoration: underline; }
 }
 .board-game-page .player-setup { margin: 10px 0; display: grid; grid-template-columns: 70px 1fr 170px; gap: 8px; align-items: center; text-align: left; }
 .board-game-page .player-setup label { font-size: 0.88rem; color: var(--muted); }
+/* A text input will not shrink below its intrinsic width on its own, so the
+   70px / 1fr / 170px row could not fit a phone and pushed the setup screen
+   sideways. Let the fields shrink, and put the label on its own line where
+   even that is not enough. */
+.board-game-page .player-setup input,
+.board-game-page .player-setup select { min-width: 0; }
+
+@media (max-width: 560px) {
+  .board-game-page .player-setup { grid-template-columns: 1fr 132px; gap: 6px; }
+  .board-game-page .player-setup label { grid-column: 1 / -1; }
+}
 /* ---- Online rooms: join form and lobby ---- */
 .board-game-page .online-block { margin: 14px 0 6px; text-align: left; }
 .board-game-page .online-label {
