@@ -32,6 +32,7 @@ var translations = {
     max2: "已滿（2人）", picks: "人已選", flipReveal: "翻牌",
     resetCard: "捲土重來", reverseCard: "立場反轉",
     revealHeading: "翻牌階段 · 從抽牌堆頂端翻開", revealNote: "此牌不屬於任何玩家，效果對所有人生效",
+    readMore: "在維基百科上閱讀這個事件",
     sanctionSkip: "受國際制裁，本回合行動階段無法出牌也無法棄牌", immuneBlocked: "受政策豁免保護，不受影響",
     onlineTitle: "線上房間", yourName: "你的暱稱", roomCode: "房間代碼",
     createRoom: "建立房間", joinRoom: "加入房間", lobbyTitle: "房間大廳",
@@ -79,6 +80,7 @@ var translations = {
     max2: "Full (2)", picks: "picked", flipReveal: "revealed",
     resetCard: "Back to Square One", reverseCard: "Stance Reversal",
     revealHeading: "Reveal Phase · flipped from the top of the deck", revealNote: "Nobody played this — it applies to every player",
+    readMore: "Read about this event on Wikipedia",
     sanctionSkip: "is sanctioned: no cards may be played or discarded this Action Phase", immuneBlocked: "is exempt and unaffected",
     onlineTitle: "Online Rooms", yourName: "Your name", roomCode: "Room code",
     createRoom: "Create a room", joinRoom: "Join room", lobbyTitle: "Room Lobby",
@@ -111,6 +113,12 @@ function sdgName(id) { return (SDG_NAMES[currentLang] && SDG_NAMES[currentLang][
 function cardTitle(c) { return currentLang === "en" ? (c.title_en || c.title_zh) : (c.title_zh || c.title_en); }
 function cardSub(c) { return currentLang === "en" ? (c.subtitle_en || "") : (c.subtitle_zh || ""); }
 function cardDesc(c) { return currentLang === "en" ? (c.description_en || c.description_zh || "") : (c.description_zh || c.description_en || ""); }
+/* The team's Wikipedia reference for this event, in the language being read.
+   Cards with no link for the current language simply render as plain text. */
+function cardLink(c) {
+  var url = currentLang === "en" ? c.link_en : c.link_zh;
+  return typeof url === "string" && /^https?:\/\//.test(url) ? url : "";
+}
 
 function applyI18n() {
   document.querySelectorAll("[data-i18n]").forEach(function(el) {
@@ -133,6 +141,7 @@ document.getElementById("langSelect").onchange = function() {
 var eventCards = [
   {
     title_zh:"金融海嘯", title_en:"Financial Crisis",
+    link_zh:"https://zh.wikipedia.org/zh-tw/2008%E5%B9%B4%E7%92%B0%E7%90%83%E9%87%91%E8%9E%8D%E5%8D%B1%E6%A9%9F", link_en:"https://en.wikipedia.org/wiki/2008_financial_crisis",
     subtitle_zh:"西元2008年", subtitle_en:"2008 CE",
     description_zh:"美國次級房貸市場崩盤，雷曼兄弟宣告破產，骨牌效應迅速蔓延全球，堪稱二戰後最嚴重的全球經濟危機之一。",
     description_en:"The U.S. subprime mortgage market collapsed, Lehman Brothers filed for bankruptcy, and the shockwaves rippled across the globe. Widely considered one of the worst economic crises since WWII.",
@@ -141,6 +150,7 @@ var eventCards = [
   },
   {
     title_zh:"莫拉克颱風", title_en:"Typhoon Morakot",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E9%A2%B1%E9%A2%A8%E8%8E%AB%E6%8B%89%E5%85%8B", link_en:"https://en.wikipedia.org/wiki/Typhoon_Morakot",
     subtitle_zh:"西元2009年", subtitle_en:"2009 CE",
     description_zh:"帶來破紀錄豪雨，重創南台灣，小林村遭土石流滅村，多處聚落基礎建設全毀。",
     description_en:"Record-breaking rainfall devastated southern Taiwan, wiping out Xiaolin Village in a landslide and destroying infrastructure across communities.",
@@ -149,6 +159,7 @@ var eventCards = [
   },
   {
     title_zh:"焚書坑儒", title_en:"The Burning of Books and Burying of Scholars",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%84%9A%E4%B9%A6%E5%9D%91%E5%84%92", link_en:"https://en.wikipedia.org/wiki/Burning_of_books_and_burying_of_scholars",
     subtitle_zh:"西元前213年", subtitle_en:"213 BCE",
     description_zh:"秦始皇下令焚燒諸子百家典籍，並坑殺方士儒生，箝制思想與學術傳承。",
     description_en:"Qin Shi Huang ordered classical texts burned and Confucian scholars buried alive, crushing free thought and scholarship.",
@@ -157,6 +168,7 @@ var eventCards = [
   },
   {
     title_zh:"開普敦Day Zero", title_en:"Cape Town Day Zero",
+    link_zh:"https://en.wikipedia.org/wiki/Cape_Town_water_crisis", link_en:"https://en.wikipedia.org/wiki/Cape_Town_water_crisis",
     subtitle_zh:"西元2018年", subtitle_en:"2018 CE",
     description_zh:"南非開普敦遭遇嚴重乾旱，水庫存量逼近枯竭，全市面臨關閉自來水供應的危機。",
     description_en:"Cape Town, South Africa faced severe drought as reservoirs nearly ran dry, threatening a city-wide water shutoff.",
@@ -165,6 +177,7 @@ var eventCards = [
   },
   {
     title_zh:"烏俄戰爭", title_en:"Russo-Ukrainian War",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E4%BF%84%E4%B9%8C%E6%88%98%E4%BA%89", link_en:"https://en.wikipedia.org/wiki/Russo-Ukrainian_war",
     subtitle_zh:"西元2014年至今", subtitle_en:"2014 CE - present",
     description_zh:"俄羅斯與烏克蘭爆發武裝衝突，戰火摧毀基礎建設，糧食與能源供應鏈受到重創。",
     description_en:"Armed conflict between Russia and Ukraine destroyed infrastructure and disrupted global food and energy supply chains.",
@@ -173,6 +186,7 @@ var eventCards = [
   },
   {
     title_zh:"東非飢荒", title_en:"East African Famine",
+    link_zh:"https://zh.wikipedia.org/zh-tw/2022%E5%B9%B4%E9%9D%9E%E6%B4%B2%E4%B9%8B%E8%A7%92%E6%97%B1%E7%81%BE", link_en:"https://en.wikipedia.org/wiki/Horn_of_Africa_drought_(2020%E2%80%932023)",
     subtitle_zh:"長期反覆發生（以2011年最嚴重）", subtitle_en:"Recurring (worst in 2011)",
     description_zh:"乾旱與衝突交織，東非多國反覆陷入嚴重飢荒，糧食安全長期告急。",
     description_en:"Drought and conflict repeatedly pushed East African nations into severe famine, with food security in constant crisis.",
@@ -181,6 +195,7 @@ var eventCards = [
   },
   {
     title_zh:"阿富汗限制女性受教育", title_en:"Afghanistan Restricts Girls' Education",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E9%98%BF%E5%AF%8C%E6%B1%97%E6%95%99%E8%82%B2", link_en:"https://en.wikipedia.org/wiki/Education_in_Afghanistan",
     subtitle_zh:"西元2021年", subtitle_en:"2021 CE",
     description_zh:"塔利班重掌政權後禁止女性接受中學以上教育，女性受教權大幅倒退。",
     description_en:"After the Taliban retook power, girls were banned from secondary and higher education, sharply reversing progress on women's education.",
@@ -189,6 +204,7 @@ var eventCards = [
   },
   {
     title_zh:"香港食水含鉛事件", title_en:"Hong Kong Lead-in-Water Scandal",
+    link_zh:"https://zh.wikipedia.org/zh-tw/2015%E9%A6%99%E6%B8%AF%E9%A3%9F%E6%B0%B4%E5%90%AB%E9%89%9B%E4%BA%8B%E4%BB%B6", link_en:"https://en.wikipedia.org/wiki/2015_incidents_of_lead_in_drinking_water_in_Hong_Kong",
     subtitle_zh:"西元2015年", subtitle_en:"2015 CE",
     description_zh:"香港部分公共屋邨食水被驗出含鉛量超標，居民健康受威脅。",
     description_en:"Excessive lead levels were found in tap water at several Hong Kong public housing estates, threatening residents' health.",
@@ -197,6 +213,7 @@ var eventCards = [
   },
   {
     title_zh:"石油危機", title_en:"Oil Crisis",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%AC%AC%E4%B8%80%E6%AC%A1%E7%9F%B3%E6%B2%B9%E5%8D%B1%E6%9C%BA", link_en:"https://en.wikipedia.org/wiki/1973_oil_crisis",
     subtitle_zh:"西元1973年", subtitle_en:"1973 CE",
     description_zh:"中東產油國禁運石油，全球油價暴漲，各國經濟陷入衰退。",
     description_en:"Middle Eastern oil producers imposed an embargo, oil prices soared, and economies worldwide slid into recession.",
@@ -205,6 +222,7 @@ var eventCards = [
   },
   {
     title_zh:"COVID-19封城", title_en:"COVID-19 Lockdowns",
+    link_zh:"https://zh.wikipedia.org/zh-tw/2019%E5%86%A0%E7%8B%80%E7%97%85%E6%AF%92%E7%97%85%E4%B8%AD%E5%9C%8B%E5%A4%A7%E9%99%B8%E7%96%AB%E5%8D%80%E5%B0%81%E9%8E%96%E6%8E%AA%E6%96%BD", link_en:"https://en.wikipedia.org/wiki/COVID-19_lockdown_in_China",
     subtitle_zh:"西元2020年", subtitle_en:"2020 CE",
     description_zh:"新冠疫情爆發，各國實施封鎖措施，經濟活動大幅停擺。",
     description_en:"COVID-19 spread globally, prompting nationwide lockdowns that brought economic activity to a standstill.",
@@ -213,6 +231,7 @@ var eventCards = [
   },
   {
     title_zh:"福島核災", title_en:"Fukushima Nuclear Disaster",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%A6%8F%E5%B2%9B%E7%AC%AC%E4%B8%80%E6%A0%B8%E7%94%B5%E7%AB%99%E4%BA%8B%E6%95%85", link_en:"https://en.wikipedia.org/wiki/Fukushima_nuclear_accident",
     subtitle_zh:"西元2011年", subtitle_en:"2011 CE",
     description_zh:"東日本大地震引發海嘯，重創福島核電廠，造成輻射外洩。",
     description_en:"The Tohoku earthquake and tsunami crippled the Fukushima nuclear plant, causing a radiation leak.",
@@ -221,6 +240,7 @@ var eventCards = [
   },
   {
     title_zh:"種族隔離制度", title_en:"Apartheid",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%8D%97%E9%9D%9E%E7%A8%AE%E6%97%8F%E9%9A%94%E9%9B%A2", link_en:"https://en.wikipedia.org/wiki/Apartheid",
     subtitle_zh:"西元1948年至1994年（南非）", subtitle_en:"1948 CE - 1994 CE (South Africa)",
     description_zh:"南非政府依種族實施隔離與差別待遇，長期剝奪黑人基本權利。",
     description_en:"South Africa's government enforced racial segregation and discrimination, systematically denying Black citizens basic rights.",
@@ -229,6 +249,7 @@ var eventCards = [
   },
   {
     title_zh:"快時尚盛行", title_en:"Rise of Fast Fashion",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%BF%AB%E6%97%B6%E5%B0%9A", link_en:"https://en.wikipedia.org/wiki/Fast_fashion",
     subtitle_zh:"約2000年代至今", subtitle_en:"Roughly 2000s - present",
     description_zh:"平價快速時尚崛起，服飾快速生產與淘汰成為主流消費模式。",
     description_en:"Fast fashion took off, with cheap, rapidly produced and discarded clothing becoming the dominant consumption model.",
@@ -237,6 +258,7 @@ var eventCards = [
   },
   {
     title_zh:"澳洲森林大火", title_en:"Australian Bushfires",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%BE%B3%E5%A4%A7%E5%88%A9%E4%BA%9E%E5%8F%A2%E6%9E%97%E5%A4%A7%E7%81%AB", link_en:"https://en.wikipedia.org/wiki/Bushfires_in_Australia",
     subtitle_zh:"西元2019年至2020年", subtitle_en:"2019 CE - 2020 CE",
     description_zh:"澳洲遭遇史上最嚴重森林大火，燒毀大片林地，無數野生動物喪生。",
     description_en:"Australia suffered its worst wildfire season on record, burning vast forests and killing countless wildlife.",
@@ -245,6 +267,7 @@ var eventCards = [
   },
   {
     title_zh:"墨西哥灣漏油事故", title_en:"Deepwater Horizon Oil Spill",
+    link_zh:"https://zh.wikipedia.org/zh-tw/2010%E5%B9%B4%E5%A2%A8%E8%A5%BF%E5%93%A5%E7%81%A3%E6%BC%8F%E6%B2%B9%E4%BA%8B%E6%95%85", link_en:"https://en.wikipedia.org/wiki/Deepwater_Horizon_oil_spill",
     subtitle_zh:"西元2010年", subtitle_en:"2010 CE",
     description_zh:"深水地平線鑽油平台爆炸，大量原油外洩污染墨西哥灣。",
     description_en:"The Deepwater Horizon oil rig exploded, spilling massive amounts of crude oil into the Gulf of Mexico.",
@@ -253,6 +276,7 @@ var eventCards = [
   },
   {
     title_zh:"山老鼠盛行", title_en:"Illegal Logging (\"Mountain Rats\")",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%85%A7%E6%B9%96%E5%B1%B1%E8%80%81%E9%BC%A0%E4%BA%8B%E4%BB%B6", link_en:"",
     subtitle_zh:"長期存在，當代持續中", subtitle_en:"Ongoing, present-day (Taiwan)",
     description_zh:"台灣山區長期存在盜伐珍貴林木的非法行為，破壞山林生態。",
     description_en:"Illegal logging of valuable timber has long persisted in Taiwan's mountains, damaging forest ecosystems.",
@@ -261,6 +285,7 @@ var eventCards = [
   },
   {
     title_zh:"黑死病", title_en:"The Black Death",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E9%BB%91%E6%AD%BB%E7%97%85", link_en:"https://en.wikipedia.org/wiki/Black_Death",
     subtitle_zh:"14世紀（約1347年至1351年）", subtitle_en:"14th century (c. 1347-1351)",
     description_zh:"鼠疫在歐亞大陸大流行，造成數千萬人死亡，社會結構受到重創。",
     description_en:"The Black Death plague swept across Eurasia, killing tens of millions and devastating social structures.",
@@ -269,6 +294,7 @@ var eventCards = [
   },
   {
     title_zh:"冷戰", title_en:"The Cold War",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%86%B7%E6%88%98", link_en:"https://en.wikipedia.org/wiki/Cold_War",
     subtitle_zh:"西元1947年至1991年", subtitle_en:"1947 CE - 1991 CE",
     description_zh:"美蘇兩大陣營長期對峙，軍備競賽與代理人戰爭牽動全球局勢。",
     description_en:"The US and USSR engaged in prolonged rivalry, with an arms race and proxy wars shaping global politics.",
@@ -277,6 +303,7 @@ var eventCards = [
   },
   {
     title_zh:"蘇伊士運河堵塞", title_en:"Suez Canal Blockage",
+    link_zh:"https://zh.wikipedia.org/zh-tw/2021%E5%B9%B4%E8%98%87%E4%BC%8A%E5%A3%AB%E9%81%8B%E6%B2%B3%E9%98%BB%E5%A1%9E%E4%BA%8B%E4%BB%B6", link_en:"https://en.wikipedia.org/wiki/2021_Suez_Canal_obstruction",
     subtitle_zh:"西元2021年", subtitle_en:"2021 CE",
     description_zh:"貨櫃輪長賜號擱淺堵住蘇伊士運河，全球海運供應鏈大打結。",
     description_en:"The container ship Ever Given ran aground and blocked the Suez Canal, snarling global shipping supply chains.",
@@ -285,6 +312,7 @@ var eventCards = [
   },
   {
     title_zh:"裹小腳", title_en:"Foot Binding",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%BC%A0%E8%B6%B3", link_en:"https://en.wikipedia.org/wiki/Foot_binding",
     subtitle_zh:"約10世紀至20世紀初（中國）", subtitle_en:"c. 10th century - early 20th century (China)",
     description_zh:"中國古代盛行纏足習俗，女性自幼被迫束腳變形以符合審美標準。",
     description_en:"Foot binding was a widespread custom in imperial China, forcing girls' feet into deformity to fit beauty standards.",
@@ -293,6 +321,7 @@ var eventCards = [
   },
   {
     title_zh:"榮譽殺人", title_en:"Honor Killing",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%90%8D%E8%AD%BD%E6%AE%BA%E4%BA%BA", link_en:"https://en.wikipedia.org/wiki/Honor_killing",
     subtitle_zh:"持續至今", subtitle_en:"Ongoing, present-day",
     description_zh:"部分地區以「維護家族名譽」為由，對違反傳統規範的女性施以暴力甚至殺害。",
     description_en:"In some regions, women who defy traditional norms are subjected to violence or killed in the name of \"family honor.\"",
@@ -301,6 +330,7 @@ var eventCards = [
   },
   {
     title_zh:"大規模停電", title_en:"Large-Scale Blackouts",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%81%9C%E9%9B%BB", link_en:"https://en.wikipedia.org/wiki/Power_outage",
     subtitle_zh:"", subtitle_en:"",
     description_zh:"電網因天災、設備老舊或超載等因素癱瘓，大範圍地區同時斷電。",
     description_en:"Power grids collapse due to disasters, aging infrastructure, or overload, cutting electricity across wide areas.",
@@ -309,6 +339,7 @@ var eventCards = [
   },
   {
     title_zh:"過度包裝文化", title_en:"Overpackaging Culture",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E8%BF%87%E5%BA%A6%E5%8C%85%E8%A3%85", link_en:"https://en.wikipedia.org/wiki/Overpackaging",
     subtitle_zh:"當代", subtitle_en:"Modern",
     description_zh:"商品為求精美與促銷，層層包裝造成大量不必要的資源浪費。",
     description_en:"Products are wrapped in excessive layers of packaging for aesthetics or promotion, wasting huge amounts of resources.",
@@ -317,6 +348,7 @@ var eventCards = [
   },
   {
     title_zh:"幽靈漁網", title_en:"Ghost Fishing Nets",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%B5%B7%E6%B4%8B%E5%BB%A2%E6%A3%84%E7%89%A9", link_en:"https://en.wikipedia.org/wiki/Ghost_net",
     subtitle_zh:"當代", subtitle_en:"Modern",
     description_zh:"廢棄或遺失的漁網持續漂流海中，纏繞並困死大量海洋生物。",
     description_en:"Abandoned or lost fishing nets drift through the ocean, entangling and killing large numbers of marine animals.",
@@ -325,6 +357,7 @@ var eventCards = [
   },
   {
     title_zh:"獵巫運動", title_en:"Witch Trials",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%8D%B5%E5%B7%AB", link_en:"https://en.wikipedia.org/wiki/Witch_hunt",
     subtitle_zh:"15世紀至17世紀（歐洲）", subtitle_en:"15th century - 17th century (Europe)",
     description_zh:"歐洲曾大規模迫害「女巫」，數萬名女性遭指控並處死。",
     description_en:"Europe saw widespread persecution of accused \"witches,\" with tens of thousands of women tried and executed.",
@@ -333,6 +366,7 @@ var eventCards = [
   },
   {
     title_zh:"同性婚姻法通過", title_en:"Same-Sex Marriage Legalization",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E8%87%BA%E7%81%A3%E5%90%8C%E6%80%A7%E5%A9%9A%E5%A7%BB", link_en:"https://en.wikipedia.org/wiki/Same-sex_marriage_in_Taiwan",
     subtitle_zh:"多國陸續完成立法（首例：2001年荷蘭）", subtitle_en:"Countries legalized progressively (first: Netherlands, 2001)",
     description_zh:"多國陸續完成同性婚姻合法化，保障婚姻平權。",
     description_en:"Multiple countries legalized same-sex marriage, securing marriage equality.",
@@ -341,6 +375,7 @@ var eventCards = [
   },
   {
     title_zh:"建立自來水系統", title_en:"Modern Tap Water Systems",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%8F%B0%E7%81%A3%E8%87%AA%E4%BE%86%E6%B0%B4%E5%85%AC%E5%8F%B8", link_en:"https://en.wikipedia.org/wiki/Tap_water",
     subtitle_zh:"近代至今", subtitle_en:"Modern era - present",
     description_zh:"現代自來水系統普及，提供乾淨用水與衛生保障。",
     description_en:"Modern tap water systems spread widely, providing clean water and sanitation.",
@@ -349,6 +384,7 @@ var eventCards = [
   },
   {
     title_zh:"世界關燈日", title_en:"Earth Hour",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%9C%B0%E7%90%83%E4%B8%80%E5%B0%8F%E6%97%B6", link_en:"https://en.wikipedia.org/wiki/Earth_Hour",
     subtitle_zh:"每年3月最後一個週六（自2007年起）", subtitle_en:"Last Saturday of March annually (since 2007)",
     description_zh:"全球響應每年關燈一小時，喚起節能與氣候意識。",
     description_en:"A global annual event where people switch off lights for an hour to raise energy and climate awareness.",
@@ -357,6 +393,7 @@ var eventCards = [
   },
   {
     title_zh:"冰島同工同酬", title_en:"Iceland's Equal Pay Law",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%90%8C%E5%B7%A5%E5%90%8C%E9%85%AC", link_en:"https://en.wikipedia.org/wiki/Equal_pay_for_equal_work",
     subtitle_zh:"2018年", subtitle_en:"2018 CE",
     description_zh:"冰島立法強制企業證明同工同酬，打擊性別薪資差距。",
     description_en:"Iceland passed a law requiring companies to prove equal pay for equal work, tackling the gender pay gap.",
@@ -365,6 +402,7 @@ var eventCards = [
   },
   {
     title_zh:"全民健保制度上路", title_en:"National Health Insurance Launch",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%85%A8%E6%B0%91%E5%81%A5%E5%BA%B7%E4%BF%9D%E9%9A%AA", link_en:"https://en.wikipedia.org/wiki/Healthcare_in_Taiwan",
     subtitle_zh:"1995年（台灣）", subtitle_en:"1995 CE (Taiwan)",
     description_zh:"台灣實施全民健康保險，讓醫療照護不再是有錢人的特權。",
     description_en:"Taiwan launched National Health Insurance, making healthcare accessible regardless of income.",
@@ -373,6 +411,7 @@ var eventCards = [
   },
   {
     title_zh:"法國反食物浪費法", title_en:"France's Anti-Food-Waste Law",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E5%8F%8D%E9%A3%9F%E5%93%81%E6%B5%AA%E8%B4%B9%E6%B3%95", link_en:"https://en.wikipedia.org/wiki/Food_loss_and_waste",
     subtitle_zh:"2018年", subtitle_en:"2018 CE",
     description_zh:"法國立法禁止超市丟棄未售出食物，要求捐贈給慈善機構。",
     description_en:"France banned supermarkets from discarding unsold food, requiring donations to charities instead.",
@@ -381,6 +420,7 @@ var eventCards = [
   },
   {
     title_zh:"歐盟2035禁售燃油車", title_en:"EU 2035 Combustion Car Ban",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%BA%9F%E6%AD%A2%E7%87%83%E6%B2%B9%E8%BD%A6", link_en:"https://en.wikipedia.org/wiki/Phase-out_of_fossil_fuel_vehicles",
     subtitle_zh:"2025年通過（2035年起生效）", subtitle_en:"Passed 2025 (effective from 2035)",
     description_zh:"歐盟通過2035年起禁售新燃油車，加速交通運具電動化。",
     description_en:"The EU passed a law banning new fossil-fuel car sales from 2035, accelerating the shift to electric vehicles.",
@@ -389,6 +429,7 @@ var eventCards = [
   },
   {
     title_zh:"大阪世博", title_en:"Expo 2025 Osaka",
+    link_zh:"https://zh.wikipedia.org/zh-tw/2025%E5%B9%B4%E4%B8%96%E7%95%8C%E5%8D%9A%E8%A6%BD%E6%9C%83", link_en:"https://en.wikipedia.org/wiki/Expo_2025",
     subtitle_zh:"2025年", subtitle_en:"2025 CE",
     description_zh:"2025年大阪世博匯聚各國展現創新科技與國際合作成果。",
     description_en:"Expo 2025 Osaka brought nations together to showcase innovation and international cooperation.",
@@ -397,6 +438,7 @@ var eventCards = [
   },
   {
     title_zh:"Coldplay世界巡迴演唱會「Music of the Spheres」", title_en:"Coldplay's Music of the Spheres World Tour",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%98%9F%E9%9A%9B%E6%BC%AB%E9%81%8A", link_en:"https://en.wikipedia.org/wiki/Music_of_the_Spheres_(Coldplay_album)",
     subtitle_zh:"2022年至今", subtitle_en:"2022 CE - present",
     description_zh:"巡演大量採用可再生能源與觀眾發電地板，減少演唱會碳足跡。",
     description_en:"The tour widely used renewable energy and kinetic dance floors to cut its carbon footprint.",
@@ -405,6 +447,7 @@ var eventCards = [
   },
   {
     title_zh:"聯合國千禧年減貧計畫", title_en:"UN Millennium Development Goals",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%8D%83%E5%B9%B4%E5%8F%91%E5%B1%95%E7%9B%AE%E6%A0%87", link_en:"https://en.wikipedia.org/wiki/Millennium_Development_Goals",
     subtitle_zh:"2000年", subtitle_en:"2000 CE",
     description_zh:"聯合國訂定千禧年發展目標，全球合力推動減貧與經濟發展。",
     description_en:"The UN set the Millennium Development Goals, mobilizing global efforts to cut poverty and drive growth.",
@@ -413,6 +456,7 @@ var eventCards = [
   },
   {
     title_zh:"綠色革命", title_en:"The Green Revolution",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%BB%BF%E8%89%B2%E9%9D%A9%E5%91%BD", link_en:"https://zh.wikipedia.org/zh-tw/%E7%BB%BF%E8%89%B2%E9%9D%A9%E5%91%BD",
     subtitle_zh:"1960年代至1990年代", subtitle_en:"1960s - 1990s",
     description_zh:"農業技術與品種改良大幅提升糧食產量，緩解全球飢荒問題。",
     description_en:"Agricultural innovations and improved crop varieties dramatically boosted food production, easing global hunger.",
@@ -421,6 +465,7 @@ var eventCards = [
   },
   {
     title_zh:"紐西蘭女性投票權", title_en:"New Zealand Women's Suffrage",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%87%AF%E7%89%B9%C2%B7%E8%B0%A2%E6%B3%BC%E5%BE%B7", link_en:"https://en.wikipedia.org/wiki/Kate_Sheppard",
     subtitle_zh:"1893年", subtitle_en:"1893 CE",
     description_zh:"紐西蘭成為全球第一個賦予女性投票權的國家。",
     description_en:"New Zealand became the first country in the world to grant women the right to vote.",
@@ -429,6 +474,7 @@ var eventCards = [
   },
   {
     title_zh:"網際網路普及", title_en:"Rise of the Internet",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E4%BA%92%E8%81%94%E7%BD%91", link_en:"https://en.wikipedia.org/wiki/Internet",
     subtitle_zh:"1990年代至今", subtitle_en:"1990s - present",
     description_zh:"網路快速普及全球，但發展初期城鄉與貧富之間的落差同時浮現。",
     description_en:"The internet spread rapidly worldwide, though early access gaps between rich and poor, urban and rural, also emerged.",
@@ -437,6 +483,7 @@ var eventCards = [
   },
   {
     title_zh:"高速鐵路通車", title_en:"High Speed Rail Opens",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%8F%B0%E7%81%A3%E9%AB%98%E9%90%B5", link_en:"https://en.wikipedia.org/wiki/Taiwan_High_Speed_Rail",
     subtitle_zh:"2007年（台灣）", subtitle_en:"2007 CE (Taiwan)",
     description_zh:"台灣高鐵通車，大幅縮短南北交通時間，帶動區域發展。",
     description_en:"Taiwan High Speed Rail opened, drastically cutting north-south travel time and spurring regional development.",
@@ -445,6 +492,7 @@ var eventCards = [
   },
   {
     title_zh:"海綿城市計畫", title_en:"Sponge City Initiative",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%B5%B7%E7%BB%B5%E5%9F%8E%E5%B8%82", link_en:"https://en.wikipedia.org/wiki/Sponge_city",
     subtitle_zh:"2010年代至今", subtitle_en:"2010s - present",
     description_zh:"城市透過透水鋪面與綠地設計提升防洪韌性，因應極端降雨。",
     description_en:"Cities adopted permeable surfaces and green spaces to improve flood resilience against extreme rainfall.",
@@ -453,6 +501,7 @@ var eventCards = [
   },
   {
     title_zh:"世界地球日", title_en:"Earth Day",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E4%B8%96%E7%95%8C%E5%9C%B0%E7%90%83%E6%97%A5", link_en:"https://en.wikipedia.org/wiki/Earth_Day",
     subtitle_zh:"每年4月22日（自1970年起）", subtitle_en:"April 22 annually (since 1970)",
     description_zh:"每年4月22日全球舉辦環保活動，喚起大眾對地球生態的重視。",
     description_en:"Held every April 22nd, Earth Day mobilizes global environmental awareness campaigns.",
@@ -461,6 +510,7 @@ var eventCards = [
   },
   {
     title_zh:"禁用一次性塑膠", title_en:"Single-Use Plastic Bans",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E4%B8%8D%E5%A1%91", link_en:"https://en.wikipedia.org/wiki/Plastic_pollution",
     subtitle_zh:"多國陸續立法（歐盟自2021年起）", subtitle_en:"Adopted progressively (EU since 2021)",
     description_zh:"多國陸續立法禁用一次性塑膠製品，減少塑膠污染。",
     description_en:"Multiple countries banned single-use plastics to curb plastic pollution.",
@@ -469,6 +519,7 @@ var eventCards = [
   },
   {
     title_zh:"全球禁捕商業捕鯨", title_en:"Global Commercial Whaling Moratorium",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%8D%95%E9%AF%A8", link_en:"https://en.wikipedia.org/wiki/Whaling",
     subtitle_zh:"1986年", subtitle_en:"1986 CE",
     description_zh:"國際捕鯨委員會實施全球商業捕鯨禁令，鯨魚族群逐漸恢復。",
     description_en:"The International Whaling Commission enacted a global moratorium on commercial whaling, allowing whale populations to recover.",
@@ -477,6 +528,7 @@ var eventCards = [
   },
   {
     title_zh:"減塑淨灘活動", title_en:"Beach Cleanup Movements",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%B7%A8%E7%81%98", link_en:"https://en.wikipedia.org/wiki/Beach_cleaning",
     subtitle_zh:"當代", subtitle_en:"Modern",
     description_zh:"民間團體與政府推動海灘清潔行動，減少海洋與海岸垃圾。",
     description_en:"Community groups and governments organized beach cleanups to reduce ocean and coastal litter.",
@@ -485,6 +537,7 @@ var eventCards = [
   },
   {
     title_zh:"國家公園設立", title_en:"Establishment of National Parks",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E4%B8%AD%E8%8F%AF%E6%B0%91%E5%9C%8B%E5%9C%8B%E5%AE%B6%E5%85%AC%E5%9C%92", link_en:"https://en.wikipedia.org/wiki/History_of_the_National_Park_Service",
     subtitle_zh:"1872年首座（美國黃石）起至今", subtitle_en:"Since 1872 (Yellowstone, first in the world)",
     description_zh:"各國劃設國家公園保護原始生態與自然景觀。",
     description_en:"Countries designated national parks to protect pristine ecosystems and natural landscapes.",
@@ -493,6 +546,7 @@ var eventCards = [
   },
   {
     title_zh:"復育瀕危物種", title_en:"Endangered Species Recovery",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%8E%BB%E6%BB%85%E7%B5%95", link_en:"https://en.wikipedia.org/wiki/De-extinction",
     subtitle_zh:"當代", subtitle_en:"Modern",
     description_zh:"保育組織透過人工繁殖與棲地復育，協助瀕危物種族群回升。",
     description_en:"Conservation groups use captive breeding and habitat restoration to help endangered species recover.",
@@ -501,6 +555,7 @@ var eventCards = [
   },
   {
     title_zh:"世界人權宣言", title_en:"Universal Declaration of Human Rights",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E4%B8%96%E7%95%8C%E4%BA%BA%E6%9D%83%E5%AE%A3%E8%A8%80", link_en:"https://en.wikipedia.org/wiki/Universal_Declaration_of_Human_Rights",
     subtitle_zh:"1948年", subtitle_en:"1948 CE",
     description_zh:"聯合國通過世界人權宣言，確立人人享有基本人權的普世原則。",
     description_en:"The UN adopted the Universal Declaration of Human Rights, establishing basic rights for all people.",
@@ -509,6 +564,7 @@ var eventCards = [
   },
   {
     title_zh:"COVID-19疫苗國際合作", title_en:"COVID-19 Vaccine International Cooperation",
+    link_zh:"https://zh.wikipedia.org/zh-tw/COVAX", link_en:"https://en.wikipedia.org/wiki/COVAX",
     subtitle_zh:"2020年至2021年", subtitle_en:"2020 - 2021",
     description_zh:"COVAX等機制促成各國共享疫苗資源，加速全球接種進度。",
     description_en:"Mechanisms like COVAX enabled countries to share vaccine resources, speeding up global vaccination.",
@@ -517,6 +573,7 @@ var eventCards = [
   },
   {
     title_zh:"人類基因組計畫", title_en:"Human Genome Project",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E4%BA%BA%E7%B1%BB%E5%9F%BA%E5%9B%A0%E7%BB%84%E8%AE%A1%E5%88%92", link_en:"https://en.wikipedia.org/wiki/Human_Genome_Project",
     subtitle_zh:"1990年至2003年", subtitle_en:"1990 - 2003",
     description_zh:"國際科學家合作解碼人類基因組，開啟精準醫療新時代。",
     description_en:"International scientists collaborated to map the human genome, opening the era of precision medicine.",
@@ -525,6 +582,7 @@ var eventCards = [
   },
   {
     title_zh:"大禹治水", title_en:"Yu the Great Tames the Flood",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E9%B2%A7%E7%A6%B9%E6%B2%BB%E6%B0%B4", link_en:"https://en.wikipedia.org/wiki/Great_Flood_(China)",
     subtitle_zh:"約西元前2000年（傳說時代）", subtitle_en:"c. 2000 BCE (legendary era)",
     description_zh:"相傳大禹以疏導取代圍堵治理黃河水患，奠定治水工程典範。",
     description_en:"Legend has it Yu the Great tamed the Yellow River floods by channeling rather than blocking water, setting an engineering precedent.",
@@ -533,6 +591,7 @@ var eventCards = [
   },
   {
     title_zh:"商鞅變法", title_en:"Shang Yang's Reforms",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%95%86%E9%9E%85%E5%8F%98%E6%B3%95", link_en:"https://en.wikipedia.org/wiki/Shang_Yang",
     subtitle_zh:"西元前356年至前338年", subtitle_en:"356 - 338 BCE",
     description_zh:"商鞅在秦國推行法制與土地改革，強化國力與治理效能。",
     description_en:"Shang Yang implemented legal and land reforms in Qin, strengthening state power and governance.",
@@ -541,6 +600,7 @@ var eventCards = [
   },
   {
     title_zh:"科舉制度建立", title_en:"Imperial Examination System",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%A7%91%E4%B8%BE", link_en:"https://en.wikipedia.org/wiki/Imperial_examination",
     subtitle_zh:"西元605年", subtitle_en:"605 CE",
     description_zh:"隋朝建立科舉制度，讓平民也能透過考試晉身官場。",
     description_en:"The Sui dynasty established the imperial examination system, letting commoners rise through merit.",
@@ -549,6 +609,7 @@ var eventCards = [
   },
   {
     title_zh:"雅典民主制度", title_en:"Athenian Democracy",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E9%9B%85%E5%85%B8%E5%BC%8F%E6%B0%91%E4%B8%BB", link_en:"https://en.wikipedia.org/wiki/Athenian_democracy",
     subtitle_zh:"西元前508年", subtitle_en:"508 BCE",
     description_zh:"古雅典建立公民直接參與政治的民主制度，影響後世政治體系。",
     description_en:"Ancient Athens established direct citizen participation in politics, influencing political systems ever since.",
@@ -557,6 +618,7 @@ var eventCards = [
   },
   {
     title_zh:"文藝復興", title_en:"The Renaissance",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%96%87%E8%89%BA%E5%A4%8D%E5%85%B4", link_en:"https://en.wikipedia.org/wiki/Renaissance",
     subtitle_zh:"14世紀至17世紀", subtitle_en:"14th - 17th century",
     description_zh:"歐洲文藝復興帶動藝術、科學與人文思想的全面復興。",
     description_en:"The European Renaissance sparked a revival in art, science, and humanist thought.",
@@ -565,6 +627,7 @@ var eventCards = [
   },
   {
     title_zh:"古騰堡活字印刷", title_en:"Gutenberg's Printing Press",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%B4%BB%E5%AD%97%E5%8D%B0%E5%88%B7%E6%9C%AF", link_en:"https://en.wikipedia.org/wiki/Movable_type",
     subtitle_zh:"約1440年代", subtitle_en:"c. 1440s",
     description_zh:"古騰堡發明活字印刷術，讓書籍大量生產，知識傳播加速。",
     description_en:"Gutenberg's movable type printing press enabled mass book production, accelerating the spread of knowledge.",
@@ -573,6 +636,7 @@ var eventCards = [
   },
   {
     title_zh:"蒸汽機發明", title_en:"Invention of the Steam Engine",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E8%92%B8%E6%B1%BD%E6%9C%BA", link_en:"https://en.wikipedia.org/wiki/Steam_engine",
     subtitle_zh:"約1712年至1769年", subtitle_en:"c. 1712 - 1769",
     description_zh:"蒸汽機的發明帶來動力革命，推動工業與交通運輸大幅進展。",
     description_en:"The invention of the steam engine sparked a power revolution, driving major advances in industry and transport.",
@@ -581,6 +645,7 @@ var eventCards = [
   },
   {
     title_zh:"工業革命", title_en:"The Industrial Revolution",
+    link_zh:"https://gan.wikipedia.org/wiki/%E5%B7%A5%E6%A5%AD%E9%9D%A9%E5%91%BD", link_en:"https://en.wikipedia.org/wiki/Industrial_Revolution",
     subtitle_zh:"18世紀中至19世紀", subtitle_en:"Mid-18th - 19th century",
     description_zh:"工業革命帶動生產力大躍進，但初期高污染、高工時也付出環境與勞動代價。",
     description_en:"The Industrial Revolution drove massive productivity gains, but early factories brought heavy pollution and grueling labor conditions.",
@@ -589,6 +654,7 @@ var eventCards = [
   },
   {
     title_zh:"哥倫布發現新大陸", title_en:"Columbus Reaches the Americas",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%85%8B%E9%87%8C%E6%96%AF%E6%89%98%E5%BC%97%C2%B7%E5%93%A5%E4%BC%A6%E5%B8%83", link_en:"https://en.wikipedia.org/wiki/Christopher_Columbus",
     subtitle_zh:"1492年", subtitle_en:"1492 CE",
     description_zh:"哥倫布抵達美洲開啟東西半球交流，但也帶來殖民剝削與原住民浩劫。",
     description_en:"Columbus's arrival in the Americas opened contact between hemispheres, but also brought colonial exploitation and devastation to Indigenous peoples.",
@@ -597,6 +663,7 @@ var eventCards = [
   },
   {
     title_zh:"社會住宅政策", title_en:"Social Housing Policy",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%85%AC%E5%85%B1%E4%BD%8F%E6%88%BF", link_en:"https://en.wikipedia.org/wiki/Public_housing",
     subtitle_zh:"當代", subtitle_en:"Modern",
     description_zh:"政府興建社會住宅，提供中低收入戶可負擔的居住選擇。",
     description_en:"Governments build social housing to provide affordable options for low- and middle-income households.",
@@ -605,6 +672,7 @@ var eventCards = [
   },
   {
     title_zh:"巴西「家庭補助金」（Bolsa Família）", title_en:"Brazil's Bolsa Família Program",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E9%98%BF%E5%9F%83%E8%A5%BF%E5%A5%A7%C2%B7%E5%85%A7%E7%B6%AD%E6%96%AF", link_en:"https://en.wikipedia.org/wiki/Bolsa_Fam%C3%ADlia",
     subtitle_zh:"2003年", subtitle_en:"2003 CE",
     description_zh:"巴西政府提供條件式現金補助，要求受助家庭送孩子上學並施打疫苗。",
     description_en:"Brazil's conditional cash transfer program requires recipient families to keep kids in school and vaccinated.",
@@ -613,6 +681,7 @@ var eventCards = [
   },
   {
     title_zh:"國際稻米研究所（IRRI）成立", title_en:"Founding of IRRI",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%9C%8B%E9%9A%9B%E7%A8%BB%E7%B1%B3%E7%A0%94%E7%A9%B6%E6%89%80", link_en:"https://en.wikipedia.org/wiki/International_Rice_Research_Institute",
     subtitle_zh:"1960年", subtitle_en:"1960 CE",
     description_zh:"IRRI致力研發高產稻米品種，協助亞洲多國提升糧食產量。",
     description_en:"IRRI develops high-yield rice varieties, helping Asian countries boost food production.",
@@ -621,6 +690,7 @@ var eventCards = [
   },
   {
     title_zh:"維基百科誕生", title_en:"Wikipedia Launches",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%BB%B4%E5%9F%BA%E7%99%BE%E7%A7%91%E5%8E%86%E5%8F%B2", link_en:"https://en.wikipedia.org/wiki/History_of_Wikipedia",
     subtitle_zh:"2001年", subtitle_en:"2001 CE",
     description_zh:"維基百科以協作方式建立免費線上百科全書，開放全球共同編輯。",
     description_en:"Wikipedia launched as a free, collaboratively edited online encyclopedia open to contributors worldwide.",
@@ -629,6 +699,7 @@ var eventCards = [
   },
   {
     title_zh:"冰島選出全球首位民選女性總統", title_en:"Iceland Elects First Female Elected President",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%BB%B4%E6%A0%BC%E8%BF%AA%E4%B8%9D%C2%B7%E8%8A%AC%E5%8D%9A%E9%98%BF%E5%A4%9A%E8%92%82%E5%B0%94", link_en:"https://en.wikipedia.org/wiki/Vigd%C3%ADs_Finnbogad%C3%B3ttir",
     subtitle_zh:"1980年", subtitle_en:"1980 CE",
     description_zh:"冰島選出Vigdís Finnbogadóttir為全球首位經直接民選產生的女性總統。",
     description_en:"Iceland elected Vigdís Finnbogadóttir as the world's first directly elected female president.",
@@ -637,6 +708,7 @@ var eventCards = [
   },
   {
     title_zh:"倫敦下水道系統建立", title_en:"London Sewer System",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E4%BE%9B%E6%B0%B4%E4%B8%8E%E6%B1%A1%E6%B0%B4%E5%A4%84%E7%90%86%E5%8F%91%E5%B1%95%E5%8F%B2", link_en:"https://en.wikipedia.org/wiki/History_of_water_supply_and_sanitation",
     subtitle_zh:"1859年至1875年", subtitle_en:"1859 - 1875",
     description_zh:"倫敦興建現代下水道系統，解決霍亂與污水氾濫問題。",
     description_en:"London built a modern sewer system, solving cholera outbreaks and sewage overflow.",
@@ -645,6 +717,7 @@ var eventCards = [
   },
   {
     title_zh:"海水淡化技術普及", title_en:"Desalination Technology Spreads",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%B5%B7%E6%B0%B4%E6%B7%A1%E5%8C%96", link_en:"https://en.wikipedia.org/wiki/Desalination",
     subtitle_zh:"當代", subtitle_en:"Modern",
     description_zh:"海水淡化技術日益成熟，協助缺水地區取得穩定淡水來源。",
     description_en:"Desalination technology matured, helping water-scarce regions secure a stable freshwater supply.",
@@ -653,6 +726,7 @@ var eventCards = [
   },
   {
     title_zh:"LED照明普及", title_en:"LED Lighting Adoption",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%99%BC%E5%85%89%E4%BA%8C%E6%A5%B5%E7%AE%A1", link_en:"https://en.wikipedia.org/wiki/Light-emitting_diode",
     subtitle_zh:"2000年代至今", subtitle_en:"2000s - present",
     description_zh:"LED燈泡逐漸取代傳統燈泡，大幅降低照明耗電量。",
     description_en:"LED bulbs gradually replaced traditional lighting, cutting electricity use significantly.",
@@ -661,6 +735,7 @@ var eventCards = [
   },
   {
     title_zh:"珊瑚礁復育計畫", title_en:"Coral Reef Restoration Projects",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%8F%8A%E7%91%9A%E7%A4%81", link_en:"https://en.wikipedia.org/wiki/Coral_reef",
     subtitle_zh:"當代", subtitle_en:"Modern",
     description_zh:"科學家透過人工復育與移植技術，協助受損珊瑚礁重新生長。",
     description_en:"Scientists use coral farming and transplantation to help damaged reefs regrow.",
@@ -669,6 +744,7 @@ var eventCards = [
   },
   {
     title_zh:"禁用魚翅政策", title_en:"Shark Fin Bans",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E9%B2%A8%E9%B1%BC%E4%BF%9D%E6%8A%A4%E6%B3%95", link_en:"https://en.wikipedia.org/wiki/Shark_Conservation_Act",
     subtitle_zh:"多國陸續立法", subtitle_en:"Adopted progressively worldwide",
     description_zh:"多國與航空公司禁止魚翅交易與運輸，抑制過度捕撈鯊魚。",
     description_en:"Countries and airlines banned shark fin trade and transport, curbing shark overfishing.",
@@ -677,6 +753,7 @@ var eventCards = [
   },
   {
     title_zh:"海龜保育計畫", title_en:"Sea Turtle Conservation Programs",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%B6%A0%E8%A0%B5%E9%BE%9C", link_en:"https://en.wikipedia.org/wiki/Green_sea_turtle",
     subtitle_zh:"當代", subtitle_en:"Modern",
     description_zh:"保育團體透過巡護海灘、保護產卵地協助海龜族群復育。",
     description_en:"Conservation groups patrol beaches and protect nesting sites to help sea turtle populations recover.",
@@ -685,6 +762,7 @@ var eventCards = [
   },
   {
     title_zh:"天然林禁伐政策", title_en:"Primary Forest Logging Bans",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%A3%AE%E6%9E%97%E7%A0%8D%E4%BC%90", link_en:"https://en.wikipedia.org/wiki/Deforestation",
     subtitle_zh:"多國陸續立法", subtitle_en:"Adopted progressively worldwide",
     description_zh:"多國立法禁止砍伐原始天然林，保護森林碳匯與生物多樣性。",
     description_en:"Countries banned logging of primary natural forests, protecting carbon sinks and biodiversity.",
@@ -693,6 +771,7 @@ var eventCards = [
   },
   {
     title_zh:"最低工資制度", title_en:"Minimum Wage Laws",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%9C%80%E4%BD%8E%E5%B7%A5%E8%B3%87_(%E8%87%BA%E7%81%A3)", link_en:"https://en.wikipedia.org/wiki/Minimum_wage",
     subtitle_zh:"各國陸續實施", subtitle_en:"Adopted progressively worldwide",
     description_zh:"政府訂立最低工資標準，保障勞工基本收入水準。",
     description_en:"Governments set minimum wage standards to guarantee workers a baseline income.",
@@ -701,6 +780,7 @@ var eventCards = [
   },
   {
     title_zh:"滴灌技術發明", title_en:"Invention of Drip Irrigation",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E6%BB%B4%E7%81%8C", link_en:"https://en.wikipedia.org/wiki/Drip_irrigation",
     subtitle_zh:"1960年代（以色列）", subtitle_en:"1960s (Israel)",
     description_zh:"滴灌技術精準供水給作物根部，大幅提升灌溉用水效率。",
     description_en:"Drip irrigation delivers water precisely to crop roots, dramatically improving irrigation efficiency.",
@@ -709,6 +789,7 @@ var eventCards = [
   },
   {
     title_zh:"糧食銀行成立", title_en:"Founding of Food Banks",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%8F%B0%E7%81%A3%E5%85%A8%E6%B0%91%E9%A3%9F%E7%89%A9%E9%8A%80%E8%A1%8C", link_en:"https://en.wikipedia.org/wiki/Food_bank",
     subtitle_zh:"1967年首創（美國）", subtitle_en:"First founded 1967 (United States)",
     description_zh:"糧食銀行媒合多餘食物與有需要的家庭，減少浪費並協助弱勢。",
     description_en:"Food banks connect surplus food with families in need, reducing waste while supporting the vulnerable.",
@@ -717,6 +798,7 @@ var eventCards = [
   },
   {
     title_zh:"國際婦女節（3/8）", title_en:"International Women's Day",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E5%9B%BD%E9%99%85%E5%A6%87%E5%A5%B3%E8%8A%82", link_en:"https://en.wikipedia.org/wiki/International_Women%27s_Day",
     subtitle_zh:"每年3月8日", subtitle_en:"March 8 annually",
     description_zh:"每年3月8日全球紀念並倡議女性權益與性別平等。",
     description_en:"Celebrated every March 8th worldwide to advocate for women's rights and gender equality.",
@@ -725,6 +807,7 @@ var eventCards = [
   },
   {
     title_zh:"禁止童婚法", title_en:"Child Marriage Bans",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E7%AB%A5%E5%A9%9A", link_en:"https://en.wikipedia.org/wiki/Child_marriage",
     subtitle_zh:"多國陸續立法", subtitle_en:"Adopted progressively worldwide",
     description_zh:"多國立法禁止未成年結婚，保護兒童權益與身心發展。",
     description_en:"Countries passed laws banning child marriage to protect children's rights and development.",
@@ -733,6 +816,7 @@ var eventCards = [
   },
   {
     title_zh:"Girls Who Code成立", title_en:"Founding of Girls Who Code",
+    link_zh:"https://en.wikipedia.org/wiki/Girls_Who_Code", link_en:"https://en.wikipedia.org/wiki/Girls_Who_Code",
     subtitle_zh:"2012年", subtitle_en:"2012 CE",
     description_zh:"非營利組織Girls Who Code致力縮小科技領域性別落差，鼓勵女孩學習程式。",
     description_en:"The nonprofit Girls Who Code works to close the tech gender gap by encouraging girls to learn programming.",
@@ -741,6 +825,7 @@ var eventCards = [
   },
   {
     title_zh:"雨水回收系統", title_en:"Rainwater Harvesting Systems",
+    link_zh:"https://zh.wikipedia.org/zh-tw/%E9%9B%A8%E6%B0%B4%E6%92%B2%E6%BB%BF", link_en:"https://en.wikipedia.org/wiki/Rainwater_harvesting",
     subtitle_zh:"當代", subtitle_en:"Modern",
     description_zh:"建築物設置雨水回收系統，收集雨水再利用於澆灌與沖廁。",
     description_en:"Buildings install rainwater harvesting systems to collect and reuse water for irrigation and flushing.",
@@ -1001,7 +1086,22 @@ function renderAnnouncement(playerName, card, options) {
     var whoEl = document.getElementById("announcePlayer");
     whoEl.textContent = options.reveal ? t("revealHeading") : playerName + " " + t("played");
     whoEl.className = "card-announce-player" + (options.reveal ? " reveal" : "");
-    document.getElementById("announceCardName").textContent = cardTitle(card);
+    var nameEl = document.getElementById("announceCardName");
+    var wikiUrl = cardLink(card);
+    nameEl.innerHTML = "";
+    if (wikiUrl) {
+      // Built as a node with textContent so a card title can never inject markup.
+      var wikiLink = document.createElement("a");
+      wikiLink.className = "card-announce-link";
+      wikiLink.href = wikiUrl;
+      wikiLink.target = "_blank";
+      wikiLink.rel = "noopener noreferrer";
+      wikiLink.title = t("readMore");
+      wikiLink.textContent = cardTitle(card);
+      nameEl.appendChild(wikiLink);
+    } else {
+      nameEl.textContent = cardTitle(card);
+    }
     document.getElementById("announceSub").textContent = options.reveal
       ? t("revealNote")
       : (cardSub(card) || (card.kind === "event" ? t("historyEvent") : t("specialCard")));
@@ -1383,6 +1483,7 @@ function hostPublishStep(playerName, card, options) {
     affected: options.affectedSDGs || [],
     card: {
       title_zh: card.title_zh, title_en: card.title_en,
+      link_zh: card.link_zh || "", link_en: card.link_en || "",
       subtitle_zh: card.subtitle_zh || "", subtitle_en: card.subtitle_en || "",
       description_zh: card.description_zh || "", description_en: card.description_en || "",
       forward: card.forward || [], backward: card.backward || [],
@@ -1843,6 +1944,7 @@ function startGame() {
   eventCards.forEach(function(c) {
     state.deck.push({
       title_zh: c.title_zh, title_en: c.title_en,
+      link_zh: c.link_zh || "", link_en: c.link_en || "",
       subtitle_zh: c.subtitle_zh, subtitle_en: c.subtitle_en,
       description_zh: c.description_zh, description_en: c.description_en,
       forward: (c.forward || []).slice(), backward: (c.backward || []).slice(),
