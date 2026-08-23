@@ -1,11 +1,239 @@
 {% extends "layout.html" %}
-  
+
 {% block title %}Engineering{% endblock %}
 {% block lead %}Demonstrate engineering success{% endblock %}
 
 {% block page_content %}
 
+{#
+  銀牌標準 (Silver #1) — Engineering Success.
+
+  這一頁是照 Design - Build - Test - Learn 四階段排的，四塊拼圖點下去展開該階段。
+
+  === 給團隊的重要說明，發布前請讀 ===
+
+  1. 目前只有 DESIGN 是有內容的，因為你們給我的資料是「計畫」，不是已完成的
+     實驗。BUILD / TEST 我照你們寫的方法寫成「預計進行」，並且明確標示成計畫；
+     LEARN 是空的。我沒有替你們捏造任何實驗結果、數據或結論。
+
+  2. 手冊 (Silver #1) 要求「至少完成一次 DBTL 循環」並記錄結果。等實驗做完，
+     把 BUILD 的實際過程、TEST 的數據、LEARN 學到什麼填進對應區塊，並把
+     data-stage-status="planned" 拿掉。
+
+  3. 背景數字（48 小時、24-72 小時等）是你們提供的。手冊 p.94 要求每一個引用
+     都要能連到真實文獻，請補上出處。我沒有自行加任何引用。
+
+  4. 英文是我照你們的中文原稿翻譯的，沒有增加任何主張，請校對。
+
+  5. 計畫背景、動機、時程、經費那幾段比較適合放 Project Description 頁，
+     不屬於 Engineering。這裡只保留跟工程循環直接相關的部分。
+#}
+
+<div class="container my-4">
+
+  <section class="dbtl-intro">
+    <h2>Engineering Success</h2>
+    <p>
+      We are building a cell-free biosensor that detects the bacteria behind
+      ventilator-associated pneumonia (VAP). Our work follows the engineering
+      design cycle; select a piece to read that stage.
+    </p>
+  </section>
+
+  <!-- ============================ the puzzle ============================ -->
+  <div class="dbtl" id="dbtl">
+
+    <div class="dbtl-puzzle" id="dbtlPuzzle">
+      <svg viewBox="-12 -12 224 224" class="dbtl-svg" role="group"
+           aria-label="Design, Build, Test, Learn — choose a stage">
+        <g class="dbtl-piece" data-stage="design" role="button" tabindex="0"
+           aria-label="Design">
+          <path d="M0,0 H100 v38 c10,0 10,24 0,24 v38 h-38 c0,10 -24,10 -24,0 h-38 V0 Z"/>
+          <text x="46" y="46">Design</text>
+        </g>
+        <g class="dbtl-piece" data-stage="build" role="button" tabindex="0"
+           aria-label="Build">
+          <path d="M100,0 H200 V100 h-38 c0,10 -24,10 -24,0 h-38 v-38 c10,0 10,-24 0,-24 v-38 Z"/>
+          <text x="154" y="46">Build</text>
+        </g>
+        <g class="dbtl-piece" data-stage="test" role="button" tabindex="0"
+           aria-label="Test">
+          <path d="M0,100 h38 c0,10 24,10 24,0 h38 v38 c10,0 10,24 0,24 v38 H0 V100 Z"/>
+          <text x="46" y="154">Test</text>
+        </g>
+        <g class="dbtl-piece" data-stage="learn" role="button" tabindex="0"
+           aria-label="Learn">
+          <path d="M100,100 h38 c0,10 24,10 24,0 h38 V200 H100 v-38 c10,0 10,-24 0,-24 v-38 Z"/>
+          <text x="154" y="154">Learn</text>
+        </g>
+      </svg>
+      <p class="dbtl-hint">Select a piece to open that stage.</p>
+    </div>
+
+    <!-- ============================ the panels ============================ -->
+    <div class="dbtl-panels" id="dbtlPanels" hidden>
+
+      <div class="dbtl-bar">
+        <button type="button" class="dbtl-back" id="dbtlBack">&larr; Back to the cycle</button>
+        <div class="dbtl-switch" role="tablist" aria-label="Engineering stages">
+          <button type="button" data-goto="design" role="tab">Design</button>
+          <button type="button" data-goto="build"  role="tab">Build</button>
+          <button type="button" data-goto="test"   role="tab">Test</button>
+          <button type="button" data-goto="learn"  role="tab">Learn</button>
+        </div>
+      </div>
+
+      <!-- ---------------------------- DESIGN ---------------------------- -->
+      <article class="dbtl-panel" data-stage="design" tabindex="-1" hidden>
+        <header class="dbtl-panel-head">
+          <span class="dbtl-step">Stage 1</span>
+          <h3>Design</h3>
+        </header>
+
+        <h4>The problem we are designing for</h4>
+        <p>
+          Ventilator-associated pneumonia (VAP) is one of the common
+          hospital-acquired infections in intensive care units, and usually
+          appears in patients who have been on a ventilator for more than 48
+          hours. It raises mortality, lengthens hospital stays, and places a
+          burden on medical resources.
+        </p>
+        <p>
+          Diagnosis currently relies on sputum culture and imaging, which leaves
+          three gaps we set out to close:
+        </p>
+        <ul>
+          <li>Culture is slow, taking roughly 24&ndash;72 hours.</li>
+          <li>It cannot reflect the state of the infection in real time.</li>
+          <li>Antibiotic treatment can produce false negatives.</li>
+        </ul>
+
+        <h4>Why we chose a cell-free system</h4>
+        <p>
+          A cell-free system takes the transcription and translation machinery
+          out of the cell &mdash; ribosomes, enzymes and the rest &mdash; and
+          expresses protein <em>in vitro</em>. Compared with a living-cell
+          system, that gives us four properties we need for a bedside test:
+        </p>
+        <ul>
+          <li>The reaction is fast, giving a result within hours.</li>
+          <li>Nothing has to be kept alive, so handling is simpler.</li>
+          <li>It can be made into a test strip or a portable point-of-care device.</li>
+          <li>It is safer: no live engineered bacteria are released.</li>
+        </ul>
+
+        <h4>What we are detecting</h4>
+        <p>We selected two bacteria commonly associated with VAP:</p>
+        <ul>
+          <li><em>Pseudomonas aeruginosa</em></li>
+          <li><em>Staphylococcus aureus</em></li>
+        </ul>
+        <p>and three candidate classes of signal to detect them by:</p>
+        <ul>
+          <li>quorum sensing molecules</li>
+          <li>specific RNA sequences</li>
+          <li>bacterial secreted metabolites</li>
+        </ul>
+
+        <h4>The gene circuit</h4>
+        <p>
+          The circuit is designed to run inside the cell-free system in three
+          parts:
+        </p>
+        <ol class="dbtl-circuit">
+          <li><strong>Input</strong> &mdash; a bacterial signal molecule</li>
+          <li><strong>Sensor module</strong> &mdash; the sensing element, a
+            transcription factor or a riboswitch</li>
+          <li><strong>Output</strong> &mdash; a reporter protein: GFP, or a
+            colorimetric enzyme</li>
+        </ol>
+
+        <h4>What we need this design to achieve</h4>
+        <ul>
+          <li>A cell-free biosensor that recognises signals from VAP bacteria.</li>
+          <li>A gene circuit with high specificity.</li>
+          <li>A visible output &mdash; a colour change or a fluorescent signal.</li>
+          <li>Sensitivity and response time we can measure.</li>
+          <li>A prototype with a route to clinical use.</li>
+        </ul>
+      </article>
+
+      <!-- ---------------------------- BUILD ----------------------------- -->
+      <article class="dbtl-panel" data-stage="build" data-stage-status="planned"
+               tabindex="-1" hidden>
+        <header class="dbtl-panel-head">
+          <span class="dbtl-step">Stage 2</span>
+          <h3>Build</h3>
+          <span class="dbtl-flag">Planned &mdash; not yet carried out</span>
+        </header>
+
+        <h4>How we will build it</h4>
+        <ol>
+          <li>Prepare the transcription&ndash;translation system from
+            <em>E.&nbsp;coli</em> lysate.</li>
+          <li>Add the DNA template carrying the circuit we designed.</li>
+          <li>Run the reaction against a range of signal-molecule concentrations.</li>
+        </ol>
+
+        <p class="dbtl-todo">
+          Our build record goes here: what we assembled, which constructs
+          worked, which did not, and what we had to change along the way.
+        </p>
+      </article>
+
+      <!-- ----------------------------- TEST ----------------------------- -->
+      <article class="dbtl-panel" data-stage="test" data-stage-status="planned"
+               tabindex="-1" hidden>
+        <header class="dbtl-panel-head">
+          <span class="dbtl-step">Stage 3</span>
+          <h3>Test</h3>
+          <span class="dbtl-flag">Planned &mdash; not yet carried out</span>
+        </header>
+
+        <h4>How we will read the result</h4>
+        <ul>
+          <li>A fluorescent signal, for testing in the lab.</li>
+          <li>A colour change, for use outside it.</li>
+          <li>Developed onto a paper-based diagnostic platform.</li>
+        </ul>
+
+        <h4>What we will measure</h4>
+        <ul>
+          <li><strong>Sensitivity</strong> &mdash; the detection limit.</li>
+          <li><strong>Response time</strong>.</li>
+          <li><strong>Specificity</strong> &mdash; whether other bacteria
+            interfere with the reading.</li>
+        </ul>
+
+        <p class="dbtl-todo">
+          Our measurements go here, with the controls we ran and the conditions
+          they were taken under.
+        </p>
+      </article>
+
+      <!-- ---------------------------- LEARN ----------------------------- -->
+      <article class="dbtl-panel" data-stage="learn" data-stage-status="planned"
+               tabindex="-1" hidden>
+        <header class="dbtl-panel-head">
+          <span class="dbtl-step">Stage 4</span>
+          <h3>Learn</h3>
+          <span class="dbtl-flag">Awaiting the first iteration</span>
+        </header>
+
+        <p class="dbtl-todo">
+          What the results told us, what we got wrong, and what we would change
+          in the next design goes here &mdash; once we have been round the cycle
+          at least once.
+        </p>
+      </article>
+
+    </div>
+  </div>
+
+</div>
 
 {% endblock %}
 
-//銀牌標準
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename = 'engineering-dbtl.js') }}"></script>
+{% endblock %}
