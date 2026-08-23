@@ -884,6 +884,240 @@ footer a:hover { color: white; text-decoration: underline; }
   opacity: 0.75;
 }
 
+/* Engineering: the Design-Build-Test-Learn jigsaw -----------------------------
+   Four interlocking pieces; choosing one opens that stage as a wide panel in
+   the same colour at 75% opacity. The four colours are the pale ones already
+   used on the team scrapbook, so body text stays dark and readable once the
+   panel is faded to 75%. */
+.dbtl-intro { max-width: 46rem; margin: 0 auto 2rem; text-align: center; }
+.dbtl-intro h2 { font-family: "Changa", sans-serif; color: #075a3e; }
+.dbtl-intro p { color: #5c6b62; line-height: 1.7; }
+
+.dbtl { max-width: 60rem; margin: 0 auto; }
+
+.dbtl-puzzle { text-align: center; }
+
+.dbtl-svg {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  overflow: visible;
+}
+
+.dbtl-piece { cursor: pointer; }
+
+.dbtl-piece path {
+  stroke: #075a3e;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  transition: fill 0.2s ease, transform 0.2s ease;
+  transform-origin: center;
+}
+
+.dbtl-piece text {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  fill: #1f2d26;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.dbtl-piece[data-stage="design"] path { fill: #e6ff9b; }
+.dbtl-piece[data-stage="build"]  path { fill: #a2efaa; }
+.dbtl-piece[data-stage="test"]   path { fill: #b4fadf; }
+.dbtl-piece[data-stage="learn"]  path { fill: #fff3d0; }
+
+.dbtl-piece:hover path { filter: brightness(0.94); }
+
+/* <g> takes focus here, so it needs a focus ring of its own. */
+.dbtl-piece:focus { outline: none; }
+.dbtl-piece:focus-visible path {
+  stroke: #d8b26a;
+  stroke-width: 5;
+}
+
+.dbtl-hint {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #8a9a90;
+}
+
+/* ---- the opened stage ---- */
+.dbtl-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.dbtl-back {
+  border: 2px solid #075a3e;
+  background: #fffdf7;
+  color: #075a3e;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dbtl-back:hover,
+.dbtl-back:focus-visible { background: #075a3e; color: #fffdf7; }
+
+.dbtl-switch { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.dbtl-switch button {
+  border: 1px solid #cfdcd5;
+  background: #fffdf7;
+  color: #4a3f35;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.dbtl-switch button:hover { border-color: #075a3e; }
+
+.dbtl-switch button.is-current {
+  background: #075a3e;
+  border-color: #075a3e;
+  color: #fffdf7;
+  font-weight: 700;
+}
+
+.dbtl-back:focus-visible,
+.dbtl-switch button:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+.dbtl-panel {
+  border-radius: 14px;
+  padding: 1.75rem 2rem 2rem;
+  border: 2px solid rgba(7, 90, 62, 0.35);
+  outline: none;
+}
+
+/* 75% opacity of each stage colour, so the panel reads as the piece stretched
+   out while the text on it stays legible. */
+.dbtl-panel[data-stage="design"] { background: rgba(230, 255, 155, 0.75); }
+.dbtl-panel[data-stage="build"]  { background: rgba(162, 239, 170, 0.75); }
+.dbtl-panel[data-stage="test"]   { background: rgba(180, 250, 223, 0.75); }
+.dbtl-panel[data-stage="learn"]  { background: rgba(255, 243, 208, 0.75); }
+
+.dbtl-panel:focus-visible { box-shadow: 0 0 0 3px #d8b26a; }
+
+.dbtl-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(7, 90, 62, 0.25);
+}
+
+.dbtl-step {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4d6b5c;
+}
+
+.dbtl-panel-head h3 {
+  font-family: "Changa", sans-serif;
+  font-size: 1.9rem;
+  color: #075a3e;
+  margin: 0;
+}
+
+/* Says plainly that a stage has not happened yet, so a reader is never left to
+   assume a plan is a result. */
+.dbtl-flag {
+  margin-left: auto;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #6b4a1f;
+  background: #ffe9b8;
+  border: 1px solid #d8b26a;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+}
+
+.dbtl-panel h4 {
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  color: #1f4a38;
+  margin-top: 1.5rem;
+}
+
+.dbtl-panel p,
+.dbtl-panel li { color: #24352c; line-height: 1.7; }
+.dbtl-panel li { margin-bottom: 0.35rem; }
+
+.dbtl-circuit {
+  list-style: none;
+  counter-reset: circuit;
+  padding-left: 0;
+}
+
+.dbtl-circuit li {
+  counter-increment: circuit;
+  position: relative;
+  padding-left: 2.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.dbtl-circuit li::before {
+  content: counter(circuit);
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #075a3e;
+  color: #fffdf7;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.dbtl-todo {
+  margin-top: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 4px solid #d8b26a;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #5a4a2e;
+}
+
+@media (max-width: 575.98px) {
+  .dbtl-panel { padding: 1.25rem 1.15rem 1.5rem; }
+  .dbtl-panel-head h3 { font-size: 1.5rem; }
+  .dbtl-flag { margin-left: 0; }
+  .dbtl-bar { justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dbtl-piece path { transition: fill 0.15s ease; }
+}
+
 /* Attributions: the AI disclosure the Judge Handbook asks for (2026, p.95).
    Set apart from the rest of the page so it reads as a deliberate statement
    rather than a footnote. */
