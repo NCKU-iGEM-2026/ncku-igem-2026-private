@@ -50,7 +50,8 @@ var translations = {
     waitingChoice: "等待這位玩家做出選擇：",
     ackedYou: "你已確認", ackProgress: "已確認",
     notYourTurn: "現在不是你的回合", waitingTurn: "等待其他玩家行動…",
-    winSuffix: " 達成兩項 SDG 目標，獲得勝利！", winLog: "獲勝！"
+    winSuffix: " 達成兩項 SDG 目標，獲得勝利！", winLog: "獲勝！", winLogMulti: "並列獲勝！",
+    winSuffixMulti: " 同時達成兩項 SDG 目標，並列獲勝！", winJoin: "、", winJoinLast: "、"
   },
   en: {
     title: "The Green Cabinet", chooseMode: "Choose Game Mode",
@@ -98,7 +99,9 @@ var translations = {
     waitingChoice: "Waiting for this player to choose:",
     ackedYou: "You are ready", ackProgress: "Ready",
     notYourTurn: "It is not your turn", waitingTurn: "Waiting for the other players…",
-    winSuffix: " completes both SDG goals!", winLog: "WINS!"
+    winSuffix: " completes both SDG goals!", winLog: "WINS!", winLogMulti: "WIN!",
+    winSuffixMulti: " complete both SDG goals at the same time — they all win!",
+    winJoin: ", ", winJoinLast: " and "
   }
 };
 
@@ -1663,12 +1666,14 @@ var TUTORIAL_STEPS = [
     zh: { title: "遊戲目標", body: [
       "每位玩家開始時取得：1 個個人軌道板、2 張 SDG 目標牌、5 張功能牌。",
       "你的 2 張 SDG 目標牌會公開放置，所有人都看得到你在追求什麼。",
-      "第一位讓自己 2 張 SDG 目標牌全部抵達 GOAL 的玩家獲勝。"
+      "第一位讓自己 2 張 SDG 目標牌全部抵達 GOAL 的玩家獲勝。",
+      "如果同一張牌打出後，有兩位玩家同時達成雙目標，兩人皆為獲勝者；三位以上亦同。"
     ]},
     en: { title: "How You Win", body: [
       "Every player starts with 1 personal track board, 2 SDG goal cards, and 5 action cards.",
       "Your 2 goal cards sit face up, so everyone can see what you are working toward.",
-      "The first player to bring both of their SDG goals all the way to GOAL wins."
+      "The first player to bring both of their SDG goals all the way to GOAL wins.",
+      "If a single card completes both goals for two players at once, they both win — and the same holds for three or more."
     ]}
   },
   {
@@ -2730,21 +2735,34 @@ function pickAnySDG(title, cb, onNoTarget) {
     cb(state.players[Number(parts[0])], Number(parts[1]));
   });
 }
+/* "A, B and C" in English, "A、B、C" in Chinese -- the separator before the
+   last name is its own string because the two languages disagree about it. */
+function joinNames(names) {
+  if (names.length <= 1) return names[0] || "";
+  return names.slice(0, -1).join(t("winJoin")) + t("winJoinLast") + names[names.length - 1];
+}
+
+/* A single card can push more than one player over the line at once -- a
+   reversal, or an event that moves several goals in the same direction. When
+   that happens everyone who finished shares the win, so collect them all
+   instead of stopping at the first seat that qualifies. */
 function checkWin() {
-  for (var i = 0; i < state.players.length; i++) {
-    var pl = state.players[i];
-    if (pl.sdgs.every(function(s) { return s.progress >= GOAL; })) {
-      state.isGameOver = true;
-      clearAllTimers();
-      state.isAIThinking = false;
-      state.inputLocked = true;
-      hideAINotice();
-      showScreen("winScreen");
-      document.getElementById("winnerText").textContent = pl.name + t("winSuffix");
-      log(pl.name + " " + t("winLog"), "win");
-      return;
-    }
-  }
+  var winners = state.players.filter(function(pl) {
+    return pl.sdgs.every(function(s) { return s.progress >= GOAL; });
+  });
+  if (!winners.length) return;
+
+  state.isGameOver = true;
+  clearAllTimers();
+  state.isAIThinking = false;
+  state.inputLocked = true;
+  hideAINotice();
+  showScreen("winScreen");
+
+  var names = joinNames(winners.map(function(pl) { return pl.name; }));
+  document.getElementById("winnerText").textContent =
+    names + t(winners.length > 1 ? "winSuffixMulti" : "winSuffix");
+  log(names + " " + t(winners.length > 1 ? "winLogMulti" : "winLog"), "win");
 }
 
 /* init */
