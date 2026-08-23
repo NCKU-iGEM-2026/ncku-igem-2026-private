@@ -9,7 +9,8 @@ body { padding-top: 64px; }
 .navbar .container-fluid { padding-left: 150px; }
 .navbar-brand {
   position: absolute;
-  top: -53px;
+  /* Tracks the logo size above so the overhang stays proportional. */
+  top: clamp(-53px, calc(-0.212 * (100vw - 872px)), -26px);
   left: 24px;
   font-size: 1.7rem;
   padding-top: 0;
@@ -18,8 +19,11 @@ body { padding-top: 64px; }
 }
 
 .navbar-brand img {
-  width: 250px;
-  height: 250px;
+  /* Grows with the viewport instead of jumping: 120px where the menu needs the
+     room (992px) up to the full 250px from ~1122px on. Keeping this continuous
+     is what stops the bar visibly re-flowing as a window is resized. */
+  width: clamp(120px, calc(100vw - 872px), 250px);
+  height: clamp(120px, calc(100vw - 872px), 250px);
   transition: width 0.3s ease, height 0.3s ease;
 }
 
@@ -34,6 +38,113 @@ body.navbar-scrolled .navbar-brand img {
 
 body.navbar-hidden .navbar {
   transform: translateY(-100%);
+}
+
+/* The footer's social links are only as big as their glyph -- 23px on a phone,
+   well under a comfortable tap target, and sat 16px apart. Give them a 44px hit
+   area without changing how large the icon looks. */
+.footer .hover-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Back to top -------------------------------------------------------------
+   Fixed in the bottom-right, revealed by navbar-scroll.js once the page has
+   been scrolled. Kept under z-index 2000 so the board game's dialogs still
+   cover it. White on light content, and its ring keeps it readable where it
+   overlaps the dark green footer. */
+.back-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1020;
+
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  border: 2px solid #075a3e;
+  border-radius: 50%;
+  background: #fffdf7;
+  color: #075a3e;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+
+  opacity: 0;
+  visibility: hidden;          /* also drops it out of the tab order */
+  transform: translateY(10px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease,
+              background-color 0.2s ease, color 0.2s ease;
+}
+
+body.show-back-to-top .back-to-top {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top:hover,
+.back-to-top:focus-visible {
+  background: #075a3e;
+  color: #fffdf7;
+  transform: translateY(-2px);
+}
+
+.back-to-top:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+.back-to-top:active { transform: translateY(0) scale(0.94); }
+
+@media (max-width: 991.98px) {
+  /* Smaller inset on phones, but never below a comfortable 44px tap target. */
+  .back-to-top { right: 16px; bottom: 16px; width: 44px; height: 44px; }
+
+  /* At the very bottom of the page the button would otherwise sit on top of
+     the footer's licence and repository lines, which must stay readable.
+     Reserve room for it. (Bootstrap's pb-5 utility is !important.) */
+  footer.footer { padding-bottom: 88px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top { transition: opacity 0.2s ease, visibility 0.2s ease; }
+  .back-to-top:hover,
+  .back-to-top:focus-visible,
+  .back-to-top:active { transform: none; }
+}
+
+/* Below the lg breakpoint the burger button appears, but .navbar-brand is
+   absolutely positioned and its 250px artwork sat right on top of it, so the
+   menu could not be tapped at all on phones and tablets. Keep the logo inside
+   the bar here and the button clear of it; the desktop layout is untouched. */
+@media (max-width: 991.98px) {
+  .navbar .container-fluid { padding-left: 12px; padding-right: 12px; }
+  .navbar-brand { position: static; top: auto; left: auto; }
+  .navbar-brand img,
+  body.navbar-scrolled .navbar-brand img { width: 52px; height: 52px; }
+
+  .navbar-toggler { position: relative; z-index: 5; margin-left: auto; }
+
+  /* The bar is a fixed 64px, so the opened list hangs outside it and would
+     otherwise sit unreadable over the page. Give it its own panel. */
+  .navbar-collapse {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: #075a3e;
+    padding: 4px 16px 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
 }
 @font-face {
   font-family: "Changa";
@@ -200,6 +311,53 @@ footer a:hover { color: white; text-decoration: underline; }
   transform: translateX(-28px);
   box-shadow: -2px 3px 8px rgba(0,0,0,0.25);
   z-index: 6;
+}
+
+/* The binder tabs hang off the notebook at left:100%, so they sat outside the
+   container at every width below 1440px -- the page scrolled sideways and the
+   labels were cut off (on a phone only "Le" of "Leader" was readable, leaving
+   the section switcher unusable). Keep the tab look on wide screens by
+   reserving room for them inside the notebook, and lay them out as a plain row
+   above the book where there is no room beside it. */
+@media (min-width: 992px) {
+  .notebook-tabs { left: auto; right: 0; }
+  .notebook-book { margin-right: 123px; }   /* widest tab is 115px + 8px gap */
+}
+
+@media (max-width: 991.98px) {
+  .notebook-tabs {
+    position: static;
+    top: auto;
+    left: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .notebook-tab,
+  .tab-hp,
+  .tab-professor {
+    width: auto;
+    min-width: 88px;
+    min-height: 44px;            /* comfortable to tap */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+  /* Sliding the active tab sideways only makes sense beside the book. */
+  #page-leader:checked    ~ .notebook-tabs .tab-leader,
+  #page-wet:checked       ~ .notebook-tabs .tab-wet,
+  #page-dry:checked       ~ .notebook-tabs .tab-dry,
+  #page-hp:checked        ~ .notebook-tabs .tab-hp,
+  #page-professor:checked ~ .notebook-tabs .tab-professor {
+    transform: none;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    outline: 2px solid #4a3f35;
+  }
 }
 
 .notebook-book {
@@ -388,7 +546,11 @@ footer a:hover { color: white; text-decoration: underline; }
 */
    @media (min-width: 992px) {
     .custom-nav-width {
-      width: 180px; 
+      /* 180px x 5 plus Home is 1040px, which does not fit until ~1350px and
+         pushed "Team" off the right edge from 992px up. Scale down to 140px so
+         every section is reachable at every width, reaching the drawn size at
+         1350px. */
+      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1754), 180px);
       position: relative;
     }
   
@@ -407,10 +569,11 @@ footer a:hover { color: white; text-decoration: underline; }
 
   @media (min-width: 992px) {
     .custom-nav-short {
-      width: 140px;
+      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.1316), 140px);
       position: relative;
     }
   }
+
 
 /* ===== Team photo booth ===== */
 .webcam-layout {
@@ -458,6 +621,13 @@ footer a:hover { color: white; text-decoration: underline; }
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
+  /* The glyph alone is only 24px; give it a proper tap target. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
 }
 
 .webcam-stage {
@@ -679,7 +849,12 @@ footer a:hover { color: white; text-decoration: underline; }
   flex: 0 0 auto;
 }
 
-@media (max-width: 760px) {
+/* Side by side, the 450px map plus the nowrap filter column needs about 700px
+   and neither part can shrink, so justify-content:center pushed the pair out of
+   the container on both sides between 761px and ~955px -- the left edge of the
+   map went negative, putting some of its pins out of reach. Stack them until
+   the row genuinely fits. */
+@media (max-width: 991.98px) {
   .edu-map-row {
     flex-direction: column;
   }
@@ -688,8 +863,10 @@ footer a:hover { color: white; text-decoration: underline; }
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    margin-top: 1.5rem;      /* the 20rem offset only suits the side-by-side layout */
   }
 }
+
 
 .edu-map-svg {
   display: block;
@@ -705,6 +882,240 @@ footer a:hover { color: white; text-decoration: underline; }
 
 .edu-map-county.edu-map-county-active {
   opacity: 0.75;
+}
+
+/* Attributions: the AI disclosure the Judge Handbook asks for (2026, p.95).
+   Set apart from the rest of the page so it reads as a deliberate statement
+   rather than a footnote. */
+.attr-ai {
+  border-left: 4px solid #075a3e;
+  background: #f6fbf8;
+  border-radius: 0 10px 10px 0;
+  padding: 1.5rem 1.75rem;
+}
+
+.attr-ai h3 {
+  font-family: "Changa", sans-serif;
+  color: #075a3e;
+  margin-top: 0;
+}
+
+.attr-ai h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #4a3f35;
+  margin-top: 1.5rem;
+}
+
+.attr-ai ul { margin-bottom: 0; }
+.attr-ai li { margin-bottom: 0.5rem; line-height: 1.6; }
+
+@media (max-width: 575.98px) {
+  .attr-ai { padding: 1.15rem 1.15rem; }
+}
+
+/* Project map on the home page -----------------------------------------------
+   A single view of how the wiki is organised, with a direct route into every
+   page. Built from plain flex boxes with pseudo-element connectors, so it
+   reflows to a readable list on a phone instead of needing a second layout. */
+.pmap {
+  margin: 4rem auto 1rem;
+  text-align: center;
+}
+
+.pmap-heading {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  color: #075a3e;
+  margin-bottom: 0.25rem;
+}
+
+.pmap-sub {
+  color: #7a8a80;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.pmap-root {
+  display: inline-block;
+  position: relative;
+  padding: 0.6rem 1.6rem;
+  border-radius: 999px;
+  background: #075a3e;
+  color: #fffdf7;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 16px rgba(7, 90, 62, 0.28);
+}
+
+.pmap-branches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+  position: relative;
+}
+
+.pmap-branch {
+  flex: 1 1 190px;
+  max-width: 240px;
+  min-width: 0;
+  position: relative;
+  padding-top: 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+/* The stem rising from each branch back towards the hub. */
+.pmap-branch::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 1.5rem;
+  background: #c8ddd0;
+  transform: translateX(-50%);
+  transition: background-color 0.2s ease;
+}
+
+.pmap-branch-name {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #075a3e;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  background: #ecffb5;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.pmap-links {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pmap-links a {
+  display: block;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #dfe8e2;
+  background: #fffdf7;
+  color: #4a3f35;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+              color 0.15s ease, transform 0.15s ease;
+}
+
+.pmap-links a:hover,
+.pmap-links a:focus-visible {
+  border-color: #075a3e;
+  background: #075a3e;
+  color: #fffdf7;
+  transform: translateX(2px);
+}
+
+.pmap-links a:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+/* Bring the whole branch forward while it is being read, by pointer or by
+   keyboard, so it is clear which section a link belongs to. */
+.pmap-branch:hover,
+.pmap-branch:focus-within { transform: translateY(-3px); }
+
+.pmap-branch:hover::before,
+.pmap-branch:focus-within::before { background: #075a3e; }
+
+.pmap-branch:hover .pmap-branch-name,
+.pmap-branch:focus-within .pmap-branch-name {
+  background: #075a3e;
+  color: #fffdf7;
+}
+
+@media (max-width: 575.98px) {
+  /* One column on a phone: the columns would be too narrow to read. */
+  .pmap-branch { flex: 1 1 100%; max-width: 100%; }
+  .pmap-links { gap: 0.35rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pmap-branch,
+  .pmap-links a { transition: background-color 0.15s ease, color 0.15s ease; }
+  .pmap-branch:hover,
+  .pmap-branch:focus-within,
+  .pmap-links a:hover,
+  .pmap-links a:focus-visible { transform: none; }
+}
+
+/* Hover preview for the map: which school a numbered pin is, and which county
+   the pointer is over. Never takes pointer events, so it cannot get between the
+   cursor and a pin. */
+.edu-map-tip {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  max-width: 190px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #075a3e;
+  color: #fffdf7;
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(3px);
+  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s ease;
+}
+
+.edu-map-tip.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.edu-map-tip-title { display: block; font-weight: 700; }
+
+.edu-map-tip-city {
+  display: block;
+  margin-top: 2px;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: #cdeadd;
+}
+
+/* Little pointer, flipped when the tip has to sit below its target. */
+.edu-map-tip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  margin-left: -5px;
+  border: 5px solid transparent;
+  border-top-color: #075a3e;
+  top: 100%;
+}
+
+.edu-map-tip.is-below::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #075a3e;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-map-tip { transition: opacity 0.14s ease, visibility 0.14s ease; transform: none; }
+  .edu-map-tip.is-visible { transform: none; }
 }
 
 .edu-map-legend-line {
@@ -980,6 +1391,17 @@ footer a:hover { color: white; text-decoration: underline; }
 }
 .board-game-page .player-setup { margin: 10px 0; display: grid; grid-template-columns: 70px 1fr 170px; gap: 8px; align-items: center; text-align: left; }
 .board-game-page .player-setup label { font-size: 0.88rem; color: var(--muted); }
+/* A text input will not shrink below its intrinsic width on its own, so the
+   70px / 1fr / 170px row could not fit a phone and pushed the setup screen
+   sideways. Let the fields shrink, and put the label on its own line where
+   even that is not enough. */
+.board-game-page .player-setup input,
+.board-game-page .player-setup select { min-width: 0; }
+
+@media (max-width: 560px) {
+  .board-game-page .player-setup { grid-template-columns: 1fr 132px; gap: 6px; }
+  .board-game-page .player-setup label { grid-column: 1 / -1; }
+}
 /* ---- Online rooms: join form and lobby ---- */
 .board-game-page .online-block { margin: 14px 0 6px; text-align: left; }
 .board-game-page .online-label {
@@ -1189,6 +1611,34 @@ footer a:hover { color: white; text-decoration: underline; }
   border-radius: 12px; padding: 3px 11px; margin-bottom: 8px;
 }
 .board-game-page .card-announce-name { font-size: 1.5rem; font-weight: 800; color: var(--border); margin-bottom: 4px; line-height: 1.25; }
+/* The card title doubles as the team's Wikipedia reference. Underlined so it
+   reads as a link on the notepaper without breaking the handwritten look. */
+.board-game-page .card-announce-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #c9bfa8;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.board-game-page .card-announce-link:hover,
+.board-game-page .card-announce-link:focus-visible {
+  color: #075a3e;
+  text-decoration-color: #075a3e;
+}
+.board-game-page .card-announce-link:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+/* Small outbound arrow so it is obvious the link leaves the game. */
+.board-game-page .card-announce-link::after {
+  content: "\2197";
+  font-size: 0.72em;
+  margin-left: 4px;
+  vertical-align: super;
+  display: inline-block;
+}
 .board-game-page .card-announce-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; font-style: italic; }
 .board-game-page .card-announce-desc {
   font-size: 0.9rem; color: var(--ink2); margin-bottom: 16px; line-height: 1.55;
