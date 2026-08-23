@@ -884,6 +884,178 @@ footer a:hover { color: white; text-decoration: underline; }
   opacity: 0.75;
 }
 
+/* Attributions: the AI disclosure the Judge Handbook asks for (2026, p.95).
+   Set apart from the rest of the page so it reads as a deliberate statement
+   rather than a footnote. */
+.attr-ai {
+  border-left: 4px solid #075a3e;
+  background: #f6fbf8;
+  border-radius: 0 10px 10px 0;
+  padding: 1.5rem 1.75rem;
+}
+
+.attr-ai h3 {
+  font-family: "Changa", sans-serif;
+  color: #075a3e;
+  margin-top: 0;
+}
+
+.attr-ai h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #4a3f35;
+  margin-top: 1.5rem;
+}
+
+.attr-ai ul { margin-bottom: 0; }
+.attr-ai li { margin-bottom: 0.5rem; line-height: 1.6; }
+
+@media (max-width: 575.98px) {
+  .attr-ai { padding: 1.15rem 1.15rem; }
+}
+
+/* Project map on the home page -----------------------------------------------
+   A single view of how the wiki is organised, with a direct route into every
+   page. Built from plain flex boxes with pseudo-element connectors, so it
+   reflows to a readable list on a phone instead of needing a second layout. */
+.pmap {
+  margin: 4rem auto 1rem;
+  text-align: center;
+}
+
+.pmap-heading {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  color: #075a3e;
+  margin-bottom: 0.25rem;
+}
+
+.pmap-sub {
+  color: #7a8a80;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.pmap-root {
+  display: inline-block;
+  position: relative;
+  padding: 0.6rem 1.6rem;
+  border-radius: 999px;
+  background: #075a3e;
+  color: #fffdf7;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 16px rgba(7, 90, 62, 0.28);
+}
+
+.pmap-branches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+  position: relative;
+}
+
+.pmap-branch {
+  flex: 1 1 190px;
+  max-width: 240px;
+  min-width: 0;
+  position: relative;
+  padding-top: 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+/* The stem rising from each branch back towards the hub. */
+.pmap-branch::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 1.5rem;
+  background: #c8ddd0;
+  transform: translateX(-50%);
+  transition: background-color 0.2s ease;
+}
+
+.pmap-branch-name {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #075a3e;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  background: #ecffb5;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.pmap-links {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pmap-links a {
+  display: block;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #dfe8e2;
+  background: #fffdf7;
+  color: #4a3f35;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+              color 0.15s ease, transform 0.15s ease;
+}
+
+.pmap-links a:hover,
+.pmap-links a:focus-visible {
+  border-color: #075a3e;
+  background: #075a3e;
+  color: #fffdf7;
+  transform: translateX(2px);
+}
+
+.pmap-links a:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+/* Bring the whole branch forward while it is being read, by pointer or by
+   keyboard, so it is clear which section a link belongs to. */
+.pmap-branch:hover,
+.pmap-branch:focus-within { transform: translateY(-3px); }
+
+.pmap-branch:hover::before,
+.pmap-branch:focus-within::before { background: #075a3e; }
+
+.pmap-branch:hover .pmap-branch-name,
+.pmap-branch:focus-within .pmap-branch-name {
+  background: #075a3e;
+  color: #fffdf7;
+}
+
+@media (max-width: 575.98px) {
+  /* One column on a phone: the columns would be too narrow to read. */
+  .pmap-branch { flex: 1 1 100%; max-width: 100%; }
+  .pmap-links { gap: 0.35rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pmap-branch,
+  .pmap-links a { transition: background-color 0.15s ease, color 0.15s ease; }
+  .pmap-branch:hover,
+  .pmap-branch:focus-within,
+  .pmap-links a:hover,
+  .pmap-links a:focus-visible { transform: none; }
+}
+
 /* Hover preview for the map: which school a numbered pin is, and which county
    the pointer is over. Never takes pointer events, so it cannot get between the
    cursor and a pin. */
