@@ -9,6 +9,7 @@ var translations = {
     pvc: "單機／機器人模式 (PvC)", pvp: "多人對戰模式 (PvP)",
     pvpTitle: "多人對戰", localPlay: "同一裝置 (Local)", onlinePlay: "線上房間",
     back: "返回", setup: "遊戲設定", playerCount: "玩家人數", enterDraft: "進入 SDG 選牌",
+    langLabel: "語言", playerType: "操控者",
     draftTitle: "SDG 目標選牌", confirmSDG: "確認選擇 SDG",
     discardMode: "棄牌模式", playMode: "出牌", cancel: "取消選擇",
     deck: "牌堆", discard: "棄牌堆", hand: "目前手牌", confirmAction: "確認執行",
@@ -58,6 +59,7 @@ var translations = {
     pvc: "Solo / Bot Mode (PvC)", pvp: "Multiplayer (PvP)",
     pvpTitle: "Multiplayer", localPlay: "Same Device (Local)", onlinePlay: "Online Rooms",
     back: "Back", setup: "Game Setup", playerCount: "Players", enterDraft: "Enter SDG Draft",
+    langLabel: "Language", playerType: "controlled by",
     draftTitle: "SDG Goal Draft", confirmSDG: "Confirm SDG Selection",
     discardMode: "Discard Mode", playMode: "Play Cards", cancel: "Cancel",
     deck: "Deck", discard: "Discard", hand: "Current Hand", confirmAction: "Confirm Action",
@@ -1603,14 +1605,15 @@ function renderNameInputs(mode) {
     var div = document.createElement("div");
     div.className = "player-setup";
     if (mode === "pvp") {
-      div.innerHTML = "<label>" + t("player") + " " + (i+1) + "</label>" +
+      div.innerHTML = "<label for=\"pname" + i + "\">" + t("player") + " " + (i+1) + "</label>" +
         "<input type=\"text\" id=\"pname" + i + "\" value=\"" + t("player") + (i+1) + "\" maxlength=\"12\">" +
-        "<select id=\"ptype" + i + "\" disabled><option value=\"human\" selected>" + t("human") + "</option></select>";
+        "<select id=\"ptype" + i + "\" aria-label=\"" + t("player") + " " + (i+1) + " " + t("playerType")
+          + "\" disabled><option value=\"human\" selected>" + t("human") + "</option></select>";
     } else {
       var def = i === 0 ? "human" : "basic";
-      div.innerHTML = "<label>" + t("player") + " " + (i+1) + "</label>" +
+      div.innerHTML = "<label for=\"pname" + i + "\">" + t("player") + " " + (i+1) + "</label>" +
         "<input type=\"text\" id=\"pname" + i + "\" value=\"" + (i===0 ? t("player")+"1" : "Bot"+i) + "\" maxlength=\"12\">" +
-        "<select id=\"ptype" + i + "\">" +
+        "<select id=\"ptype" + i + "\" aria-label=\"" + t("player") + " " + (i+1) + " " + t("playerType") + "\">" +
         "<option value=\"human\"" + (def==="human"?" selected":"") + ">" + t("human") + "</option>" +
         "<option value=\"easy\">" + t("easyBot") + "</option>" +
         "<option value=\"basic\"" + (def==="basic"?" selected":"") + ">" + t("basicBot") + "</option>" +
