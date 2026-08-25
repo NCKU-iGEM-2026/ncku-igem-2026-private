@@ -2457,11 +2457,16 @@ footer a:hover { color: white; text-decoration: underline; }
 
 /* Reagent table. Volumes are a column of numbers, so they line up on the
    right and share one figure width. */
+/* Shrink-to-fit, but still a block. As an inline-block its baseline is its
+   bottom edge (overflow is not visible), so it grew upwards out of the step
+   and pushed that step's sentence underneath it. And overflow:hidden would
+   clip a table too wide for a phone instead of letting it scroll. */
 .labbook .protocol-table-wrap {
   border: 1px solid #e0d6c0;
   border-radius: 10px;
-  overflow: hidden;
-  display: inline-block;
+  overflow-x: auto;
+  display: block;
+  width: fit-content;
   max-width: 100%;
 }
 
@@ -2509,8 +2514,6 @@ footer a:hover { color: white; text-decoration: underline; }
    section that failed to load. */
 .labbook .protocol-pdf-only .protocol-pdf {
   border-bottom: none;
-  background: #fffdf9;
-  padding: 1.35rem 1.5rem;
 }
 
 @media (max-width: 575.98px) {
@@ -2522,5 +2525,207 @@ footer a:hover { color: white; text-decoration: underline; }
   .labbook .protocol-steps > li::after { left: calc(1rem - 1px); top: 2.05rem; }
   .labbook .protocol-endpoint { padding-left: 2.9rem !important; }
   .labbook .protocol-endpoint::before { left: 0.55rem; }
-  .labbook .protocol-table-wrap { display: block; }
+  .labbook .protocol-table-wrap { width: auto; }
+}
+
+/* The protocol itself, on the page. Behind a download link a PDF is a file you
+   have to go and fetch; embedded, it is simply the document, and the link below
+   it becomes what it always was underneath -- a way to keep a copy. */
+.labbook .protocol-viewer {
+  background: #ece6d8;
+  border-bottom: 1px solid #e6ddc8;
+  line-height: 0;            /* an iframe is inline: without this it sits on a descender gap */
+}
+
+.labbook .protocol-viewer iframe {
+  display: block;
+  width: 100%;
+  height: min(82vh, 940px);
+  min-height: 460px;
+  border: 0;
+  background: #ece6d8;
+}
+
+/* Phone browsers do not render an embedded PDF reliably -- Android Chrome
+   leaves the frame empty and iOS Safari shows one static page you cannot
+   scroll. Below this width the frame is dropped, and because it is lazily
+   loaded it is never fetched either. The link underneath still opens the
+   document in the browser's own viewer, which is what works there. */
+@media (max-width: 575.98px) {
+  .labbook .protocol-viewer { display: none; }
+}
+
+
+/* ===== Print: the lab book leaves the screen =========================
+   A protocol is printed and carried to the bench. Two things decide whether
+   it survives the trip. Browsers drop background colours when printing, so
+   anything set white-on-colour -- the title band, the table header, the
+   ENDPOINT badge -- would come out white on white. And a step split across a
+   page break is a step somebody misses. */
+@media print {
+
+  @page { margin: 15mm 14mm; }
+
+  /* Screen furniture. The navbar is position:fixed, which some browsers
+     reprint on every page. The embedded PDF cannot print from an iframe, and
+     a download button on paper does nothing. */
+  .navbar,
+  footer.footer,
+  .back-to-top,
+  .labbook .protocol-viewer,
+  .labbook .protocol-pdf { display: none !important; }
+
+  html, body {
+    background: #fff !important;
+    color: #000;
+    font-size: 10.5pt;
+  }
+
+  .container {
+    max-width: none !important;
+    width: auto !important;
+    padding: 0 !important;
+  }
+
+  /* Keep the page's name; drop the colour band it lives in. */
+  header.bg-hero {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 0 0.8rem !important;
+  }
+  .hero-title { color: #000 !important; font-size: 17pt; margin: 0 !important; }
+  .hero-sub { color: #333 !important; font-size: 10pt; margin: 0 !important; }
+
+  a { color: #000 !important; }
+
+  .labbook { max-width: none; }
+
+  /* overflow:hidden rounds the corners on screen, but it also stops a sheet
+     from paginating -- the tail would simply be cut off. */
+  .labbook .protocol {
+    border: none;
+    border-top: 3pt solid #000;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    margin: 0 0 1.4rem;
+  }
+  .labbook .protocol + .protocol { break-before: page; }
+
+  .labbook .protocol > h2 {
+    background: none !important;
+    color: #000 !important;
+    padding: 0.45rem 0 0.5rem;
+    font-size: 14pt;
+    break-after: avoid;
+  }
+
+  .labbook .protocol-body { padding: 0; }
+
+  .labbook .protocol-section {
+    color: #000;
+    border-bottom: 1.5pt solid #000;
+    margin: 1.1rem 0 0.6rem;
+    font-size: 11pt;
+    break-after: avoid;
+  }
+
+  .labbook .protocol-body h4 { break-after: avoid; margin: 0.8rem 0 0.3rem; }
+  .labbook .protocol-body p { line-height: 1.5; margin-bottom: 0.5rem; }
+
+  .labbook .protocol-materials { gap: 0.2rem 1.2rem; }
+  .labbook .protocol-materials li {
+    background: none;
+    border-left: 1.5pt solid #000;
+    border-radius: 0;
+    padding: 0.1rem 0 0.1rem 0.5rem;
+    break-inside: avoid;
+  }
+
+  /* Every step stays whole, and its number keeps an outline that ink can draw. */
+  .labbook .protocol-steps > li {
+    break-inside: avoid;
+    padding: 0 0 0.7rem 2.6rem;
+    line-height: 1.5;
+  }
+  .labbook .protocol-steps > li::before {
+    background: none;
+    border: 1.2pt solid #000;
+    color: #000;
+    width: 1.9rem;
+    height: 1.9rem;
+    font-size: 9pt;
+    top: 0;
+  }
+  .labbook .protocol-steps > li::after { display: none; }
+
+  .labbook .protocol-note,
+  .labbook .protocol-steps > li > em {
+    background: none;
+    border-left: 1.5pt solid #000;
+    border-radius: 0;
+    padding: 0.15rem 0 0.15rem 0.6rem;
+    color: #000;
+    break-inside: avoid;
+  }
+
+  .labbook .protocol-endpoint {
+    background: none;
+    border: 1pt solid #000;
+    padding: 0.5rem 0.5rem 0.5rem 2.6rem !important;
+  }
+  .labbook .protocol-endpoint::before { left: 0.4rem; top: 0.5rem; }
+  .labbook .protocol-steps > li.protocol-endpoint > strong:first-child {
+    background: none !important;
+    color: #000 !important;
+    border: 1pt solid #000;
+    padding: 0.02rem 0.3rem;
+  }
+
+  .labbook .protocol-table-wrap {
+    border: 1pt solid #000;
+    border-radius: 0;
+    break-inside: avoid;
+  }
+  .labbook .protocol-table thead th {
+    background: none !important;
+    color: #000 !important;
+    border-bottom: 1.5pt solid #000;
+  }
+  .labbook .protocol-table td { border-top: 0.5pt solid #999; }
+  .labbook .protocol-table tbody tr:nth-child(odd) td { background: none; }
+  .labbook .protocol-table tbody tr:last-child td {
+    background: none;
+    border-top: 1.2pt solid #000;
+    font-weight: 700;
+  }
+
+  /* Paper cannot be clicked, so a reference is only useful spelled out. */
+  .labbook .protocol-refs a::after {
+    content: " (" attr(href) ")";
+    font-size: 8.5pt;
+    word-break: break-all;
+  }
+
+  /* A sheet whose only content is its PDF would otherwise print as a bare
+     title. It keeps its link, with the address written out. */
+  .labbook .protocol-pdf-only .protocol-pdf {
+    display: block !important;
+    background: none;
+    border: none;
+    padding: 0.3rem 0;
+  }
+  .labbook .protocol-pdf-only .protocol-pdf a {
+    display: inline;
+    background: none;
+    border: none;
+    padding: 0;
+    font-weight: 400;
+  }
+  .labbook .protocol-pdf-only .protocol-pdf svg { display: none; }
+  .labbook .protocol-pdf-only .protocol-pdf a::after {
+    content: " — " attr(href);
+    font-size: 8.5pt;
+    word-break: break-all;
+  }
 }
