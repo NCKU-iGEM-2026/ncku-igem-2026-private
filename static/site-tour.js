@@ -8,7 +8,6 @@
   if (!steps.length) return;
 
   var card = tour.querySelector('.tour-card');
-  var dots = document.getElementById('tourDots');
   var back = document.getElementById('tourBack');
   var next = document.getElementById('tourNext');
   var now = document.getElementById('tourNow');
@@ -31,32 +30,23 @@
     try { return localStorage.getItem(SEEN) === '1'; } catch (e) { return false; }
   }
 
-  // The navbar is the thing the tour is teaching, so the matching menu is lifted
-  // out of the dimmed background while its step is showing. Only where the menu
-  // is actually on screen -- below lg it is collapsed behind the toggler, and
-  // pointing at something invisible would be worse than pointing at nothing.
+  // The step that lists the sections says the menu holds all of them, so the
+  // bar is lifted out of the dimmed page while that step is up -- the sentence
+  // and the thing it points at are then on screen together. Only where the menu
+  // is actually visible: below lg it is collapsed behind the toggler, and
+  // pointing at something invisible is worse than pointing at nothing.
   function menusVisible() {
     return window.matchMedia('(min-width: 992px)').matches;
   }
 
   function highlight(step) {
     if (!navbar) return;
-    var id = step.getAttribute('data-tour-target');
-    navbar.querySelectorAll('.nav-item').forEach(function (item) {
-      item.classList.remove('tour-lit');
-    });
-    document.body.classList.toggle('tour-guiding', !!id && menusVisible());
-    if (!id || !menusVisible()) return;
-    var link = document.getElementById(id);
-    var item = link && link.closest('.nav-item');
-    if (item) item.classList.add('tour-lit');
+    var lift = step.hasAttribute('data-tour-lift') && menusVisible();
+    navbar.classList.toggle('tour-above', lift);
   }
 
   function render() {
     steps.forEach(function (s, i) { s.hidden = i !== at; });
-    Array.prototype.slice.call(dots.children).forEach(function (d, i) {
-      d.classList.toggle('is-at', i === at);
-    });
     now.textContent = String(at + 1);
     back.disabled = at === 0;
     next.textContent = at === steps.length - 1 ? LAST : 'Next';
@@ -76,31 +66,19 @@
     returnTo = document.activeElement;
     tour.hidden = false;
     document.body.classList.add('tour-active');
-    if (navbar) navbar.classList.add('tour-above');
     go(typeof startAt === 'number' ? startAt : 0);
     card.focus();
   }
 
   function close() {
     tour.hidden = true;
-    document.body.classList.remove('tour-active', 'tour-guiding');
-    if (navbar) {
-      navbar.classList.remove('tour-above');
-      navbar.querySelectorAll('.nav-item').forEach(function (item) {
-        item.classList.remove('tour-lit');
-      });
-    }
+    document.body.classList.remove('tour-active');
+    if (navbar) navbar.classList.remove('tour-above');
     remember();
     if (returnTo && document.contains(returnTo)) returnTo.focus();
     returnTo = null;
   }
 
-  // ---- build the dots ----
-  steps.forEach(function () {
-    var d = document.createElement('span');
-    d.className = 'tour-dot';
-    dots.appendChild(d);
-  });
   total.textContent = String(steps.length);
 
   // ---- wiring ----
