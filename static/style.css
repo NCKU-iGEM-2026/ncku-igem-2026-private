@@ -1370,151 +1370,12 @@ footer a:hover { color: white; text-decoration: underline; }
 
 .attr-ai ul { margin-bottom: 0; }
 .attr-ai li { margin-bottom: 0.5rem; line-height: 1.6; }
+/* The list is the last thing in the panel now, so the final item's gap has
+   nothing below it to collapse into and would sit on top of the padding. */
+.attr-ai li:last-child { margin-bottom: 0; }
 
 @media (max-width: 575.98px) {
   .attr-ai { padding: 1.15rem 1.15rem; }
-}
-
-/* Project map on the home page -----------------------------------------------
-   A single view of how the wiki is organised, with a direct route into every
-   page. Built from plain flex boxes with pseudo-element connectors, so it
-   reflows to a readable list on a phone instead of needing a second layout. */
-.pmap {
-  margin: 4rem auto 1rem;
-  text-align: center;
-}
-
-.pmap-heading {
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  color: #075a3e;
-  margin-bottom: 0.25rem;
-}
-
-.pmap-sub {
-  color: #5f6e66;
-  font-size: 0.95rem;
-  margin-bottom: 2rem;
-}
-
-.pmap-root {
-  display: inline-block;
-  position: relative;
-  padding: 0.6rem 1.6rem;
-  border-radius: 999px;
-  background: #075a3e;
-  color: #fffdf7;
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  box-shadow: 0 6px 16px rgba(7, 90, 62, 0.28);
-}
-
-.pmap-branches {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 1.25rem;
-  margin-top: 2.5rem;
-  position: relative;
-}
-
-.pmap-branch {
-  flex: 1 1 190px;
-  max-width: 240px;
-  min-width: 0;
-  position: relative;
-  padding-top: 1.5rem;
-  transition: transform 0.2s ease;
-}
-
-/* The stem rising from each branch back towards the hub. */
-.pmap-branch::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 2px;
-  height: 1.5rem;
-  background: #c8ddd0;
-  transform: translateX(-50%);
-  transition: background-color 0.2s ease;
-}
-
-.pmap-branch-name {
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 1.15rem;
-  color: #075a3e;
-  padding: 0.45rem 0.5rem;
-  border-radius: 10px;
-  background: #ecffb5;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.pmap-links {
-  list-style: none;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.pmap-links a {
-  display: block;
-  padding: 0.45rem 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #dfe8e2;
-  background: #fffdf7;
-  color: #4a3f35;
-  font-size: 0.92rem;
-  text-decoration: none;
-  transition: border-color 0.15s ease, background-color 0.15s ease,
-              color 0.15s ease, transform 0.15s ease;
-}
-
-.pmap-links a:hover,
-.pmap-links a:focus-visible {
-  border-color: #075a3e;
-  background: #075a3e;
-  color: #fffdf7;
-  transform: translateX(2px);
-}
-
-.pmap-links a:focus-visible {
-  outline: 3px solid #d8b26a;
-  outline-offset: 2px;
-}
-
-/* Bring the whole branch forward while it is being read, by pointer or by
-   keyboard, so it is clear which section a link belongs to. */
-.pmap-branch:hover,
-.pmap-branch:focus-within { transform: translateY(-3px); }
-
-.pmap-branch:hover::before,
-.pmap-branch:focus-within::before { background: #075a3e; }
-
-.pmap-branch:hover .pmap-branch-name,
-.pmap-branch:focus-within .pmap-branch-name {
-  background: #075a3e;
-  color: #fffdf7;
-}
-
-@media (max-width: 575.98px) {
-  /* One column on a phone: the columns would be too narrow to read. */
-  .pmap-branch { flex: 1 1 100%; max-width: 100%; }
-  .pmap-links { gap: 0.35rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pmap-branch,
-  .pmap-links a { transition: background-color 0.15s ease, color 0.15s ease; }
-  .pmap-branch:hover,
-  .pmap-branch:focus-within,
-  .pmap-links a:hover,
-  .pmap-links a:focus-visible { transform: none; }
 }
 
 /* Hover preview for the map: which school a numbered pin is, and which county
@@ -2540,6 +2401,259 @@ footer a:hover { color: white; text-decoration: underline; }
 }
 
 
+/* Site tour: a first look at the wiki, one section at a time ----------------
+   Modal by design. A visitor who wants none of it can leave at any step --
+   Skip, Escape, or the backdrop -- and the button in the banner brings it
+   back, so skipping costs nothing. */
+
+/* The banner button. Hidden in the markup and revealed by the script, so it
+   never appears where it would do nothing. */
+.tour-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding: 0.6rem 1.35rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1rem;
+  color: #fff;
+  /* The banner is a gradient, so white text here is only as readable as
+     whatever the gradient happens to be doing behind it -- 5.8:1 over the
+     middle stop but 2.4:1 over the light end. A dark translucent fill of its
+     own puts the text above 9:1 anywhere on that band. Over the light end the
+     fill is what separates the button from the page (3.9:1); over the dark end
+     the fill nearly matches it, and the white ring does the separating
+     instead (11:1). One of the two always carries it. */
+  background: rgba(8, 34, 28, 0.7);
+  border: 2px solid #fff;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tour-open:hover,
+.tour-open:focus-visible {
+  background: #fff;
+  color: #12474f;
+}
+
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Clear the fixed bar: the tour points at it, so it must stay visible. */
+  padding: 92px 16px 24px;
+}
+
+.tour[hidden] { display: none; }
+
+.tour-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 32, 22, 0.62);
+  cursor: pointer;
+}
+
+.tour-card {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  max-height: calc(100vh - 116px);
+  overflow-y: auto;
+  background: #fffdf7;
+  border-radius: 16px;
+  box-shadow: 0 18px 48px rgba(15, 32, 22, 0.35);
+  padding: 1.25rem 1.6rem 1.4rem;
+}
+
+.tour-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.tour-count {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #5f6e66;
+}
+
+.tour-skip {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #075a3e;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.tour-skip:hover,
+.tour-skip:focus-visible { background: #eaf7dd; }
+
+/* A floor, so the first step does not collapse to a couple of lines before the
+   second one opens out. */
+.tour-stage { min-height: 120px; }
+
+.tour-step[hidden] { display: none; }
+
+.tour-title {
+  font-family: "Changa", sans-serif;
+  font-size: 1.5rem;
+  color: #075a3e;
+  margin: 0 0 0.6rem;
+}
+
+/* The card takes focus when the tour opens. It is modal and unmissable, so a
+   ring is only drawn when the visitor is actually driving from the keyboard. */
+.tour-card:focus { outline: none; }
+
+.tour-card:focus-visible {
+  outline: 3px solid #60c028;
+  outline-offset: 3px;
+}
+
+.tour-step p {
+  margin: 0;
+  line-height: 1.7;
+  color: #33413a;
+}
+
+/* Five groups, twenty-one pages, on one screen: columns that reflow rather
+   than a fixed grid, so the shortest section does not leave a hole. */
+.tour-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1.1rem 1.4rem;
+  margin-top: 1.25rem;
+}
+
+.tour-map h3 {
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #5f6e66;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #e6ddc8;
+}
+
+.tour-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tour-links a {
+  display: inline-block;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #075a3e;
+  text-decoration: none;
+  background: #eaf7dd;
+  border: 1px solid #c6e3a6;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tour-links a:hover,
+.tour-links a:focus-visible {
+  background: #075a3e;
+  border-color: #075a3e;
+  color: #fffdf7;
+}
+
+.tour-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e6ddc8;
+}
+
+.tour-actions {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.tour-btn {
+  min-height: 40px;
+  padding: 0.45rem 1.15rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tour-back {
+  color: #075a3e;
+  background: #fffdf7;
+  border: 2px solid #075a3e;
+}
+
+.tour-back:hover:not(:disabled),
+.tour-back:focus-visible { background: #eaf7dd; }
+
+/* WCAG exempts an inactive control from contrast, but that is permission to
+   ignore it, not a reason to make it unreadable. This still reads (4.9:1) and
+   is still plainly lighter than the enabled Back, which is #075a3e at 7.5:1. */
+.tour-back:disabled {
+  color: #5f6e66;
+  border-color: #c3cec7;
+  cursor: default;
+}
+
+.tour-next {
+  color: #fffdf7;
+  background: #075a3e;
+  border: 2px solid #075a3e;
+}
+
+.tour-next:hover,
+.tour-next:focus-visible { background: #04412c; border-color: #04412c; }
+
+/* While the tour runs the page behind it must not scroll away underneath.
+   Named for the state, not the control: .tour-open is the banner button, and a
+   body carrying that class would inherit its inline-flex. */
+body.tour-active { overflow: hidden; }
+
+/* While the step that lists the sections is up, the bar is lifted out of the
+   dimmed page, so the sentence about the menu and the menu itself are legible
+   at the same time. */
+.navbar.tour-above { z-index: 1085; }
+
+@media (max-width: 575.98px) {
+  .tour { padding: 78px 12px 16px; }
+  .tour-card { padding: 1.1rem 1.15rem 1.2rem; max-height: calc(100vh - 94px); }
+  .tour-title { font-size: 1.3rem; }
+  .tour-stage { min-height: 0; }
+  .tour-actions { justify-content: stretch; flex: 1; }
+  .tour-btn { flex: 1; }
+  .tour-map { gap: 0.9rem; }
+}
+
+@media print {
+  .tour, .tour-open { display: none !important; }
+}
+
+
 /* ===== Print: the lab book leaves the screen =========================
    A protocol is printed and carried to the bench. Two things decide whether
    it survives the trip. Browsers drop background colours when printing, so
@@ -2712,4 +2826,470 @@ footer a:hover { color: white; text-decoration: underline; }
     font-size: 8.5pt;
     word-break: break-all;
   }
+}
+
+/* ===== Hardware: CAPTURE-Reader ======================================
+   A long build page: prose, two schematic diagrams, and a lot of small
+   two- and three-column tables. The tables carry most of the argument, so
+   they are styled as first-class content rather than as afterthoughts, and
+   every one of them can scroll sideways on a phone instead of squashing.
+   Shares the site's green/cream/gold palette; the only new colours are the
+   three beam colours in the optical diagram, which have to be the real
+   colours of the light they stand for. */
+.hw { max-width: 58rem; }
+.hw section { margin-bottom: 3rem; }
+.hw h2 {
+  font-family: "Changa", sans-serif;
+  color: #075a3e;
+  margin-bottom: 1rem;
+}
+.hw h3 {
+  font-family: "Changa", sans-serif;
+  font-size: 1.12rem;
+  color: #1f4a38;
+  margin: 2rem 0 0.75rem;
+}
+.hw p { line-height: 1.8; color: #33413a; }
+.hw code {
+  font-size: 0.88em;
+  color: #1f4a38;
+  background: #eef5f1;
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+}
+.hw a { color: #0a58ca; }
+
+.hw-lead {
+  border-left: 4px solid #075a3e;
+  padding-left: 1.5rem;
+  margin-bottom: 3rem;
+}
+.hw-lead p { font-size: 1.12rem; line-height: 1.85; }
+.hw-lead p:first-child { color: #24352c; }
+
+/* ---- the two systems being read ---- */
+.hw-terms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.hw-terms > div {
+  border: 1px solid #dfe8e2;
+  border-left: 3px solid #075a3e;
+  border-radius: 0 10px 10px 0;
+  background: #fffdf7;
+  padding: 1rem 1.1rem;
+}
+.hw-terms dt {
+  font-family: "Changa", sans-serif;
+  color: #1f4a38;
+  margin-bottom: 0.4rem;
+}
+.hw-terms dd {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: #4a5a51;
+}
+
+/* ---- the one-line flow ---- */
+.hw-flow {
+  list-style: none;
+  counter-reset: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 1.75rem 0;
+}
+.hw-flow li {
+  flex: 1 1 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: "Changa", sans-serif;
+  font-size: 0.98rem;
+  color: #1f4a38;
+  background: #f2f9f5;
+  border: 1px solid #b9d7c8;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+.hw-flow li:last-child { background: #e7f4ee; border-color: #75b299; }
+/* The arrow is decoration between the steps, so it is drawn rather than
+   written -- a screen reader gets the list order instead. */
+.hw-flow li:not(:last-child)::after {
+  content: "\2192";
+  margin-left: 0.7rem;
+  color: #75b299;
+  font-size: 1.1rem;
+}
+.hw-flow-plus { color: #75b299; margin: 0 0.35rem; font-weight: 700; }
+
+/* ---- the three kinds of note the page uses ---- */
+.hw-aside {
+  font-size: 0.93rem;
+  color: #4a5a51;
+  border-left: 3px solid #cfdcd5;
+  padding-left: 1rem;
+  margin-top: 1.5rem;
+}
+.hw-join {
+  background: #f2f9f5;
+  border: 1px solid #b9d7c8;
+  border-radius: 10px;
+  padding: 1rem 1.15rem;
+  margin-top: 1.5rem;
+}
+/* Anywhere the page draws a line around what we are allowed to claim, it is
+   marked in the warm colour the rest of the wiki uses for caution. */
+.hw-caution {
+  background: #fff6e2;
+  border-left: 4px solid #d8b26a;
+  border-radius: 0 10px 10px 0;
+  padding: 1rem 1.2rem;
+  margin-top: 1.25rem;
+  color: #6b4a1f;
+  font-size: 0.95rem;
+}
+.hw-caution em { color: #8a5a12; font-style: normal; font-weight: 700; }
+
+/* ---- the two modules ---- */
+.hw-modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.hw-module {
+  position: relative;
+  border: 2px solid #cfdcd5;
+  border-radius: 14px;
+  padding: 1.6rem 1.4rem 1.3rem;
+  background: #fffdf7;
+}
+/* The primary module carries the project; it is allowed to look like it. */
+.hw-module[data-module="primary"] { border-color: #75b299; background: #f6fffb; }
+.hw-module[data-module="secondary"] { border-color: #dfe8e2; }
+.hw-module-tag {
+  position: absolute;
+  top: -0.75rem;
+  left: 1.2rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fffdf7;
+  background: #075a3e;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+}
+.hw-module[data-module="secondary"] .hw-module-tag { background: #6b7a72; }
+.hw-module h3 { margin: 0.35rem 0 0.5rem; font-size: 1.15rem; }
+.hw-module-what { font-size: 0.95rem; margin-bottom: 1rem; }
+
+.hw-spec { margin: 0; font-size: 0.9rem; }
+.hw-spec > div {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-top: 1px dashed #cfdcd5;
+}
+.hw-spec dt {
+  font-family: "Changa", sans-serif;
+  font-weight: 400;
+  color: #075a3e;
+}
+.hw-spec dd { margin: 0; color: #4a5a51; line-height: 1.6; }
+
+/* ---- tables ---- */
+/* Every table lives in a figure that can scroll, so a four-column table on a
+   phone slides sideways instead of crushing its own columns. */
+.hw-figure {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+.hw-two-tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+.hw-two-tables .hw-figure { margin: 0; }
+
+.hw-table {
+  width: 100%;
+  min-width: 18rem;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+.hw-table caption {
+  caption-side: top;
+  font-family: "Changa", sans-serif;
+  font-size: 1rem;
+  color: #1f4a38;
+  text-align: left;
+  padding-bottom: 0.5rem;
+}
+.hw-table th,
+.hw-table td {
+  padding: 0.65rem 0.8rem;
+  border-bottom: 1px solid #dfe8e2;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.65;
+}
+.hw-table thead th {
+  font-family: "Changa", sans-serif;
+  font-weight: 400;
+  color: #075a3e;
+  border-bottom: 2px solid #075a3e;
+}
+.hw-table tbody tr:last-child td { border-bottom: none; }
+.hw-table .is-total {
+  background: #f2f9f5;
+  font-weight: 700;
+  color: #1f4a38;
+}
+/* The right-hand column of the claim tables is the part that keeps us
+   honest, so it is tinted rather than left to look like ordinary prose. */
+.hw-table .hw-not {
+  background: #fff6e2;
+  color: #6b4a1f;
+}
+.hw-table-keep caption { color: #075a3e; }
+.hw-table-drop caption { color: #6b7a72; }
+.hw-phase {
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  color: #5f6e66;
+}
+
+/* ---- the schematics ---- */
+.hw-diagram {
+  border: 1px solid #dfe8e2;
+  border-radius: 14px;
+  background: #fffdf7;
+  padding: 1rem;
+}
+.hw-svg { display: block; width: 100%; height: auto; }
+.hw-svg text { font-family: inherit; }
+.hw-svg-label { font-size: 17px; font-weight: 600; fill: #24352c; }
+.hw-svg-sub { font-size: 14px; fill: #5f6e66; }
+.hw-svg-note { font-size: 13px; fill: #8a978f; }
+.hw-svg-angle { font-size: 15px; font-weight: 700; fill: #1f4a38; }
+
+.hw-svg-case {
+  fill: #f7f9f8;
+  stroke: #cfdcd5;
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+}
+.hw-svg-body { fill: none; stroke: #6b7a72; stroke-width: 2; }
+.hw-svg-lid { fill: #e8ede9; stroke: #6b7a72; stroke-width: 1.5; }
+.hw-svg-interlock { fill: #ffe9b8; stroke: #d8b26a; stroke-width: 1.5; }
+.hw-svg-red-box { fill: #fdecea; stroke: #d98b80; stroke-width: 1.5; }
+.hw-svg-blue-box { fill: #e8f0fd; stroke: #7aa5dd; stroke-width: 1.5; }
+.hw-svg-filter { fill: #ffd8a8; stroke: #e0996a; stroke-width: 1.5; }
+.hw-svg-filter-blue { fill: #cfe0f7; stroke: #7aa5dd; stroke-width: 1.5; }
+.hw-svg-sensor { fill: #eaf4ef; stroke: #4f8f74; stroke-width: 1.5; }
+.hw-svg-sample { fill: #fdf1dd; stroke: #d8b26a; stroke-width: 2; }
+.hw-svg-stop { fill: #3a4640; }
+.hw-svg-meniscus { fill: none; stroke: #c99b4e; stroke-width: 2; }
+.hw-svg-axis {
+  fill: none;
+  stroke: #9aa8a1;
+  stroke-width: 1.2;
+  stroke-dasharray: 5 4;
+}
+.hw-svg-right-angle { fill: none; stroke: #1f4a38; stroke-width: 2; }
+.hw-svg-dim { fill: none; stroke: #6b7a72; stroke-width: 1.2; }
+
+/* The beams keep the colour of the light they are: blue excitation, green
+   sfGFP emission, red transmission. Each is also named in the legend, so the
+   diagram does not depend on colour alone. */
+.hw-beam-blue { fill: none; stroke: #2b6cb0; stroke-width: 3.5; }
+.hw-beam-green { fill: none; stroke: #2e9e5b; stroke-width: 3.5; }
+.hw-beam-red { fill: none; stroke: #c0392b; stroke-width: 3.5; }
+
+.hw-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding: 0;
+  margin: 0.9rem 0 0;
+  font-size: 0.88rem;
+  color: #4a5a51;
+}
+.hw-legend li { display: flex; align-items: center; }
+.hw-key {
+  display: inline-block;
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  margin-right: 0.5rem;
+}
+.hw-key-blue { background: #2b6cb0; }
+.hw-key-green { background: #2e9e5b; }
+.hw-key-red { background: #c0392b; }
+
+.hw-figure figcaption {
+  padding-top: 0.85rem;
+  font-size: 0.86rem;
+  color: #5f6e66;
+  line-height: 1.7;
+}
+
+/* ---- the four-step measurement ---- */
+.hw-sequence {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.75rem;
+  padding: 0;
+  margin: 1.75rem 0;
+}
+.hw-sequence li {
+  border: 1px solid #dfe8e2;
+  border-top: 4px solid #9aa8a1;
+  border-radius: 10px;
+  background: #fffdf7;
+  padding: 0.9rem 1rem;
+}
+/* The top edge carries the state of the light during that step. */
+.hw-sequence li[data-step="blue"] { border-top-color: #2b6cb0; }
+.hw-sequence li[data-step="red"] { border-top-color: #c0392b; }
+.hw-sequence li[data-step="dark"],
+.hw-sequence li[data-step="off"] { border-top-color: #3a4640; }
+.hw-step-n {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  color: #8a978f;
+}
+.hw-step-name {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  color: #1f4a38;
+  margin-bottom: 0.3rem;
+}
+.hw-step-what {
+  display: block;
+  font-size: 0.87rem;
+  line-height: 1.6;
+  color: #4a5a51;
+}
+
+/* ---- the three groups, and the two branches they feed ---- */
+.hw-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.hw-group {
+  border: 1px solid #dfe8e2;
+  border-radius: 12px;
+  background: #fffdf7;
+  padding: 1.1rem 1.2rem;
+}
+.hw-group h3 {
+  font-size: 1.3rem;
+  margin: 0 0 0.35rem;
+  color: #075a3e;
+}
+.hw-group-cond {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1f4a38;
+  margin-bottom: 0.5rem;
+}
+.hw-group p:last-child { font-size: 0.88rem; color: #4a5a51; margin-bottom: 0; }
+/* G1 is the control that decides what we are entitled to conclude, so it is
+   the one the eye should land on. */
+.hw-group[data-group="g1"] { border-color: #d8b26a; background: #fffaf0; }
+
+.hw-branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+.hw-branch {
+  border: 1px solid #b9d7c8;
+  border-radius: 12px;
+  background: #f6fffb;
+  padding: 1.1rem 1.2rem;
+}
+.hw-branch h4 {
+  font-family: "Changa", sans-serif;
+  font-size: 1rem;
+  color: #1f4a38;
+  margin: 0 0 0.5rem;
+}
+.hw-branch p { font-size: 0.9rem; margin-bottom: 0; }
+
+/* ---- claim boundaries, and the planned flag ---- */
+.hw-claims {
+  border: 2px dashed #d8b26a;
+  border-radius: 14px;
+  padding: 1.6rem 1.75rem;
+  background: #fffaf0;
+}
+.hw-claims h2 { margin-top: 0; }
+
+.hw-head-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.hw-head-row h2 { margin-bottom: 0; }
+.hw-flag {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #6b4a1f;
+  background: #ffe9b8;
+  border: 1px solid #d8b26a;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+}
+
+/* ---- references ---- */
+.hw-refs ol { padding-left: 1.4rem; }
+.hw-refs li {
+  margin-bottom: 0.75rem;
+  line-height: 1.65;
+  font-size: 0.92rem;
+  color: #3f4d45;
+}
+.hw-refs a { word-break: break-word; }
+.hw-refs-note { font-size: 0.88rem; color: #5f6e66; }
+
+@media (max-width: 575.98px) {
+  .hw-lead { padding-left: 1rem; }
+  .hw-claims { padding: 1.2rem 1.1rem; }
+  .hw-diagram { padding: 0.6rem; }
+  .hw-table { font-size: 0.86rem; }
+  .hw-table th, .hw-table td { padding: 0.5rem 0.55rem; }
+  /* Stacked, the label column no longer needs its own fixed width. */
+  .hw-spec > div { grid-template-columns: 1fr; gap: 0.15rem; }
+  /* The arrow points along the row; once the steps stack it would point
+     into the wrong place, so it goes. */
+  .hw-flow li:not(:last-child)::after { content: none; }
+}
+
+/* Scaled to a phone's width the schematics shrink until their labels are
+   unreadable, and an unreadable diagram is worse than a scrollable one. Below
+   this width they hold a legible size and their own panel scrolls sideways;
+   the page itself still does not. */
+@media (max-width: 767.98px) {
+  .hw-diagram { overflow-x: auto; }
+  .hw-svg { min-width: 600px; }
 }
