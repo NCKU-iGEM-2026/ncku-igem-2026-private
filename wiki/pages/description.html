@@ -1,12 +1,358 @@
 {% extends "layout.html" %}
-  
+
 {% block title %}Project Description{% endblock %}
-{% block lead %}故事背景(hp負責){% endblock %}
+{% block lead %}Reading the conversation between bacteria, before the culture plate can answer{% endblock %}
 
 {% block page_content %}
 
+{#
+  === 給團隊的說明，發布前請讀 ===
 
+  1. 這一頁完全建立在你們提供的兩份文獻整理上，沒有加入任何你們沒說過的主張，
+     也沒有捏造任何數據或引用。
+
+  2. 引用狀態：
+     [5][6][7][8][9] 五筆我用 DOI 查證過，作者、年份、期刊、卷期頁數都是從
+     CrossRef 抓下來的真實資料，可以直接用。
+     順帶修正：Schuster 那篇是 2023 年（vol 20, issue 200），不是 2022；
+     2022 只是 DOI 編號的一部分。
+     [1][2][3][4][10][11][12] 你們只給了標題，沒有 DOI/作者/年份。
+     手冊 p.94 明訂「Fabricated, garbled, or hallucinated citations are
+     violations」，所以我沒有替你們補，這幾筆在頁面上標成「citation to be
+     completed」。發布前務必補齊，或把用到它們的段落拿掉。
+
+  3. ⚠ 與 Engineering 頁不一致：
+     Engineering 頁目前寫偵測目標是 P. aeruginosa + S. aureus（依你們最早的
+     計畫書），但這次的流行病學文獻 [1] 說台灣 VAP 主要病原是 A. baumannii、
+     P. aeruginosa、K. pneumoniae，沒有 S. aureus。
+     這一頁我依文獻寫。兩頁要一致，請告訴我以哪個為準。
+
+  4. 目前沒有任何實驗結果，所以這頁只描述問題、選題依據與設計方向。
+#}
+
+<div class="container my-4 desc">
+
+  <!-- ======================= the problem ======================= -->
+  <section class="desc-lead">
+    <p>
+      In an intensive care unit, a patient on a ventilator can develop
+      pneumonia. Deciding whether they have, and which organism is behind it,
+      currently takes longer than the decision about their antibiotics can
+      wait.
+    </p>
+    <p>
+      We are building a <strong>cell-free biosensor</strong> that listens for
+      the chemical signals bacteria use to talk to each other, and reports back
+      within hours rather than days.
+    </p>
+  </section>
+
+  <!-- ================= why the answer comes late ================ -->
+  <section>
+    <h2>Why the answer arrives too late</h2>
+    <p>
+      Ventilator-associated pneumonia (VAP) is diagnosed today by culturing
+      sputum and by imaging. Other approaches have been tried. Each tells us
+      something, and each stops short of what a bedside decision needs.
+    </p>
+
+    <div class="desc-methods">
+      <div class="desc-method">
+        <h3>Sputum culture</h3>
+        <p class="desc-method-what">Grows the organism from a sample.</p>
+        <p class="desc-method-gap">
+          Takes roughly 24&ndash;72 hours, cannot reflect the state of the
+          infection in real time, and antibiotics already given can produce a
+          false negative.
+        </p>
+      </div>
+
+      <div class="desc-method">
+        <h3>Breath analysis by GC&ndash;MS</h3>
+        <p class="desc-method-what">
+          Identifies volatile organic compounds in exhaled breath. A ventilator
+          circuit model simulating the ICU showed both semi-invasive and
+          non-invasive sampling could detect specific VOCs, though sampling
+          accuracy depended on the molecular weight of the compound.<sup>[2]</sup>
+        </p>
+        <p class="desc-method-gap">
+          GC&ndash;MS is laboratory-grade, large and precise &mdash; and cannot
+          give a real-time answer at the bedside.<sup>[2]</sup>
+        </p>
+      </div>
+
+      <div class="desc-method">
+        <h3>Electronic nose</h3>
+        <p class="desc-method-what">
+          A portable alternative for reading the same volatile signature.
+        </p>
+        <p class="desc-method-gap">
+          Reported at the time as lacking the sensitivity and specificity
+          needed for clinical use in the ICU.<sup>[2]</sup>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== our approach ==================== -->
+  <section>
+    <h2>Our approach: read what the bacteria are saying</h2>
+    <p>
+      Bacteria coordinate their behaviour by releasing and detecting small
+      signalling molecules &mdash; quorum sensing. Those molecules are present
+      before anything has been grown on a plate, and they are specific to the
+      organism producing them. If we can detect the signal, we can detect the
+      organism.
+    </p>
+    <p>
+      We want to do that in a <strong>cell-free system</strong>: the
+      transcription and translation machinery taken out of the cell and run
+      <em>in vitro</em>. A cell-free biosensor has already been operated on
+      clinical sample types such as sputum, using a modular DNA-encoded sensor
+      to detect the quorum sensing molecule 3-oxo-C12-HSL produced by
+      <em>Pseudomonas aeruginosa</em>.<sup>[3]</sup> That is the ground we are
+      building on.
+    </p>
+  </section>
+
+  <!-- ==================== target selection ==================== -->
+  <section>
+    <h2>Which organism to start with</h2>
+    <p>
+      In Taiwan, the primary pathogens associated with VAP are
+      <em>Acinetobacter baumannii</em>, <em>Pseudomonas aeruginosa</em> and
+      <em>Klebsiella pneumoniae</em>.<sup>[1]</sup>
+    </p>
+    <p>
+      We are starting with <em>P. aeruginosa</em>, because its quorum sensing
+      circuit is the best characterised of the three and because both of the
+      sensing routes we are considering already have published work against its
+      signal.<sup>[3][5][6][9]</sup>
+      <em>A. baumannii</em> is our second candidate: a screen of 77 synthetic
+      AHLs against its AbaR receptor identified 3-OH-C12-HSL as the most likely
+      natural quorum sensing signal of that organism.<sup>[4]</sup>
+    </p>
+  </section>
+
+  <!-- ==================== why this molecule ==================== -->
+  <section>
+    <h2>Why 3-oxo-C12-HSL is a good thing to detect</h2>
+    <p>
+      A diagnostic is only as good as its specificity. The receptor we would
+      build around, LasR, is strongly selective for its own signal: it responds
+      to 3-oxo-C12-HSL at sub-micromolar concentrations, while a short-chain
+      AHL such as C4-HSL does not reach a measurable activation limit even at
+      100&nbsp;&micro;M &mdash; a difference of about two orders of
+      magnitude.<sup>[5]</sup>
+    </p>
+
+    <figure class="desc-figure">
+      <table class="desc-table">
+        <caption>
+          Sensitivity of AHL receptors to their cognate signals, for the three
+          <em>P.&nbsp;aeruginosa</em> receptors. Values reported by
+          Wellington &amp; Greenberg (2019).<sup>[5]</sup>
+        </caption>
+        <thead>
+          <tr><th>Receptor</th><th>Signal</th><th>EC<sub>50</sub></th></tr>
+        </thead>
+        <tbody>
+          <tr class="is-highlight">
+            <td>LasR</td><td>3OC12-HSL</td><td>593 &plusmn; 128 nM</td>
+          </tr>
+          <tr><td>RhlR</td><td>C4-HSL</td><td>&gt; 100 &micro;M</td></tr>
+          <tr><td>QscR</td><td>3OC12-HSL</td><td>1.90 &plusmn; 0.27 &micro;M</td></tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <p>
+      LasR also behaves usefully as a switch rather than a dial. It only forms
+      a stable functional conformation after binding 3-oxo-C12-HSL, and then
+      dimerises; that dimerisation gives positive cooperativity with a Hill
+      coefficient of about 2, and together with positive feedback makes the
+      <em>las</em> circuit bistable and hysteretic &mdash; a population-level
+      switch rather than a gradual regulator.<sup>[6]</sup> For a diagnostic
+      that has to say yes or no, a switch is what we want.
+    </p>
+    <p>
+      Work in a heterologous <em>E.&nbsp;coli</em> system supports the same
+      picture: GFP reporter fusions were expressed far lower in a
+      <em>lasI</em> deletion mutant, and the accumulation of 3-oxo-C12-HSL
+      coincides closely with activation of <em>lasI</em> and
+      <em>rsaL</em>.<sup>[12]</sup>
+    </p>
+  </section>
+
+  <!-- ==================== two routes ==================== -->
+  <section>
+    <h2>Two routes we are weighing</h2>
+    <p>
+      We have not fixed the sensing chemistry yet. Two routes are on the table,
+      and they are not mutually exclusive.
+    </p>
+
+    <div class="desc-routes">
+
+      <article class="desc-route" data-route="a">
+        <span class="desc-route-tag">Route A</span>
+        <h3>A LasR genetic circuit, expressed cell-free</h3>
+        <p>
+          The signal is read by the bacterium's own receptor protein, produced
+          in the cell-free reaction, which then drives a reporter.
+        </p>
+        <ul>
+          <li><strong>Input</strong> &mdash; 3-oxo-C12-HSL</li>
+          <li><strong>Sensor</strong> &mdash; LasR, from the constitutive
+            promoter ProD with a strong RBS, using the Registry coding sequence
+            <a href="https://parts.igem.org/Part:BBa_C0079" target="_blank"
+               rel="noopener noreferrer">BBa_C0079</a></li>
+          <li><strong>Output</strong> &mdash; a reporter protein</li>
+        </ul>
+        <p class="desc-route-note">
+          Inherits the selectivity and switch-like response described
+          above.<sup>[5][6]</sup> Full sequences will be documented on the
+          Registry.
+        </p>
+      </article>
+
+      <article class="desc-route" data-route="b">
+        <span class="desc-route-tag">Route B</span>
+        <h3>A structure-switching fluorescent aptamer</h3>
+        <p>
+          The signal is read by a DNA aptamer that changes shape when it binds,
+          converting molecular recognition directly into a fluorescence change
+          without needing protein expression at all.
+        </p>
+        <ul>
+          <li>A fluorophore-labelled strand is held quenched by a complementary
+            quencher strand; the target displaces it and fluorescence
+            returns.<sup>[7][8]</sup></li>
+          <li>ALS-5 has been reported to detect
+            3-oxo-C12-HSL.<sup>[9]</sup></li>
+        </ul>
+        <p class="desc-route-note">
+          Known trade-offs we would have to design around: structure switching
+          can reduce the aptamer's target-binding affinity, and in the original
+          ATP system a roughly sevenfold fluorescence enhancement took more
+          than 30 minutes to reach its maximum at 37&nbsp;&deg;C.<sup>[7][8]</sup>
+        </p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ==================== the hypothesis ==================== -->
+  <section class="desc-hypothesis">
+    <h2>The idea we most want to test</h2>
+    <p>
+      If Route B works, the same molecule might do two jobs at once: report the
+      infection, <em>and</em> blunt it.
+    </p>
+    <p>
+      Aptamers raised against AHLs appear not to kill bacteria or slow their
+      growth; instead they bind the signalling molecules themselves, competing
+      with the receptor and interfering with quorum-sensing-coordinated
+      behaviour.<sup>[9][10][11]</sup> Reported effects include suppression of
+      swarming motility &mdash; up to 74.7% for one of the aptamers
+      tested<sup>[9]</sup> &mdash; and inhibition of biofilm formation without a
+      measurable effect on growth.<sup>[11]</sup>
+    </p>
+    <p>
+      A diagnostic that also reduces virulence, without applying the selection
+      pressure that drives resistance, is the outcome we would most like to
+      reach. <strong>This is our hypothesis, not a result.</strong> We have not
+      tested it.
+    </p>
+  </section>
+
+  <!-- ==================== references ==================== -->
+  <section class="desc-refs">
+    <h2>References</h2>
+    <p class="desc-refs-note">
+      Entries marked <span class="desc-pending">citation to be completed</span>
+      still need their full bibliographic details before the wiki freeze.
+    </p>
+    <ol>
+      <li id="ref1">
+        Epidemiology and antibiotic susceptibility of pathogens isolated from
+        patients with ventilator-associated pneumonia in Taiwan.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="ref2">
+        Breath analysis for the diagnosis of ventilator-associated pneumonia.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="ref3">
+        A cell-free biosensor for the detection of <em>Pseudomonas
+        aeruginosa</em> in clinical samples.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="ref4">
+        Attenuation of quorum sensing in the pathogen <em>Acinetobacter
+        baumannii</em> using non-native N-acyl homoserine lactones.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="ref5">
+        Wellington, S., &amp; Greenberg, E. P. (2019). Quorum Sensing Signal
+        Selectivity and the Potential for Interspecies Cross Talk.
+        <em>mBio</em>, 10(2).
+        <a href="https://doi.org/10.1128/mbio.00146-19" target="_blank"
+           rel="noopener noreferrer">https://doi.org/10.1128/mbio.00146-19</a>
+      </li>
+      <li id="ref6">
+        Schuster, M., Li, C., Smith, P., &amp; Kuttler, C. (2023). Parameters,
+        architecture and emergent properties of the <em>Pseudomonas
+        aeruginosa</em> LasI/LasR quorum-sensing circuit. <em>Journal of the
+        Royal Society Interface</em>, 20(200).
+        <a href="https://doi.org/10.1098/rsif.2022.0825" target="_blank"
+           rel="noopener noreferrer">https://doi.org/10.1098/rsif.2022.0825</a>
+      </li>
+      <li id="ref7">
+        Nutiu, R., &amp; Li, Y. (2003). Structure-Switching Signaling Aptamers.
+        <em>Journal of the American Chemical Society</em>, 125(16),
+        4771&ndash;4778.
+        <a href="https://doi.org/10.1021/ja028962o" target="_blank"
+           rel="noopener noreferrer">https://doi.org/10.1021/ja028962o</a>
+      </li>
+      <li id="ref8">
+        Nutiu, R., &amp; Li, Y. (2004). Structure-Switching Signaling Aptamers:
+        Transducing Molecular Recognition into Fluorescence Signaling.
+        <em>Chemistry &ndash; A European Journal</em>, 10(8),
+        1868&ndash;1876.
+        <a href="https://doi.org/10.1002/chem.200305470" target="_blank"
+           rel="noopener noreferrer">https://doi.org/10.1002/chem.200305470</a>
+      </li>
+      <li id="ref9">
+        Wu, K., Mo, Y., Duan, M., Zheng, Y., Chang, Y., Ding, M., Wang, Z.,
+        Wu, S., &amp; Duan, N. (2025). A Structure-Guided Bifunctional Aptamer
+        Mitigates <em>Pseudomonas aeruginosa</em> Virulence and Biofilms by
+        Disrupting <em>las</em> and <em>rhl</em> Quorum Sensing Systems.
+        <em>Analytical Chemistry</em>, 97(37), 20291&ndash;20302.
+        <a href="https://doi.org/10.1021/acs.analchem.5c03245" target="_blank"
+           rel="noopener noreferrer">https://doi.org/10.1021/acs.analchem.5c03245</a>
+      </li>
+      <li id="ref10">
+        Zhao et al. (2013). Screening and anti-virulent study of N-acyl
+        homoserine lactones DNA aptamers against <em>Pseudomonas aeruginosa</em>
+        quorum sensing.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="ref11">
+        C4-HSL aptamers for blocking quorum sensing and inhibiting biofilm
+        formation in <em>Pseudomonas aeruginosa</em> and its structure
+        prediction and analysis.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="ref12">
+        Examination of <em>Pseudomonas aeruginosa lasI</em> regulation and
+        3-oxo-C12-homoserine lactone production using a heterologous
+        <em>Escherichia coli</em> system.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+    </ol>
+  </section>
+
+</div>
 
 {% endblock %}
-
-//銅牌標準
