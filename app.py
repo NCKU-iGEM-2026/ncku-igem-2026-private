@@ -30,6 +30,20 @@ def home():
 def pages(page):
     return render_template(str(Path('pages')) + '/' + page.lower() + '.html')
 
+
+@freezer.register_generator
+def all_wiki_pages():
+    """Build every page in wiki/pages, linked from the menu or not.
+
+    Frozen-Flask discovers URLs by following links, so a page that is not in
+    the menu is silently left out of the built site even though its source
+    file is still here. Listing them explicitly means reorganising the menu
+    only moves pages around; it never drops their content from the wiki.
+    """
+    for page in sorted(Path(template_folder, 'pages').glob('*.html')):
+        if page.stem != 'home':
+            yield 'pages', {'page': page.stem}
+
 # Main Function, Runs at http://0.0.0.0:8080
 if __name__ == "__main__":
     app.run(port=8080)

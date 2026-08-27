@@ -9,7 +9,8 @@ body { padding-top: 64px; }
 .navbar .container-fluid { padding-left: 150px; }
 .navbar-brand {
   position: absolute;
-  top: -53px;
+  /* Tracks the logo size above so the overhang stays proportional. */
+  top: clamp(-53px, calc(-0.212 * (100vw - 872px)), -26px);
   left: 24px;
   font-size: 1.7rem;
   padding-top: 0;
@@ -18,8 +19,11 @@ body { padding-top: 64px; }
 }
 
 .navbar-brand img {
-  width: 250px;
-  height: 250px;
+  /* Grows with the viewport instead of jumping: 120px where the menu needs the
+     room (992px) up to the full 250px from ~1122px on. Keeping this continuous
+     is what stops the bar visibly re-flowing as a window is resized. */
+  width: clamp(120px, calc(100vw - 872px), 250px);
+  height: clamp(120px, calc(100vw - 872px), 250px);
   transition: width 0.3s ease, height 0.3s ease;
 }
 
@@ -34,6 +38,114 @@ body.navbar-scrolled .navbar-brand img {
 
 body.navbar-hidden .navbar {
   transform: translateY(-100%);
+}
+
+/* The footer's social links are only as big as their glyph -- 23px on a phone,
+   well under a comfortable tap target, and sat 16px apart. Give them a 44px hit
+   area without changing how large the icon looks. */
+.footer .hover-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Back to top -------------------------------------------------------------
+   Fixed in the bottom-right, revealed by navbar-scroll.js once the page has
+   been scrolled. Kept under z-index 2000 so the board game's dialogs still
+   cover it. White on light content, and its ring keeps it readable where it
+   overlaps the dark green footer. */
+.back-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1020;
+
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  border: 2px solid #075a3e;
+  border-radius: 50%;
+  background: #fffdf7;
+  color: #075a3e;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+
+  opacity: 0;
+  visibility: hidden;          /* also drops it out of the tab order */
+  transform: translateY(10px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease,
+              background-color 0.2s ease, color 0.2s ease;
+}
+
+body.show-back-to-top .back-to-top {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top:hover,
+.back-to-top:focus-visible {
+  background: #075a3e;
+  color: #fffdf7;
+  transform: translateY(-2px);
+}
+
+.back-to-top:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+.back-to-top:active { transform: translateY(0) scale(0.94); }
+
+@media (max-width: 991.98px) {
+  /* Smaller inset on phones, but never below a comfortable 44px tap target. */
+  .back-to-top { right: 16px; bottom: 16px; width: 44px; height: 44px; }
+
+  /* At the very bottom of the page the button would otherwise sit on top of
+     the footer's licence and repository lines, which must stay readable.
+     Reserve room for it. (Bootstrap's pb-5 utility is !important.) */
+  footer.footer { padding-bottom: 88px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top { transition: opacity 0.2s ease, visibility 0.2s ease; }
+  .back-to-top:hover,
+  .back-to-top:focus-visible,
+  .back-to-top:active { transform: none; }
+}
+
+/* Below the lg breakpoint the burger button appears, but .navbar-brand is
+   absolutely positioned and its 250px artwork sat right on top of it, so the
+   menu could not be tapped at all on phones and tablets. Keep the logo inside
+   the bar here and the button clear of it; the desktop layout is untouched. */
+@media (max-width: 991.98px) {
+  .navbar .container-fluid { padding-left: 12px; padding-right: 12px; }
+  .navbar-brand { position: static; top: auto; left: auto; }
+  .navbar-brand img,
+  body.navbar-scrolled .navbar-brand img { width: 52px; height: 52px; }
+
+  .navbar-toggler { position: relative; z-index: 5; margin-left: auto; }
+
+  /* The bar is a fixed 64px, so the opened list hangs outside it and would
+     otherwise sit unreadable over the page. Give it its own panel, in the same
+     colour as the bar itself (.bg-dark) so the two read as one surface. */
+  .navbar-collapse {
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: #60c028;
+    padding: 4px 16px 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
 }
 @font-face {
   font-family: "Changa";
@@ -51,9 +163,21 @@ body.navbar-hidden .navbar {
   font-display: swap;
 }
 
-.navbar-nav .nav-link { font-family: "Changa", sans-serif; font-size: 1.3rem; transition: color 0.15s ease; }
+/* Ink for the bright green bar. The site's usual #075a3e reads at only
+   3.57:1 against it and white at 2.32:1, so both the resting and the hover
+   colour move darker instead. Hover also underlines, so the state is not
+   signalled by colour alone. */
+.navbar-nav .nav-link { font-family: "Changa", sans-serif; font-size: 1.3rem; color: #05442e; transition: color 0.15s ease; }
 .navbar-nav .nav-link:hover,
-.navbar-nav .nav-link:focus { color: #fff; }
+.navbar-nav .nav-link:focus { color: #062a1c; text-decoration: underline; }
+
+/* Bootstrap paints the burger white, which is 2.3:1 on the green bar -- under
+   the 3:1 a control has to meet. Redraw it in the same ink as the links. The
+   SVG is inlined as a data URI, so nothing is fetched from outside iGEM. */
+.navbar-dark .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%2305442e' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+.navbar-dark .navbar-toggler { border-color: rgba(5, 68, 46, 0.4); }
 .dropdown-item { font-family: "Changa", sans-serif; font-weight: 400; transition: background-color 0.15s ease, color 0.15s ease; }
 
 @media (min-width: 992px) {
@@ -74,48 +198,62 @@ body.navbar-hidden .navbar {
 }
 
 .navbar .dropdown-menu {
-  background-color: #075a3e;
+  background-color: #60c028;
   border: none;
 }
 
 .dropdown-item {
-  background-color: #075a3e;
-  color: #fff;
+  background-color: #60c028;
+  color: #05442e;
 }
 
+/* The hover state used to repeat the resting colours exactly, so hovering a
+   menu item gave no feedback at all. Darken the ink and underline it. */
 .dropdown-item:hover,
 .dropdown-item:focus {
-  background-color: #45b06c;
-  color: #fff;
+  background-color: #60c028;
+  color: #062a1c;
+  text-decoration: underline;
 }
-.left-aligned { margin-left: auto; }
-.bg-dark { background-color: #075a3e !important; }
+/* The bright brand green was introduced for the top bar. The footer wears the
+   same Bootstrap .bg-dark class, so a bare override turned it green too and
+   dropped its white text -- including the licence and repository lines judges
+   have to read -- from 8.3:1 to 2.3:1. Scope the green to the bar and leave
+   the footer on the deep green it was designed against. */
+.navbar.bg-dark { background-color: #60c028 !important; }
+footer.bg-dark { background-color: #075a3e !important; }
+
+/* Bootstrap's 50%-white utility sits at 3.3:1 on that deep green, under the
+   4.5 small text needs -- and the licence sentence is set in it. Lift it to
+   75% (5.4:1) inside the footer only, so the utility keeps its meaning
+   everywhere else. */
+.footer .text-white-50 { color: rgba(255, 255, 255, 0.75) !important; }
 .bg-hero {
-  background-color: #a4d7b4;
-  background: linear-gradient(135deg, #ecffb5, #dbf9bd, #dbec94);
-  background-size: 400% 400%;
-  animation: heroGradientFlow 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  background-color: #fff6b7;
 }
-
-@keyframes heroGradientFlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* CALLOUT */
-.bd-callout { padding:1.25rem; margin-top:1.25rem; margin-bottom:1.25rem; border:1px solid #e9ecef; border-left-width:.25rem; border-radius:.25rem }
-.bd-callout h4 { margin-bottom: 1.25rem }
-.bd-callout p:last-child { margin-bottom:0 }
-.bd-callout code { border-radius:.25rem }
-.bd-callout+.bd-callout { margin-top:-.25rem }
-.bd-callout-info { border-left-color:#5bc0de }
-.bd-callout-warning { border-left-color:#f0ad4e }
-.bd-callout-danger { border-left-color:#d9534f }
 
 /* footer */
 footer a { color: white; font-weight: bold; text-decoration: none; }
 footer a:hover { color: white; text-decoration: underline; }
+
+/* Moved here from a <style> block at the bottom of wiki/footer.html. That
+   block was inlined into all 26 pages; here it is fetched and cached once. */
+.sponsor-logo {
+  height: 72px;
+  width: auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+
+.hover-icon {
+  transition: transform 0.2s ease-in-out, color 0.2s;
+}
+
+.hover-icon:hover {
+  color: #1abc9c !important; /* 滑鼠移過去變成漂亮的 Tiffany 綠，點綴一下 */
+  transform: scale(1.1);
+}
 
 @font-face {
   font-family: "Chango";
@@ -144,7 +282,15 @@ footer a:hover { color: white; text-decoration: underline; }
 .hero-title {
   font-family: "Changa", sans-serif;
   font-weight: 700;
-  color: #2b1e17;
+  /* Same orange, taken deep enough to hold on the pale yellow band: the
+     original #f68710 measured 2.28:1 where even large text needs 3.0. */
+  color: #ad5400;
+}
+
+/* The subtitle was 50%-white on that same pale yellow -- 1.05:1, which is no
+   contrast at all; the sentence was invisible on every page. */
+.hero-sub {
+  color: #075a3e;
 }
 
 /* ===== Team notebook / scrapbook ===== */
@@ -200,6 +346,53 @@ footer a:hover { color: white; text-decoration: underline; }
   transform: translateX(-28px);
   box-shadow: -2px 3px 8px rgba(0,0,0,0.25);
   z-index: 6;
+}
+
+/* The binder tabs hang off the notebook at left:100%, so they sat outside the
+   container at every width below 1440px -- the page scrolled sideways and the
+   labels were cut off (on a phone only "Le" of "Leader" was readable, leaving
+   the section switcher unusable). Keep the tab look on wide screens by
+   reserving room for them inside the notebook, and lay them out as a plain row
+   above the book where there is no room beside it. */
+@media (min-width: 992px) {
+  .notebook-tabs { left: auto; right: 0; }
+  .notebook-book { margin-right: 123px; }   /* widest tab is 115px + 8px gap */
+}
+
+@media (max-width: 991.98px) {
+  .notebook-tabs {
+    position: static;
+    top: auto;
+    left: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .notebook-tab,
+  .tab-hp,
+  .tab-professor {
+    width: auto;
+    min-width: 88px;
+    min-height: 44px;            /* comfortable to tap */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+  /* Sliding the active tab sideways only makes sense beside the book. */
+  #page-leader:checked    ~ .notebook-tabs .tab-leader,
+  #page-wet:checked       ~ .notebook-tabs .tab-wet,
+  #page-dry:checked       ~ .notebook-tabs .tab-dry,
+  #page-hp:checked        ~ .notebook-tabs .tab-hp,
+  #page-professor:checked ~ .notebook-tabs .tab-professor {
+    transform: none;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    outline: 2px solid #4a3f35;
+  }
 }
 
 .notebook-book {
@@ -366,7 +559,7 @@ footer a:hover { color: white; text-decoration: underline; }
 
 .polaroid:hover .polaroid-overlay { opacity: 1; }
 
-.polaroid-overlay h4 { margin-bottom: 0.25rem; font-weight: bold; }
+.polaroid-overlay h3 { margin-bottom: 0.25rem; font-weight: bold; }
 .polaroid-overlay .role {
   color: #6fd499;
   font-size: 0.85rem;
@@ -374,21 +567,16 @@ footer a:hover { color: white; text-decoration: underline; }
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-.polaroid-overlay .quote { font-style: italic; font-size: 0.85rem; margin-bottom: 0.75rem; }
-.polaroid-overlay .camera-meta {
-  font-size: 0.75rem;
-  color: #ccc;
-  border-top: 1px solid rgba(255,255,255,0.2);
-  padding-top: 0.5rem;
-  width: 100%;
-}
-.polaroid-overlay .camera-meta span { display: block; }
 
 /*維持上方橫幅置中
 */
    @media (min-width: 992px) {
     .custom-nav-width {
-      width: 180px; 
+      /* 180px x 5 plus Home is 1040px, which does not fit until ~1350px and
+         pushed "Team" off the right edge from 992px up. Scale down to 140px so
+         every section is reachable at every width, reaching the drawn size at
+         1350px. */
+      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1754), 180px);
       position: relative;
     }
   
@@ -407,10 +595,11 @@ footer a:hover { color: white; text-decoration: underline; }
 
   @media (min-width: 992px) {
     .custom-nav-short {
-      width: 140px;
+      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.1316), 140px);
       position: relative;
     }
   }
+
 
 /* ===== Team photo booth ===== */
 .webcam-layout {
@@ -441,7 +630,7 @@ footer a:hover { color: white; text-decoration: underline; }
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.25rem;
-  background: #f0ffcd;
+  background: #fff3d0;
   color: #333;
 }
 
@@ -458,6 +647,13 @@ footer a:hover { color: white; text-decoration: underline; }
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
+  /* The glyph alone is only 24px; give it a proper tap target. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
 }
 
 .webcam-stage {
@@ -528,7 +724,7 @@ footer a:hover { color: white; text-decoration: underline; }
   justify-content: flex-end;
   gap: 1.5rem;
   padding: 1rem 3rem 1rem 1.25rem;
-  background: #f0ffcd;
+  background: #fff3d0;
   flex-wrap: wrap;
 }
 
@@ -558,7 +754,7 @@ footer a:hover { color: white; text-decoration: underline; }
 .webcam-filter-btn:hover { transform: scale(1.1); }
 
 .webcam-filter-btn.active {
-  background: #f0ffcd;
+  background: #fff3d0;
   color: #333;
   border: 2px solid #075a3e;
   box-shadow: 0 0 0 3px rgba(7,90,62,0.35), 2px 2px 6px rgba(0,0,0,0.2);
@@ -679,7 +875,12 @@ footer a:hover { color: white; text-decoration: underline; }
   flex: 0 0 auto;
 }
 
-@media (max-width: 760px) {
+/* Side by side, the 450px map plus the nowrap filter column needs about 700px
+   and neither part can shrink, so justify-content:center pushed the pair out of
+   the container on both sides between 761px and ~955px -- the left edge of the
+   map went negative, putting some of its pins out of reach. Stack them until
+   the row genuinely fits. */
+@media (max-width: 991.98px) {
   .edu-map-row {
     flex-direction: column;
   }
@@ -688,8 +889,10 @@ footer a:hover { color: white; text-decoration: underline; }
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    margin-top: 1.5rem;      /* the 20rem offset only suits the side-by-side layout */
   }
 }
+
 
 .edu-map-svg {
   display: block;
@@ -707,12 +910,533 @@ footer a:hover { color: white; text-decoration: underline; }
   opacity: 0.75;
 }
 
-.edu-map-legend-line {
+/* Project Description -------------------------------------------------------
+   Long-form reading, so the measure is capped and the structural pieces --
+   the three current methods, the two routes we are weighing, the reference
+   list -- are set apart from the prose rather than buried in it. */
+.desc { max-width: 52rem; }
+.desc section { margin-bottom: 3rem; }
+.desc h2 {
+  font-family: "Changa", sans-serif;
+  color: #075a3e;
+  margin-bottom: 1rem;
+}
+.desc p { line-height: 1.8; color: #33413a; }
+.desc sup { color: #075a3e; font-weight: 700; font-size: 0.72em; }
+
+.desc-lead p {
+  font-size: 1.12rem;
+  line-height: 1.85;
+}
+.desc-lead p:first-child { color: #24352c; }
+.desc-lead {
+  border-left: 4px solid #075a3e;
+  padding-left: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* ---- the three approaches that fall short ---- */
+.desc-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.desc-method {
+  border: 1px solid #dfe8e2;
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem;
+  background: #fffdf7;
+}
+
+.desc-method h3 {
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  color: #1f4a38;
+  margin: 0 0 0.6rem;
+}
+
+.desc-method-what { font-size: 0.92rem; margin-bottom: 0.75rem; }
+
+/* The gap is the point of each card, so it is marked, not just written. */
+.desc-method-gap {
+  font-size: 0.9rem;
+  color: #6b4a1f;
+  background: #fff6e2;
+  border-left: 3px solid #d8b26a;
+  border-radius: 0 6px 6px 0;
+  padding: 0.6rem 0.8rem;
+  margin: 0;
+}
+
+/* ---- the selectivity table ---- */
+.desc-figure { margin: 1.75rem 0; }
+
+.desc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.desc-table caption {
+  caption-side: bottom;
+  padding-top: 0.75rem;
+  font-size: 0.82rem;
+  color: #5f6e66;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.desc-table th,
+.desc-table td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #dfe8e2;
+  text-align: left;
+}
+
+.desc-table thead th {
+  font-family: "Changa", sans-serif;
+  color: #075a3e;
+  border-bottom: 2px solid #075a3e;
+}
+
+.desc-table .is-highlight {
+  background: #ecffb5;
+  font-weight: 700;
+}
+
+/* ---- the two candidate routes ---- */
+.desc-routes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.desc-route {
+  position: relative;
+  border: 2px solid #cfdcd5;
+  border-radius: 14px;
+  padding: 1.5rem 1.4rem 1.3rem;
+  background: #fffdf7;
+}
+
+.desc-route[data-route="a"] { border-color: #a2efaa; background: #f6fff8; }
+.desc-route[data-route="b"] { border-color: #b4fadf; background: #f4fffb; }
+
+.desc-route-tag {
+  position: absolute;
+  top: -0.75rem;
+  left: 1.2rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fffdf7;
+  background: #075a3e;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+}
+
+.desc-route h3 {
+  font-family: "Changa", sans-serif;
+  font-size: 1.1rem;
+  color: #1f4a38;
+  margin: 0.35rem 0 0.75rem;
+}
+
+.desc-route p,
+.desc-route li { font-size: 0.93rem; line-height: 1.7; }
+.desc-route li { margin-bottom: 0.35rem; }
+
+.desc-route-note {
+  margin: 1rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px dashed #b9cdc3;
+  font-size: 0.86rem;
+  color: #5d6d64;
+}
+
+/* ---- the hypothesis, marked as one ---- */
+.desc-hypothesis {
+  border: 2px dashed #d8b26a;
+  border-radius: 14px;
+  padding: 1.6rem 1.75rem;
+  background: #fffaf0;
+}
+
+.desc-hypothesis h2 { margin-top: 0; }
+.desc-hypothesis strong { color: #8a5a12; }
+
+/* ---- references ---- */
+.desc-refs ol { padding-left: 1.4rem; }
+.desc-refs li {
+  margin-bottom: 0.85rem;
+  line-height: 1.65;
+  font-size: 0.92rem;
+  color: #3f4d45;
+}
+.desc-refs a { word-break: break-word; }
+
+/* Bootstrap's link blue lands at 4.3-4.4:1 on these panels, a hair under the
+   4.5 small text needs. Its own darker shade clears it at 6.2:1 and keeps
+   links looking like links. */
+.desc a,
+.attr-ai a,
+.labbook .protocol-body a { color: #0a58ca; }
+
+.desc-refs-note { font-size: 0.88rem; color: #5f6e66; }
+
+/* Anything still missing its source is flagged in the page itself, so it
+   cannot quietly ship looking like a finished citation. */
+.desc-pending {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #8a3d12;
+  background: #ffe4d0;
+  border: 1px solid #e0996a;
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+  .desc-lead { padding-left: 1rem; }
+  .desc-hypothesis { padding: 1.2rem 1.1rem; }
+  .desc-table { font-size: 0.86rem; }
+  .desc-table th, .desc-table td { padding: 0.5rem 0.4rem; }
+}
+
+/* Engineering: the Design-Build-Test-Learn jigsaw -----------------------------
+   Four interlocking pieces; choosing one opens that stage as a wide panel in
+   the same colour at 75% opacity. The four colours are the pale ones already
+   used on the team scrapbook, so body text stays dark and readable once the
+   panel is faded to 75%. */
+.dbtl-intro { max-width: 46rem; margin: 0 auto 2rem; text-align: center; }
+.dbtl-intro h2 { font-family: "Changa", sans-serif; color: #075a3e; }
+.dbtl-intro p { color: #5c6b62; line-height: 1.7; }
+
+.dbtl { max-width: 60rem; margin: 0 auto; }
+
+.dbtl-puzzle { text-align: center; }
+
+.dbtl-svg {
+  width: 100%;
   max-width: 420px;
-  margin: 0 auto 1.5rem;
-  text-align: center;
+  height: auto;
+  overflow: visible;
+}
+
+.dbtl-piece { cursor: pointer; }
+
+.dbtl-piece path {
+  stroke: #075a3e;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  transition: fill 0.2s ease, transform 0.2s ease;
+  transform-origin: center;
+}
+
+.dbtl-piece text {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  fill: #1f2d26;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.dbtl-piece[data-stage="design"] path { fill: #e6ff9b; }
+.dbtl-piece[data-stage="build"]  path { fill: #a2efaa; }
+.dbtl-piece[data-stage="test"]   path { fill: #b4fadf; }
+.dbtl-piece[data-stage="learn"]  path { fill: #fff3d0; }
+
+.dbtl-piece:hover path { filter: brightness(0.94); }
+
+/* <g> takes focus here, so it needs a focus ring of its own. */
+.dbtl-piece:focus { outline: none; }
+.dbtl-piece:focus-visible path {
+  stroke: #d8b26a;
+  stroke-width: 5;
+}
+
+.dbtl-hint {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #5f6e66;
+}
+
+/* ---- the opened stage ---- */
+.dbtl-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.dbtl-back {
+  border: 2px solid #075a3e;
+  background: #fffdf7;
+  color: #075a3e;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dbtl-back:hover,
+.dbtl-back:focus-visible { background: #075a3e; color: #fffdf7; }
+
+.dbtl-switch { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+.dbtl-switch button {
+  border: 1px solid #cfdcd5;
+  background: #fffdf7;
+  color: #4a3f35;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.dbtl-switch button:hover { border-color: #075a3e; }
+
+.dbtl-switch button.is-current {
+  background: #075a3e;
+  border-color: #075a3e;
+  color: #fffdf7;
+  font-weight: 700;
+}
+
+.dbtl-back:focus-visible,
+.dbtl-switch button:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+.dbtl-panel {
+  border-radius: 14px;
+  padding: 1.75rem 2rem 2rem;
+  border: 2px solid rgba(7, 90, 62, 0.35);
+  outline: none;
+}
+
+/* 75% opacity of each stage colour, so the panel reads as the piece stretched
+   out while the text on it stays legible. */
+.dbtl-panel[data-stage="design"] { background: rgba(230, 255, 155, 0.75); }
+.dbtl-panel[data-stage="build"]  { background: rgba(162, 239, 170, 0.75); }
+.dbtl-panel[data-stage="test"]   { background: rgba(180, 250, 223, 0.75); }
+.dbtl-panel[data-stage="learn"]  { background: rgba(255, 243, 208, 0.75); }
+
+.dbtl-panel:focus-visible { box-shadow: 0 0 0 3px #d8b26a; }
+
+.dbtl-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(7, 90, 62, 0.25);
+}
+
+.dbtl-step {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4d6b5c;
+}
+
+.dbtl-panel-head h3 {
+  font-family: "Changa", sans-serif;
+  font-size: 1.9rem;
+  color: #075a3e;
+  margin: 0;
+}
+
+/* Says plainly that a stage has not happened yet, so a reader is never left to
+   assume a plan is a result. */
+.dbtl-flag {
+  margin-left: auto;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #6b4a1f;
+  background: #ffe9b8;
+  border: 1px solid #d8b26a;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+}
+
+.dbtl-panel h4 {
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  color: #1f4a38;
+  margin-top: 1.5rem;
+}
+
+.dbtl-panel p,
+.dbtl-panel li { color: #24352c; line-height: 1.7; }
+.dbtl-panel li { margin-bottom: 0.35rem; }
+
+.dbtl-circuit {
+  list-style: none;
+  counter-reset: circuit;
+  padding-left: 0;
+}
+
+.dbtl-circuit li {
+  counter-increment: circuit;
+  position: relative;
+  padding-left: 2.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.dbtl-circuit li::before {
+  content: counter(circuit);
+  position: absolute;
+  left: 0;
+  top: 0.1rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #075a3e;
+  color: #fffdf7;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.dbtl-todo {
+  margin-top: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 4px solid #d8b26a;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #5a4a2e;
+}
+
+@media (max-width: 575.98px) {
+  .dbtl-panel { padding: 1.25rem 1.15rem 1.5rem; }
+  .dbtl-panel-head h3 { font-size: 1.5rem; }
+  .dbtl-flag { margin-left: 0; }
+  .dbtl-bar { justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dbtl-piece path { transition: fill 0.15s ease; }
+}
+
+/* Attributions: the AI disclosure the Judge Handbook asks for (2026, p.95).
+   Set apart from the rest of the page so it reads as a deliberate statement
+   rather than a footnote. */
+.attr-ai {
+  border-left: 4px solid #075a3e;
+  background: #f6fbf8;
+  border-radius: 0 10px 10px 0;
+  padding: 1.5rem 1.75rem;
+}
+
+.attr-ai h3 {
+  font-family: "Changa", sans-serif;
+  color: #075a3e;
+  margin-top: 0;
+}
+
+.attr-ai h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #4a3f35;
+  margin-top: 1.5rem;
+}
+
+.attr-ai ul { margin-bottom: 0; }
+.attr-ai li { margin-bottom: 0.5rem; line-height: 1.6; }
+/* The list is the last thing in the panel now, so the final item's gap has
+   nothing below it to collapse into and would sit on top of the padding. */
+.attr-ai li:last-child { margin-bottom: 0; }
+
+@media (max-width: 575.98px) {
+  .attr-ai { padding: 1.15rem 1.15rem; }
+}
+
+/* Hover preview for the map: which school a numbered pin is, and which county
+   the pointer is over. Never takes pointer events, so it cannot get between the
+   cursor and a pin. */
+.edu-map-tip {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  max-width: 190px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #075a3e;
+  color: #fffdf7;
+  font-family: "Changa", sans-serif;
   font-size: 0.8rem;
-  color: #888;
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(3px);
+  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s ease;
+}
+
+.edu-map-tip.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.edu-map-tip-title { display: block; font-weight: 700; }
+
+.edu-map-tip-city {
+  display: block;
+  margin-top: 2px;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: #cdeadd;
+}
+
+/* Little pointer, flipped when the tip has to sit below its target. */
+.edu-map-tip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  margin-left: -5px;
+  border: 5px solid transparent;
+  border-top-color: #075a3e;
+  top: 100%;
+}
+
+.edu-map-tip.is-below::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #075a3e;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-map-tip { transition: opacity 0.14s ease, visibility 0.14s ease; transform: none; }
+  .edu-map-tip.is-visible { transform: none; }
 }
 
 .edu-pin {
@@ -725,7 +1449,7 @@ footer a:hover { color: white; text-decoration: underline; }
   transform: translate(-50%, -50%);
   border-radius: 50%;
   border: 2px solid #075a3e;
-  background: #bbffd5;
+  background: #cdeb9b;
   color: #075a3e;
   text-decoration: none;
   font-family: "Changa", sans-serif;
@@ -738,8 +1462,8 @@ footer a:hover { color: white; text-decoration: underline; }
   z-index: 2;
 }
 
-.edu-pin.edu-pin-highschool { background: #f7ffca; }
-.edu-pin.edu-pin-community { background: #ceffef; }
+.edu-pin.edu-pin-highschool { background: #d8f5a0; }
+.edu-pin.edu-pin-community { background: #ffd6ec; }
 
 .edu-pin:hover {
   transform: translate(-50%, -50%) scale(1.2);
@@ -748,14 +1472,6 @@ footer a:hover { color: white; text-decoration: underline; }
 
 .edu-pin.edu-hidden {
   display: none;
-}
-
-.edu-map-note {
-  max-width: 640px;
-  margin: -0.5rem auto 2rem;
-  font-size: 0.8rem;
-  color: #888;
-  text-align: center;
 }
 
 /* ===== Education: session sidebar + detail sections ===== */
@@ -918,7 +1634,7 @@ footer a:hover { color: white; text-decoration: underline; }
   border-bottom: none;
 }
 
-.edu-session-block h3 {
+.edu-session-block h2 {
   font-family: "Changa", sans-serif;
   font-weight: 700;
   color: #2b1e17;
@@ -935,4 +1651,1646 @@ footer a:hover { color: white; text-decoration: underline; }
     width: 100%;
     padding-left: 1rem;
   }
+}
+
+/* ===== The Green Cabinet (SDG Board Game) ===== */
+/* All rules below are scoped under .board-game-page so this self-contained
+   widget's tag-level styling (button, input, h1, h2, .card, .modal, ...)
+   never leaks into the rest of the site. */
+.board-game-page {
+  /* Warm paper base, tuned to sit under the site's pale-yellow page header
+     rather than reading as an unrelated grey panel. */
+  --wood-light: #fbf8e9; --wood-mid: #f2eedb; --wood-dark: #e2dcc2;
+  --paper: #fdfbf7; --paper2: #f4efe6; --ink: #3d3229; --ink2: #5c4e42; --border: #4a3b32;
+  /* Named for what they mean, not what colour they happen to be, so a future
+     palette change does not leave a variable called --teal holding a green.
+     --positive and --brand come from the site palette; --neutral is the paper
+     ink, which keeps the secondary action inside the scrapbook look. */
+  --positive: #2e7d32; --positive-edge: #256428; --positive-drop: #1b4a1d;
+  --brand: #60c028; --brand-soft: #8fd94f; --brand-tint: #eaf7dd;
+  /* Deeper than the paper ink so the secondary action differs from the green
+     primary in lightness as well as hue -- green and brown are a common
+     confusion pair, and the labels should not be the only thing telling
+     Play apart from Discard. */
+  --neutral: #4a3f35; --neutral-edge: #3a312a; --neutral-drop: #2a231e;
+  --red: #c44536; --gold: #c9a227; --muted: #8a7a6a;
+  --sticky-y: #fff3a3; --sticky-p: #ffcce0; --sticky-g: #c8f0d4;
+  font-family: "Segoe UI", "Noto Sans TC", system-ui, sans-serif;
+  background: linear-gradient(160deg, var(--wood-light), var(--wood-mid), var(--wood-dark));
+  color: var(--ink); line-height: 1.5; position: relative;
+  border-radius: 16px; padding: 18px; margin-bottom: 2rem;
+}
+.board-game-page, .board-game-page * { box-sizing: border-box; margin: 0; padding: 0; }
+.board-game-page .lang-bar {
+  position: absolute; top: 10px; right: 14px; z-index: 50;
+  background: var(--paper); border: 2px solid var(--border); border-radius: 8px;
+  padding: 6px 12px; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.board-game-page .lang-bar select { border: 1px solid #c4b8a8; border-radius: 5px; padding: 3px 6px; background: #fff; }
+.board-game-page .screen { display: none; padding: 18px; max-width: 1400px; margin: 0 auto; }
+.board-game-page .screen.active { display: block; }
+.board-game-page h1 { text-align: center; margin-bottom: 14px; font-size: clamp(1.5rem, 3.8vw, 2.15rem); color: var(--border); }
+.board-game-page h2 { margin: 10px 0 8px; color: var(--positive); font-size: 1.08rem; }
+.board-game-page button {
+  background: var(--neutral); color: #fff; border: 2px solid var(--neutral-edge); padding: 10px 18px;
+  border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600;
+  box-shadow: 0 3px 0 var(--neutral-drop); transition: 0.12s;
+}
+.board-game-page button:hover { filter: brightness(1.06); }
+.board-game-page button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--neutral-drop); }
+.board-game-page button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.board-game-page button.danger { background: var(--red); border-color: #a3382c; box-shadow: 0 3px 0 #8b2e24; }
+.board-game-page button.success { background: var(--positive); border-color: var(--positive-edge); box-shadow: 0 3px 0 var(--positive-drop); }
+.board-game-page button.large { padding: 14px 26px; font-size: 1.05rem; width: 100%; max-width: 340px; margin: 8px auto; display: block; }
+.board-game-page input, .board-game-page select { background: var(--paper); border: 2px solid #c4b8a8; color: var(--ink); padding: 8px 12px; border-radius: 7px; font-size: 0.95rem; }
+.board-game-page .menu-box, .board-game-page .setup-box {
+  background: var(--paper); padding: 26px; border-radius: 12px; max-width: 520px; margin: 0 auto;
+  text-align: center; border: 2px solid var(--border); box-shadow: 0 6px 20px rgba(74,59,50,0.12);
+}
+.board-game-page .player-setup { margin: 10px 0; display: grid; grid-template-columns: 70px 1fr 170px; gap: 8px; align-items: center; text-align: left; }
+.board-game-page .player-setup label { font-size: 0.88rem; color: var(--muted); }
+/* A text input will not shrink below its intrinsic width on its own, so the
+   70px / 1fr / 170px row could not fit a phone and pushed the setup screen
+   sideways. Let the fields shrink, and put the label on its own line where
+   even that is not enough. */
+.board-game-page .player-setup input,
+.board-game-page .player-setup select { min-width: 0; }
+
+@media (max-width: 560px) {
+  .board-game-page .player-setup { grid-template-columns: 1fr 132px; gap: 6px; }
+  .board-game-page .player-setup label { grid-column: 1 / -1; }
+}
+/* ---- Online rooms: join form and lobby ---- */
+.board-game-page .online-block { margin: 14px 0 6px; text-align: left; }
+.board-game-page .online-label {
+  display: block; font-size: 0.78rem; font-weight: 700; color: var(--muted);
+  margin-bottom: 4px; letter-spacing: 0.03em;
+}
+.board-game-page .online-block input { width: 100%; }
+.board-game-page #onlineCode {
+  text-transform: uppercase; letter-spacing: 0.35em; font-weight: 700;
+  font-size: 1.2rem; text-align: center;
+}
+.board-game-page .online-status {
+  font-size: 0.85rem; line-height: 1.5; color: var(--muted);
+  margin-bottom: 10px; min-height: 1.2em;
+}
+.board-game-page .online-status.error { color: var(--red); font-weight: 600; }
+.board-game-page .online-status.ok { color: var(--positive); font-weight: 600; }
+.board-game-page .room-code-display {
+  background: #f5f2eb; border: 2px dashed #d8b26a; border-radius: 10px;
+  padding: 12px; margin-bottom: 12px;
+}
+.board-game-page .room-code-label {
+  display: block; font-size: 0.72rem; color: var(--muted);
+  letter-spacing: 0.06em; margin-bottom: 2px;
+}
+.board-game-page .room-code-display strong {
+  font-size: 2rem; letter-spacing: 0.3em; color: var(--border);
+}
+.board-game-page .lobby-players { list-style: none; margin: 0 0 14px; padding: 0; text-align: left; }
+.board-game-page .lobby-players li {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; margin-bottom: 6px;
+  background: #f9f7f2; border: 1px solid #ded6c8; border-radius: 8px;
+  font-size: 0.92rem;
+}
+.board-game-page .lobby-players li.self { border-color: var(--positive); background: var(--brand-tint); }
+.board-game-page .lobby-seat {
+  flex: 0 0 auto; width: 22px; height: 22px; border-radius: 50%;
+  background: #e8e0d4; border: 1px solid #c4b8a8;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700;
+}
+.board-game-page .lobby-host-tag {
+  margin-left: auto; font-size: 0.66rem; font-weight: 700;
+  background: var(--gold); color: #fff; border-radius: 8px; padding: 2px 7px;
+}
+
+/* ---- Rules walkthrough shown before the draft ---- */
+.board-game-page .tutorial-box {
+  background: var(--paper); border: 2px solid var(--border); border-radius: 12px;
+  max-width: 940px; margin: 0 auto; padding: 20px 24px 18px;
+  box-shadow: 0 6px 20px rgba(74,59,50,0.12);
+}
+.board-game-page .tutorial-progress {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px dashed #d5cbb8;
+}
+.board-game-page .tutorial-step-num { font-size: 0.85rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.board-game-page .tutorial-dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.board-game-page .tutorial-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #ded6c8; border: 1px solid #c4b8a8; transition: 0.2s;
+}
+.board-game-page .tutorial-dot.done { background: var(--positive); border-color: var(--positive); }
+.board-game-page .tutorial-dot.current { background: var(--gold); border-color: #a88b1a; transform: scale(1.35); }
+.board-game-page .tutorial-pane { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+@media (max-width: 780px) { .board-game-page .tutorial-pane { grid-template-columns: 1fr; gap: 18px; } }
+.board-game-page .tutorial-lang { min-width: 0; }
+.board-game-page .tutorial-lang + .tutorial-lang { border-left: 1px solid #e8dcc8; padding-left: 22px; }
+@media (max-width: 780px) {
+  .board-game-page .tutorial-lang + .tutorial-lang { border-left: none; padding-left: 0; border-top: 1px dashed #d5cbb8; padding-top: 16px; }
+}
+.board-game-page .tutorial-lang-tag {
+  display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--muted); background: #f0ebe3; border: 1px solid #ded6c8;
+  border-radius: 10px; padding: 2px 9px; margin-bottom: 8px;
+}
+.board-game-page .tutorial-lang h2 { margin: 0 0 10px; color: var(--positive); font-size: 1.12rem; line-height: 1.35; }
+.board-game-page .tutorial-lang ul { list-style: none; margin: 0; padding: 0; }
+.board-game-page .tutorial-lang li {
+  position: relative; padding-left: 16px; margin-bottom: 9px;
+  font-size: 0.9rem; line-height: 1.6; color: var(--ink2);
+}
+.board-game-page .tutorial-lang li::before {
+  content: ""; position: absolute; left: 0; top: 0.62em;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--gold);
+}
+.board-game-page .tutorial-actions {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-top: 20px; padding-top: 16px; border-top: 1px dashed #d5cbb8;
+}
+.board-game-page .tutorial-actions button { min-width: 150px; }
+@media (max-width: 560px) { .board-game-page .tutorial-actions button { min-width: 130px; flex: 1 1 auto; } }
+
+.board-game-page .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(118px, 100%), 1fr)); gap: 10px; margin: 14px 0; }
+.board-game-page .sdg-pick {
+  background: var(--paper); border: 2px solid #c4b8a8; border-radius: 10px; padding: 11px 7px;
+  text-align: center; cursor: pointer; transition: 0.15s; user-select: none;
+}
+.board-game-page .sdg-pick:hover:not(.disabled):not(.selected) { border-color: var(--positive); transform: translateY(-2px); }
+.board-game-page .sdg-pick.disabled { opacity: 0.32; cursor: not-allowed; filter: grayscale(0.6); }
+.board-game-page .sdg-pick.selected { border-color: var(--positive); background: var(--brand-tint); box-shadow: 0 0 0 2px var(--positive); }
+.board-game-page .sdg-pick .pick-count { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+.board-game-page .draft-status { text-align: center; margin: 10px 0; font-size: 1.08rem; color: var(--positive); font-weight: 600; }
+.board-game-page .draft-selected-count { text-align: center; color: var(--muted); margin-bottom: 6px; }
+.board-game-page .game-layout { display: grid; grid-template-columns: 1fr 290px; gap: 14px; }
+@media (max-width: 960px) { .board-game-page .game-layout { grid-template-columns: 1fr; } .board-game-page .log-panel { max-height: 260px; } }
+.board-game-page .board { background: var(--paper); border-radius: 12px; padding: 14px; border: 2px solid var(--border); box-shadow: 0 6px 18px rgba(74,59,50,0.1); }
+.board-game-page .players-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 10px; margin-bottom: 12px; }
+.board-game-page .player-card { background: #f9f7f2; border: 2px solid #c4b8a8; border-radius: 10px; padding: 10px; position: relative; }
+.board-game-page .player-card.current { border-color: var(--positive); box-shadow: 0 0 0 2px rgba(46,125,50,0.3); }
+.board-game-page .player-card.sanctioned::after { content: attr(data-sanction); position: absolute; top: 5px; right: 7px; background: var(--red); color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 5px; }
+.board-game-page .player-card.ai-tag::before { content: "Bot"; position: absolute; top: 5px; left: 7px; background: #6b5b4f; color: #fff; font-size: 0.6rem; padding: 2px 5px; border-radius: 4px; }
+.board-game-page .player-name { font-weight: 700; font-size: 0.98rem; margin-bottom: 6px; padding-left: 24px; }
+.board-game-page .sdg-row { display: flex; gap: 6px; margin-bottom: 3px; align-items: center; }
+.board-game-page .sdg-badge { background: #e8e0d4; border: 1px solid #c4b8a8; border-radius: 6px; padding: 3px 6px; font-size: 0.78rem; min-width: 60px; text-align: center; font-weight: 600; }
+.board-game-page .sdg-badge.goal { background: linear-gradient(135deg, #e8c547, #c9a227); border-color: #a88b1a; }
+.board-game-page .sdg-progress-bar { display: block; flex: 1; height: 18px; background: #e5dfd4; border-radius: 9px; overflow: hidden; position: relative; border: 1px solid #c4b8a8; }
+.board-game-page .progress-fill { height: 100%; background: linear-gradient(90deg, var(--brand), var(--brand-soft)); transition: width 0.45s ease; }
+.board-game-page .progress-fill.negative { background: linear-gradient(90deg, #c44536, #e06b5e); }
+.board-game-page .progress-preview { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(90deg, rgba(96,192,40,0.35), rgba(96,192,40,0.35) 4px, rgba(96,192,40,0.12) 4px, rgba(96,192,40,0.12) 8px); border: 2px dashed var(--brand); border-radius: 9px; pointer-events: none; }
+.board-game-page .progress-preview.negative { background: repeating-linear-gradient(90deg, rgba(196,69,54,0.4), rgba(196,69,54,0.4) 4px, rgba(196,69,54,0.15) 4px, rgba(196,69,54,0.15) 8px); border-color: #c44536; }
+.board-game-page .progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; z-index: 2; }
+.board-game-page .progress-labels { display: flex; justify-content: space-between; font-size: 0.58rem; color: var(--muted); margin-top: 1px; padding: 0 2px; }
+.board-game-page .hand-area { background: #f5f2eb; border-radius: 10px; padding: 12px; margin-top: 10px; border: 1px solid #d5cbb8; }
+.board-game-page .hand-cards { display: flex; flex-wrap: wrap; gap: 10px; min-height: 115px; }
+.board-game-page .hand-card {
+  background: var(--paper); border: 2px solid var(--border); border-radius: 10px; padding: 0; width: 148px;
+  font-size: 0.74rem; cursor: pointer; transition: 0.18s; overflow: hidden; box-shadow: 0 4px 10px rgba(74,59,50,0.12);
+}
+.board-game-page .hand-card:hover { transform: translateY(-8px) scale(1.04); border-color: var(--gold); }
+.board-game-page .hand-card.selected { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); transform: translateY(-6px); }
+.board-game-page .hand-card.disabled-card { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.board-game-page .hand-card-header { padding: 4px 8px; font-size: 0.65rem; font-weight: 700; }
+.board-game-page .hand-card.event .hand-card-header { background: #e8a54b; color: #3d3229; }
+.board-game-page .hand-card.special .hand-card-header { background: #7b6b9e; color: #fff; }
+.board-game-page .hand-card-body { padding: 7px; }
+.board-game-page .card-name { font-weight: 700; margin-bottom: 3px; font-size: 0.8rem; }
+.board-game-page .card-effect { color: var(--muted); font-size: 0.68rem; }
+.board-game-page .card-fwd { color: var(--positive); }
+.board-game-page .card-bwd { color: #a3382c; }
+.board-game-page .deck-info { display: flex; gap: 14px; margin: 10px 0; font-size: 0.88rem; color: var(--muted); }
+.board-game-page .phase-bar { background: #ebe6dc; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border: 1px solid #d5cbb8; }
+.board-game-page .phase-label { font-weight: 700; color: var(--positive); }
+.board-game-page .ai-thinking { color: #6b5b4f; animation: boardGamePulse 1.2s infinite; }
+@keyframes boardGamePulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.board-game-page .log-panel { background: var(--paper); border-radius: 12px; padding: 12px; height: calc(100vh - 40px); max-height: 840px; display: flex; flex-direction: column; border: 2px solid var(--border); }
+.board-game-page .log-content { flex: 1; overflow-y: auto; font-size: 0.8rem; color: var(--ink2); }
+.board-game-page .log-entry { padding: 4px 0; border-bottom: 1px solid #ebe6dc; }
+.board-game-page .log-entry.sys { color: var(--neutral); }
+.board-game-page .log-entry.win { color: var(--positive); font-weight: 700; }
+.board-game-page .log-entry.ai { color: #6b5b4f; }
+.board-game-page .log-entry.up { color: var(--positive); }
+.board-game-page .log-entry.down { color: #a3382c; }
+.board-game-page .log-entry.special { color: #8b6914; }
+.board-game-page .modal-overlay { position: fixed; inset: 0; background: rgba(61,50,41,0.45); display: none; align-items: center; justify-content: center; z-index: 2000; }
+.board-game-page .modal-overlay.show { display: flex; }
+.board-game-page .tgc-dialog { display: block; position: static; opacity: 1; pointer-events: auto; background: var(--paper); border-radius: 12px; padding: 22px; max-width: 480px; width: 92%; max-height: 85vh; overflow-y: auto; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+.board-game-page .tgc-dialog h3 { margin-bottom: 12px; color: var(--positive); }
+.board-game-page .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+.board-game-page .modal-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; max-height: 280px; overflow-y: auto; }
+.board-game-page .modal-list button { font-size: 0.82rem; padding: 8px 12px; }
+.board-game-page .win-screen { text-align: center; padding: 48px 20px; }
+.board-game-page .win-screen h1 { color: var(--gold); }
+.board-game-page .confirm-bar { margin-top: 10px; display: flex; gap: 10px; justify-content: center; }
+
+/* Notebook torn-page card announcement modal */
+.board-game-page #card-play-modal {
+  position: fixed; inset: 0; background: rgba(61,50,41,0.42);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.board-game-page #card-play-modal.show { opacity: 1; pointer-events: auto; }
+.board-game-page .tgc-torn-page {
+  position: relative;
+  background:
+    linear-gradient(90deg, transparent 0, transparent 28px, #e8dcc8 28px, #e8dcc8 30px, transparent 30px),
+    repeating-linear-gradient(0deg, transparent, transparent 27px, #d4cfc4 27px, #d4cfc4 28px),
+    linear-gradient(160deg, var(--paper), var(--paper2));
+  border: 1px solid #c9bfa8;
+  border-radius: 2px 12px 12px 2px;
+  padding: 28px 32px 22px 42px;
+  max-width: 480px; width: 92%;
+  /* Sticky notes make this page tall; keep it inside the viewport so the
+     Next button below is always reachable. */
+  max-height: 88vh; overflow-y: auto;
+  box-shadow: 5px 5px 15px rgba(0,0,0,0.15), inset 0 0 40px rgba(255,255,255,0.3);
+  transform: rotate(-0.6deg) scale(0.94);
+  transition: transform 0.35s cubic-bezier(0.34,1.3,0.64,1);
+}
+.board-game-page #card-play-modal.show .tgc-torn-page { transform: rotate(0deg) scale(1); }
+.board-game-page .tgc-torn-page::before {
+  content: ""; position: absolute; left: -6px; top: 8%; bottom: 8%; width: 14px;
+  background: radial-gradient(circle at 4px 12px, transparent 5px, #c9bfa8 5.5px, #c9bfa8 7px, transparent 7.5px) 0 0 / 14px 28px;
+  opacity: 0.7;
+}
+.board-game-page .tgc-torn-page::after {
+  content: ""; position: absolute; top: -2px; left: 10%; right: 8%; height: 8px;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06) 20%, transparent 40%, rgba(0,0,0,0.05) 70%, transparent);
+  border-radius: 50%;
+}
+.board-game-page .card-announce-player { font-size: 0.95rem; color: var(--neutral); margin-bottom: 4px; font-weight: 600; }
+/* Reveal Phase flip: not a player's move, so it is labelled and tinted apart. */
+.board-game-page .card-announce-player.reveal {
+  color: var(--gold); font-size: 0.82rem; letter-spacing: 0.02em;
+  display: inline-block; background: #fdf3d6; border: 1px dashed #d8b26a;
+  border-radius: 12px; padding: 3px 11px; margin-bottom: 8px;
+}
+.board-game-page .card-announce-name { font-size: 1.5rem; font-weight: 800; color: var(--border); margin-bottom: 4px; line-height: 1.25; }
+/* The card title doubles as the team's Wikipedia reference. Underlined so it
+   reads as a link on the notepaper without breaking the handwritten look. */
+.board-game-page .card-announce-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: #c9bfa8;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.board-game-page .card-announce-link:hover,
+.board-game-page .card-announce-link:focus-visible {
+  color: #075a3e;
+  text-decoration-color: #075a3e;
+}
+.board-game-page .card-announce-link:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+/* Small outbound arrow so it is obvious the link leaves the game. */
+.board-game-page .card-announce-link::after {
+  content: "\2197";
+  font-size: 0.72em;
+  margin-left: 4px;
+  vertical-align: super;
+  display: inline-block;
+}
+.board-game-page .card-announce-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 10px; font-style: italic; }
+.board-game-page .card-announce-desc {
+  font-size: 0.9rem; color: var(--ink2); margin-bottom: 16px; line-height: 1.55;
+  border-left: 3px solid #e8dcc8; padding-left: 12px;
+}
+/* Sticky notes pinned onto the notepaper. Each carries the SDG it moves,
+   the step change, and the team's annotation for that SDG. */
+.board-game-page .card-announce-effects {
+  display: flex; flex-wrap: wrap; gap: 14px 12px;
+  justify-content: center; margin: 6px 0 20px;
+}
+.board-game-page .sticky-note {
+  position: relative;
+  flex: 0 1 auto;
+  width: 178px; min-height: 92px;
+  padding: 14px 12px 12px;
+  text-align: left;
+  font-size: 0.82rem; font-weight: 600; line-height: 1.35;
+  border-radius: 1px;
+  /* Lifted corner: darker at the bottom-right so it reads as a peeling note. */
+  box-shadow: 2px 4px 7px rgba(0,0,0,0.18), inset 0 -14px 18px -14px rgba(0,0,0,0.12);
+}
+.board-game-page .sticky-note.up { background: var(--sticky-g); transform: rotate(-2deg); color: #1a5c4a; }
+.board-game-page .sticky-note.down { background: var(--sticky-p); transform: rotate(3deg); color: #8b2e3a; }
+.board-game-page .sticky-note.special { background: var(--sticky-y); transform: rotate(-2deg); color: #5c4a12; }
+/* Strip of washi tape holding the note to the page. */
+.board-game-page .sticky-note::before {
+  content: ""; position: absolute; top: -9px; left: 50%;
+  width: 54px; height: 18px; transform: translateX(-50%) rotate(-1.5deg);
+  background: rgba(255,255,255,0.55);
+  border-left: 1px solid rgba(0,0,0,0.05); border-right: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+}
+/* Curled bottom-right corner. */
+.board-game-page .sticky-note::after {
+  content: ""; position: absolute; right: 0; bottom: 0; width: 16px; height: 16px;
+  background: linear-gradient(315deg, rgba(0,0,0,0.10) 50%, transparent 50%);
+}
+.board-game-page .sticky-note-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 6px; margin-bottom: 2px;
+}
+.board-game-page .sticky-note-sdg { font-size: 0.9rem; font-weight: 800; }
+.board-game-page .sticky-note-delta { font-size: 0.9rem; font-weight: 800; white-space: nowrap; }
+.board-game-page .sticky-note-title {
+  font-size: 0.72rem; font-weight: 700; opacity: 0.75;
+  margin-bottom: 5px; padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(0,0,0,0.18);
+}
+.board-game-page .sticky-note-text { font-size: 0.76rem; font-weight: 500; opacity: 0.95; }
+/* Plain badge used when a card has no per-SDG annotation to show. */
+.board-game-page .sticky-note.plain { width: auto; min-width: 104px; min-height: 0; padding: 10px 14px; text-align: center; }
+.board-game-page .sticky-note.plain .sticky-note-head { justify-content: center; }
+.board-game-page .card-announce-next { text-align: center; }
+.board-game-page .card-announce-next button { min-width: 140px; font-size: 1rem; }
+/* Online: nobody advances until every seat has pressed Next. */
+.board-game-page .ack-status {
+  margin-top: 8px; font-size: 0.78rem; font-weight: 600; color: var(--muted);
+  min-height: 1.1em;
+}
+/* Online perspective: your own seat is marked, and other hands show only a count. */
+.board-game-page .player-card.viewer { box-shadow: 0 0 0 2px var(--gold); }
+.board-game-page .you-tag {
+  font-size: 0.62rem; font-weight: 700; background: var(--gold); color: #fff;
+  border-radius: 8px; padding: 1px 6px; margin-left: 4px; vertical-align: middle;
+}
+.board-game-page .hand-count-tag {
+  font-size: 0.62rem; font-weight: 600; color: var(--muted);
+  background: #eee7db; border: 1px solid #ded6c8;
+  border-radius: 8px; padding: 1px 6px; margin-left: 4px; vertical-align: middle;
+}
+.board-game-page .hand-owner { font-size: 0.85rem; color: var(--gold); font-weight: 700; }
+
+.board-game-page #ai-notice {
+  position: fixed; inset: 0; background: rgba(61,50,41,0.32);
+  display: none; align-items: center; justify-content: center; z-index: 9000;
+}
+.board-game-page #ai-notice.show { display: flex; }
+.board-game-page .ai-notice-box {
+  background: var(--paper); border: 3px solid var(--border); border-radius: 12px;
+  padding: 22px 32px; max-width: 420px; text-align: center; font-size: 1.05rem;
+  font-weight: 600; box-shadow: 0 10px 28px rgba(0,0,0,0.15);
+}
+
+
+/* ===== Lab book: protocols as sheets ==================================
+   A protocol is a document someone follows at a bench with one hand, so the
+   page is built as a stack of sheets rather than a run of headings: each one
+   carries its own title band and its own PDF, and the procedure reads as a
+   numbered column you can keep your place in. Nothing here changes a word of
+   the protocol text -- only how it is set. */
+
+.labbook {
+  max-width: 940px;
+  margin: 0 auto;
+}
+
+.labbook .protocol {
+  background: #fffdf9;
+  border: 1px solid #e6ddc8;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(43, 30, 23, 0.06);
+  margin-bottom: 2.75rem;
+  overflow: hidden;
+}
+
+/* The title band is the sheet's cover line: it names the protocol and nothing
+   else competes with it. */
+.labbook .protocol > h2 {
+  font-family: "Changa", sans-serif;
+  font-size: clamp(1.3rem, 1rem + 1.4vw, 1.75rem);
+  line-height: 1.3;
+  color: #fffdf9;
+  background: #075a3e;
+  margin: 0;
+  padding: 1.15rem 1.5rem 1.05rem;
+}
+
+/* The PDF is the thing a bench user actually wants, so it sits directly under
+   the title as a button rather than as a line of blue text in the body. */
+.labbook .protocol-pdf {
+  margin: 0;
+  padding: 1rem 1.5rem;
+  background: #f5f1e4;
+  border-bottom: 1px solid #e6ddc8;
+}
+
+.labbook .protocol-pdf a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #075a3e;
+  text-decoration: none;
+  background: #fffdf9;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  padding: 0.5rem 1.15rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.labbook .protocol-pdf a:hover,
+.labbook .protocol-pdf a:focus-visible {
+  background: #075a3e;
+  color: #fffdf9;
+}
+
+.labbook .protocol-pdf svg {
+  flex: none;
+  font-size: 1.1em;
+}
+
+.labbook .protocol-body {
+  padding: 1.75rem 1.5rem 2rem;
+}
+
+/* Introduction / Materials / Procedure divide the sheet. A rule under each one
+   makes those divisions visible while scrolling past. */
+.labbook .protocol-section {
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #075a3e;
+  margin: 2.5rem 0 1.1rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 2px solid #dbe7cb;
+}
+
+.labbook .protocol-section:first-child {
+  margin-top: 0;
+}
+
+.labbook .protocol-body h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2b1e17;
+  margin: 1.6rem 0 0.55rem;
+}
+
+.labbook .protocol-body h4:first-of-type {
+  margin-top: 0;
+}
+
+.labbook .protocol-body p {
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+
+/* Objectives and references are lists of statements, not steps; keep them
+   quiet and let the procedure below own the reader's attention. */
+.labbook .protocol-aims,
+.labbook .protocol-refs {
+  padding-left: 1.15rem;
+  line-height: 1.7;
+}
+
+.labbook .protocol-aims li,
+.labbook .protocol-refs li {
+  margin-bottom: 0.55rem;
+}
+
+.labbook .protocol-aims li::marker {
+  color: #60c028;
+}
+
+.labbook .protocol-refs {
+  font-size: 0.92rem;
+  color: #4a3f35;
+}
+
+/* Materials are things you fetch before starting, so they read as a shelf of
+   items rather than prose. */
+.labbook .protocol-materials {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(275px, 100%), 1fr));
+}
+
+.labbook .protocol-materials li {
+  background: #f7f4ea;
+  border-left: 3px solid #8fd94f;
+  border-radius: 0 8px 8px 0;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+/* The procedure. Numbers move out into the margin and a thread joins them, so
+   you can look away, look back, and find your step again. */
+.labbook .protocol-steps {
+  list-style: none;
+  counter-reset: protostep;
+  padding-left: 0;
+  margin: 1.35rem 0 0;
+}
+
+.labbook .protocol-steps > li {
+  counter-increment: protostep;
+  position: relative;
+  padding: 0 0 1.6rem 3.5rem;
+  line-height: 1.75;
+}
+
+.labbook .protocol-steps > li:last-child {
+  padding-bottom: 0;
+}
+
+.labbook .protocol-steps > li::before {
+  content: counter(protostep);
+  position: absolute;
+  left: 0;
+  top: -0.2rem;
+  width: 2.35rem;
+  height: 2.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #075a3e;
+  background: #eaf7dd;
+  border: 2px solid #075a3e;
+  border-radius: 50%;
+}
+
+.labbook .protocol-steps > li::after {
+  content: "";
+  position: absolute;
+  left: calc(1.175rem - 1px);
+  top: 2.4rem;
+  bottom: 0.4rem;
+  width: 2px;
+  background: #dfe9d2;
+}
+
+.labbook .protocol-steps > li:last-child::after {
+  display: none;
+}
+
+/* "Note:" and "Tip:" are the protocol's own asides. In the source they are
+   emphasis; here they take the shape of a margin note so they read as
+   guidance rather than as another sentence of the step. */
+.labbook .protocol-note,
+.labbook .protocol-steps > li > em {
+  display: block;
+  background: #fdf8e3;
+  border-left: 4px solid #c9a227;
+  border-radius: 0 8px 8px 0;
+  padding: 0.75rem 1rem;
+  margin: 0.85rem 0 0;
+  font-size: 0.92rem;
+  font-style: italic;
+  line-height: 1.65;
+  color: #4a3f35;
+}
+
+.labbook .protocol-note {
+  margin: 0 0 0.5rem;
+}
+
+/* That <br> only existed to push the tip onto its own line. Now that the tip
+   is a block of its own, the break would leave a gap. */
+.labbook .protocol-steps > li > br:has(+ em) {
+  display: none;
+}
+
+/* The last step hands off to another protocol. Mark it so the sheet has a
+   visible end instead of just stopping. */
+.labbook .protocol-endpoint {
+  background: #f2f8ec;
+  border: 1px solid #d6e7c4;
+  border-radius: 10px;
+  padding: 1rem 1rem 1rem 3.5rem !important;
+  margin-top: 0.4rem;
+}
+
+.labbook .protocol-endpoint::before {
+  left: 0.75rem;
+  top: 0.85rem;
+}
+
+.labbook .protocol-steps > li.protocol-endpoint > strong:first-child {
+  display: inline-block;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #fffdf9;
+  background: #075a3e;
+  border-radius: 5px;
+  padding: 0.2rem 0.55rem;
+  margin-right: 0.35rem;
+  vertical-align: 0.08em;
+}
+
+/* Reagent table. Volumes are a column of numbers, so they line up on the
+   right and share one figure width. */
+/* Shrink-to-fit, but still a block. As an inline-block its baseline is its
+   bottom edge (overflow is not visible), so it grew upwards out of the step
+   and pushed that step's sentence underneath it. And overflow:hidden would
+   clip a table too wide for a phone instead of letting it scroll. */
+.labbook .protocol-table-wrap {
+  border: 1px solid #e0d6c0;
+  border-radius: 10px;
+  overflow-x: auto;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.labbook .protocol-table {
+  margin-bottom: 0;
+  font-size: 0.93rem;
+  border: none;
+}
+
+.labbook .protocol-table thead th {
+  font-family: "Changa", sans-serif;
+  font-weight: 600;
+  color: #fffdf9;
+  background: #075a3e;
+  border: none;
+  padding: 0.6rem 1rem;
+  white-space: nowrap;
+}
+
+.labbook .protocol-table td {
+  border: none;
+  border-top: 1px solid #ece5d4;
+  padding: 0.55rem 1rem;
+  background: transparent;
+  vertical-align: middle;
+}
+
+.labbook .protocol-table tbody tr:nth-child(odd) td {
+  background: #fbf9f2;
+}
+
+.labbook .protocol-table td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.labbook .protocol-table tbody tr:last-child td {
+  background: #eaf7dd;
+  border-top: 2px solid #075a3e;
+}
+
+/* A sheet that is only a title and its PDF should look finished, not like a
+   section that failed to load. */
+.labbook .protocol-pdf-only .protocol-pdf {
+  border-bottom: none;
+}
+
+@media (max-width: 575.98px) {
+  .labbook .protocol > h2 { padding: 1rem 1.15rem 0.95rem; }
+  .labbook .protocol-pdf { padding: 0.9rem 1.15rem; }
+  .labbook .protocol-body { padding: 1.4rem 1.15rem 1.6rem; }
+  .labbook .protocol-steps > li { padding-left: 2.9rem; }
+  .labbook .protocol-steps > li::before { width: 2rem; height: 2rem; font-size: 0.9rem; }
+  .labbook .protocol-steps > li::after { left: calc(1rem - 1px); top: 2.05rem; }
+  .labbook .protocol-endpoint { padding-left: 2.9rem !important; }
+  .labbook .protocol-endpoint::before { left: 0.55rem; }
+  .labbook .protocol-table-wrap { width: auto; }
+}
+
+/* The protocol itself, on the page. Behind a download link a PDF is a file you
+   have to go and fetch; embedded, it is simply the document, and the link below
+   it becomes what it always was underneath -- a way to keep a copy. */
+.labbook .protocol-viewer {
+  background: #ece6d8;
+  border-bottom: 1px solid #e6ddc8;
+  line-height: 0;            /* an iframe is inline: without this it sits on a descender gap */
+}
+
+.labbook .protocol-viewer iframe {
+  display: block;
+  width: 100%;
+  height: min(82vh, 940px);
+  min-height: 460px;
+  border: 0;
+  background: #ece6d8;
+}
+
+/* Phone browsers do not render an embedded PDF reliably -- Android Chrome
+   leaves the frame empty and iOS Safari shows one static page you cannot
+   scroll. Below this width the frame is dropped, and because it is lazily
+   loaded it is never fetched either. The link underneath still opens the
+   document in the browser's own viewer, which is what works there. */
+@media (max-width: 575.98px) {
+  .labbook .protocol-viewer { display: none; }
+}
+
+
+/* Site tour: a first look at the wiki, one section at a time ----------------
+   Modal by design. A visitor who wants none of it can leave at any step --
+   Skip, Escape, or the backdrop -- and the button in the banner brings it
+   back, so skipping costs nothing. */
+
+/* The banner button. Hidden in the markup and revealed by the script, so it
+   never appears where it would do nothing. */
+.tour-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding: 0.6rem 1.35rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1rem;
+  color: #fff;
+  /* The banner is a gradient, so white text here is only as readable as
+     whatever the gradient happens to be doing behind it -- 5.8:1 over the
+     middle stop but 2.4:1 over the light end. A dark translucent fill of its
+     own puts the text above 9:1 anywhere on that band. Over the light end the
+     fill is what separates the button from the page (3.9:1); over the dark end
+     the fill nearly matches it, and the white ring does the separating
+     instead (11:1). One of the two always carries it. */
+  background: rgba(8, 34, 28, 0.7);
+  border: 2px solid #fff;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tour-open:hover,
+.tour-open:focus-visible {
+  background: #fff;
+  color: #12474f;
+}
+
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Clear the fixed bar: the tour points at it, so it must stay visible. */
+  padding: 92px 16px 24px;
+}
+
+.tour[hidden] { display: none; }
+
+.tour-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 32, 22, 0.62);
+  cursor: pointer;
+}
+
+.tour-card {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  max-height: calc(100vh - 116px);
+  overflow-y: auto;
+  background: #fffdf7;
+  border-radius: 16px;
+  box-shadow: 0 18px 48px rgba(15, 32, 22, 0.35);
+  padding: 1.25rem 1.6rem 1.4rem;
+}
+
+.tour-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.tour-count {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #5f6e66;
+}
+
+.tour-skip {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #075a3e;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.tour-skip:hover,
+.tour-skip:focus-visible { background: #eaf7dd; }
+
+/* A floor, so the first step does not collapse to a couple of lines before the
+   second one opens out. */
+.tour-stage { min-height: 120px; }
+
+.tour-step[hidden] { display: none; }
+
+.tour-title {
+  font-family: "Changa", sans-serif;
+  font-size: 1.5rem;
+  color: #075a3e;
+  margin: 0 0 0.6rem;
+}
+
+/* The card takes focus when the tour opens. It is modal and unmissable, so a
+   ring is only drawn when the visitor is actually driving from the keyboard. */
+.tour-card:focus { outline: none; }
+
+.tour-card:focus-visible {
+  outline: 3px solid #60c028;
+  outline-offset: 3px;
+}
+
+.tour-step p {
+  margin: 0;
+  line-height: 1.7;
+  color: #33413a;
+}
+
+/* Five groups, twenty-one pages, on one screen: columns that reflow rather
+   than a fixed grid, so the shortest section does not leave a hole. */
+.tour-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 1.1rem 1.4rem;
+  margin-top: 1.25rem;
+}
+
+.tour-map h3 {
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #5f6e66;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #e6ddc8;
+}
+
+.tour-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tour-links a {
+  display: inline-block;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #075a3e;
+  text-decoration: none;
+  background: #eaf7dd;
+  border: 1px solid #c6e3a6;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tour-links a:hover,
+.tour-links a:focus-visible {
+  background: #075a3e;
+  border-color: #075a3e;
+  color: #fffdf7;
+}
+
+.tour-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e6ddc8;
+}
+
+.tour-actions {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.tour-btn {
+  min-height: 40px;
+  padding: 0.45rem 1.15rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tour-back {
+  color: #075a3e;
+  background: #fffdf7;
+  border: 2px solid #075a3e;
+}
+
+.tour-back:hover:not(:disabled),
+.tour-back:focus-visible { background: #eaf7dd; }
+
+/* WCAG exempts an inactive control from contrast, but that is permission to
+   ignore it, not a reason to make it unreadable. This still reads (4.9:1) and
+   is still plainly lighter than the enabled Back, which is #075a3e at 7.5:1. */
+.tour-back:disabled {
+  color: #5f6e66;
+  border-color: #c3cec7;
+  cursor: default;
+}
+
+.tour-next {
+  color: #fffdf7;
+  background: #075a3e;
+  border: 2px solid #075a3e;
+}
+
+.tour-next:hover,
+.tour-next:focus-visible { background: #04412c; border-color: #04412c; }
+
+/* While the tour runs the page behind it must not scroll away underneath.
+   Named for the state, not the control: .tour-open is the banner button, and a
+   body carrying that class would inherit its inline-flex. */
+body.tour-active { overflow: hidden; }
+
+/* While the step that lists the sections is up, the bar is lifted out of the
+   dimmed page, so the sentence about the menu and the menu itself are legible
+   at the same time. */
+.navbar.tour-above { z-index: 1085; }
+
+@media (max-width: 575.98px) {
+  .tour { padding: 78px 12px 16px; }
+  .tour-card { padding: 1.1rem 1.15rem 1.2rem; max-height: calc(100vh - 94px); }
+  .tour-title { font-size: 1.3rem; }
+  .tour-stage { min-height: 0; }
+  .tour-actions { justify-content: stretch; flex: 1; }
+  .tour-btn { flex: 1; }
+  .tour-map { gap: 0.9rem; }
+}
+
+@media print {
+  .tour, .tour-open { display: none !important; }
+}
+
+
+/* ===== Print: the lab book leaves the screen =========================
+   A protocol is printed and carried to the bench. Two things decide whether
+   it survives the trip. Browsers drop background colours when printing, so
+   anything set white-on-colour -- the title band, the table header, the
+   ENDPOINT badge -- would come out white on white. And a step split across a
+   page break is a step somebody misses. */
+@media print {
+
+  @page { margin: 15mm 14mm; }
+
+  /* Screen furniture. The navbar is position:fixed, which some browsers
+     reprint on every page. The embedded PDF cannot print from an iframe, and
+     a download button on paper does nothing. */
+  .navbar,
+  footer.footer,
+  .back-to-top,
+  .labbook .protocol-viewer,
+  .labbook .protocol-pdf { display: none !important; }
+
+  html, body {
+    background: #fff !important;
+    color: #000;
+    font-size: 10.5pt;
+  }
+
+  .container {
+    max-width: none !important;
+    width: auto !important;
+    padding: 0 !important;
+  }
+
+  /* Keep the page's name; drop the colour band it lives in. */
+  header.bg-hero {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 0 0.8rem !important;
+  }
+  .hero-title { color: #000 !important; font-size: 17pt; margin: 0 !important; }
+  .hero-sub { color: #333 !important; font-size: 10pt; margin: 0 !important; }
+
+  a { color: #000 !important; }
+
+  .labbook { max-width: none; }
+
+  /* overflow:hidden rounds the corners on screen, but it also stops a sheet
+     from paginating -- the tail would simply be cut off. */
+  .labbook .protocol {
+    border: none;
+    border-top: 3pt solid #000;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+    margin: 0 0 1.4rem;
+  }
+  .labbook .protocol + .protocol { break-before: page; }
+
+  .labbook .protocol > h2 {
+    background: none !important;
+    color: #000 !important;
+    padding: 0.45rem 0 0.5rem;
+    font-size: 14pt;
+    break-after: avoid;
+  }
+
+  .labbook .protocol-body { padding: 0; }
+
+  .labbook .protocol-section {
+    color: #000;
+    border-bottom: 1.5pt solid #000;
+    margin: 1.1rem 0 0.6rem;
+    font-size: 11pt;
+    break-after: avoid;
+  }
+
+  .labbook .protocol-body h4 { break-after: avoid; margin: 0.8rem 0 0.3rem; }
+  .labbook .protocol-body p { line-height: 1.5; margin-bottom: 0.5rem; }
+
+  .labbook .protocol-materials { gap: 0.2rem 1.2rem; }
+  .labbook .protocol-materials li {
+    background: none;
+    border-left: 1.5pt solid #000;
+    border-radius: 0;
+    padding: 0.1rem 0 0.1rem 0.5rem;
+    break-inside: avoid;
+  }
+
+  /* Every step stays whole, and its number keeps an outline that ink can draw. */
+  .labbook .protocol-steps > li {
+    break-inside: avoid;
+    padding: 0 0 0.7rem 2.6rem;
+    line-height: 1.5;
+  }
+  .labbook .protocol-steps > li::before {
+    background: none;
+    border: 1.2pt solid #000;
+    color: #000;
+    width: 1.9rem;
+    height: 1.9rem;
+    font-size: 9pt;
+    top: 0;
+  }
+  .labbook .protocol-steps > li::after { display: none; }
+
+  .labbook .protocol-note,
+  .labbook .protocol-steps > li > em {
+    background: none;
+    border-left: 1.5pt solid #000;
+    border-radius: 0;
+    padding: 0.15rem 0 0.15rem 0.6rem;
+    color: #000;
+    break-inside: avoid;
+  }
+
+  .labbook .protocol-endpoint {
+    background: none;
+    border: 1pt solid #000;
+    padding: 0.5rem 0.5rem 0.5rem 2.6rem !important;
+  }
+  .labbook .protocol-endpoint::before { left: 0.4rem; top: 0.5rem; }
+  .labbook .protocol-steps > li.protocol-endpoint > strong:first-child {
+    background: none !important;
+    color: #000 !important;
+    border: 1pt solid #000;
+    padding: 0.02rem 0.3rem;
+  }
+
+  .labbook .protocol-table-wrap {
+    border: 1pt solid #000;
+    border-radius: 0;
+    break-inside: avoid;
+  }
+  .labbook .protocol-table thead th {
+    background: none !important;
+    color: #000 !important;
+    border-bottom: 1.5pt solid #000;
+  }
+  .labbook .protocol-table td { border-top: 0.5pt solid #999; }
+  .labbook .protocol-table tbody tr:nth-child(odd) td { background: none; }
+  .labbook .protocol-table tbody tr:last-child td {
+    background: none;
+    border-top: 1.2pt solid #000;
+    font-weight: 700;
+  }
+
+  /* Paper cannot be clicked, so a reference is only useful spelled out. */
+  .labbook .protocol-refs a::after {
+    content: " (" attr(href) ")";
+    font-size: 8.5pt;
+    word-break: break-all;
+  }
+
+  /* A sheet whose only content is its PDF would otherwise print as a bare
+     title. It keeps its link, with the address written out. */
+  .labbook .protocol-pdf-only .protocol-pdf {
+    display: block !important;
+    background: none;
+    border: none;
+    padding: 0.3rem 0;
+  }
+  .labbook .protocol-pdf-only .protocol-pdf a {
+    display: inline;
+    background: none;
+    border: none;
+    padding: 0;
+    font-weight: 400;
+  }
+  .labbook .protocol-pdf-only .protocol-pdf svg { display: none; }
+  .labbook .protocol-pdf-only .protocol-pdf a::after {
+    content: " — " attr(href);
+    font-size: 8.5pt;
+    word-break: break-all;
+  }
+}
+
+/* ===== Hardware: CAPTURE-Reader ======================================
+   A long build page: prose, two schematic diagrams, and a lot of small
+   two- and three-column tables. The tables carry most of the argument, so
+   they are styled as first-class content rather than as afterthoughts, and
+   every one of them can scroll sideways on a phone instead of squashing.
+   Shares the site's green/cream/gold palette; the only new colours are the
+   three beam colours in the optical diagram, which have to be the real
+   colours of the light they stand for. */
+.hw { max-width: 58rem; }
+.hw section { margin-bottom: 3rem; }
+.hw h2 {
+  font-family: "Changa", sans-serif;
+  color: #075a3e;
+  margin-bottom: 1rem;
+}
+.hw h3 {
+  font-family: "Changa", sans-serif;
+  font-size: 1.12rem;
+  color: #1f4a38;
+  margin: 2rem 0 0.75rem;
+}
+.hw p { line-height: 1.8; color: #33413a; }
+.hw code {
+  font-size: 0.88em;
+  color: #1f4a38;
+  background: #eef5f1;
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+}
+.hw a { color: #0a58ca; }
+
+.hw-lead {
+  border-left: 4px solid #075a3e;
+  padding-left: 1.5rem;
+  margin-bottom: 3rem;
+}
+.hw-lead p { font-size: 1.12rem; line-height: 1.85; }
+.hw-lead p:first-child { color: #24352c; }
+
+/* ---- the two systems being read ---- */
+.hw-terms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.hw-terms > div {
+  border: 1px solid #dfe8e2;
+  border-left: 3px solid #075a3e;
+  border-radius: 0 10px 10px 0;
+  background: #fffdf7;
+  padding: 1rem 1.1rem;
+}
+.hw-terms dt {
+  font-family: "Changa", sans-serif;
+  color: #1f4a38;
+  margin-bottom: 0.4rem;
+}
+.hw-terms dd {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: #4a5a51;
+}
+
+/* ---- the one-line flow ---- */
+.hw-flow {
+  list-style: none;
+  counter-reset: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 1.75rem 0;
+}
+.hw-flow li {
+  flex: 1 1 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: "Changa", sans-serif;
+  font-size: 0.98rem;
+  color: #1f4a38;
+  background: #f2f9f5;
+  border: 1px solid #b9d7c8;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+.hw-flow li:last-child { background: #e7f4ee; border-color: #75b299; }
+/* The arrow is decoration between the steps, so it is drawn rather than
+   written -- a screen reader gets the list order instead. */
+.hw-flow li:not(:last-child)::after {
+  content: "\2192";
+  margin-left: 0.7rem;
+  color: #75b299;
+  font-size: 1.1rem;
+}
+.hw-flow-plus { color: #75b299; margin: 0 0.35rem; font-weight: 700; }
+
+/* ---- the three kinds of note the page uses ---- */
+.hw-aside {
+  font-size: 0.93rem;
+  color: #4a5a51;
+  border-left: 3px solid #cfdcd5;
+  padding-left: 1rem;
+  margin-top: 1.5rem;
+}
+.hw-join {
+  background: #f2f9f5;
+  border: 1px solid #b9d7c8;
+  border-radius: 10px;
+  padding: 1rem 1.15rem;
+  margin-top: 1.5rem;
+}
+/* Anywhere the page draws a line around what we are allowed to claim, it is
+   marked in the warm colour the rest of the wiki uses for caution. */
+.hw-caution {
+  background: #fff6e2;
+  border-left: 4px solid #d8b26a;
+  border-radius: 0 10px 10px 0;
+  padding: 1rem 1.2rem;
+  margin-top: 1.25rem;
+  color: #6b4a1f;
+  font-size: 0.95rem;
+}
+.hw-caution em { color: #8a5a12; font-style: normal; font-weight: 700; }
+
+/* ---- the two modules ---- */
+.hw-modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.hw-module {
+  position: relative;
+  border: 2px solid #cfdcd5;
+  border-radius: 14px;
+  padding: 1.6rem 1.4rem 1.3rem;
+  background: #fffdf7;
+}
+/* The primary module carries the project; it is allowed to look like it. */
+.hw-module[data-module="primary"] { border-color: #75b299; background: #f6fffb; }
+.hw-module[data-module="secondary"] { border-color: #dfe8e2; }
+.hw-module-tag {
+  position: absolute;
+  top: -0.75rem;
+  left: 1.2rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fffdf7;
+  background: #075a3e;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+}
+.hw-module[data-module="secondary"] .hw-module-tag { background: #6b7a72; }
+.hw-module h3 { margin: 0.35rem 0 0.5rem; font-size: 1.15rem; }
+.hw-module-what { font-size: 0.95rem; margin-bottom: 1rem; }
+
+.hw-spec { margin: 0; font-size: 0.9rem; }
+.hw-spec > div {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-top: 1px dashed #cfdcd5;
+}
+.hw-spec dt {
+  font-family: "Changa", sans-serif;
+  font-weight: 400;
+  color: #075a3e;
+}
+.hw-spec dd { margin: 0; color: #4a5a51; line-height: 1.6; }
+
+/* ---- tables ---- */
+/* Every table lives in a figure that can scroll, so a four-column table on a
+   phone slides sideways instead of crushing its own columns. */
+.hw-figure {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+.hw-two-tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+.hw-two-tables .hw-figure { margin: 0; }
+
+.hw-table {
+  width: 100%;
+  min-width: 18rem;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+.hw-table caption {
+  caption-side: top;
+  font-family: "Changa", sans-serif;
+  font-size: 1rem;
+  color: #1f4a38;
+  text-align: left;
+  padding-bottom: 0.5rem;
+}
+.hw-table th,
+.hw-table td {
+  padding: 0.65rem 0.8rem;
+  border-bottom: 1px solid #dfe8e2;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.65;
+}
+.hw-table thead th {
+  font-family: "Changa", sans-serif;
+  font-weight: 400;
+  color: #075a3e;
+  border-bottom: 2px solid #075a3e;
+}
+.hw-table tbody tr:last-child td { border-bottom: none; }
+.hw-table .is-total {
+  background: #f2f9f5;
+  font-weight: 700;
+  color: #1f4a38;
+}
+/* The right-hand column of the claim tables is the part that keeps us
+   honest, so it is tinted rather than left to look like ordinary prose. */
+.hw-table .hw-not {
+  background: #fff6e2;
+  color: #6b4a1f;
+}
+.hw-table-keep caption { color: #075a3e; }
+.hw-table-drop caption { color: #6b7a72; }
+.hw-phase {
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  color: #5f6e66;
+}
+
+/* ---- the schematics ---- */
+.hw-diagram {
+  border: 1px solid #dfe8e2;
+  border-radius: 14px;
+  background: #fffdf7;
+  padding: 1rem;
+}
+.hw-svg { display: block; width: 100%; height: auto; }
+.hw-svg text { font-family: inherit; }
+.hw-svg-label { font-size: 17px; font-weight: 600; fill: #24352c; }
+.hw-svg-sub { font-size: 14px; fill: #5f6e66; }
+.hw-svg-note { font-size: 13px; fill: #8a978f; }
+.hw-svg-angle { font-size: 15px; font-weight: 700; fill: #1f4a38; }
+
+.hw-svg-case {
+  fill: #f7f9f8;
+  stroke: #cfdcd5;
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+}
+.hw-svg-body { fill: none; stroke: #6b7a72; stroke-width: 2; }
+.hw-svg-lid { fill: #e8ede9; stroke: #6b7a72; stroke-width: 1.5; }
+.hw-svg-interlock { fill: #ffe9b8; stroke: #d8b26a; stroke-width: 1.5; }
+.hw-svg-red-box { fill: #fdecea; stroke: #d98b80; stroke-width: 1.5; }
+.hw-svg-blue-box { fill: #e8f0fd; stroke: #7aa5dd; stroke-width: 1.5; }
+.hw-svg-filter { fill: #ffd8a8; stroke: #e0996a; stroke-width: 1.5; }
+.hw-svg-filter-blue { fill: #cfe0f7; stroke: #7aa5dd; stroke-width: 1.5; }
+.hw-svg-sensor { fill: #eaf4ef; stroke: #4f8f74; stroke-width: 1.5; }
+.hw-svg-sample { fill: #fdf1dd; stroke: #d8b26a; stroke-width: 2; }
+.hw-svg-stop { fill: #3a4640; }
+.hw-svg-meniscus { fill: none; stroke: #c99b4e; stroke-width: 2; }
+.hw-svg-axis {
+  fill: none;
+  stroke: #9aa8a1;
+  stroke-width: 1.2;
+  stroke-dasharray: 5 4;
+}
+.hw-svg-right-angle { fill: none; stroke: #1f4a38; stroke-width: 2; }
+.hw-svg-dim { fill: none; stroke: #6b7a72; stroke-width: 1.2; }
+
+/* The beams keep the colour of the light they are: blue excitation, green
+   sfGFP emission, red transmission. Each is also named in the legend, so the
+   diagram does not depend on colour alone. */
+.hw-beam-blue { fill: none; stroke: #2b6cb0; stroke-width: 3.5; }
+.hw-beam-green { fill: none; stroke: #2e9e5b; stroke-width: 3.5; }
+.hw-beam-red { fill: none; stroke: #c0392b; stroke-width: 3.5; }
+
+.hw-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding: 0;
+  margin: 0.9rem 0 0;
+  font-size: 0.88rem;
+  color: #4a5a51;
+}
+.hw-legend li { display: flex; align-items: center; }
+.hw-key {
+  display: inline-block;
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  margin-right: 0.5rem;
+}
+.hw-key-blue { background: #2b6cb0; }
+.hw-key-green { background: #2e9e5b; }
+.hw-key-red { background: #c0392b; }
+
+.hw-figure figcaption {
+  padding-top: 0.85rem;
+  font-size: 0.86rem;
+  color: #5f6e66;
+  line-height: 1.7;
+}
+
+/* ---- the four-step measurement ---- */
+.hw-sequence {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 0.75rem;
+  padding: 0;
+  margin: 1.75rem 0;
+}
+.hw-sequence li {
+  border: 1px solid #dfe8e2;
+  border-top: 4px solid #9aa8a1;
+  border-radius: 10px;
+  background: #fffdf7;
+  padding: 0.9rem 1rem;
+}
+/* The top edge carries the state of the light during that step. */
+.hw-sequence li[data-step="blue"] { border-top-color: #2b6cb0; }
+.hw-sequence li[data-step="red"] { border-top-color: #c0392b; }
+.hw-sequence li[data-step="dark"],
+.hw-sequence li[data-step="off"] { border-top-color: #3a4640; }
+.hw-step-n {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  color: #8a978f;
+}
+.hw-step-name {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  color: #1f4a38;
+  margin-bottom: 0.3rem;
+}
+.hw-step-what {
+  display: block;
+  font-size: 0.87rem;
+  line-height: 1.6;
+  color: #4a5a51;
+}
+
+/* ---- the three groups, and the two branches they feed ---- */
+.hw-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.hw-group {
+  border: 1px solid #dfe8e2;
+  border-radius: 12px;
+  background: #fffdf7;
+  padding: 1.1rem 1.2rem;
+}
+.hw-group h3 {
+  font-size: 1.3rem;
+  margin: 0 0 0.35rem;
+  color: #075a3e;
+}
+.hw-group-cond {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1f4a38;
+  margin-bottom: 0.5rem;
+}
+.hw-group p:last-child { font-size: 0.88rem; color: #4a5a51; margin-bottom: 0; }
+/* G1 is the control that decides what we are entitled to conclude, so it is
+   the one the eye should land on. */
+.hw-group[data-group="g1"] { border-color: #d8b26a; background: #fffaf0; }
+
+.hw-branches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 1rem;
+}
+.hw-branch {
+  border: 1px solid #b9d7c8;
+  border-radius: 12px;
+  background: #f6fffb;
+  padding: 1.1rem 1.2rem;
+}
+.hw-branch h4 {
+  font-family: "Changa", sans-serif;
+  font-size: 1rem;
+  color: #1f4a38;
+  margin: 0 0 0.5rem;
+}
+.hw-branch p { font-size: 0.9rem; margin-bottom: 0; }
+
+/* ---- claim boundaries, and the planned flag ---- */
+.hw-claims {
+  border: 2px dashed #d8b26a;
+  border-radius: 14px;
+  padding: 1.6rem 1.75rem;
+  background: #fffaf0;
+}
+.hw-claims h2 { margin-top: 0; }
+
+.hw-head-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.hw-head-row h2 { margin-bottom: 0; }
+.hw-flag {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #6b4a1f;
+  background: #ffe9b8;
+  border: 1px solid #d8b26a;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+}
+
+/* ---- references ---- */
+.hw-refs ol { padding-left: 1.4rem; }
+.hw-refs li {
+  margin-bottom: 0.75rem;
+  line-height: 1.65;
+  font-size: 0.92rem;
+  color: #3f4d45;
+}
+.hw-refs a { word-break: break-word; }
+.hw-refs-note { font-size: 0.88rem; color: #5f6e66; }
+
+@media (max-width: 575.98px) {
+  .hw-lead { padding-left: 1rem; }
+  .hw-claims { padding: 1.2rem 1.1rem; }
+  .hw-diagram { padding: 0.6rem; }
+  .hw-table { font-size: 0.86rem; }
+  .hw-table th, .hw-table td { padding: 0.5rem 0.55rem; }
+  /* Stacked, the label column no longer needs its own fixed width. */
+  .hw-spec > div { grid-template-columns: 1fr; gap: 0.15rem; }
+  /* The arrow points along the row; once the steps stack it would point
+     into the wrong place, so it goes. */
+  .hw-flow li:not(:last-child)::after { content: none; }
+}
+
+/* Scaled to a phone's width the schematics shrink until their labels are
+   unreadable, and an unreadable diagram is worse than a scrollable one. Below
+   this width they hold a legible size and their own panel scrolls sideways;
+   the page itself still does not. */
+@media (max-width: 767.98px) {
+  .hw-diagram { overflow-x: auto; }
+  /* Wide enough that the smallest annotations on the optical-core drawing --
+     the scale bar and the enlarged chamber detail -- stay legible. */
+  .hw-svg { min-width: 680px; }
 }
