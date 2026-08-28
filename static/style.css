@@ -1,16 +1,28 @@
-body { padding-top: 64px; }
+body { padding-top: 88px; }
 .navbar {
   height: 64px;
   overflow: visible;
   padding-top: 0;
   padding-bottom: 0;
+  /* Floating glass block: inset from the top and both sides instead of the
+     usual edge-to-edge bar, so it reads as a panel hovering over the page
+     rather than a strip glued to the browser chrome. */
+  top: 16px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: calc(100% - 3rem);
+  max-width: 1400px;
+  border-radius: 20px;
   transition: transform 0.3s ease;
 }
 .navbar .container-fluid { padding-left: 150px; }
 .navbar-brand {
   position: absolute;
-  /* Tracks the logo size above so the overhang stays proportional. */
-  top: clamp(-53px, calc(-0.212 * (100vw - 872px)), -26px);
+  /* Tracks the logo size above so the overhang stays proportional. Shifted
+     down by the navbar's 16px top inset so the logo lands at the same
+     on-screen position it did when the bar sat flush at the very top. */
+  top: clamp(-55px, calc(-0.212 * (100vw - 872px) + 1px), -28px);
   left: 24px;
   font-size: 1.7rem;
   padding-top: 0;
@@ -37,7 +49,10 @@ body.navbar-scrolled .navbar-brand img {
 }
 
 body.navbar-hidden .navbar {
-  transform: translateY(-100%);
+  /* The bar is horizontally centred with translateX(-50%) as its resting
+     transform; a bare translateY here would replace that and snap it back
+     to the left edge while it's sliding away. */
+  transform: translate(-50%, -150%);
 }
 
 /* The footer's social links are only as big as their glyph -- 23px on a phone,
@@ -181,29 +196,55 @@ body.show-back-to-top .back-to-top {
 .dropdown-item { font-family: "Changa", sans-serif; font-weight: 400; transition: background-color 0.15s ease, color 0.15s ease; }
 
 @media (min-width: 992px) {
+  /* No animation on this reveal: Safari corrupts backdrop-filter's blur into
+     blotchy colour whenever the dropdown transitions in under it (tried
+     clip-path, tried opacity/transform, both a WebKit bug -- not our
+     layering). A plain visibility toggle sidesteps it entirely. */
   .navbar .dropdown-menu {
     display: block;
-    margin-top: 0;
-    transform-origin: top;
+    margin-top: 8px;
     visibility: hidden;
     pointer-events: none;
-    clip-path: inset(0 0 100% 0);
-    transition: clip-path 0.45s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.45s;
+  }
+  /* The gap above is empty space the mouse has to cross to reach the menu,
+     which would normally drop the :hover the instant the pointer leaves the
+     toggle link. This invisible strip fills that gap so the dropdown stays
+     open while the pointer is still on its way down to it. */
+  .navbar .dropdown::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 8px;
   }
   .navbar .dropdown:hover .dropdown-menu {
     visibility: visible;
     pointer-events: auto;
-    clip-path: inset(0 0 0% 0);
   }
 }
 
+/* Glassmorphism trial: frosted, translucent panels instead of flat brand
+   green. backdrop-filter needs something showing through it, so this only
+   reads as "glass" over the hero/photo sections it floats above -- over a
+   plain white page body it just looks like a faint tinted box.
+
+   No backdrop-filter here: this menu opens right over the navbar bar, which
+   already has its own backdrop-filter. Safari corrupts two overlapping
+   blurred layers into blotchy colour (a WebKit bug, not a z-index/layering
+   mistake on our end) -- so this panel is solid enough to read on its own
+   without stacking a second blur on top of the navbar's. */
 .navbar .dropdown-menu {
-  background-color: #60c028;
-  border: none;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 24px rgba(5, 68, 46, 0.18);
 }
 
 .dropdown-item {
-  background-color: #60c028;
+  background-color: transparent;
   color: #05442e;
 }
 
@@ -211,7 +252,7 @@ body.show-back-to-top .back-to-top {
    menu item gave no feedback at all. Darken the ink and underline it. */
 .dropdown-item:hover,
 .dropdown-item:focus {
-  background-color: #60c028;
+  background-color: rgba(96, 192, 40, 0.18);
   color: #062a1c;
   text-decoration: underline;
 }
@@ -220,7 +261,15 @@ body.show-back-to-top .back-to-top {
    dropped its white text -- including the licence and repository lines judges
    have to read -- from 8.3:1 to 2.3:1. Scope the green to the bar and leave
    the footer on the deep green it was designed against. */
-.navbar.bg-dark { background-color: #60c028 !important; }
+.navbar.bg-dark {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 28px rgba(5, 68, 46, 0.18);
+}
 footer.bg-dark { background-color: #075a3e !important; }
 
 /* Bootstrap's 50%-white utility sits at 3.3:1 on that deep green, under the
@@ -230,6 +279,67 @@ footer.bg-dark { background-color: #075a3e !important; }
 .footer .text-white-50 { color: rgba(255, 255, 255, 0.75) !important; }
 .bg-hero {
   background-color: #fff6b7;
+  /* Extend the colour band up behind the floating navbar's 88px reserved
+     gap, instead of stopping where the bar used to sit flush at the top.
+     padding-top makes up the same 88px so the title/subtitle land exactly
+     where they did before -- only the background reaches further up. */
+  margin-top: -88px;
+  padding-top: calc(3rem + 88px) !important;
+}
+
+/* Team page: full-bleed photo hero instead of the flat yellow band, with the
+   floating glass navbar sitting on top of it. Reaches up behind the navbar's
+   reserved gap the same way .bg-hero does. */
+.team-hero {
+  position: relative;
+  height: 100vh;
+  min-height: 560px;
+  margin-top: -88px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.team-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+/* Soft vignette so the photo's edges dissolve into the page instead of
+   cutting off hard, echoing the reference's faded left/right edges. */
+.team-hero-fade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 45%, transparent 55%, #fff 100%);
+  pointer-events: none;
+}
+
+.team-hero-content {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 100%;
+  padding: 0 1.5rem;
+}
+
+.team-hero-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  color: #ad5400;
+  line-height: 1;
+  margin: 0;
+  text-shadow: 0 2px 20px rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 767.98px) {
+  .team-hero { height: 80vh; min-height: 480px; }
 }
 
 /* footer */
@@ -293,49 +403,106 @@ footer a:hover { color: white; text-decoration: underline; }
   color: #075a3e;
 }
 
-/* ===== Team notebook / scrapbook ===== */
+/* ===== Team notebook / scrapbook: glassmorphism window =====
+   Clean frosted-glass panel instead of the busier Aero-bubble treatment.
+   Same markup and radio-button tab mechanism as before -- this only
+   restyles it. */
 .notebook {
   position: relative;
-  max-width: 1140px;
+  max-width: 1400px;
   margin: 0 auto;
+}
+
+/* Something for the glass panel's backdrop-filter to actually blur -- a
+   plain white page behind it reads as no glass effect at all. Positioned
+   behind the tabs/book (z-index 0, painted first) and drifting slowly on
+   independent loops so they don't all move in lockstep. */
+.notebook-drift {
+  position: absolute;
+  inset: -80px;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.drift-item {
+  position: absolute;
+  width: 90px;
+  opacity: 0.85;
+  filter: drop-shadow(0 8px 16px rgba(20,60,100,0.2));
+}
+
+.drift-1 { top: 4%; left: 6%; width: 110px; animation: drift-a 26s ease-in-out infinite; }
+.drift-2 { top: 55%; left: 2%; width: 70px; animation: drift-b 22s ease-in-out infinite; }
+.drift-3 { top: 8%; right: 8%; width: 85px; animation: drift-c 30s ease-in-out infinite; }
+.drift-4 { bottom: 6%; right: 4%; width: 100px; animation: drift-a 24s ease-in-out infinite reverse; }
+.drift-5 { bottom: 12%; left: 40%; width: 65px; animation: drift-b 28s ease-in-out infinite reverse; }
+
+@keyframes drift-a {
+  0%   { transform: translate(0, 0) rotate(-4deg); }
+  50%  { transform: translate(30px, -24px) rotate(4deg); }
+  100% { transform: translate(0, 0) rotate(-4deg); }
+}
+
+@keyframes drift-b {
+  0%   { transform: translate(0, 0) rotate(3deg); }
+  50%  { transform: translate(-24px, 20px) rotate(-5deg); }
+  100% { transform: translate(0, 0) rotate(3deg); }
+}
+
+@keyframes drift-c {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  50%  { transform: translate(-18px, 28px) rotate(6deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drift-item { animation: none; }
 }
 
 .notebook-radio { display: none; }
 
+/* Chrome-style tab strip: a horizontal row sitting flush above the book,
+   inactive tabs muted and set slightly lower, the active tab rising to meet
+   the panel below with a matching colour so the seam between them
+   disappears -- the same trick a browser window uses for its open tabs. */
 .notebook-tabs {
-  position: absolute;
-  top: 70px;
-  left: 100%;
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  flex-wrap: wrap;
+  gap: 2px;
   z-index: 5;
 }
 
 .notebook-tab {
   display: block;
   position: relative;
-  width: 100px;
+  top: 6px;
   font-family: "Changa", sans-serif;
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   line-height: 1.2;
   letter-spacing: 0.02em;
-  color: #4a3f35;
+  color: #1c3a52;
   text-align: center;
-  padding: 0.5rem 0.5rem;
+  padding: 0.65rem 1.3rem;
   cursor: pointer;
-  opacity: 0.85;
-  border-radius: 0 10px 10px 0;
-  box-shadow: 2px 3px 6px rgba(0,0,0,0.2);
-  transition: opacity 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  opacity: 0.6;
+  border-radius: 14px 14px 0 0;
+  background: rgba(255,255,255,0.35);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.55);
+  border-bottom: none;
+  border-top: 3px solid var(--tab-accent, #7fb8e0);
+  transition: opacity 0.2s ease, top 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.tab-leader { background: #e6ff9b; }
-.tab-wet { background: #cdffb3; }
-.tab-dry { background: #a2efaa; }
-.tab-hp  { background: #a9efc4; width: 115px; }
-.tab-professor { background: #b4fadf; width: 115px; }
+.tab-leader { --tab-accent: #14b391; }
+.tab-wet { --tab-accent: #14b391; }
+.tab-dry { --tab-accent: #14b391; }
+.tab-hp  { --tab-accent: #14b391; }
+.tab-professor { --tab-accent: #14b391; }
 
 #page-leader:checked    ~ .notebook-tabs .tab-leader,
 #page-wet:checked       ~ .notebook-tabs .tab-wet,
@@ -343,55 +510,22 @@ footer a:hover { color: white; text-decoration: underline; }
 #page-hp:checked        ~ .notebook-tabs .tab-hp,
 #page-professor:checked ~ .notebook-tabs .tab-professor {
   opacity: 1;
-  transform: translateX(-28px);
-  box-shadow: -2px 3px 8px rgba(0,0,0,0.25);
+  top: 0;
+  background: rgba(255,255,255,0.88);
   z-index: 6;
 }
 
-/* The binder tabs hang off the notebook at left:100%, so they sat outside the
-   container at every width below 1440px -- the page scrolled sideways and the
-   labels were cut off (on a phone only "Le" of "Leader" was readable, leaving
-   the section switcher unusable). Keep the tab look on wide screens by
-   reserving room for them inside the notebook, and lay them out as a plain row
-   above the book where there is no room beside it. */
-@media (min-width: 992px) {
-  .notebook-tabs { left: auto; right: 0; }
-  .notebook-book { margin-right: 123px; }   /* widest tab is 115px + 8px gap */
-}
+.notebook-book { margin-top: 0; border-top-left-radius: 4px; }
 
-@media (max-width: 991.98px) {
-  .notebook-tabs {
-    position: static;
-    top: auto;
-    left: auto;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  .notebook-tab,
-  .tab-hp,
-  .tab-professor {
-    width: auto;
-    min-width: 88px;
+@media (max-width: 575.98px) {
+  .notebook-tabs { justify-content: center; }
+  .notebook-tab {
     min-height: 44px;            /* comfortable to tap */
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0.5rem 0.9rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
-  /* Sliding the active tab sideways only makes sense beside the book. */
-  #page-leader:checked    ~ .notebook-tabs .tab-leader,
-  #page-wet:checked       ~ .notebook-tabs .tab-wet,
-  #page-dry:checked       ~ .notebook-tabs .tab-dry,
-  #page-hp:checked        ~ .notebook-tabs .tab-hp,
-  #page-professor:checked ~ .notebook-tabs .tab-professor {
-    transform: none;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    outline: 2px solid #4a3f35;
+    font-size: 0.95rem;
   }
 }
 
@@ -399,33 +533,15 @@ footer a:hover { color: white; text-decoration: underline; }
   position: relative;
   display: grid;
   perspective: 1400px;
-  background-color: #fffdf7;
-  background-image: radial-gradient(circle, #d7dce3 1.4px, transparent 1.6px);
-  background-size: 24px 24px;
-  border-radius: 4px 18px 18px 4px;
-  box-shadow: 0 16px 32px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(0,0,0,0.05);
-  padding: 3rem 2.5rem 2.5rem 4rem;
-  min-height: 620px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.75), rgba(255,255,255,0.45));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(20,60,100,0.2);
+  padding: 3rem 2.5rem 2.5rem;
+  min-height: 720px;
 }
 
-.notebook-spiral {
-  position: absolute;
-  left: -12px;
-  top: 20px;
-  bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  z-index: 3;
-}
-
-.notebook-spiral span {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #dfe3e8;
-  box-shadow: inset 0 0 0 4px #fffdf7, 0 2px 3px rgba(0,0,0,0.25);
-}
 
 .notebook-page {
   grid-area: 1 / 1 / 2 / 2;
@@ -447,22 +563,32 @@ footer a:hover { color: white; text-decoration: underline; }
   pointer-events: auto;
 }
 
+/* Flat frosted-glass chip, same window-chrome language as the tabs -- a
+   left accent stripe carries the per-section colour instead of a full
+   gradient fill. */
 .page-tag {
+  position: relative;
   display: inline-block;
   font-family: "Changa", sans-serif;
   font-weight: 700;
   font-size: 1.9rem;
-  color: #4a3f35;
-  padding: 0.1rem 0.6rem;
+  color: #1c3a52;
+  padding: 0.2rem 1.1rem;
   margin-bottom: 1.5rem;
-  transform: rotate(-3deg);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-left: 4px solid var(--tag-accent, #7fb8e0);
+  box-shadow: 0 6px 14px rgba(20,60,100,0.12);
 }
 
-.tag-leader { background: linear-gradient(180deg, transparent 55%, #e6ff9b 55%); }
-.tag-wet { background: linear-gradient(180deg, transparent 55%, #cdffb3 55%); }
-.tag-dry { background: linear-gradient(180deg, transparent 55%, #a2efaa 55%); }
-.tag-hp  { background: linear-gradient(180deg, transparent 55%, #a9efc4 55%); }
-.tag-professor { background: linear-gradient(180deg, transparent 55%, #b4fadf 55%); }
+.tag-leader { --tag-accent: #14b391; }
+.tag-wet { --tag-accent: #14b391; }
+.tag-dry { --tag-accent: #14b391; }
+.tag-hp  { --tag-accent: #14b391; }
+.tag-professor { --tag-accent: #14b391; }
 
 .team-grid {
   display: flex;
@@ -474,37 +600,42 @@ footer a:hover { color: white; text-decoration: underline; }
   margin-top: 2rem;
 }
 
+/* Badge card: same frame as the old polaroid, minus the tape and the random
+   tilt -- sits flat and aligned like an ID badge instead of a scrapbook
+   snapshot. */
 .polaroid {
-  --rot: 0deg;
   position: relative;
   width: 180px;
-  background: #fdfdfa;
+  background: linear-gradient(180deg, #ffffff, #eaf6ff);
   padding: 12px 12px 18px;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.3);
-  transform: rotate(var(--rot));
-  opacity: 0.75;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.9);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 6px 14px rgba(20,60,100,0.18);
+  opacity: 0.85;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease;
+  transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
 }
 
-.polaroid::before {
+/* A faint glass shine, not the full glossy streak -- enough to read as
+   glass without tipping back into "cute". */
+.polaroid::after {
   content: "";
   position: absolute;
-  top: -10px;
-  left: 50%;
-  width: 60px;
-  height: 20px;
-  background: rgba(255, 214, 145, 0.55);
-  transform: translateX(-50%) rotate(-3deg);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-  z-index: 2;
+  top: -20%;
+  left: -30%;
+  width: 50%;
+  height: 160%;
+  background: linear-gradient(115deg, rgba(255,255,255,0.35), rgba(255,255,255,0) 60%);
+  transform: rotate(8deg);
+  pointer-events: none;
+  z-index: 3;
 }
 
 .polaroid:hover {
-  transform: rotate(0deg) scale(1.12);
+  transform: translateY(-4px);
   opacity: 1;
-  box-shadow: 0 16px 30px rgba(0,0,0,0.5);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 14px 24px rgba(20,60,100,0.3);
   z-index: 10;
 }
 
@@ -545,7 +676,9 @@ footer a:hover { color: white; text-decoration: underline; }
 .polaroid-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(20, 20, 20, 0.92);
+  background: linear-gradient(180deg, rgba(10,40,70,0.92), rgba(5,25,50,0.95));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -561,7 +694,7 @@ footer a:hover { color: white; text-decoration: underline; }
 
 .polaroid-overlay h3 { margin-bottom: 0.25rem; font-weight: bold; }
 .polaroid-overlay .role {
-  color: #6fd499;
+  color: #6fd6ff;
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
@@ -602,17 +735,21 @@ footer a:hover { color: white; text-decoration: underline; }
 
 
 /* ===== Team photo booth ===== */
+/* Glassmorphism photo booth: same frosted-glass language as the team
+   notebook window above it. */
 .webcam-layout {
   display: flex;
   align-items: stretch;
   justify-content: space-between;
   gap: 1.5rem;
-  max-width: 1150px;
+  max-width: 1400px;
   margin: 3rem auto 0;
-  background: #fffdf7;
-  border: 3px dashed #d8b26a;
-  border-radius: 16px;
-  box-shadow: 0 16px 32px rgba(0,0,0,0.15);
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.35));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 20px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 16px 32px rgba(20,60,100,0.15);
   padding: 0 0 0 1.5rem;
   flex-wrap: wrap;
 }
@@ -630,8 +767,10 @@ footer a:hover { color: white; text-decoration: underline; }
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.25rem;
-  background: #fff3d0;
-  color: #333;
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #1c3a52;
 }
 
 .webcam-booth-title {
@@ -643,7 +782,7 @@ footer a:hover { color: white; text-decoration: underline; }
 .webcam-booth-close {
   background: none;
   border: none;
-  color: #fff;
+  color: #1c3a52;
   font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
@@ -724,7 +863,9 @@ footer a:hover { color: white; text-decoration: underline; }
   justify-content: flex-end;
   gap: 1.5rem;
   padding: 1rem 3rem 1rem 1.25rem;
-  background: #fff3d0;
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   flex-wrap: wrap;
 }
 
@@ -740,24 +881,26 @@ footer a:hover { color: white; text-decoration: underline; }
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid rgba(0,0,0,0.15);
-  background: #fdfdfa;
+  border: 1px solid rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   font-family: "Changa", sans-serif;
   font-weight: 700;
   font-size: 1rem;
-  color: #2b1e17;
+  color: #1c3a52;
   cursor: pointer;
-  box-shadow: 2px 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(20,60,100,0.15);
   transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .webcam-filter-btn:hover { transform: scale(1.1); }
 
 .webcam-filter-btn.active {
-  background: #fff3d0;
-  color: #333;
-  border: 2px solid #075a3e;
-  box-shadow: 0 0 0 3px rgba(7,90,62,0.35), 2px 2px 6px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.8);
+  color: #1c3a52;
+  border: 2px solid #2f9fe0;
+  box-shadow: 0 0 0 3px rgba(47,159,224,0.3), 0 2px 6px rgba(20,60,100,0.2);
 }
 
 .webcam-shutter {
@@ -767,8 +910,11 @@ footer a:hover { color: white; text-decoration: underline; }
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 4px solid #075a3e;
-  background: #fff;
+  border: 4px solid rgba(255,255,255,0.8);
+  background: rgba(47,159,224,0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 12px rgba(20,60,100,0.3);
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -786,13 +932,17 @@ footer a:hover { color: white; text-decoration: underline; }
   font-weight: 700;
   padding: 0.5rem 1.1rem;
   border-radius: 20px;
-  border: 2px dashed #d8b26a;
-  background: #fff3d0;
-  color: #4a3f35;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.8);
+  color: #1c3a52;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(20,60,100,0.12);
+  transition: background 0.15s ease;
 }
 
-.webcam-start:hover { background: #ffe6a8; }
+.webcam-start:hover { background: rgba(255,255,255,0.75); }
 
 /* ===== Education: Impact Dashboard ===== */
 .edu-dashboard {
