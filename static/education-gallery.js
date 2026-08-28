@@ -8,7 +8,7 @@
   // switches the stylesheet over. If this file fails to load, the page keeps
   // the scrolling rail and every photo is still reachable.
 
-  var DELAY = 4000;          // what the team asked for: a photo every ~4s
+  var DELAY = 2500;          // what the team asked for: a photo every 2.5s
   var galleries = Array.prototype.slice.call(document.querySelectorAll('.edu-gallery'));
   if (!galleries.length) return;
 
@@ -109,7 +109,7 @@
 
     var status = document.createElement('p');
     status.className = 'edu-carousel-status';
-    // Silent while it advances on its own -- announcing every 4 seconds would
+    // Silent while it advances on its own -- announcing every 2.5 seconds would
     // talk over everything else. Switched to polite once a person takes over.
     status.setAttribute('aria-live', 'off');
 
