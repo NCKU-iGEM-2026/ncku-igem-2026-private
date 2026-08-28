@@ -1,42 +1,41 @@
 {% extends "layout.html" %}
 
 {% block title %}Hardware{% endblock %}
-{% block lead %}CAPTURE-Reader: reading our reporter in a tube, and our swarming plates, the same way every time{% endblock %}
+{% block lead %}CAPTURE-Screen: a low-cost 90&deg; fluorescence reader, and an honest account of what it has and has not yet been shown to do{% endblock %}
 
 {% block page_content %}
 
 {#
   === 給團隊的說明，發布前請讀 ===
 
-  1. 這一頁完全依照《CAPTURE-Reader — 低成本液體螢光讀取與培養皿影像分析平台，
-     給全體隊員的 Prototype 共識版》v1.0 (2026-08-03) 寫成。沒有加入 brief 裡
-     沒有的規格、數據或結論，也沒有捏造任何量測結果。
+  1. 這一頁是 2026-08-27 依 `C:\IGEM\prototype_1\PROJECT_STATE\`（AS_OF 2026-08-25）
+     重寫的，取代先前依 dry_lab_prototype_report.md (2026-08-03) 寫成的版本。
+     重寫的理由是舊版有三處已被你們自己的裁決 supersede：
+       - 名稱 CAPTURE-Reader → CAPTURE-Screen（DECISIONS.md D-006，狀態 ACTIVE，
+         該條明訂「新文件、wiki、簡報一律使用 CAPTURE-Screen」）
+       - PlateDock／培養皿影像不屬於 P1（D-005），舊版把它寫成兩大模組之一
+       - 紅光／濁度 QC 移出 P1（D-002），舊版仍描述 630 nm transmission
 
-  2. 這一頁描述的是「設計與計畫」，不是已完成的驗證。Validation 那一節的通過
-     條件是 brief 事先訂好的門檻，不是量到的數字，所以標了 Planned。實際做完
-     之後請把數據補進去，並拿掉那個標籤。
+  2. 每一項數據都能在 PROJECT_STATE 找到出處，沒有加入任何那裡沒有的數字。
+     TEST_STATUS.md 對每個 PASS 都寫了適用範圍，這一頁照抄那個範圍，沒有放大。
+     特別注意：F4/F3 < 1.35 % 是量化下限造成的「上界」，不是量到的洩漏值，
+     頁面上如實這樣寫，請不要在簡報裡簡化成「洩漏 1.35 %」。
 
-  3. 需要你們補上／確認的：
-     - 最終選用的試管或比色皿型號、外徑與填充高度（CAD 尺寸要照這個鎖定；
-       頁面上目前寫的是 brief 的起始尺寸 110 x 90 x 75 mm）。
-     - G1 用 empty vector 還是 non-binding aptamer。
-     - 實體照片：外殼、breadboard 光路、PlateDock 拍攝治具。圖片一定要用
-       iGEM uploads tool 上傳到 static.igem.wiki，不可以連外部網址。
-     - 參考文獻 1-10 是 brief 附的連結，我照抄沒有改動，也沒有自行補作者與
-       年份。發布前請逐一點開確認，並補齊完整書目（手冊 p.94 規定引用必須
-       真實可查，捏造引用是違規）。
+  3. 需要你們補的：
+     - 實體照片：P1-PROTO-01 組裝外觀、breadboard 光路、UVette 座、斷裂黏合處。
+       圖片一定要用 iGEM uploads tool 上傳到 static.igem.wiki，不可連外部網址或本機路徑。
+       建議插入位置我用 <!-- PHOTO: ... --> 標了四處。
+     - 成本：BOM.csv 目前所有 unit_price 都是 UNKNOWN，所以這一頁沒有成本表。
+       等你們把 Mouser 訂單對帳完再補，不要先估一個數字上去。
+     - sfGFP 的確切 construct 與 strain（SYS-U013）目前是 UNKNOWN，只寫了 sfGFP。
 
-  4. 我刻意沒有寫進去的：brief 第 10 頁的四週時程與「本週需要 wet lab 回覆」
-     是內部協調事項，不適合放公開 wiki。成本估算有保留（對 hardware 評分有
-     幫助），並標明是工程估算、不是報價。
+  4. 舊版頁尾那份參考文獻 1-10 是從 2026-08-03 那份 brief 抄來的，當時就只有連結、
+     沒有完整書目，而這次的來源 PROJECT_STATE 並不帶那組引用，所以我沒有沿用。
+     手冊 p.94 規定引用必須真實可查。要放參考文獻請另外補齊完整書目。
 
-  5. 「舊 CSV 數值目前不作成效證據」我寫成 Claim boundaries 裡的一句話：
-     threshold 會用新的 control batch 建立。如果你們不想公開提，刪掉那一列
-     即可，其餘不受影響。
-
-  6. 與 Description 頁的命名一致性：Description 寫的是 Route A (LasR 迴路)
-     與 Route B (structure-switching aptamer)；這一頁沿用 prototype brief 的
-     System 1 / System 2。發布前請統一命名，或在這頁加一句對應說明。
+  5. 與其他頁的一致性：Engineering 頁目前寫 "a cell-free biosensor that detects the
+     bacteria behind VAP"，這比你們硬體端自己訂的 claim boundary 強（RUO、不得宣稱
+     直接偵測或定量 P. aeruginosa）。建議一併修掉，否則兩頁互相打臉。
 #}
 
 <div class="container my-4 hw">
@@ -44,825 +43,691 @@
   <!-- ========================= what this is ========================= -->
   <section class="hw-lead">
     <p>
-      Our wet lab is building the two things this project has to read: a
-      reporter designed to answer an acyl-homoserine lactone (AHL) signal by
-      making sfGFP, and a swarming assay that shows what a given condition does
-      to how the bacteria move.
+      Our wet lab builds a cell-free reporter that answers an acyl-homoserine
+      lactone (AHL) signal by producing sfGFP. Reading that answer normally
+      means a benchtop plate reader &mdash; an instrument that is neither cheap
+      nor portable, and that we do not control.
     </p>
     <p>
-      What neither of them has yet is a way of being <em>read</em> that is the
-      same on Tuesday as it was on Monday.
-      <strong>CAPTURE-Reader</strong> is that reading step. It is not a second
-      attempt at the biology &mdash; it is a measurement interface: two modules
-      that turn what the wet lab produces into numbers and images that can be
-      repeated, paired with each other, and handed to someone else.
+      <strong>CAPTURE-Screen</strong> is our own reader for it: a low-cost,
+      research-use 90&deg; fluorescence instrument built around a single
+      cuvette. This page describes the first physical prototype,
+      <code>P1-PROTO-01</code>, what it achieved at first light on
+      2026&#8209;08&#8209;25, and &mdash; in as much detail as the successes
+      &mdash; what it has not yet been shown to do.
+    </p>
+    <p class="hw-aside">
+      <strong>A note on the name.</strong> Earlier internal documents call this
+      instrument <em>CAPTURE-Reader</em>. That name is superseded; the project
+      is CAPTURE-Screen throughout. Where an older file is cited here it is
+      cited under its historical name.
     </p>
   </section>
 
-  <!-- ===================== what it has to do ===================== -->
+  <!-- ========================= why build one ========================= -->
   <section>
-    <h2>What the hardware has to do</h2>
+    <h2>Why build a reader at all</h2>
 
     <p>
-      Two parts of our project need reading, and they are read in different
-      states of matter.
+      A plate reader answers the question we are asking, so the argument for
+      building our own instrument is not that the measurement is impossible
+      without it. The argument is about who can make the measurement, where,
+      and at what cost.
     </p>
 
     <dl class="hw-terms">
       <div>
-        <dt>System&nbsp;1 &mdash; the reporter</dt>
+        <dt>Cost and access</dt>
         <dd>
-          Designed to answer AHL by expressing sfGFP. It is a liquid sample,
-          and its answer is a fluorescence level.
+          A shared benchtop reader is booked, scheduled and located in one
+          building. An instrument that costs a few thousand NT dollars in parts
+          can sit next to the incubator, and can be rebuilt by anyone with the
+          source files.
         </dd>
       </div>
       <div>
-        <dt>System&nbsp;2 &mdash; the aptamer construct</dt>
+        <dt>A measurement we can defend</dt>
         <dd>
-          Whatever effect it has shows up on solid medium as a change in
-          swarming. That answer is an image, not a number, until something
-          measures it.
+          We can state our own optical geometry, drive current, integration
+          time and dark baseline, because we chose them. That makes a result
+          traceable in a way that a black-box instrument setting is not.
+        </dd>
+      </div>
+      <div>
+        <dt>An engineering object to test</dt>
+        <dd>
+          Building it forces every assumption into the open: stray light,
+          alignment, repeatability. Most of this page exists because building
+          the thing produced questions that a plate reader would have hidden.
         </dd>
       </div>
     </dl>
 
     <p>
-      The decision that shapes the whole instrument is this: we do not build a
-      second detector for System&nbsp;2. Liquid samples taken from different
-      System&nbsp;2 conditions are given to <em>one fixed System&nbsp;1
-      reporter</em>, and that reporter's fluorescence becomes the liquid
-      readout. The plate keeps its own, separate readout.
-    </p>
-
-    <ol class="hw-flow" aria-label="Measurement flow">
-      <li>System&nbsp;2 conditions</li>
-      <li>a fixed System&nbsp;1 reporter</li>
-      <li>Liquid Reader <span class="hw-flow-plus">+</span> PlateDock</li>
-    </ol>
-
-    <p class="hw-aside">
-      This is also the cheapest honest answer to a hardware problem. Building
-      one well-registered light path and using it for everything is far more
-      likely to give us numbers we trust than building two mediocre ones.
+      The plate reader has not been discarded. It remains our benchmark: the
+      wet lab's reference condition is excitation 485&nbsp;nm, emission
+      510&nbsp;nm at 200&nbsp;&micro;L, and CAPTURE-Screen's job is to be
+      comparable against it, not to replace it before it has earned the right.
     </p>
   </section>
 
-  <!-- ========================= the two modules ========================= -->
+  <!-- ========================= the instrument ========================= -->
   <section>
-    <h2>Two modules, and which one is the main one</h2>
-
-    <div class="hw-modules">
-
-      <article class="hw-module" data-module="primary">
-        <span class="hw-module-tag">Primary</span>
-        <h3>Liquid Reader</h3>
-        <p class="hw-module-what">
-          A fixed-geometry fluorimeter that reads one sample at a time.
-        </p>
-        <dl class="hw-spec">
-          <div><dt>Takes</dt><dd>a sealed tube, or a 10&nbsp;mm square cuvette</dd></div>
-          <div><dt>Measures</dt><dd>relative sfGFP fluorescence, plus a red-light transmission QC</dd></div>
-          <div><dt>Built from</dt><dd>a 470&nbsp;nm LED, a long-pass filter cutting on near 500&nbsp;nm, an AS7341 spectral sensor, an ESP32</dd></div>
-          <div><dt>Gives back</dt><dd>F_corrected, a leakage index, T_red, a QC flag, and a CSV row</dd></div>
-        </dl>
-      </article>
-
-      <article class="hw-module" data-module="secondary">
-        <span class="hw-module-tag">Supporting</span>
-        <h3>PlateDock</h3>
-        <p class="hw-module-what">
-          A jig that photographs a plate the same way every time, and the image
-          analysis that follows it.
-        </p>
-        <dl class="hw-spec">
-          <div><dt>Takes</dt><dd>a swarming plate, which stays sealed throughout</dd></div>
-          <div><dt>Measures</dt><dd>area, equivalent diameter, coverage, and an overlay showing what was counted</dd></div>
-          <div><dt>Built from</dt><dd>a fixed phone height, fixed diffuse lighting, a dish locator and a fiducial</dd></div>
-          <div><dt>Gives back</dt><dd>image QC and a phenotype that can be matched to a liquid reading</dd></div>
-        </dl>
-      </article>
-
-    </div>
-  </section>
-
-  <!-- ================== decisions we made for v0 ================== -->
-  <section>
-    <h2>What we deliberately left out of v0</h2>
-    <p>
-      Every hour spent on a mechanism that does not change the answer is an
-      hour not spent on the repeatability that does. These are the trades we
-      made, and why.
-    </p>
-
-    <div class="hw-two-tables">
-      <figure class="hw-figure">
-        <table class="hw-table hw-table-keep">
-          <caption>Kept in v0</caption>
-          <thead><tr><th>Decision</th><th>Why</th></tr></thead>
-          <tbody>
-            <tr>
-              <td>A fixed 90&deg; light path</td>
-              <td>Keeps the excitation beam out of the detector.</td>
-            </tr>
-            <tr>
-              <td>Interchangeable cartridges</td>
-              <td>One instrument serves both cuvette validation and a tube demonstration.</td>
-            </tr>
-            <tr>
-              <td>Raw values alongside QC</td>
-              <td>Every number can be traced back, and a mistake is not hidden behind a PASS.</td>
-            </tr>
-          </tbody>
-        </table>
-      </figure>
-
-      <figure class="hw-figure">
-        <table class="hw-table hw-table-drop">
-          <caption>Not in v0</caption>
-          <thead><tr><th>Left out</th><th>Why</th></tr></thead>
-          <tbody>
-            <tr>
-              <td>An XY scanning stage</td>
-              <td>The reporter only has to be read in one fixed position.</td>
-            </tr>
-            <tr>
-              <td>A touchscreen, or cloud upload</td>
-              <td>Neither improves optical repeatability, which is the thing we are short of.</td>
-            </tr>
-            <tr>
-              <td>Machine learning on the images</td>
-              <td>We do not have the data for it yet, and a rule-based analysis can be checked by a human.</td>
-            </tr>
-          </tbody>
-        </table>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ===================== the optical principle ===================== -->
-  <section>
-    <h2>Liquid Reader: how the light path works</h2>
+    <h2>The instrument</h2>
 
     <p>
-      One AS7341 does two jobs. Its F4 channel, near 515&nbsp;nm, reads the
-      green light sfGFP gives off; its F7 channel, near 630&nbsp;nm, reads how
-      much red light gets through the sample. The two LEDs that make those
-      readings possible are <strong>never on at the same time</strong>.
+      CAPTURE-Screen P1 is a single-cuvette reader with a fixed optical core.
+      Excitation enters along one axis; emission is collected at 90&deg; to it.
+      Everything the excitation does not deposit in the sample is absorbed by a
+      light trap on the far side rather than allowed to find its way to the
+      detector.
     </p>
 
-    <figure class="hw-figure hw-figure-wide">
+    <figure class="hw-figure">
       <div class="hw-diagram">
-        <svg viewBox="0 0 780 470" class="hw-svg" role="img"
-             aria-labelledby="hwOpticsTitle hwOpticsDesc">
-          <title id="hwOpticsTitle">The Liquid Reader's optical path</title>
-          <desc id="hwOpticsDesc">
-            Inside a matte black enclosure, a 630 nm LED shines through an
-            aperture and straight through the sample towards the detector. A
-            470 nm LED sits underneath the sample and shines upwards, at 90
-            degrees to that line. The green light the sample gives off leaves
-            sideways along the detection axis, passes a long-pass filter that
-            cuts on near 500 nm and a second aperture, and reaches an AS7341
-            sensor.
-          </desc>
+        <svg class="hw-svg" viewBox="0 0 780 510" role="img"
+             aria-label="Scaled plan view of the CAPTURE-Screen optical core. A Cree 470 nanometre LED in its holder sends blue excitation along the plus X axis through an aperture baffle carrying two stops, then across the 2 millimetre path of a UVette holding the sample. Excitation that leaves the sample enters an angled-wedge light trap 8 millimetres across and 27 millimetres deep, whose slanted end face deflects rather than returns it. Green sfGFP emission leaves the UVette along the plus Y axis, at 90 degrees to the excitation, through a reserved but as yet unspecified emission filter position, and reaches the AS7341 detector. An enlarged inset shows the UVette chamber, 2 millimetres across the excitation path and 10 millimetres along the detection path. A scale bar gives device X coordinates from minus 33.25 to plus 45.25 millimetres.">
 
-          <defs>
-            <marker id="hwArrowGreen" viewBox="0 0 10 10" refX="9" refY="5"
-                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#2e9e5b"/>
-            </marker>
-            <marker id="hwArrowRed" viewBox="0 0 10 10" refX="9" refY="5"
-                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#c0392b"/>
-            </marker>
-            <marker id="hwArrowBlue" viewBox="0 0 10 10" refX="9" refY="5"
-                    markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
-            </marker>
-          </defs>
+          <!-- ---------- axes, drawn first so everything sits on top ---------- -->
+          <path class="hw-svg-axis" d="M126 230 H664"/>
+          <path class="hw-svg-axis" d="M380 186 V366"/>
 
-          <!-- enclosure -->
-          <rect x="30" y="26" width="720" height="392" rx="16" class="hw-svg-case"/>
-          <text x="52" y="56" class="hw-svg-note">
-            Matte black enclosure &mdash; low-reflectance interior, lid interlock
-          </text>
+          <text class="hw-svg-note" x="20" y="26">optical core &#8212; plan view, 5 px = 1 mm along X</text>
 
-          <!-- red LED -->
-          <rect x="52" y="186" width="106" height="52" rx="8" class="hw-svg-red-box"/>
-          <text x="105" y="219" class="hw-svg-label" text-anchor="middle">630 nm LED</text>
-          <text x="105" y="266" class="hw-svg-sub" text-anchor="middle">transmission QC</text>
+          <!-- ---------- enlarged inset: the UVette chamber ---------- -->
+          <rect class="hw-svg-case" x="500" y="20" width="260" height="150" rx="10"/>
+          <text class="hw-svg-note" x="514" y="36">UVette chamber, enlarged</text>
 
-          <!-- aperture 1 -->
-          <rect x="182" y="126" width="12" height="52" class="hw-svg-stop"/>
-          <rect x="182" y="222" width="12" height="52" class="hw-svg-stop"/>
-          <text x="188" y="300" class="hw-svg-sub" text-anchor="middle">2&ndash;4 mm aperture</text>
+          <rect class="hw-svg-body" x="560" y="66" width="75" height="75" rx="2"/>
+          <rect class="hw-svg-sample" x="591" y="74" width="12" height="60"/>
 
-          <!-- sample -->
-          <rect x="268" y="104" width="112" height="200" rx="10" class="hw-svg-sample"/>
-          <path d="M 268 140 H 380" class="hw-svg-meniscus"/>
-          <text x="324" y="128" class="hw-svg-label" text-anchor="middle">Sample</text>
-          <text x="324" y="290" class="hw-svg-sub" text-anchor="middle">fixed volume</text>
+          <path class="hw-beam-blue" d="M534 104 H585"/>
+          <path fill="#2b6cb0" d="M585 98 L597 104 L585 110 Z"/>
+          <path class="hw-beam-green" d="M597 134 V152"/>
+          <path fill="#2e9e5b" d="M591 152 L597 164 L603 152 Z"/>
 
-          <!-- the right angle between excitation and detection -->
-          <path d="M 324 304 V 199" class="hw-svg-axis"/>
-          <path d="M 324 199 H 392" class="hw-svg-axis"/>
-          <path d="M 324 213 H 338 V 199" class="hw-svg-right-angle"/>
-          <text x="346" y="234" class="hw-svg-angle">90&deg;</text>
+          <path class="hw-svg-dim" d="M591 60 H603 M591 56 V64 M603 56 V64 M591 64 V74 M603 64 V74"/>
+          <text class="hw-svg-note" x="597" y="54" text-anchor="middle">2 mm</text>
+          <path class="hw-svg-dim" d="M603 74 H648 M603 134 H648 M644 74 V134 M640 74 H648 M640 134 H648"/>
+          <text class="hw-svg-note" x="654" y="108">10 mm</text>
+          <text class="hw-svg-note" x="514" y="162">ORIENT-A</text>
 
-          <!-- long-pass filter -->
-          <rect x="466" y="132" width="18" height="136" rx="3" class="hw-svg-filter"/>
-          <text x="475" y="300" class="hw-svg-sub" text-anchor="middle">long-pass,</text>
-          <text x="475" y="318" class="hw-svg-sub" text-anchor="middle">cut-on ~500 nm</text>
+          <!-- ---------- excitation train ---------- -->
+          <rect class="hw-svg-body" x="140" y="189" width="74" height="82" rx="3"/>
+          <rect class="hw-svg-blue-box" x="148" y="216" width="30" height="28" rx="3"/>
+          <rect class="hw-svg-body" x="206" y="213" width="24" height="34" rx="2"/>
 
-          <!-- aperture 2 -->
-          <rect x="524" y="126" width="12" height="52" class="hw-svg-stop"/>
-          <rect x="524" y="222" width="12" height="52" class="hw-svg-stop"/>
+          <rect class="hw-svg-body" x="214" y="192" width="75" height="76" rx="3"/>
+          <rect class="hw-svg-stop" x="228" y="192" width="14" height="30"/>
+          <rect class="hw-svg-stop" x="228" y="238" width="14" height="30"/>
+          <rect class="hw-svg-stop" x="261" y="192" width="14" height="30"/>
+          <rect class="hw-svg-stop" x="261" y="238" width="14" height="30"/>
 
-          <!-- sensor -->
-          <rect x="572" y="146" width="152" height="108" rx="10" class="hw-svg-sensor"/>
-          <text x="648" y="180" class="hw-svg-label" text-anchor="middle">AS7341</text>
-          <text x="648" y="207" class="hw-svg-sub" text-anchor="middle">F4 &asymp; 515 nm</text>
-          <text x="648" y="228" class="hw-svg-sub" text-anchor="middle">F7 &asymp; 630 nm</text>
+          <!-- ---------- sample ---------- -->
+          <rect class="hw-svg-body" x="349" y="199" width="62" height="62" rx="3"/>
+          <rect class="hw-svg-sample" x="375" y="205" width="10" height="50"/>
+          <path class="hw-svg-meniscus" d="M375 211 Q380 207 385 211"/>
 
-          <!-- blue LED, underneath -->
-          <rect x="284" y="330" width="80" height="14" rx="3" class="hw-svg-filter-blue"/>
-          <text x="374" y="342" class="hw-svg-sub">optional excitation filter</text>
-          <rect x="272" y="356" width="104" height="52" rx="8" class="hw-svg-blue-box"/>
-          <text x="324" y="388" class="hw-svg-label" text-anchor="middle">470 nm LED</text>
+          <!-- ---------- angled-wedge light trap ---------- -->
+          <path class="hw-svg-stop" d="M471 210 H586 L606 250 H471 Z"/>
 
-          <!-- beams -->
-          <path d="M 158 212 H 262" class="hw-beam-red" marker-end="url(#hwArrowRed)"/>
-          <path d="M 380 212 H 566" class="hw-beam-red" marker-end="url(#hwArrowRed)"/>
-          <path d="M 380 186 H 566" class="hw-beam-green" marker-end="url(#hwArrowGreen)"/>
-          <path d="M 324 352 V 310" class="hw-beam-blue" marker-end="url(#hwArrowBlue)"/>
+          <!-- ---------- reserved emission-filter position ---------- -->
+          <rect class="hw-svg-case" x="348" y="300" width="64" height="32" rx="4"/>
+
+          <!-- ---------- detector ---------- -->
+          <rect class="hw-svg-sensor" x="330" y="356" width="100" height="60" rx="5"/>
+          <rect class="hw-svg-stop" x="372" y="356" width="16" height="12"/>
+
+          <!-- ---------- beams ---------- -->
+          <path class="hw-beam-blue" d="M178 230 H375"/>
+          <path class="hw-beam-blue" d="M385 230 H584"/>
+          <path class="hw-beam-blue" d="M584 230 L601 247"/>
+          <path class="hw-beam-green" d="M380 261 V356"/>
+
+          <!-- ---------- the right angle between them ---------- -->
+          <path class="hw-svg-right-angle" d="M420 230 A40 40 0 0 1 380 270"/>
+          <text class="hw-svg-angle" x="424" y="276">90&#176;</text>
+
+          <!-- ---------- labels ---------- -->
+          <text class="hw-svg-label" x="177" y="176" text-anchor="middle">LED holder</text>
+          <text class="hw-svg-sub" x="177" y="289" text-anchor="middle">Cree, 470 nm</text>
+
+          <text class="hw-svg-label" x="251" y="176" text-anchor="middle">baffle</text>
+          <text class="hw-svg-sub" x="251" y="311" text-anchor="middle">two aperture stops</text>
+
+          <text class="hw-svg-label" x="380" y="176" text-anchor="middle">sample</text>
+          <text class="hw-svg-sub" x="322" y="289" text-anchor="end">UVette, 200 &#181;L</text>
+
+          <text class="hw-svg-label" x="538" y="196" text-anchor="middle">light trap</text>
+          <text class="hw-svg-sub" x="538" y="298" text-anchor="middle">angled wedge, &#216;8.0 &#215; 27 mm deep</text>
+
+          <text class="hw-svg-sub" x="424" y="318">emission filter &#8212; position reserved,</text>
+          <text class="hw-svg-sub" x="424" y="340">part not yet specified</text>
+
+          <text class="hw-svg-label" x="380" y="392" text-anchor="middle">AS7341</text>
+          <text class="hw-svg-sub" x="380" y="434" text-anchor="middle">detector, on SEN0365 board</text>
+
+          <text class="hw-svg-sub" x="640" y="224">+X</text>
+          <text class="hw-svg-sub" x="392" y="346">+Y</text>
+
+          <!-- ---------- scale bar in device coordinates ---------- -->
+          <path class="hw-svg-dim" d="M214 462 H606 M214 456 V468 M289 456 V468 M380 456 V468 M471 456 V468 M606 456 V468"/>
+          <text class="hw-svg-note" x="214" y="482" text-anchor="middle">&#8722;33.25</text>
+          <text class="hw-svg-note" x="289" y="482" text-anchor="middle">&#8722;18.25</text>
+          <text class="hw-svg-note" x="380" y="482" text-anchor="middle">0</text>
+          <text class="hw-svg-note" x="471" y="482" text-anchor="middle">+18.25</text>
+          <text class="hw-svg-note" x="606" y="482" text-anchor="middle">+45.25</text>
+          <text class="hw-svg-note" x="380" y="502" text-anchor="middle">device X coordinate (mm)</text>
         </svg>
       </div>
-
       <ul class="hw-legend">
-        <li><span class="hw-key hw-key-blue"></span>470&nbsp;nm excitation, from below</li>
-        <li><span class="hw-key hw-key-green"></span>sfGFP emission, read on F4</li>
-        <li><span class="hw-key hw-key-red"></span>630&nbsp;nm transmission QC, read on F7</li>
+        <li><span class="hw-key hw-key-blue"></span>470&nbsp;nm excitation</li>
+        <li><span class="hw-key hw-key-green"></span>sfGFP emission, collected at 90&deg;</li>
       </ul>
-
       <figcaption>
-        The excitation enters at 90&deg; to the line the detector looks along,
-        so the blue light has no straight path into the sensor. The red QC beam
-        travels along that same detection line, which is why one filter and one
-        sensor can serve both measurements.
+        The optical core in plan view, drawn to scale along the excitation axis;
+        component heights are schematic. Excitation crosses the UVette's
+        2&nbsp;mm path and whatever is not absorbed continues into an
+        angled-wedge trap, whose slanted end face deflects the beam rather than
+        returning it toward the detector. Emission is collected at 90&deg; along
+        the 10&nbsp;mm path. The dashed box marks the reserved emission-filter
+        position: no filter was fitted for the 2026-08-25 measurements, and the
+        part cannot be chosen until a fluorescence signal exists to size it
+        against.
       </figcaption>
     </figure>
 
-    <h3>Three things that have to be right</h3>
-    <figure class="hw-figure">
+    <!-- PHOTO: 組裝後的 P1-PROTO-01 外觀照，上傳到 static.igem.wiki 後插在這裡 -->
+
+    <h3>Current baseline</h3>
+
+    <div class="hw-figure">
       <table class="hw-table">
+        <caption>P1 configuration as of 2026-08-25</caption>
         <thead>
-          <tr><th>Requirement</th><th>Why it matters</th></tr>
+          <tr><th scope="col">Element</th><th scope="col">Current baseline</th><th scope="col" class="hw-not">What this does not establish</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td>The blue LED and the detector at 90&deg;</td>
-            <td>
-              Otherwise excitation light reaching the sensor directly is counted
-              as sfGFP, and every sample looks bright.
-            </td>
+            <td>Measurement architecture</td>
+            <td>90&deg; fluorescence geometry</td>
+            <td class="hw-not">Represented in CAD and now assembled; quantitative optical performance is a separate question</td>
           </tr>
           <tr>
-            <td>A long-pass cutting on near 500&nbsp;nm</td>
-            <td>
-              Check its transmission at both 510&nbsp;nm and 630&nbsp;nm before
-              buying it. A cut-on set too high eats into the sfGFP emission we
-              are trying to measure.
-            </td>
+            <td>Excitation source</td>
+            <td>Cree <code>C503B-BCN-CV0Z0461</code>, nominal 470&nbsp;nm</td>
+            <td class="hw-not">Irradiance is unmeasured. 495&nbsp;nm remains only a future comparison candidate</td>
           </tr>
           <tr>
-            <td>Not a narrow 510&nbsp;nm bandpass &mdash; not in v0</td>
-            <td>
-              It would block 630&nbsp;nm as well, so the transmission QC would
-              need a second detector, or a filter that moves. One sensor behind
-              one fixed filter is what makes that QC free.
-            </td>
+            <td>Detector</td>
+            <td>AS7341 spectral sensor on a DFRobot <code>SEN0365</code> board</td>
+            <td class="hw-not">The physical die position inside the package is unmeasured</td>
+          </tr>
+          <tr>
+            <td>Controller</td>
+            <td>ESP32-WROOM-32, DOIT DevKit V1 30-pin, CH9102 bridge</td>
+            <td class="hw-not">In bench use only; not an enclosure-installed configuration</td>
+          </tr>
+          <tr>
+            <td>Sample container</td>
+            <td>Eppendorf UVette, dual 10&nbsp;mm / 2&nbsp;mm path</td>
+            <td class="hw-not">An engineering benchmark, <em>not</em> the final reaction cartridge, which is still undecided</td>
+          </tr>
+          <tr>
+            <td>Light trap</td>
+            <td>Angled-wedge, selected for P1 manufacture</td>
+            <td class="hw-not">The stepped-baffle alternative is deferred, not rejected; no bench comparison exists</td>
+          </tr>
+          <tr>
+            <td>Mechanical revision</td>
+            <td>v0.7 working and vendor-submitted; v0.4 preserved as the formal historical baseline</td>
+            <td class="hw-not">Digital validation only; physical fit and durability are unvalidated</td>
+          </tr>
+          <tr>
+            <td>Emission filter</td>
+            <td>Not yet specified</td>
+            <td class="hw-not">Cannot be specified until a fluorescence signal magnitude exists to size it against</td>
           </tr>
         </tbody>
       </table>
-    </figure>
-  </section>
-
-  <!-- ===================== mechanics and holders ===================== -->
-  <section>
-    <h2>Liquid Reader: holding the sample still</h2>
-
-    <p>
-      A fluorimeter with a good light path and a sloppy holder is still a bad
-      fluorimeter. If the tube can sit a millimetre lower, or turn a few
-      degrees, the reading changes for reasons that have nothing to do with
-      biology. The mechanical job is therefore registration first and
-      appearance second.
-    </p>
-
-    <figure class="hw-figure">
-      <div class="hw-diagram">
-        <svg viewBox="0 0 560 460" class="hw-svg" role="img"
-             aria-labelledby="hwCaseTitle hwCaseDesc">
-          <title id="hwCaseTitle">Side section through the Liquid Reader</title>
-          <desc id="hwCaseDesc">
-            A side view. A light-tight lid with an interlock closes the top. The
-            tube drops through a collar carrying an orientation notch and rests
-            on a bottom stop that fixes its height. The 630 nm LED and the
-            AS7341 face each other on an optical axis 25 to 35 mm above the base
-            plate, which must sit below the liquid surface. The 470 nm LED sits
-            under the tube.
-          </desc>
-
-          <defs>
-            <marker id="hwTick" viewBox="0 0 10 10" refX="5" refY="5"
-                    markerWidth="8" markerHeight="8" orient="auto">
-              <path d="M 5 1 V 9" stroke="#6b7a72" stroke-width="1.5"/>
-            </marker>
-          </defs>
-
-          <!-- lid -->
-          <rect x="60" y="42" width="380" height="30" rx="6" class="hw-svg-lid"/>
-          <text x="236" y="63" class="hw-svg-label" text-anchor="middle">Light-tight lid</text>
-          <rect x="404" y="48" width="34" height="18" rx="4" class="hw-svg-interlock"/>
-          <text x="446" y="62" class="hw-svg-sub">interlock</text>
-
-          <!-- body -->
-          <rect x="60" y="72" width="380" height="308" rx="10" class="hw-svg-body"/>
-
-          <!-- collar -->
-          <rect x="206" y="86" width="116" height="16" rx="4" class="hw-svg-lid"/>
-          <text x="330" y="99" class="hw-svg-sub">orientation notch + collar</text>
-
-          <!-- tube -->
-          <path d="M 234 90 V 300 a 30 30 0 0 0 60 0 V 90 Z" class="hw-svg-sample"/>
-          <path d="M 234 150 H 294" class="hw-svg-meniscus"/>
-          <text x="330" y="146" class="hw-svg-sub">fill line</text>
-
-          <!-- bottom stop -->
-          <rect x="206" y="332" width="116" height="14" rx="4" class="hw-svg-lid"/>
-          <text x="330" y="345" class="hw-svg-sub">bottom stop, fixes height</text>
-
-          <!-- the optical axis is drawn first, so the components sit on top of it -->
-          <path d="M 82 216 H 416" class="hw-svg-axis"/>
-
-          <!-- optics -->
-          <rect x="82" y="196" width="62" height="40" rx="6" class="hw-svg-red-box"/>
-          <text x="113" y="221" class="hw-svg-sub" text-anchor="middle">630 nm</text>
-          <rect x="308" y="192" width="10" height="48" rx="2" class="hw-svg-filter"/>
-          <rect x="340" y="196" width="76" height="40" rx="6" class="hw-svg-sensor"/>
-          <text x="378" y="221" class="hw-svg-sub" text-anchor="middle">AS7341</text>
-          <rect x="238" y="352" width="52" height="22" rx="5" class="hw-svg-blue-box"/>
-          <text x="264" y="368" class="hw-svg-sub" text-anchor="middle">470 nm</text>
-
-          <!-- how high the axis sits above the base plate -->
-          <path d="M 200 216 V 380" class="hw-svg-dim"
-                marker-start="url(#hwTick)" marker-end="url(#hwTick)"/>
-          <text x="76" y="300" class="hw-svg-sub">25&ndash;35 mm above</text>
-          <text x="76" y="318" class="hw-svg-sub">the base plate</text>
-
-          <!-- outer dimension -->
-          <path d="M 60 412 H 440" class="hw-svg-dim"
-                marker-start="url(#hwTick)" marker-end="url(#hwTick)"/>
-          <text x="250" y="438" class="hw-svg-sub" text-anchor="middle">
-            starting envelope ~110 &times; 90 &times; 75 mm
-          </text>
-        </svg>
-      </div>
-      <figcaption>
-        The collar sets rotation, the bottom stop sets height, and the optical
-        axis is placed low enough to stay under the liquid surface at the
-        specified fill. The outer dimensions are a starting envelope; the CAD is
-        locked only once the wet lab has handed us the tubes they will actually
-        use and we have measured them.
-      </figcaption>
-    </figure>
-
-    <h3>Two cartridges, for two different jobs</h3>
-    <figure class="hw-figure">
-      <table class="hw-table">
-        <thead>
-          <tr>
-            <th>Holder</th><th>Used for</th><th>Why it helps</th><th>Rule that comes with it</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>10&nbsp;mm square cuvette</td>
-            <td>Calibration, comparison against a commercial instrument, formal validation</td>
-            <td>Flat optical windows and a fixed path length</td>
-            <td>Costs the wet lab one extra transfer step</td>
-          </tr>
-          <tr>
-            <td>One specified round tube</td>
-            <td>The low-handling demonstration</td>
-            <td>An already-sealed tube goes straight in</td>
-            <td>
-              Fixed fill line and orientation mark. Readings from one tube type
-              are never compared against readings from another.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </figure>
-  </section>
-
-  <!-- ===================== electronics and output ===================== -->
-  <section>
-    <h2>Liquid Reader: electronics, timing, and what comes out</h2>
-
-    <p>
-      An ESP32 runs the measurement at a fixed gain and integration time,
-      sequences the LEDs, averages the readings, and writes them out over USB as
-      CSV. A lid interlock refuses to record a valid reading while the lid is
-      open. You enter the sample ID first; after that it is one button.
-    </p>
-
-    <ol class="hw-sequence" aria-label="One measurement, in four steps">
-      <li data-step="dark">
-        <span class="hw-step-n">1</span>
-        <span class="hw-step-name">Dark</span>
-        <span class="hw-step-what">Both LEDs off. Measure the sensor's own offset.</span>
-      </li>
-      <li data-step="blue">
-        <span class="hw-step-n">2</span>
-        <span class="hw-step-name">Blue</span>
-        <span class="hw-step-what">470&nbsp;nm on. Read F4 &asymp; 515&nbsp;nm: the sfGFP signal.</span>
-      </li>
-      <li data-step="off">
-        <span class="hw-step-n">3</span>
-        <span class="hw-step-name">Off</span>
-        <span class="hw-step-what">Both off again, so the two sources never overlap.</span>
-      </li>
-      <li data-step="red">
-        <span class="hw-step-n">4</span>
-        <span class="hw-step-name">Red</span>
-        <span class="hw-step-what">630&nbsp;nm on. Read F7 &asymp; 630&nbsp;nm: the transmission QC.</span>
-      </li>
-    </ol>
-
-    <p class="hw-aside">
-      One press averages several readings. That average describes how steady the
-      <em>instrument</em> is. It does not stand in for biological replicates,
-      which still have to be separate cultures.
-    </p>
-
-    <h3>Three numbers, and what each one is not</h3>
-    <figure class="hw-figure">
-      <table class="hw-table">
-        <thead>
-          <tr><th>Output</th><th>What it is</th><th>What it must not be read as</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>F_corrected</code></td>
-            <td>
-              Blue F4 minus dark F4: the reporter's fluorescence with the
-              sensor's own dark offset removed. A relative sfGFP signal.
-            </td>
-            <td class="hw-not">
-              An absolute AHL concentration. Nothing here has been calibrated
-              against an AHL standard.
-            </td>
-          </tr>
-          <tr>
-            <td><code>Leakage index</code></td>
-            <td>
-              How much excitation light reaches the detector anyway. Watches the
-              light path, the filter and the tube material.
-            </td>
-            <td class="hw-not">
-              A biological quantity of any kind. It is an instrument health
-              check.
-            </td>
-          </tr>
-          <tr>
-            <td><code>T_red</code></td>
-            <td>
-              How much of the 630&nbsp;nm beam gets through. Catches turbidity, a
-              wrong fill level, bubbles, and a badly seated tube.
-            </td>
-            <td class="hw-not">
-              OD<sub>600</sub>, or a cell count. Until it is calibrated against a
-              reference instrument it is a QC number, not a density.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </figure>
-  </section>
-
-  <!-- ============================ PlateDock ============================ -->
-  <section>
-    <h2>PlateDock: photographing a plate the same way twice</h2>
-
-    <p>
-      Swarming is already visible by eye. The problem is that a photograph taken
-      by hand carries the angle, the height and the room lighting into the
-      measurement along with the phenotype. PlateDock removes those three
-      variables and nothing else &mdash; it is a jig and an analysis, not a
-      second instrument.
-    </p>
-
-    <div class="hw-two-tables">
-      <figure class="hw-figure">
-        <table class="hw-table">
-          <caption>The minimum build</caption>
-          <tbody>
-            <tr><td>Phone held directly above the dish</td></tr>
-            <tr><td>Fixed height, fixed exposure, fixed white balance</td></tr>
-            <tr><td>Diffuse white light from both sides, at 30&ndash;45&deg;</td></tr>
-            <tr><td>A plate locator, and the sample ID in the frame</td></tr>
-            <tr><td>The plate stays sealed for the whole session</td></tr>
-          </tbody>
-        </table>
-      </figure>
-
-      <figure class="hw-figure">
-        <table class="hw-table">
-          <caption>What the image pipeline does</caption>
-          <tbody>
-            <tr><td>Finds the plate circle and the fiducial</td></tr>
-            <tr><td>Corrects perspective, and calibrates pixels to millimetres</td></tr>
-            <tr><td>Corrects uneven illumination, then segments</td></tr>
-            <tr><td>Reports area, equivalent diameter, coverage, an overlay, and QC</td></tr>
-            <tr><td>Keeps a manual threshold fallback, used with the reason written down</td></tr>
-          </tbody>
-        </table>
-      </figure>
     </div>
 
     <p class="hw-aside">
-      No motorised stage, and no model trained on a handful of plates. The
-      overlay matters more than either: it shows exactly which pixels were
-      counted, so a reader can disagree with us.
+      The mechanical source is parametric CadQuery Python; the STEP and STL
+      files are exports from it, not the source itself. Parts are printed FDM
+      in PLA, 0.4&nbsp;mm nozzle, 0.20&nbsp;mm layer, 100&nbsp;% infill.
     </p>
   </section>
 
-  <!-- ===================== pairing the two halves ===================== -->
+  <!-- ========================= decisions ========================= -->
   <section>
-    <h2>Pairing the liquid and the solid readings</h2>
+    <h2>Decisions that shaped P1</h2>
 
     <p>
-      Two measurements only mean something together if they came from the same
-      thing. Liquid and solid records share a batch and a sample ID, and each
-      group needs n&nbsp;&ge;&nbsp;3 independent biological replicates before any
-      of it is worth comparing.
+      Each of these is a recorded, binding project decision. We list them
+      because several of them <em>removed</em> capability from the prototype,
+      and a reader who only saw the final scope would not know that the
+      narrowing was deliberate.
     </p>
 
-    <div class="hw-groups">
-      <article class="hw-group" data-group="g0">
-        <h3>G0</h3>
-        <p class="hw-group-cond">PAO1 only</p>
-        <p>The baseline phenotype and the baseline signal.</p>
-      </article>
-      <article class="hw-group" data-group="g1">
-        <h3>G1</h3>
-        <p class="hw-group-cond">PAO1 + chassis or empty vector, or a non-binding aptamer</p>
-        <p>Rules out the chassis, the vector, and the act of co-culturing itself.</p>
-      </article>
-      <article class="hw-group" data-group="g2">
-        <h3>G2</h3>
-        <p class="hw-group-cond">PAO1 + the active System&nbsp;2 construct</p>
-        <p>What we are actually asking about.</p>
-      </article>
-    </div>
-
-    <div class="hw-branches">
-      <div class="hw-branch">
-        <h4>Liquid branch</h4>
-        <p>
-          The matched liquid sample stimulates the fixed System&nbsp;1 reporter,
-          and the Liquid Reader returns F_corrected with its QC.
-        </p>
-      </div>
-      <div class="hw-branch">
-        <h4>Solid branch</h4>
-        <p>
-          The matched plate, still sealed, goes to PlateDock, which returns area,
-          diameter and an overlay with its QC.
-        </p>
-      </div>
-    </div>
-
-    <p class="hw-join">
-      Both branches write into one CSV, keyed by sample ID, so the comparison
-      that matters &mdash; G2 against G1, in liquid and on solid &mdash; can be
-      read as a direction rather than as two unrelated charts.
-    </p>
-
-    <p class="hw-caution">
-      If we can only run G0 and G2, the instrument can still be demonstrated
-      &mdash; but then the most we can say is that <em>the complete
-      System&nbsp;2 condition</em> made the difference. Attributing it to the
-      aptamer specifically is what G1 buys, and without G1 we do not get to
-      claim it.
-    </p>
-  </section>
-
-  <!-- ===================== claim boundaries ===================== -->
-  <section class="hw-claims">
-    <h2>What this device can and cannot tell you</h2>
-    <p>
-      We wrote this list before we had readings, so that the instrument could
-      not quietly talk us into a larger claim later.
-    </p>
-
-    <figure class="hw-figure">
+    <div class="hw-figure">
       <table class="hw-table">
+        <caption>Binding decisions, 2026-08-09 batch</caption>
         <thead>
-          <tr><th>What a reading here can support</th><th>What it cannot support</th></tr>
+          <tr><th scope="col">Decision</th><th scope="col">What we decided</th><th scope="col">Why</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td>The System&nbsp;2 condition changes the relative reporter signal.</td>
-            <td class="hw-not">The device measures an absolute AHL concentration.</td>
+            <td>Turbidity QC out of P1</td>
+            <td>Red-light transmission and turbidity QC are removed from P1 acceptance</td>
+            <td>The far side of the excitation axis is occupied by the light trap. There is no transmission path, so the measurement is not physically implementable in this geometry</td>
           </tr>
           <tr>
-            <td>The System&nbsp;2 condition changes swarming area, a motility phenotype.</td>
-            <td class="hw-not">
-              A smaller swarming area means the bacteria died, or that there are
-              fewer of them.
-            </td>
+            <td>470&nbsp;nm excitation</td>
+            <td>The first hardware round uses the nominal 470&nbsp;nm Cree LED</td>
+            <td>Three independent design documents agree on it, and the LED holder was dimensioned from that part's datasheet</td>
           </tr>
           <tr>
-            <td>The direction and the uncertainty of G2's effect relative to G1.</td>
-            <td class="hw-not">T_red is OD<sub>600</sub>, or a colony count.</td>
+            <td>UVette is a benchmark</td>
+            <td>The UVette is a validation vessel, not the product's sample container</td>
+            <td>The reaction cartridge is a joint wet&ndash;dry decision that has not been made. Future containers will be handled with adapters rather than by modifying approved optical modules</td>
           </tr>
           <tr>
-            <td>
-              A provisional threshold, once a fresh control batch has been read
-              on this instrument.
-            </td>
-            <td class="hw-not">
-              A cutoff carried over from earlier spreadsheets whose numbers are
-              still under review.
-            </td>
+            <td>PlateDock out of P1 scope</td>
+            <td>Petri-dish imaging and swarming analysis are held as separate future work</td>
+            <td>No CAD for it exists in any revision, and P1's resources belong on validating one reader properly</td>
+          </tr>
+          <tr>
+            <td>Angled-wedge light trap</td>
+            <td>Angled-wedge selected for manufacture; stepped-baffle deferred</td>
+            <td>Both validate digitally and no bench evidence separates them. The selection is a manufacturing choice, and is explicitly not a claim that the alternative is worse</td>
           </tr>
         </tbody>
       </table>
-    </figure>
+    </div>
   </section>
 
-  <!-- ===================== validation plan ===================== -->
+  <!-- ========================= the build ========================= -->
   <section>
     <div class="hw-head-row">
-      <h2>How we will know it works</h2>
-      <span class="hw-flag">Planned &mdash; pass conditions set in advance</span>
+      <h2>The build we actually have</h2>
+      <span class="hw-flag">P1-PROTO-01 &middot; partial build</span>
     </div>
 
     <p>
-      The conditions below were fixed before any measurement was taken. That is
-      the point of writing them here: a threshold chosen after seeing the data
-      is not a threshold.
+      Printed parts arrived on 2026-08-17. What arrived was not a clean set,
+      and the prototype is designated <code>P1-PROTO-01</code> rather than
+      &ldquo;v0.7&rdquo; precisely so that no measurement can later be
+      attributed to a build that was never in our hands.
     </p>
 
-    <figure class="hw-figure">
+    <div class="hw-figure">
       <table class="hw-table">
+        <caption>Receiving record, 2026-08-17</caption>
         <thead>
-          <tr><th>Phase</th><th>What we test</th><th>What counts as passing</th></tr>
+          <tr><th scope="col">Item</th><th scope="col">Specified</th><th scope="col">Received</th><th scope="col">Disposition</th></tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>0</strong><br><span class="hw-phase">Optical</span></td>
-            <td>
-              Blank and a reference dye dilution series; dark leakage; taking one
-              tube out and putting it back.
-            </td>
-            <td>
-              CV&nbsp;&le;&nbsp;5% without re-seating, CV&nbsp;&le;&nbsp;10% with
-              it. The response is monotonic, and nothing saturates.
-            </td>
+            <td>Total printed pieces</td>
+            <td>59</td>
+            <td>57</td>
+            <td>Build proceeds as a partial assembly</td>
           </tr>
           <tr>
-            <td><strong>1</strong><br><span class="hw-phase">Reporter</span></td>
-            <td>
-              Negative and positive reporter controls from one batch, read here
-              and on a plate reader.
-            </td>
-            <td>
-              The two groups separate clearly, and both instruments rank the
-              conditions the same way.
-            </td>
+            <td><code>excitation_cap_LED_holder</code></td>
+            <td>1</td>
+            <td>0</td>
+            <td>Not replaced. The LED holder now rests in its saddle under gravity</td>
           </tr>
           <tr>
-            <td><strong>2</strong><br><span class="hw-phase">System 2</span></td>
-            <td>G0, G1 and G2, with matched liquid and solid samples.</td>
-            <td>
-              G2 differs from G1 reproducibly &mdash; without moving the
-              threshold to make it happen.
-            </td>
+            <td><code>led_holder_retainer_clip</code></td>
+            <td>1</td>
+            <td>0</td>
+            <td>Not replaced. The LED is held by friction and by its own lead wires</td>
+          </tr>
+          <tr>
+            <td><code>uvette_preload_leaf</code></td>
+            <td>1 in the package; 2 in the module source</td>
+            <td>1</td>
+            <td>A defect in our own manufacturing package, not a vendor shortfall. P1 proceeds with one leaf</td>
           </tr>
         </tbody>
       </table>
-    </figure>
+    </div>
+
+    <h3>Two fractures, and the decision to keep them</h3>
+
+    <p>
+      Two parts fractured during support removal. Both were bonded with opaque
+      black electrical tape and kept in service.
+    </p>
+
+    <ul>
+      <li>
+        The <strong>LED holder body</strong> split into two halves at the
+        C&#8209;clip slot plane, so the slot now straddles a bonded joint.
+      </li>
+      <li>
+        The <strong>aperture baffle body</strong> fractured at both
+        aperture-disk pocket planes, leaving three pieces. The LED holder
+        therefore locates against a bonded fragment rather than a monolithic
+        part.
+      </li>
+    </ul>
+
+    <p>
+      Counting the LED holder's own joint, the excitation axis passes through
+      <strong>three bonded joints in series</strong>, and angular error at any
+      one of them propagates directly to excitation aim. The decision on
+      2026-08-24 was not to reprint: the effect of the joints would be assessed
+      at first light rather than pre-empted by a speculative reprint, with the
+      three-piece baffle named in advance as the first suspect if alignment
+      proved unsatisfactory.
+    </p>
 
     <p class="hw-aside">
-      If the biology runs late, the hardware still has something to submit: the
-      built instrument, its reference validation, the CAD and bill of materials,
-      the firmware, the data schema, a PlateDock demonstration, and this
-      validation plan &mdash; written before the data rather than after it.
+      Both fractures occurred at pocket or slot planes that remove a large
+      fraction of the cross-section at a single layer boundary in the as-printed
+      orientation. That is a design lesson for the next revision, and it is
+      recorded as one.
     </p>
+
+    <!-- PHOTO: 兩處斷裂與黏合處的特寫，上傳後插在這裡 -->
   </section>
 
-  <!-- ===================== cost ===================== -->
+  <!-- ========================= first light ========================= -->
   <section>
-    <h2>What it costs to build</h2>
+    <h2>First light, 2026-08-25</h2>
+
     <p>
-      Engineering estimates in New Taiwan dollars, not purchase quotes. We list
-      them because anyone who wants to rebuild this deserves to know what they
-      are in for &mdash; and because the filter is the part that will surprise
-      them.
+      The assembled <code>P1-PROTO-01</code> was measured against the watch
+      list written before it was switched on. Each result below is reported with
+      the boundary of what it covers, because several of them are easy to
+      over-read.
     </p>
 
-    <div class="hw-two-tables">
-      <figure class="hw-figure">
-        <table class="hw-table">
-          <caption>Liquid Reader</caption>
-          <thead><tr><th>Part</th><th>NTD</th></tr></thead>
-          <tbody>
-            <tr><td>ESP32</td><td>180&ndash;350</td></tr>
-            <tr><td>AS7341 breakout</td><td>450&ndash;900</td></tr>
-            <tr><td>470 and 630&nbsp;nm LEDs with drivers</td><td>80&ndash;200</td></tr>
-            <tr><td>Long-pass filter, cut-on near 500&nbsp;nm</td><td>300&ndash;1,200</td></tr>
-            <tr><td>Enclosure, cartridges, miscellaneous</td><td>500&ndash;1,450</td></tr>
-            <tr class="is-total"><td>Subtotal</td><td>~1,560&ndash;4,100</td></tr>
-          </tbody>
-        </table>
-      </figure>
-
-      <figure class="hw-figure">
-        <table class="hw-table">
-          <caption>PlateDock</caption>
-          <thead><tr><th>Part</th><th>NTD</th></tr></thead>
-          <tbody>
-            <tr><td>Dark enclosure and phone mount</td><td>300&ndash;800</td></tr>
-            <tr><td>Diffuse white LEDs and supply</td><td>100&ndash;300</td></tr>
-            <tr><td>Fiducial and plate insert</td><td>50&ndash;200</td></tr>
-            <tr class="is-total"><td>Subtotal</td><td>450&ndash;1,300</td></tr>
-          </tbody>
-        </table>
-      </figure>
-    </div>
-  </section>
-
-  <!-- ===================== references ===================== -->
-  <section class="hw-refs">
-    <h2>References</h2>
-    <p class="hw-refs-note">
-      Prior work on low-cost fixed-geometry fluorimeters, on tube and cuvette
-      registration, on calibration, and on quantifying swarming from images.
-    </p>
-    <ol>
-      <li>
-        Portuino: a low-cost photometer and fluorimeter.
-        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9609715/" target="_blank"
-           rel="noopener noreferrer">pmc.ncbi.nlm.nih.gov/articles/PMC9609715</a>
+    <ol class="hw-sequence">
+      <li data-step="blue">
+        <span class="hw-step-n">Result 1</span>
+        <span class="hw-step-name">The optical chain works</span>
+        <span class="hw-step-what">
+          With a scatterer at the sample position the detector registered the
+          excitation: F2 (445&nbsp;nm) = 87, F3 (480&nbsp;nm) = 81, Clear = 116,
+          against all-zero dark reads. Excitation reaches the sample, the
+          detection path is open, and 90&deg; collection works &mdash; through
+          three bonded joints.
+        </span>
       </li>
-      <li>
-        qByte: an open-source 8-tube fluorimeter.
-        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12157786/" target="_blank"
-           rel="noopener noreferrer">pmc.ncbi.nlm.nih.gov/articles/PMC12157786</a>
+      <li data-step="off">
+        <span class="hw-step-n">Result 2</span>
+        <span class="hw-step-name">Ambient light is rejected</span>
+        <span class="hw-step-what">
+          Closed, with the room lit, all twelve channels read exactly 0 with the
+          LED off &mdash; at 25&times; the working integration time. Ambient
+          contributes below roughly 0.04 counts at working settings.
+        </span>
       </li>
-      <li>
-        Hardware selection and performance of low-cost fluorometers.
-        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8954410/" target="_blank"
-           rel="noopener noreferrer">pmc.ncbi.nlm.nih.gov/articles/PMC8954410</a>
+      <li data-step="blue">
+        <span class="hw-step-n">Result 3</span>
+        <span class="hw-step-name">Bare-path stray light is below 1 count</span>
+        <span class="hw-step-what">
+          LED energised, nothing at the sample position: every channel reads 0.
+          The light trap and baffle absorb the excitation essentially
+          completely, bonded joints included.
+        </span>
       </li>
-      <li>
-        Bacterial surface motility imaging and quantification.
-        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4541456/" target="_blank"
-           rel="noopener noreferrer">pmc.ncbi.nlm.nih.gov/articles/PMC4541456</a>
-      </li>
-      <li>
-        <em>Pseudomonas aeruginosa</em> swarming assay.
-        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9006052/" target="_blank"
-           rel="noopener noreferrer">pmc.ncbi.nlm.nih.gov/articles/PMC9006052</a>
-      </li>
-      <li>
-        iGEM CLSB-UK 2017 &mdash; fluorometer and densitometer.
-        <a href="https://2017.igem.org/Team%3ACLSB-UK/Hardware" target="_blank"
-           rel="noopener noreferrer">2017.igem.org/Team:CLSB-UK/Hardware</a>
-      </li>
-      <li>
-        iGEM Munich 2017 &mdash; low-cost fluorescence detector.
-        <a href="https://2017.igem.org/Team%3AMunich/Measurement" target="_blank"
-           rel="noopener noreferrer">2017.igem.org/Team:Munich/Measurement</a>
-      </li>
-      <li>
-        iGEM NCKU Tainan 2019 &mdash; CreSense.
-        <a href="https://2019.igem.org/Team%3ANCKU_Tainan/Hardware" target="_blank"
-           rel="noopener noreferrer">2019.igem.org/Team:NCKU_Tainan/Hardware</a>
-      </li>
-      <li>
-        iGEM UPenn 2021 &mdash; OptoReader.
-        <a href="https://2021.igem.org/Team%3AUPenn/Hardware" target="_blank"
-           rel="noopener noreferrer">2021.igem.org/Team:UPenn/Hardware</a>
-      </li>
-      <li>
-        ams OSRAM, AS7341 calibration methods (application note AN000633).
-        <a href="https://look.ams-osram.com/m/269928fe0dba7511/original/AS7341-AN000633.pdf"
-           target="_blank" rel="noopener noreferrer">AS7341-AN000633.pdf</a>
+      <li data-step="dark">
+        <span class="hw-step-n">Result 4</span>
+        <span class="hw-step-name">Position holds, once settled</span>
+        <span class="hw-step-what">
+          After a one-time settling of about &minus;6.9&nbsp;% that converged,
+          three undisturbed repetitions gave a run-to-run spread of
+          0.42&nbsp;%. A light touch on the LED cable moved the reading by
+          0.28&nbsp;% &mdash; 0.46 pooled standard deviations, i.e.
+          indistinguishable from noise.
+        </span>
       </li>
     </ol>
+
+    <div class="hw-caution">
+      <p>
+        <em>Read result 3 carefully.</em> With a water blank and no emission
+        filter fitted, the excitation leakage into the emission channel is
+        <code>F4/F3 &lt; 1.35&nbsp;%</code>. That figure is an
+        <strong>upper bound set by the quantisation floor</strong> &mdash; the
+        channel read zero, so we can only say the leakage is smaller than one
+        count, not what it is. It was also measured at 1600&nbsp;&micro;L rather
+        than the 200&nbsp;&micro;L working volume, where the meniscus sits
+        nearer the beam and the result may be worse. And a real culture carries
+        turbidity, which will scatter far more than pure water.
+      </p>
+    </div>
+
+    <h3>Electronics, measured on the bench</h3>
+
+    <p>
+      The excitation branch is a resistor-limited, low-side-switched LED on a
+      single ESP32 GPIO, with the detector on the board's 3.3&nbsp;V rail and
+      one named ground junction. Staged bring-up passed at every stage.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption>Bench values, 2026-08-25</caption>
+        <thead>
+          <tr><th scope="col">Quantity</th><th scope="col">Measured</th><th scope="col">Note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>LED current</td><td>5.553&nbsp;mA</td><td>A deliberate safe-start value, not the final operating current</td></tr>
+          <tr><td>LED forward voltage</td><td>2.65&nbsp;V</td><td>14.7&nbsp;mW against a 120&nbsp;mW package maximum</td></tr>
+          <tr><td>Current-limit resistor</td><td>434&nbsp;&#8486;</td><td>218 + 216&nbsp;&#8486; in series, replacing an unavailable 390&nbsp;&#8486; part</td></tr>
+          <tr><td>Gate pulldown</td><td>9.9&nbsp;k&#8486;</td><td>Guarantees the LED is dark during boot and with the controller unpowered</td></tr>
+          <tr><td>Switch on-resistance</td><td>1.80&nbsp;&#8486;</td><td>20/20 reliable off; 0&nbsp;% current spread over six pulses</td></tr>
+          <tr><td>Total draw</td><td>&asymp;&nbsp;77&nbsp;mA</td><td>Breadboard configuration</td></tr>
+          <tr><td>All-channel read time</td><td>451.6&nbsp;ms</td><td>Giving a 551&ndash;552&nbsp;ms LED-on window including 100&nbsp;ms settling</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The acquisition window fits the 1.0&nbsp;s hard timeout with 448&nbsp;ms
+      to spare, and misses our own 0.5&nbsp;s target by about 52&nbsp;ms. We
+      have recorded that as a missed target rather than quietly moving the
+      target.
+    </p>
+
+    <p class="hw-aside">
+      One component carries a caveat worth stating. The single 2N7000 switch has
+      conditional acceptance only: its pinout was established by body-diode
+      measurement rather than assumed, and its manufacturer is unknown &mdash;
+      the part is marked and lot-coded but carries no logo. That licenses no
+      substitution and is not a design approval.
+    </p>
+
+    <!-- PHOTO: breadboard 光路與接線照，上傳後插在這裡 -->
+  </section>
+
+  <!-- ========================= not yet ========================= -->
+  <section>
+    <h2>What we have not measured</h2>
+
+    <p>
+      The most important sentence on this page is this one:
+      <strong>no fluorescence of any kind has been measured.</strong> No
+      fluorophore was available on 2026-08-25. Everything above establishes that
+      the instrument's optical and electrical paths function; none of it
+      establishes that the instrument can measure the thing it was built to
+      measure.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption>Open items, as of 2026-08-25</caption>
+        <thead>
+          <tr><th scope="col">Item</th><th scope="col">Status</th><th scope="col">What it is blocked on</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Fluorescence signal</td><td>Not tested</td><td>A fluorescent reference standard, requested from the wet lab</td></tr>
+          <tr><td>Blank signal against a real sample</td><td>Not tested</td><td>The same</td></tr>
+          <tr><td>Signal-to-noise ratio</td><td>Not tested</td><td>Can only be computed once a traceable blank and signal exist</td></tr>
+          <tr><td>Assay repeatability</td><td>Not tested</td><td>Requires a working measurement first</td></tr>
+          <tr><td>UVette re-insertion repeatability</td><td>Not tested</td><td>The single preload leaf leaves one axis free to float by up to about 0.6&nbsp;mm. This is the largest remaining mechanical unknown for the six-hour series</td></tr>
+          <tr><td>Emission filter selection</td><td>Undecided</td><td>No fluorescence magnitude exists, so no filter requirement can be derived. Specifying one now would be a guess</td></tr>
+          <tr><td>Stray light with a turbid sample</td><td>Not tested</td><td>Only a water blank has been measured</td></tr>
+          <tr><td>Project firmware on hardware</td><td>Not tested</td><td>The bench work used separate diagnostic sketches; the project firmware has never been compiled or flashed, and its detector adapter is still a stub</td></tr>
+          <tr><td>Physical fit, assembly, durability, warp</td><td>Not tested</td><td>No canonical physical measurement record exists</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      A digital CAD or DFM pass is not evidence of printing, fit, assembly,
+      stray-light performance, fluorescence, or repeatability. We hold those
+      apart deliberately, and the tables above are written so that a reader can
+      see exactly where the evidence stops.
+    </p>
+  </section>
+
+  <!-- ========================= claims ========================= -->
+  <section class="hw-claims">
+    <h2>What we are and are not claiming</h2>
+
+    <p>
+      CAPTURE-Screen is a <strong>research-use (RUO) prototype</strong>. Its
+      stable claim is deliberately narrow, and we hold to it in every document:
+    </p>
+
+    <div class="hw-join">
+      <p class="mb-0">
+        The device reads <strong>relative</strong> biosensor fluorescence and
+        flags optical interference.
+      </p>
+    </div>
+
+    <p>It does not, and we do not claim that it does:</p>
+
+    <ul>
+      <li>diagnose ventilator-associated pneumonia, or any other condition;</li>
+      <li>directly detect or quantify <em>Pseudomonas aeruginosa</em>;</li>
+      <li>measure bacterial concentration;</li>
+      <li>quantify AHL.</li>
+    </ul>
+
+    <p class="mb-0">
+      The sample container is not final, the emission filter is not chosen, and
+      the reader has never seen a fluorophore. Those are facts about where the
+      project stands in August 2026, not caveats added for form's sake.
+    </p>
+  </section>
+
+  <!-- ========================= interface ========================= -->
+  <section>
+    <h2>The wet&ndash;dry interface</h2>
+
+    <p>
+      The reader has to fit an assay that the wet lab defines. These are the
+      handoff facts we are designing against; where something is still unknown
+      we have left it unknown rather than assuming a value.
+    </p>
+
+    <dl class="hw-spec">
+      <div><dt>Reporter</dt><dd>sfGFP. The exact construct and strain are not yet specified.</dd></div>
+      <div><dt>AHL series</dt><dd>10&nbsp;&micro;M, 1&nbsp;&micro;M, 100&nbsp;nM, 10&nbsp;nM, 1&nbsp;nM.</dd></div>
+      <div><dt>Volume</dt><dd>200&nbsp;&micro;L per reaction.</dd></div>
+      <div><dt>Incubation</dt><dd>37&nbsp;&deg;C, read every hour for six hours. Whether the series includes a zero point is not yet settled.</dd></div>
+      <div><dt>Benchmark</dt><dd>Plate reader at excitation 485&nbsp;nm, emission 510&nbsp;nm, 200&nbsp;&micro;L.</dd></div>
+    </dl>
+
+    <p class="hw-aside">
+      Our nominal 470&nbsp;nm excitation is deliberately distinct from the plate
+      reader's 485&nbsp;nm, so the two instruments are comparable but not
+      identical &mdash; a difference we will have to characterise rather than
+      assume away. Negative-control definition, replicate counts and the
+      expected fluorescence range are still to come from the wet lab, and no
+      traceable raw plate-reader dataset is available yet.
+    </p>
+  </section>
+
+  <!-- ========================= reproducing ========================= -->
+  <section>
+    <h2>Reproducing it</h2>
+
+    <p>
+      The instrument is built from catalogue parts and printed components. The
+      table below is what a second team would need; quantities and prices are
+      being reconciled against our final order records and are deliberately
+      omitted until they are.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption>Core parts</caption>
+        <thead>
+          <tr><th scope="col">Function</th><th scope="col">Part</th><th scope="col">State</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Excitation LED</td><td>Cree <code>C503B-BCN-CV0Z0461</code></td><td>Received; bench characterised</td></tr>
+          <tr><td>Detector</td><td>DFRobot <code>SEN0365</code> (AS7341)</td><td>Received; bench bring-up passed</td></tr>
+          <tr><td>Controller</td><td>ESP32-WROOM-32, DOIT DevKit V1 30-pin</td><td>In bench use</td></tr>
+          <tr><td>LED switch</td><td>2N7000 N-channel MOSFET</td><td>Conditional bench acceptance, single unit</td></tr>
+          <tr><td>Current limit / gate network</td><td>434&nbsp;&#8486; series, 217&nbsp;&#8486; gate, 9.9&nbsp;k&#8486; pulldown</td><td>Measured in place</td></tr>
+          <tr><td>Sample vessel</td><td>Eppendorf UVette</td><td>One unit held; benchmark only</td></tr>
+          <tr><td>Optical core</td><td>Printed PLA, v0.7 geometry</td><td>Received as <code>P1-PROTO-01</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      Mechanical source is versioned parametric CadQuery Python with STEP and
+      STL exports; the acquisition firmware targets the ESP32 with the Adafruit
+      AS7341 library. We will publish the source files and the printing package
+      alongside this page once the assembly is validated, so that what we
+      release is a build that has been shown to work rather than a build we hope
+      works.
+    </p>
+
+    <!-- PHOTO: UVette 座與 ORIENT-A 安裝方向照，上傳後插在這裡 -->
+  </section>
+
+  <!-- ========================= next ========================= -->
+  <section>
+    <h2>What happens next</h2>
+
+    <ol>
+      <li>
+        Obtain a fluorescent reference standard, and measure a real signal.
+        Everything else waits on this.
+      </li>
+      <li>
+        Derive the emission-filter requirement from the measured
+        signal-to-background ratio, rather than guessing at it.
+      </li>
+      <li>
+        Test UVette re-insertion repeatability across a six-hour series &mdash;
+        the open item most likely to spoil a timed run.
+      </li>
+      <li>
+        Re-measure stray light at the working 200&nbsp;&micro;L volume, and with
+        a turbid sample.
+      </li>
+      <li>
+        Implement and flash the project firmware, replacing the diagnostic
+        sketches used for bring-up.
+      </li>
+      <li>
+        Run the reader and the plate reader against the same AHL series, and
+        characterise the difference between them.
+      </li>
+    </ol>
+
+    <p class="hw-refs-note">
+      Every measurement quoted on this page is drawn from our own dated
+      engineering records, each of which names the session and the evidence file
+      that produced it. Where a value is an upper bound, a safe-start setting,
+      or a scoped pass, we have said so rather than rounding it into a
+      capability.
+    </p>
   </section>
 
 </div>

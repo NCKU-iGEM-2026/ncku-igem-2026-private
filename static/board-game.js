@@ -2768,5 +2768,11 @@ function checkWin() {
   log(names + " " + t(winners.length > 1 ? "winLogMulti" : "winLog"), "win");
 }
 
+/* Play Again was an inline onclick. Wiring it here keeps every handler in
+   this file, so the page carries no executable attributes. */
+document.getElementById("playAgain").addEventListener("click", function () {
+  location.reload();
+});
+
 /* init */
 applyI18n();

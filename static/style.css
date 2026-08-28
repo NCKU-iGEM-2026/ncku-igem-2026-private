@@ -215,7 +215,6 @@ body.show-back-to-top .back-to-top {
   color: #062a1c;
   text-decoration: underline;
 }
-.left-aligned { margin-left: auto; }
 /* The bright brand green was introduced for the top bar. The footer wears the
    same Bootstrap .bg-dark class, so a bare override turned it green too and
    dropped its white text -- including the licence and repository lines judges
@@ -233,19 +232,28 @@ footer.bg-dark { background-color: #075a3e !important; }
   background-color: #fff6b7;
 }
 
-/* CALLOUT */
-.bd-callout { padding:1.25rem; margin-top:1.25rem; margin-bottom:1.25rem; border:1px solid #e9ecef; border-left-width:.25rem; border-radius:.25rem }
-.bd-callout h4 { margin-bottom: 1.25rem }
-.bd-callout p:last-child { margin-bottom:0 }
-.bd-callout code { border-radius:.25rem }
-.bd-callout+.bd-callout { margin-top:-.25rem }
-.bd-callout-info { border-left-color:#5bc0de }
-.bd-callout-warning { border-left-color:#f0ad4e }
-.bd-callout-danger { border-left-color:#d9534f }
-
 /* footer */
 footer a { color: white; font-weight: bold; text-decoration: none; }
 footer a:hover { color: white; text-decoration: underline; }
+
+/* Moved here from a <style> block at the bottom of wiki/footer.html. That
+   block was inlined into all 26 pages; here it is fetched and cached once. */
+.sponsor-logo {
+  height: 72px;
+  width: auto;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+
+.hover-icon {
+  transition: transform 0.2s ease-in-out, color 0.2s;
+}
+
+.hover-icon:hover {
+  color: #1abc9c !important; /* 滑鼠移過去變成漂亮的 Tiffany 綠，點綴一下 */
+  transform: scale(1.1);
+}
 
 @font-face {
   font-family: "Chango";
@@ -559,15 +567,6 @@ footer a:hover { color: white; text-decoration: underline; }
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-.polaroid-overlay .quote { font-style: italic; font-size: 0.85rem; margin-bottom: 0.75rem; }
-.polaroid-overlay .camera-meta {
-  font-size: 0.75rem;
-  color: #ccc;
-  border-top: 1px solid rgba(255,255,255,0.2);
-  padding-top: 0.5rem;
-  width: 100%;
-}
-.polaroid-overlay .camera-meta span { display: block; }
 
 /*維持上方橫幅置中
 */
@@ -939,7 +938,7 @@ footer a:hover { color: white; text-decoration: underline; }
 /* ---- the three approaches that fall short ---- */
 .desc-methods {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
   gap: 1rem;
   margin-top: 1.5rem;
 }
@@ -1010,7 +1009,7 @@ footer a:hover { color: white; text-decoration: underline; }
 /* ---- the two candidate routes ---- */
 .desc-routes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 1.25rem;
   margin-top: 1.5rem;
 }
@@ -1440,14 +1439,6 @@ footer a:hover { color: white; text-decoration: underline; }
   .edu-map-tip.is-visible { transform: none; }
 }
 
-.edu-map-legend-line {
-  max-width: 420px;
-  margin: 0 auto 1.5rem;
-  text-align: center;
-  font-size: 0.8rem;
-  color: #888;
-}
-
 .edu-pin {
   position: absolute;
   display: flex;
@@ -1472,7 +1463,8 @@ footer a:hover { color: white; text-decoration: underline; }
 }
 
 .edu-pin.edu-pin-highschool { background: #d8f5a0; }
-.edu-pin.edu-pin-community { background: #ffd6ec; }
+.edu-pin.edu-pin-ncku { background: #cfe3ff; }
+.edu-pin.edu-pin-littlesun { background: #ffd6ec; }
 
 .edu-pin:hover {
   transform: translate(-50%, -50%) scale(1.2);
@@ -1481,14 +1473,6 @@ footer a:hover { color: white; text-decoration: underline; }
 
 .edu-pin.edu-hidden {
   display: none;
-}
-
-.edu-map-note {
-  max-width: 640px;
-  margin: -0.5rem auto 2rem;
-  font-size: 0.8rem;
-  color: #888;
-  text-align: center;
 }
 
 /* ===== Education: session sidebar + detail sections ===== */
@@ -1507,6 +1491,12 @@ footer a:hover { color: white; text-decoration: underline; }
   padding-left: 0;
   max-height: calc(100vh - 104px);
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.edu-sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .edu-sidebar-link.edu-sidebar-top-link {
@@ -1549,11 +1539,8 @@ footer a:hover { color: white; text-decoration: underline; }
   position: relative;
   font-family: "Changa", sans-serif;
   font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 1rem;
   color: #075a3e;
-  opacity: 0.8;
   margin-bottom: 0.5rem;
   padding-left: 1.15rem;
 }
@@ -1658,9 +1645,364 @@ footer a:hover { color: white; text-decoration: underline; }
   margin: 0;
 }
 
+.edu-session-block p {
+  margin-top: 1rem;
+}
+
+.edu-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.edu-logo {
+  display: block;
+  width: 80px;
+  height: auto;
+  flex: none;
+}
+
+/* ===== Education: Zhanxin Project school list ===== */
+.edu-zhanxin-list {
+  margin-top: 1.5rem;
+}
+
+.edu-zhanxin-list h3 {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #2b1e17;
+  scroll-margin-top: 90px;
+  margin: 1.75rem 0 0;
+}
+
+.edu-zhanxin-list h3:first-child {
+  margin-top: 0;
+}
+
+.edu-quote {
+  border-left: 4px solid #075a3e;
+  padding-left: 1.25rem;
+  margin: 1rem 0;
+  font-weight: 700;
+  color: #4a3f35;
+}
+
+.edu-gallery {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  padding-bottom: 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #d8b26a transparent;
+}
+
+.edu-gallery img {
+  flex: 0 0 auto;
+  height: 220px;
+  width: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  scroll-snap-align: start;
+}
+
+.edu-gallery::-webkit-scrollbar {
+  height: 8px;
+}
+
+.edu-gallery::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.edu-gallery::-webkit-scrollbar-thumb {
+  background: #d8b26a;
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .edu-gallery img {
+    height: 160px;
+  }
+}
+
+/* Education photos as a carousel -------------------------------------------
+   education-gallery.js adds .is-carousel; everything above stays the fallback
+   for a visitor whose scripts did not run, so the photos are never lost. */
+
+.edu-carousel {
+  margin: 1.25rem 0 2rem;
+}
+
+/* Arrow, photo, arrow. The arrows sit beside the picture rather than on top
+   of it: at this size an overlay would cover a good part of it. */
+.edu-carousel-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.edu-gallery.is-carousel {
+  display: block;
+  position: relative;
+  /* A fifth of the area it used to take, so it sits beside the writing rather
+     than dominating the section. Shrinkable rather than fixed: on a narrow
+     phone the arrows and gaps come out of the row first and the photo takes
+     what is left. */
+  flex: 0 1 310px;
+  max-width: 310px;
+  /* The photos are a mix of 3:2 landscape and portrait. A fixed shape means
+     the page does not jump every couple of seconds as one replaces another,
+     and the box is reserved before any of them load. */
+  aspect-ratio: 3 / 2;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f1ece0;
+  scroll-snap-type: none;
+}
+
+.edu-gallery.is-carousel .edu-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* contain, not cover: these are group photos, and cropping a portrait to a
+     landscape box cuts people out of them. The backdrop fills the rest. */
+  object-fit: contain;
+  border-radius: 0;
+  opacity: 0;
+  /* visibility, not just opacity: it takes the photo out of the accessibility
+     tree as well, so a screen reader is not read all sixteen at once. */
+  visibility: hidden;
+  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+}
+
+.edu-gallery.is-carousel .edu-slide.is-current {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.45s ease, visibility 0s;
+}
+
+.edu-arrow {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 1px solid #c6bda6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.edu-arrow:hover,
+.edu-arrow:focus-visible {
+  background: #eaf7dd;
+  border-color: #075a3e;
+}
+
+.edu-arrow:focus-visible {
+  outline: 2px solid #075a3e;
+  outline-offset: 2px;
+}
+
+.edu-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  margin-top: 0.7rem;
+}
+
+.edu-carousel-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+}
+
+/* The button is a 24px target -- the dot inside it is only the visible part.
+   Sixteen of these end up close together, and WCAG 2.5.8 asks for 24px. */
+.edu-dot {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.edu-dot::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #bfb49c;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.edu-dot:hover::before,
+.edu-dot:focus-visible::before {
+  background: #7d6c4e;
+}
+
+.edu-dot[aria-current="true"]::before {
+  background: #075a3e;
+  transform: scale(1.4);
+}
+
+.edu-dot:focus-visible {
+  outline: 2px solid #075a3e;
+  outline-offset: 1px;
+}
+
+.edu-carousel-status {
+  margin: 0;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: #6b6055;
+  min-width: 4.5em;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .edu-gallery.is-carousel { aspect-ratio: 4 / 3; }
+  .edu-carousel-controls { gap: 0.4rem 0.6rem; }
+  .edu-carousel-frame { gap: 0.35rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-gallery.is-carousel .edu-slide,
+  .edu-gallery.is-carousel .edu-slide.is-current { transition: none; }
+  .edu-dot::before,
+  .edu-arrow { transition: none; }
+}
+
+@media print {
+  /* On paper there is no carousel: show every photo instead of only one. */
+  .edu-carousel-frame { display: block; }
+  .edu-gallery.is-carousel {
+    aspect-ratio: auto;
+    max-width: none;
+    height: auto;
+    overflow: visible;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: none;
+  }
+  .edu-gallery.is-carousel .edu-slide {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    width: 32%;
+    height: auto;
+    break-inside: avoid;
+  }
+  .edu-carousel-controls,
+  .edu-arrow { display: none; }
+}
+
+.edu-feedback {
+  max-width: 700px;
+  margin: 1.5rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.edu-feedback figure {
+  margin: 0;
+}
+
+.edu-feedback img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.edu-feedback figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #6b6055;
+}
+
+.edu-pdf-viewer {
+  margin: 1.25rem auto 0;
+  max-width: 850px;
+  line-height: 0;
+}
+
+.edu-pdf-viewer iframe {
+  display: block;
+  width: 100%;
+  height: min(85vh, 1000px);
+  min-height: 500px;
+  border: 0;
+  border-radius: 8px;
+}
+
+/* Phone browsers do not render an embedded PDF reliably, so the frame is
+   dropped below this width; the link underneath still opens it fine. */
+@media (max-width: 575.98px) {
+  .edu-pdf-viewer { display: none; }
+}
+
+.edu-pdf-link {
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+.edu-pdf-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #075a3e;
+  text-decoration: none;
+  background: #fffdf9;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  padding: 0.5rem 1.15rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.edu-pdf-link a:hover,
+.edu-pdf-link a:focus-visible {
+  background: #075a3e;
+  color: #fffdf9;
+}
+
+.edu-pdf-link svg {
+  flex: none;
+  font-size: 1.1em;
+}
+
 @media (max-width: 860px) {
   .edu-detail-layout {
     flex-direction: column;
+    /* Once this stacks, the cross axis is the horizontal one, and the
+       flex-start above would size each child to its own content instead of
+       the screen -- the widest descendant (the 850px PDF frame) then decides
+       how wide the column is, and the page runs off the side. */
+    align-items: stretch;
   }
 
   .edu-sidebar {
@@ -1831,7 +2173,7 @@ footer a:hover { color: white; text-decoration: underline; }
 .board-game-page .tutorial-actions button { min-width: 150px; }
 @media (max-width: 560px) { .board-game-page .tutorial-actions button { min-width: 130px; flex: 1 1 auto; } }
 
-.board-game-page .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; margin: 14px 0; }
+.board-game-page .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(118px, 100%), 1fr)); gap: 10px; margin: 14px 0; }
 .board-game-page .sdg-pick {
   background: var(--paper); border: 2px solid #c4b8a8; border-radius: 10px; padding: 11px 7px;
   text-align: center; cursor: pointer; transition: 0.15s; user-select: none;
@@ -1845,7 +2187,7 @@ footer a:hover { color: white; text-decoration: underline; }
 .board-game-page .game-layout { display: grid; grid-template-columns: 1fr 290px; gap: 14px; }
 @media (max-width: 960px) { .board-game-page .game-layout { grid-template-columns: 1fr; } .board-game-page .log-panel { max-height: 260px; } }
 .board-game-page .board { background: var(--paper); border-radius: 12px; padding: 14px; border: 2px solid var(--border); box-shadow: 0 6px 18px rgba(74,59,50,0.1); }
-.board-game-page .players-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.board-game-page .players-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 10px; margin-bottom: 12px; }
 .board-game-page .player-card { background: #f9f7f2; border: 2px solid #c4b8a8; border-radius: 10px; padding: 10px; position: relative; }
 .board-game-page .player-card.current { border-color: var(--positive); box-shadow: 0 0 0 2px rgba(46,125,50,0.3); }
 .board-game-page .player-card.sanctioned::after { content: attr(data-sanction); position: absolute; top: 5px; right: 7px; background: var(--red); color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 5px; }
@@ -2195,7 +2537,7 @@ footer a:hover { color: white; text-decoration: underline; }
   margin-bottom: 0;
   display: grid;
   gap: 0.6rem;
-  grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(275px, 100%), 1fr));
 }
 
 .labbook .protocol-materials li {
@@ -2548,7 +2890,7 @@ footer a:hover { color: white; text-decoration: underline; }
    than a fixed grid, so the shortest section does not leave a hole. */
 .tour-map {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
   gap: 1.1rem 1.4rem;
   margin-top: 1.25rem;
 }
@@ -2886,7 +3228,7 @@ body.tour-active { overflow: hidden; }
 /* ---- the two systems being read ---- */
 .hw-terms {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 1rem;
   margin: 1.5rem 0;
 }
@@ -2976,7 +3318,7 @@ body.tour-active { overflow: hidden; }
 /* ---- the two modules ---- */
 .hw-modules {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: 1.5rem;
   margin-top: 1.5rem;
 }
@@ -3032,7 +3374,7 @@ body.tour-active { overflow: hidden; }
 }
 .hw-two-tables {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 1.5rem;
   align-items: start;
 }
@@ -3166,7 +3508,7 @@ body.tour-active { overflow: hidden; }
 .hw-sequence {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
   gap: 0.75rem;
   padding: 0;
   margin: 1.75rem 0;
@@ -3206,7 +3548,7 @@ body.tour-active { overflow: hidden; }
 /* ---- the three groups, and the two branches they feed ---- */
 .hw-groups {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 1rem;
   margin: 1.5rem 0;
 }
@@ -3234,7 +3576,7 @@ body.tour-active { overflow: hidden; }
 
 .hw-branches {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 1rem;
 }
 .hw-branch {
@@ -3307,5 +3649,7 @@ body.tour-active { overflow: hidden; }
    the page itself still does not. */
 @media (max-width: 767.98px) {
   .hw-diagram { overflow-x: auto; }
-  .hw-svg { min-width: 600px; }
+  /* Wide enough that the smallest annotations on the optical-core drawing --
+     the scale bar and the enlarged chamber detail -- stay legible. */
+  .hw-svg { min-width: 680px; }
 }
