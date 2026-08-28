@@ -3079,21 +3079,7 @@ body.tour-active { overflow: hidden; }
   display: grid;
   grid-template-areas: "face";
 
-  /* The perspective goes in the transform rather than on the list, so every
-     card is seen head-on instead of the outer two being viewed from the side.
-     Naming rotateY(0) at rest keeps the two states the same function list,
-     which is what lets the browser interpolate the turn as a rotation. */
-  transform: perspective(1400px) rotateY(0deg);
-  transform-style: preserve-3d;
-  transition: transform 0.62s cubic-bezier(0.2, 0.7, 0.25, 1);
   cursor: pointer;
-}
-
-.hw-terms-flip > div:hover,
-.hw-terms-flip > div:focus,
-.hw-terms-flip > div:focus-within,
-.hw-terms-flip > div:active {
-  transform: perspective(1400px) rotateY(180deg);
 }
 
 /* :not(:focus-visible) rather than a bare :focus, so a browser that does not
@@ -3114,11 +3100,18 @@ body.tour-active { overflow: hidden; }
   border-left: 3px solid #075a3e;
   border-radius: 0 10px 10px 0;
   padding: 1.15rem 1.2rem;
-  /* Only the face turned towards the reader is drawn. The back face carries
-     its own half-turn, so once the card has turned the two cancel and its
-     text reads the right way round. */
+  /* Only the face turned towards the reader is drawn; the other one has its
+     back to them. */
   backface-visibility: hidden;
-  transition: box-shadow 0.35s ease;
+
+  /* The two faces turn on their own axes and the frame around them never
+     moves. Turning the whole card instead looks the same but is unusable: a
+     card mid-turn is edge-on and almost zero pixels wide, so a pointer near
+     its left or right edge falls off the element, un-hovers it, and sets it
+     oscillating -- measured at nine to twelve reversals a second, and it never
+     settles. A frame that does not move is always under the same pointer. */
+  transition: transform 0.62s cubic-bezier(0.2, 0.7, 0.25, 1),
+              box-shadow 0.35s ease;
 }
 
 /* Front: the claim alone, centred so a one-line title does not sit stranded
@@ -3130,6 +3123,7 @@ body.tour-active { overflow: hidden; }
   font-size: 1.06rem;
   padding-right: 2.3rem;
   padding-bottom: 2.9rem;
+  transform: perspective(1400px) rotateY(0deg);
 }
 
 /* Saying it plainly, because a fold in the corner is a hint and not an
@@ -3170,8 +3164,28 @@ body.tour-active { overflow: hidden; }
    that the words simply changed. */
 .hw-terms-flip > div > dd {
   background: #f2f9f5;
-  transform: rotateY(180deg);
+  transform: perspective(1400px) rotateY(-180deg);
 }
+
+/* Both faces travel the same half-turn in the same direction, so the pair
+   reads as one card going over rather than two things swapping places. */
+.hw-terms-flip > div:hover > dt,
+.hw-terms-flip > div:focus-within > dt {
+  transform: perspective(1400px) rotateY(180deg);
+}
+.hw-terms-flip > div:hover > dd,
+.hw-terms-flip > div:focus-within > dd {
+  transform: perspective(1400px) rotateY(0deg);
+}
+
+/* Hover commits after a moment, so sweeping the pointer across the row on the
+   way somewhere else does not leave three cards turning behind it. Leaving is
+   undelayed, and reaching a card by keyboard is deliberate enough not to need
+   the wait. */
+.hw-terms-flip > div:hover > dt,
+.hw-terms-flip > div:hover > dd { transition-delay: 0.11s; }
+.hw-terms-flip > div:focus-within > dt,
+.hw-terms-flip > div:focus-within > dd { transition-delay: 0s; }
 
 .hw-terms-flip > div:hover > dt,
 .hw-terms-flip > div:hover > dd,
@@ -3187,16 +3201,12 @@ body.tour-active { overflow: hidden; }
 /* Asked for less motion: the card no longer turns, the two faces simply
    cross-fade in the same place. */
 @media (prefers-reduced-motion: reduce) {
-  .hw-terms-flip > div,
-  .hw-terms-flip > div:hover,
-  .hw-terms-flip > div:focus,
-  .hw-terms-flip > div:focus-within,
-  .hw-terms-flip > div:active {
-    transform: none;
-    transition: none;
-  }
   .hw-terms-flip > div > dt,
-  .hw-terms-flip > div > dd {
+  .hw-terms-flip > div > dd,
+  .hw-terms-flip > div:hover > dt,
+  .hw-terms-flip > div:hover > dd,
+  .hw-terms-flip > div:focus-within > dt,
+  .hw-terms-flip > div:focus-within > dd {
     transform: none;
     backface-visibility: visible;
     transition: opacity 0.16s ease;
@@ -3214,7 +3224,6 @@ body.tour-active { overflow: hidden; }
 @media print {
   .hw-terms-flip > div {
     display: block;
-    transform: none !important;
     cursor: auto;
   }
   .hw-terms-flip > div > dt,
