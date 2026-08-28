@@ -233,6 +233,7 @@ footer.bg-dark { background-color: #075a3e !important; }
 }
 
 /* footer */
+footer { font-family: "Changa", sans-serif; }
 footer a { color: white; font-weight: bold; text-decoration: none; }
 footer a:hover { color: white; text-decoration: underline; }
 
@@ -244,6 +245,37 @@ footer a:hover { color: white; text-decoration: underline; }
   background: #fff;
   border-radius: 8px;
   padding: 6px 12px;
+}
+
+/* Scrolling sponsor ticker: two copies of the same logo strip placed back
+   to back, both animated left together -- when the first finishes exactly
+   one of its own widths, the second is already in the identical spot, so
+   the loop point is invisible. */
+.sponsor-marquee {
+  display: flex;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.sponsor-marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2.5rem;
+  width: max-content;
+  padding: 0 1.25rem;
+  animation: sponsorMarquee 20s linear infinite;
+}
+
+@keyframes sponsorMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sponsor-marquee-track { animation: none; }
+  .sponsor-marquee { overflow-x: auto; }
 }
 
 .hover-icon {
