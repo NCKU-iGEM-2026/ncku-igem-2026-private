@@ -3056,6 +3056,184 @@ body.tour-active { overflow: hidden; }
   color: #4a5a51;
 }
 
+/* ---- the "why build one" cards turn over ------------------------------
+   Three arguments printed in full made a wall of text before the instrument
+   itself had been described, so each card shows only its claim and keeps the
+   reasoning on its back. The card turns on hover, on tap and when tabbed to.
+
+   Nothing is hidden from anything that is not a pair of eyes: both faces stay
+   in the document, so a screen reader reads the whole list, find-in-page still
+   finds the reasoning, and the print and reduced-motion rules at the end of
+   this block flatten the card back into an ordinary one. */
+.hw-terms-flip > div {
+  /* The chrome moves onto the two faces, because the faces are what the
+     reader sees; the card itself is only the thing that turns. */
+  border: 0;
+  border-radius: 0;
+  background: none;
+  padding: 0;
+
+  /* Both faces sit in one grid cell, so the card is as tall as the longer of
+     the two and the row keeps all three the same height -- no fixed height to
+     guess at, and no absolute positioning. */
+  display: grid;
+  grid-template-areas: "face";
+
+  /* The perspective goes in the transform rather than on the list, so every
+     card is seen head-on instead of the outer two being viewed from the side.
+     Naming rotateY(0) at rest keeps the two states the same function list,
+     which is what lets the browser interpolate the turn as a rotation. */
+  transform: perspective(1400px) rotateY(0deg);
+  transform-style: preserve-3d;
+  transition: transform 0.62s cubic-bezier(0.2, 0.7, 0.25, 1);
+  cursor: pointer;
+}
+
+.hw-terms-flip > div:hover,
+.hw-terms-flip > div:focus,
+.hw-terms-flip > div:focus-within,
+.hw-terms-flip > div:active {
+  transform: perspective(1400px) rotateY(180deg);
+}
+
+/* :not(:focus-visible) rather than a bare :focus, so a browser that does not
+   know :focus-visible drops the whole rule and keeps its own focus ring
+   instead of leaving keyboard users with none. */
+.hw-terms-flip > div:focus:not(:focus-visible) { outline: none; }
+.hw-terms-flip > div:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 3px;
+}
+
+.hw-terms-flip > div > dt,
+.hw-terms-flip > div > dd {
+  grid-area: face;
+  position: relative;
+  margin: 0;
+  border: 1px solid #dfe8e2;
+  border-left: 3px solid #075a3e;
+  border-radius: 0 10px 10px 0;
+  padding: 1.15rem 1.2rem;
+  /* Only the face turned towards the reader is drawn. The back face carries
+     its own half-turn, so once the card has turned the two cancel and its
+     text reads the right way round. */
+  backface-visibility: hidden;
+  transition: box-shadow 0.35s ease;
+}
+
+/* Front: the claim alone, centred so a one-line title does not sit stranded
+   at the top of a card sized by the longer text behind it. */
+.hw-terms-flip > div > dt {
+  display: flex;
+  align-items: center;
+  background: #fffdf7;
+  font-size: 1.06rem;
+  padding-right: 2.3rem;
+  padding-bottom: 2.9rem;
+}
+
+/* Saying it plainly, because a fold in the corner is a hint and not an
+   instruction, and on a phone there is no hovering to stumble into. */
+.hw-terms-flip > div > dt::before {
+  content: "hover to read";
+  position: absolute;
+  left: 1.2rem;
+  bottom: 1.1rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* The same label green the DBTL steps use -- 5.8:1 on the cream face, so it
+     clears AA at this size. */
+  color: #4d6b5c;
+  transition: color 0.3s ease;
+}
+@media (hover: none) {
+  .hw-terms-flip > div > dt::before { content: "tap to read"; }
+}
+
+/* The fold is the quieter half of the same hint, and it opens further as the
+   card lifts. */
+.hw-terms-flip > div > dt::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  border-top-right-radius: 10px;
+  background: linear-gradient(45deg, transparent 50%, #a2cab6 50%);
+  transition: width 0.35s ease, height 0.35s ease;
+}
+
+/* Back: a deeper ground, so it is obvious the card turned over rather than
+   that the words simply changed. */
+.hw-terms-flip > div > dd {
+  background: #f2f9f5;
+  transform: rotateY(180deg);
+}
+
+.hw-terms-flip > div:hover > dt,
+.hw-terms-flip > div:hover > dd,
+.hw-terms-flip > div:focus-within > dt,
+.hw-terms-flip > div:focus-within > dd {
+  box-shadow: 0 10px 26px rgba(7, 90, 62, 0.15);
+}
+.hw-terms-flip > div:hover > dt::after,
+.hw-terms-flip > div:focus-within > dt::after { width: 26px; height: 26px; }
+.hw-terms-flip > div:hover > dt::before,
+.hw-terms-flip > div:focus-within > dt::before { color: #1f4a38; }
+
+/* Asked for less motion: the card no longer turns, the two faces simply
+   cross-fade in the same place. */
+@media (prefers-reduced-motion: reduce) {
+  .hw-terms-flip > div,
+  .hw-terms-flip > div:hover,
+  .hw-terms-flip > div:focus,
+  .hw-terms-flip > div:focus-within,
+  .hw-terms-flip > div:active {
+    transform: none;
+    transition: none;
+  }
+  .hw-terms-flip > div > dt,
+  .hw-terms-flip > div > dd {
+    transform: none;
+    backface-visibility: visible;
+    transition: opacity 0.16s ease;
+  }
+  .hw-terms-flip > div > dd { opacity: 0; }
+  .hw-terms-flip > div:hover > dt,
+  .hw-terms-flip > div:focus-within > dt { opacity: 0; }
+  .hw-terms-flip > div:hover > dd,
+  .hw-terms-flip > div:focus-within > dd { opacity: 1; }
+}
+
+/* On paper there is no hovering, and browsers drop background colours, so the
+   card stops being a card and becomes the plain term-and-definition list it
+   was written as. */
+@media print {
+  .hw-terms-flip > div {
+    display: block;
+    transform: none !important;
+    cursor: auto;
+  }
+  .hw-terms-flip > div > dt,
+  .hw-terms-flip > div > dd {
+    transform: none !important;
+    backface-visibility: visible;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    border: 0;
+    border-left: 3px solid #075a3e;
+    border-radius: 0;
+    padding: 0 0 0 0.9rem;
+  }
+  .hw-terms-flip > div > dt { display: block; margin-bottom: 0.3rem; }
+  .hw-terms-flip > div > dt::after,
+  .hw-terms-flip > div > dt::before { display: none; }
+  .hw-terms-flip > div > dd { padding-bottom: 0.6rem; }
+}
+
 /* ---- the one-line flow ---- */
 .hw-flow {
   list-style: none;
