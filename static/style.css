@@ -2010,6 +2010,17 @@ footer a:hover { color: white; text-decoration: underline; }
     width: 100%;
     padding-left: 1rem;
   }
+
+  /* The base rule pulls this layout out of the container's gutter. Beside a
+     wide desktop margin that is a deliberate half-bleed; stacked on a phone
+     the gutter is the only margin there is, and cancelling it put the body
+     text hard against the edge of the screen. Education and Collaboration
+     were the only two pages on the site doing that -- every other page starts
+     its text at the container's 12px. */
+  .edu-detail-layout {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 
 /* ===== The Green Cabinet (SDG Board Game) ===== */
@@ -2078,6 +2089,22 @@ footer a:hover { color: white; text-decoration: underline; }
 @media (max-width: 560px) {
   .board-game-page .player-setup { grid-template-columns: 1fr 132px; gap: 6px; }
   .board-game-page .player-setup label { grid-column: 1 / -1; }
+}
+
+/* Pinned to the top-right corner, the language switcher sits on top of the
+   panel title once the title is wide enough to reach it -- on a 360px screen
+   it covered the second half of "The Green Cabinet". The title is sized in vw,
+   so it grows towards the switcher faster than the switcher moves away:
+   sweeping the viewport from 320px to 1400px they collided at every width
+   below about 780px, not only on phones. Below 820px the switcher goes above
+   the title instead, which is why this is its own breakpoint rather than the
+   560px one above. */
+@media (max-width: 820px) {
+  .board-game-page .lang-bar {
+    position: static;
+    width: fit-content;
+    margin: 0 0 10px auto;
+  }
 }
 /* ---- Online rooms: join form and lobby ---- */
 .board-game-page .online-block { margin: 14px 0 6px; text-align: left; }
@@ -3251,6 +3278,248 @@ body.tour-active { overflow: hidden; }
   color: #4a5a51;
 }
 
+/* ===== cards that turn over ============================================
+   Two lists on this page argue in short paragraphs, and printed in full both
+   of them put a wall of text in front of the reader before the thing they
+   describe. In both, a card now shows only its claim and keeps the detail on
+   its back, turning over on hover, on tap, or when tabbed to.
+
+   Nothing is hidden from anything that is not a pair of eyes: both faces stay
+   in the document, so a screen reader reads the whole list, find-in-page still
+   finds the detail, and the print and reduced-motion rules at the end of this
+   block flatten every card back into an ordinary one.
+
+   What follows is only the mechanism. What a card looks like belongs to the
+   section it is in and is set further down, because a term and a measured
+   result should not be dressed the same. */
+
+/* The frame is the hit area, and it never moves. Its chrome moves onto the
+   two faces, because the faces are what the reader actually sees. */
+.hw-flip > .hw-flip-card {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  padding: 0;
+
+  /* Both faces sit in one grid cell, so a card is as tall as the longer of
+     the two and the row keeps every card the same height -- no fixed height
+     to guess at, and no absolute positioning. */
+  display: grid;
+  grid-template-areas: "face";
+
+  cursor: pointer;
+}
+
+/* :not(:focus-visible) rather than a bare :focus, so a browser that does not
+   know :focus-visible drops the whole rule and keeps its own focus ring
+   instead of leaving keyboard users with none. */
+.hw-flip > .hw-flip-card:focus:not(:focus-visible) { outline: none; }
+.hw-flip > .hw-flip-card:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 3px;
+}
+
+.hw-flip-card > .hw-flip-front,
+.hw-flip-card > .hw-flip-back {
+  grid-area: face;
+  position: relative;
+  margin: 0;
+  /* Only the face turned towards the reader is drawn; the other one has its
+     back to them. */
+  backface-visibility: hidden;
+
+  /* The two faces turn on their own axes and the frame around them never
+     moves. Turning the whole card instead looks the same but is unusable: a
+     card mid-turn is edge-on and almost zero pixels wide, so a pointer near
+     its left or right edge falls off the element, un-hovers it, and is caught
+     again as it turns back -- measured at nine to twelve direction reversals,
+     never settling. A frame that does not move is always under the same
+     pointer. */
+  transition: transform 0.62s cubic-bezier(0.2, 0.7, 0.25, 1),
+              box-shadow 0.35s ease;
+}
+
+/* Both faces travel the same half-turn in the same direction, so the pair
+   reads as one card going over rather than two things swapping places. */
+.hw-flip-card > .hw-flip-front { transform: perspective(1400px) rotateY(0deg); }
+.hw-flip-card > .hw-flip-back { transform: perspective(1400px) rotateY(-180deg); }
+.hw-flip-card:hover > .hw-flip-front,
+.hw-flip-card:focus-within > .hw-flip-front {
+  transform: perspective(1400px) rotateY(180deg);
+}
+.hw-flip-card:hover > .hw-flip-back,
+.hw-flip-card:focus-within > .hw-flip-back {
+  transform: perspective(1400px) rotateY(0deg);
+}
+
+/* Hover commits after a moment, so sweeping the pointer across a row on the
+   way somewhere else does not leave a trail of cards turning behind it.
+   Leaving is undelayed, and reaching a card by keyboard is deliberate enough
+   not to need the wait. */
+.hw-flip-card:hover > .hw-flip-front,
+.hw-flip-card:hover > .hw-flip-back { transition-delay: 0.11s; }
+.hw-flip-card:focus-within > .hw-flip-front,
+.hw-flip-card:focus-within > .hw-flip-back { transition-delay: 0s; }
+
+.hw-flip-card:hover > .hw-flip-front,
+.hw-flip-card:hover > .hw-flip-back,
+.hw-flip-card:focus-within > .hw-flip-front,
+.hw-flip-card:focus-within > .hw-flip-back {
+  box-shadow: 0 10px 26px rgba(7, 90, 62, 0.15);
+}
+
+/* Saying it plainly, because a fold in the corner is a hint and not an
+   instruction, and on a phone there is no hovering to stumble into. */
+.hw-flip-card > .hw-flip-front::before {
+  content: "hover to read";
+  position: absolute;
+  left: 1.2rem;
+  bottom: 1.1rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* The same label green the DBTL steps use -- 5.8:1 on the cream face, so it
+     clears AA at this size. */
+  color: #4d6b5c;
+  transition: color 0.3s ease;
+}
+@media (hover: none) {
+  .hw-flip-card > .hw-flip-front::before { content: "tap to read"; }
+}
+
+/* The fold is the quieter half of the same hint, and it opens further as the
+   card lifts. */
+.hw-flip-card > .hw-flip-front::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  border-top-right-radius: 10px;
+  background: linear-gradient(45deg, transparent 50%, #a2cab6 50%);
+  transition: width 0.35s ease, height 0.35s ease;
+}
+
+.hw-flip-card:hover > .hw-flip-front::after,
+.hw-flip-card:focus-within > .hw-flip-front::after { width: 26px; height: 26px; }
+.hw-flip-card:hover > .hw-flip-front::before,
+.hw-flip-card:focus-within > .hw-flip-front::before { color: #1f4a38; }
+
+
+/* ---- "why build one": a claim on the front, the reasoning behind it ---- */
+.hw-terms .hw-flip-front,
+.hw-terms .hw-flip-back {
+  border: 1px solid #dfe8e2;
+  border-left: 3px solid #075a3e;
+  border-radius: 0 10px 10px 0;
+  padding: 1.15rem 1.2rem;
+}
+
+/* Front: the claim alone, centred so a one-line title does not sit stranded
+   at the top of a card sized by the longer text behind it. */
+.hw-terms .hw-flip-front {
+  display: flex;
+  align-items: center;
+  background: #fffdf7;
+  /* Larger than the h3s on this page, because on a closed card the claim is
+     the only thing there is to read. 1.5rem was tried and is too big: the
+     longest of the three then runs into the fold in the corner. The tighter
+     line-height holds a two-line claim together as one phrase. */
+  font-size: 1.35rem;
+  line-height: 1.35;
+  padding-right: 2.3rem;
+  padding-bottom: 2.9rem;
+}
+
+/* Back: a deeper ground, so it is obvious the card turned over rather than
+   that the words simply changed. */
+.hw-terms .hw-flip-back { background: #f2f9f5; }
+
+
+/* ---- "first light": the finding on the front, the numbers behind it ----
+   Four of these to a row rather than three, so they are narrower, carry less
+   padding than the term cards, and the cue sits in tighter. */
+.hw-sequence .hw-flip-front,
+.hw-sequence .hw-flip-back {
+  border: 1px solid #dfe8e2;
+  /* The top edge still carries the state of the light during that step, and
+     it has to be on both faces or the colour vanishes the moment the card
+     turns over. */
+  border-top: 4px solid var(--hw-step-edge, #9aa8a1);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+
+.hw-sequence .hw-flip-front {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #fffdf7;
+  padding-right: 1.9rem;
+  padding-bottom: 2.5rem;
+}
+/* Bigger than in the open list it replaced, for the same reason as the term
+   cards: on a closed card the finding is the only thing there is to read.
+   It stops at 1.18rem rather than the 1.35rem used there, because four of
+   these fit across the row instead of three and 1.3rem already breaks the
+   longest of them over three lines. */
+.hw-sequence .hw-flip-front .hw-step-name {
+  font-size: 1.18rem;
+  line-height: 1.35;
+  margin-bottom: 0;
+}
+.hw-sequence .hw-flip-back { background: #f2f9f5; }
+.hw-sequence .hw-flip-front::before { left: 1rem; bottom: 0.8rem; }
+
+
+/* Asked for less motion: a card no longer turns, the two faces simply
+   cross-fade in the same place. */
+@media (prefers-reduced-motion: reduce) {
+  .hw-flip-card > .hw-flip-front,
+  .hw-flip-card > .hw-flip-back,
+  .hw-flip-card:hover > .hw-flip-front,
+  .hw-flip-card:hover > .hw-flip-back,
+  .hw-flip-card:focus-within > .hw-flip-front,
+  .hw-flip-card:focus-within > .hw-flip-back {
+    transform: none;
+    backface-visibility: visible;
+    transition: opacity 0.16s ease;
+  }
+  .hw-flip-card > .hw-flip-back { opacity: 0; }
+  .hw-flip-card:hover > .hw-flip-front,
+  .hw-flip-card:focus-within > .hw-flip-front { opacity: 0; }
+  .hw-flip-card:hover > .hw-flip-back,
+  .hw-flip-card:focus-within > .hw-flip-back { opacity: 1; }
+}
+
+/* On paper there is no hovering, and browsers drop background colours, so a
+   card stops being a card and becomes the plain list it was written as. The
+   left rule keeps the step colour where there is one. */
+@media print {
+  .hw-flip > .hw-flip-card {
+    display: block;
+    cursor: auto;
+  }
+  .hw-flip-card > .hw-flip-front,
+  .hw-flip-card > .hw-flip-back {
+    transform: none !important;
+    backface-visibility: visible;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    border: 0;
+    border-left: 3px solid var(--hw-step-edge, #075a3e);
+    border-radius: 0;
+    padding: 0 0 0 0.9rem;
+  }
+  .hw-flip-card > .hw-flip-front { display: block; margin-bottom: 0.3rem; }
+  .hw-flip-card > .hw-flip-front::after,
+  .hw-flip-card > .hw-flip-front::before { display: none; }
+  .hw-flip-card > .hw-flip-back { padding-bottom: 0.6rem; }
+}
+
 /* ---- the one-line flow ---- */
 .hw-flow {
   list-style: none;
@@ -3520,11 +3789,13 @@ body.tour-active { overflow: hidden; }
   background: #fffdf7;
   padding: 0.9rem 1rem;
 }
-/* The top edge carries the state of the light during that step. */
-.hw-sequence li[data-step="blue"] { border-top-color: #2b6cb0; }
-.hw-sequence li[data-step="red"] { border-top-color: #c0392b; }
+/* The state of the light during that step. It is handed to the card as a
+   custom property rather than drawn on it, because the card is a frame with
+   no edges of its own now -- both of its faces read this. */
+.hw-sequence li[data-step="blue"] { --hw-step-edge: #2b6cb0; }
+.hw-sequence li[data-step="red"] { --hw-step-edge: #c0392b; }
 .hw-sequence li[data-step="dark"],
-.hw-sequence li[data-step="off"] { border-top-color: #3a4640; }
+.hw-sequence li[data-step="off"] { --hw-step-edge: #3a4640; }
 .hw-step-n {
   display: block;
   font-family: "Changa", sans-serif;
