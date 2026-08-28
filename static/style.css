@@ -1728,6 +1728,196 @@ footer a:hover { color: white; text-decoration: underline; }
   }
 }
 
+/* Education photos as a carousel -------------------------------------------
+   education-gallery.js adds .is-carousel; everything above stays the fallback
+   for a visitor whose scripts did not run, so the photos are never lost. */
+
+.edu-carousel {
+  margin: 1.25rem 0 2rem;
+}
+
+/* Arrow, photo, arrow. The arrows sit beside the picture rather than on top
+   of it: at this size an overlay would cover a good part of it. */
+.edu-carousel-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.edu-gallery.is-carousel {
+  display: block;
+  position: relative;
+  /* A fifth of the area it used to take, so it sits beside the writing rather
+     than dominating the section. Shrinkable rather than fixed: on a narrow
+     phone the arrows and gaps come out of the row first and the photo takes
+     what is left. */
+  flex: 0 1 310px;
+  max-width: 310px;
+  /* The photos are a mix of 3:2 landscape and portrait. A fixed shape means
+     the page does not jump every couple of seconds as one replaces another,
+     and the box is reserved before any of them load. */
+  aspect-ratio: 3 / 2;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f1ece0;
+  scroll-snap-type: none;
+}
+
+.edu-gallery.is-carousel .edu-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* contain, not cover: these are group photos, and cropping a portrait to a
+     landscape box cuts people out of them. The backdrop fills the rest. */
+  object-fit: contain;
+  border-radius: 0;
+  opacity: 0;
+  /* visibility, not just opacity: it takes the photo out of the accessibility
+     tree as well, so a screen reader is not read all sixteen at once. */
+  visibility: hidden;
+  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+}
+
+.edu-gallery.is-carousel .edu-slide.is-current {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.45s ease, visibility 0s;
+}
+
+.edu-arrow {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 1px solid #c6bda6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.edu-arrow:hover,
+.edu-arrow:focus-visible {
+  background: #eaf7dd;
+  border-color: #075a3e;
+}
+
+.edu-arrow:focus-visible {
+  outline: 2px solid #075a3e;
+  outline-offset: 2px;
+}
+
+.edu-carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  margin-top: 0.7rem;
+}
+
+.edu-carousel-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+}
+
+/* The button is a 24px target -- the dot inside it is only the visible part.
+   Sixteen of these end up close together, and WCAG 2.5.8 asks for 24px. */
+.edu-dot {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.edu-dot::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #bfb49c;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.edu-dot:hover::before,
+.edu-dot:focus-visible::before {
+  background: #7d6c4e;
+}
+
+.edu-dot[aria-current="true"]::before {
+  background: #075a3e;
+  transform: scale(1.4);
+}
+
+.edu-dot:focus-visible {
+  outline: 2px solid #075a3e;
+  outline-offset: 1px;
+}
+
+.edu-carousel-status {
+  margin: 0;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: #6b6055;
+  min-width: 4.5em;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .edu-gallery.is-carousel { aspect-ratio: 4 / 3; }
+  .edu-carousel-controls { gap: 0.4rem 0.6rem; }
+  .edu-carousel-frame { gap: 0.35rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-gallery.is-carousel .edu-slide,
+  .edu-gallery.is-carousel .edu-slide.is-current { transition: none; }
+  .edu-dot::before,
+  .edu-arrow { transition: none; }
+}
+
+@media print {
+  /* On paper there is no carousel: show every photo instead of only one. */
+  .edu-carousel-frame { display: block; }
+  .edu-gallery.is-carousel {
+    aspect-ratio: auto;
+    max-width: none;
+    height: auto;
+    overflow: visible;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: none;
+  }
+  .edu-gallery.is-carousel .edu-slide {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    width: 32%;
+    height: auto;
+    break-inside: avoid;
+  }
+  .edu-carousel-controls,
+  .edu-arrow { display: none; }
+}
+
 .edu-feedback {
   max-width: 700px;
   margin: 1.5rem auto;
