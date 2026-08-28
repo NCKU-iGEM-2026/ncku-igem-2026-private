@@ -2010,6 +2010,17 @@ footer a:hover { color: white; text-decoration: underline; }
     width: 100%;
     padding-left: 1rem;
   }
+
+  /* The base rule pulls this layout out of the container's gutter. Beside a
+     wide desktop margin that is a deliberate half-bleed; stacked on a phone
+     the gutter is the only margin there is, and cancelling it put the body
+     text hard against the edge of the screen. Education and Collaboration
+     were the only two pages on the site doing that -- every other page starts
+     its text at the container's 12px. */
+  .edu-detail-layout {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 
 /* ===== The Green Cabinet (SDG Board Game) ===== */
@@ -2078,6 +2089,22 @@ footer a:hover { color: white; text-decoration: underline; }
 @media (max-width: 560px) {
   .board-game-page .player-setup { grid-template-columns: 1fr 132px; gap: 6px; }
   .board-game-page .player-setup label { grid-column: 1 / -1; }
+}
+
+/* Pinned to the top-right corner, the language switcher sits on top of the
+   panel title once the title is wide enough to reach it -- on a 360px screen
+   it covered the second half of "The Green Cabinet". The title is sized in vw,
+   so it grows towards the switcher faster than the switcher moves away:
+   sweeping the viewport from 320px to 1400px they collided at every width
+   below about 780px, not only on phones. Below 820px the switcher goes above
+   the title instead, which is why this is its own breakpoint rather than the
+   560px one above. */
+@media (max-width: 820px) {
+  .board-game-page .lang-bar {
+    position: static;
+    width: fit-content;
+    margin: 0 0 10px auto;
+  }
 }
 /* ---- Online rooms: join form and lobby ---- */
 .board-game-page .online-block { margin: 14px 0 6px; text-align: left; }
