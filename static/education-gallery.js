@@ -1,6 +1,7 @@
 (function () {
   // Turns each .edu-gallery from a horizontal rail into a carousel: one photo
-  // at a time, advancing on its own, with a dot per photo underneath.
+  // at a time, advancing on its own, with arrows either side and a dot per
+  // photo underneath.
   //
   // The markup in education.html is untouched -- it is still just a div of
   // <img>. Everything below is added here, and the .is-carousel class is what
@@ -13,8 +14,13 @@
 
   // Someone who has asked their system for less motion should not be handed a
   // slideshow that moves by itself. They get the same carousel, sitting still,
-  // with the controls to drive it.
+  // with the arrows and dots to drive it.
   var calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  var ARROW = '<svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor" ' +
+              'aria-hidden="true" focusable="false"><path d="%d"/></svg>';
+  var LEFT = 'M10.35 1.65a.6.6 0 0 1 0 .84L4.84 8l5.51 5.51a.6.6 0 1 1-.84.85l-5.93-5.94a.6.6 0 0 1 0-.84l5.93-5.93a.6.6 0 0 1 .84 0z';
+  var RIGHT = 'M5.65 1.65a.6.6 0 0 0 0 .84L11.16 8l-5.51 5.51a.6.6 0 1 0 .84.85l5.93-5.94a.6.6 0 0 0 0-.84L6.49 1.65a.6.6 0 0 0-.84 0z';
 
   function label(gallery) {
     // Name the carousel after the session it belongs to, so a screen reader
@@ -33,9 +39,13 @@
     var slides = Array.prototype.slice.call(gallery.querySelectorAll('img'));
     if (slides.length < 2) return;   // nothing to rotate through
 
+    var name = label(gallery);
     var at = 0;
     var timer = null;
-    var stopped = calm.matches;      // reduced motion: present it, do not run it
+    // Reduced motion, or any deliberate use of an arrow or a dot, settles this
+    // for good: taking hold of the carousel is how you stop it, since there is
+    // no separate pause button.
+    var stopped = calm.matches;
     var hovering = false;
     var focused = false;
     var onScreen = true;
@@ -44,9 +54,34 @@
     wrap.className = 'edu-carousel';
     wrap.setAttribute('role', 'group');
     wrap.setAttribute('aria-roledescription', 'carousel');
-    wrap.setAttribute('aria-label', label(gallery));
+    wrap.setAttribute('aria-label', name);
     gallery.parentNode.insertBefore(wrap, gallery);
-    wrap.appendChild(gallery);
+
+    // Arrows sit beside the photo rather than on top of it: at this size an
+    // overlay would cover a good part of the picture.
+    var frame = document.createElement('div');
+    frame.className = 'edu-carousel-frame';
+
+    function arrow(dir, path, text) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'edu-arrow edu-arrow-' + dir;
+      b.innerHTML = ARROW.replace('%d', path);
+      b.setAttribute('aria-label', text + ' photo');
+      b.addEventListener('click', function () {
+        stop();
+        go(at + (dir === 'next' ? 1 : -1), true);
+      });
+      return b;
+    }
+
+    var prev = arrow('prev', LEFT, 'Previous');
+    var next = arrow('next', RIGHT, 'Next');
+
+    frame.appendChild(prev);
+    frame.appendChild(gallery);
+    frame.appendChild(next);
+    wrap.appendChild(frame);
     gallery.classList.add('is-carousel');
 
     slides.forEach(function (img, i) {
@@ -78,17 +113,8 @@
     // talk over everything else. Switched to polite once a person takes over.
     status.setAttribute('aria-live', 'off');
 
-    var toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = 'edu-carousel-toggle';
-    toggle.addEventListener('click', function () {
-      if (stopped) { stopped = false; start(); } else { stop(); }
-      paint();
-    });
-
     controls.appendChild(dots);
     controls.appendChild(status);
-    controls.appendChild(toggle);
     wrap.appendChild(controls);
 
     function paint() {
@@ -100,16 +126,13 @@
         else b.removeAttribute('aria-current');
       });
       status.textContent = (at + 1) + ' / ' + slides.length;
-      toggle.textContent = stopped ? 'Play' : 'Pause';
-      toggle.setAttribute('aria-label',
-        (stopped ? 'Play ' : 'Pause ') + label(gallery).toLowerCase());
     }
 
     function go(to, byHand) {
       at = (to + slides.length) % slides.length;
       // Start fetching the one after this, so advancing does not land on a gap.
-      var next = slides[(at + 1) % slides.length];
-      if (next) next.loading = 'eager';
+      var after = slides[(at + 1) % slides.length];
+      if (after) after.loading = 'eager';
       status.setAttribute('aria-live', byHand ? 'polite' : 'off');
       paint();
     }
@@ -127,26 +150,15 @@
       timer = null;
     }
 
-    function stop() { stopped = true; pause(); paint(); }
+    function stop() { stopped = true; pause(); }
 
     // Hovering or tabbing into it means someone is looking at this photo;
     // moving it out from under them is rude. These do not set `stopped`, so
     // it picks up again by itself once they leave.
     wrap.addEventListener('mouseenter', function () { hovering = true; pause(); });
     wrap.addEventListener('mouseleave', function () { hovering = false; start(); });
-    // The play/pause button lives inside the carousel, so focusing it must not
-    // count as "someone is reading this photo" -- otherwise pressing Play hands
-    // focus to the button, the rule below pauses again, and it can never start.
-    wrap.addEventListener('focusin', function (e) {
-      if (e.target === toggle) return;
-      focused = true;
-      pause();
-    });
-    wrap.addEventListener('focusout', function (e) {
-      if (e.target === toggle) return;
-      focused = false;
-      start();
-    });
+    wrap.addEventListener('focusin', function () { focused = true; pause(); });
+    wrap.addEventListener('focusout', function () { focused = false; start(); });
 
     wrap.addEventListener('keydown', function (e) {
       if (e.key === 'ArrowRight') { e.preventDefault(); stop(); go(at + 1, true); }
@@ -163,7 +175,7 @@
 
     if (calm.addEventListener) {
       calm.addEventListener('change', function (e) {
-        if (e.matches) stop(); else { stopped = false; start(); paint(); }
+        if (e.matches) stop(); else { stopped = false; start(); }
       });
     }
 
