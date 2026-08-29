@@ -233,6 +233,7 @@ footer.bg-dark { background-color: #075a3e !important; }
 }
 
 /* footer */
+footer { font-family: "Changa", sans-serif; }
 footer a { color: white; font-weight: bold; text-decoration: none; }
 footer a:hover { color: white; text-decoration: underline; }
 
@@ -244,6 +245,37 @@ footer a:hover { color: white; text-decoration: underline; }
   background: #fff;
   border-radius: 8px;
   padding: 6px 12px;
+}
+
+/* Scrolling sponsor ticker: two copies of the same logo strip placed back
+   to back, both animated left together -- when the first finishes exactly
+   one of its own widths, the second is already in the identical spot, so
+   the loop point is invisible. */
+.sponsor-marquee {
+  display: flex;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.sponsor-marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2.5rem;
+  width: max-content;
+  padding: 0 1.25rem;
+  animation: sponsorMarquee 20s linear infinite;
+}
+
+@keyframes sponsorMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sponsor-marquee-track { animation: none; }
+  .sponsor-marquee { overflow-x: auto; }
 }
 
 .hover-icon {
@@ -1662,22 +1694,13 @@ footer a:hover { color: white; text-decoration: underline; }
   flex: none;
 }
 
-/* ===== Education: Zhanxin Project school list ===== */
-.edu-zhanxin-list {
-  margin-top: 1.5rem;
-}
-
-.edu-zhanxin-list h3 {
+.edu-session-block h3 {
   font-family: "Changa", sans-serif;
   font-weight: 700;
   font-size: 1.15rem;
   color: #2b1e17;
   scroll-margin-top: 90px;
   margin: 1.75rem 0 0;
-}
-
-.edu-zhanxin-list h3:first-child {
-  margin-top: 0;
 }
 
 .edu-quote {
@@ -1702,7 +1725,7 @@ footer a:hover { color: white; text-decoration: underline; }
 
 .edu-gallery img {
   flex: 0 0 auto;
-  height: 220px;
+  height: 340px;
   width: auto;
   border-radius: 8px;
   object-fit: cover;
@@ -1724,7 +1747,7 @@ footer a:hover { color: white; text-decoration: underline; }
 
 @media (max-width: 600px) {
   .edu-gallery img {
-    height: 160px;
+    height: 240px;
   }
 }
 
@@ -1962,6 +1985,25 @@ footer a:hover { color: white; text-decoration: underline; }
    dropped below this width; the link underneath still opens it fine. */
 @media (max-width: 575.98px) {
   .edu-pdf-viewer { display: none; }
+}
+
+.edu-podcast-media {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 1.25rem 0;
+}
+
+.edu-podcast-logo,
+.edu-podcast-cover {
+  height: 140px;
+  width: auto;
+  max-width: 100%;
+}
+
+.edu-podcast-cover {
+  border-radius: 8px;
 }
 
 .edu-pdf-link {
