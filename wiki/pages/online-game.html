@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}Online Game{% endblock %}
-{% block lead %}Capture — one minute, one net, and a logo that will not stay still{% endblock %}
+{% block lead %}Capture — one minute, one net, and logos that will not wait for you{% endblock %}
 
 {% block page_content %}
 
@@ -17,6 +17,10 @@
 
   3. 難易度只差在 Logo 停留多久（3 / 2 / 1 秒），總時長固定 60 秒。要調整的話
      改 capture-game.js 的 LIFETIME 和 ROUND_MS。
+
+  4. 出現時機是隨機的，而且不等前一隻消失。控制在 capture-game.js 的 GAP
+     （下一隻間隔 = 停留時間 x 0.30~0.90 之間隨機）。想要更擠就把 GAP 調小，
+     更空曠就調大。MAX_LIVE 是同時最多幾隻的上限。
 #}
 
 <div class="cap-page">
@@ -30,9 +34,11 @@
       representation of any result.
     </p>
     <p>
-      You have <strong>sixty seconds</strong>. The logo appears somewhere in
-      the dish, waits, and is gone. Catch it with the net before it goes. How
-      long it waits is up to you.
+      You have <strong>sixty seconds</strong>. Logos arrive in the dish on
+      their own schedule &mdash; a new one does not wait for the last one to
+      go, so there are usually two or three out at once, and sometimes a beat
+      with none. Each one waits, and each one goes. Catch them with the net.
+      How long one waits before it goes is up to you.
     </p>
   </section>
 
@@ -52,16 +58,11 @@
           <span class="cap-time-value">60</span><span class="cap-unit">s</span></p>
       </div>
 
-      <!-- Positioned by the script; a real button so a tap and Enter both work. -->
-      <button type="button" class="cap-target" hidden>
-        <img src="" alt="Catch the logo">
-      </button>
-
       <!-- Before the round: pick a difficulty and start. -->
       <div class="cap-panel cap-panel-start">
         <h2>Choose a difficulty</h2>
         <fieldset class="cap-levels">
-          <legend class="visually-hidden">How long the logo stays before it moves</legend>
+          <legend class="visually-hidden">How long a logo stays before it goes</legend>
 
           <label class="cap-level">
             <input type="radio" name="cap-level" value="easy">

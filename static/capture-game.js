@@ -1,8 +1,8 @@
 (function () {
   // Capture — a one-minute catching game for the Online Game page.
   //
-  // The logo appears at a random point in the field, waits, and is gone. Catch
-  // it with the net for a point. Difficulty is how long it waits.
+  // Logos arrive on their own schedule, each one waits, and each one goes.
+  // Catch one with the net for a point. Difficulty is how long a logo waits.
   //
   // Everything here is self-contained: no library, no network request, nothing
   // loaded from outside iGEM infrastructure. If this file fails to load the
@@ -20,19 +20,32 @@
 
   // --------------------------------------------------------------- the rules
   const ROUND_MS = 60000;                    // one minute, fixed
-  const LIFETIME = {                         // how long the logo waits, per level
-    easy: 3000,
-    medium: 2000,
-    hard: 1000
-  };
+
+  // How long one logo waits before it goes. This is the whole difference
+  // between the levels.
+  const LIFETIME = { easy: 3000, medium: 2000, hard: 1000 };
+
+  // How long until the *next* one arrives, as a fraction of how long one lives.
+  // Arrivals are not tied to departures: a logo appears when its turn comes
+  // round, whether or not the one before it is still there, so there are
+  // usually two or three in the dish and sometimes one or none.
+  //
+  // A range rather than a single number, and a wide one, so the rhythm never
+  // settles into a metronome -- two can land almost together and then nothing
+  // for a beat. Both ends scale with the difficulty, so what changes between
+  // levels is how fast you have to be, not how crowded the dish gets.
+  const GAP = [0.30, 0.90];
+
+  // A backgrounded or janky tab can leave the clock and the spawner out of
+  // step. This is the ceiling that stops that turning into a screen full.
+  const MAX_LIVE = 4;
+
   const LEVEL_NAME = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 
   const root = document.querySelector('.cap-game');
   if (!root) return;
 
   const field = root.querySelector('.cap-field');
-  const target = root.querySelector('.cap-target');
-  const logoImg = root.querySelector('.cap-target img');
   const hud = root.querySelector('.cap-hud');
   const scoreEl = root.querySelector('.cap-score-value');
   const timeEl = root.querySelector('.cap-time-value');
@@ -46,19 +59,18 @@
     root.querySelectorAll('input[name="cap-level"]')
   );
 
-  logoImg.src = LOGO_URL;
-
   // Someone who has asked their system for less motion still gets the game and
-  // the score; what they do not get is the pop, the drifting +1 and the ring.
+  // the score; what they do not get is the pop, the fade, the drifting +1 and
+  // the ring.
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   let state = 'idle';          // idle | playing | over
   let level = 'medium';
   let score = 0;
   let deadline = 0;            // performance.now() at which the round ends
-  let shownAt = 0;             // when the logo now on screen appeared
+  let nextAt = 0;              // when the next logo is due
   let frameId = 0;
-  let last = null;             // where it was, so it does not reappear there
+  let live = [];               // every logo currently in the dish
 
   function setState(next) {
     state = next;
@@ -66,12 +78,12 @@
   }
 
   // ------------------------------------------------------------------ moving
-  // Anywhere in the field, with two exceptions: not under the score and clock,
-  // which would make it unreadable and unclickable, and not on the spot it has
-  // just left, which reads as "it never moved" rather than as a new target.
-  function place() {
+  // Anywhere in the field, with three exceptions: not under the score and
+  // clock, which would leave it unreadable and unclickable; not on top of a
+  // logo that is already out, which would make two look like one; and, failing
+  // both, clearing the corner matters more than keeping them apart.
+  function place(size) {
     const fb = field.getBoundingClientRect();
-    const size = target.offsetWidth || 72;
     const pad = 10;
     const maxX = Math.max(pad, fb.width - size - pad);
     const maxY = Math.max(pad, fb.height - size - pad);
@@ -97,37 +109,77 @@
       if (underHud) continue;
       if (!fallback) fallback = { x: x, y: y };
 
-      const dx = last ? x - last.x : Infinity;
-      const dy = last ? y - last.y : Infinity;
-      if (Math.sqrt(dx * dx + dy * dy) > size * 1.25) break;
+      // Box against box, not centre-to-centre distance: two squares set apart
+      // diagonally can clear a radius check and still overlap, which showed up
+      // as the occasional pair sitting on each other.
+      let clash = false;
+      for (let j = 0; j < live.length; j++) {
+        if (Math.abs(x - live[j].x) < size * 1.08 &&
+            Math.abs(y - live[j].y) < size * 1.08) { clash = true; break; }
+      }
+      if (!clash) return { x: x, y: y };
     }
 
-    // Every try landed on the clock or on top of itself -- a very short field.
-    // Clearing the clock matters more than moving a good distance.
-    if (fallback) { x = fallback.x; y = fallback.y; }
-
-    last = { x: x, y: y };
-    target.style.left = Math.round(x) + 'px';
-    target.style.top = Math.round(y) + 'px';
+    return fallback || { x: x, y: y };
   }
 
-  function show() {
-    place();
-    shownAt = performance.now();
-    target.hidden = false;
-    // Restarting the pop needs the class off, a reflow, then the class on.
-    target.classList.remove('is-in');
-    void target.offsetWidth;
-    target.classList.add('is-in');
+  // ---------------------------------------------------------------- arriving
+  function spawn(now) {
+    if (live.length >= MAX_LIVE) return;
+
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'cap-target';
+    el.setAttribute('aria-label', 'Catch the logo');
+
+    const img = document.createElement('img');
+    img.src = LOGO_URL;
+    img.alt = '';                    // the button carries the name
+    el.appendChild(img);
+
+    // Appended, measured and positioned inside one task, so the browser never
+    // paints it at the corner on its way to where it belongs.
+    field.appendChild(el);
+    const size = el.offsetWidth || 76;
+    const at = place(size);
+    el.style.left = Math.round(at.x) + 'px';
+    el.style.top = Math.round(at.y) + 'px';
+    el.classList.add('is-in');
+
+    const logo = {
+      el: el,
+      x: at.x,
+      y: at.y,
+      size: size,
+      diesAt: now + LIFETIME[level],
+      gone: false
+    };
+    el.addEventListener('click', function () { grab(logo); });
+    live.push(logo);
   }
 
-  // ----------------------------------------------------------------- catching
-  function burst() {
+  function drop(logo) {
+    logo.gone = true;
+    live = live.filter(function (l) { return l !== logo; });
+  }
+
+  // ---------------------------------------------------------------- leaving
+  // Caught: gone at once, because the ring and the +1 are the feedback and a
+  // logo still sitting under them reads as a miss. Missed: a short fade, so
+  // that with several in the dish you can see which one you lost.
+  function expire(logo) {
+    drop(logo);
+    const el = logo.el;
+    el.style.pointerEvents = 'none';
+    if (calm.matches) { el.remove(); return; }
+    el.classList.add('is-out');
+    window.setTimeout(function () { el.remove(); }, 220);
+  }
+
+  function burst(logo) {
     if (calm.matches) return;
-    const fb = field.getBoundingClientRect();
-    const tb = target.getBoundingClientRect();
-    const x = tb.left - fb.left + tb.width / 2;
-    const y = tb.top - fb.top + tb.height / 2;
+    const x = logo.x + logo.size / 2;
+    const y = logo.y + logo.size / 2;
 
     const ring = document.createElement('span');
     ring.className = 'cap-burst';
@@ -148,17 +200,32 @@
     }, 800);
   }
 
-  function caught() {
-    if (state !== 'playing' || target.hidden) return;
+  function grab(logo) {
+    if (state !== 'playing' || logo.gone) return;
     score += 1;
     scoreEl.textContent = String(score);
-    burst();
-    show();                       // gone from here, and already somewhere else
+    burst(logo);
+    drop(logo);
+    logo.el.remove();
+  }
+
+  function clearField() {
+    live.forEach(function (l) { l.el.remove(); });
+    live = [];
+    Array.prototype.forEach.call(
+      field.querySelectorAll('.cap-target, .cap-burst, .cap-plus'),
+      function (el) { el.remove(); }
+    );
   }
 
   // -------------------------------------------------------------- the minute
   // The clock is read off a deadline rather than counted down a tick at a time,
   // so a dropped frame or a backgrounded tab cannot buy anyone extra seconds.
+  function nextGap() {
+    const life = LIFETIME[level];
+    return life * (GAP[0] + Math.random() * (GAP[1] - GAP[0]));
+  }
+
   function frame(now) {
     if (state !== 'playing') return;
 
@@ -170,26 +237,36 @@
     }
     timeEl.textContent = String(Math.ceil(left / 1000));
 
-    if (now - shownAt >= LIFETIME[level]) show();   // not caught in time
+    for (let i = live.length - 1; i >= 0; i--) {
+      if (now >= live[i].diesAt) expire(live[i]);
+    }
+
+    if (now >= nextAt) {
+      spawn(now);
+      nextAt = now + nextGap();
+    }
 
     frameId = window.requestAnimationFrame(frame);
   }
 
   function start() {
+    clearField();
     score = 0;
     scoreEl.textContent = '0';
     timeEl.textContent = String(ROUND_MS / 1000);
-    last = null;
     setState('playing');
-    deadline = performance.now() + ROUND_MS;
-    show();
+
+    const now = performance.now();
+    deadline = now + ROUND_MS;
+    spawn(now);                  // one straight away, so the round opens on it
+    nextAt = now + nextGap();
     frameId = window.requestAnimationFrame(frame);
   }
 
   function finish() {
     window.cancelAnimationFrame(frameId);
     setState('over');
-    target.hidden = true;
+    clearField();
     finalEl.textContent = String(score);
     finalLevel.textContent = LEVEL_NAME[level];
     // The running score is deliberately not announced -- once a second for a
@@ -202,7 +279,7 @@
   function toStart() {
     window.cancelAnimationFrame(frameId);
     setState('idle');
-    target.hidden = true;
+    clearField();
     liveEl.textContent = '';
     startBtn.focus();
   }
@@ -219,17 +296,22 @@
   replayBtn.addEventListener('click', start);
   changeBtn.addEventListener('click', toStart);
 
-  // The target is a real button, so a click, a tap and Enter all catch it.
-  target.addEventListener('click', caught);
-
   root.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && state === 'over') toStart();
   });
 
-  // The field is sized in vh and % , so a rotate or a resize mid-round can
-  // leave the logo outside it.
+  // The field is sized in vh and %, so a rotate or a resize mid-round can leave
+  // a logo outside it. They are moved rather than dropped; losing one to a
+  // rotation would look like the game cheating.
   window.addEventListener('resize', function () {
-    if (state === 'playing') place();
+    if (state !== 'playing') return;
+    live.forEach(function (l) {
+      const at = place(l.size);
+      l.x = at.x;
+      l.y = at.y;
+      l.el.style.left = Math.round(at.x) + 'px';
+      l.el.style.top = Math.round(at.y) + 'px';
+    });
   });
 
   setState('idle');
