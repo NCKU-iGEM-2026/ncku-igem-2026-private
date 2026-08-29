@@ -1,0 +1,129 @@
+{% extends "layout.html" %}
+
+{% block title %}Online Game{% endblock %}
+{% block lead %}Capture — one minute, one net, and logos that will not wait for you{% endblock %}
+
+{% block page_content %}
+
+{#
+  === 給團隊的說明 ===
+
+  1. 換 Logo：static/capture-game.js 最上面的 LOGO_URL。現在放的是 SVG 佔位圖，
+     內嵌成 data URI，所以還沒換之前也不會去外部網站抓東西。換的時候請用
+     iGEM uploads tool 上傳到 static.igem.wiki，不可以連外部網址（規則）。
+
+  2. 這一頁沒有任何科學宣稱，也不是模型。下面那段導言刻意寫明「這是遊戲，
+     不是我們系統的模型」，請不要改成聽起來像實驗結果的說法。
+
+  3. 難易度只差在 Logo 停留多久（3 / 2 / 1 秒），總時長固定 60 秒。要調整的話
+     改 capture-game.js 的 LIFETIME 和 ROUND_MS。
+
+  4. 出現時機是隨機的，而且不等前一隻消失。控制在 capture-game.js 的 GAP
+     （下一隻間隔 = 停留時間 x 0.30~0.90 之間隨機）。想要更擠就把 GAP 調小，
+     更空曠就調大。MAX_LIVE 是同時最多幾隻的上限。
+#}
+
+<div class="cap-page">
+
+  <section class="cap-intro">
+    <p>
+      Our project is about <em>capture</em>: something that has to find its
+      target and hold on to it before the moment passes. This is that idea
+      turned into a minute of play, and nothing more &mdash; it is here for
+      outreach and for fun, and it is not a model of our system or a
+      representation of any result.
+    </p>
+    <p>
+      You have <strong>sixty seconds</strong>. Logos arrive in the dish on
+      their own schedule &mdash; a new one does not wait for the last one to
+      go, so there are usually two or three out at once, and sometimes a beat
+      with none. Each one waits, and each one goes. Catch them with the net.
+      How long one waits before it goes is up to you.
+    </p>
+  </section>
+
+  <!--
+    One component, three states, switched by data-state on .cap-game: idle
+    shows the difficulty panel, playing shows the field, over shows the result.
+    The score and clock sit in the top-right corner of the field throughout.
+  -->
+  <div class="cap-game" data-state="idle">
+
+    <div class="cap-field">
+
+      <div class="cap-hud">
+        <p class="cap-pill"><span class="cap-pill-key">Score</span>
+          <span class="cap-score-value">0</span></p>
+        <p class="cap-pill"><span class="cap-pill-key">Time</span>
+          <span class="cap-time-value">60</span><span class="cap-unit">s</span></p>
+      </div>
+
+      <!-- Before the round: pick a difficulty and start. -->
+      <div class="cap-panel cap-panel-start">
+        <h2>Choose a difficulty</h2>
+        <fieldset class="cap-levels">
+          <legend class="visually-hidden">How long a logo stays before it goes</legend>
+
+          <label class="cap-level">
+            <input type="radio" name="cap-level" value="easy">
+            <span class="cap-level-box">
+              <span class="cap-level-name">Easy</span>
+              <span class="cap-level-sub">stays 3 seconds</span>
+            </span>
+          </label>
+
+          <label class="cap-level">
+            <input type="radio" name="cap-level" value="medium" checked>
+            <span class="cap-level-box">
+              <span class="cap-level-name">Medium</span>
+              <span class="cap-level-sub">stays 2 seconds</span>
+            </span>
+          </label>
+
+          <label class="cap-level">
+            <input type="radio" name="cap-level" value="hard">
+            <span class="cap-level-box">
+              <span class="cap-level-name">Hard</span>
+              <span class="cap-level-sub">stays 1 second</span>
+            </span>
+          </label>
+        </fieldset>
+
+        <button type="button" class="cap-btn cap-start">Start &mdash; 60 seconds</button>
+        <p class="cap-note">One point per catch. The round ends when the clock does.</p>
+      </div>
+
+      <!-- After the round. -->
+      <div class="cap-panel cap-panel-end" role="dialog" aria-modal="true"
+           aria-labelledby="cap-end-title">
+        <h2 id="cap-end-title">Time up</h2>
+        <p class="cap-final">
+          <span class="cap-final-score">0</span>
+          <span class="cap-final-unit">caught</span>
+        </p>
+        <p class="cap-final-meta">on <span class="cap-final-level">Medium</span></p>
+        <div class="cap-actions">
+          <button type="button" class="cap-btn cap-replay">Replay</button>
+          <button type="button" class="cap-btn cap-btn-quiet cap-change">Change difficulty</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Only the final score is announced; a score read out once a second for
+         a minute would be unusable. -->
+    <p class="cap-live visually-hidden" role="status" aria-live="polite"></p>
+  </div>
+
+  <p class="cap-foot">
+    The game needs a pointer or a touchscreen to play. Nothing on this page is
+    a result, and no score here means anything beyond the score.
+  </p>
+
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename = 'capture-game.js') }}"></script>
+{% endblock %}
