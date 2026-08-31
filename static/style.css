@@ -4326,104 +4326,131 @@ body.tour-active { overflow: hidden; }
 }
 
 /* Notebook ----------------------------------------------------------------
-   A week-by-week timeline down a single spine. Each week is one node; the
-   entries inside it are tagged Wet Lab / Dry Lab / Human Practices and carry
-   their own accent colour, so a reader can follow one team down the page
-   without filtering at all.
+   A week-by-week timeline down a single spine. Every week is a <details>, shut
+   until it is asked for, showing only its number and its dates. Native rather
+   than scripted, for three reasons: it opens without JavaScript, Enter and
+   Space already work, and separate <details> elements do not close each other
+   -- opening a second week leaves the first open. Do not add a name attribute
+   to them; that would turn the timeline into an exclusive accordion.
 
-   The filtering is done here rather than in JavaScript: notebook-timeline.js
-   sets [data-filter] on the root and these two rules do the rest. That keeps
-   the page whole for a reader without scripts. */
-.nb { max-width: 62rem; margin: 0 auto 3.5rem; }
+   Inside, the three parts of the team get a column each. Wet Lab is drawn on
+   every week even when it has nothing in it yet -- the team works every week
+   and the records are still coming -- so the columns per week are 1, 2 or 3
+   and 1fr keeps whichever are present the same width.
+
+   Filtering is CSS off [data-filter] on the root; notebook-timeline.js only
+   sets the attribute. */
+/* Wider than the page's own container. The timeline is three columns of short
+   entries rather than prose, so it wants room; the paragraph above it stays at
+   46rem because a line of text 1200px long is miserable to read.
+
+   max() against 100% is what keeps this safe on a phone: there the container is
+   already the wider of the two and nothing moves. Above that the width breaks
+   out of the container, and left:50% with half of it back as a negative margin
+   re-centres it on the window rather than on the container it escaped.
+
+   The 4rem gutter is also what absorbs the scrollbar: 100vw counts it, the
+   space available does not, and 64px is comfortably more than any scrollbar. */
+.nb {
+  --nb-w: max(100%, min(100vw - 4rem, 88rem));
+  position: relative;
+  width: var(--nb-w);
+  max-width: none;
+  left: 50%;
+  margin: 0 0 3.5rem calc(var(--nb-w) / -2);
+}
 
 .nb-intro { max-width: 46rem; margin: 0 auto 2rem; text-align: center; }
 .nb-intro h2 { font-family: "Changa", sans-serif; color: #075a3e; }
-.nb-intro p { color: #5c6b62; line-height: 1.7; }
+.nb-intro p { color: #5c6b62; font-size: 1.18rem; line-height: 1.7; }
 
-/* The three tracks. Tints back the cards and tags; accents are for the dots
-   and rules, which are UI rather than text and need 3:1, not 4.5:1. */
-.nb [data-track="wet"] { --nb-accent: #2f8f4e; --nb-tint: #e2f6e6; }
-.nb [data-track="dry"] { --nb-accent: #1f7f86; --nb-tint: #ddf3f0; }
-.nb [data-track="hp"]  { --nb-accent: #a06c12; --nb-tint: #fdf0d5; }
+/* The three tracks: green, orange, pink.
 
-/* ---- the tally across the top ---- */
-.nb-tally {
+   The accent is the working colour -- the crayon rule under each team's name,
+   the bullets, the tile borders. It is UI rather than text, so it needs 3:1
+   against the page, not 4.5:1. The tint is only the tally tiles now that the
+   columns are no longer filled; it is kept because those three tiles still
+   carry text, and it is matched across the tracks on luminance rather than
+   picked one at a time -- 0.706, 0.702, 0.699 -- so no tile reads heavier than
+   the two beside it.
+
+   Every pair was chosen against the floors it has to clear, not by eye.
+   Colour is never the only signal either: each column is headed with the name
+   of the team, so a reader who cannot separate the green from the orange still
+   reads the page. */
+.nb [data-track="wet"] { --nb-accent: #1f7a3e; --nb-tint: #bee4c8; }
+.nb [data-track="dry"] { --nb-accent: #a5540c; --nb-tint: #f9d4ac; }
+.nb [data-track="hp"]  { --nb-accent: #a83a68; --nb-tint: #f8cfdf; }
+
+/* ---- the counts, which are also the filter ---- */
+/* They used to be a tile reading "3 Wet Lab milestones" with a chip reading
+   "Wet Lab 3" underneath it -- the same three facts twice. One control now.
+   All three start on; selecting one hides that team, selecting it again brings
+   it back, and they are independent of each other.
+
+   The markup ships them disabled and the script enables them, so without
+   JavaScript they are three plain counts rather than three dead buttons. That
+   is why :disabled below keeps the live look instead of greying out. */
+.nb-toggles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.9rem;
 }
 
-.nb-tally-tile {
+.nb-toggle {
+  font: inherit;
   background: var(--nb-tint);
   border: 2px solid var(--nb-accent);
   border-radius: 14px;
   padding: 1rem 0.9rem;
   text-align: center;
-}
-
-.nb-tally-n {
-  display: block;
-  font-family: "Changa", sans-serif;
-  font-size: 2.1rem;
-  line-height: 1.1;
-  color: #075a3e;
-}
-
-.nb-tally-label {
-  display: block;
-  font-size: 0.9rem;
-  color: #3d5147;
-}
-
-/* ---- the chips ---- */
-.nb-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: 0.75rem;
-}
-
-.nb-chip {
-  font-family: "Changa", sans-serif;
-  font-size: 0.95rem;
-  color: #075a3e;
-  background: #fffdf7;
-  border: 2px solid #075a3e;
-  border-radius: 999px;
-  /* 0.45rem top and bottom puts the box at 40px; the extra comes from the
-     min-height so a chip is never under the 24px pointer-target floor. */
-  padding: 0.45rem 1rem;
-  min-height: 40px;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.nb-chip:hover { background: #e9f5ee; }
+.nb-toggle:disabled { cursor: default; opacity: 1; }
+.nb-toggle:not(:disabled):hover { filter: brightness(0.96); }
 
-.nb-chip.is-current {
-  background: #075a3e;
-  color: #fffdf7;
-}
-
-.nb-chip:focus-visible {
+.nb-toggle:focus-visible {
   outline: 3px solid #d8b26a;
   outline-offset: 2px;
 }
 
-.nb-chip-n {
-  display: inline-block;
-  margin-left: 0.35rem;
-  font-size: 0.85em;
-  opacity: 0.75;
+.nb-toggle-n {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-size: 2.7rem;
+  line-height: 1.1;
+  color: #075a3e;
 }
 
+.nb-toggle-label {
+  display: block;
+  font-size: 1.1rem;
+  color: #3d5147;
+}
+
+/* Off: the fill drains away and the border goes dashed. The text is recoloured
+   rather than faded -- dropping the opacity would take it under AA, and the
+   count is the thing a reader still wants to be able to read. */
+.nb-toggle.is-off {
+  background: transparent;
+  border-color: rgba(7, 90, 62, 0.3);
+  border-style: dashed;
+}
+
+.nb-toggle.is-off .nb-toggle-n,
+.nb-toggle.is-off .nb-toggle-label { color: #5c6b62; }
+
+/* What the current selection adds up to, announced to a screen reader as it
+   changes. Reserves its line so the timeline does not jump when the wording
+   grows or shrinks. */
 .nb-status {
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 1.08rem;
   color: #5c6b62;
-  min-height: 1.4rem;
+  min-height: 1.5rem;
   margin-bottom: 1.75rem;
 }
 
@@ -4443,55 +4470,132 @@ body.tour-active { overflow: hidden; }
   top: 12px;
   bottom: 12px;
   width: 2px;
-  background: linear-gradient(#075a3e, rgba(7, 90, 62, 0.18));
+  background: linear-gradient(#075a3e, rgba(7, 90, 62, 0.38));
 }
 
 .nb-week {
   position: relative;
-  padding-left: 74px;
-  margin-bottom: 1.35rem;
+  padding-left: 48px;
+  margin-bottom: 0.85rem;
 }
 
+/* A marker on the spine, nothing more -- the week number is in the summary a
+   few pixels to the right. 16px wide, so left:16px centres it on the spine's
+   own centre at 24px; top:19px puts it level with the week title. */
 .nb-node {
   position: absolute;
-  left: 0;
-  top: 2px;
-  width: 48px;
-  height: 48px;
+  left: 16px;
+  top: 19px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: #fffdf7;
-  border: 2px solid #075a3e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Changa", sans-serif;
-  font-size: 1.15rem;
-  color: #075a3e;
+  border: 3px solid #075a3e;
 }
 
-.nb-node-open { border-style: dashed; }
+/* The season-still-running marker: hollow, so it reads as an end that has not
+   been filled in yet rather than one more week. */
+.nb-node-open { background: transparent; border-color: rgba(7, 90, 62, 0.55); }
 
 .nb-card {
   background: #fffdf7;
-  border: 2px solid rgba(7, 90, 62, 0.28);
+  border: 2px solid rgba(7, 90, 62, 0.42);
   border-radius: 14px;
-  padding: 1rem 1.15rem;
+}
+
+.nb-card[open] { border-color: rgba(7, 90, 62, 0.72); }
+.nb-card-plain { padding: 1rem 1.15rem; }
+
+/* ---- the closed row ---- */
+.nb-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.15rem;
+  min-height: 52px;
+  cursor: pointer;
+  border-radius: 12px;
+  /* Both are needed to drop the disclosure triangle: ::marker for Firefox and
+     Chrome, the -webkit pseudo for Safari. */
+  list-style: none;
+}
+
+.nb-summary::-webkit-details-marker { display: none; }
+.nb-summary::marker { content: ""; }
+
+.nb-summary:hover { background: #f2f8f4; }
+
+.nb-summary:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: -3px;
 }
 
 .nb-week-title {
   font-family: "Changa", sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.55rem;
   color: #075a3e;
-  margin: 0 0 0.65rem;
+  margin: 0;
 }
 
 .nb-dates {
   font-family: "Changa", sans-serif;
-  font-size: 0.85rem;
+  font-size: 1.12rem;
   font-weight: 400;
   color: #5c6b62;
-  margin-left: 0.5rem;
-  white-space: nowrap;
+}
+
+.nb-chevron {
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: #075a3e;
+  transition: transform 0.2s ease;
+}
+
+.nb-card[open] > .nb-summary .nb-chevron { transform: rotate(180deg); }
+
+/* ---- the three columns ---- */
+.nb-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  /* The columns were panels; now they are three plain runs of text, so the
+     space between them is the only thing keeping them apart. */
+  column-gap: 1.75rem;
+  row-gap: 1.25rem;
+  padding: 0.1rem 1.15rem 1.15rem;
+}
+
+.nb-col { padding: 0; }
+
+.nb-col-head {
+  font-family: "Changa", sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #075a3e;
+  text-align: center;
+  margin: 0;
+}
+
+/* The crayon rule under the team's name.
+   The stroke's shape is a mask, not an image, so the colour stays
+   var(--nb-accent) and one drawing serves all three tracks. Its roughness runs
+   in y, which is why stretching it to whatever width a column happens to be
+   does not smooth it out: the gaps between the bumps stretch, the bumps
+   themselves never do. And because it is a masked background rather than an
+   <img>, a browser that cannot mask still draws a plain accent underline
+   instead of nothing. */
+.nb-col-head::after {
+  content: "";
+  display: block;
+  height: 13px;
+  margin: 0.35rem 0 0.75rem;
+  background-color: var(--nb-accent);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%2010'%20preserveAspectRatio='none'%3E%3Cpath%20d='M1.5,4.5%2011.4,4.6%2021.3,3.9%2031.2,4.5%2041.1,4.1%2051.0,4.1%2060.9,4.0%2070.8,3.8%2080.7,3.2%2090.6,3.9%20100.5,3.4%20110.4,3.5%20120.3,2.8%20130.2,2.9%20140.1,3.7%20150.0,3.8%20159.9,3.9%20169.8,3.2%20179.7,3.4%20189.6,3.3%20199.5,3.5%20209.4,3.6%20219.3,4.2%20229.2,3.9%20239.1,3.6%20249.0,3.4%20258.9,4.3%20268.8,3.4%20278.7,3.8%20288.6,4.0%20298.5,4.3%20L298.5,5.3%20288.6,6.5%20278.7,6.0%20268.8,6.5%20258.9,6.5%20249.0,7.6%20239.1,7.8%20229.2,7.3%20219.3,7.2%20209.4,7.3%20199.5,7.2%20189.6,7.5%20179.7,7.7%20169.8,7.4%20159.9,7.7%20150.0,7.6%20140.1,7.3%20130.2,7.6%20120.3,7.5%20110.4,7.0%20100.5,6.8%2090.6,6.9%2080.7,6.9%2070.8,7.4%2060.9,7.5%2051.0,6.7%2041.1,7.0%2031.2,7.2%2021.3,6.9%2011.4,6.6%201.5,6.1%20Z'%20fill='black'/%3E%3Cellipse%20cx='27.1'%20cy='8.2'%20rx='3.2'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='71.6'%20cy='2.5'%20rx='2.1'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='92.5'%20cy='8.1'%20rx='2.7'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='138.1'%20cy='2.2'%20rx='2.7'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='170.5'%20cy='8.6'%20rx='1.4'%20ry='0.3'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='211.2'%20cy='2.7'%20rx='3.0'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='241.5'%20cy='8.6'%20rx='2.9'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='263.5'%20cy='2.1'%20rx='1.6'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%2010'%20preserveAspectRatio='none'%3E%3Cpath%20d='M1.5,4.5%2011.4,4.6%2021.3,3.9%2031.2,4.5%2041.1,4.1%2051.0,4.1%2060.9,4.0%2070.8,3.8%2080.7,3.2%2090.6,3.9%20100.5,3.4%20110.4,3.5%20120.3,2.8%20130.2,2.9%20140.1,3.7%20150.0,3.8%20159.9,3.9%20169.8,3.2%20179.7,3.4%20189.6,3.3%20199.5,3.5%20209.4,3.6%20219.3,4.2%20229.2,3.9%20239.1,3.6%20249.0,3.4%20258.9,4.3%20268.8,3.4%20278.7,3.8%20288.6,4.0%20298.5,4.3%20L298.5,5.3%20288.6,6.5%20278.7,6.0%20268.8,6.5%20258.9,6.5%20249.0,7.6%20239.1,7.8%20229.2,7.3%20219.3,7.2%20209.4,7.3%20199.5,7.2%20189.6,7.5%20179.7,7.7%20169.8,7.4%20159.9,7.7%20150.0,7.6%20140.1,7.3%20130.2,7.6%20120.3,7.5%20110.4,7.0%20100.5,6.8%2090.6,6.9%2080.7,6.9%2070.8,7.4%2060.9,7.5%2051.0,6.7%2041.1,7.0%2031.2,7.2%2021.3,6.9%2011.4,6.6%201.5,6.1%20Z'%20fill='black'/%3E%3Cellipse%20cx='27.1'%20cy='8.2'%20rx='3.2'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='71.6'%20cy='2.5'%20rx='2.1'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='92.5'%20cy='8.1'%20rx='2.7'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='138.1'%20cy='2.2'%20rx='2.7'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='170.5'%20cy='8.6'%20rx='1.4'%20ry='0.3'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='211.2'%20cy='2.7'%20rx='3.0'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='241.5'%20cy='8.6'%20rx='2.9'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='263.5'%20cy='2.1'%20rx='1.6'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 .nb-entries {
@@ -4501,86 +4605,101 @@ body.tour-active { overflow: hidden; }
 }
 
 .nb-entry {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem;
-  background: var(--nb-tint);
-  border-left: 4px solid var(--nb-accent);
-  border-radius: 0 8px 8px 0;
-  padding: 0.55rem 0.75rem;
-  margin-bottom: 0.5rem;
+  position: relative;
+  padding-left: 1.05rem;
+  margin-bottom: 0.6rem;
+  color: #24352c;
+  font-size: 1.3rem;
+  line-height: 1.6;
 }
 
 .nb-entry:last-child { margin-bottom: 0; }
 
-.nb-tag {
-  flex: 0 0 auto;
-  font-family: "Changa", sans-serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #075a3e;
-  background: #fffdf7;
-  border: 1px solid var(--nb-accent);
-  border-radius: 999px;
-  padding: 0.1rem 0.55rem;
-  white-space: nowrap;
+.nb-entry::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  /* 0.8em down puts the dot on the first line's middle, not its top. */
+  top: 0.8em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--nb-accent);
 }
 
-.nb-text {
-  flex: 1 1 14rem;
-  color: #24352c;
-  line-height: 1.6;
-}
+.nb-entry a { color: #075a3e; text-decoration: underline; }
+.nb-entry a:hover { color: #0a7a54; }
 
-.nb-text a { color: #075a3e; text-decoration: underline; }
-.nb-text a:hover { color: #0a7a54; }
-
-/* A week the team left blank, and the stretch of season still ahead. Said
-   plainly rather than dressed up -- a gap in a notebook is information. */
+/* A column held open for records the team has not handed over yet, and the
+   stretch of season still ahead. Both said plainly rather than dressed up. */
+.nb-pending,
 .nb-blank {
   margin: 0;
   color: #5c6b62;
+  font-size: 1.3rem;
   font-style: italic;
   line-height: 1.6;
 }
 
-.nb-week.is-blank .nb-card { border-style: dashed; background: transparent; }
-.nb-week.is-blank .nb-node { border-style: dashed; color: #5c6b62; }
+/* A held-open column is the same heading and the same rule, drawn faintly:
+   the slot is there, the record is not. The italic line under it says so in
+   words, so the lighter stroke is not carrying the meaning on its own. */
+.nb-col.is-pending .nb-col-head { color: #4a6157; }
+.nb-col.is-pending .nb-col-head::after { opacity: 0.4; }
+
+/* Weeks where none of the three recorded anything. */
+.nb-week.is-blank > .nb-card { border-style: dashed; }
+/* Faded rather than dashed: 3px of dashes around a 16px circle just reads as
+   a broken dot. */
+.nb-week.is-blank .nb-node { border-color: rgba(7, 90, 62, 0.45); }
 .nb-week-open .nb-card { border-style: dashed; }
 
-/* ---- filtering ---- */
-.nb[data-filter="wet"] .nb-week:not([data-tracks~="wet"]),
-.nb[data-filter="dry"] .nb-week:not([data-tracks~="dry"]),
-.nb[data-filter="hp"]  .nb-week:not([data-tracks~="hp"]) { display: none; }
+/* ---- filtering ----
+   data-hidden lists the teams currently switched off, so a column goes when
+   its own team is in that list. */
+.nb[data-hidden~="wet"] .nb-col[data-track="wet"],
+.nb[data-hidden~="dry"] .nb-col[data-track="dry"],
+.nb[data-hidden~="hp"]  .nb-col[data-track="hp"] { display: none; }
 
-.nb[data-filter="wet"] .nb-entry:not([data-track="wet"]),
-.nb[data-filter="dry"] .nb-entry:not([data-track="dry"]),
-.nb[data-filter="hp"]  .nb-entry:not([data-track="hp"]) { display: none; }
+/* A week goes only when every team it has is switched off, which is one rule
+   per subset of the three. Written out in full rather than trimmed to the ones
+   today's data can reach: three of these match nothing at the moment, because
+   every week carries Wet Lab, and they would be needed the moment that stops
+   being true. */
+.nb[data-hidden~="wet"] .nb-week:not([data-tracks~="dry"]):not([data-tracks~="hp"]),
+.nb[data-hidden~="dry"] .nb-week:not([data-tracks~="wet"]):not([data-tracks~="hp"]),
+.nb[data-hidden~="hp"]  .nb-week:not([data-tracks~="wet"]):not([data-tracks~="dry"]),
+.nb[data-hidden~="wet"][data-hidden~="dry"] .nb-week:not([data-tracks~="hp"]),
+.nb[data-hidden~="wet"][data-hidden~="hp"]  .nb-week:not([data-tracks~="dry"]),
+.nb[data-hidden~="dry"][data-hidden~="hp"]  .nb-week:not([data-tracks~="wet"]),
+.nb[data-hidden~="wet"][data-hidden~="dry"][data-hidden~="hp"] .nb-week { display: none; }
 
 @media (max-width: 575.98px) {
+  /* Spine centre moves to 18px, so the dot's left is 18 - 8. */
   .nb-timeline::before { left: 17px; }
-  .nb-week { padding-left: 54px; }
-  .nb-node { width: 36px; height: 36px; font-size: 0.95rem; }
-  .nb-card { padding: 0.85rem 0.9rem; }
-  .nb-week-title { font-size: 1.05rem; }
-  /* Below this the date would wrap under a one-word title and read as a
-     second heading; let it sit on its own line deliberately instead. */
-  .nb-dates { display: block; margin-left: 0; white-space: normal; }
+  .nb-week { padding-left: 40px; }
+  .nb-node { left: 10px; top: 17px; }
+  .nb-summary { padding: 0.7rem 0.85rem; }
+  .nb-cols { padding: 0 0.85rem 0.9rem; }
+  .nb-week-title { font-size: 1.32rem; }
+  /* The dates used to be forced onto their own line here, because "31 May -
+     6 June" would not sit beside the week number at 320px. They now read
+     "(5/31~6/6)" and fit, so the row is left in its natural order -- week,
+     dates, chevron -- and only wraps if it actually has to. */
+  .nb-summary { flex-wrap: wrap; row-gap: 0.15rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nb-chip { transition: none; }
+  .nb-toggle, .nb-chevron { transition: none; }
 }
 
-/* On paper the chips do nothing, and a printed notebook should be the whole
-   notebook however the reader left the page. */
+/* On paper every week is open and every team is shown, however the reader left
+   the page. Both are done in the script rather than here: it opens the weeks
+   and clears data-hidden before printing and restores them afterwards, which is
+   cleaner than out-weighing seven filter rules from inside a media block. */
 @media print {
-  .nb-filter, .nb-status { display: none; }
-  /* Written at the same weight as the filter rules above, and after them, so
-     they lose: printing must not depend on which chip was last pressed. */
-  .nb[data-filter] .nb-week[data-tracks] { display: block; }
-  .nb[data-filter] .nb-entry[data-track] { display: flex; }
+  .nb-chevron { display: none; }
+  .nb-toggle { border-style: solid; }
   .nb-week { break-inside: avoid; }
+  .nb-summary { cursor: auto; }
 }
