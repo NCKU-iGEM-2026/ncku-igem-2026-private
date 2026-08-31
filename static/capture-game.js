@@ -9,14 +9,10 @@
   // page still renders and explains itself; only the game is missing.
 
   // ---------------------------------------------------------------- the logo
-  // REPLACE THIS with the team logo once it is uploaded through the iGEM
-  // uploads tool, e.g.
-  //   const LOGO_URL = 'https://static.igem.wiki/teams/6379/wiki/logo/logo-only.avif';
-  // The default below is a placeholder drawn in SVG and inlined as a data URI,
-  // so nothing is fetched from a third-party host while it is still a
-  // placeholder. iGEM does not allow external CDNs -- when you swap this, point
-  // it at static.igem.wiki and nowhere else.
-  const LOGO_URL = "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='96'%20height='96'%20viewBox='0%200%2096%2096'%3E%3Ccircle%20cx='48'%20cy='48'%20r='44'%20fill='%23eaf7dd'%20stroke='%23075a3e'%20stroke-width='3'%20stroke-dasharray='7%205'/%3E%3Cpath%20d='M34%2026c16%209%2016%2031%200%2040M62%2026c-16%209-16%2031%200%2040'%20fill='none'%20stroke='%23075a3e'%20stroke-width='3.5'%20stroke-linecap='round'/%3E%3Cpath%20d='M37%2036h22M36%2046h24M37%2056h22'%20stroke='%23d8b26a'%20stroke-width='3'%20stroke-linecap='round'/%3E%3Ctext%20x='48'%20y='82'%20font-family='sans-serif'%20font-size='11'%20font-weight='700'%20fill='%23075a3e'%20text-anchor='middle'%3ELOGO%3C/text%3E%3C/svg%3E";
+  // The team logo, the same file the navbar wears in the top-left corner, and
+  // served from iGEM's own host. iGEM does not allow external CDNs, so if this
+  // is ever changed it has to stay on static.igem.wiki.
+  const LOGO_URL = 'https://static.igem.wiki/teams/6379/wiki/logo/logo-ncku.avif';
 
   // --------------------------------------------------------------- the rules
   const ROUND_MS = 60000;                    // one minute, fixed
@@ -34,11 +30,13 @@
   // settles into a metronome -- two can land almost together and then nothing
   // for a beat. Both ends scale with the difficulty, so what changes between
   // levels is how fast you have to be, not how crowded the dish gets.
-  const GAP = [0.30, 0.90];
+  const GAP = [0.16, 0.52];
 
   // A backgrounded or janky tab can leave the clock and the spawner out of
   // step. This is the ceiling that stops that turning into a screen full.
-  const MAX_LIVE = 4;
+  // Raised with the faster arrivals: at the old four the ceiling, not the
+  // schedule, was deciding how busy the dish got.
+  const MAX_LIVE = 6;
 
   const LEVEL_NAME = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 
@@ -300,17 +298,45 @@
     if (e.key === 'Escape' && state === 'over') toStart();
   });
 
-  // The field is sized in vh and %, so a rotate or a resize mid-round can leave
-  // a logo outside it. They are moved rather than dropped; losing one to a
-  // rotation would look like the game cheating.
-  window.addEventListener('resize', function () {
+  // The field is sized in vh and %, so a rotate or a resize can leave a logo
+  // outside it, or under the score and clock once they move. Those are put
+  // back; the rest are left exactly where they are.
+  //
+  // Moving every logo on every resize is what made this feel unstable. A phone
+  // fires resize continuously while the address bar slides in and out of view,
+  // so simply scrolling teleported everything on screen -- including whatever
+  // you were reaching for.
+  function tidyAfterResize() {
     if (state !== 'playing') return;
+    const fb = field.getBoundingClientRect();
+    const h = hud.getBoundingClientRect();
+    const pad = 10;
+
     live.forEach(function (l) {
+      const outside = l.x < 0 || l.y < 0 ||
+                      l.x + l.size > fb.width - pad + 1 ||
+                      l.y + l.size > fb.height - pad + 1;
+      const underHud = l.x < h.right - fb.left + 12 && l.x + l.size > h.left - fb.left - 12 &&
+                       l.y < h.bottom - fb.top + 12 && l.y + l.size > h.top - fb.top - 12;
+      if (!outside && !underHud) return;      // still fine where it is
+
       const at = place(l.size);
       l.x = at.x;
       l.y = at.y;
       l.el.style.left = Math.round(at.x) + 'px';
       l.el.style.top = Math.round(at.y) + 'px';
+    });
+  }
+
+  // Once per frame at most: resize fires far faster than it is worth reacting
+  // to, and reading getBoundingClientRect on every one of them is what turns a
+  // drag into jank.
+  let resizePending = 0;
+  window.addEventListener('resize', function () {
+    if (resizePending) return;
+    resizePending = window.requestAnimationFrame(function () {
+      resizePending = 0;
+      tidyAfterResize();
     });
   });
 
