@@ -4337,7 +4337,25 @@ body.tour-active { overflow: hidden; }
 
    Filtering is CSS off [data-filter] on the root; notebook-timeline.js only
    sets the attribute. */
-.nb { max-width: 62rem; margin: 0 auto 3.5rem; }
+/* Wider than the page's own container. The timeline is three columns of short
+   entries rather than prose, so it wants room; the paragraph above it stays at
+   46rem because a line of text 1200px long is miserable to read.
+
+   max() against 100% is what keeps this safe on a phone: there the container is
+   already the wider of the two and nothing moves. Above that the width breaks
+   out of the container, and left:50% with half of it back as a negative margin
+   re-centres it on the window rather than on the container it escaped.
+
+   The 4rem gutter is also what absorbs the scrollbar: 100vw counts it, the
+   space available does not, and 64px is comfortably more than any scrollbar. */
+.nb {
+  --nb-w: max(100%, min(100vw - 4rem, 88rem));
+  position: relative;
+  width: var(--nb-w);
+  max-width: none;
+  left: 50%;
+  margin: 0 0 3.5rem calc(var(--nb-w) / -2);
+}
 
 .nb-intro { max-width: 46rem; margin: 0 auto 2rem; text-align: center; }
 .nb-intro h2 { font-family: "Changa", sans-serif; color: #075a3e; }
