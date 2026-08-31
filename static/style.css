@@ -4321,3 +4321,263 @@ body.tour-active { overflow: hidden; }
 @media print {
   .cap-field { display: none; }
 }
+
+/* Notebook ----------------------------------------------------------------
+   A week-by-week timeline down a single spine. Each week is one node; the
+   entries inside it are tagged Wet Lab / Dry Lab / Human Practices and carry
+   their own accent colour, so a reader can follow one team down the page
+   without filtering at all.
+
+   The filtering is done here rather than in JavaScript: notebook-timeline.js
+   sets [data-filter] on the root and these two rules do the rest. That keeps
+   the page whole for a reader without scripts. */
+.nb { max-width: 62rem; margin: 0 auto 3.5rem; }
+
+.nb-intro { max-width: 46rem; margin: 0 auto 2rem; text-align: center; }
+.nb-intro h2 { font-family: "Changa", sans-serif; color: #075a3e; }
+.nb-intro p { color: #5c6b62; line-height: 1.7; }
+
+/* The three tracks. Tints back the cards and tags; accents are for the dots
+   and rules, which are UI rather than text and need 3:1, not 4.5:1. */
+.nb [data-track="wet"] { --nb-accent: #2f8f4e; --nb-tint: #e2f6e6; }
+.nb [data-track="dry"] { --nb-accent: #1f7f86; --nb-tint: #ddf3f0; }
+.nb [data-track="hp"]  { --nb-accent: #a06c12; --nb-tint: #fdf0d5; }
+
+/* ---- the tally across the top ---- */
+.nb-tally {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.nb-tally-tile {
+  background: var(--nb-tint);
+  border: 2px solid var(--nb-accent);
+  border-radius: 14px;
+  padding: 1rem 0.9rem;
+  text-align: center;
+}
+
+.nb-tally-n {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-size: 2.1rem;
+  line-height: 1.1;
+  color: #075a3e;
+}
+
+.nb-tally-label {
+  display: block;
+  font-size: 0.9rem;
+  color: #3d5147;
+}
+
+/* ---- the chips ---- */
+.nb-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.nb-chip {
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  /* 0.45rem top and bottom puts the box at 40px; the extra comes from the
+     min-height so a chip is never under the 24px pointer-target floor. */
+  padding: 0.45rem 1rem;
+  min-height: 40px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nb-chip:hover { background: #e9f5ee; }
+
+.nb-chip.is-current {
+  background: #075a3e;
+  color: #fffdf7;
+}
+
+.nb-chip:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+.nb-chip-n {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.nb-status {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #5c6b62;
+  min-height: 1.4rem;
+  margin-bottom: 1.75rem;
+}
+
+/* ---- the spine ---- */
+.nb-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+/* Centred on the 48px node: 24px in, less the 2px of its own width. */
+.nb-timeline::before {
+  content: "";
+  position: absolute;
+  left: 23px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: linear-gradient(#075a3e, rgba(7, 90, 62, 0.18));
+}
+
+.nb-week {
+  position: relative;
+  padding-left: 74px;
+  margin-bottom: 1.35rem;
+}
+
+.nb-node {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fffdf7;
+  border: 2px solid #075a3e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Changa", sans-serif;
+  font-size: 1.15rem;
+  color: #075a3e;
+}
+
+.nb-node-open { border-style: dashed; }
+
+.nb-card {
+  background: #fffdf7;
+  border: 2px solid rgba(7, 90, 62, 0.28);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+}
+
+.nb-week-title {
+  font-family: "Changa", sans-serif;
+  font-size: 1.2rem;
+  color: #075a3e;
+  margin: 0 0 0.65rem;
+}
+
+.nb-dates {
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #5c6b62;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+.nb-entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nb-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  background: var(--nb-tint);
+  border-left: 4px solid var(--nb-accent);
+  border-radius: 0 8px 8px 0;
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.nb-entry:last-child { margin-bottom: 0; }
+
+.nb-tag {
+  flex: 0 0 auto;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 1px solid var(--nb-accent);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  white-space: nowrap;
+}
+
+.nb-text {
+  flex: 1 1 14rem;
+  color: #24352c;
+  line-height: 1.6;
+}
+
+.nb-text a { color: #075a3e; text-decoration: underline; }
+.nb-text a:hover { color: #0a7a54; }
+
+/* A week the team left blank, and the stretch of season still ahead. Said
+   plainly rather than dressed up -- a gap in a notebook is information. */
+.nb-blank {
+  margin: 0;
+  color: #5c6b62;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.nb-week.is-blank .nb-card { border-style: dashed; background: transparent; }
+.nb-week.is-blank .nb-node { border-style: dashed; color: #5c6b62; }
+.nb-week-open .nb-card { border-style: dashed; }
+
+/* ---- filtering ---- */
+.nb[data-filter="wet"] .nb-week:not([data-tracks~="wet"]),
+.nb[data-filter="dry"] .nb-week:not([data-tracks~="dry"]),
+.nb[data-filter="hp"]  .nb-week:not([data-tracks~="hp"]) { display: none; }
+
+.nb[data-filter="wet"] .nb-entry:not([data-track="wet"]),
+.nb[data-filter="dry"] .nb-entry:not([data-track="dry"]),
+.nb[data-filter="hp"]  .nb-entry:not([data-track="hp"]) { display: none; }
+
+@media (max-width: 575.98px) {
+  .nb-timeline::before { left: 17px; }
+  .nb-week { padding-left: 54px; }
+  .nb-node { width: 36px; height: 36px; font-size: 0.95rem; }
+  .nb-card { padding: 0.85rem 0.9rem; }
+  .nb-week-title { font-size: 1.05rem; }
+  /* Below this the date would wrap under a one-word title and read as a
+     second heading; let it sit on its own line deliberately instead. */
+  .nb-dates { display: block; margin-left: 0; white-space: normal; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-chip { transition: none; }
+}
+
+/* On paper the chips do nothing, and a printed notebook should be the whole
+   notebook however the reader left the page. */
+@media print {
+  .nb-filter, .nb-status { display: none; }
+  /* Written at the same weight as the filter rules above, and after them, so
+     they lose: printing must not depend on which chip was last pressed. */
+  .nb[data-filter] .nb-week[data-tracks] { display: block; }
+  .nb[data-filter] .nb-entry[data-track] { display: flex; }
+  .nb-week { break-inside: avoid; }
+}
