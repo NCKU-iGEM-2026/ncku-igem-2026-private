@@ -4323,22 +4323,28 @@ body.tour-active { overflow: hidden; }
 }
 
 /* Notebook ----------------------------------------------------------------
-   A week-by-week timeline down a single spine. Each week is one node; the
-   entries inside it are tagged Wet Lab / Dry Lab / Human Practices and carry
-   their own accent colour, so a reader can follow one team down the page
-   without filtering at all.
+   A week-by-week timeline down a single spine. Every week is a <details>, shut
+   until it is asked for, showing only its number and its dates. Native rather
+   than scripted, for three reasons: it opens without JavaScript, Enter and
+   Space already work, and separate <details> elements do not close each other
+   -- opening a second week leaves the first open. Do not add a name attribute
+   to them; that would turn the timeline into an exclusive accordion.
 
-   The filtering is done here rather than in JavaScript: notebook-timeline.js
-   sets [data-filter] on the root and these two rules do the rest. That keeps
-   the page whole for a reader without scripts. */
+   Inside, the three parts of the team get a column each. Wet Lab is drawn on
+   every week even when it has nothing in it yet -- the team works every week
+   and the records are still coming -- so the columns per week are 1, 2 or 3
+   and 1fr keeps whichever are present the same width.
+
+   Filtering is CSS off [data-filter] on the root; notebook-timeline.js only
+   sets the attribute. */
 .nb { max-width: 62rem; margin: 0 auto 3.5rem; }
 
 .nb-intro { max-width: 46rem; margin: 0 auto 2rem; text-align: center; }
 .nb-intro h2 { font-family: "Changa", sans-serif; color: #075a3e; }
 .nb-intro p { color: #5c6b62; line-height: 1.7; }
 
-/* The three tracks. Tints back the cards and tags; accents are for the dots
-   and rules, which are UI rather than text and need 3:1, not 4.5:1. */
+/* The three tracks. Tints back the columns; accents are for rules and dots,
+   which are UI rather than text and need 3:1, not 4.5:1. */
 .nb [data-track="wet"] { --nb-accent: #2f8f4e; --nb-tint: #e2f6e6; }
 .nb [data-track="dry"] { --nb-accent: #1f7f86; --nb-tint: #ddf3f0; }
 .nb [data-track="hp"]  { --nb-accent: #a06c12; --nb-tint: #fdf0d5; }
@@ -4389,8 +4395,6 @@ body.tour-active { overflow: hidden; }
   background: #fffdf7;
   border: 2px solid #075a3e;
   border-radius: 999px;
-  /* 0.45rem top and bottom puts the box at 40px; the extra comes from the
-     min-height so a chip is never under the 24px pointer-target floor. */
   padding: 0.45rem 1rem;
   min-height: 40px;
   cursor: pointer;
@@ -4446,7 +4450,7 @@ body.tour-active { overflow: hidden; }
 .nb-week {
   position: relative;
   padding-left: 74px;
-  margin-bottom: 1.35rem;
+  margin-bottom: 0.85rem;
 }
 
 .nb-node {
@@ -4472,14 +4476,40 @@ body.tour-active { overflow: hidden; }
   background: #fffdf7;
   border: 2px solid rgba(7, 90, 62, 0.28);
   border-radius: 14px;
-  padding: 1rem 1.15rem;
+}
+
+.nb-card[open] { border-color: rgba(7, 90, 62, 0.55); }
+.nb-card-plain { padding: 1rem 1.15rem; }
+
+/* ---- the closed row ---- */
+.nb-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.15rem;
+  min-height: 52px;
+  cursor: pointer;
+  border-radius: 12px;
+  /* Both are needed to drop the disclosure triangle: ::marker for Firefox and
+     Chrome, the -webkit pseudo for Safari. */
+  list-style: none;
+}
+
+.nb-summary::-webkit-details-marker { display: none; }
+.nb-summary::marker { content: ""; }
+
+.nb-summary:hover { background: #f2f8f4; }
+
+.nb-summary:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: -3px;
 }
 
 .nb-week-title {
   font-family: "Changa", sans-serif;
   font-size: 1.2rem;
   color: #075a3e;
-  margin: 0 0 0.65rem;
+  margin: 0;
 }
 
 .nb-dates {
@@ -4487,8 +4517,39 @@ body.tour-active { overflow: hidden; }
   font-size: 0.85rem;
   font-weight: 400;
   color: #5c6b62;
-  margin-left: 0.5rem;
-  white-space: nowrap;
+}
+
+.nb-chevron {
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: #075a3e;
+  transition: transform 0.2s ease;
+}
+
+.nb-card[open] > .nb-summary .nb-chevron { transform: rotate(180deg); }
+
+/* ---- the three columns ---- */
+.nb-cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  gap: 0.75rem;
+  padding: 0 1.15rem 1.1rem;
+}
+
+.nb-col {
+  background: var(--nb-tint);
+  border-top: 4px solid var(--nb-accent);
+  border-radius: 4px 4px 10px 10px;
+  padding: 0.7rem 0.9rem 0.8rem;
+}
+
+.nb-col-head {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #075a3e;
+  margin: 0 0 0.5rem;
 }
 
 .nb-entries {
@@ -4498,44 +4559,33 @@ body.tour-active { overflow: hidden; }
 }
 
 .nb-entry {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem;
-  background: var(--nb-tint);
-  border-left: 4px solid var(--nb-accent);
-  border-radius: 0 8px 8px 0;
-  padding: 0.55rem 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.nb-entry:last-child { margin-bottom: 0; }
-
-.nb-tag {
-  flex: 0 0 auto;
-  font-family: "Changa", sans-serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #075a3e;
-  background: #fffdf7;
-  border: 1px solid var(--nb-accent);
-  border-radius: 999px;
-  padding: 0.1rem 0.55rem;
-  white-space: nowrap;
-}
-
-.nb-text {
-  flex: 1 1 14rem;
+  position: relative;
+  padding-left: 0.95rem;
+  margin-bottom: 0.55rem;
   color: #24352c;
   line-height: 1.6;
 }
 
-.nb-text a { color: #075a3e; text-decoration: underline; }
-.nb-text a:hover { color: #0a7a54; }
+.nb-entry:last-child { margin-bottom: 0; }
 
-/* A week the team left blank, and the stretch of season still ahead. Said
-   plainly rather than dressed up -- a gap in a notebook is information. */
+.nb-entry::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  /* 0.8em down puts the dot on the first line's middle, not its top. */
+  top: 0.8em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--nb-accent);
+}
+
+.nb-entry a { color: #075a3e; text-decoration: underline; }
+.nb-entry a:hover { color: #0a7a54; }
+
+/* A column held open for records the team has not handed over yet, and the
+   stretch of season still ahead. Both said plainly rather than dressed up. */
+.nb-pending,
 .nb-blank {
   margin: 0;
   color: #5c6b62;
@@ -4543,7 +4593,18 @@ body.tour-active { overflow: hidden; }
   line-height: 1.6;
 }
 
-.nb-week.is-blank .nb-card { border-style: dashed; background: transparent; }
+/* A held-open column is drawn as an empty outline rather than a filled panel
+   with a heavy dashed cap: it should read as a space kept for something, not
+   as a column of its own. */
+.nb-col.is-pending {
+  background: transparent;
+  border: 2px dashed var(--nb-accent);
+  border-radius: 10px;
+  padding: 0.72rem 0.9rem 0.8rem;
+}
+
+/* Weeks where none of the three recorded anything. */
+.nb-week.is-blank > .nb-card { border-style: dashed; }
 .nb-week.is-blank .nb-node { border-style: dashed; color: #5c6b62; }
 .nb-week-open .nb-card { border-style: dashed; }
 
@@ -4552,32 +4613,40 @@ body.tour-active { overflow: hidden; }
 .nb[data-filter="dry"] .nb-week:not([data-tracks~="dry"]),
 .nb[data-filter="hp"]  .nb-week:not([data-tracks~="hp"]) { display: none; }
 
-.nb[data-filter="wet"] .nb-entry:not([data-track="wet"]),
-.nb[data-filter="dry"] .nb-entry:not([data-track="dry"]),
-.nb[data-filter="hp"]  .nb-entry:not([data-track="hp"]) { display: none; }
+.nb[data-filter="wet"] .nb-col:not([data-track="wet"]),
+.nb[data-filter="dry"] .nb-col:not([data-track="dry"]),
+.nb[data-filter="hp"]  .nb-col:not([data-track="hp"]) { display: none; }
 
 @media (max-width: 575.98px) {
   .nb-timeline::before { left: 17px; }
   .nb-week { padding-left: 54px; }
   .nb-node { width: 36px; height: 36px; font-size: 0.95rem; }
-  .nb-card { padding: 0.85rem 0.9rem; }
+  .nb-summary { padding: 0.7rem 0.85rem; }
+  .nb-cols { padding: 0 0.85rem 0.9rem; }
   .nb-week-title { font-size: 1.05rem; }
-  /* Below this the date would wrap under a one-word title and read as a
-     second heading; let it sit on its own line deliberately instead. */
-  .nb-dates { display: block; margin-left: 0; white-space: normal; }
+  /* Week and chevron on the first line, dates on their own underneath: at
+     320px "Week 10  31 May - 6 June  v" does not fit on one row. The order
+     properties are what put the chevron before the dates -- without them the
+     full-width dates would wrap first and push the chevron onto a third line. */
+  .nb-summary { flex-wrap: wrap; row-gap: 0.15rem; }
+  .nb-week-title { order: 1; }
+  .nb-chevron { order: 2; }
+  .nb-dates { order: 3; flex: 1 0 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nb-chip { transition: none; }
+  .nb-chip, .nb-chevron { transition: none; }
 }
 
-/* On paper the chips do nothing, and a printed notebook should be the whole
-   notebook however the reader left the page. */
+/* On paper the chips do nothing and a shut week would print as a bare line, so
+   notebook-timeline.js opens every week before printing and puts them back
+   afterwards. These rules are written at the same weight as the filter rules
+   above, and after them, so a printed notebook is the whole notebook however
+   the reader left the page. */
 @media print {
-  .nb-filter, .nb-status { display: none; }
-  /* Written at the same weight as the filter rules above, and after them, so
-     they lose: printing must not depend on which chip was last pressed. */
+  .nb-filter, .nb-status, .nb-chevron { display: none; }
   .nb[data-filter] .nb-week[data-tracks] { display: block; }
-  .nb[data-filter] .nb-entry[data-track] { display: flex; }
+  .nb[data-filter] .nb-col[data-track] { display: block; }
   .nb-week { break-inside: avoid; }
+  .nb-summary { cursor: auto; }
 }

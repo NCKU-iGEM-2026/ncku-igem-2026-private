@@ -3,6 +3,9 @@
   // The hiding itself is CSS off [data-filter] on the root, so this file only
   // sets an attribute -- and the whole record stays readable with JavaScript
   // switched off, which is why the chip bar starts hidden in the markup.
+  //
+  // The weeks themselves are native <details>; opening and closing them is the
+  // browser's job, not this file's.
   var root = document.getElementById('notebook');
   if (!root) return;
 
@@ -24,19 +27,20 @@
       c.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
 
-    // Count what is left rather than trusting the numbers written into the
-    // chips: those are maintained by hand as entries are added, and this line
-    // is what a screen reader hears.
-    // The trailing "week 18 onwards" node is always on screen and is not a
-    // week that has been through yet, so it is left out of both totals.
+    // Count what the filter left rather than trusting the numbers on the chips.
+    // Visibility is read off the week, never off the entries: a shut week
+    // renders nothing inside it, so counting rendered entries would report
+    // zero for a page the reader has simply not opened yet.
+    //
+    // The trailing "week 18 onwards" node is always on screen and has not been
+    // through yet, so it is left out of both totals.
     var weeks = root.querySelectorAll('.nb-week:not(.nb-week-open)');
     var shown = 0, entries = 0;
+    var sel = track === 'all' ? '.nb-entry' : '.nb-entry[data-track="' + track + '"]';
     Array.prototype.forEach.call(weeks, function (w) {
-      if (w.offsetParent === null) return;
+      if (getComputedStyle(w).display === 'none') return;
       shown++;
-      Array.prototype.forEach.call(w.querySelectorAll('.nb-entry'), function (e) {
-        if (e.offsetParent !== null) entries++;
-      });
+      entries += w.querySelectorAll(sel).length;
     });
 
     status.textContent = track === 'all'
@@ -48,6 +52,19 @@
     c.addEventListener('click', function () {
       apply(c.getAttribute('data-track'));
     });
+  });
+
+  // A shut week prints as a bare line. Open them all for the printer and put
+  // them back as they were, so printing does not disturb the reader's page.
+  var reopened = [];
+  window.addEventListener('beforeprint', function () {
+    reopened = Array.prototype.filter.call(
+      root.querySelectorAll('details.nb-card'), function (d) { return !d.open; });
+    reopened.forEach(function (d) { d.open = true; });
+  });
+  window.addEventListener('afterprint', function () {
+    reopened.forEach(function (d) { d.open = false; });
+    reopened = [];
   });
 
   bar.hidden = false;
