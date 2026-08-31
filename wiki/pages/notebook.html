@@ -154,7 +154,7 @@
 
 {% set TRACKS = [("wet", "Wet Lab"), ("dry", "Dry Lab"), ("hp", "Human Practices")] %}
 
-<div class="nb" id="notebook" data-filter="all">
+<div class="nb" id="notebook" data-hidden="">
 
   <section class="nb-intro">
     <h2>How the season ran</h2>
@@ -167,26 +167,19 @@
     </p>
   </section>
 
-  <!-- What each part of the team has on record so far. -->
-  <div class="nb-tally">
-    {% for key, label in TRACKS %}
-    <div class="nb-tally-tile" data-track="{{ key }}">
-      <span class="nb-tally-n">{{ c[key] }}</span>
-      <span class="nb-tally-label">{{ label }} milestones</span>
-    </div>
-    {% endfor %}
-  </div>
+  <!-- What each part of the team has on record, and the filter: they were the
+       same three facts said twice, as a tile and again as a chip.
 
-  <!-- Revealed by notebook-timeline.js: without scripts the record is still
-       whole and every week still opens, so a dead chip bar would be worse
-       than none. -->
-  <div class="nb-filter" id="nbFilter" role="group" aria-label="Show one part of the team" hidden>
-    <button type="button" class="nb-chip is-current" data-track="all" aria-pressed="true">
-      All three <span class="nb-chip-n">{{ c.wet + c.dry + c.hp }}</span>
-    </button>
+       All three start on; selecting one hides that team, selecting it again
+       brings it back. They are disabled here and enabled by
+       notebook-timeline.js, so a reader without JavaScript gets three plain
+       counts rather than three buttons that do nothing. That is also why the
+       disabled state is styled to look live rather than greyed out. -->
+  <div class="nb-toggles" id="nbToggles" role="group" aria-label="Show or hide each part of the team">
     {% for key, label in TRACKS %}
-    <button type="button" class="nb-chip" data-track="{{ key }}" aria-pressed="false">
-      {{ label }} <span class="nb-chip-n">{{ c[key] }}</span>
+    <button type="button" class="nb-toggle" data-track="{{ key }}" disabled>
+      <span class="nb-toggle-n">{{ c[key] }}</span>
+      <span class="nb-toggle-label">{{ label }} milestones</span>
     </button>
     {% endfor %}
   </div>

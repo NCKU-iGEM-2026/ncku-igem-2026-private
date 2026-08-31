@@ -4379,23 +4379,42 @@ body.tour-active { overflow: hidden; }
 .nb [data-track="dry"] { --nb-accent: #a5540c; --nb-tint: #f9d4ac; }
 .nb [data-track="hp"]  { --nb-accent: #a83a68; --nb-tint: #f8cfdf; }
 
-/* ---- the tally across the top ---- */
-.nb-tally {
+/* ---- the counts, which are also the filter ---- */
+/* They used to be a tile reading "3 Wet Lab milestones" with a chip reading
+   "Wet Lab 3" underneath it -- the same three facts twice. One control now.
+   All three start on; selecting one hides that team, selecting it again brings
+   it back, and they are independent of each other.
+
+   The markup ships them disabled and the script enables them, so without
+   JavaScript they are three plain counts rather than three dead buttons. That
+   is why :disabled below keeps the live look instead of greying out. */
+.nb-toggles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.9rem;
 }
 
-.nb-tally-tile {
+.nb-toggle {
+  font: inherit;
   background: var(--nb-tint);
   border: 2px solid var(--nb-accent);
   border-radius: 14px;
   padding: 1rem 0.9rem;
   text-align: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.nb-tally-n {
+.nb-toggle:disabled { cursor: default; opacity: 1; }
+.nb-toggle:not(:disabled):hover { filter: brightness(0.96); }
+
+.nb-toggle:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+.nb-toggle-n {
   display: block;
   font-family: "Changa", sans-serif;
   font-size: 2.7rem;
@@ -4403,58 +4422,32 @@ body.tour-active { overflow: hidden; }
   color: #075a3e;
 }
 
-.nb-tally-label {
+.nb-toggle-label {
   display: block;
   font-size: 1.1rem;
   color: #3d5147;
 }
 
-/* ---- the chips ---- */
-.nb-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: 0.75rem;
+/* Off: the fill drains away and the border goes dashed. The text is recoloured
+   rather than faded -- dropping the opacity would take it under AA, and the
+   count is the thing a reader still wants to be able to read. */
+.nb-toggle.is-off {
+  background: transparent;
+  border-color: rgba(7, 90, 62, 0.3);
+  border-style: dashed;
 }
 
-.nb-chip {
-  font-family: "Changa", sans-serif;
-  font-size: 1.15rem;
-  color: #075a3e;
-  background: #fffdf7;
-  border: 2px solid #075a3e;
-  border-radius: 999px;
-  padding: 0.45rem 1rem;
-  min-height: 40px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
+.nb-toggle.is-off .nb-toggle-n,
+.nb-toggle.is-off .nb-toggle-label { color: #5c6b62; }
 
-.nb-chip:hover { background: #e9f5ee; }
-
-.nb-chip.is-current {
-  background: #075a3e;
-  color: #fffdf7;
-}
-
-.nb-chip:focus-visible {
-  outline: 3px solid #d8b26a;
-  outline-offset: 2px;
-}
-
-.nb-chip-n {
-  display: inline-block;
-  margin-left: 0.35rem;
-  font-size: 0.85em;
-  opacity: 0.75;
-}
-
+/* What the current selection adds up to, announced to a screen reader as it
+   changes. Reserves its line so the timeline does not jump when the wording
+   grows or shrinks. */
 .nb-status {
   text-align: center;
   font-size: 1.08rem;
   color: #5c6b62;
-  min-height: 1.4rem;
+  min-height: 1.5rem;
   margin-bottom: 1.75rem;
 }
 
@@ -4658,14 +4651,25 @@ body.tour-active { overflow: hidden; }
 .nb-week.is-blank .nb-node { border-color: rgba(7, 90, 62, 0.45); }
 .nb-week-open .nb-card { border-style: dashed; }
 
-/* ---- filtering ---- */
-.nb[data-filter="wet"] .nb-week:not([data-tracks~="wet"]),
-.nb[data-filter="dry"] .nb-week:not([data-tracks~="dry"]),
-.nb[data-filter="hp"]  .nb-week:not([data-tracks~="hp"]) { display: none; }
+/* ---- filtering ----
+   data-hidden lists the teams currently switched off, so a column goes when
+   its own team is in that list. */
+.nb[data-hidden~="wet"] .nb-col[data-track="wet"],
+.nb[data-hidden~="dry"] .nb-col[data-track="dry"],
+.nb[data-hidden~="hp"]  .nb-col[data-track="hp"] { display: none; }
 
-.nb[data-filter="wet"] .nb-col:not([data-track="wet"]),
-.nb[data-filter="dry"] .nb-col:not([data-track="dry"]),
-.nb[data-filter="hp"]  .nb-col:not([data-track="hp"]) { display: none; }
+/* A week goes only when every team it has is switched off, which is one rule
+   per subset of the three. Written out in full rather than trimmed to the ones
+   today's data can reach: three of these match nothing at the moment, because
+   every week carries Wet Lab, and they would be needed the moment that stops
+   being true. */
+.nb[data-hidden~="wet"] .nb-week:not([data-tracks~="dry"]):not([data-tracks~="hp"]),
+.nb[data-hidden~="dry"] .nb-week:not([data-tracks~="wet"]):not([data-tracks~="hp"]),
+.nb[data-hidden~="hp"]  .nb-week:not([data-tracks~="wet"]):not([data-tracks~="dry"]),
+.nb[data-hidden~="wet"][data-hidden~="dry"] .nb-week:not([data-tracks~="hp"]),
+.nb[data-hidden~="wet"][data-hidden~="hp"]  .nb-week:not([data-tracks~="dry"]),
+.nb[data-hidden~="dry"][data-hidden~="hp"]  .nb-week:not([data-tracks~="wet"]),
+.nb[data-hidden~="wet"][data-hidden~="dry"][data-hidden~="hp"] .nb-week { display: none; }
 
 @media (max-width: 575.98px) {
   /* Spine centre moves to 18px, so the dot's left is 18 - 8. */
@@ -4683,18 +4687,16 @@ body.tour-active { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nb-chip, .nb-chevron { transition: none; }
+  .nb-toggle, .nb-chevron { transition: none; }
 }
 
-/* On paper the chips do nothing and a shut week would print as a bare line, so
-   notebook-timeline.js opens every week before printing and puts them back
-   afterwards. These rules are written at the same weight as the filter rules
-   above, and after them, so a printed notebook is the whole notebook however
-   the reader left the page. */
+/* On paper every week is open and every team is shown, however the reader left
+   the page. Both are done in the script rather than here: it opens the weeks
+   and clears data-hidden before printing and restores them afterwards, which is
+   cleaner than out-weighing seven filter rules from inside a media block. */
 @media print {
-  .nb-filter, .nb-status, .nb-chevron { display: none; }
-  .nb[data-filter] .nb-week[data-tracks] { display: block; }
-  .nb[data-filter] .nb-col[data-track] { display: block; }
+  .nb-chevron { display: none; }
+  .nb-toggle { border-style: solid; }
   .nb-week { break-inside: avoid; }
   .nb-summary { cursor: auto; }
 }
