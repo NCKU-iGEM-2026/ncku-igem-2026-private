@@ -1,16 +1,253 @@
-{% extends "layout.html" %} {% block title %}Notebook{% endblock %} {% block lead %}A week-by-week record of the 2026 season{% endblock %} {% block page_content %} {# === 給團隊的說明，發布前請讀 === 1. 【要新增紀錄，只改下面那張 weeks 表】 每一週是一列，wet / dry / hp 各是一個字串清單。要加一條 milestone，就在對應 的清單裡加一行字串，其他什麼都不用動 —— 欄位會自己出現、上面的統計數字會自己 重算、篩選按鈕的數字也會自己跟著改。不必再手動同步任何數字。 2. 【Wet Lab 每週都保留欄位】 即使某一週的 wet 是空的，那一週還是會畫出 Wet Lab 欄，顯示 "Records to come." 資料拿到後直接填進該週的 "wet": [...]，placeholder 會自動消失。 3. 【這次更新：改用完整版 timeline PDF，不是只有文字擷取】 上一版是用 PDF 的純文字擷取結果整理的，欄位被擠壓，漏掉了大量 wet lab 和 hp 的內容（尤其 week 2–17 的 wet lab 幾乎整批不見、week 4/11–17 的 hp 也只剩一兩 條）。這次改成把 PDF 每一頁都轉成圖片、對著表格逐格核對後重新謄寫，48 條變成 71 條。原本的 33 條裡也有一條位置錯了：「STEM science camp」原本被放進 week 4 的 hp，但 PDF 上它其實是 week 5 wet lab 的一部分（「arrange experiment for STEM science camp」剛好被分頁切開），這次已經搬回正確的欄位；week 4 真正 的 hp（兩場工作坊 + 一次系上交流）補回去了。 現在 0–18 週每一週都至少有一條紀錄，沒有任何一週三欄同時空白。 英文只整理了時態與文法，意思沒有改，請自己再校對一次；另外兩處我看不準， 照抄了但想跟你們確認： - week 5 wet lab 第一條，PDF 原文被分頁切成「arrange experiment for」+ 下一頁開頭的「STEM science camp」，我合併成一條，但沒辦法確定中間有沒有 漏字。 - week 17 wet lab 寫的是「Swimming assay」，和 week 12 的「Swarming Assay」 只差一個字母 —— 有可能其中一個是打字誤植，我沒有擅自改，兩條都照 PDF 原樣留著。 沒有替任何一週補內容；PDF 上真的空白的欄位還是空的。 4. 【展開/收合】 用原生的
-，所以沒有 JavaScript 也能點開，鍵盤 Enter/Space 也能操作。每一週各自獨立 —— 打開一週不會把別週收起來（沒有加 name 屬性， 加了就會變成互斥手風琴，請不要加）。 5. 【文字裡的連結】 milestone 字串是用 |safe 輸出的，所以裡面可以直接寫 HTML（連結就是這樣加的）。 這是靜態站、作者只有你們自己，沒有外部輸入，所以 safe 是安全的；但也就是說 字串裡的 HTML 要自己寫對，寫壞了不會有人幫你擋。 連結請用最上面那幾個 lnk_* 變數，不要自己寫死網址。 這次只保留原本就有連結的幾條（Mingdao、Lund、NYCU meetup、board game、 NCKU workshop、Little Sun Project）。新補進來的 STEAM from Seed 各場營隊、 跟老師個別的交流，我沒有幫它們加連結 —— 不確定 Education / Collaboration 頁面有沒有對應到這麼細的內容，怕連錯，先留白文字，要加的話麻煩你們自己判斷。 6. 【Wet Lab 現況】 這次補回去之後，wet lab 其實從 week 0 到 week 10、以及 week 12、week 17， 每週都有紀錄；真正是空的只剩 week 11、13、14、15、16、18。要看這是「濕組 那幾週剛好沒有可回報的進度」還是「資料還沒交」，麻煩濕組自己確認一下。 7. PDF 上寫「jason 會幫忙寫程式、建 dev、跟 merge」—— 那是分工說明，不是某一週的 milestone，所以沒有放進時間軸。要記錄的話比較適合放 Attributions。 #} {# Links used inside the entry text below. Built once here so the week table stays readable and still goes through url_for. #} {% set lnk_board = 'board game' %} {% set lnk_collab = 'Collaboration' %} {% set lnk_edu = 'Education' %} {# ======================= the record, one row per week ======================= #} {% set weeks = [ { "n": "0", "dates": "before May", "wet": ["Researched and brainstormed possible project topics.", "Met our PIs."], "dry": ["Case study."], "hp": ["Wrote a news script for the NCKU News Agency.", "Communicated with Dr. 廖信閔 (NCKU Division of Chest Medicine) about clinical experience (4/10)."] }, { "n": "1", "dates": "5/3~5/9", "wet": ["Basic lab skills.", "Underwent lab training."], "dry": ["Designed hardware prototype 1.", "Modelling to convert fluorescent protein signals into accurate numerical values."], "hp": ["Started managing our social media."] }, { "n": "2", "dates": "5/10~5/16", "wet": ["Discussed the realistic operation of our project.", "Finished lab training."], "dry": [], "hp": ["Discussed the project topic and its name."] }, { "n": "3", "dates": "5/17~5/23", "wet": ["Designed the engineering flow and experiment.", "Designed the plasmid, including a detecting system."], "dry": ["Completed the build of hardware prototype 1."], "hp": ["Met with STEAM from Seed and discussed the education camp."] }, { "n": "4", "dates": "5/24~5/30", "wet": ["Ordered materials.", "Coordinated with Dry Lab and modified the hardware design."], "dry": ["Designed hardware prototype 2, taking precision and labour cost into account."], "hp": ["Held a workshop, “3D玩家出任務,” at Xihu Senior High School (5/24).", "Held a workshop, “The Ultimate Code of Life,” at Puyan Elementary School (5/25).", "Communicated with 謝淑珠 (NCKU Dept. of Medical Laboratory Science and Biotechnology) about our ideas (5/27)."] }, { "n": "5", "dates": "5/31~6/6", "wet": ["Arranged the experiment for the STEM science camp.", "Ordered the synthetic aptamer (ssDNA) for the inhibition test."], "dry": [], "hp": [] }, { "n": "6", "dates": "6/7~6/13", "wet": ["Met with a professor specialising in oligonucleotides and aptamers."], "dry": ["Developed image analysis software, later discontinued after a change of approach."], "hp": [] }, { "n": "7", "dates": "6/14~6/20", "wet": ["Cloned the detecting system into E. coli TOP10 and DH5α.", "Ran a biofilm-inhibition CV staining assay."], "dry": [], "hp": [] }, { "n": "8", "dates": "6/21~6/27", "wet": ["Verified the cloning result.", "Ran SDS-PAGE on the detecting bacteria.", "Ordered the Ec67 system plasmid.", "Ran an agar diffusion assay."], "dry": [], "hp": [] }, { "n": "9", "dates": "6/28~7/4", "wet": ["Tested whether the detecting system works using P. aeruginosa supernatant.", "Cloned the Ec67-Cb2 system into E. coli TOP10."], "dry": ["Started building the wiki."], "hp": [] }, { "n": "10", "dates": "7/5~7/11", "wet": ["Cocultured P. aeruginosa and the detecting E. coli.", "Cloned the Ec67-Cb2 system into E. coli TOP10."], "dry": ["Recorded the deployment and launch of the web tool together with the software.", "Ran the aptamer variant binding-strength prediction process."], "hp": ["Communicated with the Mingdao iGEM team — see " ~ lnk_collab ~ "."] }, { "n": "11", "dates": "7/12~7/18", "wet": [], "dry": ["ESP32 data reception and front-end display integration.", "Finished the analysis software; no data had been received at that point."], "hp": ["Designed an SDGs-themed " ~ lnk_board ~ ".", "Held a camp with STEAM from Seed at Xigang Elementary School (7/13–14).", "Held a camp with STEAM from Seed at Dujia Elementary School (7/15–16)."] }, { "n": "12", "dates": "7/19~7/25", "wet": ["Ran a swarming assay."], "dry": ["Completed the 3D model of prototype 2."], "hp": ["Produced the SDGs-themed " ~ lnk_board ~ " as a physical set.", "Held a camp with STEAM from Seed at Xigang Elementary School again (7/20–21).", "Communicated and collaborated with the Lund University (Sweden) iGEM team.", "Held a camp with STEAM from Seed at Huanya Elementary School (7/22–23)."] }, { "n": "13", "dates": "7/26~8/1", "wet": [], "dry": [], "hp": ["Took part in the iGEMers Meetup hosted by the NYCU-Taiwan iGEM team — see " ~ lnk_collab ~ ".", "Held a camp with STEAM from Seed at Zhaigang Elementary School (7/30–31)."] }, { "n": "14", "dates": "8/2~8/8", "wet": [], "dry": ["Modularised the software’s functions.", "Gave the SDGs " ~ lnk_board ~ " AI opponents, so it can be played against other players.", "Designed the final hardware, CAPTURE, and completed its prototype."], "hp": ["NCKU iGEM workshop, 2–3 August — see " ~ lnk_edu ~ ".", "Little Sun Project, 5 August — see " ~ lnk_edu ~ ".", "Held a camp with STEAM from Seed at Heshun Elementary School (8/6–7)."] }, { "n": "15", "dates": "8/9~8/15", "wet": [], "dry": ["Integrated hardware and software, sending readings to the backend over the network.", "Refined the hardware using 3D modelling."], "hp": ["Held a camp with STEAM from Seed at Annei Elementary School (8/10–11).", "Held a camp with STEAM from Seed at Heshun Elementary School again (8/13–14)."] }, { "n": "16", "dates": "8/16~8/22", "wet": [], "dry": ["Manufactured a rigid outer shell as a light shield, needed because the instrument is a precision one."], "hp": ["Held a camp with STEAM from Seed at Zhuqiao Elementary School (8/17–18).", "Held a camp with STEAM from Seed at Sanci Elementary School (8/20–21)."] }, { "n": "17", "dates": "8/23~8/29", "wet": ["Ran a swimming assay."], "dry": ["Assembled the hardware, instrument section only.", "Confirmed the hardware’s energy measurement data."], "hp": [] }, { "n": "18", "dates": "8/30~9/5", "wet": [], "dry": [], "hp": ["Promoted the project at the NCKU Undergraduate Research presentation."] } ] %} {# Totals, counted from the table rather than written by hand. #} {% set c = namespace(wet=0, dry=0, hp=0) %} {% for w in weeks %} {% set c.wet = c.wet + w.wet|length %} {% set c.dry = c.dry + w.dry|length %} {% set c.hp = c.hp + w.hp|length %} {% endfor %} {% set TRACKS = [("wet", "Wet Lab"), ("dry", "Dry Lab"), ("hp", "Human Practices")] %}
-How the season ran
-This is our working record for the 2026 season. Select a week to open it; inside, the three parts of the team — Wet Lab, Dry Lab and Human Practices — are kept in their own columns. Weeks with nothing under them are weeks where no milestone was recorded; we have left the gaps in place rather than closing them, so the record reads as it happened.
+{% extends "layout.html" %}
 
-{% for key, label in TRACKS %} {{ c[key] }} {{ label }} milestones {% endfor %}
-{% for w in weeks %} {# Wet Lab is listed on every week whether or not it has entries yet, so the wet filter never hides a week -- see note 2 at the top. #} {% set tracks = ['wet'] + (['dry'] if w.dry else []) + (['hp'] if w.hp else []) %}
-{# A plain marker on the spine. The week number is in the summary right next to it, so putting it in here as well only said it twice. #}
-Week {{ w.n }}
-({{ w.dates|safe }}) 
+{% block title %}Notebook{% endblock %}
+{% block lead %}A week-by-week record of the 2026 season{% endblock %}
+
+{% block page_content %}
+
+{# Links used inside the entry text below. Built once here so the week table
+   stays readable and still goes through url_for. #}
+{% set lnk_board = '<a href="' ~ url_for('pages', page='board-game') ~ '">board game</a>' %}
+{% set lnk_collab = '<a href="' ~ url_for('pages', page='collaboration') ~ '">Collaboration</a>' %}
+{% set lnk_edu = '<a href="' ~ url_for('pages', page='education') ~ '">Education</a>' %}
+
+{# ======================= the record, one row per week ======================= #}
+{% set weeks = [
+  { "n": "0", "dates": "before May",
+    "wet": ["Researched and brainstormed possible project topics.",
+            "Met our PIs."],
+    "dry": ["Case study."],
+    "hp":  ["Wrote a news script for the NCKU News Agency.",
+            "Communicated with Dr. 廖信閔 (NCKU Division of Chest Medicine) about clinical experience (4/10)."] },
+
+  { "n": "1", "dates": "5/3~5/9",
+    "wet": ["Basic lab skills.",
+            "Underwent lab training."],
+    "dry": ["Designed hardware prototype 1.",
+            "Modelling to convert fluorescent protein signals into accurate numerical values."],
+    "hp":  ["Started managing our social media."] },
+
+  { "n": "2", "dates": "5/10~5/16",
+    "wet": ["Discussed the realistic operation of our project.",
+            "Finished lab training."],
+    "dry": [],
+    "hp":  ["Discussed the project topic and its name."] },
+
+  { "n": "3", "dates": "5/17~5/23",
+    "wet": ["Designed the engineering flow and experiment.",
+            "Designed the plasmid, including a detecting system."],
+    "dry": ["Completed the build of hardware prototype 1."],
+    "hp":  ["Met with STEAM from Seed and discussed the education camp."] },
+
+  { "n": "4", "dates": "5/24~5/30",
+    "wet": ["Ordered materials.",
+            "Coordinated with Dry Lab and modified the hardware design."],
+    "dry": ["Designed hardware prototype 2, taking precision and labour cost into account."],
+    "hp":  ["Held a workshop, &ldquo;3D玩家出任務,&rdquo; at Xihu Senior High School (5/24).",
+            "Held a workshop, &ldquo;The Ultimate Code of Life,&rdquo; at Puyan Elementary School (5/25).",
+            "Communicated with 謝淑珠 (NCKU Dept. of Medical Laboratory Science and Biotechnology) about our ideas (5/27)."] },
+
+  { "n": "5", "dates": "5/31~6/6",
+    "wet": ["Arranged the experiment for the STEM science camp.",
+            "Ordered the synthetic aptamer (ssDNA) for the inhibition test."],
+    "dry": [],
+    "hp":  [] },
+
+  { "n": "6", "dates": "6/7~6/13",
+    "wet": ["Met with a professor specialising in oligonucleotides and aptamers."],
+    "dry": ["Developed image analysis software, later discontinued after a change of approach."],
+    "hp":  [] },
+
+  { "n": "7", "dates": "6/14~6/20",
+    "wet": ["Cloned the detecting system into <em>E. coli</em> TOP10 and DH5&alpha;.",
+            "Ran a biofilm-inhibition CV staining assay."],
+    "dry": [],
+    "hp":  [] },
+
+  { "n": "8", "dates": "6/21~6/27",
+    "wet": ["Verified the cloning result.",
+            "Ran SDS-PAGE on the detecting bacteria.",
+            "Ordered the Ec67 system plasmid.",
+            "Ran an agar diffusion assay."],
+    "dry": [],
+    "hp":  [] },
+
+  { "n": "9", "dates": "6/28~7/4",
+    "wet": ["Tested whether the detecting system works using <em>P. aeruginosa</em> supernatant.",
+            "Cloned the Ec67-Cb2 system into <em>E. coli</em> TOP10."],
+    "dry": ["Started building the wiki."],
+    "hp":  [] },
+
+  { "n": "10", "dates": "7/5~7/11",
+    "wet": ["Cocultured <em>P. aeruginosa</em> and the detecting <em>E. coli</em>.",
+            "Cloned the Ec67-Cb2 system into <em>E. coli</em> TOP10."],
+    "dry": ["Recorded the deployment and launch of the web tool together with the software.",
+            "Ran the aptamer variant binding-strength prediction process."],
+    "hp":  ["Communicated with the Mingdao iGEM team &mdash; see " ~ lnk_collab ~ "."] },
+
+  { "n": "11", "dates": "7/12~7/18",
+    "wet": [],
+    "dry": ["ESP32 data reception and front-end display integration.",
+            "Finished the analysis software; no data had been received at that point."],
+    "hp":  ["Designed an SDGs-themed " ~ lnk_board ~ ".",
+            "Held a camp with STEAM from Seed at Xigang Elementary School (7/13&ndash;14).",
+            "Held a camp with STEAM from Seed at Dujia Elementary School (7/15&ndash;16)."] },
+
+  { "n": "12", "dates": "7/19~7/25",
+    "wet": ["Ran a swarming assay."],
+    "dry": ["Completed the 3D model of prototype 2."],
+    "hp":  ["Produced the SDGs-themed " ~ lnk_board ~ " as a physical set.",
+            "Held a camp with STEAM from Seed at Xigang Elementary School again (7/20&ndash;21).",
+            "Communicated and collaborated with the Lund University (Sweden) iGEM team.",
+            "Held a camp with STEAM from Seed at Huanya Elementary School (7/22&ndash;23)."] },
+
+  { "n": "13", "dates": "7/26~8/1",
+    "wet": [],
+    "dry": [],
+    "hp":  ["Took part in the iGEMers Meetup hosted by the NYCU-Taiwan iGEM team &mdash; see " ~ lnk_collab ~ ".",
+            "Held a camp with STEAM from Seed at Zhaigang Elementary School (7/30&ndash;31)."] },
+
+  { "n": "14", "dates": "8/2~8/8",
+    "wet": [],
+    "dry": ["Modularised the software&rsquo;s functions.",
+            "Gave the SDGs " ~ lnk_board ~ " AI opponents, so it can be played against other players.",
+            "Designed the final hardware, CAPTURE, and completed its prototype."],
+    "hp":  ["NCKU iGEM workshop, 2&ndash;3 August &mdash; see " ~ lnk_edu ~ ".",
+            "Little Sun Project, 5 August &mdash; see " ~ lnk_edu ~ ".",
+            "Held a camp with STEAM from Seed at Heshun Elementary School (8/6&ndash;7)."] },
+
+  { "n": "15", "dates": "8/9~8/15",
+    "wet": [],
+    "dry": ["Integrated hardware and software, sending readings to the backend over the network.",
+            "Refined the hardware using 3D modelling."],
+    "hp":  ["Held a camp with STEAM from Seed at Annei Elementary School (8/10&ndash;11).",
+            "Held a camp with STEAM from Seed at Heshun Elementary School again (8/13&ndash;14)."] },
+
+  { "n": "16", "dates": "8/16~8/22",
+    "wet": [],
+    "dry": ["Manufactured a rigid outer shell as a light shield, needed because the instrument is a precision one."],
+    "hp":  ["Held a camp with STEAM from Seed at Zhuqiao Elementary School (8/17&ndash;18).",
+            "Held a camp with STEAM from Seed at Sanci Elementary School (8/20&ndash;21)."] },
+
+  { "n": "17", "dates": "8/23~8/29",
+    "wet": ["Ran a swimming assay."],
+    "dry": ["Assembled the hardware, instrument section only.",
+            "Confirmed the hardware&rsquo;s energy measurement data."],
+    "hp":  [] },
+
+  { "n": "18", "dates": "8/30~9/5",
+    "wet": [],
+    "dry": [],
+    "hp":  ["Promoted the project at the NCKU Undergraduate Research presentation."] }
+] %}
+
+{# Totals, counted from the table rather than written by hand. #}
+{% set c = namespace(wet=0, dry=0, hp=0) %}
+{% for w in weeks %}
+  {% set c.wet = c.wet + w.wet|length %}
+  {% set c.dry = c.dry + w.dry|length %}
+  {% set c.hp = c.hp + w.hp|length %}
 {% endfor %}
-{# The clock that used to sit here needed a 48px node to be legible; at dot size it read as a smudge. The card says the season is running. #}
-Week 19 onwards (9/6~)
-The season is still running. Later weeks go here as they happen.
 
-{% endblock %} {% block extra_scripts %} {% endblock %}
+{% set TRACKS = [("wet", "Wet Lab"), ("dry", "Dry Lab"), ("hp", "Human Practices")] %}
+
+<div class="nb" id="notebook" data-hidden="">
+
+  <section class="nb-intro">
+    <h2>How the season ran</h2>
+    <p>
+      This is our working record for the 2026 season. Select a week to open it;
+      inside, the three parts of the team &mdash; Wet Lab, Dry Lab and Human
+      Practices &mdash; are kept in their own columns. Weeks with nothing under
+      them are weeks where no milestone was recorded; we have left the gaps in
+      place rather than closing them, so the record reads as it happened.
+    </p>
+  </section>
+
+  <!-- What each part of the team has on record, and the filter: they were the
+       same three facts said twice, as a tile and again as a chip.
+
+       All three start on; selecting one hides that team, selecting it again
+       brings it back. They are disabled here and enabled by
+       notebook-timeline.js, so a reader without JavaScript gets three plain
+       counts rather than three buttons that do nothing. That is also why the
+       disabled state is styled to look live rather than greyed out. -->
+  <div class="nb-toggles" id="nbToggles" role="group" aria-label="Show or hide each part of the team">
+    {% for key, label in TRACKS %}
+    <button type="button" class="nb-toggle" data-track="{{ key }}" disabled>
+      <span class="nb-toggle-n">{{ c[key] }}</span>
+      <span class="nb-toggle-label">{{ label }} milestones</span>
+    </button>
+    {% endfor %}
+  </div>
+
+  <p class="nb-status" id="nbStatus" role="status" aria-live="polite"></p>
+
+  <ol class="nb-timeline">
+
+    {% for w in weeks %}
+    {#  Wet Lab is listed on every week whether or not it has entries yet, so
+        switching Wet Lab off never hides a week -- see note 2 at the top. #}
+    {% set tracks = ['wet'] + (['dry'] if w.dry else []) + (['hp'] if w.hp else []) %}
+    <li class="nb-week{{ ' is-blank' if not (w.wet or w.dry or w.hp) }}" data-tracks="{{ tracks|join(' ') }}">
+      {# A plain marker on the spine. The week number is in the summary right
+         next to it, so putting it in here as well only said it twice. #}
+      <div class="nb-node" aria-hidden="true"></div>
+
+      <details class="nb-card">
+        <summary class="nb-summary">
+          <h3 class="nb-week-title">Week {{ w.n }}</h3>
+          <span class="nb-dates">({{ w.dates|safe }})</span>
+          <svg class="nb-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+               viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m4 6 4 4 4-4"/>
+          </svg>
+        </summary>
+
+        <div class="nb-cols">
+          {% for key, label in TRACKS %}
+          {% if w[key] or key == 'wet' %}
+          <section class="nb-col{{ ' is-pending' if not w[key] }}" data-track="{{ key }}">
+            <h4 class="nb-col-head">{{ label }}</h4>
+            {% if w[key] %}
+            <ul class="nb-entries">
+              {% for item in w[key] %}
+              <li class="nb-entry" data-track="{{ key }}">{{ item|safe }}</li>
+              {% endfor %}
+            </ul>
+            {% else %}
+            <p class="nb-pending">Records to come.</p>
+            {% endif %}
+          </section>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </details>
+    </li>
+    {% endfor %}
+
+    <!-- ====================== the rest of the season ======================
+         Not a week that came up empty -- a week that has not happened yet. It
+         carries all three tracks so it stays on screen whichever team is
+         switched off: every part of the team still has this stretch ahead. -->
+    <li class="nb-week nb-week-open" data-tracks="wet dry hp">
+      {# The clock that used to sit here needed a 48px node to be legible; at
+         dot size it read as a smudge. The card says the season is running. #}
+      <div class="nb-node nb-node-open" aria-hidden="true"></div>
+      <div class="nb-card nb-card-plain">
+        <h3 class="nb-week-title">Week 19 onwards <span class="nb-dates">(9/6~)</span></h3>
+        <p class="nb-blank">
+          The season is still running. Later weeks go here as they happen.
+        </p>
+      </div>
+    </li>
+
+  </ol>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename = 'notebook-timeline.js') }}"></script>
+{% endblock %}
