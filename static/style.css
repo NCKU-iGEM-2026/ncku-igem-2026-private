@@ -1416,16 +1416,20 @@ footer a:hover { color: white; text-decoration: underline; }
   position: absolute;
   z-index: 6;
   pointer-events: none;
-  max-width: 190px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: #075a3e;
-  color: #fffdf7;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 260px;
+  padding: 0.6rem;
+  border-radius: 10px;
+  background: #fffdf7;
+  border: 1px solid #d8b26a;
+  color: #2b1e17;
   font-family: "Changa", sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   line-height: 1.3;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
   opacity: 0;
   visibility: hidden;
   transform: translateY(3px);
@@ -1438,14 +1442,34 @@ footer a:hover { color: white; text-decoration: underline; }
   transform: translateY(0);
 }
 
-.edu-map-tip-title { display: block; font-weight: 700; }
+.edu-map-tip-photo {
+  flex: 0 0 auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.edu-map-tip-body {
+  min-width: 0;
+}
+
+.edu-map-tip-title { display: block; font-weight: 700; color: #2b1e17; }
 
 .edu-map-tip-city {
   display: block;
-  margin-top: 2px;
+  margin-top: 3px;
   font-weight: 400;
-  font-size: 0.72rem;
-  color: #cdeadd;
+  font-size: 0.75rem;
+  color: #6b6055;
+}
+
+.edu-map-tip-date {
+  display: block;
+  margin-top: 1px;
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: #6b6055;
 }
 
 /* Little pointer, flipped when the tip has to sit below its target. */
@@ -1455,7 +1479,7 @@ footer a:hover { color: white; text-decoration: underline; }
   left: 50%;
   margin-left: -5px;
   border: 5px solid transparent;
-  border-top-color: #075a3e;
+  border-top-color: #d8b26a;
   top: 100%;
 }
 
@@ -1463,7 +1487,7 @@ footer a:hover { color: white; text-decoration: underline; }
   top: auto;
   bottom: 100%;
   border-top-color: transparent;
-  border-bottom-color: #075a3e;
+  border-bottom-color: #d8b26a;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1746,6 +1770,105 @@ footer a:hover { color: white; text-decoration: underline; }
 @media (max-width: 600px) {
   .edu-gallery img {
     height: 240px;
+  }
+}
+
+.edu-gallery-zoomable {
+  cursor: zoom-in;
+  transition: transform 0.15s ease;
+}
+
+.edu-gallery-zoomable:hover {
+  transform: scale(1.03);
+}
+
+/* ===== Education: photo lightbox ===== */
+.edu-lightbox {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 15, 10, 0.9);
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.edu-lightbox.is-open {
+  display: flex;
+}
+
+body.edu-lightbox-locked {
+  overflow: hidden;
+}
+
+.edu-lightbox-img {
+  max-width: 90vw;
+  max-height: 80vh;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.edu-lightbox-close,
+.edu-lightbox-prev,
+.edu-lightbox-next {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background-color 0.15s ease;
+}
+
+.edu-lightbox-close:hover,
+.edu-lightbox-prev:hover,
+.edu-lightbox-next:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.edu-lightbox-close {
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.edu-lightbox-prev,
+.edu-lightbox-next {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.1rem;
+}
+
+.edu-lightbox-prev { left: 1rem; }
+.edu-lightbox-next { right: 1rem; }
+
+.edu-lightbox-count {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .edu-lightbox { padding: 1rem; }
+  .edu-lightbox-prev, .edu-lightbox-next {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 0.95rem;
+  }
+  .edu-lightbox-close {
+    top: 0.75rem;
+    right: 0.75rem;
   }
 }
 
