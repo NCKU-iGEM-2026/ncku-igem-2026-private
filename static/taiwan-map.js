@@ -41,8 +41,13 @@
   ];
 
   // 圖釘要顯示的學校名稱直接讀它連到的那一段的標題，不另外抄一份，
-  // 以後改標題名稱時提示框會跟著改，不會兩邊對不起來。
+  // 以後改標題名稱時提示框會跟著改，不會兩邊對不起來。少數幾支圖釘（像
+  // 展心底下那些國小）共用同一個 section，標題讀到的會是整個 section 的
+  // 大標題而不是個別學校，這種情況才需要 data-title 覆蓋掉。
   function schoolNameFor(pin) {
+    var override = pin.getAttribute('data-title');
+    if (override) return override;
+
     var href = pin.getAttribute('href') || '';
     if (href.charAt(0) !== '#') return '';
     var section = document.getElementById(href.slice(1));
@@ -257,11 +262,17 @@
     tip.className = 'edu-map-tip';
     tip.setAttribute('role', 'status');
     tip.setAttribute('aria-live', 'polite');
-    tip.innerHTML = '<span class="edu-map-tip-title"></span>' +
-                    '<span class="edu-map-tip-city"></span>';
+    tip.innerHTML = '<img class="edu-map-tip-photo" alt="">' +
+                    '<span class="edu-map-tip-body">' +
+                    '<span class="edu-map-tip-title"></span>' +
+                    '<span class="edu-map-tip-city"></span>' +
+                    '<span class="edu-map-tip-date"></span>' +
+                    '</span>';
     container.appendChild(tip);
+    var tipPhoto = tip.querySelector('.edu-map-tip-photo');
     var tipTitle = tip.querySelector('.edu-map-tip-title');
     var tipCity = tip.querySelector('.edu-map-tip-city');
+    var tipDate = tip.querySelector('.edu-map-tip-date');
     var activePin = null;
 
     function hideTip() {
@@ -270,10 +281,14 @@
 
     // x, y are in container pixels; the tip is centred on them and clamped so
     // it never hangs off the map and widens the page.
-    function showTip(title, city, x, y) {
+    function showTip(title, city, date, photo, x, y) {
       tipTitle.textContent = title || '';
       tipCity.textContent = city || '';
       tipCity.style.display = city ? '' : 'none';
+      tipDate.innerHTML = date || '';
+      tipDate.style.display = date ? '' : 'none';
+      tipPhoto.style.display = photo ? '' : 'none';
+      if (photo) tipPhoto.src = photo;
       tip.classList.add('is-visible');
 
       var cw = container.clientWidth;
@@ -299,7 +314,7 @@
         activePin = pin;
         // translate(-50%,-50%) centres the pin on its left/top, so that IS its
         // centre; its visible top edge is half a pin above.
-        showTip(school, city, pin.offsetLeft, pin.offsetTop - pin.offsetHeight / 2);
+        showTip(school, city, pin.getAttribute('data-date'), pin.getAttribute('data-photo'), pin.offsetLeft, pin.offsetTop - pin.offsetHeight / 2);
       }
       function hide() {
         if (activePin === pin) activePin = null;
@@ -326,7 +341,7 @@
         var name = countyLabel(el.getAttribute('data-county'));
         if (!name) return;
         mapRect = container.getBoundingClientRect();
-        showTip(name, '', ev.clientX - mapRect.left, ev.clientY - mapRect.top);
+        showTip(name, '', '', '', ev.clientX - mapRect.left, ev.clientY - mapRect.top);
       });
     });
 
