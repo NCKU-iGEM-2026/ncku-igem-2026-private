@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+
+{% block title %}Online Game{% endblock %}
+{% block lead %}Capture — try your best and catch as many logos as you can{% endblock %}
+
+{% block page_content %}
+
+{#
+
+#}
+
+<div class="cap-page">
+
+  <section class="cap-intro">
+    <p>
+      Our project is about <em>capture</em>: something that has to find its
+      target and hold on to it before the moment passes. This is that idea
+      turned into a minute of play, and nothing more &mdash; it is here for
+      outreach and for fun, and it is not a model of our system or a
+      representation of any result.
+    </p>
+    
+  </section>
+
+  <!--
+    One component, three states, switched by data-state on .cap-game: idle
+    shows the difficulty panel, playing shows the field, over shows the result.
+    The score and clock sit in the top-right corner of the field throughout.
+  -->
+  <div class="cap-game" data-state="idle">
+
+    <div class="cap-field">
+
+      <div class="cap-hud">
+        <p class="cap-pill"><span class="cap-pill-key">Score</span>
+          <span class="cap-score-value">0</span></p>
+        <p class="cap-pill"><span class="cap-pill-key">Time</span>
+          <span class="cap-time-value">60</span><span class="cap-unit">s</span></p>
+      </div>
+
+      <!-- Before the round: pick a difficulty and start. -->
+      <div class="cap-panel cap-panel-start">
+        <h2>Choose a difficulty</h2>
+        <fieldset class="cap-levels">
+
+          <label class="cap-level">
+            <input type="radio" name="cap-level" value="easy">
+            <span class="cap-level-box">
+              <span class="cap-level-name">Easy</span>
+            </span>
+          </label>
+
+          <label class="cap-level">
+            <input type="radio" name="cap-level" value="medium" checked>
+            <span class="cap-level-box">
+              <span class="cap-level-name">Medium</span>
+            </span>
+          </label>
+
+          <label class="cap-level">
+            <input type="radio" name="cap-level" value="hard">
+            <span class="cap-level-box">
+              <span class="cap-level-name">Hard</span>
+            </span>
+          </label>
+        </fieldset>
+
+        <button type="button" class="cap-btn cap-start">Start &mdash; 60 seconds</button>
+        <p class="cap-note">One point per catch. The round ends when the clock does.</p>
+      </div>
+
+      <!-- After the round. -->
+      <div class="cap-panel cap-panel-end" role="dialog" aria-modal="true"
+           aria-labelledby="cap-end-title">
+        <h2 id="cap-end-title">Time up</h2>
+        <p class="cap-final">
+          <span class="cap-final-score">0</span>
+          <span class="cap-final-unit">caught</span>
+        </p>
+        <p class="cap-final-meta">on <span class="cap-final-level">Medium</span></p>
+        <div class="cap-actions">
+          <button type="button" class="cap-btn cap-replay">Replay</button>
+          <button type="button" class="cap-btn cap-btn-quiet cap-change">Change difficulty</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Only the final score is announced; a score read out once a second for
+         a minute would be unusable. -->
+    <p class="cap-live visually-hidden" role="status" aria-live="polite"></p>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename = 'capture-game.js') }}"></script>
+{% endblock %}

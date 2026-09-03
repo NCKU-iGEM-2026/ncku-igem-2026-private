@@ -2,6 +2,27 @@
 var GOAL = 3; // track runs -2..GOAL
 var HAND_LIMIT = 5;
 
+/* Dealing to a human. Their hand is the part of the game they actually touch,
+   so it gets two nudges a bot does not:
+     GOAL_BIAS       how often the deal skips past cards that do nothing for
+                     them, to the next one they can use
+     GOAL_LOOKAHEAD  how far down the deck that look goes -- kept short, so it
+                     stays luck leaning their way rather than a search
+     SPECIAL_PITY    and a function card is never more than this many apart,
+                     as long as one is still in the deck to deal
+
+   These are deliberately moderate. The deck is one shared pile, so every card
+   steered to a human is one a bot does not get: at a bias of 0.75 the bots end
+   up holding almost no function cards (3.5% against the deck's natural 17%),
+   which is not a better game for anyone. At 0.45 a human sees roughly twice
+   the useful cards a bot does and the bots still get a playable hand.
+
+   Both only reorder what was already coming. No card is invented, and a bot
+   always takes whatever is on top. */
+var GOAL_BIAS = 0.45;
+var GOAL_LOOKAHEAD = 8;
+var SPECIAL_PITY = 10;
+
 /* ========== i18n ========== */
 var translations = {
   zh: {
@@ -1333,7 +1354,7 @@ document.getElementById("btnLobbyStart").onclick = function() {
   if (roster.length < 4) return;
 
   state.players = roster.map(function(r) {
-    return { name: r.name, isAI: false, difficulty: "basic", sdgs: [], hand: [], sanctioned: false, capacityNext: false };
+    return { name: r.name, isAI: false, difficulty: "basic", sdgs: [], hand: [], sanctioned: false, capacityNext: false, sinceSpecial: 0 };
   });
   state.isGameOver = false;
   clearAllTimers();
@@ -1636,7 +1657,7 @@ function startDraft() {
   }
   state.players = names.map(function(n, i) {
     var isAI = types[i] !== "human";
-    return { name: n, isAI: isAI, difficulty: isAI ? types[i] : "basic", sdgs: [], hand: [], sanctioned: false, capacityNext: false };
+    return { name: n, isAI: isAI, difficulty: isAI ? types[i] : "basic", sdgs: [], hand: [], sanctioned: false, capacityNext: false, sinceSpecial: 0 };
   });
   state.isGameOver = false;
   clearAllTimers();
@@ -1923,6 +1944,47 @@ function confirmDraftPick(ids) {
   if (state.draftCurrentPlayer >= state.players.length) { startGame(); return; }
   renderDraft();
 }
+/* How the deck actually treats each goal: event cards that push it forward,
+   less those that push it back. Counted once off the card table, so it stays
+   true if the cards change. */
+var sdgScoreCache = null;
+function sdgScores() {
+  if (sdgScoreCache) return sdgScoreCache;
+  var out = {};
+  for (var i = 1; i <= 17; i++) out[i] = 0;
+  eventCards.forEach(function(c) {
+    (c.forward || []).forEach(function(id) { if (out[id] !== undefined) out[id]++; });
+    (c.backward || []).forEach(function(id) { if (out[id] !== undefined) out[id]--; });
+  });
+  sdgScoreCache = out;
+  return out;
+}
+
+/* Two goals, drawn without replacement, weighted towards the ones the deck
+   favours. `sharpness` is how hard the bot leans that way.
+
+   Picking by score alone is what made every basic and advance bot open with
+   SDG 9 and SDG 8 in every single game: sorting all seventeen by distance
+   from 9 is a total order, so the top two never moved. */
+function pickGoalsWeighted(avail, sharpness) {
+  var score = sdgScores();
+  var pool = avail.slice();
+  var out = [];
+  while (out.length < 2 && pool.length) {
+    var weights = pool.map(function(id) {
+      // net score runs about +2..+6; the offset keeps the weakest goal in play
+      return Math.pow(Math.max(1, (score[id] || 0) + 4), sharpness);
+    });
+    var total = 0;
+    weights.forEach(function(w) { total += w; });
+    var r = Math.random() * total;
+    var k = 0;
+    while (k < weights.length - 1 && r > weights[k]) { r -= weights[k]; k++; }
+    out.push(pool.splice(k, 1)[0]);
+  }
+  return out;
+}
+
 function aiDraftPick() {
   if (state.isGameOver) return;
   var p = state.players[state.draftCurrentPlayer];
@@ -1933,7 +1995,7 @@ function aiDraftPick() {
   }
   var picks;
   if (p.difficulty === "easy") picks = shuffle(avail.slice()).slice(0, 2);
-  else picks = avail.slice().sort(function(a,b){ return Math.abs(a-9)-Math.abs(b-9); }).slice(0, 2);
+  else picks = pickGoalsWeighted(avail, p.difficulty === "advance" ? 3 : 1.5);
   if (picks.length < 2) picks = shuffle(avail.slice()).slice(0, 2);
   state.draftSelected = picks;
   renderDraft();
@@ -1973,8 +2035,8 @@ function startGame() {
   state.discard = [];
   state.players.forEach(function(p) {
     for (var i = 0; i < HAND_LIMIT; i++) {
-      if (!state.deck.length) reshuffle();
-      if (state.deck.length) p.hand.push(state.deck.pop());
+      var dealt = drawCardFor(p);
+      if (dealt) p.hand.push(dealt);
     }
   });
   state.currentPlayer = 0;
@@ -1992,6 +2054,57 @@ function startGame() {
   updateUI();
   maybeTriggerAI();
 }
+/* Does this card move one of this player's own goals forward? */
+function advancesOwnGoal(card, p) {
+  if (!card || card.kind !== "event") return false;
+  var f = card.forward || [];
+  for (var i = 0; i < (p.sdgs || []).length; i++) {
+    if (f.indexOf(p.sdgs[i].id) !== -1) return true;
+  }
+  return false;
+}
+
+/* A card this player can do something with: one that moves a goal of theirs,
+   or a function card. Looking for goal cards alone made it worse, not better
+   -- events got pulled out from in front of the function cards and a human
+   ended up with fewer of those than a bot. */
+function isInteresting(card, p) {
+  return card.kind === "special" || advancesOwnGoal(card, p);
+}
+
+/* Index of the first card from the top matching `match`, looking at most
+   `depth` cards down. The top of the deck is the last entry in the array. */
+function findFromTop(match, depth) {
+  var stop = Math.max(0, state.deck.length - depth);
+  for (var i = state.deck.length - 1; i >= stop; i--) {
+    if (match(state.deck[i])) return i;
+  }
+  return -1;
+}
+
+/* Deal one card. Bots take the top of the deck; a human gets the nudges
+   described at GOAL_BIAS. */
+function drawCardFor(p) {
+  if (!state.deck.length) reshuffle();
+  if (!state.deck.length) return null;
+
+  var idx = state.deck.length - 1;
+  if (p && !p.isAI) {
+    var found = -1;
+    if ((p.sinceSpecial || 0) >= SPECIAL_PITY - 1) {
+      // The promise is "at least one in ten", so this one searches the whole
+      // deck rather than a window -- otherwise it would not be a promise.
+      found = findFromTop(function(c) { return c.kind === "special"; }, state.deck.length);
+    } else if (Math.random() < GOAL_BIAS) {
+      found = findFromTop(function(c) { return isInteresting(c, p); }, GOAL_LOOKAHEAD);
+    }
+    if (found !== -1) idx = found;
+  }
+  var card = state.deck.splice(idx, 1)[0];
+  if (p) p.sinceSpecial = card.kind === "special" ? 0 : (p.sinceSpecial || 0) + 1;
+  return card;
+}
+
 function reshuffle() {
   if (!state.discard.length) return;
   state.deck = state.discard.splice(0);
@@ -2306,9 +2419,9 @@ function doDrawPhase() {
   if (p.capacityNext) { need += 1; p.capacityNext = false; state.capacityActive = true; }
   var drawn = [];
   for (var i = 0; i < need; i++) {
-    if (!state.deck.length) reshuffle();
-    if (!state.deck.length) break;
-    drawn.push(state.deck.pop());
+    var got = drawCardFor(p);
+    if (!got) break;
+    drawn.push(got);
   }
   if (state.capacityActive && drawn.length) {
     state.capacityActive = false;
