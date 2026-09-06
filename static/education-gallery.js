@@ -8,7 +8,7 @@
   // switches the stylesheet over. If this file fails to load, the page keeps
   // the scrolling rail and every photo is still reachable.
 
-  var DELAY = 2500;          // what the team asked for: a photo every 2.5s
+  var DELAY = 2000;          // what the team asked for: a photo every 2s
   var galleries = Array.prototype.slice.call(document.querySelectorAll('.edu-gallery'));
   if (!galleries.length) return;
 
