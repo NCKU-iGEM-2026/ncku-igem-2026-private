@@ -1,10 +1,171 @@
 {% extends "layout.html" %}
-  
+
 {% block title %}Software{% endblock %}
-{# subtitle, not published -- replace with a real one when there is one:
-   Chun加油 #}
-{% block lead %}{% endblock %}
+{% block lead %}An interim note on where our software stands: the acquisition path is working, the analysis toolchain is still being built{% endblock %}
 
 {% block page_content %}
+
+{#
+  === 給團隊的說明，發布前請讀 ===
+
+  1. 這一頁刻意「很短」。GY-302 telemetry link 是階段性、暫時性的功能，
+     不是軟體的最終成果，所以只留一小節，而且開頭就把 interim 講明。
+     等 dose-response 分析定稿再把它寫成這頁的主體，那時 GY-302 這節
+     可以縮得更短或整個移到 Hardware 頁。不要現在先替 dose-response 佔位。
+
+  2. 頁面上的數字（500 ms / 3 s / 2 s / 50 lux）都是從 igem-software repo
+     的實作抄的：firmware/gy302_esp32/gy302_esp32.ino、
+     backend/app/hardware_gy302/router.py、frontend/js/hardware_gy302.js。
+     改程式請回來一起改，不要讓兩邊對不起來。
+
+  3. 【重要】不要在這頁加 fetch() 去打 Render 後端做即時圖表：
+     (a) iGEM 規定 wiki 載入的資源必須來自 iGEM 伺服器；
+     (b) 後端 CORS_ORIGINS 目前只放行 igem-ncku-software.github.io 和 localhost。
+     Availability 的連結是「連出去」不是「載進來」，這個沒問題，也刻意寫明了。
+
+  4. 截圖 placeholder 一個，要放 live readout 畫面。
+     圖片一律用 iGEM uploads tool 上傳到 static.igem.wiki，不可連 GitHub 或本機路徑。
+
+  5. 這頁 CSS 全部 scoped 在下面的 <style>（.sw- 前綴），沒有動 static/style.css。
+#}
+
+<style>
+  .sw { --sw-ink: #3d3229; --sw-ink2: #5c4e42; --sw-muted: #8a7a6a;
+        --sw-rule: #e3dcd0; --sw-paper: #fdfbf7; --sw-paper2: #f4efe6;
+        --sw-accent: #c9a227; }
+
+  .sw { max-width: 46rem; }
+  .sw section { margin-bottom: 2.5rem; }
+  .sw h2 { font-size: 1.35rem; font-weight: 700; color: var(--sw-ink);
+           margin-bottom: .9rem; padding-bottom: .45rem;
+           border-bottom: 2px solid var(--sw-rule); }
+  .sw p, .sw li { color: var(--sw-ink2); line-height: 1.75; }
+  .sw li { margin-bottom: .45rem; }
+  .sw code { background: var(--sw-paper2); color: var(--sw-ink);
+             padding: .1em .35em; border-radius: 3px; font-size: .9em; }
+
+  .sw-interim { background: var(--sw-paper); border: 1px solid var(--sw-rule);
+                border-left: 4px solid var(--sw-accent); border-radius: 4px;
+                padding: 1.1rem 1.25rem; margin-bottom: 2.5rem; }
+  .sw-interim p:last-child { margin-bottom: 0; }
+  .sw-interim-tag { display: inline-block; font-size: .75rem; font-weight: 700;
+                    letter-spacing: .08em; text-transform: uppercase;
+                    color: #8a6d12; margin-bottom: .5rem; }
+
+  .sw-flow { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+             margin: 1.4rem 0; }
+  .sw-flow-node { border: 1.5px solid #b3a695; border-radius: 4px;
+                  background: var(--sw-paper); color: var(--sw-ink);
+                  padding: .4rem .75rem; font-size: .875rem; font-weight: 600; }
+  .sw-flow-arrow { color: var(--sw-muted); font-size: 1.05rem; }
+
+  .sw-links { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.1rem 0; }
+  .sw-link { display: inline-block; padding: .55rem 1.05rem;
+             border: 1.5px solid var(--sw-ink2); border-radius: 4px;
+             color: var(--sw-ink); text-decoration: none; font-weight: 600;
+             transition: background .15s, color .15s; }
+  .sw-link:hover, .sw-link:focus { background: var(--sw-ink); color: #fdfbf7; }
+
+  .sw-placeholder { border: 1px dashed #c4b8a8; border-radius: 4px;
+                    background: var(--sw-paper2); color: var(--sw-muted);
+                    padding: 1.25rem 1rem; text-align: center; font-size: .875rem;
+                    margin: 1.4rem 0; }
+
+  .sw-fine { font-size: .9rem; color: var(--sw-muted); }
+</style>
+
+<div class="container my-4 sw">
+
+  <!-- ===================== interim notice ===================== -->
+  <div class="sw-interim">
+    <span class="sw-interim-tag">Interim &middot; work in progress</span>
+    <p>
+      This page records a <strong>temporary capability</strong>, not our
+      finished software. The telemetry link described below was built to prove
+      that a reading can travel from a sensor to a browser, and it will be
+      superseded once the tool it was preparing for is ready.
+    </p>
+    <p class="mb-0">
+      Our main effort is a dose&ndash;response analysis service for plate-reader
+      exports. It is under active revision and is deliberately not described
+      here yet: we would rather document it once its behaviour is settled than
+      publish an account we would have to correct.
+    </p>
+  </div>
+
+  <!-- ===================== the interim capability ===================== -->
+  <section>
+    <h2>The GY-302 telemetry link</h2>
+
+    <p>
+      The GY-302 is a breakout board for the BH1750FVI, an ambient-light sensor
+      that reports illuminance directly in lux over I&sup2;C. It measures
+      nothing biological, and that is why it was chosen: because its output
+      needs no interpretation, it lets the <em>transport</em> be tested on its
+      own terms, with any failure attributable to the path rather than to the
+      measurement.
+    </p>
+
+    <div class="sw-flow" role="img"
+         aria-label="Four-stage flow: a GY-302 sensor feeds an ESP32 microcontroller, which uploads to a FastAPI service, which is read by a browser readout.">
+      <span class="sw-flow-node">GY-302 sensor</span>
+      <span class="sw-flow-arrow" aria-hidden="true">&rarr;</span>
+      <span class="sw-flow-node">ESP32</span>
+      <span class="sw-flow-arrow" aria-hidden="true">&rarr;</span>
+      <span class="sw-flow-node">FastAPI service</span>
+      <span class="sw-flow-arrow" aria-hidden="true">&rarr;</span>
+      <span class="sw-flow-node">Browser readout</span>
+    </div>
+
+    <p>
+      The device samples every 500&nbsp;ms and uploads the most recent value
+      every 3&nbsp;s; the browser polls for it every 2&nbsp;s and plots a
+      rolling window of the last 30 readings. An indicator LED is driven below
+      50&nbsp;lux from the device's own reading rather than from a server
+      response, so it keeps working when the network does not.
+    </p>
+
+    <!-- SCREENSHOT: live readout 畫面（折線圖 + lux 數值 + Live badge）。
+         用 iGEM uploads tool 上傳到 static.igem.wiki 後換掉下面這個 placeholder。 -->
+    <div class="sw-placeholder">
+      Screenshot of the live readout &mdash; to be added
+    </div>
+
+    <p>
+      Its limits follow from its purpose. The service holds a single reading in
+      memory, so there is no history, no support for more than one device, and
+      no authentication on the upload. The sensor has not been calibrated
+      against a reference photometer, so its readings are not quantitative.
+      None of this is a defect to be fixed in place &mdash; it is the scope we
+      chose for a stepping stone.
+    </p>
+  </section>
+
+  <!-- ===================== availability ===================== -->
+  <section>
+    <h2>Source and demonstration</h2>
+
+    <p>
+      All of our software is developed in the open, in a repository separate
+      from this wiki, and released under the MIT License.
+    </p>
+
+    <div class="sw-links">
+      <a class="sw-link" href="https://igem-ncku-software.github.io/igem-software/hardware.html"
+         target="_blank" rel="noopener">Live readout</a>
+      <a class="sw-link" href="https://github.com/igem-ncku-software/igem-software"
+         target="_blank" rel="noopener">Source repository</a>
+    </div>
+
+    <p class="sw-fine">
+      Both are hosted outside iGEM infrastructure and are linked, not embedded:
+      this page loads nothing from either of them and reads the same whether or
+      not they are reachable. The live copy runs on a free hosting tier that
+      suspends when idle, so the first request after a pause can take up to a
+      minute.
+    </p>
+  </section>
+
+</div>
 
 {% endblock %}
