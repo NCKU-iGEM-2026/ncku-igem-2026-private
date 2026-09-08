@@ -179,12 +179,21 @@ body.show-back-to-top .back-to-top {
 }
 
 /* Ink for the bright green bar. The site's usual #075a3e reads at only
-   3.57:1 against it and white at 2.32:1, so both the resting and the hover
-   colour move darker instead. Hover also underlines, so the state is not
-   signalled by colour alone. */
+   3.57:1 against it, so the resting colour moves darker instead. */
 .navbar-nav .nav-link { font-family: "Changa", sans-serif; font-size: 1.3rem; color: #05442e; transition: color 0.15s ease; }
 .navbar-nav .nav-link:hover,
-.navbar-nav .nav-link:focus { color: #062a1c; text-decoration: underline; }
+.navbar-nav .nav-link:focus { color: #fff6b7; }
+
+/* Bootstrap's caret is a static triangle; spin it half a turn on hover so a
+   dropdown toggle gives the same kind of feedback the link's colour change
+   already does. */
+.navbar-nav .dropdown-toggle::after {
+  transition: transform 0.2s ease;
+}
+.navbar-nav .dropdown-toggle:hover::after,
+.navbar-nav .dropdown:hover .dropdown-toggle::after {
+  transform: rotate(180deg);
+}
 
 /* Bootstrap paints the burger white, which is 2.3:1 on the green bar -- under
    the 3:1 a control has to meet. Redraw it in the same ink as the links. The
@@ -232,15 +241,14 @@ body.show-back-to-top .back-to-top {
    No backdrop-filter here: this menu opens right over the navbar bar, which
    already has its own backdrop-filter. Safari corrupts two overlapping
    blurred layers into blotchy colour (a WebKit bug, not a z-index/layering
-   mistake on our end) -- so this panel is solid enough to read on its own
-   without stacking a second blur on top of the navbar's. */
+   mistake on our end) -- so translucency here comes from a plain
+   semi-transparent white instead of stacking a second blur on top of the
+   navbar's. */
 .navbar .dropdown-menu {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 12px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 8px 24px rgba(5, 68, 46, 0.18);
+  box-shadow: 0 4px 12px rgba(5, 68, 46, 0.1);
 }
 
 .dropdown-item {
@@ -249,12 +257,11 @@ body.show-back-to-top .back-to-top {
 }
 
 /* The hover state used to repeat the resting colours exactly, so hovering a
-   menu item gave no feedback at all. Darken the ink and underline it. */
+   menu item gave no feedback at all. */
 .dropdown-item:hover,
 .dropdown-item:focus {
-  background-color: rgba(96, 192, 40, 0.18);
-  color: #062a1c;
-  text-decoration: underline;
+  background-color: rgba(255, 246, 183, 0.8);
+  color: #05442e;
 }
 /* The bright brand green was introduced for the top bar. The footer wears the
    same Bootstrap .bg-dark class, so a bare override turned it green too and
@@ -262,13 +269,11 @@ body.show-back-to-top .back-to-top {
    have to read -- from 8.3:1 to 2.3:1. Scope the green to the bar and leave
    the footer on the deep green it was designed against. */
 .navbar.bg-dark {
-  background: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.4) !important;
   backdrop-filter: blur(24px) saturate(200%);
   -webkit-backdrop-filter: blur(24px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 8px 28px rgba(5, 68, 46, 0.18);
+  box-shadow: 0 4px 12px rgba(5, 68, 46, 0.1);
 }
 footer.bg-dark { background-color: #075a3e !important; }
 
@@ -287,60 +292,33 @@ footer.bg-dark { background-color: #075a3e !important; }
   padding-top: calc(3rem + 88px) !important;
 }
 
-/* Team page: full-bleed photo hero instead of the flat yellow band, with the
-   floating glass navbar sitting on top of it. Reaches up behind the navbar's
-   reserved gap the same way .bg-hero does. */
-.team-hero {
+/* Every page's default banner: same flat yellow band as .bg-hero, sized the
+   same way, just with a banner photo (blurred) behind a translucent wash of
+   the same yellow instead of a solid colour -- keeps the title/subtitle
+   contrast .hero-title/.hero-sub were tuned for, whatever the photo looks
+   like. The image itself comes from layout.html's {% block hero_image %},
+   which any page can override to swap in its own photo. */
+.page-hero {
   position: relative;
-  height: 100vh;
-  min-height: 560px;
-  margin-top: -88px;
   overflow: hidden;
-  background: #fff;
 }
 
-.team-hero-img {
+.page-hero-bg {
+  position: absolute;
+  inset: -6px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(2px);
+  transform: scale(1.03);
+}
+
+.page-hero-tint {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 30%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.99));
 }
 
-/* Soft vignette so the photo's edges dissolve into the page instead of
-   cutting off hard, echoing the reference's faded left/right edges. */
-.team-hero-fade {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(120% 90% at 50% 45%, transparent 55%, #fff 100%);
-  pointer-events: none;
-}
-
-.team-hero-content {
-  position: absolute;
-  left: 50%;
-  top: 55%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  width: 100%;
-  padding: 0 1.5rem;
-}
-
-.team-hero-title {
-  font-family: "Changa", sans-serif;
-  font-weight: 800;
-  font-size: clamp(3.5rem, 10vw, 8rem);
-  color: #ad5400;
-  line-height: 1;
-  margin: 0;
-  text-shadow: 0 2px 20px rgba(255, 255, 255, 0.9);
-}
-
-@media (max-width: 767.98px) {
-  .team-hero { height: 80vh; min-height: 480px; }
-}
+.page-hero .container { position: relative; z-index: 1; }
 
 /* footer */
 footer { font-family: "Changa", sans-serif; }
@@ -424,15 +402,20 @@ footer a:hover { color: white; text-decoration: underline; }
 .hero-title {
   font-family: "Changa", sans-serif;
   font-weight: 700;
-  /* Same orange, taken deep enough to hold on the pale yellow band: the
-     original #f68710 measured 2.28:1 where even large text needs 3.0. */
-  color: #ad5400;
+  color: #075a3e;
+  /* The pale yellow reads fine on the flat colour band but nearly vanishes
+     over a busy blurred photo -- a few offset copies fake a thin dark-green
+     stroke around the letters, plus a soft shadow for a little lift, so the
+     title still separates from the photo regardless of what's behind it. */
+  text-shadow:
+    -3px -3px 0 #fff6b7,
+    1px -1px 0 #6cd82e,
+    -1px 1px 0 #fff7b700,
+    1px 1px 0 #fff7b700;
 }
 
-/* The subtitle was 50%-white on that same pale yellow -- 1.05:1, which is no
-   contrast at all; the sentence was invisible on every page. */
 .hero-sub {
-  color: #075a3e;
+  color: #6cd82e;
 }
 
 /* ===== Team notebook / scrapbook: glassmorphism window =====
@@ -1010,6 +993,7 @@ footer a:hover { color: white; text-decoration: underline; }
 
 /* ===== Education: map + filter tabs row ===== */
 .edu-map-row {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1017,64 +1001,168 @@ footer a:hover { color: white; text-decoration: underline; }
   margin-bottom: 1rem;
 }
 
-.edu-filters {
+/* All 14 sessions continuously orbit the map on a fixed ellipse (driven by
+   taiwan-map.js's requestAnimationFrame loop); the two that land in the
+   fixed left/right slots expand into full readable cards with a leader line
+   to their pin, everything else shrinks to a small chip -- see
+   .edu-map-orbit-item(.is-active) below. Padding on the row reserves room
+   for an expanded card to land in on either side without it being clipped;
+   the orbit layer itself is positioned absolutely so it doesn't affect the
+   row's own flex layout. There's only room for this above the
+   .edu-detail-layout stacking breakpoint (860px); below that it's hidden and
+   the pins are just plain click targets to jump to a session. */
+@media (min-width: 861px) {
+  .edu-map-row { padding: 0 280px; }
+}
+
+.edu-map-orbit {
+  position: absolute;
+  inset: 0;
+  display: none;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* Liquid-glass chip, same frosted-glass language as .page-tag/.polaroid
+   elsewhere on the site -- translucent white over blur+saturate, a bright
+   hairline border standing in for a glass edge, and a soft shine streak.
+   Shrunk by default (just a thumbnail + title) since 14 of these are always
+   somewhere on the ellipse; .is-active is the readable, full-size state a
+   card gets only while passing through one of the two fixed slots. */
+.edu-map-orbit-item {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-top: 20rem;
-}
-
-.edu-filter-btn {
+  align-items: center;
+  gap: 0.4rem;
+  width: 130px;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  color: #2b1e17;
   font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: #4a3f35;
-  background: #fff3d0;
-  border: 2px solid #d8b26a;
-  border-radius: 20px;
-  padding: 0.5rem 1.25rem;
-  cursor: pointer;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  text-align: left;
+  box-shadow: 0 4px 10px rgba(20, 60, 40, 0.14);
+  opacity: 0.8;
+  pointer-events: auto;
+  overflow: hidden;
   white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  z-index: 1;
+  transition: width 0.5s ease, border-radius 0.5s ease, padding 0.5s ease,
+              opacity 0.4s ease, box-shadow 0.4s ease;
 }
 
-.edu-filter-btn:hover { transform: translateX(4px); }
+.edu-map-orbit-item .edu-map-info-photo {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: width 0.5s ease, height 0.5s ease, border-radius 0.5s ease;
+}
 
-.edu-filter-btn.active {
-  background: #075a3e;
-  border-color: #075a3e;
-  color: #fff;
+.edu-map-orbit-item .edu-map-info-body { min-width: 0; }
+.edu-map-orbit-item .edu-map-info-title {
+  display: block;
+  font-weight: 700;
+  color: #2b1e17;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.edu-map-orbit-item .edu-map-info-meta { display: none; }
+
+.edu-map-orbit-item.is-active {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  width: 260px;
+  padding: 0.7rem;
+  border-radius: 16px;
+  opacity: 1;
+  z-index: 7;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 24px rgba(20, 60, 40, 0.22);
+}
+
+.edu-map-orbit-item.is-active .edu-map-info-photo {
+  width: 100%;
+  height: 140px;
+  border-radius: 10px;
+}
+
+.edu-map-orbit-item.is-active .edu-map-info-meta {
+  display: block;
+  margin-top: 2px;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: #5a5147;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.edu-map-leader-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  pointer-events: none;
+  z-index: 5;
+  overflow: visible;
+}
+
+.edu-map-leader-line {
+  stroke: #075a3e;
+  stroke-width: 1.25;
+  stroke-dasharray: 3 3;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+@media (min-width: 861px) {
+  .edu-map-orbit { display: block; }
+  .edu-map-leader-svg { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-map-orbit-item { transition: none; }
 }
 
 /* ===== Education: route map ===== */
-.edu-map {
+/* .edu-map-viewport owns the size and clips anything that scales past its
+   edge; .edu-map holds the base full-island map, and taiwan-map.js layers
+   the clickable Changhua/Tainan overlay groups on top of it -- those are
+   what actually scale on hover, not .edu-map itself. */
+.edu-map-viewport {
   position: relative;
   width: 100%;
   max-width: 450px;
   aspect-ratio: 460 / 640;
   margin: 0;
   flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 12px;
+  /* overflow:hidden alone doesn't reliably clip a descendant that's both
+     absolutely positioned AND transform-scaled several levels down (the
+     expanded county group) in every browser -- clip-path plus a paint
+     containment hint make the clip actually stick. */
+  clip-path: inset(0 round 12px);
+  contain: paint;
 }
 
-/* Side by side, the 450px map plus the nowrap filter column needs about 700px
-   and neither part can shrink, so justify-content:center pushed the pair out of
-   the container on both sides between 761px and ~955px -- the left edge of the
-   map went negative, putting some of its pins out of reach. Stack them until
-   the row genuinely fits. */
-@media (max-width: 991.98px) {
-  .edu-map-row {
-    flex-direction: column;
-  }
-
-  .edu-filters {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 1.5rem;      /* the 20rem offset only suits the side-by-side layout */
-  }
+.edu-map {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
-
 
 .edu-map-svg {
   display: block;
@@ -1083,13 +1171,21 @@ footer a:hover { color: white; text-decoration: underline; }
 }
 
 .edu-map-county {
+  /* DEFAULT_COUNTY_COLOR is 'none' (see taiwan-map.js) -- counties are drawn
+     as outlines only, so the stroke itself needs to read as the map rather
+     than just separate a fill from its neighbours. */
   stroke: #075a3e;
-  stroke-width: 1.5;
+  stroke-width: 1.25;
   transition: fill 0.15s ease, opacity 0.15s ease;
 }
 
 .edu-map-county.edu-map-county-active {
   opacity: 0.75;
+}
+
+.edu-map-county-interactive {
+  stroke: #075a3e;
+  stroke-width: 1.5;
 }
 
 /* Project Description -------------------------------------------------------
@@ -1559,126 +1655,27 @@ footer a:hover { color: white; text-decoration: underline; }
   .attr-ai { padding: 1.15rem 1.15rem; }
 }
 
-/* Hover preview for the map: which school a numbered pin is, and which county
-   the pointer is over. Never takes pointer events, so it cannot get between the
-   cursor and a pin. */
-.edu-map-tip {
-  position: absolute;
-  z-index: 6;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  max-width: 260px;
-  padding: 0.6rem;
-  border-radius: 10px;
-  background: #fffdf7;
-  border: 1px solid #d8b26a;
-  color: #2b1e17;
-  font-family: "Changa", sans-serif;
-  font-size: 0.85rem;
-  line-height: 1.3;
-  text-align: left;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(3px);
-  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s ease;
-}
-
-.edu-map-tip.is-visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.edu-map-tip-photo {
-  flex: 0 0 auto;
-  width: 56px;
-  height: 56px;
-  border-radius: 6px;
-  object-fit: cover;
-}
-
-.edu-map-tip-body {
-  min-width: 0;
-}
-
-.edu-map-tip-title { display: block; font-weight: 700; color: #2b1e17; }
-
-.edu-map-tip-city {
-  display: block;
-  margin-top: 3px;
-  font-weight: 400;
-  font-size: 0.75rem;
-  color: #6b6055;
-}
-
-.edu-map-tip-date {
-  display: block;
-  margin-top: 1px;
-  font-weight: 400;
-  font-size: 0.75rem;
-  color: #6b6055;
-}
-
-/* Little pointer, flipped when the tip has to sit below its target. */
-.edu-map-tip::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  margin-left: -5px;
-  border: 5px solid transparent;
-  border-top-color: #d8b26a;
-  top: 100%;
-}
-
-.edu-map-tip.is-below::after {
-  top: auto;
-  bottom: 100%;
-  border-top-color: transparent;
-  border-bottom-color: #d8b26a;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .edu-map-tip { transition: opacity 0.14s ease, visibility 0.14s ease; transform: none; }
-  .edu-map-tip.is-visible { transform: none; }
-}
-
+/* Small marker dot: just the leader line's anchor point and a click target
+   to jump to the session below -- details live in the always-on leader-line
+   lists (.edu-map-info-item), not in a hover popup. */
 .edu-pin {
   position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
+  display: block;
+  width: 10px;
+  height: 10px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 2px solid #075a3e;
-  background: #cdeb9b;
-  color: #075a3e;
-  text-decoration: none;
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 0.75rem;
+  border: 1px solid #6cd82e;
+  background: #ff7a00;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
-  transition: transform 0.15s ease, opacity 0.2s ease;
+  transition: transform 0.15s ease;
   padding: 0;
   z-index: 2;
 }
 
-.edu-pin.edu-pin-highschool { background: #d8f5a0; }
-.edu-pin.edu-pin-ncku { background: #cfe3ff; }
-.edu-pin.edu-pin-littlesun { background: #ffd6ec; }
-
 .edu-pin:hover {
-  transform: translate(-50%, -50%) scale(1.2);
+  transform: translate(-50%, -50%) scale(1.4);
   z-index: 3;
-}
-
-.edu-pin.edu-hidden {
-  display: none;
 }
 
 /* ===== Education: session sidebar + detail sections ===== */

@@ -1,22 +1,44 @@
 (function () {
   // 自己寫的最小 TopoJSON 解碼器（不引入外部函式庫），只處理畫地圖需要的
   // Polygon / MultiPolygon 兩種 geometry，把 arcs 還原成經緯度座標。
-  var COUNTY_IDS = ['10007', '10009', '10010', '67000', '64000'];
-  var COUNTY_COLOR = {
-    '10007': '#ecffb5', // 彰化
-    '10009': '#eaf6ed', // 雲林
-    '10010': '#eaf6ed', // 嘉義
-    '67000': '#ecffb5', // 台南
-    '64000': '#ecffb5'  // 高雄
-  };
+  // Kinmen, Matsu and Penghu sit far off the main island; their bounding
+  // boxes would otherwise stretch the projection out and shrink the main
+  // island down. The map is now the whole main island, not just the 5
+  // counties the sessions happened in, so this needs leaving out explicitly
+  // rather than just filtering down to a short list like before.
+  var OUTLYING_ISLAND_IDS = ['09007', '09020', '10016'];
+
+  // The only two counties any session pin actually sits in -- these are the
+  // ones with a clickable overlay group that zooms in. Everywhere else on
+  // the island is just geographic context.
+  var INTERACTIVE_COUNTY_IDS = ['10007', '67000'];
+  var INTERACTIVE_COLOR = '#fff6b7';
+  var DEFAULT_COUNTY_COLOR = 'none';
 
   // 縣市名稱，滑鼠移到該縣市時顯示。英文取自 topojson 自己的 properties.name，
-  // 中文對應上面 COUNTY_COLOR 的註解，兩邊都不是另外編出來的。
+  // 中文是另外對照標準行政區代碼填的。
   var COUNTY_NAME = {
+    '09007': { en: 'Lienchiang', zh: '連江' },
+    '09020': { en: 'Kinmen', zh: '金門' },
+    '10002': { en: 'Yilan', zh: '宜蘭' },
     '10007': { en: 'Changhua', zh: '彰化' },
+    '10008': { en: 'Nantou', zh: '南投' },
     '10009': { en: 'Yunlin', zh: '雲林' },
-    '10010': { en: 'Chiayi', zh: '嘉義' },
+    '10013': { en: 'Pingtung', zh: '屏東' },
+    '10014': { en: 'Taitung', zh: '台東' },
+    '10015': { en: 'Hualien', zh: '花蓮' },
+    '10016': { en: 'Penghu', zh: '澎湖' },
+    '10017': { en: 'Keelung', zh: '基隆' },
+    '10018': { en: 'Hsinchu City', zh: '新竹市' },
+    '63000': { en: 'Taipei', zh: '台北' },
+    '65000': { en: 'New Taipei', zh: '新北' },
+    '66000': { en: 'Taichung', zh: '台中' },
     '67000': { en: 'Tainan', zh: '台南' },
+    '68000': { en: 'Taoyuan', zh: '桃園' },
+    '10005': { en: 'Miaoli', zh: '苗栗' },
+    '10004': { en: 'Hsinchu County', zh: '新竹縣' },
+    '10020': { en: 'Chiayi City', zh: '嘉義市' },
+    '10010': { en: 'Chiayi', zh: '嘉義' },
     '64000': { en: 'Kaohsiung', zh: '高雄' }
   };
 
@@ -90,7 +112,13 @@
     return coords;
   }
 
-  function geometryToRings(geometry, arcs) {
+  // skipSmallParts drops individual polygons within a MultiPolygon that are
+  // tiny offshore islets (Green Island, Orchid Island, Turtle Island, the
+  // Diaoyutai Islands out past 123°E that were stretching the whole main-
+  // island map to fit them in) rather than part of the main island's own
+  // coastline -- real coastline has hundreds of points from all the inlets
+  // and headlands; a standalone islet this small has a handful.
+  function geometryToRings(geometry, arcs, skipSmallParts) {
     var rings = [];
     if (geometry.type === 'Polygon') {
       geometry.arcs.forEach(function (ring) {
@@ -98,9 +126,12 @@
       });
     } else if (geometry.type === 'MultiPolygon') {
       geometry.arcs.forEach(function (polygon) {
-        polygon.forEach(function (ring) {
-          rings.push(ringCoords(ring, arcs));
-        });
+        var polyRings = polygon.map(function (ring) { return ringCoords(ring, arcs); });
+        if (skipSmallParts) {
+          var totalPoints = polyRings.reduce(function (sum, r) { return sum + r.length; }, 0);
+          if (totalPoints < 50) return;
+        }
+        rings = rings.concat(polyRings);
       });
     }
     return rings;
@@ -121,12 +152,12 @@
     var decodedArcs = topo.arcs.map(function (arc) { return decodeArc(arc, transform); });
 
     var geometries = topo.objects.map.geometries.filter(function (g) {
-      return COUNTY_IDS.indexOf(g.properties.id) !== -1;
+      return OUTLYING_ISLAND_IDS.indexOf(g.properties.id) === -1;
     });
 
     var minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
     var geoRings = geometries.map(function (g) {
-      var rings = geometryToRings(g, decodedArcs);
+      var rings = geometryToRings(g, decodedArcs, true);
       rings.forEach(function (ring) {
         ring.forEach(function (pt) {
           if (pt[0] < minLon) minLon = pt[0];
@@ -160,11 +191,12 @@
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
     geoRings.forEach(function (g) {
+      var isInteractive = INTERACTIVE_COUNTY_IDS.indexOf(g.id) !== -1;
       var path = document.createElementNS(svgNS, 'path');
       path.setAttribute('d', ringsToPath(g.rings, project));
-      path.setAttribute('fill', COUNTY_COLOR[g.id] || '#eee');
+      path.setAttribute('fill', isInteractive ? INTERACTIVE_COLOR : DEFAULT_COUNTY_COLOR);
       path.setAttribute('fill-rule', 'evenodd');
-      path.setAttribute('class', 'edu-map-county');
+      path.setAttribute('class', 'edu-map-county' + (isInteractive ? ' edu-map-county-interactive' : ''));
       path.setAttribute('data-county', g.id);
       svg.appendChild(path);
     });
@@ -252,103 +284,128 @@
     var relayoutTimer = null;
     window.addEventListener('resize', function () {
       clearTimeout(relayoutTimer);
-      relayoutTimer = setTimeout(layoutPins, 150);
+      relayoutTimer = setTimeout(function () {
+        layoutPins();
+      }, 150);
     });
 
     // ---- Hover preview -------------------------------------------------
-    // Clicking a pin jumps to that session further down the page; hovering one
-    // says which school it is first, so the map can be read without leaving it.
-    var tip = document.createElement('div');
-    tip.className = 'edu-map-tip';
-    tip.setAttribute('role', 'status');
-    tip.setAttribute('aria-live', 'polite');
-    tip.innerHTML = '<img class="edu-map-tip-photo" alt="">' +
-                    '<span class="edu-map-tip-body">' +
-                    '<span class="edu-map-tip-title"></span>' +
-                    '<span class="edu-map-tip-city"></span>' +
-                    '<span class="edu-map-tip-date"></span>' +
-                    '</span>';
-    container.appendChild(tip);
-    var tipPhoto = tip.querySelector('.edu-map-tip-photo');
-    var tipTitle = tip.querySelector('.edu-map-tip-title');
-    var tipCity = tip.querySelector('.edu-map-tip-city');
-    var tipDate = tip.querySelector('.edu-map-tip-date');
-    var activePin = null;
+    // Clicking a pin jumps to that session further down the page; its details
+    // are already always shown on the orbiting cards below, so there's no
+    // hover tooltip here any more.
 
-    function hideTip() {
-      tip.classList.remove('is-visible');
+    // ---- Orbiting session cards (wide screens only; see .edu-map-row CSS) --
+    // All 14 cards continuously circle the map on a fixed ellipse. The two
+    // that land in the fixed left/right slots (angle 0 and pi, since 14 is
+    // even every card has one directly opposite it) expand to full,
+    // readable cards with a leader line to their pin; everywhere else on the
+    // ellipse a card is just a small shrunk chip, so nothing overlaps no
+    // matter how the rotation lines up.
+    var row = container.closest('.edu-map-row');
+    var orbitEl = row && row.querySelector('.edu-map-orbit');
+    var leaderSvg = row && row.querySelector('.edu-map-leader-svg');
+    var orbitItems = [];
+
+    if (orbitEl && leaderSvg) {
+      pinEls.forEach(function (pin, i) {
+        var item = document.createElement('div');
+        item.className = 'edu-map-orbit-item';
+        item.innerHTML = '<img class="edu-map-info-photo" alt="">' +
+                          '<span class="edu-map-info-body">' +
+                          '<span class="edu-map-info-title"></span>' +
+                          '<span class="edu-map-info-meta"></span>' +
+                          '</span>';
+        var photoEl = item.querySelector('.edu-map-info-photo');
+        var titleEl = item.querySelector('.edu-map-info-title');
+        var metaEl = item.querySelector('.edu-map-info-meta');
+        var photo = pin.getAttribute('data-photo');
+        photoEl.style.display = photo ? '' : 'none';
+        if (photo) photoEl.src = photo;
+        titleEl.textContent = schoolNameFor(pin) || '';
+        var meta = [countyLabel((SESSIONS[i] || {}).county), pin.getAttribute('data-date')]
+          .filter(Boolean).join(' · ');
+        metaEl.textContent = meta;
+        orbitEl.appendChild(item);
+
+        var line = document.createElementNS(svgNS, 'line');
+        line.setAttribute('class', 'edu-map-leader-line');
+        leaderSvg.appendChild(line);
+
+        orbitItems.push({ pin: pin, el: item, line: line, baseAngle: (2 * Math.PI * i) / pinEls.length });
+      });
     }
 
-    // x, y are in container pixels; the tip is centred on them and clamped so
-    // it never hangs off the map and widens the page.
-    function showTip(title, city, date, photo, x, y) {
-      tipTitle.textContent = title || '';
-      tipCity.textContent = city || '';
-      tipCity.style.display = city ? '' : 'none';
-      tipDate.innerHTML = date || '';
-      tipDate.style.display = date ? '' : 'none';
-      tipPhoto.style.display = photo ? '' : 'none';
-      if (photo) tipPhoto.src = photo;
-      tip.classList.add('is-visible');
+    // Shortest signed distance from angle a to angle b, in radians.
+    function angleDiff(a, b) {
+      var d = (a - b) % (2 * Math.PI);
+      if (d > Math.PI) d -= 2 * Math.PI;
+      if (d < -Math.PI) d += 2 * Math.PI;
+      return d;
+    }
 
-      var cw = container.clientWidth;
-      var tw = tip.offsetWidth;
-      var th = tip.offsetHeight;
-      var left = Math.max(4, Math.min(x - tw / 2, cw - tw - 4));
-      var top = y - th - 10;
-      var below = top < 0;
-      if (below) top = y + 10;
-      tip.classList.toggle('is-below', below);
-      tip.style.left = left + 'px';
-      tip.style.top = top + 'px';
+    var ROTATION_PERIOD_MS = 48000;
+    var ACTIVE_THRESHOLD = (10 * Math.PI) / 180;
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function layoutOrbit(rotation) {
+      if (!orbitItems.length) return;
+      var rowRect = row.getBoundingClientRect();
+      var cx = rowRect.width / 2;
+      var cy = rowRect.height / 2;
+      var rx = Math.max(0, cx - 140);
+      var ry = Math.max(0, cy - 24);
+
+      orbitItems.forEach(function (it) {
+        var angle = it.baseAngle + rotation;
+        var x = cx + rx * Math.cos(angle);
+        var y = cy + ry * Math.sin(angle);
+        it.el.style.left = x + 'px';
+        it.el.style.top = y + 'px';
+
+        var active = Math.abs(angleDiff(angle, 0)) < ACTIVE_THRESHOLD ||
+                     Math.abs(angleDiff(angle, Math.PI)) < ACTIVE_THRESHOLD;
+        it.el.classList.toggle('is-active', active);
+
+        if (active) {
+          var pinRect = it.pin.getBoundingClientRect();
+          it.line.setAttribute('x1', x);
+          it.line.setAttribute('y1', y);
+          it.line.setAttribute('x2', pinRect.left + pinRect.width / 2 - rowRect.left);
+          it.line.setAttribute('y2', pinRect.top + pinRect.height / 2 - rowRect.top);
+          it.line.style.opacity = '';
+        } else {
+          it.line.style.opacity = '0';
+        }
+      });
+    }
+
+    if (orbitItems.length) {
+      if (reduceMotion) {
+        layoutOrbit(0);
+      } else {
+        var orbitStart = null;
+        function orbitTick(ts) {
+          if (orbitStart === null) orbitStart = ts;
+          layoutOrbit(((ts - orbitStart) / ROTATION_PERIOD_MS) * 2 * Math.PI);
+          requestAnimationFrame(orbitTick);
+        }
+        requestAnimationFrame(orbitTick);
+      }
     }
 
     pinEls.forEach(function (pin, i) {
       var school = schoolNameFor(pin);
       var city = countyLabel((SESSIONS[i] || {}).county);
       if (school) {
-        // the pin's own text is just a number, so spell it out for screen readers
+        // the pin has no visible label, so spell it out for screen readers
         pin.setAttribute('aria-label', city ? school + ' - ' + city : school);
       }
-      function show() {
-        activePin = pin;
-        // translate(-50%,-50%) centres the pin on its left/top, so that IS its
-        // centre; its visible top edge is half a pin above.
-        showTip(school, city, pin.getAttribute('data-date'), pin.getAttribute('data-photo'), pin.offsetLeft, pin.offsetTop - pin.offsetHeight / 2);
-      }
-      function hide() {
-        if (activePin === pin) activePin = null;
-        hideTip();
-      }
-      pin.addEventListener('mouseenter', show);
-      pin.addEventListener('focus', show);
-      pin.addEventListener('mouseleave', hide);
-      pin.addEventListener('blur', hide);
     });
 
     var counties = svg.querySelectorAll('.edu-map-county');
-    var mapRect = null;
     counties.forEach(function (el) {
       el.addEventListener('mouseenter', function () { el.classList.add('edu-map-county-active'); });
-      el.addEventListener('mouseleave', function () {
-        el.classList.remove('edu-map-county-active');
-        if (!activePin) hideTip();
-      });
-      // Counties are large irregular shapes, so the label follows the pointer
-      // rather than sitting at some arbitrary centre.
-      el.addEventListener('mousemove', function (ev) {
-        if (activePin) return;                 // a pin's own preview wins
-        var name = countyLabel(el.getAttribute('data-county'));
-        if (!name) return;
-        mapRect = container.getBoundingClientRect();
-        showTip(name, '', '', '', ev.clientX - mapRect.left, ev.clientY - mapRect.top);
-      });
-    });
-
-    // Leaving the map entirely always clears it.
-    container.addEventListener('mouseleave', function () {
-      activePin = null;
-      hideTip();
+      el.addEventListener('mouseleave', function () { el.classList.remove('edu-map-county-active'); });
     });
   }
 
