@@ -12,7 +12,11 @@ body { padding-top: 88px; }
   right: auto;
   transform: translateX(-50%);
   width: calc(100% - 3rem);
-  max-width: 1400px;
+  /* Was a flat 1400px. The bar is the only thing holding the menu's width, so
+     on a large screen it now keeps growing -- to 1720px -- and the sections
+     get the room they were being squeezed out of. Below ~1500px the viewport
+     is narrower than the floor anyway, so nothing there changes. */
+  max-width: clamp(1400px, calc(100vw - 6rem), 1720px);
   border-radius: 20px;
   transition: transform 0.3s ease;
 }
@@ -749,16 +753,23 @@ footer a:hover { color: white; text-decoration: underline; }
     .custom-nav-width {
       /* 180px x 5 plus Home is 1040px, which does not fit until ~1350px and
          pushed "Team" off the right edge from 992px up. Scale down to 140px so
-         every section is reachable at every width, reaching the drawn size at
-         1350px. */
-      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1754), 180px);
+         every section is reachable at every width.
+         The ceiling used to be 180px; it now reaches 200px at 1600px, which is
+         where the wider bar has the room for it. Everything at or below 1440px
+         is unchanged -- that end was tuned so "Team" stays on screen, and the
+         logo overhangs into the same 274px on the left whatever the width. */
+      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1255), 200px);
       position: relative;
     }
   
+    /* Pinning the panel to the width of the section above it is what broke
+       "Biosafety and Security" across two lines: at 180px there was nowhere
+       for it to go. It now starts at the section's width, so it still reads
+       as belonging to it, and grows to whatever its longest item needs. */
     .custom-nav-width .dropdown-menu {
-      min-width: 100% !important;
-      width: 100% !important;
-      max-width: 100% !important;
+      min-width: 100%;
+      width: max-content;
+      max-width: min(22rem, 92vw);
     }
   
     .custom-nav-width .dropdown-item {
@@ -770,7 +781,7 @@ footer a:hover { color: white; text-decoration: underline; }
 
   @media (min-width: 992px) {
     .custom-nav-short {
-      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.1316), 140px);
+      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.0941), 155px);
       position: relative;
     }
   }
@@ -5305,4 +5316,44 @@ body.quiz-active { overflow: hidden; }
   .quiz-option { transition: background-color 0.15s ease, border-color 0.15s ease; }
   .quiz-option:hover,
   .quiz-option:focus-visible { transform: none; }
+}
+
+/* ==========================================================================
+   Home: promotion video
+
+   The last block on the home page. Bootstrap's .ratio owns the 16:9 box, so
+   there is nothing to do about sizing here -- this only caps how wide the
+   player grows and gives it the same card treatment as the abstract above it.
+   ========================================================================== */
+.home-video {
+  max-width: 900px;
+  margin: 4rem auto 0;
+}
+
+.home-video-title {
+  color: #2c3e50;
+  margin-bottom: 1.25rem;
+}
+
+.home-video-frame {
+  overflow: hidden;         /* keeps the player's own corners inside ours */
+  border-radius: 12px;
+  /* What fills the 16:9 box until the player paints, and what shows through
+     if the frame is blocked altogether. Dark, so it reads as a screen. */
+  background: #10171d;
+  box-shadow: 0 10px 30px rgba(16, 23, 29, 0.18);
+}
+
+.home-video-frame iframe { border: 0; }
+
+.home-video-note {
+  margin: 0.85rem 0 0;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #5f6e66;
+}
+
+@media (max-width: 575.98px) {
+  .home-video { margin-top: 2.5rem; }
+  .home-video-frame { border-radius: 8px; }
 }
