@@ -40,6 +40,216 @@
     </div>
   </div>
 
+  <!--
+    Capture, moved here from its own Online Game page so the home page carries
+    it directly. The markup and the script are unchanged: capture-game.js finds
+    its root by .cap-game, not by which page it is on.
+  -->
+  <section class="cap-page mx-auto mt-5">
+    <h3 class="font-weight-bold text-center">Play: Capture</h3>
+
+    <div class="cap-intro">
+      <p>
+        Our project is about <em>capture</em>: something that has to find its
+        target and hold on to it before the moment passes. This is that idea
+        turned into a minute of play, and nothing more &mdash; it is here for
+        outreach and for fun, and it is not a model of our system or a
+        representation of any result.
+      </p>
+    </div>
+
+    <!--
+      One component, three states, switched by data-state on .cap-game: idle
+      shows the difficulty panel, playing shows the field, over shows the result.
+      The score and clock sit in the top-right corner of the field throughout.
+    -->
+    <div class="cap-game" data-state="idle">
+
+      <div class="cap-field">
+
+        <div class="cap-hud">
+          <p class="cap-pill"><span class="cap-pill-key">Score</span>
+            <span class="cap-score-value">0</span></p>
+          <p class="cap-pill"><span class="cap-pill-key">Time</span>
+            <span class="cap-time-value">60</span><span class="cap-unit">s</span></p>
+          <button type="button" class="cap-pause" aria-label="Pause">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <rect x="3" y="2" width="4" height="12" rx="1"></rect>
+              <rect x="9" y="2" width="4" height="12" rx="1"></rect>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Before the round: pick a difficulty and start. -->
+        <div class="cap-panel cap-panel-start">
+          <h2>Choose a difficulty</h2>
+          <fieldset class="cap-levels">
+
+            <label class="cap-level">
+              <input type="radio" name="cap-level" value="easy">
+              <span class="cap-level-box">
+                <span class="cap-level-name">Easy</span>
+              </span>
+            </label>
+
+            <label class="cap-level">
+              <input type="radio" name="cap-level" value="medium" checked>
+              <span class="cap-level-box">
+                <span class="cap-level-name">Medium</span>
+              </span>
+            </label>
+
+            <label class="cap-level">
+              <input type="radio" name="cap-level" value="hard">
+              <span class="cap-level-box">
+                <span class="cap-level-name">Hard</span>
+              </span>
+            </label>
+          </fieldset>
+
+          <button type="button" class="cap-btn cap-start">Start &mdash; 60 seconds</button>
+          <p class="cap-note">One point per catch. The round ends when the clock does.</p>
+        </div>
+
+        <!-- After the round. -->
+        <div class="cap-panel cap-panel-end" role="dialog" aria-modal="true"
+             aria-labelledby="cap-end-title">
+          <h2 id="cap-end-title">Time up</h2>
+          <p class="cap-final">
+            <span class="cap-final-score">0</span>
+            <span class="cap-final-unit">caught</span>
+          </p>
+          <p class="cap-final-meta">on <span class="cap-final-level">Medium</span></p>
+          <div class="cap-actions">
+            <button type="button" class="cap-btn cap-replay">Replay</button>
+            <button type="button" class="cap-btn cap-btn-quiet cap-change">Change difficulty</button>
+          </div>
+        </div>
+
+        <!-- Mid-round, while paused: the clock and the dish both freeze,
+             nothing in the field can be caught until Resume. -->
+        <div class="cap-panel cap-panel-pause" role="dialog" aria-modal="true"
+             aria-labelledby="cap-pause-title">
+          <h2 id="cap-pause-title">Paused</h2>
+          <div class="cap-actions">
+            <button type="button" class="cap-btn cap-resume">Resume</button>
+            <button type="button" class="cap-btn cap-btn-quiet cap-quit">Quit</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Only the final score is announced; a score read out once a second for
+           a minute would be unusable. -->
+      <p class="cap-live visually-hidden" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!--
+    The tour in the banner shows everything. This asks four questions instead
+    and names two or three pages, for a reader who has got this far and still
+    does not know where to start. It sits down here for that reason: it is the
+    second offer, not a competing one.
+  -->
+  <div class="quiz-invite">
+    <button type="button" class="quiz-open" id="quizOpen" hidden>
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m0-1A7 7 0 1 1 8 1a7 7 0 0 1 0 14"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/></svg>
+      <span data-quiz-label></span>
+    </button>
+  </div>
+
+  <!--
+    Promotion video, the last thing on the page: the reader has been through
+    the abstract, the game and the quiz, and this is the short version of all
+    of it.
+
+    Served from video.igem.org, which is what the rules ask for -- see README.
+    It was on YouTube first and would not play there: YouTube allowed the
+    embed at the account level but refused it at playback (error 152), so the
+    box was dead for every visitor. Video Universe is both the compliant
+    answer and the working one. The sandbox and allow attributes are the ones
+    video.igem.org hands out with the embed code; the player needs them.
+  -->
+  {% set promo_embed = 'https://video.igem.org/videos/embed/iYpxBDZEuVNLo43WbhzPxK' %}
+  {% set promo_watch = 'https://video.igem.org/w/918b84bd-33de-4aa9-9de0-c548ad2b8eb5' %}
+
+  <section class="home-video" aria-labelledby="promoVideoHeading">
+    <h3 class="home-video-title text-center" id="promoVideoHeading">Promotion video</h3>
+
+    {# Bootstrap's .ratio holds the 16:9 box, so the iframe needs no width or
+       height of its own and cannot letterbox on a narrow screen. #}
+    <div class="ratio ratio-16x9 home-video-frame">
+      <iframe src="{{ promo_embed }}"
+              title="NCKU-Tainan: Capture &mdash; Striking Back at Pseudomonas aeruginosa with Dual-Action Engineered E. coli (2026), project promotion"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+              allow="fullscreen"
+              allowfullscreen></iframe>
+    </div>
+
+    <!-- A framed player can still be blocked at the reader's end, and then the
+         box above is simply empty. This is the way out of that. -->
+    <p class="home-video-note">
+      Cannot see it? <a href="{{ promo_watch }}" rel="noopener">Watch it on video.igem.org</a>.
+    </p>
+  </section>
+
+</div>
+
+<!--
+  Four questions, then two or three pages. All of its wording lives in
+  static/site-quiz.js in both languages; only the links live here, so url_for
+  builds them and the static build keeps them.
+-->
+<div class="quiz" id="siteQuiz" hidden>
+  <div class="quiz-backdrop" data-quiz-dismiss></div>
+
+  <div class="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quizHeading" tabindex="-1">
+    <div class="quiz-bar">
+      <div class="quiz-lang" role="group" aria-label="Language / 語言">
+        <button type="button" data-quiz-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-quiz-lang="zh" aria-pressed="false">中文</button>
+      </div>
+      <p class="quiz-count" id="quizCount"></p>
+      <button type="button" class="quiz-skip" id="quizSkip" data-quiz-dismiss></button>
+    </div>
+
+    <div class="quiz-stage" id="quizStage" aria-live="polite">
+      <h2 class="quiz-title" id="quizHeading"></h2>
+      <p class="quiz-lead" id="quizLead"></p>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-results" id="quizResults" hidden></div>
+    </div>
+
+    <div class="quiz-foot">
+      <button type="button" class="quiz-btn quiz-back" id="quizBack"></button>
+      <button type="button" class="quiz-btn quiz-restart" id="quizRestart" hidden></button>
+    </div>
+  </div>
+</div>
+
+<!--
+  The pages the quiz is allowed to recommend. Only pages that have something
+  on them are listed: sending a curious reader to an empty page is worse than
+  not answering at all. As a page gets written, add it here and give it a row
+  in PAGES and a blurb in COPY.pages in static/site-quiz.js.
+
+  Not listed yet, because they are still empty: Result, Contribution, Parts,
+  Biosafety and Security, Modeling, Human Practices, Communication. Online
+  Game is not listed either: the game is on this page now, so there is
+  nowhere to send anyone.
+-->
+<div class="quiz-pages" id="quizPages" hidden>
+  <a data-quiz-page="hardware"      href="{{ url_for('pages', page='hardware') }}">Hardware</a>
+  <a data-quiz-page="software"      href="{{ url_for('pages', page='software') }}">Software</a>
+  <a data-quiz-page="engineering"   href="{{ url_for('pages', page='engineering') }}">Engineering</a>
+  <a data-quiz-page="lab-book"      href="{{ url_for('pages', page='lab-book') }}">Lab Book</a>
+  <a data-quiz-page="description"   href="{{ url_for('pages', page='description') }}">Description</a>
+  <a data-quiz-page="notebook"      href="{{ url_for('pages', page='notebook') }}">Notebook</a>
+  <a data-quiz-page="board-game"    href="{{ url_for('pages', page='board-game') }}">Board Game</a>
+  <a data-quiz-page="education"     href="{{ url_for('pages', page='education') }}">Education</a>
+  <a data-quiz-page="promotion"     href="{{ url_for('pages', page='promotion') }}">Promotion</a>
+  <a data-quiz-page="collaboration" href="{{ url_for('pages', page='collaboration') }}">Collaboration</a>
+  <a data-quiz-page="team"          href="{{ url_for('pages', page='team') }}">Team</a>
 </div>
 
 <!--
@@ -66,7 +276,7 @@
 
       <article class="tour-step" data-tour-step>
         <h2 class="tour-title" id="tourHeading">Welcome to our wiki</h2>
-        <p>Five sections, twenty-two pages. Next you will see what is in each one &mdash; or skip, and find your own way around.</p>
+        <p>Five sections, nineteen pages. Next you will see what is in each one &mdash; or skip, and find your own way around.</p>
       </article>
 
       <article class="tour-step" data-tour-step data-tour-lift hidden>
@@ -78,11 +288,9 @@
             <h3>Project</h3>
             <ul class="tour-links">
               <li><a href="{{ url_for('pages', page='description') }}">Description</a></li>
-              <li><a href="{{ url_for('pages', page='measurement') }}">Measurement</a></li>
+              <li><a href="{{ url_for('pages', page='engineering') }}">Engineering</a></li>
               <li><a href="{{ url_for('pages', page='results') }}">Result</a></li>
               <li><a href="{{ url_for('pages', page='notebook') }}">Notebook</a></li>
-              <li><a href="{{ url_for('pages', page='online-game') }}">Online Game</a></li>
-              <li><a href="{{ url_for('pages', page='contribution') }}">Contribution</a></li>
             </ul>
           </section>
 
@@ -91,9 +299,8 @@
             <ul class="tour-links">
               <li><a href="{{ url_for('pages', page='lab-book') }}">Lab Book</a></li>
               <li><a href="{{ url_for('pages', page='parts') }}">Parts</a></li>
-              <li><a href="{{ url_for('pages', page='experiments') }}">Experiments</a></li>
-              <li><a href="{{ url_for('pages', page='safety-and-security') }}">Safety and Security</a></li>
-              <li><a href="{{ url_for('pages', page='engineering') }}">Engineering</a></li>
+              <li><a href="{{ url_for('pages', page='contribution') }}">Contribution</a></li>
+              <li><a href="{{ url_for('pages', page='biosafety-and-security') }}">Biosafety and Security</a></li>
             </ul>
           </section>
 
@@ -143,4 +350,6 @@
 
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename = 'site-tour.js') }}"></script>
+<script src="{{ url_for('static', filename = 'site-quiz.js') }}"></script>
+<script src="{{ url_for('static', filename = 'capture-game.js') }}"></script>
 {% endblock %}
