@@ -150,6 +150,14 @@
 
 {% set TRACKS = [("wet", "Wet Lab"), ("dry", "Dry Lab"), ("hp", "Human Practices")] %}
 
+{# Cells carrying a photo, shown after a brief hover -- see .nb-hover-img /
+   notebook-hover-image.js. Keyed by "week:track" since these are one-offs
+   rather than a data field every week would otherwise have to carry empty. #}
+{% set HOVER_IMAGES = {
+  "1:wet": "https://static.igem.wiki/teams/6379/wiki/notebook/wetlab-w1.avif",
+  "1:dry": "https://static.igem.wiki/teams/6379/wiki/notebook/drylab-w1.avif"
+} %}
+
 <div class="nb" id="notebook">
 
   <section class="nb-intro">
@@ -172,6 +180,19 @@
     milestones across {{ weeks|length }} weeks.
   </p>
 
+  <!-- Reverses the ledger's own DOM order (including the open-ended "19+"
+       row) -- see notebook-sort.js. Ships disabled and the script enables
+       it, so a reader without JavaScript gets the plain chronological order
+       rather than a dead button. -->
+  <button type="button" class="nb-sort" id="nbSort" data-order="asc" disabled>
+    <span class="nb-sort-label">Oldest first</span>
+    <svg class="nb-sort-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+         viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 6 8 10 12 6"/>
+    </svg>
+  </button>
+
   <!-- ====================== the ledger ======================
        One grid row per week: the week number and its dates in the left
        column, then one column per part of the team. The column headings are
@@ -184,7 +205,7 @@
     {% endfor %}
   </div>
 
-  <ol class="nb-ledger">
+  <ol class="nb-ledger" id="nbLedger">
 
     {% for w in weeks %}
     <li class="nb-week{{ ' is-blank' if not (w.wet or w.dry or w.hp) }}" id="week-{{ w.n }}">
@@ -197,7 +218,8 @@
       {# Every track gets a cell whether or not it has anything in it, so the
          columns stay in line all the way down the page. #}
       {% for key, label in TRACKS %}
-      <section class="nb-col{{ ' is-empty' if not w[key] }}" data-track="{{ key }}">
+      {% set hover_img = HOVER_IMAGES.get(w.n ~ ':' ~ key, '') %}
+      <section class="nb-col{{ ' is-empty' if not w[key] }}" data-track="{{ key }}"{% if hover_img %} data-hover-img="{{ hover_img }}"{% endif %}>
         <h4 class="nb-col-head">{{ label }}</h4>
         {% if w[key] %}
         <ul class="nb-entries">
@@ -232,4 +254,6 @@
 
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename = 'notebook-counters.js') }}"></script>
+<script src="{{ url_for('static', filename = 'notebook-hover-image.js') }}"></script>
+<script src="{{ url_for('static', filename = 'notebook-sort.js') }}"></script>
 {% endblock %}

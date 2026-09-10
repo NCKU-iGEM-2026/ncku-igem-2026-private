@@ -4733,6 +4733,41 @@ body.tour-active { overflow: hidden; }
 }
 
 /* ---- the ledger ---- */
+/* The ledger's own control: flips oldest-first/newest-first, plain text plus
+   a chevron rather than a boxed button, in the same register as everything
+   else on the page. */
+.nb-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--nb-muted);
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.nb-sort:disabled { cursor: default; }
+.nb-sort:not(:disabled):hover { color: #075a3e; }
+
+.nb-sort:focus-visible {
+  outline: 2px solid #075a3e;
+  outline-offset: 3px;
+}
+
+.nb-sort-icon { transition: transform 0.25s ease; }
+.nb-sort[data-order="desc"] .nb-sort-icon { transform: rotate(180deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-sort-icon { transition: none; }
+}
+
 /* Stated once at the top; each cell repeats the same heading for itself, kept
    for screen readers here and shown outright once the grid stacks. */
 .nb-head {
@@ -4889,6 +4924,34 @@ body.tour-active { overflow: hidden; }
   font-weight: 300;
   font-size: 0.98rem;
   line-height: 1.6;
+}
+
+/* A cell can be given a photo (data-hover-img) that only appears after the
+   pointer rests on it for 2s -- see notebook-hover-image.js. One <img>,
+   reused and repositioned for whichever cell is active, fixed-positioned so
+   it floats above the ledger rather than pushing it around. */
+.nb-hover-img {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -100%);
+  width: 240px;
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(7, 90, 62, 0.28);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity 0.2s ease;
+}
+
+.nb-hover-img.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-hover-img { transition: none; }
 }
 
 /* The stretch of season still ahead: one line across the track columns rather
