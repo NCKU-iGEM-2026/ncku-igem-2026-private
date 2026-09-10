@@ -4979,3 +4979,298 @@ body.tour-active { overflow: hidden; }
   .nb-week { break-inside: avoid; }
   .nb-summary { cursor: auto; }
 }
+
+/* Find your way in: four questions, then two or three pages ------------------
+   A second way into the wiki for a reader who has read the home page and
+   still does not know where to go. Shares the tour's modal shape and palette
+   on purpose -- it is the same offer made a different way, and two dialogs
+   that look unrelated would read as two unrelated features. */
+
+/* The invitation. Hidden in the markup and revealed by the script, so it
+   never appears where it would do nothing. */
+.quiz-invite {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.quiz-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 48px;
+  padding: 0.7rem 1.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.quiz-open:hover,
+.quiz-open:focus-visible { background: #075a3e; color: #fffdf7; }
+
+.quiz {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 92px 16px 24px;
+}
+
+.quiz[hidden] { display: none; }
+
+.quiz-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 32, 22, 0.62);
+  cursor: pointer;
+}
+
+.quiz-card {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: calc(100vh - 116px);
+  overflow-y: auto;
+  background: #fffdf7;
+  border-radius: 16px;
+  box-shadow: 0 18px 48px rgba(15, 32, 22, 0.35);
+  padding: 1.1rem 1.6rem 1.4rem;
+}
+
+.quiz-card:focus { outline: none; }
+.quiz-card:focus-visible { outline: 3px solid #d8b26a; outline-offset: 3px; }
+
+.quiz-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+/* Language sits first in the bar, so it lands top-left wherever the card is. */
+.quiz-lang {
+  display: inline-flex;
+  border: 1px solid #c3cec7;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.quiz-lang button {
+  min-height: 32px;
+  padding: 0.25rem 0.8rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  color: #5f6e66;
+  background: #fffdf7;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.quiz-lang button + button { border-left: 1px solid #c3cec7; }
+.quiz-lang button:hover { background: #eaf7dd; }
+.quiz-lang button[aria-pressed="true"] { background: #075a3e; color: #fffdf7; }
+
+.quiz-count {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #5f6e66;
+}
+
+.quiz-skip {
+  min-height: 32px;
+  padding: 0.25rem 0.85rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 1px solid #c3cec7;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.quiz-skip:hover,
+.quiz-skip:focus-visible { background: #eaf7dd; }
+
+.quiz-stage { min-height: 260px; }
+
+.quiz-title {
+  margin: 0 0 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.4rem;
+  line-height: 1.35;
+  color: #075a3e;
+}
+
+.quiz-lead {
+  margin: 0 0 1.1rem;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: #5f6e66;
+}
+
+.quiz-lead[hidden] { display: none; }
+
+/* ---- the options ---- */
+.quiz-options {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.quiz-options[hidden] { display: none; }
+
+.quiz-option {
+  width: 100%;
+  min-height: 52px;
+  padding: 0.8rem 1.1rem;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #24352c;
+  background: #fff;
+  border: 2px solid #dfe8e2;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+              transform 0.15s ease;
+}
+
+.quiz-option:hover,
+.quiz-option:focus-visible {
+  background: #f2f9f5;
+  border-color: #75b299;
+  transform: translateX(3px);
+}
+
+/* The answer you gave last time, when you step back to change it. */
+.quiz-option[aria-pressed="true"] {
+  background: #e7f4ee;
+  border-color: #075a3e;
+  font-weight: 700;
+}
+
+/* ---- the answer ---- */
+.quiz-results {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.quiz-results[hidden] { display: none; }
+
+.quiz-result {
+  border: 1px solid #dfe8e2;
+  border-left: 4px solid #075a3e;
+  border-radius: 0 12px 12px 0;
+  background: #fff;
+  padding: 1rem 1.15rem;
+}
+
+.quiz-result h3 {
+  margin: 0 0 0.35rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.1rem;
+  color: #1f4a38;
+}
+
+.quiz-result p {
+  margin: 0 0 0.8rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #4a5a51;
+}
+
+.quiz-go {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.4rem 1.1rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.92rem;
+  color: #fffdf7;
+  background: #075a3e;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.quiz-go::after { content: "\2192"; margin-left: 0.45rem; }
+
+.quiz-go:hover,
+.quiz-go:focus-visible {
+  background: #04412c;
+  border-color: #04412c;
+  color: #fffdf7;
+  text-decoration: none;
+}
+
+.quiz-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e6ddc8;
+}
+
+.quiz-btn {
+  min-height: 40px;
+  padding: 0.45rem 1.15rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.quiz-btn:hover:not(:disabled),
+.quiz-btn:focus-visible { background: #eaf7dd; }
+
+/* Same reasoning as the tour's disabled Back: exempt from contrast, but still
+   readable, and still plainly lighter than the enabled control. */
+.quiz-btn:disabled {
+  color: #5f6e66;
+  border-color: #c3cec7;
+  cursor: default;
+}
+
+.quiz-restart { border-style: dashed; }
+
+/* The list of links the script reads hrefs out of; never shown. */
+.quiz-pages { display: none; }
+
+/* While the quiz is open the page behind it must not scroll away underneath.
+   Named for the state, not the control: .quiz-open is the button, and a body
+   carrying that class would inherit its inline-flex. */
+body.quiz-active { overflow: hidden; }
+
+@media (max-width: 575.98px) {
+  .quiz { padding: 80px 10px 16px; }
+  .quiz-card { padding: 1rem 1.1rem 1.2rem; }
+  .quiz-title { font-size: 1.2rem; }
+  .quiz-option { font-size: 0.95rem; }
+  /* The nudge on hover is a pointer affordance; on a touch screen it only
+     ever fires as a jump after the tap has already been taken. */
+  .quiz-option:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-option { transition: background-color 0.15s ease, border-color 0.15s ease; }
+  .quiz-option:hover,
+  .quiz-option:focus-visible { transform: none; }
+}
