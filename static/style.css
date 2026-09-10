@@ -826,6 +826,80 @@ footer a:hover { color: white; text-decoration: underline; }
 
 .webcam-start:hover { background: #ffe6a8; }
 
+/* ===== Education: the page as a "file" =====
+   Impression photo up top, fading through a pale-yellow band into a flat
+   dark green strip -- the folder -- and a white folder TAB (flat, solid,
+   rounded top corners only) pokes up out of that strip at the left edge,
+   like the classic file-icon silhouette. The white page body underneath
+   is the rest of the folder. header.edu-hero stays overflow:visible and
+   position:relative so this positioned box paints above the in-flow
+   .container that follows it -- letting the strip/tab/paperclip hang past
+   its bottom edge onto the white page without any z-index hacks. The
+   !important is required: Bootstrap's .py-5 sets padding-bottom:3rem
+   !important, which would otherwise silently win over a plain override
+   here and starve the strip+tab of clearance. */
+header.bg-hero.edu-hero {
+  position: relative;
+  overflow: visible;
+  padding-bottom: 7.5rem !important;
+  background:
+    linear-gradient(180deg, rgba(255, 232, 173, 0) 55%, #ffe7a8 100%),
+    linear-gradient(180deg, rgba(7, 58, 62, 0.55), rgba(7, 58, 62, 0.7)),
+    url('https://static.igem.wiki/teams/6379/wiki/education/07130714.avif') center/cover no-repeat;
+}
+
+/* White text over the photo needs real contrast, not the flat-bg colours
+   .hero-title/.hero-sub were tuned for. */
+header.bg-hero.edu-hero .hero-title,
+header.bg-hero.edu-hero .hero-sub {
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* The flat green folder strip -- no wave, just a solid rectangle. */
+.edu-hero-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 64px;
+  background: #075a3e;
+  pointer-events: none;
+}
+
+/* The folder's tab: solid white, rounded top corners only, flush with the
+   white page below so it reads as one continuous shape -- not a card
+   floating on the strip. */
+.edu-hero-folder-tab {
+  position: absolute;
+  left: 6%;
+  bottom: 0;
+  width: 200px;
+  height: 104px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  pointer-events: none;
+}
+
+.edu-hero-paperclip {
+  position: absolute;
+  left: calc(6% + 148px);
+  bottom: 68px;
+  width: 38px;
+  height: auto;
+  transform: rotate(-6deg);
+  color: #ff8a3d;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+}
+
+@media (max-width: 767.98px) {
+  header.bg-hero.edu-hero { padding-bottom: 6rem !important; }
+  .edu-hero-band { height: 48px; }
+  .edu-hero-folder-tab { left: 5%; width: 130px; height: 78px; border-radius: 14px 14px 0 0; }
+  .edu-hero-paperclip { left: calc(5% + 92px); bottom: 50px; width: 30px; }
+}
+
 /* ===== Education: Impact Dashboard ===== */
 .edu-dashboard {
   display: flex;
@@ -1658,16 +1732,16 @@ footer a:hover { color: white; text-decoration: underline; }
 
 .edu-session-block {
   padding: 2rem 0;
-  border-bottom: 1px solid #e0d6c0;
+  border-bottom: 1px dashed #cbb98a;
   scroll-margin-top: 90px;
-}
-
-.edu-overview-block {
-  padding-top: 0;
 }
 
 .edu-session-block:last-child {
   border-bottom: none;
+}
+
+.edu-overview-block {
+  padding-top: 0;
 }
 
 .edu-session-block h2 {
