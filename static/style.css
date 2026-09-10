@@ -12,7 +12,11 @@ body { padding-top: 88px; }
   right: auto;
   transform: translateX(-50%);
   width: calc(100% - 3rem);
-  max-width: 1400px;
+  /* Was a flat 1400px. The bar is the only thing holding the menu's width, so
+     on a large screen it now keeps growing -- to 1720px -- and the sections
+     get the room they were being squeezed out of. Below ~1500px the viewport
+     is narrower than the floor anyway, so nothing there changes. */
+  max-width: clamp(1400px, calc(100vw - 6rem), 1720px);
   border-radius: 20px;
   transition: transform 0.3s ease;
 }
@@ -722,16 +726,23 @@ footer a:hover { color: white; text-decoration: underline; }
     .custom-nav-width {
       /* 180px x 5 plus Home is 1040px, which does not fit until ~1350px and
          pushed "Team" off the right edge from 992px up. Scale down to 140px so
-         every section is reachable at every width, reaching the drawn size at
-         1350px. */
-      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1754), 180px);
+         every section is reachable at every width.
+         The ceiling used to be 180px; it now reaches 200px at 1600px, which is
+         where the wider bar has the room for it. Everything at or below 1440px
+         is unchanged -- that end was tuned so "Team" stays on screen, and the
+         logo overhangs into the same 274px on the left whatever the width. */
+      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1255), 200px);
       position: relative;
     }
   
+    /* Pinning the panel to the width of the section above it is what broke
+       "Biosafety and Security" across two lines: at 180px there was nowhere
+       for it to go. It now starts at the section's width, so it still reads
+       as belonging to it, and grows to whatever its longest item needs. */
     .custom-nav-width .dropdown-menu {
-      min-width: 100% !important;
-      width: 100% !important;
-      max-width: 100% !important;
+      min-width: 100%;
+      width: max-content;
+      max-width: min(22rem, 92vw);
     }
   
     .custom-nav-width .dropdown-item {
@@ -743,7 +754,7 @@ footer a:hover { color: white; text-decoration: underline; }
 
   @media (min-width: 992px) {
     .custom-nav-short {
-      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.1316), 140px);
+      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.0941), 155px);
       position: relative;
     }
   }
