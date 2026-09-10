@@ -50,6 +50,9 @@
   const startBtn = root.querySelector('.cap-start');
   const replayBtn = root.querySelector('.cap-replay');
   const changeBtn = root.querySelector('.cap-change');
+  const pauseBtn = root.querySelector('.cap-pause');
+  const resumeBtn = root.querySelector('.cap-resume');
+  const quitBtn = root.querySelector('.cap-quit');
   const finalEl = root.querySelector('.cap-final-score');
   const finalLevel = root.querySelector('.cap-final-level');
   const liveEl = root.querySelector('.cap-live');
@@ -69,6 +72,12 @@
   let nextAt = 0;              // when the next logo is due
   let frameId = 0;
   let live = [];               // every logo currently in the dish
+
+  // Paused is orthogonal to state rather than a fourth value of it: the round
+  // is still "playing" underneath, just with its clock stopped, so resuming
+  // does not have to reconstruct anything finish()/toStart() already own.
+  let paused = false;
+  let pausedAt = 0;
 
   function setState(next) {
     state = next;
@@ -199,7 +208,7 @@
   }
 
   function grab(logo) {
-    if (state !== 'playing' || logo.gone) return;
+    if (state !== 'playing' || paused || logo.gone) return;
     score += 1;
     scoreEl.textContent = String(score);
     burst(logo);
@@ -225,7 +234,7 @@
   }
 
   function frame(now) {
-    if (state !== 'playing') return;
+    if (state !== 'playing' || paused) return;
 
     const left = deadline - now;
     if (left <= 0) {
@@ -252,6 +261,8 @@
     score = 0;
     scoreEl.textContent = '0';
     timeEl.textContent = String(ROUND_MS / 1000);
+    paused = false;
+    root.removeAttribute('data-paused');
     setState('playing');
 
     const now = performance.now();
@@ -263,6 +274,8 @@
 
   function finish() {
     window.cancelAnimationFrame(frameId);
+    paused = false;
+    root.removeAttribute('data-paused');
     setState('over');
     clearField();
     finalEl.textContent = String(score);
@@ -276,10 +289,39 @@
 
   function toStart() {
     window.cancelAnimationFrame(frameId);
+    paused = false;
+    root.removeAttribute('data-paused');
     setState('idle');
     clearField();
     liveEl.textContent = '';
     startBtn.focus();
+  }
+
+  // ------------------------------------------------------------------- pause
+  // Stopping the animation frame already freezes what is on screen; the part
+  // that takes care is the clock and every live logo's own death time, both
+  // stored as absolute performance.now() timestamps. Resuming shifts all of
+  // them forward by exactly how long the pause lasted, so nothing that was
+  // one second from expiring is suddenly overdue the moment play resumes.
+  function pause() {
+    if (state !== 'playing' || paused) return;
+    paused = true;
+    pausedAt = performance.now();
+    window.cancelAnimationFrame(frameId);
+    root.setAttribute('data-paused', 'true');
+    resumeBtn.focus();
+  }
+
+  function resume() {
+    if (!paused) return;
+    const elapsed = performance.now() - pausedAt;
+    deadline += elapsed;
+    nextAt += elapsed;
+    live.forEach(function (l) { l.diesAt += elapsed; });
+    paused = false;
+    root.removeAttribute('data-paused');
+    frameId = window.requestAnimationFrame(frame);
+    pauseBtn.focus();
   }
 
   // ------------------------------------------------------------------- wiring
@@ -293,9 +335,14 @@
   startBtn.addEventListener('click', start);
   replayBtn.addEventListener('click', start);
   changeBtn.addEventListener('click', toStart);
+  pauseBtn.addEventListener('click', pause);
+  resumeBtn.addEventListener('click', resume);
+  quitBtn.addEventListener('click', toStart);
 
   root.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && state === 'over') toStart();
+    if (e.key !== 'Escape') return;
+    if (state === 'over') { toStart(); return; }
+    if (state === 'playing') { if (paused) resume(); else pause(); }
   });
 
   // The field is sized in vh and %, so a rotate or a resize can leave a logo

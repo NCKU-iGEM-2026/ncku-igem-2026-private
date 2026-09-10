@@ -4368,23 +4368,50 @@ body.tour-active { overflow: hidden; }
    read as a rendering fault rather than as information. */
 .cap-game:not([data-state="playing"]) .cap-hud { display: none; }
 
+/* The hud itself ignores clicks (it must not steal them from the field
+   underneath), but the pause button living inside it is meant to be
+   pressed, so it opts back in on its own. */
+.cap-pause {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  padding: 0;
+  border: 1px solid #bcd8c9;
+  border-radius: 999px;
+  background: rgba(255, 253, 247, 0.94);
+  color: #075a3e;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 0.15s ease;
+}
+
+.cap-pause:hover { background: #eaf7dd; }
+
+.cap-pause:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+/* Hidden the instant the round is not running or already paused -- the panel
+   underneath is what offers Resume then, not this button a second time. */
+.cap-game:not([data-state="playing"]) .cap-pause,
+.cap-game[data-paused="true"] .cap-pause { display: none; }
+
 /* ---- the thing being caught ---- */
-/* A disc behind the logo. The team mark is mostly pale ink on transparency,
-   and on the pale dish it read as a faint smudge well inside a 76px hit area
-   -- you could not see what to aim at, or tell where it ended. The disc gives
-   it a ground to sit on and makes the target look the size it actually is. */
+/* No disc: the bacterium art (unlike the old pale logo mark) reads on its own
+   against the dish, so the hit area is just the image's own bounds. */
 .cap-target {
   position: absolute;
   z-index: 2;
   width: 76px;
   height: 76px;
-  padding: 9px;
-  border: 2px solid rgba(7, 90, 62, 0.3);
-  border-radius: 50%;
-  background: #fffdf7;
-  box-shadow: 0 4px 12px rgba(7, 90, 62, 0.22);
+  padding: 0;
+  border: 0;
+  background: none;
   cursor: inherit;          /* the net, not a hand */
   -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 4px 8px rgba(7, 90, 62, 0.25));
 }
 
 .cap-target img {
@@ -4474,6 +4501,11 @@ body.tour-active { overflow: hidden; }
 
 .cap-game[data-state="idle"] .cap-panel-start,
 .cap-game[data-state="over"] .cap-panel-end { display: flex; }
+
+/* Paused is a separate flag rather than a fourth data-state value, so the
+   round's own state (playing) is still what it is underneath -- pausing
+   freezes the clock and the dish without ending or restarting anything. */
+.cap-game[data-paused="true"] .cap-panel-pause { display: flex; }
 
 .cap-panel h2 {
   font-family: "Changa", sans-serif;
