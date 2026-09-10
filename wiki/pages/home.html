@@ -40,6 +40,76 @@
     </div>
   </div>
 
+  <!--
+    The tour in the banner shows everything. This asks four questions instead
+    and names two or three pages, for a reader who has got this far and still
+    does not know where to start. It sits down here for that reason: it is the
+    second offer, not a competing one.
+  -->
+  <div class="quiz-invite">
+    <button type="button" class="quiz-open" id="quizOpen" hidden>
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m0-1A7 7 0 1 1 8 1a7 7 0 0 1 0 14"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/></svg>
+      <span data-quiz-label></span>
+    </button>
+  </div>
+
+</div>
+
+<!--
+  Four questions, then two or three pages. All of its wording lives in
+  static/site-quiz.js in both languages; only the links live here, so url_for
+  builds them and the static build keeps them.
+-->
+<div class="quiz" id="siteQuiz" hidden>
+  <div class="quiz-backdrop" data-quiz-dismiss></div>
+
+  <div class="quiz-card" role="dialog" aria-modal="true" aria-labelledby="quizHeading" tabindex="-1">
+    <div class="quiz-bar">
+      <div class="quiz-lang" role="group" aria-label="Language / 語言">
+        <button type="button" data-quiz-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-quiz-lang="zh" aria-pressed="false">中文</button>
+      </div>
+      <p class="quiz-count" id="quizCount"></p>
+      <button type="button" class="quiz-skip" id="quizSkip" data-quiz-dismiss></button>
+    </div>
+
+    <div class="quiz-stage" id="quizStage" aria-live="polite">
+      <h2 class="quiz-title" id="quizHeading"></h2>
+      <p class="quiz-lead" id="quizLead"></p>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-results" id="quizResults" hidden></div>
+    </div>
+
+    <div class="quiz-foot">
+      <button type="button" class="quiz-btn quiz-back" id="quizBack"></button>
+      <button type="button" class="quiz-btn quiz-restart" id="quizRestart" hidden></button>
+    </div>
+  </div>
+</div>
+
+<!--
+  The pages the quiz is allowed to recommend. Only pages that have something
+  on them are listed: sending a curious reader to an empty page is worse than
+  not answering at all. As a page gets written, add it here and give it a row
+  in PAGES and a blurb in COPY.pages in static/site-quiz.js.
+
+  Not listed yet, because they are still empty: Measurement, Result,
+  Contribution, Parts, Experiments, Safety and Security, Modeling, Human
+  Practices, Communication.
+-->
+<div class="quiz-pages" id="quizPages" hidden>
+  <a data-quiz-page="hardware"      href="{{ url_for('pages', page='hardware') }}">Hardware</a>
+  <a data-quiz-page="software"      href="{{ url_for('pages', page='software') }}">Software</a>
+  <a data-quiz-page="engineering"   href="{{ url_for('pages', page='engineering') }}">Engineering</a>
+  <a data-quiz-page="lab-book"      href="{{ url_for('pages', page='lab-book') }}">Lab Book</a>
+  <a data-quiz-page="description"   href="{{ url_for('pages', page='description') }}">Description</a>
+  <a data-quiz-page="notebook"      href="{{ url_for('pages', page='notebook') }}">Notebook</a>
+  <a data-quiz-page="online-game"   href="{{ url_for('pages', page='online-game') }}">Online Game</a>
+  <a data-quiz-page="board-game"    href="{{ url_for('pages', page='board-game') }}">Board Game</a>
+  <a data-quiz-page="education"     href="{{ url_for('pages', page='education') }}">Education</a>
+  <a data-quiz-page="promotion"     href="{{ url_for('pages', page='promotion') }}">Promotion</a>
+  <a data-quiz-page="collaboration" href="{{ url_for('pages', page='collaboration') }}">Collaboration</a>
+  <a data-quiz-page="team"          href="{{ url_for('pages', page='team') }}">Team</a>
 </div>
 
 <!--
@@ -143,4 +213,5 @@
 
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename = 'site-tour.js') }}"></script>
+<script src="{{ url_for('static', filename = 'site-quiz.js') }}"></script>
 {% endblock %}
