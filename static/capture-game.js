@@ -9,10 +9,10 @@
   // page still renders and explains itself; only the game is missing.
 
   // ---------------------------------------------------------------- the logo
-  // The team logo, the same file the navbar wears in the top-left corner, and
-  // served from iGEM's own host. iGEM does not allow external CDNs, so if this
-  // is ever changed it has to stay on static.igem.wiki.
-  const LOGO_URL = 'https://static.igem.wiki/teams/6379/wiki/logo/logo-ncku.avif';
+  // The bacterium the player is catching, served from iGEM's own host. iGEM
+  // does not allow external CDNs, so if this is ever changed it has to stay
+  // on static.igem.wiki.
+  const LOGO_URL = 'https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria.avif';
 
   // --------------------------------------------------------------- the rules
   const ROUND_MS = 60000;                    // one minute, fixed
