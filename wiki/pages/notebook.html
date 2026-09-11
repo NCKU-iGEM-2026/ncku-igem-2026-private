@@ -150,96 +150,101 @@
 
 {% set TRACKS = [("wet", "Wet Lab"), ("dry", "Dry Lab"), ("hp", "Human Practices")] %}
 
-<div class="nb" id="notebook" data-hidden="">
+{# Cells carrying a photo, shown after a brief hover -- see .nb-hover-img /
+   notebook-hover-image.js. Keyed by "week:track" since these are one-offs
+   rather than a data field every week would otherwise have to carry empty. #}
+{% set HOVER_IMAGES = {
+  "1:wet": "https://static.igem.wiki/teams/6379/wiki/notebook/wetlab-w1.avif",
+  "1:dry": "https://static.igem.wiki/teams/6379/wiki/notebook/drylab-w1.avif"
+} %}
+
+<div class="nb" id="notebook">
 
   <section class="nb-intro">
-    <h2>How the season ran</h2>
-    <p>
-      This is our working record for the 2026 season. Select a week to open it;
-      inside, the three parts of the team &mdash; Wet Lab, Dry Lab and Human
-      Practices &mdash; are kept in their own columns. Weeks with nothing under
-      them are weeks where no milestone was recorded; we have left the gaps in
-      place rather than closing them, so the record reads as it happened.
-    </p>
   </section>
 
-  <!-- What each part of the team has on record, and the filter: they were the
-       same three facts said twice, as a tile and again as a chip.
-
-       All three start on; selecting one hides that team, selecting it again
-       brings it back. They are disabled here and enabled by
-       notebook-timeline.js, so a reader without JavaScript gets three plain
-       counts rather than three buttons that do nothing. That is also why the
-       disabled state is styled to look live rather than greyed out. -->
-  <div class="nb-toggles" id="nbToggles" role="group" aria-label="Show or hide each part of the team">
+  <!-- A plain tally, one per part of the team -- read-only, nothing to press.
+       The figures count up from zero when they scroll into view; see
+       notebook-counters.js. -->
+  <div class="nb-tallies">
     {% for key, label in TRACKS %}
-    <button type="button" class="nb-toggle" data-track="{{ key }}" disabled>
-      <span class="nb-toggle-n">{{ c[key] }}</span>
-      <span class="nb-toggle-label">{{ label }} milestones</span>
-    </button>
+    <div class="nb-tally" data-track="{{ key }}">
+      <span class="nb-tally-n" data-count-to="{{ c[key] }}">0</span>
+      <span class="nb-tally-label">{{ label }}</span>
+    </div>
     {% endfor %}
   </div>
 
-  <p class="nb-status" id="nbStatus" role="status" aria-live="polite"></p>
+  <p class="nb-status">
+    <span class="nb-status-n" data-count-to="{{ c.wet + c.dry + c.hp }}">0</span>
+    milestones across {{ weeks|length }} weeks.
+  </p>
 
-  <ol class="nb-timeline">
+  <!-- Reverses the ledger's own DOM order (including the open-ended "19+"
+       row) -- see notebook-sort.js. Ships disabled and the script enables
+       it, so a reader without JavaScript gets the plain chronological order
+       rather than a dead button. -->
+  <button type="button" class="nb-sort" id="nbSort" data-order="asc" disabled>
+    <span class="nb-sort-label">Oldest first</span>
+    <svg class="nb-sort-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+         viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 6 8 10 12 6"/>
+    </svg>
+  </button>
+
+  <!-- ====================== the ledger ======================
+       One grid row per week: the week number and its dates in the left
+       column, then one column per part of the team. The column headings are
+       stated once at the top on a wide screen; each cell repeats them for
+       itself once the grid stacks on a narrow one. -->
+  <div class="nb-head" aria-hidden="true">
+    <span class="nb-head-week">Week</span>
+    {% for key, label in TRACKS %}
+    <span class="nb-head-track" data-track="{{ key }}">{{ label }}</span>
+    {% endfor %}
+  </div>
+
+  <ol class="nb-ledger" id="nbLedger">
 
     {% for w in weeks %}
-    {#  Wet Lab is listed on every week whether or not it has entries yet, so
-        switching Wet Lab off never hides a week -- see note 2 at the top. #}
-    {% set tracks = ['wet'] + (['dry'] if w.dry else []) + (['hp'] if w.hp else []) %}
-    <li class="nb-week{{ ' is-blank' if not (w.wet or w.dry or w.hp) }}" data-tracks="{{ tracks|join(' ') }}">
-      {# A plain marker on the spine. The week number is in the summary right
-         next to it, so putting it in here as well only said it twice. #}
-      <div class="nb-node" aria-hidden="true"></div>
+    <li class="nb-week{{ ' is-blank' if not (w.wet or w.dry or w.hp) }}" id="week-{{ w.n }}">
 
-      <details class="nb-card">
-        <summary class="nb-summary">
-          <h3 class="nb-week-title">Week {{ w.n }}</h3>
-          <span class="nb-dates">({{ w.dates|safe }})</span>
-          <svg class="nb-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-               viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="m4 6 4 4 4-4"/>
-          </svg>
-        </summary>
+      <div class="nb-week-id">
+        <h3 class="nb-week-n">{{ w.n }}</h3>
+        <span class="nb-dates">{{ w.dates|safe }}</span>
+      </div>
 
-        <div class="nb-cols">
-          {% for key, label in TRACKS %}
-          {% if w[key] or key == 'wet' %}
-          <section class="nb-col{{ ' is-pending' if not w[key] }}" data-track="{{ key }}">
-            <h4 class="nb-col-head">{{ label }}</h4>
-            {% if w[key] %}
-            <ul class="nb-entries">
-              {% for item in w[key] %}
-              <li class="nb-entry" data-track="{{ key }}">{{ item|safe }}</li>
-              {% endfor %}
-            </ul>
-            {% else %}
-            <p class="nb-pending">Records to come.</p>
-            {% endif %}
-          </section>
-          {% endif %}
+      {# Every track gets a cell whether or not it has anything in it, so the
+         columns stay in line all the way down the page. #}
+      {% for key, label in TRACKS %}
+      {% set hover_img = HOVER_IMAGES.get(w.n ~ ':' ~ key, '') %}
+      <section class="nb-col{{ ' is-empty' if not w[key] }}" data-track="{{ key }}"{% if hover_img %} data-hover-img="{{ hover_img }}"{% endif %}>
+        <h4 class="nb-col-head">{{ label }}</h4>
+        {% if w[key] %}
+        <ul class="nb-entries">
+          {% for item in w[key] %}
+          <li class="nb-entry" data-track="{{ key }}">{{ item|safe }}</li>
           {% endfor %}
-        </div>
-      </details>
+        </ul>
+        {% else %}
+        <p class="nb-empty" aria-label="Nothing recorded">&mdash;</p>
+        {% endif %}
+      </section>
+      {% endfor %}
     </li>
     {% endfor %}
 
     <!-- ====================== the rest of the season ======================
-         Not a week that came up empty -- a week that has not happened yet. It
-         carries all three tracks so it stays on screen whichever team is
-         switched off: every part of the team still has this stretch ahead. -->
-    <li class="nb-week nb-week-open" data-tracks="wet dry hp">
-      {# The clock that used to sit here needed a 48px node to be legible; at
-         dot size it read as a smudge. The card says the season is running. #}
-      <div class="nb-node nb-node-open" aria-hidden="true"></div>
-      <div class="nb-card nb-card-plain">
-        <h3 class="nb-week-title">Week 19 onwards <span class="nb-dates">(9/6~)</span></h3>
-        <p class="nb-blank">
-          The season is still running. Later weeks go here as they happen.
-        </p>
+         Not a week that came up empty -- a week that has not happened yet. -->
+    <li class="nb-week nb-week-open" id="week-open">
+      <div class="nb-week-id">
+        <h3 class="nb-week-n">19+</h3>
+        <span class="nb-dates">9/6~</span>
       </div>
+      <p class="nb-blank">
+        The season is still running. Later weeks go here as they happen.
+      </p>
     </li>
 
   </ol>
@@ -248,5 +253,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{{ url_for('static', filename = 'notebook-timeline.js') }}"></script>
+<script src="{{ url_for('static', filename = 'notebook-counters.js') }}"></script>
+<script src="{{ url_for('static', filename = 'notebook-hover-image.js') }}"></script>
+<script src="{{ url_for('static', filename = 'notebook-sort.js') }}"></script>
 {% endblock %}

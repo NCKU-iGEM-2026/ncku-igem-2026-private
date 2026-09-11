@@ -1,6 +1,6 @@
-body { padding-top: 88px; }
+body { padding-top: 104px; }
 .navbar {
-  height: 64px;
+  height: 80px;
   overflow: visible;
   padding-top: 0;
   padding-bottom: 0;
@@ -12,7 +12,11 @@ body { padding-top: 88px; }
   right: auto;
   transform: translateX(-50%);
   width: calc(100% - 3rem);
-  max-width: 1400px;
+  /* Was a flat 1400px. The bar is the only thing holding the menu's width, so
+     on a large screen it now keeps growing -- to 1720px -- and the sections
+     get the room they were being squeezed out of. Below ~1500px the viewport
+     is narrower than the floor anyway, so nothing there changes. */
+  max-width: clamp(1400px, calc(100vw - 6rem), 1720px);
   border-radius: 20px;
   transition: transform 0.3s ease;
 }
@@ -21,8 +25,9 @@ body { padding-top: 88px; }
   position: absolute;
   /* Tracks the logo size above so the overhang stays proportional. Shifted
      down by the navbar's 16px top inset so the logo lands at the same
-     on-screen position it did when the bar sat flush at the very top. */
-  top: clamp(-55px, calc(-0.212 * (100vw - 872px) + 1px), -28px);
+     on-screen position it did when the bar sat flush at the very top, then
+     nudged up 10px and back down 8px of that. */
+  top: clamp(-57px, calc(-0.212 * (100vw - 872px) - 1px), -30px);
   left: 24px;
   font-size: 1.7rem;
   padding-top: 0;
@@ -162,6 +167,33 @@ body.show-back-to-top .back-to-top {
     overflow-y: auto;
   }
 }
+/* Changa, all seven weights that are on the iGEM server. Declared together so
+   there is one place to look, and so any weight from 200 to 800 can be asked
+   for by number without the browser having to synthesise it. */
+@font-face {
+  font-family: "Changa";
+  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-extralight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Changa";
+  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Changa";
+  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @font-face {
   font-family: "Changa";
   src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-medium.ttf") format("truetype");
@@ -172,8 +204,24 @@ body.show-back-to-top .back-to-top {
 
 @font-face {
   font-family: "Changa";
-  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-regular.ttf") format("truetype");
-  font-weight: 400;
+  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-semibold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Changa";
+  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Changa";
+  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-extrabold.ttf") format("truetype");
+  font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
@@ -284,12 +332,12 @@ footer.bg-dark { background-color: #075a3e !important; }
 .footer .text-white-50 { color: rgba(255, 255, 255, 0.75) !important; }
 .bg-hero {
   background-color: #fff6b7;
-  /* Extend the colour band up behind the floating navbar's 88px reserved
+  /* Extend the colour band up behind the floating navbar's 104px reserved
      gap, instead of stopping where the bar used to sit flush at the top.
-     padding-top makes up the same 88px so the title/subtitle land exactly
+     padding-top makes up the same 104px so the title/subtitle land exactly
      where they did before -- only the background reaches further up. */
-  margin-top: -88px;
-  padding-top: calc(3rem + 88px) !important;
+  margin-top: -104px;
+  padding-top: calc(3rem + 104px) !important;
 }
 
 /* Every page's default banner: same flat yellow band as .bg-hero, sized the
@@ -383,35 +431,18 @@ footer a:hover { color: white; text-decoration: underline; }
   font-display: swap;
 }
 
-@font-face {
-  font-family: "Changa";
-  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Changa";
-  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/changa/changa-light.ttf") format("truetype");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
 .hero-title {
   font-family: "Changa", sans-serif;
   font-weight: 700;
-  color: #075a3e;
-  /* The pale yellow reads fine on the flat colour band but nearly vanishes
-     over a busy blurred photo -- a few offset copies fake a thin dark-green
-     stroke around the letters, plus a soft shadow for a little lift, so the
-     title still separates from the photo regardless of what's behind it. */
+  /* Goose-yellow (鵝黃) text, 1.3x the size Bootstrap's .display-4 would
+     otherwise give it (same fluid clamp, just scaled up). No hard outline --
+     instead a soft black blur behind the letters, like a vignette, so the
+     title reads as lifted off the banner photo rather than flat against it. */
+  color: #fff6b7;
+  font-size: clamp(1.9175rem, 1.9175rem + 3.51vw, 4.55rem);
   text-shadow:
-    -3px -3px 0 #fff6b7,
-    1px -1px 0 #6cd82e,
-    -1px 1px 0 #fff7b700,
-    1px 1px 0 #fff7b700;
+    0 2px 4px rgba(0, 0, 0, 0.55),
+    0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
 .hero-sub {
@@ -722,16 +753,23 @@ footer a:hover { color: white; text-decoration: underline; }
     .custom-nav-width {
       /* 180px x 5 plus Home is 1040px, which does not fit until ~1350px and
          pushed "Team" off the right edge from 992px up. Scale down to 140px so
-         every section is reachable at every width, reaching the drawn size at
-         1350px. */
-      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1754), 180px);
+         every section is reachable at every width.
+         The ceiling used to be 180px; it now reaches 200px at 1600px, which is
+         where the wider bar has the room for it. Everything at or below 1440px
+         is unchanged -- that end was tuned so "Team" stays on screen, and the
+         logo overhangs into the same 274px on the left whatever the width. */
+      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1255), 200px);
       position: relative;
     }
   
+    /* Pinning the panel to the width of the section above it is what broke
+       "Biosafety and Security" across two lines: at 180px there was nowhere
+       for it to go. It now starts at the section's width, so it still reads
+       as belonging to it, and grows to whatever its longest item needs. */
     .custom-nav-width .dropdown-menu {
-      min-width: 100% !important;
-      width: 100% !important;
-      max-width: 100% !important;
+      min-width: 100%;
+      width: max-content;
+      max-width: min(22rem, 92vw);
     }
   
     .custom-nav-width .dropdown-item {
@@ -743,7 +781,7 @@ footer a:hover { color: white; text-decoration: underline; }
 
   @media (min-width: 992px) {
     .custom-nav-short {
-      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.1316), 140px);
+      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.0941), 155px);
       position: relative;
     }
   }
@@ -4253,8 +4291,7 @@ body.tour-active { overflow: hidden; }
 
 .cap-game { margin: 0 0 1.5rem; }
 
-/* The dish. The faint grid is a counting chamber, and the ring inside the
-   edge keeps the play area reading as a round vessel on a square element. */
+/* The dish. The faint grid is a counting chamber. */
 .cap-field {
   position: relative;
   height: clamp(360px, 62vh, 560px);
@@ -4265,20 +4302,14 @@ body.tour-active { overflow: hidden; }
     repeating-linear-gradient(0deg, rgba(7, 90, 62, 0.05) 0 1px, transparent 1px 40px),
     repeating-linear-gradient(90deg, rgba(7, 90, 62, 0.05) 0 1px, transparent 1px 40px);
   overflow: hidden;
-  /* The net. A pointer that is a net is most of what makes this a catching
-     game rather than a clicking one, so it is set on the whole field, not
-     only on the target. crosshair is the fallback anywhere an SVG cursor is
-     refused, and it is at least still a pointer you can aim. */
-  cursor: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%3E%3Cdefs%3E%3CclipPath%20id='m'%3E%3Ccircle%20cx='15'%20cy='15'%20r='11'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath%20d='M23%2023%2036%2036'%20stroke='%233a4640'%20stroke-width='4'%20stroke-linecap='round'%20fill='none'/%3E%3Cpath%20d='M23%2023%2036%2036'%20stroke='%23d8b26a'%20stroke-width='2'%20stroke-linecap='round'%20fill='none'/%3E%3Ccircle%20cx='15'%20cy='15'%20r='11'%20fill='%23ffffff'%20fill-opacity='.55'/%3E%3Cg%20clip-path='url(%23m)'%20stroke='%23075a3e'%20stroke-width='1'%20opacity='.85'%20fill='none'%3E%3Cpath%20d='M4%2010h22M4%2015h22M4%2020h22M10%204v22M15%204v22M20%204v22'/%3E%3C/g%3E%3Ccircle%20cx='15'%20cy='15'%20r='11'%20fill='none'%20stroke='%23075a3e'%20stroke-width='2.6'/%3E%3C/svg%3E") 15 15, crosshair;
-}
-
-.cap-field::after {
-  content: "";
-  position: absolute;
-  inset: 10px;
-  border: 1px dashed rgba(7, 90, 62, 0.16);
-  border-radius: 999px;
-  pointer-events: none;
+  /* The pointer over the dish is the aptamer being caught, rather than a
+     drawn net -- set on the whole field, not only on the target. The source
+     photo is served from iGEM's own host at 272x424, far larger than any
+     browser will actually use as a cursor (most cap out well under 128px and
+     silently fall back when it is too big), so this is a small PNG resized
+     from it and inlined here rather than the remote file directly. crosshair
+     is the fallback anywhere a custom cursor image is refused. */
+  cursor: url("data:image/png;base64,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") 17 27, crosshair;
 }
 
 /* ---- the score and the clock, pinned to the top-right corner ---- */
@@ -4330,24 +4361,56 @@ body.tour-active { overflow: hidden; }
    read as a rendering fault rather than as information. */
 .cap-game:not([data-state="playing"]) .cap-hud { display: none; }
 
+/* The hud itself ignores clicks (it must not steal them from the field
+   underneath), but the pause button living inside it is meant to be
+   pressed, so it opts back in on its own. */
+.cap-pause {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  padding: 0;
+  border: 1px solid #bcd8c9;
+  border-radius: 999px;
+  background: rgba(255, 253, 247, 0.94);
+  color: #075a3e;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 0.15s ease;
+}
+
+.cap-pause:hover { background: #eaf7dd; }
+
+.cap-pause:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+/* Hidden the instant the round is not running or already paused -- the panel
+   underneath is what offers Resume then, not this button a second time. */
+.cap-game:not([data-state="playing"]) .cap-pause,
+.cap-game[data-paused="true"] .cap-pause { display: none; }
+
 /* ---- the thing being caught ---- */
-/* A disc behind the logo. The team mark is mostly pale ink on transparency,
-   and on the pale dish it read as a faint smudge well inside a 76px hit area
-   -- you could not see what to aim at, or tell where it ended. The disc gives
-   it a ground to sit on and makes the target look the size it actually is. */
+/* No disc: the bacterium art (unlike the old pale logo mark) reads on its own
+   against the dish, so the hit area is just the image's own bounds. */
 .cap-target {
   position: absolute;
   z-index: 2;
   width: 76px;
   height: 76px;
-  padding: 9px;
-  border: 2px solid rgba(7, 90, 62, 0.3);
-  border-radius: 50%;
-  background: #fffdf7;
-  box-shadow: 0 4px 12px rgba(7, 90, 62, 0.22);
-  cursor: inherit;          /* the net, not a hand */
+  padding: 0;
+  border: 0;
+  background: none;
   -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 4px 8px rgba(7, 90, 62, 0.25));
 }
+
+/* Bootstrap's reboot sets button:not(:disabled){cursor:pointer} at (0,1,1),
+   which otherwise beats a plain .cap-target rule (0,1,0) and swaps the
+   aptamer cursor back to a hand the instant it crosses onto a target -- the
+   extra .cap-field ancestor is only here to outweigh that. */
+.cap-field .cap-target { cursor: inherit; }
 
 .cap-target img {
   width: 100%;
@@ -4436,6 +4499,11 @@ body.tour-active { overflow: hidden; }
 
 .cap-game[data-state="idle"] .cap-panel-start,
 .cap-game[data-state="over"] .cap-panel-end { display: flex; }
+
+/* Paused is a separate flag rather than a fourth data-state value, so the
+   round's own state (playing) is still what it is underneath -- pausing
+   freezes the clock and the dish without ending or restarting anything. */
+.cap-game[data-paused="true"] .cap-panel-pause { display: flex; }
 
 .cap-panel h2 {
   font-family: "Changa", sans-serif;
@@ -4600,278 +4668,255 @@ body.tour-active { overflow: hidden; }
 @media print {
   .cap-field { display: none; }
 }
+/* Notebook -------------------------------------------------------------
+   A ledger, not a stack of cards: one grid row per week, hairline rules
+   between them, and nothing drawn around anything. The three parts of the
+   team hold a column each, named once in the header row on a wide screen and
+   again inside every cell once the grid stacks on a narrow one.
 
-/* Notebook ----------------------------------------------------------------
-   A week-by-week timeline down a single spine. Every week is a <details>, shut
-   until it is asked for, showing only its number and its dates. Native rather
-   than scripted, for three reasons: it opens without JavaScript, Enter and
-   Space already work, and separate <details> elements do not close each other
-   -- opening a second week leaves the first open. Do not add a name attribute
-   to them; that would turn the timeline into an exclusive accordion.
+   Every week prints all three cells whether or not it has entries, so the
+   columns stay in line all the way down; an empty one shows an em dash. */
 
-   Inside, the three parts of the team get a column each. Wet Lab is drawn on
-   every week even when it has nothing in it yet -- the team works every week
-   and the records are still coming -- so the columns per week are 1, 2 or 3
-   and 1fr keeps whichever are present the same width.
-
-   Filtering is CSS off [data-filter] on the root; notebook-timeline.js only
-   sets the attribute. */
-/* Wider than the page's own container. The timeline is three columns of short
-   entries rather than prose, so it wants room; the paragraph above it stays at
-   46rem because a line of text 1200px long is miserable to read.
-
-   max() against 100% is what keeps this safe on a phone: there the container is
-   already the wider of the two and nothing moves. Above that the width breaks
-   out of the container, and left:50% with half of it back as a negative margin
-   re-centres it on the window rather than on the container it escaped.
-
-   The 4rem gutter is also what absorbs the scrollbar: 100vw counts it, the
-   space available does not, and 64px is comfortably more than any scrollbar. */
+/* Wider than the page's own container: the ledger is four columns of short
+   entries rather than prose, so it wants room. max() against 100% keeps this
+   safe on a phone, where the container is already the wider of the two and
+   nothing moves; above that left:50% with half the width back as a negative
+   margin re-centres it on the window rather than on the container it escaped.
+   The 4rem gutter also absorbs the scrollbar, which 100vw counts and the
+   space available does not. */
 .nb {
   --nb-w: max(100%, min(100vw - 4rem, 88rem));
+  --nb-rule: rgba(7, 90, 62, 0.14);
+  --nb-muted: #5c6b62;
+  --nb-week-col: 6.5rem;
   position: relative;
   width: var(--nb-w);
   max-width: none;
   left: 50%;
-  margin: 0 0 3.5rem calc(var(--nb-w) / -2);
-}
-
-.nb-intro { max-width: 46rem; margin: 0 auto 2rem; text-align: center; }
-.nb-intro h2 { font-family: "Changa", sans-serif; color: #075a3e; }
-.nb-intro p { color: #5c6b62; font-size: 1.18rem; line-height: 1.7; }
-
-/* The three tracks: green, orange, pink.
-
-   The accent is the working colour -- the crayon rule under each team's name,
-   the bullets, the tile borders. It is UI rather than text, so it needs 3:1
-   against the page, not 4.5:1. The tint is only the tally tiles now that the
-   columns are no longer filled; it is kept because those three tiles still
-   carry text, and it is matched across the tracks on luminance rather than
-   picked one at a time -- 0.706, 0.702, 0.699 -- so no tile reads heavier than
-   the two beside it.
-
-   Every pair was chosen against the floors it has to clear, not by eye.
-   Colour is never the only signal either: each column is headed with the name
-   of the team, so a reader who cannot separate the green from the orange still
-   reads the page. */
-.nb [data-track="wet"] { --nb-accent: #1f7a3e; --nb-tint: #bee4c8; }
-.nb [data-track="dry"] { --nb-accent: #a5540c; --nb-tint: #f9d4ac; }
-.nb [data-track="hp"]  { --nb-accent: #a83a68; --nb-tint: #f8cfdf; }
-
-/* ---- the counts, which are also the filter ---- */
-/* They used to be a tile reading "3 Wet Lab milestones" with a chip reading
-   "Wet Lab 3" underneath it -- the same three facts twice. One control now.
-   All three start on; selecting one hides that team, selecting it again brings
-   it back, and they are independent of each other.
-
-   The markup ships them disabled and the script enables them, so without
-   JavaScript they are three plain counts rather than three dead buttons. That
-   is why :disabled below keeps the live look instead of greying out. */
-.nb-toggles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: 1rem;
-  margin-bottom: 0.9rem;
-}
-
-.nb-toggle {
-  font: inherit;
-  background: var(--nb-tint);
-  border: 2px solid var(--nb-accent);
-  border-radius: 14px;
-  padding: 1rem 0.9rem;
-  text-align: center;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.nb-toggle:disabled { cursor: default; opacity: 1; }
-.nb-toggle:not(:disabled):hover { filter: brightness(0.96); }
-
-.nb-toggle:focus-visible {
-  outline: 3px solid #d8b26a;
-  outline-offset: 2px;
-}
-
-.nb-toggle-n {
-  display: block;
+  margin: 0 0 4rem calc(var(--nb-w) / -2);
   font-family: "Changa", sans-serif;
-  font-size: 2.7rem;
-  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+/* The four brand colours and nothing else. They are markers here -- keylines
+   and bullets -- never the text itself: 6cd82e is about 1.9:1 on white and
+   ff7a00 about 2.9:1, so neither can carry a word. Every column is headed
+   with the name of the team as well, so a reader who cannot separate the two
+   greens still reads the page. */
+.nb [data-track="wet"] { --nb-accent: #075a3e; }
+.nb [data-track="dry"] { --nb-accent: #ff7a00; }
+.nb [data-track="hp"]  { --nb-accent: #6cd82e; }
+
+/* ---- opening ---- */
+.nb-intro { margin: 0 0 1.5rem; }
+
+.nb-intro h2 {
+  font-weight: 800;
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: #075a3e;
+  margin: 0;
+}
+
+/* ---- the tallies ----
+   Three plain figures under an accent rule. No tile, no border, no fill,
+   nothing to press -- just what each part of the team has on record. */
+.nb-tallies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* The season's total, stated as a sentence rather than another bare figure,
+   with just the number pulled out in the accent orange so it still reads at
+   a glance. */
+.nb-status {
+  font-weight: 500;
+  font-size: 1.5rem;
+  line-height: 1.4;
+  color: var(--nb-muted);
+  margin: 0 0 2.5rem;
+}
+
+.nb-status-n {
+  font-weight: 800;
+  font-size: 2.8rem;
+  letter-spacing: -0.03em;
   color: #075a3e;
 }
 
-.nb-toggle-label {
+.nb-tally {
+  border-top: 3px solid var(--nb-accent);
+  padding: 0.9rem 0 0;
+  min-width: 9rem;
+}
+
+.nb-tally-n {
   display: block;
-  font-size: 1.1rem;
-  color: #3d5147;
+  font-weight: 800;
+  font-size: 3.8rem;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  color: #075a3e;
 }
 
-/* Off: the fill drains away and the border goes dashed. The text is recoloured
-   rather than faded -- dropping the opacity would take it under AA, and the
-   count is the thing a reader still wants to be able to read. */
-.nb-toggle.is-off {
-  background: transparent;
-  border-color: rgba(7, 90, 62, 0.3);
-  border-style: dashed;
+.nb-tally-label {
+  display: block;
+  margin-top: 0.3rem;
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nb-muted);
 }
 
-.nb-toggle.is-off .nb-toggle-n,
-.nb-toggle.is-off .nb-toggle-label { color: #5c6b62; }
-
-/* What the current selection adds up to, announced to a screen reader as it
-   changes. Reserves its line so the timeline does not jump when the wording
-   grows or shrinks. */
-.nb-status {
-  text-align: center;
-  font-size: 1.08rem;
-  color: #5c6b62;
-  min-height: 1.5rem;
-  margin-bottom: 1.75rem;
+/* ---- the ledger ---- */
+/* The ledger's own control: flips oldest-first/newest-first, plain text plus
+   a chevron rather than a boxed button, in the same register as everything
+   else on the page. */
+.nb-sort {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--nb-muted);
+  cursor: pointer;
+  transition: color 0.18s ease;
 }
 
-/* ---- the spine ---- */
-.nb-timeline {
+.nb-sort:disabled { cursor: default; }
+.nb-sort:not(:disabled):hover { color: #075a3e; }
+
+.nb-sort:focus-visible {
+  outline: 2px solid #075a3e;
+  outline-offset: 3px;
+}
+
+.nb-sort-icon { transition: transform 0.25s ease; }
+.nb-sort[data-order="desc"] .nb-sort-icon { transform: rotate(180deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-sort-icon { transition: none; }
+}
+
+/* Stated once at the top; each cell repeats the same heading for itself, kept
+   for screen readers here and shown outright once the grid stacks. */
+.nb-head {
+  display: flex;
+  gap: 2rem;
+  padding: 0 0 0.7rem;
+  border-bottom: 1px solid rgba(7, 90, 62, 0.28);
+}
+
+.nb-head-week,
+.nb-head-track {
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #075a3e;
+}
+
+.nb-head-week { flex: 0 0 var(--nb-week-col); }
+
+.nb-head-track {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--nb-accent);
+}
+
+.nb-ledger {
   list-style: none;
   margin: 0;
   padding: 0;
-  position: relative;
-}
-
-/* Centred on the 48px node: 24px in, less the 2px of its own width. */
-.nb-timeline::before {
-  content: "";
-  position: absolute;
-  left: 23px;
-  top: 12px;
-  bottom: 12px;
-  width: 2px;
-  background: linear-gradient(#075a3e, rgba(7, 90, 62, 0.38));
 }
 
 .nb-week {
-  position: relative;
-  padding-left: 48px;
-  margin-bottom: 0.85rem;
-}
-
-/* A marker on the spine, nothing more -- the week number is in the summary a
-   few pixels to the right. 16px wide, so left:16px centres it on the spine's
-   own centre at 24px; top:19px puts it level with the week title. */
-.nb-node {
-  position: absolute;
-  left: 16px;
-  top: 19px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fffdf7;
-  border: 3px solid #075a3e;
-}
-
-/* The season-still-running marker: hollow, so it reads as an end that has not
-   been filled in yet rather than one more week. */
-.nb-node-open { background: transparent; border-color: rgba(7, 90, 62, 0.55); }
-
-.nb-card {
-  background: #fffdf7;
-  border: 2px solid rgba(7, 90, 62, 0.42);
-  border-radius: 14px;
-}
-
-.nb-card[open] { border-color: rgba(7, 90, 62, 0.72); }
-.nb-card-plain { padding: 1rem 1.15rem; }
-
-/* ---- the closed row ---- */
-.nb-summary {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.8rem 1.15rem;
-  min-height: 52px;
-  cursor: pointer;
-  border-radius: 12px;
-  /* Both are needed to drop the disclosure triangle: ::marker for Firefox and
-     Chrome, the -webkit pseudo for Safari. */
-  list-style: none;
+  gap: 2rem;
+  padding: 1.6rem 0;
+  border-bottom: 1px solid var(--nb-rule);
+  /* Clears the floating navbar when the contents jumps to a week. */
+  scroll-margin-top: 104px;
 }
 
-.nb-summary::-webkit-details-marker { display: none; }
-.nb-summary::marker { content: ""; }
-
-.nb-summary:hover { background: #f2f8f4; }
-
-.nb-summary:focus-visible {
-  outline: 3px solid #d8b26a;
-  outline-offset: -3px;
+.nb-week-id {
+  flex: 0 0 var(--nb-week-col);
+  padding: 0.3rem 0.5rem;
+  margin: -0.3rem 0 -0.3rem -0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.18s ease;
 }
 
-.nb-week-title {
-  font-family: "Changa", sans-serif;
-  font-size: 1.55rem;
+/* The pale brand yellow, used only here -- the week number's own hover, kept
+   apart from each track column's so a reader can tell which part of the row
+   they are actually over instead of the whole line lighting up as one. */
+.nb-week-id:hover { background: rgba(255, 246, 183, 0.55); }
+
+/* Extralight at display size: the number is the loudest thing in the row
+   without being the heaviest, which is what stops the ledger reading as
+   nineteen headlines stacked on top of each other. */
+.nb-week-n {
+  font-weight: 200;
+  font-size: clamp(2.4rem, 3.6vw, 3.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
   color: #075a3e;
   margin: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .nb-dates {
-  font-family: "Changa", sans-serif;
-  font-size: 1.12rem;
-  font-weight: 400;
-  color: #5c6b62;
-}
-
-.nb-chevron {
-  margin-left: auto;
-  flex: 0 0 auto;
-  color: #075a3e;
-  transition: transform 0.2s ease;
-}
-
-.nb-card[open] > .nb-summary .nb-chevron { transform: rotate(180deg); }
-
-/* ---- the three columns ---- */
-.nb-cols {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
-  /* The columns were panels; now they are three plain runs of text, so the
-     space between them is the only thing keeping them apart. */
-  column-gap: 1.75rem;
-  row-gap: 1.25rem;
-  padding: 0.1rem 1.15rem 1.15rem;
-}
-
-.nb-col { padding: 0; }
-
-.nb-col-head {
-  font-family: "Changa", sans-serif;
-  font-size: 1.4rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #075a3e;
-  text-align: center;
-  margin: 0;
-}
-
-/* The crayon rule under the team's name.
-   The stroke's shape is a mask, not an image, so the colour stays
-   var(--nb-accent) and one drawing serves all three tracks. Its roughness runs
-   in y, which is why stretching it to whatever width a column happens to be
-   does not smooth it out: the gaps between the bumps stretch, the bumps
-   themselves never do. And because it is a masked background rather than an
-   <img>, a browser that cannot mask still draws a plain accent underline
-   instead of nothing. */
-.nb-col-head::after {
-  content: "";
   display: block;
-  height: 13px;
-  margin: 0.35rem 0 0.75rem;
-  background-color: var(--nb-accent);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%2010'%20preserveAspectRatio='none'%3E%3Cpath%20d='M1.5,4.5%2011.4,4.6%2021.3,3.9%2031.2,4.5%2041.1,4.1%2051.0,4.1%2060.9,4.0%2070.8,3.8%2080.7,3.2%2090.6,3.9%20100.5,3.4%20110.4,3.5%20120.3,2.8%20130.2,2.9%20140.1,3.7%20150.0,3.8%20159.9,3.9%20169.8,3.2%20179.7,3.4%20189.6,3.3%20199.5,3.5%20209.4,3.6%20219.3,4.2%20229.2,3.9%20239.1,3.6%20249.0,3.4%20258.9,4.3%20268.8,3.4%20278.7,3.8%20288.6,4.0%20298.5,4.3%20L298.5,5.3%20288.6,6.5%20278.7,6.0%20268.8,6.5%20258.9,6.5%20249.0,7.6%20239.1,7.8%20229.2,7.3%20219.3,7.2%20209.4,7.3%20199.5,7.2%20189.6,7.5%20179.7,7.7%20169.8,7.4%20159.9,7.7%20150.0,7.6%20140.1,7.3%20130.2,7.6%20120.3,7.5%20110.4,7.0%20100.5,6.8%2090.6,6.9%2080.7,6.9%2070.8,7.4%2060.9,7.5%2051.0,6.7%2041.1,7.0%2031.2,7.2%2021.3,6.9%2011.4,6.6%201.5,6.1%20Z'%20fill='black'/%3E%3Cellipse%20cx='27.1'%20cy='8.2'%20rx='3.2'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='71.6'%20cy='2.5'%20rx='2.1'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='92.5'%20cy='8.1'%20rx='2.7'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='138.1'%20cy='2.2'%20rx='2.7'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='170.5'%20cy='8.6'%20rx='1.4'%20ry='0.3'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='211.2'%20cy='2.7'%20rx='3.0'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='241.5'%20cy='8.6'%20rx='2.9'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='263.5'%20cy='2.1'%20rx='1.6'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%2010'%20preserveAspectRatio='none'%3E%3Cpath%20d='M1.5,4.5%2011.4,4.6%2021.3,3.9%2031.2,4.5%2041.1,4.1%2051.0,4.1%2060.9,4.0%2070.8,3.8%2080.7,3.2%2090.6,3.9%20100.5,3.4%20110.4,3.5%20120.3,2.8%20130.2,2.9%20140.1,3.7%20150.0,3.8%20159.9,3.9%20169.8,3.2%20179.7,3.4%20189.6,3.3%20199.5,3.5%20209.4,3.6%20219.3,4.2%20229.2,3.9%20239.1,3.6%20249.0,3.4%20258.9,4.3%20268.8,3.4%20278.7,3.8%20288.6,4.0%20298.5,4.3%20L298.5,5.3%20288.6,6.5%20278.7,6.0%20268.8,6.5%20258.9,6.5%20249.0,7.6%20239.1,7.8%20229.2,7.3%20219.3,7.2%20209.4,7.3%20199.5,7.2%20189.6,7.5%20179.7,7.7%20169.8,7.4%20159.9,7.7%20150.0,7.6%20140.1,7.3%20130.2,7.6%20120.3,7.5%20110.4,7.0%20100.5,6.8%2090.6,6.9%2080.7,6.9%2070.8,7.4%2060.9,7.5%2051.0,6.7%2041.1,7.0%2031.2,7.2%2021.3,6.9%2011.4,6.6%201.5,6.1%20Z'%20fill='black'/%3E%3Cellipse%20cx='27.1'%20cy='8.2'%20rx='3.2'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='71.6'%20cy='2.5'%20rx='2.1'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='92.5'%20cy='8.1'%20rx='2.7'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='138.1'%20cy='2.2'%20rx='2.7'%20ry='0.5'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='170.5'%20cy='8.6'%20rx='1.4'%20ry='0.3'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='211.2'%20cy='2.7'%20rx='3.0'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='241.5'%20cy='8.6'%20rx='2.9'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3Cellipse%20cx='263.5'%20cy='2.1'%20rx='1.6'%20ry='0.4'%20fill='black'%20fill-opacity='.4'/%3E%3C/svg%3E");
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+  margin-top: 0.35rem;
+  font-weight: 300;
+  font-size: 0.82rem;
+  color: var(--nb-muted);
+}
+
+.nb-col {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.3rem 0.9rem 0.3rem 0.9rem;
+  margin: -0.3rem 0;
+  border-left: 2px solid var(--nb-accent);
+  border-radius: 0 8px 8px 0;
+  transition: background-color 0.18s ease;
+}
+
+/* Each column tints with its own team's colour on hover -- kept separate
+   rather than the whole row lighting up as one strip, so hovering Dry Lab
+   never reads as also touching Wet Lab or Human Practices. */
+.nb-col:not(.is-empty):hover {
+  background: color-mix(in srgb, var(--nb-accent) 10%, transparent);
+}
+
+/* A cell with nothing in it keeps its place so the columns stay in line, but
+   drops its keyline back so the eye does not read it as content. */
+.nb-col.is-empty { border-left-color: var(--nb-rule); }
+
+/* Named once in .nb-head on a wide screen; still here for a screen reader,
+   and shown outright once the rows stack. */
+.nb-col-head {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .nb-entries {
@@ -4882,10 +4927,11 @@ body.tour-active { overflow: hidden; }
 
 .nb-entry {
   position: relative;
-  padding-left: 1.05rem;
-  margin-bottom: 0.6rem;
+  padding-left: 0.95rem;
+  margin-bottom: 0.5rem;
   color: #24352c;
-  font-size: 1.3rem;
+  font-weight: 400;
+  font-size: 0.98rem;
   line-height: 1.6;
 }
 
@@ -4895,87 +4941,449 @@ body.tour-active { overflow: hidden; }
   content: "";
   position: absolute;
   left: 0;
-  /* 0.8em down puts the dot on the first line's middle, not its top. */
-  top: 0.8em;
-  width: 8px;
-  height: 8px;
+  /* 0.72em down puts the dot on the first line's middle, not its top. */
+  top: 0.72em;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--nb-accent);
 }
 
-.nb-entry a { color: #075a3e; text-decoration: underline; }
-.nb-entry a:hover { color: #0a7a54; }
+.nb-entry a {
+  color: #075a3e;
+  text-decoration: underline;
+  text-decoration-color: rgba(7, 90, 62, 0.35);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.18s ease;
+}
 
-/* A column held open for records the team has not handed over yet, and the
-   stretch of season still ahead. Both said plainly rather than dressed up. */
-.nb-pending,
-.nb-blank {
+.nb-entry a:hover { text-decoration-color: #ff7a00; }
+
+.nb-empty {
   margin: 0;
-  color: #5c6b62;
-  font-size: 1.3rem;
-  font-style: italic;
+  color: rgba(7, 90, 62, 0.3);
+  font-weight: 300;
+  font-size: 0.98rem;
   line-height: 1.6;
 }
 
-/* A held-open column is the same heading and the same rule, drawn faintly:
-   the slot is there, the record is not. The italic line under it says so in
-   words, so the lighter stroke is not carrying the meaning on its own. */
-.nb-col.is-pending .nb-col-head { color: #4a6157; }
-.nb-col.is-pending .nb-col-head::after { opacity: 0.4; }
+/* A cell can be given a photo (data-hover-img) that only appears after the
+   pointer rests on it for 2s -- see notebook-hover-image.js. One <img>,
+   reused and repositioned for whichever cell is active, fixed-positioned so
+   it floats above the ledger rather than pushing it around. */
+.nb-hover-img {
+  position: fixed;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -100%);
+  width: 240px;
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(7, 90, 62, 0.28);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 20;
+  transition: opacity 0.2s ease;
+}
 
-/* Weeks where none of the three recorded anything. */
-.nb-week.is-blank > .nb-card { border-style: dashed; }
-/* Faded rather than dashed: 3px of dashes around a 16px circle just reads as
-   a broken dot. */
-.nb-week.is-blank .nb-node { border-color: rgba(7, 90, 62, 0.45); }
-.nb-week-open .nb-card { border-style: dashed; }
-
-/* ---- filtering ----
-   data-hidden lists the teams currently switched off, so a column goes when
-   its own team is in that list. */
-.nb[data-hidden~="wet"] .nb-col[data-track="wet"],
-.nb[data-hidden~="dry"] .nb-col[data-track="dry"],
-.nb[data-hidden~="hp"]  .nb-col[data-track="hp"] { display: none; }
-
-/* A week goes only when every team it has is switched off, which is one rule
-   per subset of the three. Written out in full rather than trimmed to the ones
-   today's data can reach: three of these match nothing at the moment, because
-   every week carries Wet Lab, and they would be needed the moment that stops
-   being true. */
-.nb[data-hidden~="wet"] .nb-week:not([data-tracks~="dry"]):not([data-tracks~="hp"]),
-.nb[data-hidden~="dry"] .nb-week:not([data-tracks~="wet"]):not([data-tracks~="hp"]),
-.nb[data-hidden~="hp"]  .nb-week:not([data-tracks~="wet"]):not([data-tracks~="dry"]),
-.nb[data-hidden~="wet"][data-hidden~="dry"] .nb-week:not([data-tracks~="hp"]),
-.nb[data-hidden~="wet"][data-hidden~="hp"]  .nb-week:not([data-tracks~="dry"]),
-.nb[data-hidden~="dry"][data-hidden~="hp"]  .nb-week:not([data-tracks~="wet"]),
-.nb[data-hidden~="wet"][data-hidden~="dry"][data-hidden~="hp"] .nb-week { display: none; }
-
-@media (max-width: 575.98px) {
-  /* Spine centre moves to 18px, so the dot's left is 18 - 8. */
-  .nb-timeline::before { left: 17px; }
-  .nb-week { padding-left: 40px; }
-  .nb-node { left: 10px; top: 17px; }
-  .nb-summary { padding: 0.7rem 0.85rem; }
-  .nb-cols { padding: 0 0.85rem 0.9rem; }
-  .nb-week-title { font-size: 1.32rem; }
-  /* The dates used to be forced onto their own line here, because "31 May -
-     6 June" would not sit beside the week number at 320px. They now read
-     "(5/31~6/6)" and fit, so the row is left in its natural order -- week,
-     dates, chevron -- and only wraps if it actually has to. */
-  .nb-summary { flex-wrap: wrap; row-gap: 0.15rem; }
+.nb-hover-img.is-visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nb-toggle, .nb-chevron { transition: none; }
+  .nb-hover-img { transition: none; }
 }
 
-/* On paper every week is open and every team is shown, however the reader left
-   the page. Both are done in the script rather than here: it opens the weeks
-   and clears data-hidden before printing and restores them afterwards, which is
-   cleaner than out-weighing seven filter rules from inside a media block. */
+/* The stretch of season still ahead: one line across the track columns rather
+   than three empty cells, because nothing has happened in any of them yet. */
+.nb-week-open .nb-blank {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  padding-left: 0.9rem;
+  border-left: 2px dotted rgba(7, 90, 62, 0.3);
+  font-weight: 300;
+  font-style: italic;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--nb-muted);
+}
+
+.nb-week-open { border-bottom: 0; }
+
+/* ---- narrow ---- */
+@media (max-width: 991.98px) {
+  /* The header row names columns that are no longer side by side. */
+  .nb-head { display: none; }
+
+  .nb-week { flex-direction: column; gap: 1rem; }
+
+  .nb-week-id {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+
+  .nb-week-n { font-size: 2rem; }
+  .nb-dates { margin-top: 0; }
+
+  /* Back in the flow, since nothing above states them any more. */
+  .nb-col-head {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0 0 0.4rem;
+    overflow: visible;
+    clip-path: none;
+    font-weight: 600;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #075a3e;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-week-id, .nb-col, .nb-entry a { transition: none; }
+}
+
 @media print {
-  .nb-chevron { display: none; }
-  .nb-toggle { border-style: solid; }
   .nb-week { break-inside: avoid; }
-  .nb-summary { cursor: auto; }
+}
+
+/* Find your way in: four questions, then two or three pages ------------------
+   A second way into the wiki for a reader who has read the home page and
+   still does not know where to go. Shares the tour's modal shape and palette
+   on purpose -- it is the same offer made a different way, and two dialogs
+   that look unrelated would read as two unrelated features. */
+
+/* The invitation. Hidden in the markup and revealed by the script, so it
+   never appears where it would do nothing. */
+.quiz-invite {
+  display: flex;
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+.quiz-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 48px;
+  padding: 0.7rem 1.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.quiz-open:hover,
+.quiz-open:focus-visible { background: #075a3e; color: #fffdf7; }
+
+.quiz {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 92px 16px 24px;
+}
+
+.quiz[hidden] { display: none; }
+
+.quiz-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 32, 22, 0.62);
+  cursor: pointer;
+}
+
+.quiz-card {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: calc(100vh - 116px);
+  overflow-y: auto;
+  background: #fffdf7;
+  border-radius: 16px;
+  box-shadow: 0 18px 48px rgba(15, 32, 22, 0.35);
+  padding: 1.1rem 1.6rem 1.4rem;
+}
+
+.quiz-card:focus { outline: none; }
+.quiz-card:focus-visible { outline: 3px solid #d8b26a; outline-offset: 3px; }
+
+.quiz-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+/* Language sits first in the bar, so it lands top-left wherever the card is. */
+.quiz-lang {
+  display: inline-flex;
+  border: 1px solid #c3cec7;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.quiz-lang button {
+  min-height: 32px;
+  padding: 0.25rem 0.8rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  color: #5f6e66;
+  background: #fffdf7;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.quiz-lang button + button { border-left: 1px solid #c3cec7; }
+.quiz-lang button:hover { background: #eaf7dd; }
+.quiz-lang button[aria-pressed="true"] { background: #075a3e; color: #fffdf7; }
+
+.quiz-count {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  color: #5f6e66;
+}
+
+.quiz-skip {
+  min-height: 32px;
+  padding: 0.25rem 0.85rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 1px solid #c3cec7;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.quiz-skip:hover,
+.quiz-skip:focus-visible { background: #eaf7dd; }
+
+.quiz-stage { min-height: 260px; }
+
+.quiz-title {
+  margin: 0 0 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.4rem;
+  line-height: 1.35;
+  color: #075a3e;
+}
+
+.quiz-lead {
+  margin: 0 0 1.1rem;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: #5f6e66;
+}
+
+.quiz-lead[hidden] { display: none; }
+
+/* ---- the options ---- */
+.quiz-options {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.quiz-options[hidden] { display: none; }
+
+.quiz-option {
+  width: 100%;
+  min-height: 52px;
+  padding: 0.8rem 1.1rem;
+  text-align: left;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #24352c;
+  background: #fff;
+  border: 2px solid #dfe8e2;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+              transform 0.15s ease;
+}
+
+.quiz-option:hover,
+.quiz-option:focus-visible {
+  background: #f2f9f5;
+  border-color: #75b299;
+  transform: translateX(3px);
+}
+
+/* The answer you gave last time, when you step back to change it. */
+.quiz-option[aria-pressed="true"] {
+  background: #e7f4ee;
+  border-color: #075a3e;
+  font-weight: 700;
+}
+
+/* ---- the answer ---- */
+.quiz-results {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.quiz-results[hidden] { display: none; }
+
+.quiz-result {
+  border: 1px solid #dfe8e2;
+  border-left: 4px solid #075a3e;
+  border-radius: 0 12px 12px 0;
+  background: #fff;
+  padding: 1rem 1.15rem;
+}
+
+.quiz-result h3 {
+  margin: 0 0 0.35rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.1rem;
+  color: #1f4a38;
+}
+
+.quiz-result p {
+  margin: 0 0 0.8rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #4a5a51;
+}
+
+.quiz-go {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.4rem 1.1rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.92rem;
+  color: #fffdf7;
+  background: #075a3e;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.quiz-go::after { content: "\2192"; margin-left: 0.45rem; }
+
+.quiz-go:hover,
+.quiz-go:focus-visible {
+  background: #04412c;
+  border-color: #04412c;
+  color: #fffdf7;
+  text-decoration: none;
+}
+
+.quiz-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e6ddc8;
+}
+
+.quiz-btn {
+  min-height: 40px;
+  padding: 0.45rem 1.15rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.quiz-btn:hover:not(:disabled),
+.quiz-btn:focus-visible { background: #eaf7dd; }
+
+/* Same reasoning as the tour's disabled Back: exempt from contrast, but still
+   readable, and still plainly lighter than the enabled control. */
+.quiz-btn:disabled {
+  color: #5f6e66;
+  border-color: #c3cec7;
+  cursor: default;
+}
+
+.quiz-restart { border-style: dashed; }
+
+/* The list of links the script reads hrefs out of; never shown. */
+.quiz-pages { display: none; }
+
+/* While the quiz is open the page behind it must not scroll away underneath.
+   Named for the state, not the control: .quiz-open is the button, and a body
+   carrying that class would inherit its inline-flex. */
+body.quiz-active { overflow: hidden; }
+
+@media (max-width: 575.98px) {
+  .quiz { padding: 80px 10px 16px; }
+  .quiz-card { padding: 1rem 1.1rem 1.2rem; }
+  .quiz-title { font-size: 1.2rem; }
+  .quiz-option { font-size: 0.95rem; }
+  /* The nudge on hover is a pointer affordance; on a touch screen it only
+     ever fires as a jump after the tap has already been taken. */
+  .quiz-option:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-option { transition: background-color 0.15s ease, border-color 0.15s ease; }
+  .quiz-option:hover,
+  .quiz-option:focus-visible { transform: none; }
+}
+
+/* ==========================================================================
+   Home: promotion video
+
+   The last block on the home page. Bootstrap's .ratio owns the 16:9 box, so
+   there is nothing to do about sizing here -- this only caps how wide the
+   player grows and gives it the same card treatment as the abstract above it.
+   ========================================================================== */
+.home-video {
+  max-width: 900px;
+  margin: 4rem auto 0;
+}
+
+.home-video-title {
+  color: #2c3e50;
+  margin-bottom: 1.25rem;
+}
+
+.home-video-frame {
+  overflow: hidden;         /* keeps the player's own corners inside ours */
+  border-radius: 12px;
+  /* What fills the 16:9 box until the player paints, and what shows through
+     if the frame is blocked altogether. Dark, so it reads as a screen. */
+  background: #10171d;
+  box-shadow: 0 10px 30px rgba(16, 23, 29, 0.18);
+}
+
+.home-video-frame iframe { border: 0; }
+
+.home-video-note {
+  margin: 0.85rem 0 0;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #5f6e66;
+}
+
+@media (max-width: 575.98px) {
+  .home-video { margin-top: 2.5rem; }
+  .home-video-frame { border-radius: 8px; }
 }
