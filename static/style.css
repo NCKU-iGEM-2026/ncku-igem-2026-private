@@ -470,6 +470,12 @@ footer a:hover { color: white; text-decoration: underline; }
   position: relative;
   max-width: 1400px;
   margin: 0 auto;
+  /* The scrapbook pages are rotated, so their bounding boxes reach past the
+     right edge of the window and gave the whole site a horizontal scrollbar on
+     the Team page -- 16px of nothing to scroll to. Clip rather than hide, so
+     the pages can still be positioned normally and nothing becomes a scroll
+     container of its own. */
+  overflow-x: clip;
 }
 
 /* Something for the glass panel's backdrop-filter to actually blur -- a
@@ -1297,6 +1303,80 @@ footer a:hover { color: white; text-decoration: underline; }
   border-radius: 0 6px 6px 0;
   padding: 0.6rem 0.8rem;
   margin: 0;
+}
+
+/* ---- the three methods, as cards that turn over ----------------------
+   The mechanism lives further down this file with the Hardware page's cards
+   (.hw-flip): both faces share one grid cell, so a card is as tall as its
+   longer face, and the grid row keeps all three level whichever face is
+   showing. Only the skin is here.
+
+   The front carries two things rather than the one a Hardware card carries
+   -- the method, and a line saying what it does -- so the name is set
+   smaller than there and the pair is stacked and centred rather than a
+   single centred line. */
+.desc-methods .hw-flip-front,
+.desc-methods .hw-flip-back {
+  border: 1px solid #dfe8e2;
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem;
+}
+
+.desc-methods .hw-flip-front {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #fffdf7;
+  /* Clear of the fold in the top-right corner and the "hover to read" cue in
+     the bottom-left, so neither ever lands on the words. */
+  padding-right: 2rem;
+  padding-bottom: 2.9rem;
+}
+
+/* The fold is drawn by the shared mechanism at the Hardware cards' 10px;
+   these corners are 12px, and a fold that is not the corner it sits in reads
+   as a misprint. */
+.desc-methods .hw-flip-front::after { border-top-right-radius: 12px; }
+
+.desc-methods .desc-method-name {
+  font-family: "Changa", sans-serif;
+  font-size: 1.18rem;
+  line-height: 1.35;
+  color: #1f4a38;
+  margin-bottom: 0.5rem;
+}
+
+/* Overrides the open-card version of this class, which carried a bottom
+   margin it no longer needs now that it is the last thing on the face. */
+.desc-methods .hw-flip-front .desc-method-what {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #4a5a51;
+  margin: 0;
+}
+
+/* Back: the gap the method leaves. It keeps the amber that marked the gap
+   when these were open cards, but as the whole face rather than a panel
+   inside one -- a cream card holding an amber box reads as two cards, and
+   turning one over to find another is a card too many. */
+.desc-methods .hw-flip-back {
+  display: flex;
+  align-items: center;
+  background: #fff6e2;
+  border-color: #e8d3a4;
+  margin: 0;
+}
+
+/* The text is wrapped in a block of its own rather than left bare on the
+   face. A flex container makes an anonymous item out of every run of text
+   between its element children, so a sentence with two <sup> citations in it
+   comes out as five boxes side by side instead of one paragraph. One child,
+   one column. */
+.desc-methods .hw-flip-back > p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #6b4a1f;
 }
 
 /* ---- the selectivity table ---- */
