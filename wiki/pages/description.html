@@ -4,145 +4,230 @@
 
 {% block page_content %}
 
-{#
-  === 給團隊的說明，發布前請讀 ===
-
-  1. 這一頁完全建立在你們提供的兩份文獻整理上，沒有加入任何你們沒說過的主張，
-     也沒有捏造任何數據或引用。
-
-  2. 引用狀態：
-     [5][6][7][8][9] 五筆我用 DOI 查證過，作者、年份、期刊、卷期頁數都是從
-     CrossRef 抓下來的真實資料，可以直接用。
-     順帶修正：Schuster 那篇是 2023 年（vol 20, issue 200），不是 2022；
-     2022 只是 DOI 編號的一部分。
-     [1][2][3][4][10][11][12] 你們只給了標題，沒有 DOI/作者/年份。
-     手冊 p.94 明訂「Fabricated, garbled, or hallucinated citations are
-     violations」，所以我沒有替你們補，這幾筆在頁面上標成「citation to be
-     completed」。發布前務必補齊，或把用到它們的段落拿掉。
-
-  3. ⚠ 與 Engineering 頁不一致：
-     Engineering 頁目前寫偵測目標是 P. aeruginosa + S. aureus（依你們最早的
-     計畫書），但這次的流行病學文獻 [1] 說台灣 VAP 主要病原是 A. baumannii、
-     P. aeruginosa、K. pneumoniae，沒有 S. aureus。
-     這一頁我依文獻寫。兩頁要一致，請告訴我以哪個為準。
-
-  4. 目前沒有任何實驗結果，所以這頁只描述問題、選題依據與設計方向。
-#}
-
 <div class="container my-4 desc">
 
   <!-- ======================= the problem ======================= -->
   <section class="desc-lead">
     <p>
-      In an intensive care unit, a patient on a ventilator can develop
-      pneumonia. Deciding whether they have, and which organism is behind it,
-      currently takes longer than the decision about their antibiotics can
-      wait.
+      <em>Pseudomonas aeruginosa</em> is hard to treat not because any single
+      cell is formidable, but because the cells act together. They coordinate
+      by passing chemical messages between them, and what they coordinate is a
+      defence: a biofilm that antibiotics struggle to cross.
     </p>
     <p>
-      We are building a <strong>cell-free biosensor</strong> that listens for
-      the chemical signals bacteria use to talk to each other, and reports back
-      within hours rather than days.
+      <strong>Capture</strong> goes after the messages rather than the
+      bacteria. Two systems, one signal: the first
+      <strong>detects</strong> that signal and reports the infection, and the
+      second <strong>captures</strong> it, so the coordination it was carrying
+      never arrives.
     </p>
   </section>
 
-  <!-- ================= why the answer comes late ================ -->
+  <!-- ==================== why this organism ==================== -->
+  <section>
+    <h2>Why <em>P.&nbsp;aeruginosa</em></h2>
+    <p>
+      It is an opportunist that does its worst in exactly the places medicine
+      cannot avoid creating: ventilators, catheters and open wounds. In the
+      intensive care unit, where those are routine, the cost of a late answer
+      is measured in days a patient does not have.
+    </p>
+    <p>
+      Figures our team has cited for the scale of this:
+      an estimated 32,000 infections and 2,700 deaths a year in the United
+      States citation to be completed</span>;
+      more than 140,000 patients affected each year in Taiwan
+      citation to be completed</span>;
+      and mortality in the ICU reaching 20&ndash;40%
+      citation to be completed</span>.
+    </p>
+    <p>
+      In Taiwan, the primary pathogens associated with ventilator-associated
+      pneumonia are <em>Acinetobacter baumannii</em>,
+      <em>Pseudomonas aeruginosa</em> and
+      <em>Klebsiella pneumoniae</em>.<sup>[1]</sup>
+      We start with <em>P.&nbsp;aeruginosa</em> because its quorum sensing
+      circuit is the best characterised of the three, and because there is
+      published work against its signal for both of the things we want to do
+      &mdash; reading it, and binding it.<sup>[3][5][6][9]</sup>
+      <em>A.&nbsp;baumannii</em> is our second candidate: a screen of 77
+      synthetic AHLs against its AbaR receptor identified 3-OH-C12-HSL as the
+      most likely natural quorum sensing signal of that organism.<sup>[4]</sup>
+    </p>
+  </section>
+
+  <!-- ================= what the bacteria are saying ============= -->
+  <section>
+    <h2>The signal we are after</h2>
+    <p>
+      Bacteria coordinate their behaviour by releasing and detecting small
+      signalling molecules &mdash; quorum sensing. In
+      <em>P.&nbsp;aeruginosa</em> these are <em>N</em>-acyl homoserine lactones
+      (AHLs). When enough cells are present, enough signal accumulates, and the
+      population switches on the behaviours that only make sense in a crowd:
+      virulence factors, and the biofilm.
+    </p>
+    <p>
+      That gives the signal two properties we can use. It is
+      <strong>present early</strong>, before anything has been grown on a
+      plate, and it is <strong>specific</strong> to the organism producing it.
+      Detect the signal and you have detected the organism. Remove the signal
+      and the coordination it was carrying does not happen.
+    </p>
+  </section>
+
+  <!-- ==================== why the answer comes late ============= -->
   <section>
     <h2>Why the answer arrives too late</h2>
     <p>
-      Ventilator-associated pneumonia (VAP) is diagnosed today by culturing
-      sputum and by imaging. Other approaches have been tried. Each tells us
+      Infection in a ventilated patient is diagnosed today by culturing sputum
+      and by imaging. Other approaches have been tried. Each tells us
       something, and each stops short of what a bedside decision needs.
     </p>
 
-    <div class="desc-methods">
-      <div class="desc-method">
-        <h3>Sputum culture</h3>
-        <p class="desc-method-what">Grows the organism from a sample.</p>
-        <p class="desc-method-gap">
-          Takes roughly 24&ndash;72 hours, cannot reflect the state of the
-          infection in real time, and antibiotics already given can produce a
-          false negative.
-        </p>
+    <!--
+      Each card shows the method and what it does; the gap it leaves is on the
+      back, and the card turns over to show it. The turning mechanism is the
+      one the Hardware page uses (.hw-flip in style.css) -- only the skin is
+      this page's. tabindex makes the back reachable by keyboard and by tap,
+      so it is not hover-only, and both faces stay in the document, so a
+      screen reader, find-in-page and a printout still get the whole list.
+
+      The front of each card is deliberately kept to the method and one line
+      about it. GC-MS's longer evidence sits on the back with its gap, because
+      a front face three times the height of its neighbours sets the height of
+      the whole row.
+    -->
+    <dl class="desc-methods hw-flip">
+      <div class="hw-flip-card" tabindex="0">
+        <dt class="hw-flip-front">
+          <span class="desc-method-name">Sputum culture</span>
+          <span class="desc-method-what">Grows the organism from a sample.</span>
+        </dt>
+        <dd class="hw-flip-back">
+          <p>
+            Takes roughly 24&ndash;72 hours, cannot reflect the state of the
+            infection in real time, and antibiotics already given can produce a
+            false negative.
+          </p>
+        </dd>
       </div>
 
-      <div class="desc-method">
-        <h3>Breath analysis by GC&ndash;MS</h3>
-        <p class="desc-method-what">
-          Identifies volatile organic compounds in exhaled breath. A ventilator
-          circuit model simulating the ICU showed both semi-invasive and
-          non-invasive sampling could detect specific VOCs, though sampling
-          accuracy depended on the molecular weight of the compound.<sup>[2]</sup>
-        </p>
-        <p class="desc-method-gap">
-          GC&ndash;MS is laboratory-grade, large and precise &mdash; and cannot
-          give a real-time answer at the bedside.<sup>[2]</sup>
-        </p>
+      <div class="hw-flip-card" tabindex="0">
+        <dt class="hw-flip-front">
+          <span class="desc-method-name">Breath analysis by GC&ndash;MS</span>
+          <span class="desc-method-what">
+            Identifies volatile organic compounds in exhaled breath.
+          </span>
+        </dt>
+        <dd class="hw-flip-back">
+          <p>
+            A ventilator circuit model simulating the ICU showed both
+            semi-invasive and non-invasive sampling could detect specific VOCs,
+            though sampling accuracy depended on the molecular weight of the
+            compound.<sup>[2]</sup> It is laboratory-grade, large and precise
+            &mdash; and cannot give a real-time answer at the
+            bedside.<sup>[2]</sup>
+          </p>
+        </dd>
       </div>
 
-      <div class="desc-method">
-        <h3>Electronic nose</h3>
-        <p class="desc-method-what">
-          A portable alternative for reading the same volatile signature.
-        </p>
-        <p class="desc-method-gap">
-          Reported at the time as lacking the sensitivity and specificity
-          needed for clinical use in the ICU.<sup>[2]</sup>
-        </p>
+      <div class="hw-flip-card" tabindex="0">
+        <dt class="hw-flip-front">
+          <span class="desc-method-name">Electronic nose</span>
+          <span class="desc-method-what">
+            A portable alternative for reading the same volatile signature.
+          </span>
+        </dt>
+        <dd class="hw-flip-back">
+          <p>
+            Reported at the time as lacking the sensitivity and specificity
+            needed for clinical use in the ICU.<sup>[2]</sup>
+          </p>
+        </dd>
       </div>
+    </dl>
+  </section>
+
+  <!-- ==================== the two systems ==================== -->
+  <section>
+    <h2>Capture: two systems, one signal</h2>
+    <p>
+      The two halves of the project read the same molecule and do opposite
+      things with it. System&nbsp;1 lets the signal through and reports it.
+      System&nbsp;2 takes the signal out of circulation. They are designed to
+      work together: the first says an infection is there, the second starts
+      taking its coordination apart.
+    </p>
+
+    <div class="desc-routes">
+
+      <article class="desc-route" data-route="a">
+        <span class="desc-route-tag">System 1 &middot; Detect</span>
+        <h3>Engineered <em>E.&nbsp;coli</em> that fluoresces when it hears AHL</h3>
+        <p>
+          The signal is read by the bacterium's own receptor protein, LasR,
+          expressed in <em>E.&nbsp;coli</em>. Binding the signal switches on a
+          fluorescent reporter, so the presence of
+          <em>P.&nbsp;aeruginosa</em> becomes something you can see.
+        </p>
+        <ul>
+          <li><strong>Input</strong> &mdash; 3-oxo-C12-HSL, the
+            <em>las</em> system signal</li>
+          <li><strong>Sensor</strong> &mdash; LasR, from the constitutive
+            promoter ProD with a strong RBS, using the Registry coding sequence
+            <a href="https://parts.igem.org/Part:BBa_C0079" target="_blank"
+               rel="noopener noreferrer">BBa_C0079</a></li>
+          <li><strong>Output</strong> &mdash; fluorescence</li>
+        </ul>
+        <p class="desc-route-note">
+          Inherits the selectivity and switch-like response described
+          below.<sup>[5][6]</sup> Full sequences will be documented on the
+          Registry. We also considered reading the signal with a
+          structure-switching aptamer, which turns binding straight into a
+          fluorescence change without expressing a protein at
+          all<sup>[7][8]</sup>; we went with the receptor for the selectivity
+          data behind it.
+        </p>
+      </article>
+
+      <article class="desc-route" data-route="b">
+        <span class="desc-route-tag">System 2 &middot; Inhibit</span>
+        <h3>An aptamer that captures the signal</h3>
+        <p>
+          A DNA aptamer binds the AHL molecules themselves. A signal held by an
+          aptamer is a signal that never reaches its receptor, so the
+          population never gets the instruction to coordinate.
+        </p>
+        <ul>
+          <li><strong>Target</strong> &mdash; the AHL signalling molecules,
+            not the bacterium</li>
+          <li><strong>Mechanism</strong> &mdash; competes with the receptor for
+            the signal, interfering with quorum-sensing-coordinated
+            behaviour<sup>[9][10][11]</sup></li>
+          <li><strong>Intended effect</strong> &mdash; weakened biofilm
+            formation</li>
+        </ul>
+        <p class="desc-route-note">
+          Aptamers raised against AHLs are reported not to kill bacteria or
+          slow their growth.<sup>[9][10][11]</sup> That is the point: see
+          &ldquo;Why capturing beats killing&rdquo; below.
+        </p>
+      </article>
+
     </div>
-  </section>
-
-  <!-- ==================== our approach ==================== -->
-  <section>
-    <h2>Our approach: read what the bacteria are saying</h2>
-    <p>
-      Bacteria coordinate their behaviour by releasing and detecting small
-      signalling molecules &mdash; quorum sensing. Those molecules are present
-      before anything has been grown on a plate, and they are specific to the
-      organism producing them. If we can detect the signal, we can detect the
-      organism.
-    </p>
-    <p>
-      We want to do that in a <strong>cell-free system</strong>: the
-      transcription and translation machinery taken out of the cell and run
-      <em>in vitro</em>. A cell-free biosensor has already been operated on
-      clinical sample types such as sputum, using a modular DNA-encoded sensor
-      to detect the quorum sensing molecule 3-oxo-C12-HSL produced by
-      <em>Pseudomonas aeruginosa</em>.<sup>[3]</sup> That is the ground we are
-      building on.
-    </p>
-  </section>
-
-  <!-- ==================== target selection ==================== -->
-  <section>
-    <h2>Which organism to start with</h2>
-    <p>
-      In Taiwan, the primary pathogens associated with VAP are
-      <em>Acinetobacter baumannii</em>, <em>Pseudomonas aeruginosa</em> and
-      <em>Klebsiella pneumoniae</em>.<sup>[1]</sup>
-    </p>
-    <p>
-      We are starting with <em>P. aeruginosa</em>, because its quorum sensing
-      circuit is the best characterised of the three and because both of the
-      sensing routes we are considering already have published work against its
-      signal.<sup>[3][5][6][9]</sup>
-      <em>A. baumannii</em> is our second candidate: a screen of 77 synthetic
-      AHLs against its AbaR receptor identified 3-OH-C12-HSL as the most likely
-      natural quorum sensing signal of that organism.<sup>[4]</sup>
-    </p>
   </section>
 
   <!-- ==================== why this molecule ==================== -->
   <section>
     <h2>Why 3-oxo-C12-HSL is a good thing to detect</h2>
     <p>
-      A diagnostic is only as good as its specificity. The receptor we would
-      build around, LasR, is strongly selective for its own signal: it responds
-      to 3-oxo-C12-HSL at sub-micromolar concentrations, while a short-chain
-      AHL such as C4-HSL does not reach a measurable activation limit even at
-      100&nbsp;&micro;M &mdash; a difference of about two orders of
-      magnitude.<sup>[5]</sup>
+      A diagnostic is only as good as its specificity. The receptor
+      System&nbsp;1 is built around, LasR, is strongly selective for its own
+      signal: it responds to 3-oxo-C12-HSL at sub-micromolar concentrations,
+      while a short-chain AHL such as C4-HSL does not reach a measurable
+      activation limit even at 100&nbsp;&micro;M &mdash; a difference of about
+      two orders of magnitude.<sup>[5]</sup>
     </p>
 
     <figure class="desc-figure">
@@ -179,89 +264,40 @@
       picture: GFP reporter fusions were expressed far lower in a
       <em>lasI</em> deletion mutant, and the accumulation of 3-oxo-C12-HSL
       coincides closely with activation of <em>lasI</em> and
-      <em>rsaL</em>.<sup>[12]</sup>
+      <em>rsaL</em>.<sup>[12]</sup> That is the same host System&nbsp;1 is
+      built in.
+    </p>
+    <p>
+      Detecting 3-oxo-C12-HSL in a clinical sample is not without precedent: a
+      modular DNA-encoded sensor has been used to detect it on sample types
+      such as sputum.<sup>[3]</sup> That is the ground we are building on.
     </p>
   </section>
 
-  <!-- ==================== two routes ==================== -->
+  <!-- ============== why capture rather than kill ============== -->
   <section>
-    <h2>Two routes we are weighing</h2>
+    <h2>Why capturing beats killing</h2>
     <p>
-      We have not fixed the sensing chemistry yet. Two routes are on the table,
-      and they are not mutually exclusive.
-    </p>
-
-    <div class="desc-routes">
-
-      <article class="desc-route" data-route="a">
-        <span class="desc-route-tag">Route A</span>
-        <h3>A LasR genetic circuit, expressed cell-free</h3>
-        <p>
-          The signal is read by the bacterium's own receptor protein, produced
-          in the cell-free reaction, which then drives a reporter.
-        </p>
-        <ul>
-          <li><strong>Input</strong> &mdash; 3-oxo-C12-HSL</li>
-          <li><strong>Sensor</strong> &mdash; LasR, from the constitutive
-            promoter ProD with a strong RBS, using the Registry coding sequence
-            <a href="https://parts.igem.org/Part:BBa_C0079" target="_blank"
-               rel="noopener noreferrer">BBa_C0079</a></li>
-          <li><strong>Output</strong> &mdash; a reporter protein</li>
-        </ul>
-        <p class="desc-route-note">
-          Inherits the selectivity and switch-like response described
-          above.<sup>[5][6]</sup> Full sequences will be documented on the
-          Registry.
-        </p>
-      </article>
-
-      <article class="desc-route" data-route="b">
-        <span class="desc-route-tag">Route B</span>
-        <h3>A structure-switching fluorescent aptamer</h3>
-        <p>
-          The signal is read by a DNA aptamer that changes shape when it binds,
-          converting molecular recognition directly into a fluorescence change
-          without needing protein expression at all.
-        </p>
-        <ul>
-          <li>A fluorophore-labelled strand is held quenched by a complementary
-            quencher strand; the target displaces it and fluorescence
-            returns.<sup>[7][8]</sup></li>
-          <li>ALS-5 has been reported to detect
-            3-oxo-C12-HSL.<sup>[9]</sup></li>
-        </ul>
-        <p class="desc-route-note">
-          Known trade-offs we would have to design around: structure switching
-          can reduce the aptamer's target-binding affinity, and in the original
-          ATP system a roughly sevenfold fluorescence enhancement took more
-          than 30 minutes to reach its maximum at 37&nbsp;&deg;C.<sup>[7][8]</sup>
-        </p>
-      </article>
-
-    </div>
-  </section>
-
-  <!-- ==================== the hypothesis ==================== -->
-  <section class="desc-hypothesis">
-    <h2>The idea we most want to test</h2>
-    <p>
-      If Route B works, the same molecule might do two jobs at once: report the
-      infection, <em>and</em> blunt it.
+      An antibiotic kills, and in killing it selects: the survivors are the
+      ones that resisted, and the next infection starts from them. That is the
+      cycle behind antimicrobial resistance, and adding another compound that
+      kills does not break it.
     </p>
     <p>
-      Aptamers raised against AHLs appear not to kill bacteria or slow their
-      growth; instead they bind the signalling molecules themselves, competing
-      with the receptor and interfering with quorum-sensing-coordinated
+      Taking the signal away is a different kind of pressure. Aptamers raised
+      against AHLs appear not to kill bacteria or slow their growth; instead
+      they bind the signalling molecules themselves, competing with the
+      receptor and interfering with quorum-sensing-coordinated
       behaviour.<sup>[9][10][11]</sup> Reported effects include suppression of
       swarming motility &mdash; up to 74.7% for one of the aptamers
       tested<sup>[9]</sup> &mdash; and inhibition of biofilm formation without a
       measurable effect on growth.<sup>[11]</sup>
     </p>
     <p>
-      A diagnostic that also reduces virulence, without applying the selection
-      pressure that drives resistance, is the outcome we would most like to
-      reach. <strong>This is our hypothesis, not a result.</strong> We have not
-      tested it.
+      If the biofilm is what keeps a drug out, then weakening it is a way of
+      letting existing drugs work again rather than demanding new ones. That is
+      what we are aiming at.
+      <strong>It is our design rationale, not a result we have measured.</strong>
     </p>
   </section>
 
