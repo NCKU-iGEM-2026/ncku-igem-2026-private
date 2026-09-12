@@ -111,7 +111,7 @@
         'lab-book': ['Lab Book',
           'The bench protocols, written out as sheets you could follow.'],
         description: ['Description',
-          'Why the diagnosis arrives too late, and the two routes we are weighing.'],
+          'Two systems built on one signal: one that hears it and reports, one that takes it away.'],
         notebook: ['Notebook',
           'How the season actually ran.'],
         'board-game': ['Board Game',
@@ -177,7 +177,7 @@
         'lab-book': ['Lab Book 實驗記錄',
           '實驗檯上的 protocol，寫成可以照著做的表單。'],
         description: ['Description 專案介紹',
-          '為什麼診斷總是來得太慢，以及我們正在權衡的兩條路線。'],
+          '同一個訊號，兩套系統：一套聽見它並回報，一套把它攔下來。'],
         notebook: ['Notebook 團隊日誌',
           '這一季實際上是怎麼過的。'],
         'board-game': ['Board Game 桌遊',
@@ -202,6 +202,11 @@
   var at = 0;
   var answers = [];
   var returnTo = null;
+  // Which of the two screens is up. Inferring it from `at` does not work:
+  // answering the last question calls renderResults() directly and leaves `at`
+  // on that question, so switching language at the results threw the reader
+  // back to question four.
+  var showingResults = false;
 
   // A browser can refuse storage entirely (private windows, blocked site data).
   // Losing the remembered language should cost a visitor one tap, never a
@@ -272,6 +277,7 @@
   function renderQuestion() {
     var copy = t();
     var q = copy.questions[at];
+    showingResults = false;
 
     resultBox.hidden = true;
     optionBox.hidden = false;
@@ -304,6 +310,7 @@
   function renderResults() {
     var copy = t();
     var picks = score();
+    showingResults = true;
 
     optionBox.hidden = true;
     resultBox.hidden = false;
@@ -345,11 +352,7 @@
   }
 
   function render() {
-    if (answers.length === COPY.en.questions.length && at >= COPY.en.questions.length) {
-      renderResults();
-    } else {
-      renderQuestion();
-    }
+    if (showingResults) renderResults(); else renderQuestion();
   }
 
   function setLang(next) {
