@@ -3211,6 +3211,21 @@ body.edu-lightbox-locked {
   table-layout: fixed;
 }
 
+/* table-layout:fixed alone still sizes each column off its header's
+   natural width when no width is declared, so a table with one long
+   header (e.g. "Recognition Sequence") and one short one ends up
+   lopsided -- and unevenly. Declaring the split explicitly is the only
+   way to actually get equal columns. */
+.labbook .protocol-table--recipe th,
+.labbook .protocol-table--recipe td {
+  width: 33.3333%;
+}
+
+.labbook .protocol-table--recipe.protocol-table--cols-2 th,
+.labbook .protocol-table--recipe.protocol-table--cols-2 td {
+  width: 50%;
+}
+
 .labbook .protocol-table--recipe td:last-child {
   text-align: left;
   font-variant-numeric: normal;
@@ -3255,10 +3270,20 @@ body.edu-lightbox-locked {
   display: block;
 }
 
+.labbook .restriction-site .strand + .strand {
+  margin-top: 0.3em;
+}
+
+/* A "/" character is a full-height diagonal glyph -- stacked on two
+   tight lines it can visually read as one continuous line running
+   through both strands. A short fixed-size tick can't do that. */
 .labbook .restriction-site .cut {
-  color: #c0392b;
-  font-weight: 700;
-  padding: 0 0.05em;
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  margin: 0 0.3em;
+  background: #c0392b;
+  vertical-align: middle;
 }
 
 /* A sheet that is only a title and its PDF should look finished, not like a
