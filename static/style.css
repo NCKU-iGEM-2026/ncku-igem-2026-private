@@ -4300,6 +4300,190 @@ body.tour-active { overflow: hidden; }
   line-height: 1.7;
 }
 
+/* ---- the 3D cutaway ------------------------------------------------------
+   Same palette as the plan-view schematic above, so the two figures read as
+   one pair. The canvas cannot inherit CSS, so every colour it draws with is
+   declared here as a custom property and read back by hardware-cutaway.js. */
+.hw3d {
+  --hw3d-paper: #fffdf7;
+  --hw3d-panel: #f2f5f2;
+  --hw3d-ink: #24352c;
+  --hw3d-ink-2: #4a5a51;
+  --hw3d-ink-3: #8a978f;
+  --hw3d-rule: #dfe8e2;
+  --hw3d-rule-2: #cfdcd5;
+  --hw3d-accent: #1f4a38;
+  --hw3d-accent-2: #4f8f74;
+  --hw3d-beam-ex: #2b6cb0;
+  --hw3d-beam-em: #2e9e5b;
+  --hw3d-sample: #c99b4e;
+  --hw3d-frame: #3f544a;
+  --hw3d-ghost: #9aa8a1;
+  --hw3d-warn: #a8632a;
+  --hw3d-bb: #dcd7c8;
+  --hw3d-bb-dark: #a8a294;
+  --hw3d-pcb: #1e2428;
+  --hw3d-metal: #b4bac0;
+  --hw3d-gold: #bd9a2e;
+  --hw3d-ledw: #f2eedd;
+  --hw3d-rail-r: #b8402f;
+
+  border: 1px solid #dfe8e2;
+  border-radius: 14px;
+  background: #fffdf7;
+  padding: 1rem;
+}
+.hw3d-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 232px;
+  gap: 0.85rem;
+  align-items: stretch;
+}
+.hw3d-viewport {
+  position: relative;
+  min-height: 460px;
+  border: 1px solid #e8efe9;
+  border-radius: 10px;
+  background: #fbfcfb;
+  overflow: hidden;
+}
+.hw3d-viewport canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+.hw3d-viewport canvas:active { cursor: grabbing; }
+.hw3d-viewport canvas:focus-visible { outline: 2px solid #2b6cb0; outline-offset: -2px; }
+.hw3d-hud,
+.hw3d-hint {
+  position: absolute;
+  bottom: 0.5rem;
+  font-size: 0.7rem;
+  color: #8a978f;
+  pointer-events: none;
+}
+.hw3d-hud { left: 0.75rem; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.hw3d-hint { right: 0.75rem; }
+
+/* ---- control rail ---- */
+.hw3d-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+.hw3d-grp + .hw3d-grp { border-top: 1px solid #e8efe9; padding-top: 0.7rem; }
+.hw3d-grp h4 {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a978f;
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+.hw3d-slider { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: 0.55rem; }
+.hw3d-slider:last-child { margin-bottom: 0; }
+.hw3d-slider label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #4a5a51;
+  margin: 0;
+}
+.hw3d-slider label span {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  color: #8a978f;
+}
+.hw3d input[type="range"] { width: 100%; accent-color: #4f8f74; height: 18px; margin: 0; }
+.hw3d-views { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.hw3d-views button {
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.2rem;
+  background: #f2f5f2;
+  color: #4a5a51;
+  border: 1px solid #cfdcd5;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.hw3d-views button:hover { border-color: #4f8f74; color: #24352c; }
+.hw3d-layers { display: flex; flex-direction: column; gap: 0.3rem; }
+.hw3d-layers label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #4a5a51;
+  margin: 0;
+  cursor: pointer;
+}
+.hw3d-layers input { accent-color: #4f8f74; margin: 0; width: 14px; height: 14px; flex: none; }
+.hw3d-swatch { width: 11px; height: 11px; flex: none; border: 1px solid #cfdcd5; }
+
+/* ---- readout ---- */
+.hw3d-readout { font-size: 0.78rem; color: #4a5a51; min-height: 5.5rem; }
+.hw3d-readout .hw3d-rname { font-weight: 600; color: #24352c; display: block; margin-bottom: 0.15rem; }
+.hw3d-readout .hw3d-rnum {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  color: #8a978f;
+  display: block;
+}
+.hw3d-readout .hw3d-rnote { display: block; margin-top: 0.35rem; }
+.hw3d-dim { color: #8a978f; }
+
+/* ---- parts list ---- */
+.hw3d-list { margin-top: 0.9rem; overflow-x: auto; }
+.hw3d-list table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 0.82rem; }
+.hw3d-list th,
+.hw3d-list td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #e8efe9; vertical-align: top; }
+.hw3d-list thead th {
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a978f;
+  font-weight: 600;
+}
+.hw3d-list tbody tr { cursor: pointer; }
+.hw3d-list tbody tr:hover { background: #f2f5f2; }
+.hw3d-list tbody tr[aria-selected="true"] { background: #f2f5f2; box-shadow: inset 3px 0 0 #4f8f74; }
+.hw3d-list tbody tr:last-child td { border-bottom: 0; }
+.hw3d-name { display: flex; align-items: center; gap: 0.45rem; font-weight: 600; }
+.hw3d-dot { width: 9px; height: 9px; flex: none; border-radius: 50%; }
+.hw3d-num {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.76rem;
+  white-space: nowrap;
+  color: #4a5a51;
+}
+.hw3d-note { color: #5f6e66; font-size: 0.78rem; }
+.hw3d-chip {
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  padding: 0.05rem 0.4rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.hw3d-chip-drawn { color: #1f4a38; border: 1px solid #4f8f74; }
+.hw3d-chip-spec { color: #fffdf7; background: #4f8f74; border: 1px solid #4f8f74; }
+.hw3d-chip-derived { color: #2b6cb0; border: 1px solid #7aa5dd; }
+.hw3d-chip-todo { color: #a8632a; border: 1px dashed #d8a06a; }
+
+@media (max-width: 767.98px) {
+  .hw3d-stage { grid-template-columns: 1fr; }
+  .hw3d-rail { order: 2; }
+  .hw3d-viewport { min-height: 360px; }
+  .hw3d-hint { display: none; }
+}
+
 /* ---- the four-step measurement ---- */
 .hw-sequence {
   list-style: none;
