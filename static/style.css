@@ -3197,6 +3197,75 @@ body.edu-lightbox-locked {
   border-top: 2px solid #075a3e;
 }
 
+/* Reference tables (buffer/reagent recipes) are plain lookups, not a
+   Volume-column workflow that ends in a Total -- undo those assumptions,
+   and group each buffer's rows under one label since a rowspan group
+   can't follow the plain odd/even zebra stripe. Equal-width columns keep
+   every table reading the same way regardless of how long one entry is. */
+.labbook .protocol-table-wrap--recipe {
+  width: 100%;
+}
+
+.labbook .protocol-table--recipe {
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* table-layout:fixed alone still sizes each column off its header's
+   natural width when no width is declared, so a table with one long
+   header (e.g. "Recognition Sequence") and one short one ends up
+   lopsided -- and unevenly. Declaring the split explicitly is the only
+   way to actually get equal columns. */
+.labbook .protocol-table--recipe th,
+.labbook .protocol-table--recipe td {
+  width: 33.3333%;
+}
+
+.labbook .protocol-table--recipe.protocol-table--cols-2 th,
+.labbook .protocol-table--recipe.protocol-table--cols-2 td {
+  width: 50%;
+}
+
+.labbook .protocol-table--recipe td:last-child {
+  text-align: left;
+  font-variant-numeric: normal;
+  font-weight: 400;
+  white-space: normal;
+}
+
+/* :not(.recipe-group) keeps these two resets from overwriting the group
+   label's own tint below -- without it, a label cell in an odd or last
+   row loses its background while the others keep it. */
+.labbook .protocol-table--recipe tbody tr:nth-child(odd) td:not(.recipe-group),
+.labbook .protocol-table--recipe tbody tr:last-child td:not(.recipe-group) {
+  background: transparent;
+  border-top: 1px solid #ece5d4;
+}
+
+.labbook .protocol-table--recipe tbody tr:first-child td {
+  border-top: none;
+}
+
+.labbook .protocol-table--recipe td.recipe-group {
+  font-weight: 700;
+  color: #075a3e;
+  background: #f7f4ea;
+  white-space: normal;
+}
+
+.labbook .protocol-table--recipe tr.group-start:not(:first-child) td {
+  border-top: 2px solid #dbe7cb;
+}
+
+/* The recognition-site diagrams are the source PDF's own figures
+   (both strands with the cut marked by a triangle), not a redrawn
+   text approximation -- just size the image to the cell. */
+.labbook .restriction-site-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 /* A sheet that is only a title and its PDF should look finished, not like a
    section that failed to load. */
 .labbook .protocol-pdf-only .protocol-pdf {
@@ -3213,6 +3282,7 @@ body.edu-lightbox-locked {
   .labbook .protocol-endpoint { padding-left: 2.9rem !important; }
   .labbook .protocol-endpoint::before { left: 0.55rem; }
   .labbook .protocol-table-wrap { width: auto; }
+  .labbook .protocol-table-wrap--recipe { width: 100%; }
 }
 
 /* The protocol itself, on the page. Behind a download link a PDF is a file you
