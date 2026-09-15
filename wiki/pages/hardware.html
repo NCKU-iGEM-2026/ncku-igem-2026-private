@@ -35,6 +35,17 @@
   5. 與其他頁的一致性：Engineering 頁目前寫 "a cell-free biosensor that detects the
      bacteria behind VAP"，這比你們硬體端自己訂的 claim boundary 強（RUO、不得宣稱
      直接偵測或定量 P. aeruginosa）。建議一併修掉，否則兩頁互相打臉。
+
+  6. 2026-09-15 新增「3D 透視圖」，並修掉三處已被實機 supersede 的敘述：
+     - ESP32 現在裝在外殼下層（原本寫 not an enclosure-installed configuration）
+     - 發射濾光片試過後不採用（原本列為 position reserved / Undecided）
+     - 平面圖的濾片虛線框保留，但 caption 改寫成「當初預留的位置」
+     3D 圖的 X 座標全部來自這一頁的平面圖，是有依據的；Y／Z 全部是佔位值，
+     圖上每個零件都標了來源（drawing / team / derived / placeholder）。
+     團隊確認的是「相對排列」，不是那些距離的數值——特別是 AS7341 離樣品多遠
+     還沒有人量過，請不要從那張圖上引用任何 placeholder 標記的數字。
+     等 CadQuery／DWG 的實際尺寸出來，改 static/hardware-cutaway.js 開頭的
+     PARTS 常數即可，不必動繪圖程式。
 #}
 
 <div class="container my-4 hw">
@@ -235,10 +246,108 @@
         2&nbsp;mm path and whatever is not absorbed continues into an
         angled-wedge trap, whose slanted end face deflects the beam rather than
         returning it toward the detector. Emission is collected at 90&deg; along
-        the 10&nbsp;mm path. The dashed box marks the reserved emission-filter
-        position: no filter was fitted for the 2026-08-25 measurements, and the
-        part cannot be chosen until a fluorescence signal exists to size it
-        against.
+        the 10&nbsp;mm path. The dashed box marks the emission-filter position
+        this drawing reserved. No filter was fitted for the 2026-08-25
+        measurements, and none is fitted now: one was tried later and not
+        retained. The position is left on the drawing as a record of what the
+        optical core was laid out to accept.
+      </figcaption>
+    </figure>
+
+    <!--
+      The 3D cutaway. The plan view above is the drawing; this is the same
+      optical core placed inside the enclosure that was built around it, so a
+      reader can see which layer each part sits in. Every part carries a
+      provenance chip, because the two figures do not have the same standing:
+      the X coordinates are dimensioned, the Y and Z placements are not.
+      Renderer: static/hardware-cutaway.js, no external library.
+    -->
+    <figure class="hw-figure">
+      <div class="hw3d">
+        <div class="hw3d-stage">
+          <div class="hw3d-viewport">
+            <canvas id="hw3d-view" tabindex="0" role="img"
+              aria-label="Three-dimensional cutaway of the CAPTURE-Screen enclosure. A 127.4 by 99.4 by 80 millimetre box is divided into two layers. The upper layer carries the optical core: along the excitation axis, the LED holder, the aperture baffle with its two stops, the UVette, and the angled-wedge light trap on the far side; the AS7341 detector sits at 90 degrees to that axis. The UVette stands on the deck and passes through an opening in the top plate. The lower layer carries the breadboard with the ESP32 directly above it. Drag to rotate, or use the arrow keys."></canvas>
+            <div class="hw3d-hud" id="hw3d-hud"></div>
+            <div class="hw3d-hint">drag to rotate &middot; scroll to zoom &middot; shift-drag to pan</div>
+          </div>
+
+          <div class="hw3d-rail">
+            <div class="hw3d-grp">
+              <h4>See through</h4>
+              <div class="hw3d-slider">
+                <label for="hw3d-opacity">Housing transparency <span id="hw3d-opacity-out">78%</span></label>
+                <input type="range" id="hw3d-opacity" min="0" max="100" value="78">
+              </div>
+              <div class="hw3d-slider">
+                <label for="hw3d-explode">Exploded by <span id="hw3d-explode-out">0 mm</span></label>
+                <input type="range" id="hw3d-explode" min="0" max="100" value="0">
+              </div>
+            </div>
+
+            <div class="hw3d-grp">
+              <h4>View</h4>
+              <div class="hw3d-views">
+                <button type="button" data-view="iso">Isometric</button>
+                <button type="button" data-view="plan">Plan</button>
+                <button type="button" data-view="ex">Down the beam</button>
+                <button type="button" data-view="det">From detector</button>
+              </div>
+            </div>
+
+            <div class="hw3d-grp">
+              <h4>Layers</h4>
+              <div class="hw3d-layers">
+                <label><input type="checkbox" id="hw3d-ly-enc" checked><span class="hw3d-swatch" style="border-color:#3f544a"></span>Enclosure and deck</label>
+                <label><input type="checkbox" id="hw3d-ly-beam" checked><span class="hw3d-swatch" style="background:#2b6cb0;border-color:#2b6cb0"></span>Light paths</label>
+                <label><input type="checkbox" id="hw3d-ly-label" checked><span class="hw3d-swatch" style="border-color:#8a978f"></span>Part labels</label>
+                <label><input type="checkbox" id="hw3d-ly-rule" checked><span class="hw3d-swatch" style="border-color:#8a978f"></span>X scale and grid</label>
+                <label><input type="checkbox" id="hw3d-ly-esp" checked><span class="hw3d-swatch" style="border-color:#a8632a"></span>Lower-layer electronics</label>
+                <label><input type="checkbox" id="hw3d-ly-spin"><span class="hw3d-swatch" style="border-color:#8a978f"></span>Rotate slowly</label>
+              </div>
+            </div>
+
+            <div class="hw3d-grp">
+              <h4>Selection</h4>
+              <div class="hw3d-readout" id="hw3d-readout"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hw3d-list">
+          <table>
+            <caption class="visually-hidden">Parts in the cutaway, with the origin of every dimension</caption>
+            <thead>
+              <tr>
+                <th scope="col">Part</th>
+                <th scope="col">X range (mm)</th>
+                <th scope="col">Dimension from</th>
+                <th scope="col">Note</th>
+              </tr>
+            </thead>
+            <tbody id="hw3d-rows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <figcaption>
+        The optical core inside the enclosure it was built into, drawn to scale
+        along the excitation axis. <strong>The four figures in this list do not
+        carry equal weight, and the parts list says which is which.</strong>
+        <em>Drawing</em> means the number is dimensioned &mdash; the X
+        coordinates come from the plan view above, and the 127.4 &times;
+        99.4&nbsp;mm footprint from the enclosure DWG of 2026-09-12.
+        <em>Team</em> means the arrangement was confirmed by the people who
+        built it: two layers, optics and detector above, breadboard and ESP32
+        below with the ESP32 directly over the breadboard, the UVette entering
+        through the top plate, and no emission filter fitted.
+        <em>Derived</em> means arithmetic on two known numbers, or a figure read
+        off a vendor photograph's scale bar. <em>Placeholder</em> means no
+        source exists yet: <strong>every distance along Y and Z is a placeholder,
+        including how far the AS7341 stands from the sample.</strong> The
+        arrangement in this figure is confirmed; the distances in it are not
+        measurements, and no number should be quoted from it that the parts list
+        does not mark as dimensioned.
       </figcaption>
     </figure>
 
@@ -271,7 +380,7 @@
           <tr>
             <td>Controller</td>
             <td>ESP32-WROOM-32, DOIT DevKit V1 30-pin, CH9102 bridge</td>
-            <td class="hw-not">In bench use only; not an enclosure-installed configuration</td>
+            <td class="hw-not">Now installed in the lower layer of the enclosure, above the breadboard. Its position there has not been dimensioned</td>
           </tr>
           <tr>
             <td>Sample container</td>
@@ -290,8 +399,8 @@
           </tr>
           <tr>
             <td>Emission filter</td>
-            <td>Not yet specified</td>
-            <td class="hw-not">Cannot be specified until a fluorescence signal magnitude exists to size it against</td>
+            <td>None fitted. Tried and not retained</td>
+            <td class="hw-not">The decision not to fit one is not a measurement of what a filter would have done, and no filtered-versus-unfiltered comparison has been recorded</td>
           </tr>
         </tbody>
       </table>
@@ -594,7 +703,7 @@
           <tr><td>Signal-to-noise ratio</td><td>Not tested</td><td>Can only be computed once a traceable blank and signal exist</td></tr>
           <tr><td>Assay repeatability</td><td>Not tested</td><td>Requires a working measurement first</td></tr>
           <tr><td>UVette re-insertion repeatability</td><td>Not tested</td><td>The single preload leaf leaves one axis free to float by up to about 0.6&nbsp;mm. This is the largest remaining mechanical unknown for the six-hour series</td></tr>
-          <tr><td>Emission filter selection</td><td>Undecided</td><td>No fluorescence magnitude exists, so no filter requirement can be derived. Specifying one now would be a guess</td></tr>
+          <tr><td>Emission filter selection</td><td>Closed &mdash; none fitted</td><td>A filter was tried and not retained, so the instrument runs without one. What that costs in rejection is unquantified, because it was never measured against a filtered configuration</td></tr>
           <tr><td>Stray light with a turbid sample</td><td>Not tested</td><td>Only a water blank has been measured</td></tr>
           <tr><td>Project firmware on hardware</td><td>Not tested</td><td>The bench work used separate diagnostic sketches; the project firmware has never been compiled or flashed, and its detector adapter is still a stub</td></tr>
           <tr><td>Physical fit, assembly, durability, warp</td><td>Not tested</td><td>No canonical physical measurement record exists</td></tr>
@@ -721,8 +830,9 @@
         Everything else waits on this.
       </li>
       <li>
-        Derive the emission-filter requirement from the measured
-        signal-to-background ratio, rather than guessing at it.
+        Quantify what running without an emission filter costs, by measuring
+        the signal-to-background ratio against a filtered configuration rather
+        than leaving the decision resting on a bench impression.
       </li>
       <li>
         Test UVette re-insertion repeatability across a six-hour series &mdash;
@@ -753,4 +863,8 @@
 
 </div>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename = 'hardware-cutaway.js') }}"></script>
 {% endblock %}
