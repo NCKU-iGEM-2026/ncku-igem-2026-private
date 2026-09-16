@@ -980,13 +980,14 @@
     var tr = document.createElement("tr");
     tr.tabIndex = 0;
     tr.dataset.id = p.id;
-    var sl = SRC_LABEL[p.src];
     tr.innerHTML =
       '<td><span class="hw3d-name"><span class="hw3d-dot" style="background:' +
         (p.color ? "var(--hw3d-" + ({ beamEx: "beam-ex", beamEm: "beam-em", frame: "frame", ghost: "ghost", sample: "sample", warn: "warn", ink: "ink-2", bb: "bb", pcb: "pcb" })[p.color] + ")" : "transparent") +
         ';border:1px solid var(--hw3d-rule-2)"></span>' + p.name + "</span></td>" +
       '<td class="hw3d-num">' + fmtX(p) + "</td>" +
-      '<td><span class="hw3d-chip hw3d-chip-' + sl[1] + '">' + sl[0] + "</span></td>" +
+      /* The provenance chip had a column here. It is still built, in the
+         Selection panel below, where it sits in front of the same note --
+         SRC_LABEL is read there, not dropped. */
       '<td class="hw3d-note">' + p.note + "</td>";
     tr.addEventListener("click", function () { select(p.id); });
     tr.addEventListener("keydown", function (e) {
