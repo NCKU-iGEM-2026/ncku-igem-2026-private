@@ -7,19 +7,6 @@
 {#
   === 給團隊的說明，發布前請讀 ===
 
-  1. 這一頁是 2026-08-27 依 `C:\IGEM\prototype_1\PROJECT_STATE\`（AS_OF 2026-08-25）
-     重寫的，取代先前依 dry_lab_prototype_report.md (2026-08-03) 寫成的版本。
-     重寫的理由是舊版有三處已被你們自己的裁決 supersede：
-       - 名稱 CAPTURE-Reader → CAPTURE-Screen（DECISIONS.md D-006，狀態 ACTIVE，
-         該條明訂「新文件、wiki、簡報一律使用 CAPTURE-Screen」）
-       - PlateDock／培養皿影像不屬於 P1（D-005），舊版把它寫成兩大模組之一
-       - 紅光／濁度 QC 移出 P1（D-002），舊版仍描述 630 nm transmission
-
-  2. 每一項數據都能在 PROJECT_STATE 找到出處，沒有加入任何那裡沒有的數字。
-     TEST_STATUS.md 對每個 PASS 都寫了適用範圍，這一頁照抄那個範圍，沒有放大。
-     特別注意：F4/F3 < 1.35 % 是量化下限造成的「上界」，不是量到的洩漏值，
-     頁面上如實這樣寫，請不要在簡報裡簡化成「洩漏 1.35 %」。
-
   3. 需要你們補的：
      - 實體照片：P1-PROTO-01 組裝外觀、breadboard 光路、UVette 座、斷裂黏合處。
        圖片一定要用 iGEM uploads tool 上傳到 static.igem.wiki，不可連外部網址或本機路徑。
@@ -27,25 +14,6 @@
      - 成本：BOM.csv 目前所有 unit_price 都是 UNKNOWN，所以這一頁沒有成本表。
        等你們把 Mouser 訂單對帳完再補，不要先估一個數字上去。
      - sfGFP 的確切 construct 與 strain（SYS-U013）目前是 UNKNOWN，只寫了 sfGFP。
-
-  4. 舊版頁尾那份參考文獻 1-10 是從 2026-08-03 那份 brief 抄來的，當時就只有連結、
-     沒有完整書目，而這次的來源 PROJECT_STATE 並不帶那組引用，所以我沒有沿用。
-     手冊 p.94 規定引用必須真實可查。要放參考文獻請另外補齊完整書目。
-
-  5. 與其他頁的一致性：Engineering 頁目前寫 "a cell-free biosensor that detects the
-     bacteria behind VAP"，這比你們硬體端自己訂的 claim boundary 強（RUO、不得宣稱
-     直接偵測或定量 P. aeruginosa）。建議一併修掉，否則兩頁互相打臉。
-
-  6. 2026-09-15 新增「3D 透視圖」，並修掉三處已被實機 supersede 的敘述：
-     - ESP32 現在裝在外殼下層（原本寫 not an enclosure-installed configuration）
-     - 發射濾光片試過後不採用（原本列為 position reserved / Undecided）
-     - 平面圖的濾片虛線框保留，但 caption 改寫成「當初預留的位置」
-     3D 圖的 X 座標全部來自這一頁的平面圖，是有依據的；Y／Z 全部是佔位值，
-     圖上每個零件都標了來源（drawing / team / derived / placeholder）。
-     團隊確認的是「相對排列」，不是那些距離的數值——特別是 AS7341 離樣品多遠
-     還沒有人量過，請不要從那張圖上引用任何 placeholder 標記的數字。
-     等 CadQuery／DWG 的實際尺寸出來，改 static/hardware-cutaway.js 開頭的
-     PARTS 常數即可，不必動繪圖程式。
 #}
 
 <div class="container my-4 hw">
@@ -66,12 +34,7 @@
       2026&#8209;08&#8209;25, and &mdash; in as much detail as the successes
       &mdash; what it has not yet been shown to do.
     </p>
-    <p class="hw-aside">
-      <strong>A note on the name.</strong> Earlier internal documents call this
-      instrument <em>CAPTURE-Reader</em>. That name is superseded; the project
-      is CAPTURE-Screen throughout. Where an older file is cited here it is
-      cited under its historical name.
-    </p>
+
   </section>
 
   <!-- ========================= why build one ========================= -->
@@ -357,64 +320,6 @@
 
     <!-- PHOTO: 組裝後的 P1-PROTO-01 外觀照，上傳到 static.igem.wiki 後插在這裡 -->
 
-    <h3>Current baseline</h3>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption>P1 configuration as of 2026-08-25</caption>
-        <thead>
-          <tr><th scope="col">Element</th><th scope="col">Current baseline</th><th scope="col" class="hw-not">What this does not establish</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Measurement architecture</td>
-            <td>90&deg; fluorescence geometry</td>
-            <td class="hw-not">Represented in CAD and now assembled; quantitative optical performance is a separate question</td>
-          </tr>
-          <tr>
-            <td>Excitation source</td>
-            <td>Cree <code>C503B-BCN-CV0Z0461</code>, nominal 470&nbsp;nm</td>
-            <td class="hw-not">Irradiance is unmeasured. 495&nbsp;nm remains only a future comparison candidate</td>
-          </tr>
-          <tr>
-            <td>Detector</td>
-            <td>AS7341 spectral sensor on a DFRobot <code>SEN0365</code> board</td>
-            <td class="hw-not">The physical die position inside the package is unmeasured</td>
-          </tr>
-          <tr>
-            <td>Controller</td>
-            <td>ESP32-WROOM-32, DOIT DevKit V1 30-pin, CH9102 bridge</td>
-            <td class="hw-not">Now installed in the lower layer of the enclosure, above the breadboard. Its position there has not been dimensioned</td>
-          </tr>
-          <tr>
-            <td>Sample container</td>
-            <td>Eppendorf UVette, dual 10&nbsp;mm / 2&nbsp;mm path</td>
-            <td class="hw-not">An engineering benchmark, <em>not</em> the final reaction cartridge, which is still undecided</td>
-          </tr>
-          <tr>
-            <td>Light trap</td>
-            <td>Angled-wedge, selected for P1 manufacture</td>
-            <td class="hw-not">The stepped-baffle alternative is deferred, not rejected; no bench comparison exists</td>
-          </tr>
-          <tr>
-            <td>Mechanical revision</td>
-            <td>v0.7 working and vendor-submitted; v0.4 preserved as the formal historical baseline</td>
-            <td class="hw-not">Digital validation only; physical fit and durability are unvalidated</td>
-          </tr>
-          <tr>
-            <td>Emission filter</td>
-            <td>None fitted. Tried and not retained</td>
-            <td class="hw-not">The decision not to fit one is not a measurement of what a filter would have done, and no filtered-versus-unfiltered comparison has been recorded</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p class="hw-aside">
-      The mechanical source is parametric CadQuery Python; the STEP and STL
-      files are exports from it, not the source itself. Parts are printed FDM
-      in PLA, 0.4&nbsp;mm nozzle, 0.20&nbsp;mm layer, 100&nbsp;% infill.
-    </p>
   </section>
 
   <!-- ========================= decisions ========================= -->
