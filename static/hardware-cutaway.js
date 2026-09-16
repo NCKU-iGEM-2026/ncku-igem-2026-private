@@ -975,8 +975,9 @@
     tr.dataset.id = p.id;
     tr.innerHTML =
       '<td><span class="hw3d-name">' + p.name + "</span></td>" +
-      '<td class="hw3d-num">' + fmtX(p) + "</td>" +
-      '<td class="hw3d-note">' + p.note + "</td>";
+      /* The note had a column here. It is still shown, in the Selection panel
+         above, when a part is picked in the view or in this list. */
+      '<td class="hw3d-num">' + fmtX(p) + "</td>";
     tr.addEventListener("click", function () { select(p.id); });
     tr.addEventListener("keydown", function (e) {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(p.id); }
