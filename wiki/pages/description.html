@@ -33,13 +33,28 @@
       is measured in days a patient does not have.
     </p>
     <p>
-      Figures our team has cited for the scale of this:
-      an estimated 32,000 infections and 2,700 deaths a year in the United
-      States <span class="desc-pending">citation to be completed</span>;
-      more than 140,000 patients affected each year in Taiwan
-      <span class="desc-pending">citation to be completed</span>;
-      and mortality in the ICU reaching 20&ndash;40%
+      Healthcare-associated infections are the backdrop. More than 140,000
+      cases a year in Taiwan and more than 4.9 million worldwide, with over
+      700,000 deaths; an average of 20.3 additional days in hospital per
+      infection; and direct medical and clinical costs reported at more than
+      US$855 billion &mdash; figures our team has taken from Taiwan CDC
+      epidemiological reporting, the WHO global report on infection prevention
+      and control, and a World Bank economic assessment
+      <span class="desc-pending">citations to be completed</span>. In Taiwan
+      the additional burden on national health insurance is put at around
+      NT$24.3 billion a year
       <span class="desc-pending">citation to be completed</span>.
+    </p>
+    <p>
+      <em>P.&nbsp;aeruginosa</em> is consistently among the top three
+      pathogens behind those infections
+      <span class="desc-pending">citation to be completed</span>, and it is
+      the one that turns a bad admission into a fatal one: in critically ill
+      patients who go on to severe pneumonia or bacteraemia, reported
+      mortality reaches 20&ndash;40%
+      <span class="desc-pending">citation to be completed</span>. An estimated
+      32,000 infections and 2,700 deaths a year are attributed to it in the
+      United States <span class="desc-pending">citation to be completed</span>.
     </p>
     <p>
       In Taiwan, the primary pathogens associated with ventilator-associated
@@ -65,7 +80,9 @@
       <em>P.&nbsp;aeruginosa</em> these are <em>N</em>-acyl homoserine lactones
       (AHLs). When enough cells are present, enough signal accumulates, and the
       population switches on the behaviours that only make sense in a crowd:
-      virulence factors, and the biofilm.
+      swarming motility, which carries the population out across a surface;
+      pyocyanin and the other virulence factors that damage host tissue; and
+      the biofilm.
     </p>
     <p>
       That gives the signal two properties we can use. It is
@@ -108,7 +125,8 @@
           <p>
             Takes roughly 48&ndash;72 hours, cannot reflect the state of the
             infection in real time, and antibiotics already given can produce a
-            false negative.
+            false negative. For those two or three days treatment has to be
+            empirical &mdash; which is itself part of what drives resistance.
           </p>
         </dd>
       </div>
@@ -159,6 +177,12 @@
       work together: the first says an infection is there, the second starts
       taking its coordination apart.
     </p>
+    <p>
+      Both are built in <em>E.&nbsp;coli</em>. What differs is what the cell
+      is engineered to do with what it hears: one turns the signal into light,
+      the other manufactures a molecule that binds the signal and puts it out
+      into the medium.
+    </p>
 
     <div class="desc-routes">
 
@@ -174,11 +198,14 @@
         <ul>
           <li><strong>Input</strong> &mdash; 3-oxo-C12-HSL, the
             <em>las</em> system signal</li>
+          <li><strong>Chassis</strong> &mdash; <em>E.&nbsp;coli</em>
+            BL21(DE3)</li>
           <li><strong>Sensor</strong> &mdash; LasR, from the constitutive
             promoter ProD with a strong RBS, using the Registry coding sequence
             <a href="https://parts.igem.org/Part:BBa_C0079" target="_blank"
                rel="noopener noreferrer">BBa_C0079</a></li>
-          <li><strong>Output</strong> &mdash; fluorescence</li>
+          <li><strong>Output</strong> &mdash; sfGFP, from the LasR-dependent
+            promoter pLasRV: signal bound, promoter on, cells fluoresce</li>
         </ul>
         <p class="desc-route-note">
           Inherits the selectivity and switch-like response described
@@ -187,21 +214,36 @@
           structure-switching aptamer, which turns binding straight into a
           fluorescence change without expressing a protein at
           all<sup>[7][8]</sup>; we went with the receptor for the selectivity
-          data behind it.
+          data behind it. The fluorescence is meant to be read without a plate
+          reader &mdash; we are building a low-cost portable reader for it, on
+          the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a>
+          page.
         </p>
       </article>
 
       <article class="desc-route" data-route="b">
         <span class="desc-route-tag">System 2 &middot; Inhibit</span>
-        <h3>An aptamer that captures the signal</h3>
+        <h3>Engineered <em>E.&nbsp;coli</em> that makes the aptamer and lets it out</h3>
         <p>
           A DNA aptamer binds the AHL molecules themselves. A signal held by an
           aptamer is a signal that never reaches its receptor, so the
-          population never gets the instruction to coordinate.
+          population never gets the instruction to coordinate. Rather than
+          synthesise that aptamer and add it from outside, we have a cell make
+          it: a retron writes the single-stranded DNA inside
+          <em>E.&nbsp;coli</em>, and lysis puts it where the signal is.
         </p>
         <ul>
           <li><strong>Target</strong> &mdash; the AHL signalling molecules,
             not the bacterium</li>
+          <li><strong>Chassis</strong> &mdash; <em>E.&nbsp;coli</em>
+            BL21(DE3)</li>
+          <li><strong>Production</strong> &mdash; the retron Ec67, carried on
+            pET28a. The aptamer sequence sits in the msr&ndash;msd region, and
+            the retron's own reverse transcriptase copies it into
+            single-stranded DNA inside the cell</li>
+          <li><strong>Release</strong> &mdash; lysis. In the design it is
+            triggered by the same AHL that System&nbsp;1 reads, so the cells
+            open where the bacteria are</li>
           <li><strong>Mechanism</strong> &mdash; competes with the receptor for
             the signal, interfering with quorum-sensing-coordinated
             behaviour<sup>[9][10][11]</sup></li>
@@ -294,9 +336,13 @@
       measurable effect on growth.<sup>[11]</sup>
     </p>
     <p>
-      If the biofilm is what keeps a drug out, then weakening it is a way of
-      letting existing drugs work again rather than demanding new ones. That is
-      what we are aiming at.
+      If the biofilm is what keeps a drug out &mdash; and it is, the mature
+      extracellular polymeric matrix blocking penetration well enough that
+      cells inside it are reported to withstand of the order of a thousand
+      times the antibiotic the same cells survive free-living
+      <span class="desc-pending">citation to be completed</span> &mdash; then
+      weakening it is a way of letting existing drugs work again rather than
+      demanding new ones. That is what we are aiming at.
       <strong>It is our design rationale, not a result we have measured.</strong>
     </p>
   </section>
