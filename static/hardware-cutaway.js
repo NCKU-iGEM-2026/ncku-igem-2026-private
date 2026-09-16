@@ -961,13 +961,6 @@
      REGISTER TABLE + READOUT
      ========================================================================== */
 
-  var SRC_LABEL = {
-    drawn: ["drawing", "drawn"],
-    spec: ["team", "spec"],
-    derived: ["derived", "derived"],
-    todo: ["placeholder", "todo"]
-  };
-
   function fmtX(p) {
     if (p.xLabel) return p.xLabel;
     var a = p.x[0], b = p.x[1];
@@ -980,13 +973,9 @@
     var tr = document.createElement("tr");
     tr.tabIndex = 0;
     tr.dataset.id = p.id;
-    var sl = SRC_LABEL[p.src];
     tr.innerHTML =
-      '<td><span class="hw3d-name"><span class="hw3d-dot" style="background:' +
-        (p.color ? "var(--hw3d-" + ({ beamEx: "beam-ex", beamEm: "beam-em", frame: "frame", ghost: "ghost", sample: "sample", warn: "warn", ink: "ink-2", bb: "bb", pcb: "pcb" })[p.color] + ")" : "transparent") +
-        ';border:1px solid var(--hw3d-rule-2)"></span>' + p.name + "</span></td>" +
+      '<td><span class="hw3d-name">' + p.name + "</span></td>" +
       '<td class="hw3d-num">' + fmtX(p) + "</td>" +
-      '<td><span class="hw3d-chip hw3d-chip-' + sl[1] + '">' + sl[0] + "</span></td>" +
       '<td class="hw3d-note">' + p.note + "</td>";
     tr.addEventListener("click", function () { select(p.id); });
     tr.addEventListener("keydown", function (e) {
@@ -1009,7 +998,6 @@
       draw();
       return;
     }
-    var sl = SRC_LABEL[p.src];
     var yz = p.kind === "cyl" || p.kind === "ring"
       ? "Ø " + (p.r * 2).toFixed(1) + (p.ri ? " / bore Ø " + (p.ri * 2).toFixed(1) : "")
       : "Y " + p.y[0].toFixed(1) + "…" + p.y[1].toFixed(1) + "  Z " + p.z[0].toFixed(1) + "…" + p.z[1].toFixed(1);
@@ -1017,7 +1005,7 @@
       '<span class="hw3d-rname">' + p.name + "</span>" +
       '<span class="hw3d-rnum">X ' + fmtX(p) + "</span>" +
       '<span class="hw3d-rnum">' + yz + "</span>" +
-      '<span class="hw3d-rnote"><span class="hw3d-chip hw3d-chip-' + sl[1] + '">' + sl[0] + "</span> " + p.note + "</span>";
+      '<span class="hw3d-rnote">' + p.note + "</span>";
     draw();
   }
 
