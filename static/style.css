@@ -4333,15 +4333,23 @@ body.tour-active { overflow: hidden; }
   background: #fffdf7;
   padding: 1rem;
 }
+/* The controls sit under the view rather than beside it. A 232px rail took a
+   quarter of the width off the one element on this page that has the most to
+   gain from it: the cutaway is a wide, shallow box seen in three-quarter
+   view, and it was being drawn into a frame narrower than the enclosure is
+   long. Below the view, the same controls cost height that was free anyway.
+   The markup already ran viewport-then-rail, so nothing moved in the
+   document -- this only stops the grid putting them side by side. */
 .hw3d-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 232px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.85rem;
   align-items: stretch;
 }
 .hw3d-viewport {
   position: relative;
-  min-height: 460px;
+  /* Taller with the extra width, or a 3:1 letterbox is all the reader gets. */
+  min-height: 520px;
   border: 1px solid #e8efe9;
   border-radius: 10px;
   background: #fbfcfb;
@@ -4370,13 +4378,25 @@ body.tour-active { overflow: hidden; }
 .hw3d-hint { right: 0.75rem; }
 
 /* ---- control rail ---- */
+/* Four groups across, folding to two and then one as the page narrows.
+   auto-fit rather than a fixed count, so the fold happens when the groups
+   actually run out of room instead of at a width guessed in advance. */
 .hw3d-rail {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
+  display: grid;
+  /* 190px, not 210: at the block's 870px four columns plus their gaps come
+     to 813px and fit, where 210 came to 907 and folded Selection onto a row
+     of its own. */
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 0.9rem 1.1rem;
   min-width: 0;
+  border-top: 1px solid #e8efe9;
+  padding-top: 0.85rem;
 }
-.hw3d-grp + .hw3d-grp { border-top: 1px solid #e8efe9; padding-top: 0.7rem; }
+/* The rule that used to divide one group from the next ran along the top of
+   each. In a row that line would sit above the first group of every wrapped
+   row and nowhere else, which reads as a mistake rather than a divider, so
+   the groups are separated by the gap and their own headings instead. */
+.hw3d-grp { min-width: 0; }
 .hw3d-grp h4 {
   font-size: 0.68rem;
   letter-spacing: 0.12em;
@@ -4413,7 +4433,13 @@ body.tour-active { overflow: hidden; }
   cursor: pointer;
 }
 .hw3d-views button:hover { border-color: #4f8f74; color: #24352c; }
-.hw3d-layers { display: flex; flex-direction: column; gap: 0.3rem; }
+/* Six of these stacked made the control row as tall as it was wide. Two
+   columns where there is room; back to one when the group is narrow. */
+.hw3d-layers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+  gap: 0.3rem 0.9rem;
+}
 .hw3d-layers label {
   display: flex;
   align-items: center;
@@ -4427,7 +4453,9 @@ body.tour-active { overflow: hidden; }
 .hw3d-swatch { width: 11px; height: 11px; flex: none; border: 1px solid #cfdcd5; }
 
 /* ---- readout ---- */
-.hw3d-readout { font-size: 0.78rem; color: #4a5a51; min-height: 5.5rem; }
+/* 5.5rem was reserving the height of a sidebar. In a row it only has to
+   stop the row jumping when a part is selected. */
+.hw3d-readout { font-size: 0.78rem; color: #4a5a51; min-height: 4rem; }
 .hw3d-readout .hw3d-rname { font-weight: 600; color: #24352c; display: block; margin-bottom: 0.15rem; }
 .hw3d-readout .hw3d-rnum {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -4478,8 +4506,8 @@ body.tour-active { overflow: hidden; }
 .hw3d-chip-todo { color: #a8632a; border: 1px dashed #d8a06a; }
 
 @media (max-width: 767.98px) {
-  .hw3d-stage { grid-template-columns: 1fr; }
-  .hw3d-rail { order: 2; }
+  /* The stacking these rules used to do is now how the block is built at
+     every width; what is left is what is specific to a small screen. */
   .hw3d-viewport { min-height: 360px; }
   .hw3d-hint { display: none; }
 }
