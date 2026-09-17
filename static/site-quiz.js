@@ -61,7 +61,7 @@
 
   var COPY = {
     en: {
-      open: 'Still looking for something?',
+      open: 'Still Looking For Something?',
       title: 'Find your way in',
       lead: 'Four questions, then two or three pages you are most likely to want.',
       of: 'of',
@@ -194,10 +194,11 @@
   };
 
   // ---------------------------------------------------------------- the state
-  var LANG_KEY = 'ncku2026_quiz_lang';
   // The wiki is written in English and its first readers are the judges, so
-  // English is the default; one tap switches the whole quiz to Chinese and the
-  // choice is remembered.
+  // every visit starts in English. One tap switches the whole quiz to Chinese
+  // and it stays Chinese while the page is open, but the choice is deliberately
+  // not remembered across visits: the home page should never greet a reader in
+  // a language they did not ask for on this visit.
   var lang = 'en';
   var at = 0;
   var answers = [];
@@ -207,19 +208,6 @@
   // on that question, so switching language at the results threw the reader
   // back to question four.
   var showingResults = false;
-
-  // A browser can refuse storage entirely (private windows, blocked site data).
-  // Losing the remembered language should cost a visitor one tap, never a
-  // script error on the home page.
-  function rememberLang() {
-    try { localStorage.setItem(LANG_KEY, lang); } catch (e) { /* not worth failing over */ }
-  }
-  function restoreLang() {
-    try {
-      var v = localStorage.getItem(LANG_KEY);
-      if (v === 'zh' || v === 'en') lang = v;
-    } catch (e) { /* keep the default */ }
-  }
 
   function t() { return COPY[lang]; }
 
@@ -357,7 +345,6 @@
 
   function setLang(next) {
     lang = next;
-    rememberLang();
     langButtons.forEach(function (b) {
       var on = b.getAttribute('data-quiz-lang') === lang;
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -430,7 +417,6 @@
   });
 
   // ---------------------------------------------------------------- entry
-  restoreLang();
   setLang(lang);
 
   if (opener) {
