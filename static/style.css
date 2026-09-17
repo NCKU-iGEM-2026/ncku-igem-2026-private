@@ -4742,6 +4742,11 @@ body.tour-active { overflow: hidden; }
 
 .cap-unit { font-size: 0.8rem; color: #4d6b5c; }
 
+/* Below zero, in the corner and on the result. Same brown as the minus that
+   floats off a mistake, so the two name each other. */
+.cap-score-value.is-loss,
+.cap-final-score.is-loss { color: #8a5524; }
+
 /* Only while a round is running. A panel sits over the field either side of
    one, and a score of 0 with a full minute left showing faintly through it
    read as a rendering fault rather than as information. */
@@ -4777,9 +4782,11 @@ body.tour-active { overflow: hidden; }
 .cap-game:not([data-state="playing"]) .cap-pause,
 .cap-game[data-paused="true"] .cap-pause { display: none; }
 
-/* ---- the thing being caught ---- */
-/* No disc: the bacterium art (unlike the old pale logo mark) reads on its own
-   against the dish, so the hit area is just the image's own bounds. */
+/* ---- the things being caught ---- */
+/* Two of them, and they have to be told apart in the fraction of a second
+   before one of them goes: a brown disc that says AHL, worth a point, and the
+   bacterium art, which costs one. Colour alone does not do that -- the disc
+   carries its own name, and the shapes differ as well as the hues. */
 .cap-target {
   position: absolute;
   z-index: 2;
@@ -4790,6 +4797,31 @@ body.tour-active { overflow: hidden; }
   background: none;
   -webkit-tap-highlight-color: transparent;
   filter: drop-shadow(0 4px 8px rgba(7, 90, 62, 0.25));
+}
+
+/* AHL, drawn rather than fetched. The bacterium keeps the green drop-shadow
+   it has always had; the disc takes a brown one, so the shadow does not read
+   as a green halo around a brown thing. */
+.cap-target-ahl { filter: drop-shadow(0 4px 8px rgba(92, 58, 30, 0.32)); }
+
+.cap-ahl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #5c3a1e;
+  border-radius: 50%;
+  /* Off-centre highlight: a flat circle at this size reads as a hole in the
+     dish rather than as something sitting in it. */
+  background: radial-gradient(circle at 34% 30%, #a9713d 0%, #8a5524 52%, #6f421a 100%);
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #fff6e6;           /* 5.8:1 on the disc's mid tone */
+  text-shadow: 0 1px 2px rgba(58, 33, 12, 0.55);
+  pointer-events: none;     /* the button takes every hit, not the disc */
 }
 
 /* Bootstrap's reboot sets button:not(:disabled){cursor:pointer} at (0,1,1),
@@ -4867,6 +4899,12 @@ body.tour-active { overflow: hidden; }
   to { transform: translateY(-34px); opacity: 0; }
 }
 
+/* Taking the bacterium. Same ring, same float, brown instead of green and a
+   minus instead of a plus: at half a second on screen one difference is not
+   enough, and the minus is the one that survives being colour-blind to it. */
+.cap-burst.is-loss { border-color: #8a5524; }
+.cap-plus.is-loss { color: #8a5524; }
+
 /* ---- the two panels ---- */
 .cap-panel {
   position: absolute;
@@ -4896,6 +4934,87 @@ body.tour-active { overflow: hidden; }
   font-size: 1.4rem;
   color: #075a3e;
   margin: 0;
+}
+
+/* The start panel carries the rules as well as the difficulty, so it is the
+   one panel whose content can outgrow a short field. It scrolls rather than
+   clips; `safe center` keeps the top reachable when it does, and falls back
+   to plain centring where it is not understood. */
+.cap-panel-start {
+  justify-content: safe center;
+  overflow-y: auto;
+}
+
+/* ---- the rules ---- */
+/* Each rule shows the thing itself, at a size you can recognise, beside what
+   taking it does to the score. Describing the targets in words alone would
+   leave the player matching a description to a picture mid-round, which is
+   the one moment there is no time for it. */
+.cap-rules {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 28rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.cap-rule {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.cap-rule-chip {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.cap-rule-chip img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* The disc again, small. Its own font-size is set for the dish, where it is
+   three times this wide. */
+.cap-rule-chip .cap-ahl {
+  border-width: 2px;
+  font-size: 0.6rem;
+  letter-spacing: 0;
+}
+
+/* Deliberately not a flex row: the text is one run with an inline badge in
+   front of it, and a flex container here would make an anonymous item of
+   every stretch of words between the inline elements. */
+.cap-rule-text {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #33413a;
+}
+
+.cap-rule-score {
+  display: inline-block;
+  min-width: 2.1rem;
+  margin-right: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: #e4f3e9;
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+  color: #075a3e;
+}
+
+.cap-rule-score.is-loss {
+  background: #f6ecdf;
+  color: #7a4a1c;
 }
 
 .cap-levels {
@@ -5038,12 +5157,27 @@ body.tour-active { overflow: hidden; }
   .cap-hud { top: 8px; right: 8px; gap: 0.35rem; }
   .cap-pill { padding: 0.3rem 0.6rem; }
   .cap-score-value, .cap-time-value { font-size: 1.05rem; }
-  .cap-level-box { min-width: 104px; padding: 0.55rem 0.75rem; }
+  /* Three boxes on one row at any width. Left to wrap, they took two rows
+     and 50px the panel could not spare once the rules moved in above them. */
+  .cap-levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cap-level-box { min-width: 0; padding: 0.55rem 0.5rem; }
+
+  /* The start panel is the tallest thing here and the field is at its
+     shortest, so the rules give back what they can: smaller chips, tighter
+     rows, less padding around the lot. Measured against the 371px field of a
+     360x640 phone, the panel comes to about 349px. */
+  .cap-panel { gap: 0.65rem; padding: 1.1rem; }
+  .cap-ahl { font-size: 0.92rem; }
+  .cap-rule { grid-template-columns: 2.1rem 1fr; gap: 0.6rem; }
+  .cap-rule-chip { width: 2.1rem; height: 2.1rem; }
+  .cap-rule-chip .cap-ahl { font-size: 0.52rem; }
+  .cap-rule-text { font-size: 0.8rem; line-height: 1.5; }
 }
 
-/* Asked for less motion: the logo still appears and is still caught, it just
-   does not pop, and the script leaves the ring and the +1 out entirely. The
-   score in the corner is what reports the catch. */
+/* Asked for less motion: a target still appears and is still caught, it just
+   does not pop, and the script leaves the ring and the number out entirely.
+   The score in the corner is what reports the catch -- and, when the thing
+   caught was a bacterium, what reports the mistake. */
 @media (prefers-reduced-motion: reduce) {
   .cap-target.is-in,
   .cap-target.is-out { animation: none; }

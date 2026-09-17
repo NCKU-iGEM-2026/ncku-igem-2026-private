@@ -1,28 +1,35 @@
 (function () {
-  // Capture — a one-minute catching game for the Online Game page.
+  // Capture — a one-minute catching game for the home page.
   //
-  // Logos arrive on their own schedule, each one waits, and each one goes.
-  // Catch one with the net for a point. Difficulty is how long a logo waits.
+  // Two things arrive in the dish on their own schedule, each one waits, and
+  // each one goes. AHL is the signal the aptamer is raised against, so
+  // catching one is worth a point; the bacterium that releases it is not what
+  // the aptamer binds, so catching one costs a point. Difficulty is how long
+  // a target waits.
   //
   // Everything here is self-contained: no library, no network request, nothing
   // loaded from outside iGEM infrastructure. If this file fails to load the
   // page still renders and explains itself; only the game is missing.
 
-  // ---------------------------------------------------------------- the logo
-  // The bacterium the player is catching, served from iGEM's own host. iGEM
-  // does not allow external CDNs, so if this is ever changed it has to stay
-  // on static.igem.wiki.
-  const LOGO_URL = 'https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria.avif';
+  // ------------------------------------------------------------- the targets
+  // The bacterium, served from iGEM's own host. iGEM does not allow external
+  // CDNs, so if this is ever changed it has to stay on static.igem.wiki.
+  //
+  // AHL has no file of its own: it is a labelled disc built in the DOM. At
+  // 60px on a phone a picture of the letters "AHL" is a blurry picture of
+  // text, where the letters themselves stay sharp -- and it keeps the game
+  // down to the one remote asset it already had.
+  const GERM_URL = 'https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria.avif';
 
   // --------------------------------------------------------------- the rules
   const ROUND_MS = 60000;                    // one minute, fixed
 
-  // How long one logo waits before it goes. This is the whole difference
+  // How long one target waits before it goes. This is the whole difference
   // between the levels.
   const LIFETIME = { easy: 3000, medium: 2000, hard: 1000 };
 
   // How long until the *next* one arrives, as a fraction of how long one lives.
-  // Arrivals are not tied to departures: a logo appears when its turn comes
+  // Arrivals are not tied to departures: a target appears when its turn comes
   // round, whether or not the one before it is still there, so there are
   // usually two or three in the dish and sometimes one or none.
   //
@@ -37,6 +44,11 @@
   // Raised with the faster arrivals: at the old four the ceiling, not the
   // schedule, was deciding how busy the dish got.
   const MAX_LIVE = 6;
+
+  // How many arrivals are the bacterium rather than AHL. Roughly a third:
+  // enough that clearing the dish indiscriminately loses to picking your
+  // targets, few enough that the minute is still mostly about catching.
+  const DECOY_CHANCE = 0.35;
 
   const LEVEL_NAME = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 
@@ -54,6 +66,7 @@
   const resumeBtn = root.querySelector('.cap-resume');
   const quitBtn = root.querySelector('.cap-quit');
   const finalEl = root.querySelector('.cap-final-score');
+  const finalUnit = root.querySelector('.cap-final-unit');
   const finalLevel = root.querySelector('.cap-final-level');
   const liveEl = root.querySelector('.cap-live');
   const levelInputs = Array.prototype.slice.call(
@@ -69,9 +82,9 @@
   let level = 'medium';
   let score = 0;
   let deadline = 0;            // performance.now() at which the round ends
-  let nextAt = 0;              // when the next logo is due
+  let nextAt = 0;              // when the next target is due
   let frameId = 0;
-  let live = [];               // every logo currently in the dish
+  let live = [];               // every target currently in the dish
 
   // Paused is orthogonal to state rather than a fourth value of it: the round
   // is still "playing" underneath, just with its clock stopped, so resuming
@@ -84,10 +97,24 @@
     root.dataset.state = next;
   }
 
+  // A round can finish below zero. Flooring the score at nought would mean
+  // that once you were there the penalty stopped costing anything, which is
+  // the point at which a player may as well click everything in the dish.
+  function fmtScore(n) {
+    return n < 0 ? '\u2212' + Math.abs(n) : String(n);
+  }
+
+  function showScore() {
+    scoreEl.textContent = fmtScore(score);
+    // A minus sign in the same green as every good score is a minus sign you
+    // read a beat too late. Below zero the number changes colour as well.
+    scoreEl.classList.toggle('is-loss', score < 0);
+  }
+
   // ------------------------------------------------------------------ moving
   // Anywhere in the field, with three exceptions: not under the score and
   // clock, which would leave it unreadable and unclickable; not on top of a
-  // logo that is already out, which would make two look like one; and, failing
+  // target already out, which would make two look like one; and, failing
   // both, clearing the corner matters more than keeping them apart.
   function place(size) {
     const fb = field.getBoundingClientRect();
@@ -131,18 +158,32 @@
   }
 
   // ---------------------------------------------------------------- arriving
-  function spawn(now) {
+  // kind forces one or the other ('ahl' / 'germ'); left out, chance decides.
+  function spawn(now, kind) {
     if (live.length >= MAX_LIVE) return;
+
+    const decoy = kind ? kind === 'germ' : Math.random() < DECOY_CHANCE;
 
     const el = document.createElement('button');
     el.type = 'button';
-    el.className = 'cap-target';
-    el.setAttribute('aria-label', 'Catch the logo');
+    el.className = decoy ? 'cap-target cap-target-germ' : 'cap-target cap-target-ahl';
+    // Spelled out for a screen reader, which gets neither the colour nor the
+    // picture: what this one is, and what taking it does to the score.
+    el.setAttribute('aria-label', decoy
+      ? 'Pseudomonas aeruginosa, costs a point'
+      : 'AHL, catch it for a point');
 
-    const img = document.createElement('img');
-    img.src = LOGO_URL;
-    img.alt = '';                    // the button carries the name
-    el.appendChild(img);
+    if (decoy) {
+      const img = document.createElement('img');
+      img.src = GERM_URL;
+      img.alt = '';                  // the button carries the name
+      el.appendChild(img);
+    } else {
+      const disc = document.createElement('span');
+      disc.className = 'cap-ahl';
+      disc.textContent = 'AHL';
+      el.appendChild(disc);
+    }
 
     // Appended, measured and positioned inside one task, so the browser never
     // paints it at the corner on its way to where it belongs.
@@ -153,46 +194,54 @@
     el.style.top = Math.round(at.y) + 'px';
     el.classList.add('is-in');
 
-    const logo = {
+    const target = {
       el: el,
       x: at.x,
       y: at.y,
       size: size,
+      decoy: decoy,
       diesAt: now + LIFETIME[level],
       gone: false
     };
-    el.addEventListener('click', function () { grab(logo); });
-    live.push(logo);
+    el.addEventListener('click', function () { grab(target); });
+    live.push(target);
   }
 
-  function drop(logo) {
-    logo.gone = true;
-    live = live.filter(function (l) { return l !== logo; });
+  function drop(target) {
+    target.gone = true;
+    live = live.filter(function (l) { return l !== target; });
   }
 
   // ---------------------------------------------------------------- leaving
-  // Caught: gone at once, because the ring and the +1 are the feedback and a
-  // logo still sitting under them reads as a miss. Missed: a short fade, so
-  // that with several in the dish you can see which one you lost.
-  function expire(logo) {
-    drop(logo);
-    const el = logo.el;
+  // Caught: gone at once, because the ring and the number are the feedback
+  // and a target still sitting under them reads as a miss. Missed: a short
+  // fade, so that with several in the dish you can see which one you lost.
+  //
+  // A bacterium left to expire costs nothing. Only clicking one does, which
+  // is the whole reason leaving one alone is a move.
+  function expire(target) {
+    drop(target);
+    const el = target.el;
     el.style.pointerEvents = 'none';
     if (calm.matches) { el.remove(); return; }
     el.classList.add('is-out');
     window.setTimeout(function () { el.remove(); }, 220);
   }
 
-  function burst(logo) {
+  // The ring and the number are all that separates a catch worth a point from
+  // one that costs you one, and they are on screen for about half a second,
+  // so they carry the difference twice over: green and +1, or brown and a
+  // minus.
+  function burst(target) {
     if (calm.matches) return;
-    const x = logo.x + logo.size / 2;
-    const y = logo.y + logo.size / 2;
+    const x = target.x + target.size / 2;
+    const y = target.y + target.size / 2;
 
     const ring = document.createElement('span');
-    ring.className = 'cap-burst';
+    ring.className = target.decoy ? 'cap-burst is-loss' : 'cap-burst';
     const plus = document.createElement('span');
-    plus.className = 'cap-plus';
-    plus.textContent = '+1';
+    plus.className = target.decoy ? 'cap-plus is-loss' : 'cap-plus';
+    plus.textContent = target.decoy ? '\u22121' : '+1';
 
     [ring, plus].forEach(function (el) {
       el.style.left = x + 'px';
@@ -207,13 +256,13 @@
     }, 800);
   }
 
-  function grab(logo) {
-    if (state !== 'playing' || paused || logo.gone) return;
-    score += 1;
-    scoreEl.textContent = String(score);
-    burst(logo);
-    drop(logo);
-    logo.el.remove();
+  function grab(target) {
+    if (state !== 'playing' || paused || target.gone) return;
+    score += target.decoy ? -1 : 1;
+    showScore();
+    burst(target);
+    drop(target);
+    target.el.remove();
   }
 
   function clearField() {
@@ -259,7 +308,7 @@
   function start() {
     clearField();
     score = 0;
-    scoreEl.textContent = '0';
+    showScore();
     timeEl.textContent = String(ROUND_MS / 1000);
     paused = false;
     root.removeAttribute('data-paused');
@@ -267,7 +316,10 @@
 
     const now = performance.now();
     deadline = now + ROUND_MS;
-    spawn(now);                  // one straight away, so the round opens on it
+    // One straight away, so the round opens on something -- and an AHL rather
+    // than a coin toss, because a round that opens by punishing the first
+    // click is a poor way to teach the rule.
+    spawn(now, 'ahl');
     nextAt = now + nextGap();
     frameId = window.requestAnimationFrame(frame);
   }
@@ -278,7 +330,9 @@
     root.removeAttribute('data-paused');
     setState('over');
     clearField();
-    finalEl.textContent = String(score);
+    finalEl.textContent = fmtScore(score);
+    finalEl.classList.toggle('is-loss', score < 0);
+    finalUnit.textContent = Math.abs(score) === 1 ? 'point' : 'points';
     finalLevel.textContent = LEVEL_NAME[level];
     // The running score is deliberately not announced -- once a second for a
     // minute is unusable. The final one is.
@@ -299,7 +353,7 @@
 
   // ------------------------------------------------------------------- pause
   // Stopping the animation frame already freezes what is on screen; the part
-  // that takes care is the clock and every live logo's own death time, both
+  // that takes care is the clock and every live target's own death time, both
   // stored as absolute performance.now() timestamps. Resuming shifts all of
   // them forward by exactly how long the pause lasted, so nothing that was
   // one second from expiring is suddenly overdue the moment play resumes.
@@ -345,11 +399,11 @@
     if (state === 'playing') { if (paused) resume(); else pause(); }
   });
 
-  // The field is sized in vh and %, so a rotate or a resize can leave a logo
-  // outside it, or under the score and clock once they move. Those are put
-  // back; the rest are left exactly where they are.
+  // The field is sized in vh and %, so a rotate or a resize can leave a
+  // target outside it, or under the score and clock once they move. Those are
+  // put back; the rest are left exactly where they are.
   //
-  // Moving every logo on every resize is what made this feel unstable. A phone
+  // Moving every target on every resize is what made this feel unstable. A phone
   // fires resize continuously while the address bar slides in and out of view,
   // so simply scrolling teleported everything on screen -- including whatever
   // you were reaching for.
