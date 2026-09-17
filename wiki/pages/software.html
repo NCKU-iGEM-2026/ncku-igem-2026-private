@@ -5,142 +5,117 @@
 {% block page_content %}
 
 <style>
-  .sw { --sw-ink: #3d3229; --sw-ink2: #5c4e42; --sw-muted: #8a7a6a;
-        --sw-rule: #e3dcd0; --sw-paper: #fdfbf7; --sw-paper2: #f4efe6;
-        --sw-accent: #c9a227; }
+  /* Palette matches LasReader's frontend/css/style.css, which takes it from this wiki. */
+  .lv { --lv-ink: #3d3229; --lv-ink2: #5c4e42; --lv-muted: #8a7a6a;
+        --lv-rule: #dfe8e2; --lv-gold: #c9a227; --lv-gold-ink: #8a6d12;
+        --lv-accent: #075a3e; --lv-paper: #fffdf7; --lv-paper2: #f7faf8; }
 
-  .sw { max-width: 46rem; }
-  .sw section { margin-bottom: 2.5rem; }
-  .sw h2 { font-size: 1.35rem; font-weight: 700; color: var(--sw-ink);
-           margin-bottom: .9rem; padding-bottom: .45rem;
-           border-bottom: 2px solid var(--sw-rule); }
-  .sw p, .sw li { color: var(--sw-ink2); line-height: 1.75; }
-  .sw li { margin-bottom: .45rem; }
-  .sw code { background: var(--sw-paper2); color: var(--sw-ink);
-             padding: .1em .35em; border-radius: 3px; font-size: .9em; }
+  .lv { margin: 0 0 3rem; padding: 30px; border: 1px solid var(--lv-rule);
+        border-radius: 18px; background: var(--lv-paper); color: var(--lv-ink); }
+  .lv-label { margin: 0 0 8px; color: var(--lv-gold-ink); font-size: .76rem; font-weight: 700; }
+  .lv-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .lv-head h2 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--lv-ink); }
+  .lv-desc { margin: 12px 0 0; color: var(--lv-ink2); line-height: 1.7; }
 
-  .sw-interim { background: var(--sw-paper); border: 1px solid var(--sw-rule);
-                border-left: 4px solid var(--sw-accent); border-radius: 4px;
-                padding: 1.1rem 1.25rem; margin-bottom: 2.5rem; }
-  .sw-interim p:last-child { margin-bottom: 0; }
-  .sw-interim-tag { display: inline-block; font-size: .75rem; font-weight: 700;
-                    letter-spacing: .08em; text-transform: uppercase;
-                    color: #8a6d12; margin-bottom: .5rem; }
+  .lv-controls { display: flex; align-items: center; gap: 18px; }
+  .lv-state { display: inline-flex; align-items: center; gap: 7px; padding: 4px 12px;
+              border: 1px solid var(--lv-rule); border-radius: 999px; color: var(--lv-ink2);
+              background: #fff; font-size: .85rem; font-weight: 600; }
+  .lv-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--lv-muted);
+            box-shadow: 0 0 0 3px rgba(138,122,106,.12); }
+  .lv-dot.is-streaming { background: var(--lv-accent); box-shadow: 0 0 0 3px rgba(7,90,62,.14); }
+  .lv-dot.is-reconnecting { background: var(--lv-gold); box-shadow: 0 0 0 3px rgba(201,162,39,.16); }
 
-  .sw-flow { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
-             margin: 1.4rem 0; }
-  .sw-flow-node { border: 1.5px solid #b3a695; border-radius: 4px;
-                  background: var(--sw-paper); color: var(--sw-ink);
-                  padding: .4rem .75rem; font-size: .875rem; font-weight: 600; }
-  .sw-flow-arrow { color: var(--sw-muted); font-size: 1.05rem; }
+  .lv-switch { position: relative; display: inline-flex; align-items: center; gap: 8px; margin: 0;
+               cursor: pointer; font-weight: 600; }
+  .lv-switch input { position: absolute; opacity: 0; pointer-events: none; }
+  .lv-track { width: 42px; height: 24px; padding: 3px; border-radius: 999px; background: var(--lv-rule);
+              transition: background-color .15s ease; }
+  .lv-track span { display: block; width: 18px; height: 18px; border-radius: 50%; background: #fff;
+                   box-shadow: 0 1px 4px rgba(61,50,41,.22); transition: transform .15s ease; }
+  .lv-switch input:checked + .lv-track { background: var(--lv-accent); }
+  .lv-switch input:checked + .lv-track span { transform: translateX(18px); }
+  .lv-switch input:focus-visible + .lv-track { outline: 3px solid var(--lv-gold); outline-offset: 2px; }
 
-  .sw-links { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.1rem 0; }
-  .sw-link { display: inline-block; padding: .55rem 1.05rem;
-             border: 1.5px solid var(--sw-ink2); border-radius: 4px;
-             color: var(--sw-ink); text-decoration: none; font-weight: 600;
-             transition: background .15s, color .15s; }
-  .sw-link:hover, .sw-link:focus { background: var(--sw-ink); color: #fdfbf7; }
+  .lv-stat { max-width: 280px; margin-top: 16px; padding: 12px 14px; border: 1px solid var(--lv-rule);
+             border-radius: 12px; background: #fff; }
+  .lv-stat-label { display: block; color: var(--lv-muted); font-size: .74rem; font-weight: 700; }
+  .lv-stat-value { display: block; margin-top: 4px; font-size: 1.6rem; font-weight: 700;
+                   color: var(--lv-ink); font-variant-numeric: tabular-nums; }
+  .lv-stat-sub { display: block; margin-top: 4px; color: var(--lv-muted); font-size: .85rem; }
 
-  .sw-placeholder { border: 1px dashed #c4b8a8; border-radius: 4px;
-                    background: var(--sw-paper2); color: var(--sw-muted);
-                    padding: 1.25rem 1rem; text-align: center; font-size: .875rem;
-                    margin: 1.4rem 0; }
+  .lv-empty { display: grid; min-height: 180px; margin-top: 16px; padding: 16px; place-items: center;
+              border: 1px dashed var(--lv-rule); border-radius: 12px; color: var(--lv-muted);
+              background: var(--lv-paper2); text-align: center; }
+  .lv-legend { display: flex; justify-content: flex-end; gap: 6px 16px; margin: 18px 0 6px;
+               color: var(--lv-muted); font-size: .8rem; }
+  .lv-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .lv-swatch { width: 10px; height: 10px; border-radius: 2px; background: var(--lv-accent); }
+  .lv-plate { margin: 8px 0 16px; padding: 14px; border: 1px solid var(--lv-rule);
+              border-radius: 12px; background: #fff; }
+  .lv-plate svg { display: block; max-width: 100%; height: auto; font-family: inherit; }
 
-  .sw-fine { font-size: .9rem; color: var(--sw-muted); }
+  .lv-settings { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 8px; padding-top: 12px;
+                 border-top: 1px solid var(--lv-rule); color: var(--lv-ink2); font-size: .84rem; }
+  .lv-settings b { color: var(--lv-muted); font-weight: 700; }
+  .lv-fine { margin: 8px 0 0; color: var(--lv-muted); font-size: .88rem; line-height: 1.6; }
+
+  #live-spectrum, #live-f4 { transition: opacity .2s ease; }
+  .lv.is-paused #live-spectrum, .lv.is-paused #live-f4 { opacity: .45; }
+
+  @media (max-width: 720px) {
+    .lv { padding: 20px; }
+    .lv-controls { width: 100%; justify-content: space-between; }
+  }
 </style>
 
-<div class="container my-4 sw">
-
-  <!-- ===================== interim notice ===================== -->
-  <div class="sw-interim">
-    <span class="sw-interim-tag">Interim &middot; work in progress</span>
-    <p>
-      This page records a <strong>temporary capability</strong>, not our
-      finished software. The telemetry link described below was built to prove
-      that a reading can travel from a sensor to a browser, and it will be
-      superseded once the tool it was preparing for is ready.
-    </p>
-    <p class="mb-0">
-      Our main effort is a dose&ndash;response analysis service for plate-reader
-      exports. It is under active revision and is deliberately not described
-      here yet: we would rather document it once its behaviour is settled than
-      publish an account we would have to correct.
-    </p>
+<section id="live-card" class="lv" aria-labelledby="live-heading">
+  <div class="lv-head">
+    <div>
+      <p class="lv-label">CAPTURE-Screen</p>
+      <h2 id="live-heading">Live spectrum</h2>
+    </div>
+    <div class="lv-controls">
+      <span class="lv-state" aria-live="polite">
+        <span id="live-dot" class="lv-dot is-reconnecting" aria-hidden="true"></span>
+        <span id="live-dot-label">Connecting</span>
+      </span>
+      <label class="lv-switch" for="live-toggle">
+        <!-- autocomplete="off": a browser restoring the checked box on reload would switch the LED on unasked. -->
+        <input id="live-toggle" type="checkbox" autocomplete="off" />
+        <span class="lv-track" aria-hidden="true"><span></span></span>
+        <span>Live</span>
+      </label>
+    </div>
   </div>
 
-  <!-- ===================== the interim capability ===================== -->
-  <section>
-    <h2>The GY-302 telemetry link</h2>
+  <p class="lv-desc">
+    Real-time raw counts from CAPTURE-Screen's ten spectral channels; F4 (515 nm) is the sfGFP band.
+    The excitation LED is on only while Live is on, to avoid heating and bleaching the sample.
+  </p>
 
-    <p>
-      The GY-302 is a breakout board for the BH1750FVI, an ambient-light sensor
-      that reports illuminance directly in lux over I&sup2;C. It measures
-      nothing biological, and that is why it was chosen: because its output
-      needs no interpretation, it lets the <em>transport</em> be tested on its
-      own terms, with any failure attributable to the path rather than to the
-      measurement.
-    </p>
+  <div class="lv-stat">
+    <span class="lv-stat-label">sfGFP · F4 515 nm</span>
+    <span class="lv-stat-value" id="live-f4">--</span>
+    <span class="lv-stat-sub">raw counts</span>
+  </div>
 
-    <div class="sw-flow" role="img"
-         aria-label="Four-stage flow: a GY-302 sensor feeds an ESP32 microcontroller, which uploads to a FastAPI service, which is read by a browser readout.">
-      <span class="sw-flow-node">GY-302 sensor</span>
-      <span class="sw-flow-arrow" aria-hidden="true">&rarr;</span>
-      <span class="sw-flow-node">ESP32</span>
-      <span class="sw-flow-arrow" aria-hidden="true">&rarr;</span>
-      <span class="sw-flow-node">FastAPI service</span>
-      <span class="sw-flow-arrow" aria-hidden="true">&rarr;</span>
-      <span class="sw-flow-node">Browser readout</span>
+  <div id="live-empty" class="lv-empty">Connecting to backend (up to 1 min after idle)...</div>
+  <div id="live-spectrum" hidden>
+    <div class="lv-legend" aria-hidden="true">
+      <span><i class="lv-swatch"></i>F4 · sfGFP</span>
     </div>
-
-    <p>
-      The device samples every 500&nbsp;ms and uploads the most recent value
-      every 3&nbsp;s; the browser polls for it every 2&nbsp;s and plots a
-      rolling window of the last 30 readings. An indicator LED is driven below
-      50&nbsp;lux from the device's own reading rather than from a server
-      response, so it keeps working when the network does not.
-    </p>
-
-    <!-- SCREENSHOT: live readout 畫面（折線圖 + lux 數值 + Live badge）。
-         用 iGEM uploads tool 上傳到 static.igem.wiki 後換掉下面這個 placeholder。 -->
-    <div class="sw-placeholder">
-      Screenshot of the live readout &mdash; to be added
+    <div class="lv-plate">
+      <svg id="live-chart" role="img" aria-label="Raw counts in the latest frame for each of the ten spectral channels"></svg>
     </div>
+  </div>
 
-    <p>
-      Its limits follow from its purpose. The service holds a single reading in
-      memory, so there is no history, no support for more than one device, and
-      no authentication on the upload. The sensor has not been calibrated
-      against a reference photometer, so its readings are not quantitative.
-      None of this is a defect to be fixed in place &mdash; it is the scope we
-      chose for a stepping stone.
-    </p>
-  </section>
+  <div id="live-settings" class="lv-settings" hidden></div>
+  <p class="lv-fine">Display only: raw counts are not dark-subtracted and never stored.</p>
+</section>
 
-  <!-- ===================== availability ===================== -->
-  <section>
-    <h2>Source and demonstration</h2>
+{% endblock %}
 
-    <p>
-      All of our software is developed in the open, in a repository separate
-      from this wiki, and released under the MIT License.
-    </p>
-
-    <div class="sw-links">
-      <a class="sw-link" href="https://igem-ncku-software.github.io/igem-software/hardware.html"
-         target="_blank" rel="noopener">Live readout</a>
-      <a class="sw-link" href="https://github.com/igem-ncku-software/igem-software"
-         target="_blank" rel="noopener">Source repository</a>
-    </div>
-
-    <p class="sw-fine">
-      Both are hosted outside iGEM infrastructure and are linked, not embedded:
-      this page loads nothing from either of them and reads the same whether or
-      not they are reachable. The live copy runs on a free hosting tier that
-      suspends when idle, so the first request after a pause can take up to a
-      minute.
-    </p>
-  </section>
-
-</div>
-
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename = 'software-live.js') }}"></script>
 {% endblock %}
