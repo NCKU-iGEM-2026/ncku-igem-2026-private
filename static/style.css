@@ -748,33 +748,46 @@ footer a:hover { color: white; text-decoration: underline; }
   letter-spacing: 0.04em;
 }
 
-.polaroid-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(10,40,70,0.92), rgba(5,25,50,0.95));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 1rem;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
+/* Photo turns over to a second, funnier photo on hover, tap, or focus,
+   reusing the same hw-flip mechanism as the Hardware page cards
+   (static/style.css, ~line 3825) -- .polaroid-photo carries hw-flip and
+   keeps its existing size/position unchanged; the .hw-flip-card inside it
+   is what actually turns. The existing ".polaroid-photo img" rule above
+   already sizes the photo on the front face.
 
-.polaroid:hover .polaroid-overlay { opacity: 1; }
+   .hw-flip-card is pulled out of flow with inset:0 rather than sized with
+   a percentage height: a percentage height only resolves against a parent
+   with a *definite* height, and .polaroid-photo's height here comes from
+   aspect-ratio, not a literal value, which several browsers do not treat
+   as definite once it's threaded through a flex container and then a grid
+   container's "face" area -- the photo rendered full natural height
+   instead of being cropped to the square. Positioning it absolutely
+   sidesteps that chain: it fills .polaroid-photo (made the positioning
+   context below) directly, with no percentage math in between. The same
+   applies one level down: .hw-flip-front/.hw-flip-back are grid items
+   relying on stretch to fill the "face" area, and that stretch still
+   didn't resolve once the card itself became an abspos box, so they get
+   the same inset:0 treatment rather than trusting the grid track size. */
+.polaroid-photo.hw-flip { position: relative; }
+.polaroid-photo > .hw-flip-card { position: absolute; inset: 0; }
+/* The extra .polaroid ancestor exists only to outweigh the generic
+   mechanism's ".hw-flip-card > .hw-flip-front/.hw-flip-back" rule, which
+   also sets position (to relative) at the same specificity -- without it,
+   whichever of the two rules is declared later in this file wins, which is
+   the generic one. */
+.polaroid .polaroid-photo .hw-flip-front,
+.polaroid .polaroid-photo .hw-flip-back { position: absolute; inset: 0; }
+.polaroid-photo .hw-flip-front,
+.polaroid-photo .hw-flip-back { background: #ddd; }
+.polaroid-photo .hw-flip-back img { width: 100%; height: 100%; object-fit: cover; }
 
-.polaroid-overlay h3 { margin-bottom: 0.25rem; font-weight: bold; }
-.polaroid-overlay .role {
-  color: #6fd6ff;
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
+/* No "hover to read" hint or corner fold on these -- the card is a plain
+   photo, not a text card, and a corner fold with no label on it would just
+   read as a stray triangle. The extra .polaroid ancestor in each selector
+   only exists to outweigh the generic mechanism's rule, which sets the
+   same content/size at the same specificity declared later in this file. */
+.polaroid .polaroid-photo .hw-flip-front::before,
+.polaroid .polaroid-photo .hw-flip-front::after { content: none; }
 
 /*維持上方橫幅置中
 */
