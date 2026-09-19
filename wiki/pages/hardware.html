@@ -308,342 +308,651 @@
 
   </section>
 
+  <!-- =====================================================================
+       Everything below this line was rebuilt in September 2026.
+
+       The shape of it: the instrument is documented by what it was measured
+       doing, not by what it is made of. So the order is bench -> detector ->
+       electronics -> the test register, and every number carries the session
+       that produced it.
+
+       Four sections were removed on the team's instruction because they are
+       written elsewhere: the build history, the potential-risk list, the
+       limitations list and the future-work list. Nothing about that removal
+       is allowed to make the page read as though the evidence goes further
+       than it does, so the scope limits moved *into* the evidence itself --
+       the bench refuses to show a number for a state nobody measured, and
+       every row of the register carries its own "what this does not cover".
+
+       Dark panels are the interactive instruments; the rest of the page keeps
+       the site's own styling. Behaviour lives in static/hardware-bench.js and
+       the content does not: every ledger row and every figure caption is in
+       this file, so the page still says what it has to say if the script
+       never loads.
+       ===================================================================== -->
+
+  <!-- ========================= the bench ========================= -->
+  <section>
+    <h2>What the detector actually saw</h2>
+
+    <p>
+      The optical core can be described from the drawing, but the only thing
+      that settles whether it works is what the detector reported with the
+      instrument in a known state. The bench below is that record, made
+      steerable: pick a state of the lamp, of the sample position and of the
+      room, and it shows the channel counts from the session that measured it.
+    </p>
+
+    <p>
+      It is a record and not a model. Where a combination was never measured,
+      it says so rather than interpolating a plausible-looking number.
+    </p>
+
+    <div class="hwx-rig" id="hwxBench">
+      <div class="hwx-rig-head">
+        <h3>Light-path bench</h3>
+        <p class="hwx-rig-sub">Top view, schematic &middot; readings are recorded measurements</p>
+      </div>
+
+      <div class="hwx-rig-figure">
+        <svg class="hwx-lab" viewBox="0 0 820 400" role="img"
+             aria-label="Schematic top view of the optical path. Blue excitation runs left to right along the plus X axis from the LED holder, through the aperture baffle, across the UVette at the centre, and into the angled-wedge light trap on the right. Green emission leaves the UVette upwards along the plus Y axis through the filter cassette to the AS7341 detector holder. The controls below change which recorded state is shown.">
+          <defs>
+            <linearGradient id="hwxEx" x1="0" x2="1">
+              <stop offset="0" stop-color="#5BAEFF" stop-opacity=".16"></stop>
+              <stop offset="1" stop-color="#5BAEFF" stop-opacity=".95"></stop>
+            </linearGradient>
+            <linearGradient id="hwxEm" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#64DE9A" stop-opacity=".95"></stop>
+              <stop offset="1" stop-color="#64DE9A" stop-opacity=".10"></stop>
+            </linearGradient>
+            <linearGradient id="hwxTh" x1="0" x2="1">
+              <stop offset="0" stop-color="#5BAEFF" stop-opacity=".8"></stop>
+              <stop offset="1" stop-color="#5BAEFF" stop-opacity="0"></stop>
+            </linearGradient>
+            <filter id="hwxGlow" x="-60%" y="-160%" width="220%" height="420%">
+              <feGaussianBlur stdDeviation="7" result="b"></feGaussianBlur>
+              <feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+            </filter>
+            <marker id="hwxArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M0,1 L9,5 L0,9 z" fill="#E6A94B"></path>
+            </marker>
+          </defs>
+
+          <g stroke="#16232a" stroke-width="1">
+            <line x1="0" y1="300" x2="820" y2="300"></line>
+            <line x1="400" y1="20" x2="400" y2="390"></line>
+          </g>
+          <g class="hwx-lab-tick">
+            <text x="10" y="294">Y = 0</text>
+            <text x="406" y="386">X = 0</text>
+            <text x="676" y="372">+X excitation axis</text>
+            <text x="406" y="34">+Y detection axis</text>
+          </g>
+
+          <g class="hwx-lab-solid">
+            <rect x="125" y="272" width="92" height="56" rx="7"></rect>
+            <rect x="217" y="278" width="83" height="44" rx="5"></rect>
+            <rect x="332" y="232" width="136" height="136" rx="8"></rect>
+            <rect x="356" y="196" width="88" height="28" rx="4"></rect>
+            <rect x="344" y="88" width="112" height="108" rx="6"></rect>
+          </g>
+          <circle class="hwx-lab-bore" cx="160" cy="300" r="13"></circle>
+          <g class="hwx-lab-stop">
+            <line x1="240" y1="281" x2="240" y2="319"></line>
+            <line x1="277" y1="281" x2="277" y2="319"></line>
+          </g>
+          <rect class="hwx-lab-cell" x="366" y="266" width="68" height="68" rx="3"></rect>
+          <rect id="hwxFill" x="369" y="269" width="62" height="62" rx="2" fill="none"></rect>
+          <rect class="hwx-lab-bore" x="386" y="178" width="28" height="12" rx="2"></rect>
+          <path class="hwx-lab-trap" d="M500 278 L649 258 L649 342 L500 322 Z"></path>
+          <path class="hwx-lab-trap-in" d="M500 278 L620 300 L500 322 Z"></path>
+
+          <g>
+            <rect id="hwxBeamEx" x="140" y="295" width="260" height="10" fill="url(#hwxEx)" filter="url(#hwxGlow)" opacity="0"></rect>
+            <rect id="hwxBeamTh" x="400" y="296" width="110" height="8" fill="url(#hwxTh)" filter="url(#hwxGlow)" opacity="0"></rect>
+            <rect id="hwxBeamEm" x="395" y="196" width="10" height="104" fill="url(#hwxEm)" filter="url(#hwxGlow)" opacity="0"></rect>
+            <circle id="hwxScatter" cx="400" cy="300" r="0" fill="#BFE8FF" opacity="0" filter="url(#hwxGlow)"></circle>
+          </g>
+
+          <g id="hwxAmbient" opacity="0">
+            <line x1="400" y1="30" x2="400" y2="258" stroke="#E6A94B" stroke-width="2"
+                  stroke-dasharray="5 5" marker-end="url(#hwxArrow)"></line>
+            <text class="hwx-lab-warn" x="412" y="52">room light down the open +Z slot</text>
+          </g>
+
+          <g class="hwx-lab-label">
+            <text x="128" y="262">LED holder</text>
+            <text x="219" y="268">aperture baffle</text>
+            <text x="324" y="240" text-anchor="end">UVette holder</text>
+            <text x="348" y="214" text-anchor="end">filter cassette</text>
+            <text x="346" y="78">AS7341 holder</text>
+            <text x="512" y="248">angled-wedge light trap</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="hwx-ctrls">
+        <div class="hwx-cgroup">
+          <p class="hwx-clabel" id="hwxLedLabel">Excitation LED</p>
+          <div class="hwx-seg" data-bench-key="led" role="group" aria-labelledby="hwxLedLabel">
+            <button type="button" data-v="off" aria-pressed="true">De-energised</button>
+            <button type="button" data-v="on" class="hwx-hot" aria-pressed="false">Energised</button>
+          </div>
+        </div>
+        <div class="hwx-cgroup">
+          <p class="hwx-clabel" id="hwxSampleLabel">At the sample position</p>
+          <div class="hwx-seg" data-bench-key="sample" role="group" aria-labelledby="hwxSampleLabel">
+            <button type="button" data-v="none" aria-pressed="true">Empty holder</button>
+            <button type="button" data-v="uvette" aria-pressed="false">Empty UVette</button>
+            <button type="button" data-v="paper" aria-pressed="false">Paper scatterer</button>
+            <button type="button" data-v="water" aria-pressed="false">Water, 1600&nbsp;&micro;L</button>
+            <button type="button" data-v="cultA" class="hwx-lit" aria-pressed="false">Culture A</button>
+            <button type="button" data-v="cultB" aria-pressed="false">Control B</button>
+          </div>
+        </div>
+        <div class="hwx-cgroup">
+          <p class="hwx-clabel" id="hwxLightLabel">Lighting</p>
+          <div class="hwx-seg" data-bench-key="light" role="group" aria-labelledby="hwxLightLabel">
+            <button type="button" data-v="dark" aria-pressed="true">Darkened or shielded</button>
+            <button type="button" data-v="room" aria-pressed="false">Room light, no shield</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hwx-rig-body">
+        <div class="hwx-readout" id="hwxReadout">
+          <p class="hwx-fallback">
+            The channel readout needs the page script. The recorded values it
+            shows are also written out in the test register further down this
+            page.
+          </p>
+        </div>
+        <div class="hwx-verdict" id="hwxVerdict" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <p class="hw-aside">
+      Counts are raw AS7341 values at the working settings of that session.
+      Ten named channels are shown; an all-channel read returns twelve values.
+      A number here is the figure recorded in the session named under it, not a
+      re-derivation.
+    </p>
+  </section>
+
+  <!-- ========================= detection ========================= -->
+  <section>
+    <h2>Ten channels instead of one filter</h2>
+
+    <p>
+      A conventional fluorimeter puts a narrow emission filter in front of a
+      single photodiode, and everything outside the emission band is thrown
+      away in glass. The AS7341 does something else. It carries eight
+      interference-filtered channels spread across the visible range plus a
+      clear and a near-infrared channel, so one read returns the
+      <em>shape</em> of the light arriving at the detector rather than a single
+      number.
+    </p>
+
+    <p>
+      That shape is what makes the measurements on this page checkable. When
+      excitation reached the sample for the first time, the detector did not
+      merely register light &mdash; it registered light concentrated in F2 and
+      F3, the two channels that bracket a 470&nbsp;nm source. A blue source
+      producing a green-looking spectrum would have meant something was wrong
+      with the optics or the sensor, and the channel shape would have said so
+      at once.
+    </p>
+
+    <div class="hwx-rig">
+      <div class="hwx-rig-head">
+        <h3>AS7341 channel map</h3>
+        <p class="hwx-rig-sub">Hover or focus a channel for its role in this instrument</p>
+      </div>
+      <div class="hwx-rig-figure" id="hwxSpecBox">
+        <p class="hwx-fallback">
+          Eight filtered channels at nominal centres of 415, 445, 480, 515,
+          555, 590, 630 and 680&nbsp;nm, plus an unfiltered Clear channel and a
+          near-infrared channel. Excitation is nominally 470&nbsp;nm and sits
+          between F2 and F3; sfGFP emission is read on F4 at 515&nbsp;nm.
+        </p>
+      </div>
+      <div class="hwx-rig-foot">
+        <span>Working settings in the fluorescence sessions: AGAIN 512&times;, ATIME 255, ASTEP 280.</span>
+        <span>Centre wavelengths are the sensor's nominal channel centres.</span>
+      </div>
+    </div>
+
+    <h3>The instrument has to be shielded</h3>
+
+    <p>
+      Ambient rejection is the sharpest operating constraint on the build. With
+      the LED de-energised in a darkened room, every channel reads zero, and
+      holds at zero all the way out to 25&times; integration. Under normal room
+      lighting with no shield it does not: an empty UVette in the holder gives
+      F4&nbsp;=&nbsp;11 counts with the lamp off.
+    </p>
+
+    <p>
+      Two leak paths were separated by measuring with and without the cuvette
+      under identical lighting. The mechanism itself contributes 4 counts. The
+      remaining 7 come from the UVette acting as a light pipe: it is
+      transparent, it sits in an open +Z slot, and it carries room light down
+      into the measurement region. Putting an opaque box over the instrument
+      returns every channel to zero.
+    </p>
+
+    <p>
+      The leak is also not a constant that can be subtracted away. It scales
+      non-proportionally with integration time, which is what lamp flicker
+      aliasing against the integration window looks like, so a dark-frame
+      subtraction does not remove it. Hence the operating rule:
+      <strong>measure in a darkened room or under an opaque shield</strong>,
+      never in open room light.
+    </p>
+
+    <div class="hw-caution">
+      <p>
+        <em>A free quality check falls out of this.</em> Because a correctly
+        shielded dark read returns exactly zero, any non-zero pre-dark reading
+        is direct evidence that shielding was not restored for that
+        measurement. We treat such a record as invalid rather than correcting
+        it &mdash; the instrument tells you when you have made a mistake,
+        without needing a separate calibration step.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========================= electronics ========================= -->
+  <section>
+    <h2>A bench circuit, deliberately boring</h2>
+
+    <p>
+      The excitation branch does one job: turn a single LED on and off at a
+      current that cannot damage it, and be provably off when the
+      microcontroller is not driving it. It is a resistor-limited LED in series
+      with an N-channel MOSFET on the low side, switched from one GPIO. There
+      is no constant-current driver, no PWM dimming and no PCB &mdash; this is
+      a breadboard topology that was measured, not a product design.
+    </p>
+
+    <p>
+      The one part that is not optional is <strong>R3</strong>, the gate
+      pulldown. Without it the gate floats while the ESP32 boots or while it is
+      unpowered, and the LED can emit during what the firmware believes is a
+      dark baseline. That turns a safety detail into a data-integrity detail.
+    </p>
+
+    <div class="hwx-rig">
+      <div class="hwx-rig-head">
+        <h3>Excitation branch and sensor bus</h3>
+        <p class="hwx-rig-sub">Hover or focus a labelled node for its measured value</p>
+      </div>
+      <div class="hwx-rig-figure">
+        <svg class="hwx-sch" viewBox="0 0 820 300" role="img"
+             aria-label="Schematic of the excitation branch. An ESP32 drives a 2N7000 low-side switch through a 217 ohm gate resistor with a 9.9 kilohm pulldown to ground; the 470 nanometre LED sits in series with a 434 ohm current-limit resistor. The AS7341 board is on the same 3.3 volt rail and on the I2C bus at address 0x39. All returns meet at one named ground junction.">
+          <g fill="none" stroke="#3E5862" stroke-width="2">
+            <rect x="40" y="70" width="150" height="160" rx="8"></rect>
+            <rect x="620" y="60" width="160" height="96" rx="8"></rect>
+          </g>
+          <g class="hwx-sch-name">
+            <text x="58" y="96">ESP32-WROOM-32</text>
+            <text x="58" y="114" class="hwx-sch-sub">DOIT DevKit V1, 30-pin</text>
+            <text x="638" y="86">SEN0365</text>
+            <text x="638" y="104" class="hwx-sch-sub">AS7341 detector</text>
+          </g>
+
+          <g stroke="#5BAEFF" stroke-width="2.5" fill="none">
+            <path d="M190 150 H250"></path><path d="M290 150 H340"></path>
+            <path d="M380 150 H430"></path><path d="M470 150 V205 H300"></path>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="R1 &mdash; current limit"
+             data-tip="Two resistors in series, measured 218 &#8486; + 216 &#8486; = 434 &#8486;, replacing an unavailable 390 &#8486; part. In parallel they would give 108.5 &#8486; and roughly 48 mA, above the LED maximum, so the series arrangement is not optional.">
+            <rect x="250" y="138" width="40" height="24" rx="3" fill="#16242B" stroke="#5BAEFF" stroke-width="2"></rect>
+            <text class="hwx-sch-val" x="248" y="130">R1 434 &#8486;</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="Excitation LED"
+             data-tip="Cree C503B-BCN-CV0Z0461, nominal 470 nm. Measured forward voltage 2.65 V at 5.553 mA, giving 14.7 mW against a 120 mW package maximum. Irradiance at the sample has not been measured.">
+            <path d="M340 136 L340 164 L368 150 Z" fill="#5BAEFF"></path>
+            <path d="M368 134 V166" stroke="#5BAEFF" stroke-width="2.5"></path>
+            <path d="M350 126 l10 -10 M360 128 l10 -10" stroke="#5BAEFF" stroke-width="1.6"></path>
+            <text class="hwx-sch-val" x="326" y="182">470 nm LED</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="2N7000 low-side switch"
+             data-tip="Pinout established by body-diode measurement rather than assumed. Measured VGS 3.22 V, VDS 0.01 V, on-resistance 1.80 &#8486;, 20 of 20 reliable off. Manufacturer unknown: the part is marked and lot-coded but carries no logo. Conditional bench acceptance for this single unit only.">
+            <path d="M430 128 V172" stroke="#C4D6DD" stroke-width="2.5"></path>
+            <path d="M442 128 V146 M442 154 V172" stroke="#C4D6DD" stroke-width="2.5"></path>
+            <path d="M442 150 H470 M442 136 H470 V150" stroke="#C4D6DD" stroke-width="2.5"></path>
+            <path d="M430 150 H400" stroke="#C4D6DD" stroke-width="2.5"></path>
+            <text class="hwx-sch-val" x="450" y="190">2N7000</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="R2 &mdash; gate series"
+             data-tip="Nominal 220 &#8486;, measured 217 &#8486;. Protects the GPIO pin and damps the switching edge. Not electrically mandatory at this switching duty, but required for this build revision.">
+            <path d="M190 190 H220" stroke="#C4D6DD" stroke-width="2" fill="none"></path>
+            <rect x="220" y="178" width="40" height="24" rx="3" fill="#16242B" stroke="#C4D6DD" stroke-width="2"></rect>
+            <path d="M260 190 H400 V150" stroke="#C4D6DD" stroke-width="2" fill="none"></path>
+            <text class="hwx-sch-val" x="218" y="172">R2 217 &#8486;</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="R3 &mdash; gate pulldown"
+             data-tip="Nominal 10 k&#8486;, measured 9.9 k&#8486;. Holds the gate at ground during boot, during reset and with the controller unpowered. Safety and data integrity both: a floating gate can let the LED emit during a dark baseline.">
+            <rect x="386" y="226" width="28" height="40" rx="3" fill="#16242B" stroke="#C4D6DD" stroke-width="2"></rect>
+            <path d="M400 202 V226 M400 266 V280" stroke="#C4D6DD" stroke-width="2" fill="none"></path>
+            <text class="hwx-sch-val" x="420" y="252">R3 9.9 k&#8486;</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="J0 &mdash; single ground junction"
+             data-tip="One named junction for the LED return, the MOSFET source, the gate pulldown and the sensor ground. A single point avoids a return-current loop that would put the detector ground at a different potential while the LED is on.">
+            <path d="M300 280 H700" stroke="#7E959F" stroke-width="2"></path>
+            <path d="M486 280 V292 M470 292 H502 M476 298 H496 M482 304 H490" stroke="#7E959F" stroke-width="2"></path>
+            <text class="hwx-sch-val" x="508" y="300">J0</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="I&sup2;C bus"
+             data-tip="SEN0365 powered from the ESP32 3V3 rail. GPIO21 SDA, GPIO22 SCL. Responds at address 0x39, 20 of 20 stable scans; ATIME, ASTEP and AGAIN written and read back matching.">
+            <path d="M190 100 H620 M190 120 H620" stroke="#64DE9A" stroke-width="2" fill="none"></path>
+            <text class="hwx-sch-val hwx-sch-i2c" x="326" y="94">GPIO21 SDA &middot; 0x39</text>
+            <text class="hwx-sch-val hwx-sch-i2c" x="500" y="114">GPIO22 SCL</text>
+          </g>
+          <path d="M660 156 V280" stroke="#7E959F" stroke-width="2" fill="none"></path>
+          <text class="hwx-sch-val" x="196" y="216">GPIO25</text>
+          <text class="hwx-sch-val" x="196" y="144">VIN</text>
+        </svg>
+      </div>
+      <div class="hwx-rig-foot">
+        <span>Measured 2026-08-25 on breadboard. Total draw &asymp; 77&nbsp;mA.</span>
+        <span>I<sub>LED</sub> = 5.553&nbsp;mA &mdash; a safe-start value, not the operating current.</span>
+      </div>
+    </div>
+
+    <div class="hw-caution">
+      <p>
+        <em>Why the current is deliberately low.</em> The nominal design target
+        is 8&ndash;12&nbsp;mA; the bench branch runs at 5.553&nbsp;mA. That gap
+        is not an oversight and it has not been closed, because closing it
+        requires knowing how much signal is enough &mdash; and signal-to-noise,
+        limit of detection and the expected negative and positive range are all
+        still open. Raising the drive current without that basis would be
+        guessing.
+      </p>
+    </div>
+
+    <h3>Acquisition timing</h3>
+
+    <p>
+      One reading is not instantaneous. The LED turns on, the optical and
+      sensor state is given time to settle, the sensor integrates across two
+      SMUX configurations to cover all channels, and the LED turns off again.
+      The firmware holds a hard 1.0&nbsp;s ceiling on that window.
+    </p>
+
+    <div class="hwx-rig hwx-rig-plain">
+      <div class="hwx-rig-head">
+        <h3>One acquisition, against the 1.0&nbsp;s ceiling</h3>
+        <p class="hwx-rig-sub">Measured 2026-08-25, diagnostic sketch, one integration per SMUX configuration</p>
+      </div>
+      <div class="hwx-rig-figure">
+        <!-- Widths are percentages of the 1.0 s ceiling, so the bar is drawn
+             by the numbers rather than by eye. No script needed. -->
+        <div class="hwx-timing">
+          <div class="hwx-tseg hwx-t-settle" style="left:0;width:10%">settle 100&nbsp;ms</div>
+          <div class="hwx-tseg hwx-t-read" style="left:10%;width:45.16%">all-channel read 451.6&nbsp;ms</div>
+          <div class="hwx-tseg hwx-t-margin" style="left:55.16%;width:44.84%">remaining margin 448&nbsp;ms</div>
+          <div class="hwx-tmark hwx-tmark-left" style="left:50%"><span>0.5&nbsp;s target</span></div>
+          <div class="hwx-tmark hwx-tmark-led" style="left:55.16%"><span>LED off &middot; 551&ndash;552&nbsp;ms</span></div>
+          <div class="hwx-tscale">
+            <span style="left:0">0</span><span style="left:25%">250&nbsp;ms</span>
+            <span style="left:50%">500&nbsp;ms</span><span style="left:75%">750&nbsp;ms</span>
+            <span class="hwx-tscale-end">1.0&nbsp;s hard timeout</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="hw-aside">
+      The window fits the 1.0&nbsp;s hard timeout with 448&nbsp;ms of margin
+      and misses our own conditional 0.5&nbsp;s target by about 52&nbsp;ms. We
+      have recorded that as a missed target rather than quietly moving the
+      target. The figure is library, core and I&sup2;C-clock specific and must
+      be re-measured for the project firmware.
+    </p>
+  </section>
+
+  <!-- ========================= evidence ========================= -->
+  <section>
+    <h2>What has actually been tested</h2>
+
+    <p>
+      Hardware pages tend to report the things that worked. This is the whole
+      register, because the useful question is not &ldquo;did it work&rdquo;
+      but <em>what exactly was shown, on which build, under which
+      conditions</em>.
+    </p>
+
+    <p>
+      Four rules govern every row. A pass applies only to the scope written
+      next to it. A digital validation pass says nothing about printing, fit,
+      assembly or optical behaviour. Repeated acquisition cycles within one
+      insertion are not independent samples. And a test that was executed but
+      not accepted is not a pass.
+    </p>
+
+    <!-- The filter row is built by the script and stays out of the document
+         until it can actually do something; the rows themselves are <details>,
+         so they open and close with no script at all. -->
+    <div class="hwx-filters" id="hwxFilters" hidden></div>
+
+    <div class="hwx-ledger" id="hwxLedger">
+
+      <details class="hwx-row" data-state="pass">
+        <summary><span class="hwx-dom">Digital CAD and DFM</span><span class="hwx-scope">v0.6 targeted closure</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
+        <dl><dt>Evidence</dt><dd>Targeted DFM freeze pass, zero P1 and zero P2 findings.</dd>
+        <dt>What it does not cover</dt><dd>Digital scope only. It verifies neither printing nor physical or optical performance.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="pass">
+        <summary><span class="hwx-dom">Digital CAD reproducibility</span><span class="hwx-scope">v0.6 export set</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
+        <dl><dt>Evidence</dt><dd>36 of 36 non-STEP files matched byte for byte; 29 of 29 STEP geometries matched.</dd>
+        <dt>What it does not cover</dt><dd>Applies to the audited source and environment, and to digital outputs only.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="pass">
+        <summary><span class="hwx-dom">v0.7 digital CAD validation</span><span class="hwx-scope">Corrected detector locator frame and affected assemblies</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
+        <dl><dt>Evidence</dt><dd>Valid single solid, closed 2-manifold STL, a 1.600327&nbsp;mm C-support web recorded at both sockets, zero unexpected assembly collisions, 26 of 26 driver channels clear, 4 of 4 service sweeps clear, reproducible isolated export.</dd>
+        <dt>What it does not cover</dt><dd>It does not verify vendor slicing or any physical performance.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="cond">
+        <summary><span class="hwx-dom">v0.7 independent engineering review</span><span class="hwx-scope">Vendor-submitted corrected frame</span><span class="hwx-chip hwx-c-cond">Conditional</span></summary>
+        <dl><dt>Evidence</dt><dd>Zero P1, zero P2, five P3 findings.</dd>
+        <dt>What it does not cover</dt><dd>The P3 findings are accepted for the submitted correction but remain open pending their named physical checks.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="unk">
+        <summary><span class="hwx-dom">Slicing</span><span class="hwx-scope">v0.7 corrected package</span><span class="hwx-chip hwx-c-unk">Unknown</span></summary>
+        <dl><dt>Evidence</dt><dd>Earlier vendor evidence identified the v0.6 thin-web issue. No v0.7 re-slice result or vendor profile is recorded.</dd>
+        <dt>What it does not cover</dt><dd>Vendor re-slicing, support and orientation evidence are all still required.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="unk">
+        <summary><span class="hwx-dom">Printing</span><span class="hwx-scope">Submitted v0.7 correction</span><span class="hwx-chip hwx-c-unk">Unknown</span></summary>
+        <dl><dt>Evidence</dt><dd>Production is evidenced by the physically delivered parts. What is unknown is the recorded process: vendor acknowledgment, re-slicing outcome, orientation, supports and slicer settings.</dd>
+        <dt>What it does not cover</dt><dd>A delivered part proves production happened; it does not document how.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="not">
+        <summary><span class="hwx-dom">Physical fit</span><span class="hwx-scope">v0.7 printed parts</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
+        <dl><dt>Evidence</dt><dd>Parts received 2026-08-17, 57 of 59 pieces. No dimensional or fit measurement has been taken.</dd>
+        <dt>What it does not cover</dt><dd>Insertion behaviour, M3 ear clearance, detector datum seating, envelope impact, fasteners, warp and dimensions are all still to verify.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="not">
+        <summary><span class="hwx-dom">Assembly</span><span class="hwx-scope">v0.7 P1 hardware</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
+        <dl><dt>Evidence</dt><dd>No assembly record exists in the project state.</dd>
+        <dt>What it does not cover</dt><dd>The build was assembled in part and used optically &mdash; that is a different thing from an assembly test being run and accepted.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="pass">
+        <summary><span class="hwx-dom">Optical coupling</span><span class="hwx-scope">LED to detector, assembled P1-PROTO-01</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
+        <dl><dt>Evidence</dt><dd>With a scatterer at the sample position: F2 445&nbsp;nm = 87, F3 480&nbsp;nm = 81, F4 = 2, Clear = 116, against all-zero dark reads. The channel shape brackets the nominal 470&nbsp;nm source.</dd>
+        <dt>What it does not cover</dt><dd>It establishes that excitation reaches the sample, that the detection path is open and that 90&deg; collection works. Alignment is demonstrated functional, not quantified, and no fluorescence was measured in this test.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="cond">
+        <summary><span class="hwx-dom">Ambient light rejection</span><span class="hwx-scope">Assembled build, closed</span><span class="hwx-chip hwx-c-cond">Conditional</span></summary>
+        <dl><dt>Evidence</dt><dd>Darkened room: all twelve channels zero, holding to 25&times; integration. Normal room lighting unshielded: empty UVette F4 = 11, Clear = 53 &mdash; fails. Normal lighting under an opaque box: all channels zero.</dd>
+        <dt>What it does not cover</dt><dd>It passes only under a stated lighting condition. The room-light contribution is non-proportional across integration steps, consistent with lamp flicker, so dark-frame subtraction does not remove it. This is ambient rejection, not stray-light performance against the excitation source.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="pass">
+        <summary><span class="hwx-dom">Excitation stray light</span><span class="hwx-scope">Assembled optical path, no emission filter</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
+        <dl><dt>Evidence</dt><dd>Empty holder: zero counts on every channel with the LED energised. Empty UVette: F3 = 7, F4 = 0. Water-filled UVette: F3 = 1, F4 = 0, giving F4/F3 &lt; 1.35&nbsp;%.</dd>
+        <dt>What it does not cover</dt><dd>These are quantisation upper bounds, not measured leakage values. The water volume was 1600&nbsp;&micro;L, not the 200&nbsp;&micro;L assay fill, and a real culture scatters far more than pure water.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="pass">
+        <summary><span class="hwx-dom">Optical positional repeatability</span><span class="hwx-scope">Assembled build, post-settling, paper scatterer</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
+        <dl><dt>Evidence</dt><dd>After a one-time settling of about &minus;6.9&nbsp;% that converged, three undisturbed repetitions spread by 0.42&nbsp;% over nine cycles. A light touch on the LED cable changed the reading by +0.28&nbsp;%, about 0.46 pooled standard deviations.</dd>
+        <dt>What it does not cover</dt><dd>Not tested: harder disturbances, moving the instrument, the settling time constant, and UVette insertion and re-insertion.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="not">
+        <summary><span class="hwx-dom">Stray light, full scope</span><span class="hwx-scope">Assembled optical path</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
+        <dl><dt>Evidence</dt><dd>Only the excitation-leakage portion is measured, for the no-filter water-blank case.</dd>
+        <dt>What it does not cover</dt><dd>Untested: light-trap and boot variants, angled-wedge versus stepped-baffle, filter versus no filter, a real turbid sample, and the 200&nbsp;&micro;L fill.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="not">
+        <summary><span class="hwx-dom">Blank signal</span><span class="hwx-scope">Assembled optical path</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
+        <dl><dt>Evidence</dt><dd>The only blank-type reading on record is a water-filled UVette at 1600&nbsp;&micro;L.</dd>
+        <dt>What it does not cover</dt><dd>No blank dataset exists in a real sample matrix at the 200&nbsp;&micro;L assay fill.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="cond">
+        <summary><span class="hwx-dom">Fluorescence signal &mdash; reporter-associated observation</span><span class="hwx-scope">P1-PROTO-01, 200&nbsp;&micro;L, ORIENT-A, shielded, AGAIN 512&times; / ATIME 255 / ASTEP 280 &mdash; this configuration and this batch only</span><span class="hwx-chip hwx-c-cond">Conditional</span></summary>
+        <dl><dt>Evidence</dt><dd>A culture reported to carry the sfGFP reporter gave F4 515&nbsp;nm = 19.5833 &plusmn; 0.7930 raw counts against a control at F4 = 0, over twelve consecutive cycles across four timepoints, with concurrent change in F3, F5 and Clear. Every cycle flagged OK; pre-dark and post-dark reads were zero on all channels.</dd>
+        <dt>What it does not cover</dt><dd>It supports a measured, reporter-associated, sfGFP-compatible green signal in the stated configuration and nothing wider. The induction framing was withdrawn on 2026-09-13: no AHL induction has been performed, so neither tube was induced, and what distinguished the two tubes on that date is not established. Explicitly out of scope: sfGFP specificity, any dose-response claim, generalisation to independent samples, limits of detection, linearity, OD normalisation, sedimentation, emission-filter necessity, and the six-hour timed assay.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="prog">
+        <summary><span class="hwx-dom">Fluorescence signal, full validation scope</span><span class="hwx-scope">Assembled optical path</span><span class="hwx-chip hwx-c-prog">In progress</span></summary>
+        <dl><dt>Evidence</dt><dd>Measured data now exist &mdash; see the narrow row above.</dd>
+        <dt>What it does not cover</dt><dd>No fluorophore standard, no absolute calibration, no established linearity coefficient, limit of detection and quantitation unknown, no verified OD normalisation, no cross-day repeatability.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="not">
+        <summary><span class="hwx-dom">Signal-to-noise ratio</span><span class="hwx-scope">P1 optical configuration</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
+        <dl><dt>Evidence</dt><dd>A narrow-scope signal and a water blank exist separately.</dd>
+        <dt>What it does not cover</dt><dd>No traceable blank-and-signal dataset in one matrix and one configuration exists, so a ratio cannot be computed.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="not">
+        <summary><span class="hwx-dom">Repeatability</span><span class="hwx-scope">P1 optical configuration</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
+        <dl><dt>Evidence</dt><dd>Partial repeat data exist: undisturbed repetitions with a paper scatterer, and repeated cycles within one insertion.</dd>
+        <dt>What it does not cover</dt><dd>Repeated cycles within an insertion are not independent samples. No sample-level repeatability dataset exists.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="pass">
+        <summary><span class="hwx-dom">Electronics bench bring-up</span><span class="hwx-scope">Excitation branch and SEN0365, breadboard, no optics</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
+        <dl><dt>Evidence</dt><dd>I&sup2;C 0x39 stable 20/20; ATIME, ASTEP and AGAIN written and read back matching; the sensor's onboard LEDs electrically off and visually dark; 2N7000 pinout established by measurement; VGS 3.22&nbsp;V, VDS 0.01&nbsp;V, on-resistance 1.80&nbsp;&#8486;; I<sub>LED</sub> 5.553&nbsp;mA at R1 434&nbsp;&#8486;; 20/20 reliable off; 0&nbsp;% current spread over six pulses; hardware fail-off observed.</dd>
+        <dt>What it does not cover</dt><dd>Breadboard only. No enclosure, no optical path, no emission filter. It verifies no optical behaviour, and not the project firmware.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="pass">
+        <summary><span class="hwx-dom">Acquisition timing</span><span class="hwx-scope">AS7341 all-channel read, diagnostic sketch</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
+        <dl><dt>Evidence</dt><dd>451.6&nbsp;ms per all-channel read; LED-on window 551&ndash;552&nbsp;ms including the 100&nbsp;ms settling interval.</dd>
+        <dt>What it does not cover</dt><dd>It fits the 1.0&nbsp;s hard timeout with 448&nbsp;ms of margin and misses the conditional 0.5&nbsp;s target by about 52&nbsp;ms. Library, core and clock specific; it must be re-measured for the project firmware.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="prog">
+        <summary><span class="hwx-dom">Firmware hardware test</span><span class="hwx-scope">Project firmware on P1-PROTO-01, partial gate-0 and gate-1 execution only</span><span class="hwx-chip hwx-c-prog">In progress</span></summary>
+        <dl><dt>Evidence</dt><dd>Independently reviewed: retained boot and identity output, compile-gate and wrong-token refusals, a sensor-init failure followed by a run refusal with zero data rows, the disabled-run abort, 18 shielded OK rows, ambient-flag retention, and 550&ndash;552&nbsp;ms of software LED-on telemetry.</dd>
+        <dt>What it does not cover</dt><dd>Partial execution. It is not a pass, and it does not approve assay or data collection. The LED-on figure is the firmware's own arithmetic rather than a measured GPIO edge, and the normal path never reaches the 1&nbsp;s cutoff, so the hardware protection is unverified.</dd></dl>
+      </details>
+
+      <details class="hwx-row" data-state="unk">
+        <summary><span class="hwx-dom">Data pipeline test</span><span class="hwx-scope">Analysis pipeline</span><span class="hwx-chip hwx-c-unk">Unknown</span></summary>
+        <dl><dt>Evidence</dt><dd>Test source and synthetic sample data exist; no execution record.</dd>
+        <dt>What it does not cover</dt><dd>Synthetic demonstration data are not experimental evidence.</dd></dl>
+      </details>
+
+    </div>
+
+    <p class="hw-aside">
+      A conditional pass names the condition it depends on; an unknown means no
+      record exists either way. A filter cassette is not a filter, a reference
+      model in CAD is not a purchased component, and a part in the model is not
+      a part that was bought, received, installed or tested. Those distinctions
+      are maintained in the project record, and this page inherits them.
+    </p>
+  </section>
+
   <!-- ========================= decisions ========================= -->
   <section>
     <h2>Decisions that shaped P1</h2>
 
     <p>
-      Each of these is a recorded, binding project decision. We list them
-      because several of them <em>removed</em> capability from the prototype,
-      and a reader who only saw the final scope would not know that the
-      narrowing was deliberate.
+      Each of these is a recorded, binding project decision from the
+      2026-08-09 batch. Several of them <em>removed</em> capability from the
+      prototype, and a reader who only saw the final scope would not know that
+      the narrowing was deliberate. The ones that did are marked.
     </p>
 
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption>Binding decisions, 2026-08-09 batch</caption>
-        <thead>
-          <tr><th scope="col">Decision</th><th scope="col">What we decided</th><th scope="col">Why</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Turbidity QC out of P1</td>
-            <td>Red-light transmission and turbidity QC are removed from P1 acceptance</td>
-            <td>The far side of the excitation axis is occupied by the light trap. There is no transmission path, so the measurement is not physically implementable in this geometry</td>
-          </tr>
-          <tr>
-            <td>470&nbsp;nm excitation</td>
-            <td>The first hardware round uses the nominal 470&nbsp;nm Cree LED</td>
-            <td>Three independent design documents agree on it, and the LED holder was dimensioned from that part's datasheet</td>
-          </tr>
-          <tr>
-            <td>UVette is a benchmark</td>
-            <td>The UVette is a validation vessel, not the product's sample container</td>
-            <td>The reaction cartridge is a joint wet&ndash;dry decision that has not been made. Future containers will be handled with adapters rather than by modifying approved optical modules</td>
-          </tr>
-          <tr>
-            <td>PlateDock out of P1 scope</td>
-            <td>Petri-dish imaging and swarming analysis are held as separate future work</td>
-            <td>No CAD for it exists in any revision, and P1's resources belong on validating one reader properly</td>
-          </tr>
-          <tr>
-            <td>Angled-wedge light trap</td>
-            <td>Angled-wedge selected for manufacture; stepped-baffle deferred</td>
-            <td>Both validate digitally and no bench evidence separates them. The selection is a manufacturing choice, and is explicitly not a claim that the alternative is worse</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ========================= the build ========================= -->
-  <section>
-    <div class="hw-head-row">
-      <h2>The build we actually have</h2>
-      <span class="hw-flag">P1-PROTO-01 &middot; partial build</span>
-    </div>
-
-    <p>
-      Printed parts arrived on 2026-08-17. What arrived was not a clean set,
-      and the prototype is designated <code>P1-PROTO-01</code> rather than
-      &ldquo;v0.7&rdquo; precisely so that no measurement can later be
-      attributed to a build that was never in our hands.
-    </p>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption>Receiving record, 2026-08-17</caption>
-        <thead>
-          <tr><th scope="col">Item</th><th scope="col">Specified</th><th scope="col">Received</th><th scope="col">Disposition</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Total printed pieces</td>
-            <td>59</td>
-            <td>57</td>
-            <td>Build proceeds as a partial assembly</td>
-          </tr>
-          <tr>
-            <td><code>excitation_cap_LED_holder</code></td>
-            <td>1</td>
-            <td>0</td>
-            <td>Not replaced. The LED holder now rests in its saddle under gravity</td>
-          </tr>
-          <tr>
-            <td><code>led_holder_retainer_clip</code></td>
-            <td>1</td>
-            <td>0</td>
-            <td>Not replaced. The LED is held by friction and by its own lead wires</td>
-          </tr>
-          <tr>
-            <td><code>uvette_preload_leaf</code></td>
-            <td>1 in the package; 2 in the module source</td>
-            <td>1</td>
-            <td>A defect in our own manufacturing package, not a vendor shortfall. P1 proceeds with one leaf</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3>Two fractures, and the decision to keep them</h3>
-
-    <p>
-      Two parts fractured during support removal. Both were bonded with opaque
-      black electrical tape and kept in service.
-    </p>
-
-    <ul>
-      <li>
-        The <strong>LED holder body</strong> split into two halves at the
-        C&#8209;clip slot plane, so the slot now straddles a bonded joint.
+    <ul class="hwx-decisions">
+      <li class="hwx-dec hwx-dec-narrow">
+        <p class="hwx-dec-what">Turbidity QC is out of P1 acceptance</p>
+        <p class="hwx-dec-why">
+          Red-light transmission and turbidity QC are removed. The far side of
+          the excitation axis is occupied by the light trap, so there is no
+          transmission path and the measurement is not physically implementable
+          in this geometry.
+        </p>
       </li>
-      <li>
-        The <strong>aperture baffle body</strong> fractured at both
-        aperture-disk pocket planes, leaving three pieces. The LED holder
-        therefore locates against a bonded fragment rather than a monolithic
-        part.
+      <li class="hwx-dec">
+        <p class="hwx-dec-what">470&nbsp;nm excitation for the first round</p>
+        <p class="hwx-dec-why">
+          Three independent design documents agree on the nominal 470&nbsp;nm
+          Cree LED, and the LED holder was dimensioned from that part's
+          datasheet.
+        </p>
+      </li>
+      <li class="hwx-dec">
+        <p class="hwx-dec-what">The UVette is a benchmark, not the product vessel</p>
+        <p class="hwx-dec-why">
+          The reaction cartridge is a joint wet&ndash;dry decision that has not
+          been made. Future containers will be handled with adapters rather
+          than by modifying approved optical modules.
+        </p>
+      </li>
+      <li class="hwx-dec hwx-dec-narrow">
+        <p class="hwx-dec-what">PlateDock is out of P1 scope</p>
+        <p class="hwx-dec-why">
+          Petri-dish imaging and swarming analysis are held as separate future
+          work. No CAD for it exists in any revision, and P1's resources belong
+          on validating one reader properly.
+        </p>
+      </li>
+      <li class="hwx-dec">
+        <p class="hwx-dec-what">Angled-wedge light trap selected for manufacture</p>
+        <p class="hwx-dec-why">
+          The stepped-baffle variant is deferred, not rejected. Both validate
+          digitally and no bench evidence separates them, so the selection is a
+          manufacturing choice and explicitly not a claim that the alternative
+          is worse.
+        </p>
       </li>
     </ul>
-
-    <p>
-      Counting the LED holder's own joint, the excitation axis passes through
-      <strong>three bonded joints in series</strong>, and angular error at any
-      one of them propagates directly to excitation aim. The decision on
-      2026-08-24 was not to reprint: the effect of the joints would be assessed
-      at first light rather than pre-empted by a speculative reprint, with the
-      three-piece baffle named in advance as the first suspect if alignment
-      proved unsatisfactory.
-    </p>
-
-    <p class="hw-aside">
-      Both fractures occurred at pocket or slot planes that remove a large
-      fraction of the cross-section at a single layer boundary in the as-printed
-      orientation. That is a design lesson for the next revision, and it is
-      recorded as one.
-    </p>
-
-    <!-- PHOTO: 兩處斷裂與黏合處的特寫，上傳後插在這裡 -->
-  </section>
-
-  <!-- ========================= first light ========================= -->
-  <section>
-    <h2>First light, 2026-08-25</h2>
-
-    <p>
-      The assembled <code>P1-PROTO-01</code> was measured against the watch
-      list written before it was switched on. Each result below is reported with
-      the boundary of what it covers, because several of them are easy to
-      over-read.
-    </p>
-
-    <!--
-      Same turn-over card as the "why build one" list above: the finding is on
-      the front, the numbers that support it are on the back. The front face
-      wraps the label and the finding so the two of them turn as one face.
-    -->
-    <ol class="hw-sequence hw-flip">
-      <li class="hw-flip-card" data-step="blue" tabindex="0">
-        <span class="hw-flip-front">
-          <span class="hw-step-n">Result 1</span>
-          <span class="hw-step-name">The optical chain works</span>
-        </span>
-        <span class="hw-step-what hw-flip-back">
-          With a scatterer at the sample position the detector registered the
-          excitation: F2 (445&nbsp;nm) = 87, F3 (480&nbsp;nm) = 81, Clear = 116,
-          against all-zero dark reads. Excitation reaches the sample, the
-          detection path is open, and 90&deg; collection works &mdash; through
-          three bonded joints.
-        </span>
-      </li>
-      <li class="hw-flip-card" data-step="off" tabindex="0">
-        <span class="hw-flip-front">
-          <span class="hw-step-n">Result 2</span>
-          <span class="hw-step-name">Ambient light is rejected</span>
-        </span>
-        <span class="hw-step-what hw-flip-back">
-          Closed, with the room lit, all twelve channels read exactly 0 with the
-          LED off &mdash; at 25&times; the working integration time. Ambient
-          contributes below roughly 0.04 counts at working settings.
-        </span>
-      </li>
-      <li class="hw-flip-card" data-step="blue" tabindex="0">
-        <span class="hw-flip-front">
-          <span class="hw-step-n">Result 3</span>
-          <span class="hw-step-name">Bare-path stray light is below 1 count</span>
-        </span>
-        <span class="hw-step-what hw-flip-back">
-          LED energised, nothing at the sample position: every channel reads 0.
-          The light trap and baffle absorb the excitation essentially
-          completely, bonded joints included.
-        </span>
-      </li>
-      <li class="hw-flip-card" data-step="dark" tabindex="0">
-        <span class="hw-flip-front">
-          <span class="hw-step-n">Result 4</span>
-          <span class="hw-step-name">Position holds, once settled</span>
-        </span>
-        <span class="hw-step-what hw-flip-back">
-          After a one-time settling of about &minus;6.9&nbsp;% that converged,
-          three undisturbed repetitions gave a run-to-run spread of
-          0.42&nbsp;%. A light touch on the LED cable moved the reading by
-          0.28&nbsp;% &mdash; 0.46 pooled standard deviations, i.e.
-          indistinguishable from noise.
-        </span>
-      </li>
-    </ol>
-
-    <div class="hw-caution">
-      <p>
-        <em>One further stray-light figure, and the one most easily
-        over-read.</em> It is not result&nbsp;3: result&nbsp;3 had nothing at
-        the sample position, whereas this measurement had a water blank in
-        place. With that blank and no emission filter fitted, the excitation
-        leakage into the emission channel is
-        <code>F4/F3 &lt; 1.35&nbsp;%</code>. That figure is an
-        <strong>upper bound set by the quantisation floor</strong> &mdash; the
-        channel read zero, so we can only say the leakage is smaller than one
-        count, not what it is. It was also measured at 1600&nbsp;&micro;L rather
-        than the 200&nbsp;&micro;L working volume, where the meniscus sits
-        nearer the beam and the result may be worse. And a real culture carries
-        turbidity, which will scatter far more than pure water.
-      </p>
-    </div>
-
-    <h3>Electronics, measured on the bench</h3>
-
-    <p>
-      The excitation branch is a resistor-limited, low-side-switched LED on a
-      single ESP32 GPIO, with the detector on the board's 3.3&nbsp;V rail and
-      one named ground junction. Staged bring-up passed at every stage.
-    </p>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption>Bench values, 2026-08-25</caption>
-        <thead>
-          <tr><th scope="col">Quantity</th><th scope="col">Measured</th><th scope="col">Note</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>LED current</td><td>5.553&nbsp;mA</td><td>A deliberate safe-start value, not the final operating current</td></tr>
-          <tr><td>LED forward voltage</td><td>2.65&nbsp;V</td><td>14.7&nbsp;mW against a 120&nbsp;mW package maximum</td></tr>
-          <tr><td>Current-limit resistor</td><td>434&nbsp;&#8486;</td><td>218 + 216&nbsp;&#8486; in series, replacing an unavailable 390&nbsp;&#8486; part</td></tr>
-          <tr><td>Gate pulldown</td><td>9.9&nbsp;k&#8486;</td><td>Guarantees the LED is dark during boot and with the controller unpowered</td></tr>
-          <tr><td>Switch on-resistance</td><td>1.80&nbsp;&#8486;</td><td>20/20 reliable off; 0&nbsp;% current spread over six pulses</td></tr>
-          <tr><td>Total draw</td><td>&asymp;&nbsp;77&nbsp;mA</td><td>Breadboard configuration</td></tr>
-          <tr><td>All-channel read time</td><td>451.6&nbsp;ms</td><td>Giving a 551&ndash;552&nbsp;ms LED-on window including 100&nbsp;ms settling</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p>
-      The acquisition window fits the 1.0&nbsp;s hard timeout with 448&nbsp;ms
-      to spare, and misses our own 0.5&nbsp;s target by about 52&nbsp;ms. We
-      have recorded that as a missed target rather than quietly moving the
-      target.
-    </p>
-
-    <p class="hw-aside">
-      One component carries a caveat worth stating. The single 2N7000 switch has
-      conditional acceptance only: its pinout was established by body-diode
-      measurement rather than assumed, and its manufacturer is unknown &mdash;
-      the part is marked and lot-coded but carries no logo. That licenses no
-      substitution and is not a design approval.
-    </p>
-
-    <!-- PHOTO: breadboard 光路與接線照，上傳後插在這裡 -->
-  </section>
-
-  <!-- ========================= not yet ========================= -->
-  <section>
-    <h2>What we have not measured</h2>
-
-    <p>
-      The most important sentence on this page is this one:
-      <strong>no fluorescence of any kind has been measured.</strong> No
-      fluorophore was available on 2026-08-25. Everything above establishes that
-      the instrument's optical and electrical paths function; none of it
-      establishes that the instrument can measure the thing it was built to
-      measure.
-    </p>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption>Open items, as of 2026-08-25</caption>
-        <thead>
-          <tr><th scope="col">Item</th><th scope="col">Status</th><th scope="col">What it is blocked on</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Fluorescence signal</td><td>Not tested</td><td>A fluorescent reference standard, requested from the wet lab</td></tr>
-          <tr><td>Blank signal against a real sample</td><td>Not tested</td><td>The same</td></tr>
-          <tr><td>Signal-to-noise ratio</td><td>Not tested</td><td>Can only be computed once a traceable blank and signal exist</td></tr>
-          <tr><td>Assay repeatability</td><td>Not tested</td><td>Requires a working measurement first</td></tr>
-          <tr><td>UVette re-insertion repeatability</td><td>Not tested</td><td>The single preload leaf leaves one axis free to float by up to about 0.6&nbsp;mm. This is the largest remaining mechanical unknown for the six-hour series</td></tr>
-          <tr><td>Emission filter selection</td><td>Closed &mdash; none fitted</td><td>A filter was tried and not retained, so the instrument runs without one. What that costs in rejection is unquantified, because it was never measured against a filtered configuration</td></tr>
-          <tr><td>Stray light with a turbid sample</td><td>Not tested</td><td>Only a water blank has been measured</td></tr>
-          <tr><td>Project firmware on hardware</td><td>Not tested</td><td>The bench work used separate diagnostic sketches; the project firmware has never been compiled or flashed, and its detector adapter is still a stub</td></tr>
-          <tr><td>Physical fit, assembly, durability, warp</td><td>Not tested</td><td>No canonical physical measurement record exists</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p class="hw-aside">
-      A digital CAD or DFM pass is not evidence of printing, fit, assembly,
-      stray-light performance, fluorescence, or repeatability. We hold those
-      apart deliberately, and the tables above are written so that a reader can
-      see exactly where the evidence stops.
-    </p>
-  </section>
-
-  <!-- ========================= claims ========================= -->
-  <section class="hw-claims">
-    <h2>What we are and are not claiming</h2>
-
-    <p>
-      CAPTURE-Screen is a <strong>research-use (RUO) prototype</strong>. Its
-      stable claim is deliberately narrow, and we hold to it in every document:
-    </p>
-
-    <div class="hw-join">
-      <p class="mb-0">
-        The device reads <strong>relative</strong> biosensor fluorescence and
-        flags optical interference.
-      </p>
-    </div>
-
-    <p>It does not, and we do not claim that it does:</p>
-
-    <ul>
-      <li>diagnose ventilator-associated pneumonia, or any other condition;</li>
-      <li>directly detect or quantify <em>Pseudomonas aeruginosa</em>;</li>
-      <li>measure bacterial concentration;</li>
-      <li>quantify AHL.</li>
-    </ul>
-
-    <p class="mb-0">
-      The sample container is not final, the emission filter is not chosen, and
-      the reader has never seen a fluorophore. Those are facts about where the
-      project stands in August 2026, not caveats added for form's sake.
-    </p>
   </section>
 
   <!-- ========================= interface ========================= -->
@@ -665,8 +974,8 @@
     </dl>
 
     <p class="hw-aside">
-      Our nominal 470&nbsp;nm excitation is deliberately distinct from the plate
-      reader's 485&nbsp;nm, so the two instruments are comparable but not
+      Our nominal 470&nbsp;nm excitation is deliberately distinct from the
+      plate reader's 485&nbsp;nm, so the two instruments are comparable but not
       identical &mdash; a difference we will have to characterise rather than
       assume away. Negative-control definition, replicate counts and the
       expected fluorescence range are still to come from the wet lab, and no
@@ -708,50 +1017,17 @@
       STL exports; the acquisition firmware targets the ESP32 with the Adafruit
       AS7341 library. We will publish the source files and the printing package
       alongside this page once the assembly is validated, so that what we
-      release is a build that has been shown to work rather than a build we hope
-      works.
+      release is a build that has been shown to work rather than a build we
+      hope works.
     </p>
 
     <!-- PHOTO: UVette 座與 ORIENT-A 安裝方向照，上傳後插在這裡 -->
-  </section>
-
-  <!-- ========================= next ========================= -->
-  <section>
-    <h2>What happens next</h2>
-
-    <ol>
-      <li>
-        Obtain a fluorescent reference standard, and measure a real signal.
-        Everything else waits on this.
-      </li>
-      <li>
-        Quantify what running without an emission filter costs, by measuring
-        the signal-to-background ratio against a filtered configuration rather
-        than leaving the decision resting on a bench impression.
-      </li>
-      <li>
-        Test UVette re-insertion repeatability across a six-hour series &mdash;
-        the open item most likely to spoil a timed run.
-      </li>
-      <li>
-        Re-measure stray light at the working 200&nbsp;&micro;L volume, and with
-        a turbid sample.
-      </li>
-      <li>
-        Implement and flash the project firmware, replacing the diagnostic
-        sketches used for bring-up.
-      </li>
-      <li>
-        Run the reader and the plate reader against the same AHL series, and
-        characterise the difference between them.
-      </li>
-    </ol>
 
     <p class="hw-refs-note">
       Every measurement quoted on this page is drawn from our own dated
-      engineering records, each of which names the session and the evidence file
-      that produced it. Where a value is an upper bound, a safe-start setting,
-      or a scoped pass, we have said so rather than rounding it into a
+      engineering records, each of which names the session and the evidence
+      file that produced it. Where a value is an upper bound, a safe-start
+      setting, or a scoped pass, we have said so rather than rounding it into a
       capability.
     </p>
   </section>
@@ -762,4 +1038,5 @@
 
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename = 'hardware-cutaway.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-bench.js') }}"></script>
 {% endblock %}
