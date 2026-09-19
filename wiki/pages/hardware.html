@@ -8,12 +8,13 @@
   === 給團隊的說明，發布前請讀 ===
 
   3. 需要你們補的：
-     - 實體照片：P1-PROTO-01 組裝外觀、breadboard 光路、UVette 座、斷裂黏合處。
+     - 實體照片：P1-PROTO-01 組裝外觀。
        圖片一定要用 iGEM uploads tool 上傳到 static.igem.wiki，不可連外部網址或本機路徑。
-       建議插入位置我用 <!-- PHOTO: ... --> 標了四處。
-     - 成本：BOM.csv 目前所有 unit_price 都是 UNKNOWN，所以這一頁沒有成本表。
-       等你們把 Mouser 訂單對帳完再補，不要先估一個數字上去。
-     - sfGFP 的確切 construct 與 strain（SYS-U013）目前是 UNKNOWN，只寫了 sfGFP。
+       建議插入位置我用 <!-- PHOTO: ... --> 標了一處。
+     - 成本與零件表：已經不在這一頁了。BOM.csv 目前所有 unit_price 都是 UNKNOWN，
+       等 Mouser 訂單對帳完再補，不要先估一個數字上去。
+     - sfGFP 的確切 construct 與 strain（SYS-U013）目前是 UNKNOWN。這一頁現在
+       只寫「reported to carry the sfGFP reporter」，沒有宣稱更多。
 #}
 
 <div class="container my-4 hw">
@@ -315,10 +316,12 @@
        doing, not by what it is made of. So it opens on the bench, then the
        detector, and every number carries the session that produced it.
 
-       Six sections were removed on the team's instruction because they are
-       written elsewhere: the build history, the potential-risk list, the
+       Nine sections have been removed on the team's instruction because they
+       are written elsewhere: the build history, the potential-risk list, the
        limitations list, the future-work list, the claim boundary, the bench
-       electronics and the test register.
+       electronics, the test register, the wet-dry interface and the parts
+       list. (The previous count in this comment said six over a list of
+       seven. It was wrong; this one is counted.)
 
        That leaves the bench carrying the scope on its own, which it does and
        which must not be weakened: it refuses to show a number for a state
@@ -329,9 +332,13 @@
 
        Dark panels are the interactive instruments; the rest of the page keeps
        the site's own styling. Behaviour lives in static/hardware-bench.js and
-       the content does not: every ledger row and every figure caption is in
-       this file, so the page still says what it has to say if the script
-       never loads.
+       the content does not: the light path, every figure caption and both
+       faces of every card are in this file, so the page still says what it
+       has to say if the script never loads.
+
+       The closing provenance note sits under the decision cards rather than
+       in a section of its own. It is about every number on the page, not
+       about the section that used to contain it.
        ===================================================================== -->
 
   <!-- ========================= the bench ========================= -->
@@ -642,75 +649,6 @@
         </dd>
       </div>
     </dl>
-  </section>
-
-  <!-- ========================= interface ========================= -->
-  <section>
-    <h2>The wet&ndash;dry interface</h2>
-
-    <p>
-      The reader has to fit an assay that the wet lab defines. These are the
-      handoff facts we are designing against; where something is still unknown
-      we have left it unknown rather than assuming a value.
-    </p>
-
-    <dl class="hw-spec">
-      <div><dt>Reporter</dt><dd>sfGFP. The exact construct and strain are not yet specified.</dd></div>
-      <div><dt>AHL series</dt><dd>10&nbsp;&micro;M, 1&nbsp;&micro;M, 100&nbsp;nM, 10&nbsp;nM, 1&nbsp;nM.</dd></div>
-      <div><dt>Volume</dt><dd>200&nbsp;&micro;L per reaction.</dd></div>
-      <div><dt>Incubation</dt><dd>37&nbsp;&deg;C, read every hour for six hours. Whether the series includes a zero point is not yet settled.</dd></div>
-      <div><dt>Benchmark</dt><dd>Plate reader at excitation 485&nbsp;nm, emission 510&nbsp;nm, 200&nbsp;&micro;L.</dd></div>
-    </dl>
-
-    <p class="hw-aside">
-      Our nominal 470&nbsp;nm excitation is deliberately distinct from the
-      plate reader's 485&nbsp;nm, so the two instruments are comparable but not
-      identical &mdash; a difference we will have to characterise rather than
-      assume away. Negative-control definition, replicate counts and the
-      expected fluorescence range are still to come from the wet lab, and no
-      traceable raw plate-reader dataset is available yet.
-    </p>
-  </section>
-
-  <!-- ========================= reproducing ========================= -->
-  <section>
-    <h2>Reproducing it</h2>
-
-    <p>
-      The instrument is built from catalogue parts and printed components. The
-      table below is what a second team would need; quantities and prices are
-      being reconciled against our final order records and are deliberately
-      omitted until they are.
-    </p>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption>Core parts</caption>
-        <thead>
-          <tr><th scope="col">Function</th><th scope="col">Part</th><th scope="col">State</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Excitation LED</td><td>Cree <code>C503B-BCN-CV0Z0461</code></td><td>Received; bench characterised</td></tr>
-          <tr><td>Detector</td><td>DFRobot <code>SEN0365</code> (AS7341)</td><td>Received; bench bring-up passed</td></tr>
-          <tr><td>Controller</td><td>ESP32-WROOM-32, DOIT DevKit V1 30-pin</td><td>In bench use</td></tr>
-          <tr><td>LED switch</td><td>2N7000 N-channel MOSFET</td><td>Conditional bench acceptance, single unit</td></tr>
-          <tr><td>Current limit / gate network</td><td>434&nbsp;&#8486; series, 217&nbsp;&#8486; gate, 9.9&nbsp;k&#8486; pulldown</td><td>Measured in place</td></tr>
-          <tr><td>Sample vessel</td><td>Eppendorf UVette</td><td>One unit held; benchmark only</td></tr>
-          <tr><td>Optical core</td><td>Printed PLA, v0.7 geometry</td><td>Received as <code>P1-PROTO-01</code></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p class="hw-aside">
-      Mechanical source is versioned parametric CadQuery Python with STEP and
-      STL exports; the acquisition firmware targets the ESP32 with the Adafruit
-      AS7341 library. We will publish the source files and the printing package
-      alongside this page once the assembly is validated, so that what we
-      release is a build that has been shown to work rather than a build we
-      hope works.
-    </p>
-
-    <!-- PHOTO: UVette 座與 ORIENT-A 安裝方向照，上傳後插在這裡 -->
 
     <p class="hw-refs-note">
       Every measurement quoted on this page is drawn from our own dated
@@ -720,6 +658,7 @@
       capability.
     </p>
   </section>
+
 
 </div>
 

@@ -4218,42 +4218,6 @@ body.tour-active { overflow: hidden; }
 }
 
 
-/* ---- "first light": the finding on the front, the numbers behind it ----
-   Four of these to a row rather than three, so they are narrower, carry less
-   padding than the term cards, and the cue sits in tighter. */
-.hw-sequence .hw-flip-front,
-.hw-sequence .hw-flip-back {
-  border: 1px solid #dfe8e2;
-  /* The top edge still carries the state of the light during that step, and
-     it has to be on both faces or the colour vanishes the moment the card
-     turns over. */
-  border-top: 4px solid var(--hw-step-edge, #9aa8a1);
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
-}
-
-.hw-sequence .hw-flip-front {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: #fffdf7;
-  padding-right: 1.9rem;
-  padding-bottom: 2.5rem;
-}
-/* Bigger than in the open list it replaced, for the same reason as the term
-   cards: on a closed card the finding is the only thing there is to read.
-   It stops at 1.18rem rather than the 1.35rem used there, because four of
-   these fit across the row instead of three and 1.3rem already breaks the
-   longest of them over three lines. */
-.hw-sequence .hw-flip-front .hw-step-name {
-  font-size: 1.18rem;
-  line-height: 1.35;
-  margin-bottom: 0;
-}
-.hw-sequence .hw-flip-back { background: #f2f9f5; }
-.hw-sequence .hw-flip-front::before { left: 1rem; bottom: 0.8rem; }
-
-
 /* Asked for less motion: a card no longer turns, the two faces simply
    cross-fade in the same place. */
 @media (prefers-reduced-motion: reduce) {
@@ -4343,13 +4307,6 @@ body.tour-active { overflow: hidden; }
   padding-left: 1rem;
   margin-top: 1.5rem;
 }
-.hw-join {
-  background: #f2f9f5;
-  border: 1px solid #b9d7c8;
-  border-radius: 10px;
-  padding: 1rem 1.15rem;
-  margin-top: 1.5rem;
-}
 /* Anywhere the page draws a line around what we are allowed to claim, it is
    marked in the warm colour the rest of the wiki uses for caution. */
 .hw-caution {
@@ -4398,21 +4355,6 @@ body.tour-active { overflow: hidden; }
 .hw-module h3 { margin: 0.35rem 0 0.5rem; font-size: 1.15rem; }
 .hw-module-what { font-size: 0.95rem; margin-bottom: 1rem; }
 
-.hw-spec { margin: 0; font-size: 0.9rem; }
-.hw-spec > div {
-  display: grid;
-  grid-template-columns: 6.5rem 1fr;
-  gap: 0.6rem;
-  padding: 0.5rem 0;
-  border-top: 1px dashed #cfdcd5;
-}
-.hw-spec dt {
-  font-family: "Changa", sans-serif;
-  font-weight: 400;
-  color: #075a3e;
-}
-.hw-spec dd { margin: 0; color: #4a5a51; line-height: 1.6; }
-
 /* ---- tables ---- */
 /* Every table lives in a figure that can scroll, so a four-column table on a
    phone slides sideways instead of crushing its own columns. */
@@ -4427,47 +4369,6 @@ body.tour-active { overflow: hidden; }
   align-items: start;
 }
 .hw-two-tables .hw-figure { margin: 0; }
-
-.hw-table {
-  width: 100%;
-  min-width: 18rem;
-  border-collapse: collapse;
-  font-size: 0.92rem;
-}
-.hw-table caption {
-  caption-side: top;
-  font-family: "Changa", sans-serif;
-  font-size: 1rem;
-  color: #1f4a38;
-  text-align: left;
-  padding-bottom: 0.5rem;
-}
-.hw-table th,
-.hw-table td {
-  padding: 0.65rem 0.8rem;
-  border-bottom: 1px solid #dfe8e2;
-  text-align: left;
-  vertical-align: top;
-  line-height: 1.65;
-}
-.hw-table thead th {
-  font-family: "Changa", sans-serif;
-  font-weight: 400;
-  color: #075a3e;
-  border-bottom: 2px solid #075a3e;
-}
-.hw-table tbody tr:last-child td { border-bottom: none; }
-.hw-table .is-total {
-  background: #f2f9f5;
-  font-weight: 700;
-  color: #1f4a38;
-}
-/* The right-hand column of the claim tables is the part that keeps us
-   honest, so it is tinted rather than left to look like ordinary prose. */
-.hw-table .hw-not {
-  background: #fff6e2;
-  color: #6b4a1f;
-}
 .hw-table-keep caption { color: #075a3e; }
 .hw-table-drop caption { color: #6b7a72; }
 .hw-phase {
@@ -4871,49 +4772,6 @@ body.tour-active { overflow: hidden; }
   .hw3d-hint { display: none; }
 }
 
-/* ---- the four-step measurement ---- */
-.hw-sequence {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
-  gap: 0.75rem;
-  padding: 0;
-  margin: 1.75rem 0;
-}
-.hw-sequence li {
-  border: 1px solid #dfe8e2;
-  border-top: 4px solid #9aa8a1;
-  border-radius: 10px;
-  background: #fffdf7;
-  padding: 0.9rem 1rem;
-}
-/* The state of the light during that step. It is handed to the card as a
-   custom property rather than drawn on it, because the card is a frame with
-   no edges of its own now -- both of its faces read this. */
-.hw-sequence li[data-step="blue"] { --hw-step-edge: #2b6cb0; }
-.hw-sequence li[data-step="red"] { --hw-step-edge: #c0392b; }
-.hw-sequence li[data-step="dark"],
-.hw-sequence li[data-step="off"] { --hw-step-edge: #3a4640; }
-.hw-step-n {
-  display: block;
-  font-family: "Changa", sans-serif;
-  font-size: 0.78rem;
-  color: #8a978f;
-}
-.hw-step-name {
-  display: block;
-  font-family: "Changa", sans-serif;
-  font-size: 1.05rem;
-  color: #1f4a38;
-  margin-bottom: 0.3rem;
-}
-.hw-step-what {
-  display: block;
-  font-size: 0.87rem;
-  line-height: 1.6;
-  color: #4a5a51;
-}
-
 /* ---- the three groups, and the two branches they feed ---- */
 .hw-groups {
   display: grid;
@@ -4961,52 +4819,11 @@ body.tour-active { overflow: hidden; }
   margin: 0 0 0.5rem;
 }
 .hw-branch p { font-size: 0.9rem; margin-bottom: 0; }
-
-/* ---- claim boundaries, and the planned flag ---- */
-.hw-claims {
-  border: 2px dashed #d8b26a;
-  border-radius: 14px;
-  padding: 1.6rem 1.75rem;
-  background: #fffaf0;
-}
-.hw-claims h2 { margin-top: 0; }
-
-.hw-head-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-.hw-head-row h2 { margin-bottom: 0; }
-.hw-flag {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: #6b4a1f;
-  background: #ffe9b8;
-  border: 1px solid #d8b26a;
-  border-radius: 999px;
-  padding: 0.25rem 0.7rem;
-}
-
-/* ---- references ---- */
-.hw-refs ol { padding-left: 1.4rem; }
-.hw-refs li {
-  margin-bottom: 0.75rem;
-  line-height: 1.65;
-  font-size: 0.92rem;
-  color: #3f4d45;
-}
-.hw-refs a { word-break: break-word; }
 .hw-refs-note { font-size: 0.88rem; color: #5f6e66; }
 
 @media (max-width: 575.98px) {
   .hw-lead { padding-left: 1rem; }
-  .hw-claims { padding: 1.2rem 1.1rem; }
   .hw-diagram { padding: 0.6rem; }
-  .hw-table { font-size: 0.86rem; }
-  .hw-table th, .hw-table td { padding: 0.5rem 0.55rem; }
-  /* Stacked, the label column no longer needs its own fixed width. */
-  .hw-spec > div { grid-template-columns: 1fr; gap: 0.15rem; }
   /* The arrow points along the row; once the steps stack it would point
      into the wrong place, so it goes. */
   .hw-flow li:not(:last-child)::after { content: none; }
