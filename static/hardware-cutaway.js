@@ -961,10 +961,17 @@
      REGISTER TABLE + READOUT
      ========================================================================== */
 
+  /* U+2212, the minus sign, not the hyphen toFixed hands back. The two rows
+     with a written label (the enclosure and the deck) have always used it, so
+     a computed row using "-" left one column carrying two different glyphs at
+     two different widths. The numbers are untouched. */
+  function fmtMm(v) {
+    return (v > 0 ? "+" : v < 0 ? "\u2212" : "") + Math.abs(v).toFixed(2);
+  }
+
   function fmtX(p) {
     if (p.xLabel) return p.xLabel;
-    var a = p.x[0], b = p.x[1];
-    return (a > 0 ? "+" : "") + a.toFixed(2) + " … " + (b > 0 ? "+" : "") + b.toFixed(2);
+    return fmtMm(p.x[0]) + " … " + fmtMm(p.x[1]);
   }
 
   var tbody = document.getElementById("hw3d-rows");
@@ -987,6 +994,41 @@
     tbody.appendChild(tr);
   });
 
+  /* The disclosure holding the table. Counted from the rows that were really
+     built, not from PARTS.length: the loop above skips every shell but the
+     enclosure, so the two numbers are not the same. */
+  var listBox = document.getElementById("hw3d-parts");
+  var listCount = document.getElementById("hw3d-list-count");
+  if (listCount) {
+    listCount.textContent = tbody.children.length + " parts";
+  }
+
+  var listClose = document.getElementById("hw3d-list-close");
+  if (listBox && listClose) {
+    listClose.addEventListener("click", function () {
+      listBox.open = false;
+      /* Focus would otherwise be left on a button that has just been folded
+         out of the page, which strands a keyboard user at the end of the
+         document. Send it back to the header they opened it from. */
+      var head = listBox.querySelector("summary");
+      if (head) head.focus();
+    });
+  }
+
+  /* On paper there is no opening anything, and a shut <details> prints as a
+     single line where the table should be. Open it for the print, then put it
+     back exactly as the reader had it. */
+  if (listBox && window.matchMedia) {
+    var wasOpen = false;
+    window.addEventListener("beforeprint", function () {
+      wasOpen = listBox.open;
+      listBox.open = true;
+    });
+    window.addEventListener("afterprint", function () {
+      listBox.open = wasOpen;
+    });
+  }
+
   function select(id) {
     selected = (selected === id) ? null : id;
     Array.prototype.forEach.call(tbody.children, function (tr) {
@@ -995,7 +1037,7 @@
     var box = document.getElementById("hw3d-readout");
     var p = PARTS.filter(function (q) { return q.id === selected; })[0];
     if (!p) {
-      box.innerHTML = '<span class="hw3d-dim">Pick a part in the view, or a row in the list below, to see its coordinates and where they come from.</span>';
+      box.innerHTML = '<span class="hw3d-dim">Pick a part in the view, or open the parts list below and pick a row, to see its coordinates and where they come from.</span>';
       draw();
       return;
     }
