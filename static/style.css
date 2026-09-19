@@ -5066,10 +5066,6 @@ body.tour-active { overflow: hidden; }
   color: var(--hwx-dim);
 }
 
-/* The timing bar is drawn in CSS and needs room around it, unlike an SVG
-   that fills its own box edge to edge. */
-.hwx-rig-plain .hwx-rig-figure { padding: 1.1rem; }
-
 /* Shown until the script replaces the panel it sits in. It is not an error
    message: it is the same information in a sentence. */
 .hwx-fallback {
@@ -5310,97 +5306,6 @@ body.tour-active { overflow: hidden; }
 .hwx-cue-ex { fill: var(--hwx-blue); }
 .hwx-cue-em { fill: var(--hwx-green); }
 
-/* ---- the schematic ---- */
-.hwx-sch { background: var(--hwx-dark); }
-.hwx-sch-name { font-family: "Changa", sans-serif; font-size: 13px; fill: #c4d6dd; }
-.hwx-sch-sub { font-size: 11px; fill: #7e959f; }
-.hwx-sch-val { font-family: var(--hwx-mono); font-size: 11px; fill: #c4d6dd; }
-.hwx-sch-i2c { fill: #8edcb4; }
-
-.hwx-node { cursor: help; }
-.hwx-node:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
-.hwx-node:hover text, .hwx-node:focus-visible text { fill: #ffffff; }
-
-/* ---- the acquisition timing bar ---- */
-.hwx-timing {
-  position: relative;
-  height: 76px;
-  border: 1px solid var(--hwx-rule);
-  border-radius: 8px;
-  background: var(--hwx-dark2);
-  overflow: hidden;
-}
-
-.hwx-tseg {
-  position: absolute;
-  top: 14px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  padding-left: 0.5rem;
-  border-radius: 4px;
-  font-family: "Changa", sans-serif;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #04121f;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.hwx-t-settle { background: var(--hwx-amber); }
-.hwx-t-read { background: var(--hwx-blue); }
-.hwx-t-margin {
-  background: #1b2a31;
-  border: 1px dashed #3b525c;
-  color: var(--hwx-dim);
-}
-
-.hwx-tmark {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  border-left: 1.5px dashed #6a828c;
-}
-
-.hwx-tmark span {
-  position: absolute;
-  top: 2px;
-  left: 5px;
-  font-family: "Changa", sans-serif;
-  font-size: 0.64rem;
-  white-space: nowrap;
-  color: #8aa2ac;
-}
-
-.hwx-tmark-led { border-left-color: var(--hwx-blue); }
-.hwx-tmark-led span { color: var(--hwx-blue); }
-
-/* The 0.5 s target and the measured LED-off edge are 52 ms apart, which is
-   about 40px of bar: two labels hung to the right of their own lines land on
-   top of each other. This one hangs to the left instead, which also puts each
-   label on the side its line is the boundary of. */
-.hwx-tmark-left span { left: auto; right: 5px; }
-
-.hwx-tscale {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 4px;
-  height: 1em;
-  font-family: var(--hwx-mono);
-  font-size: 0.6rem;
-  color: #5e747d;
-}
-
-.hwx-tscale span { position: absolute; padding-left: 3px; }
-
-.hwx-tscale-end {
-  right: 4px;
-  left: auto !important;
-  padding: 0 !important;
-  color: var(--hwx-amber);
-}
-
 /* ---- the shared tooltip ---- */
 .hwx-tip {
   position: fixed;
@@ -5423,153 +5328,6 @@ body.tour-active { overflow: hidden; }
   font-size: 0.7rem;
   letter-spacing: 0.02em;
   color: #ffffff;
-}
-
-/* ===== the evidence register ========================================
-   Back on paper. This is the page's longest piece of reading and it is
-   ordinary text, so it is set like the rest of the site rather than like
-   an instrument.
-
-   Every row is a <details>: it opens without script, prints open, and the
-   filter row above is an addition that hides itself when it cannot run.
-   -------------------------------------------------------------------- */
-
-.hwx-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 1.4rem 0 1rem;
-}
-
-/* The UA's [hidden] rule is display:none at (0,1,0) and loses to the class
-   above it, so the empty filter row would show through before the script
-   fills it. This is the rule that actually keeps it hidden. */
-.hwx-filters[hidden] { display: none; }
-
-.hwx-filters button {
-  padding: 0.35rem 0.8rem;
-  border: 1px solid #cfe0d6;
-  border-radius: 999px;
-  background: #fffdf7;
-  font-family: "Changa", sans-serif;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #33413a;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.hwx-filters button:hover { background: #eef6f1; border-color: #a9cbb8; }
-
-.hwx-filters button:focus-visible {
-  outline: 3px solid #d8b26a;
-  outline-offset: 2px;
-}
-
-.hwx-filters button[aria-pressed="true"] {
-  background: #075a3e;
-  border-color: #075a3e;
-  color: #fffdf7;
-}
-
-.hwx-filter-n { opacity: 0.6; font-variant-numeric: tabular-nums; }
-
-.hwx-ledger {
-  border: 1px solid #e8efe9;
-  border-radius: 10px;
-  background: #fff;
-  overflow: hidden;
-}
-
-.hwx-row { border-bottom: 1px solid #eef3ef; }
-.hwx-row:last-child { border-bottom: 0; }
-
-.hwx-row > summary {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.2rem 0.9rem;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  list-style: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.hwx-row > summary::-webkit-details-marker { display: none; }
-.hwx-row > summary:hover { background: #f6f9f7; }
-
-.hwx-row > summary:focus-visible {
-  outline: 3px solid #d8b26a;
-  outline-offset: -3px;
-}
-
-.hwx-dom {
-  grid-column: 1;
-  font-family: "Changa", sans-serif;
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #1f4a38;
-}
-
-.hwx-scope {
-  grid-column: 1;
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: #6b7a72;
-}
-
-/* The chip spans both text rows so a two-line scope does not push it
-   off-centre. */
-.hwx-chip {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.1rem 0.55rem;
-  border: 1px solid;
-  border-radius: 3px;
-  font-family: "Changa", sans-serif;
-  font-size: 0.66rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.hwx-chip::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.hwx-c-pass { color: #1e7f4c; border-color: #a6d4ba; background: #f0f8f3; }
-.hwx-c-cond { color: #8a5524; border-color: #e0c49a; background: #fbf4ea; }
-.hwx-c-prog { color: #1a63c4; border-color: #aac6ea; background: #eff4fc; }
-.hwx-c-not { color: #6c7a82; border-color: #ccd6da; background: #f4f6f7; }
-.hwx-c-unk { color: #6c7a82; border-color: #ccd6da; border-style: dashed; background: transparent; }
-
-.hwx-row > dl {
-  margin: 0;
-  padding: 0 1rem 1rem;
-}
-
-.hwx-row dt {
-  margin-top: 0.6rem;
-  font-family: "Changa", sans-serif;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #8a978f;
-}
-
-.hwx-row dd {
-  margin: 0.15rem 0 0;
-  font-size: 0.88rem;
-  line-height: 1.65;
-  color: #33413a;
 }
 
 /* ---- the decision register ---- */
@@ -5633,18 +5391,12 @@ body.tour-active { overflow: hidden; }
   .hwx-rig-body,
   .hwx-rig-foot { padding-left: 0.8rem; padding-right: 0.8rem; }
 
-  .hwx-rig-plain .hwx-rig-figure { padding: 0.8rem; }
-
   /* The two schematics carry 11-12px type that cannot shrink with the
      viewport and stay readable, so below this width they scroll sideways
      inside their own panel instead of being squeezed. */
   .hwx-rig-figure { overflow-x: auto; }
-  .hwx-lab, .hwx-sch, .hwx-spec { min-width: 560px; }
+  .hwx-lab, .hwx-spec { min-width: 560px; }
 
-  .hwx-row > summary { grid-template-columns: 1fr; }
-  .hwx-chip { grid-column: 1; grid-row: auto; justify-self: start; margin-top: 0.3rem; }
-
-  .hwx-tseg { font-size: 0.62rem; padding-left: 0.3rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5669,11 +5421,11 @@ body.tour-active { overflow: hidden; }
   .hwx-rig-head h3 { color: #000; }
   .hwx-rig-sub, .hwx-rig-foot { color: #444; }
 
-  .hwx-ctrls, .hwx-tip, .hwx-filters { display: none !important; }
+  .hwx-ctrls, .hwx-tip { display: none !important; }
 
-  .hwx-lab, .hwx-sch, .hwx-spec { background: #fff; }
+  .hwx-lab, .hwx-spec { background: #fff; }
   .hwx-lab-solid rect { fill: #f2f2f2; stroke: #888; }
-  .hwx-lab-label text, .hwx-sch-name, .hwx-sch-val { fill: #222; }
+  .hwx-lab-label text { fill: #222; }
 
   .hwx-rig-body { border-color: #ccc; }
   .hwx-ch { border-color: #ccc; background: #fff; }
@@ -5681,9 +5433,6 @@ body.tour-active { overflow: hidden; }
   .hwx-verdict { background: #f7f7f7; }
   .hwx-verdict-title { color: #000; }
   .hwx-verdict-text { color: #222; }
-
-  .hwx-row > dl { display: block !important; }
-  .hwx-row[hidden] { display: block !important; }
 }
 
 /* ===== Online Game: Capture ===========================================

@@ -3,14 +3,14 @@
 
   /* Hardware page — the instrument panels.
    *
-   * Four things live here: a shared tooltip, the light-path bench, the AS7341
-   * channel map, and the filter row over the evidence register.
+   * Three things live here: a shared tooltip, the light-path bench and the
+   * AS7341 channel map.
    *
    * No library, no network request, nothing from outside iGEM infrastructure.
    * The page is written so that losing this file costs a reader the
-   * interaction and none of the content: every evidence row is a <details> in
-   * the markup, the timing bar is drawn with percentage widths, and each panel
-   * that is built here carries a written fallback until it is replaced.
+   * interaction and as little of the content as can be managed: each panel
+   * built here carries a written fallback until it is replaced, and the light
+   * path itself is drawn in the markup rather than by this script.
    */
 
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -19,14 +19,13 @@
   };
 
   /* Nothing on this page? Then this is not the hardware page. */
-  if (!$(".hwx-rig") && !$(".hwx-ledger")) return;
+  if (!$(".hwx-rig")) return;
 
   /* ======================================================================
      A SHARED TOOLTIP
-     One element, moved around, rather than one per node: there are sixteen
-     hoverable things on this page and they are never shown two at a time.
-     Focus opens it as well as hover, so the schematic is readable from the
-     keyboard.
+     One element, moved around, rather than one per channel: the ten channels
+     of the map are never explained two at a time. Focus opens it as well as
+     hover, so the map is readable from the keyboard.
      ====================================================================== */
 
   var tip = document.createElement("div");
@@ -81,9 +80,10 @@
         if (!tip.hidden) placeTip(e.clientX, e.clientY);
       });
       /* Only the element the tooltip currently belongs to may close it.
-         Without this, tabbing to a node scrolls the page, the node the mouse
-         was resting on slides out from under a pointer that never moved, and
-         that stale mouseleave shuts the tooltip the focus had just opened. */
+         Without this, tabbing to a channel scrolls the page, whatever the
+         mouse was resting on slides out from under a pointer that never
+         moved, and that stale mouseleave shuts the tooltip the focus had just
+         opened. */
       el.addEventListener("mouseleave", function () {
         if (tipFor === el) hideTip();
       });
@@ -102,9 +102,9 @@
 
   window.addEventListener("scroll", function () {
     if (tip.hidden) return;
-    /* Tabbing to a node scrolls it into view, and that scroll must not close
-       the tooltip the focus just opened -- which is the entire keyboard path
-       through the schematic. A tooltip anchored to the focused node follows
+    /* Tabbing to a channel scrolls it into view, and that scroll must not
+       close the tooltip the focus just opened -- which is the entire keyboard
+       path through the map. A tooltip anchored to the focused channel follows
        it; one that was following the pointer goes, because after a scroll the
        pointer is no longer over what it was describing. */
     if (tipFor && tipFor === document.activeElement) { anchorTip(tipFor); return; }
@@ -419,88 +419,5 @@
 
     box.innerHTML = s;
     bindTips(box);
-  })();
-
-  /* ======================================================================
-     3. THE EVIDENCE REGISTER'S FILTER ROW
-     The rows are <details> in the markup and work without this. The filter is
-     an addition, so it stays hidden until it can do something -- a filter that
-     does nothing is worse than no filter.
-     ====================================================================== */
-
-  (function () {
-    var ledger = $("#hwxLedger");
-    var bar = $("#hwxFilters");
-    if (!ledger || !bar) return;
-
-    var rows = $$(".hwx-row", ledger);
-    if (!rows.length) return;
-
-    var NAMES = {
-      all: "All rows", pass: "Pass", cond: "Conditional",
-      prog: "In progress", not: "Not tested", unk: "Unknown"
-    };
-    var ORDER = ["all", "pass", "cond", "prog", "not", "unk"];
-
-    /* Counted from the rows themselves, so the number beside a filter can
-       never disagree with what pressing it shows. */
-    var counts = { all: rows.length };
-    rows.forEach(function (r) {
-      var k = r.getAttribute("data-state");
-      counts[k] = (counts[k] || 0) + 1;
-    });
-
-    bar.innerHTML = ORDER.filter(function (k) { return counts[k]; })
-      .map(function (k) {
-        return '<button type="button" data-filter="' + k + '" aria-pressed="' +
-          (k === "all") + '">' + NAMES[k] +
-          ' <span class="hwx-filter-n">' + counts[k] + "</span></button>";
-      }).join("");
-    bar.hidden = false;
-
-    var live = document.createElement("p");
-    live.className = "visually-hidden";
-    live.setAttribute("role", "status");
-    live.setAttribute("aria-live", "polite");
-    bar.parentNode.insertBefore(live, bar.nextSibling);
-
-    /* On paper an unopened row is a row that was withheld, so every row prints
-       open. The stylesheet overrides the display of a shut <details>, which
-       works in Chrome, but how a closed <details> hides its content is not the
-       same in every engine -- opening them outright is. Both the open state
-       and any filter are put back afterwards. */
-    var printState = null;
-    window.addEventListener("beforeprint", function () {
-      printState = rows.map(function (r) { return [r.open, r.hidden]; });
-      rows.forEach(function (r) { r.open = true; r.hidden = false; });
-    });
-    window.addEventListener("afterprint", function () {
-      if (!printState) return;
-      rows.forEach(function (r, i) {
-        r.open = printState[i][0];
-        r.hidden = printState[i][1];
-      });
-      printState = null;
-    });
-
-    bar.addEventListener("click", function (e) {
-      var btn = e.target.closest("button");
-      if (!btn || !bar.contains(btn)) return;
-      $$("button", bar).forEach(function (b) {
-        b.setAttribute("aria-pressed", String(b === btn));
-      });
-      var f = btn.getAttribute("data-filter");
-      var shown = 0;
-      rows.forEach(function (r) {
-        var on = (f === "all" || r.getAttribute("data-state") === f);
-        r.hidden = !on;
-        if (on) shown++;
-        /* A hidden row left open would spring back open on the next filter
-           change, having been invisible in between. */
-        if (!on) r.open = false;
-      });
-      live.textContent = shown + " of " + rows.length +
-        " rows shown: " + NAMES[f] + ".";
-    });
   })();
 })();
