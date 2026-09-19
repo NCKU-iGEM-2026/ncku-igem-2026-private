@@ -4160,6 +4160,42 @@ body.tour-active { overflow: hidden; }
   padding: 1.15rem 1.2rem;
 }
 
+/* ---- the mark in front of the claim ---- */
+/* Drawn inline in the markup, not fetched: iGEM serves no icon font and
+   allows no outside CDN. Each mark repeats what the words next to it say, so
+   each is aria-hidden and none of them is load-bearing -- lose every one and
+   the cards read exactly the same.
+
+   This is the one place on these cards where two flex items side by side is
+   the intention rather than the bug: the mark sits beside the claim, and the
+   claim takes whatever width is left. */
+/* Inline, at the head of the claim, rather than a flex item of its own beside
+   it. A sibling item is aligned against the face, and the face is as tall as
+   the longer of the two sides -- centred it landed next to line two of a
+   three-line claim, and flex-start sent it to the top of a 200px card with
+   the words still centred below. Inline, it rides the first line, which is
+   what "in front of the words" means. It also leaves the face with a single
+   flex item, which is how this pattern wants to be left. */
+.hw-ico {
+  display: inline-block;
+  vertical-align: -0.34em;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.5rem;
+  color: #4d8a70;
+}
+
+.hw-ico svg { display: block; width: 100%; height: 100%; }
+
+/* The claim takes the rest of the row and may wrap inside it; min-width:0 is
+   what lets a flex item be narrower than its longest word. */
+.hw-face-text,
+.hw-flip-front .hw-dec-claim { flex: 1 1 auto; min-width: 0; }
+
+/* On the two decisions that narrowed P1 the mark takes the gold the card's
+   accent and badge already use, so the three agree. */
+.hw-decs .is-narrow .hw-ico { color: #b5872f; }
+
 /* Front: the claim alone, centred so a one-line title does not sit stranded
    at the top of a card sized by the longer text behind it. */
 .hw-terms .hw-flip-front {
@@ -4180,41 +4216,42 @@ body.tour-active { overflow: hidden; }
    that the words simply changed. */
 .hw-terms .hw-flip-back { background: #f2f9f5; }
 
+/* ---- the same card, used for the decision register ---- */
+/* The grid is inherited unchanged, which is the whole point: at the 904px this
+   page's container actually gives it, the Background list's 260px floor makes
+   three columns, so five cards fall 3 + 2. Raising the floor to 300px was
+   tried and does the opposite -- three columns no longer fit, and the five
+   land 2 + 2 + 1 with one stranded on a row of its own.
 
-/* ---- "first light": the finding on the front, the numbers behind it ----
-   Four of these to a row rather than three, so they are narrower, carry less
-   padding than the term cards, and the cue sits in tighter. */
-.hw-sequence .hw-flip-front,
-.hw-sequence .hw-flip-back {
-  border: 1px solid #dfe8e2;
-  /* The top edge still carries the state of the light during that step, and
-     it has to be on both faces or the colour vanishes the moment the card
-     turns over. */
-  border-top: 4px solid var(--hw-step-edge, #9aa8a1);
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
-}
+   The one thing that does change is the type size. These claims are whole
+   sentences rather than the two-word labels above, and 1.35rem runs them into
+   the fold in the corner. */
+.hw-decs .hw-flip-front { font-size: 1.12rem; line-height: 1.45; }
 
-.hw-sequence .hw-flip-front {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: #fffdf7;
-  padding-right: 1.9rem;
-  padding-bottom: 2.5rem;
+/* One flex item, so the badge below sits under the claim rather than beside
+   it. See the note in the markup. */
+.hw-decs .hw-dec-claim { display: block; }
+
+/* The two decisions that took capability away from the prototype. Marked on
+   both faces, so turning the card over does not lose the mark. */
+.hw-decs .is-narrow .hw-flip-front,
+.hw-decs .is-narrow .hw-flip-back { border-left-color: #d8b26a; }
+
+.hw-dec-flag {
+  display: block;
+  width: fit-content;
+  margin-top: 0.7rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid #e0c49a;
+  border-radius: 3px;
+  background: #fbf4ea;
+  font-family: "Changa", sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8a5524;
 }
-/* Bigger than in the open list it replaced, for the same reason as the term
-   cards: on a closed card the finding is the only thing there is to read.
-   It stops at 1.18rem rather than the 1.35rem used there, because four of
-   these fit across the row instead of three and 1.3rem already breaks the
-   longest of them over three lines. */
-.hw-sequence .hw-flip-front .hw-step-name {
-  font-size: 1.18rem;
-  line-height: 1.35;
-  margin-bottom: 0;
-}
-.hw-sequence .hw-flip-back { background: #f2f9f5; }
-.hw-sequence .hw-flip-front::before { left: 1rem; bottom: 0.8rem; }
 
 
 /* Asked for less motion: a card no longer turns, the two faces simply
@@ -4306,13 +4343,6 @@ body.tour-active { overflow: hidden; }
   padding-left: 1rem;
   margin-top: 1.5rem;
 }
-.hw-join {
-  background: #f2f9f5;
-  border: 1px solid #b9d7c8;
-  border-radius: 10px;
-  padding: 1rem 1.15rem;
-  margin-top: 1.5rem;
-}
 /* Anywhere the page draws a line around what we are allowed to claim, it is
    marked in the warm colour the rest of the wiki uses for caution. */
 .hw-caution {
@@ -4361,21 +4391,6 @@ body.tour-active { overflow: hidden; }
 .hw-module h3 { margin: 0.35rem 0 0.5rem; font-size: 1.15rem; }
 .hw-module-what { font-size: 0.95rem; margin-bottom: 1rem; }
 
-.hw-spec { margin: 0; font-size: 0.9rem; }
-.hw-spec > div {
-  display: grid;
-  grid-template-columns: 6.5rem 1fr;
-  gap: 0.6rem;
-  padding: 0.5rem 0;
-  border-top: 1px dashed #cfdcd5;
-}
-.hw-spec dt {
-  font-family: "Changa", sans-serif;
-  font-weight: 400;
-  color: #075a3e;
-}
-.hw-spec dd { margin: 0; color: #4a5a51; line-height: 1.6; }
-
 /* ---- tables ---- */
 /* Every table lives in a figure that can scroll, so a four-column table on a
    phone slides sideways instead of crushing its own columns. */
@@ -4390,47 +4405,6 @@ body.tour-active { overflow: hidden; }
   align-items: start;
 }
 .hw-two-tables .hw-figure { margin: 0; }
-
-.hw-table {
-  width: 100%;
-  min-width: 18rem;
-  border-collapse: collapse;
-  font-size: 0.92rem;
-}
-.hw-table caption {
-  caption-side: top;
-  font-family: "Changa", sans-serif;
-  font-size: 1rem;
-  color: #1f4a38;
-  text-align: left;
-  padding-bottom: 0.5rem;
-}
-.hw-table th,
-.hw-table td {
-  padding: 0.65rem 0.8rem;
-  border-bottom: 1px solid #dfe8e2;
-  text-align: left;
-  vertical-align: top;
-  line-height: 1.65;
-}
-.hw-table thead th {
-  font-family: "Changa", sans-serif;
-  font-weight: 400;
-  color: #075a3e;
-  border-bottom: 2px solid #075a3e;
-}
-.hw-table tbody tr:last-child td { border-bottom: none; }
-.hw-table .is-total {
-  background: #f2f9f5;
-  font-weight: 700;
-  color: #1f4a38;
-}
-/* The right-hand column of the claim tables is the part that keeps us
-   honest, so it is tinted rather than left to look like ordinary prose. */
-.hw-table .hw-not {
-  background: #fff6e2;
-  color: #6b4a1f;
-}
 .hw-table-keep caption { color: #075a3e; }
 .hw-table-drop caption { color: #6b7a72; }
 .hw-phase {
@@ -4834,49 +4808,6 @@ body.tour-active { overflow: hidden; }
   .hw3d-hint { display: none; }
 }
 
-/* ---- the four-step measurement ---- */
-.hw-sequence {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
-  gap: 0.75rem;
-  padding: 0;
-  margin: 1.75rem 0;
-}
-.hw-sequence li {
-  border: 1px solid #dfe8e2;
-  border-top: 4px solid #9aa8a1;
-  border-radius: 10px;
-  background: #fffdf7;
-  padding: 0.9rem 1rem;
-}
-/* The state of the light during that step. It is handed to the card as a
-   custom property rather than drawn on it, because the card is a frame with
-   no edges of its own now -- both of its faces read this. */
-.hw-sequence li[data-step="blue"] { --hw-step-edge: #2b6cb0; }
-.hw-sequence li[data-step="red"] { --hw-step-edge: #c0392b; }
-.hw-sequence li[data-step="dark"],
-.hw-sequence li[data-step="off"] { --hw-step-edge: #3a4640; }
-.hw-step-n {
-  display: block;
-  font-family: "Changa", sans-serif;
-  font-size: 0.78rem;
-  color: #8a978f;
-}
-.hw-step-name {
-  display: block;
-  font-family: "Changa", sans-serif;
-  font-size: 1.05rem;
-  color: #1f4a38;
-  margin-bottom: 0.3rem;
-}
-.hw-step-what {
-  display: block;
-  font-size: 0.87rem;
-  line-height: 1.6;
-  color: #4a5a51;
-}
-
 /* ---- the three groups, and the two branches they feed ---- */
 .hw-groups {
   display: grid;
@@ -4924,52 +4855,11 @@ body.tour-active { overflow: hidden; }
   margin: 0 0 0.5rem;
 }
 .hw-branch p { font-size: 0.9rem; margin-bottom: 0; }
-
-/* ---- claim boundaries, and the planned flag ---- */
-.hw-claims {
-  border: 2px dashed #d8b26a;
-  border-radius: 14px;
-  padding: 1.6rem 1.75rem;
-  background: #fffaf0;
-}
-.hw-claims h2 { margin-top: 0; }
-
-.hw-head-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-.hw-head-row h2 { margin-bottom: 0; }
-.hw-flag {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: #6b4a1f;
-  background: #ffe9b8;
-  border: 1px solid #d8b26a;
-  border-radius: 999px;
-  padding: 0.25rem 0.7rem;
-}
-
-/* ---- references ---- */
-.hw-refs ol { padding-left: 1.4rem; }
-.hw-refs li {
-  margin-bottom: 0.75rem;
-  line-height: 1.65;
-  font-size: 0.92rem;
-  color: #3f4d45;
-}
-.hw-refs a { word-break: break-word; }
 .hw-refs-note { font-size: 0.88rem; color: #5f6e66; }
 
 @media (max-width: 575.98px) {
   .hw-lead { padding-left: 1rem; }
-  .hw-claims { padding: 1.2rem 1.1rem; }
   .hw-diagram { padding: 0.6rem; }
-  .hw-table { font-size: 0.86rem; }
-  .hw-table th, .hw-table td { padding: 0.5rem 0.55rem; }
-  /* Stacked, the label column no longer needs its own fixed width. */
-  .hw-spec > div { grid-template-columns: 1fr; gap: 0.15rem; }
   /* The arrow points along the row; once the steps stack it would point
      into the wrong place, so it goes. */
   .hw-flow li:not(:last-child)::after { content: none; }
@@ -4984,6 +4874,401 @@ body.tour-active { overflow: hidden; }
   /* Wide enough that the smallest annotations on the optical-core drawing --
      the scale bar and the enlarged chamber detail -- stay legible. */
   .hw-svg { min-width: 680px; }
+}
+
+/* ===== Hardware: instrument panels ==================================
+   The dark blocks on the Hardware page. They are dark on purpose and only
+   they are: an instrument readout is a thing you look *into*, and the
+   contrast is what separates a recorded measurement from the prose around
+   it. Everything outside a .hwx-rig keeps the site's own paper styling.
+
+   Colour is semantic here, not decorative:
+     blue  #5BAEFF  the 470 nm excitation
+     green #64DE9A  the ~515 nm emission
+     amber #E6A94B  a leak, a warning, a condition attached
+   so a reader who has learned the diagram can read the readout.
+
+   Numbers are set in the system monospace stack. No font is fetched for
+   this: iGEM serves the site's fonts and we are not adding another.
+   -------------------------------------------------------------------- */
+
+.hw {
+  --hwx-dark: #0a1216;
+  --hwx-dark2: #111c22;
+  --hwx-rule: #23333b;
+  --hwx-ink: #c9d6dc;
+  --hwx-dim: #7e959f;
+  --hwx-blue: #5baeff;
+  --hwx-green: #64de9a;
+  --hwx-amber: #e6a94b;
+  --hwx-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+              "Liberation Mono", monospace;
+}
+
+/* ---- the panel ---- */
+.hwx-rig {
+  margin: 1.8rem 0 1.2rem;
+  border: 1px solid var(--hwx-rule);
+  border-radius: 12px;
+  background: var(--hwx-dark);
+  color: var(--hwx-ink);
+  overflow: hidden;
+  box-shadow: 0 26px 60px -34px rgba(2, 10, 14, 0.55);
+}
+
+.hwx-rig-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--hwx-rule);
+}
+
+.hwx-rig-head h3 {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 1rem;
+  color: #eaf2f6;
+}
+
+.hwx-rig-sub {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--hwx-dim);
+}
+
+.hwx-rig-figure { padding: 0; }
+.hwx-rig-figure > svg { display: block; width: 100%; height: auto; }
+
+.hwx-rig-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.4rem;
+  justify-content: space-between;
+  padding: 0.7rem 1.1rem;
+  border-top: 1px solid var(--hwx-rule);
+  background: var(--hwx-dark2);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--hwx-dim);
+}
+
+/* Shown until the script replaces the panel it sits in. It is not an error
+   message: it is the same information in a sentence. */
+.hwx-fallback {
+  margin: 0;
+  padding: 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--hwx-dim);
+  /* The readout it stands in for is a grid, so without this the sentence
+     would be squeezed into one 86px column while it waits. */
+  grid-column: 1 / -1;
+}
+
+/* Empty until the script writes the first state into it. An empty bordered
+   box on a page whose script failed reads as a rendering fault. */
+.hwx-verdict:empty { display: none; }
+
+/* ---- the light-path diagram ---- */
+.hwx-lab { background: var(--hwx-dark); }
+.hwx-lab-solid rect { fill: #1a272d; stroke: #2f454f; stroke-width: 1; }
+.hwx-lab-bore { fill: #0e171c; stroke: #3a5761; stroke-width: 1; }
+.hwx-lab-stop line { stroke: #41616c; stroke-width: 2; }
+.hwx-lab-cell { fill: #0c161b; stroke: #44636e; stroke-width: 1; }
+.hwx-lab-trap { fill: #141f24; stroke: #2f454f; stroke-width: 1; }
+.hwx-lab-trap-in { fill: #0b1216; }
+
+.hwx-lab-label text {
+  font-family: "Changa", sans-serif;
+  font-size: 12px;
+  fill: #7e959f;
+}
+
+.hwx-lab-tick text {
+  font-family: var(--hwx-mono);
+  font-size: 10px;
+  fill: #3e535c;
+}
+
+.hwx-lab-warn {
+  font-family: "Changa", sans-serif;
+  font-size: 12px;
+  fill: var(--hwx-amber);
+}
+
+#hwxBeamEx, #hwxBeamTh, #hwxBeamEm, #hwxScatter, #hwxAmbient, #hwxFill {
+  transition: opacity 0.25s ease, fill 0.25s ease;
+}
+
+/* ---- the controls ---- */
+.hwx-ctrls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border-top: 1px solid var(--hwx-rule);
+  background: var(--hwx-dark2);
+}
+
+.hwx-cgroup { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.hwx-clabel {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6f868f;
+}
+
+.hwx-seg { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+
+.hwx-seg button {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #26383f;
+  border-radius: 5px;
+  background: #16242b;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  color: #a9bec7;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.hwx-seg button:hover { background: #1e313a; color: #dce9ee; }
+
+.hwx-seg button:focus-visible {
+  outline: 3px solid var(--hwx-amber);
+  outline-offset: 2px;
+}
+
+.hwx-seg button[aria-pressed="true"] {
+  background: #e7eff3;
+  border-color: #e7eff3;
+  color: #0a1216;
+  font-weight: 600;
+}
+
+/* The two states that change what the light is doing take the colour of the
+   thing they switch on, so the diagram and the button agree. */
+.hwx-seg button.hwx-hot[aria-pressed="true"] {
+  background: var(--hwx-blue);
+  border-color: var(--hwx-blue);
+  color: #04121f;
+}
+
+.hwx-seg button.hwx-lit[aria-pressed="true"] {
+  background: var(--hwx-green);
+  border-color: var(--hwx-green);
+  color: #042415;
+}
+
+/* ---- the readout ---- */
+.hwx-rig-body { padding: 1.1rem; border-top: 1px solid var(--hwx-rule); }
+
+.hwx-readout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(86px, 100%), 1fr));
+  gap: 0.4rem;
+}
+
+.hwx-ch {
+  position: relative;
+  padding: 0.5rem 0.55rem 0.6rem;
+  border: 1px solid #1e2e35;
+  border-radius: 6px;
+  background: #101b21;
+  overflow: hidden;
+}
+
+.hwx-ch-name {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #758c96;
+}
+
+.hwx-ch-name span { font-weight: 400; color: #53686f; }
+
+.hwx-ch-val {
+  margin: 0;
+  font-family: var(--hwx-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #e6f1f6;
+  font-variant-numeric: tabular-nums;
+}
+
+/* "no data" / "not reported" is not a number and must not be set like one --
+   a reader scanning the row has to be able to see at a glance which cells
+   carry a measurement. */
+.hwx-ch-val.hwx-ch-nr {
+  font-family: "Changa", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #53686f;
+  padding: 0.2rem 0 0.15rem;
+}
+
+.hwx-ch-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: #2f4650;
+  transition: width 0.35s ease;
+}
+
+.hwx-ch[data-band="v"] .hwx-ch-bar { background: #8e7be8; }
+.hwx-ch[data-band="b"] .hwx-ch-bar { background: var(--hwx-blue); }
+.hwx-ch[data-band="g"] .hwx-ch-bar { background: var(--hwx-green); }
+.hwx-ch[data-band="o"] .hwx-ch-bar { background: #e8a24b; }
+.hwx-ch[data-band="r"] .hwx-ch-bar { background: #e2705f; }
+.hwx-ch[data-band="k"] .hwx-ch-bar { background: #c3d2d8; }
+
+/* ---- what the state means ---- */
+.hwx-verdict {
+  margin-top: 0.9rem;
+  padding: 0.75rem 0.9rem;
+  border-left: 3px solid #3b4c55;
+  border-radius: 8px;
+  background: #101b21;
+}
+
+.hwx-verdict.is-ok { border-left-color: var(--hwx-green); }
+.hwx-verdict.is-warn { border-left-color: var(--hwx-amber); }
+.hwx-verdict.is-none { border-left-color: #3b4c55; }
+
+.hwx-verdict-title {
+  margin: 0 0 0.2rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #eaf3f7;
+}
+
+.hwx-verdict-text {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: #b6c8d0;
+}
+
+.hwx-verdict-src {
+  margin: 0.5rem 0 0;
+  font-family: var(--hwx-mono);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: #61787f;
+}
+
+/* ---- the channel map ---- */
+.hwx-spec { background: var(--hwx-dark); }
+.hwx-chan { cursor: help; }
+.hwx-chan:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
+.hwx-chan rect { transition: opacity 0.15s ease; }
+.hwx-chan:hover rect, .hwx-chan:focus-visible rect { opacity: 1; }
+
+.hwx-chan-n {
+  text-anchor: middle;
+  font-family: "Changa", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  fill: #08141a;
+}
+
+.hwx-chan-nm {
+  text-anchor: middle;
+  font-family: var(--hwx-mono);
+  font-size: 10px;
+  fill: #7e959f;
+}
+
+.hwx-spec-cue { font-family: "Changa", sans-serif; font-size: 12px; }
+.hwx-cue-ex { fill: var(--hwx-blue); }
+.hwx-cue-em { fill: var(--hwx-green); }
+
+/* ---- the shared tooltip ---- */
+.hwx-tip {
+  position: fixed;
+  z-index: 1080;
+  max-width: 320px;
+  padding: 0.55rem 0.7rem;
+  border-radius: 6px;
+  background: var(--hwx-dark, #0a1216);
+  color: #c9d6dc;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
+  pointer-events: none;
+}
+
+.hwx-tip b {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+
+/* ---- narrow screens ---- */
+@media (max-width: 575.98px) {
+  .hwx-rig-head,
+  .hwx-ctrls,
+  .hwx-rig-body,
+  .hwx-rig-foot { padding-left: 0.8rem; padding-right: 0.8rem; }
+
+  /* The two schematics carry 11-12px type that cannot shrink with the
+     viewport and stay readable, so below this width they scroll sideways
+     inside their own panel instead of being squeezed. */
+  .hwx-rig-figure { overflow-x: auto; }
+  .hwx-lab, .hwx-spec { min-width: 560px; }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #hwxBeamEx, #hwxBeamTh, #hwxBeamEm, #hwxScatter, #hwxAmbient, #hwxFill,
+  .hwx-ch-bar { transition: none; }
+}
+
+/* ---- on paper ---- */
+/* A page of dark panels is a page of ink, and none of the controls can be
+   pressed. The panels invert, the buttons go, and every register row prints
+   open, because on paper an unopened row is a row that was withheld. */
+@media print {
+  .hwx-rig {
+    border-color: #999;
+    background: #fff;
+    color: #000;
+    box-shadow: none;
+  }
+
+  .hwx-rig-head,
+  .hwx-rig-foot { border-color: #ccc; background: #fff; }
+  .hwx-rig-head h3 { color: #000; }
+  .hwx-rig-sub, .hwx-rig-foot { color: #444; }
+
+  .hwx-ctrls, .hwx-tip { display: none !important; }
+
+  .hwx-lab, .hwx-spec { background: #fff; }
+  .hwx-lab-solid rect { fill: #f2f2f2; stroke: #888; }
+  .hwx-lab-label text { fill: #222; }
+
+  .hwx-rig-body { border-color: #ccc; }
+  .hwx-ch { border-color: #ccc; background: #fff; }
+  .hwx-ch-val { color: #000; }
+  .hwx-verdict { background: #f7f7f7; }
+  .hwx-verdict-title { color: #000; }
+  .hwx-verdict-text { color: #222; }
 }
 
 /* ===== Online Game: Capture ===========================================
