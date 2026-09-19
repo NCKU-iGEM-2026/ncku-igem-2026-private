@@ -197,6 +197,8 @@
       is in the Selection panel, shown when a part is picked in the view or in
       the list; it used to have a column of its own in the table as well, and
       that column is gone. Most rows say the same thing in their note.
+      The table itself is folded away behind a disclosure below the view --
+      sixteen rows of coordinates is not what most readers came for.
       Renderer: static/hardware-cutaway.js, no external library.
     -->
     <figure class="hw-figure">
@@ -251,18 +253,54 @@
           </div>
         </div>
 
-        <div class="hw3d-list">
-          <table>
-            <caption class="visually-hidden">Parts in the cutaway and their X extents</caption>
-            <thead>
-              <tr>
-                <th scope="col">Part</th>
-                <th scope="col">X range (mm)</th>
-              </tr>
-            </thead>
-            <tbody id="hw3d-rows"></tbody>
-          </table>
-        </div>
+        <!--
+          Sixteen rows is a lot of page for something most readers will not
+          open, so the list is shut until it is asked for. A <details> rather
+          than a scripted panel: it opens, closes and is reachable by keyboard
+          with no JavaScript at all, which matters because everything else in
+          this figure needs the renderer to have loaded.
+
+          The count is written by hardware-cutaway.js from the same array the
+          rows come from -- a number typed here would be wrong the first time
+          a part was added.
+        -->
+        <details class="hw3d-list" id="hw3d-parts">
+          <summary class="hw3d-list-head">
+            <span class="hw3d-list-title">Every part and its X extent</span>
+            <span class="hw3d-list-count" id="hw3d-list-count"></span>
+            <span class="hw3d-list-state" aria-hidden="true">
+              <span class="hw3d-list-verb" data-open="false">Show</span>
+              <span class="hw3d-list-verb" data-open="true">Hide</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+                   viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round"
+                   stroke-linejoin="round" class="hw3d-list-caret">
+                <path d="M3 6l5 5 5-5"></path>
+              </svg>
+            </span>
+          </summary>
+
+          <div class="hw3d-list-body">
+            <table>
+              <caption class="visually-hidden">Parts in the cutaway and their X extents</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Part</th>
+                  <th scope="col">X range (mm)</th>
+                </tr>
+              </thead>
+              <tbody id="hw3d-rows"></tbody>
+            </table>
+
+            <!-- At the foot, where you finish reading, so closing the list
+                 does not mean scrolling sixteen rows back to the header. -->
+            <p class="hw3d-list-foot">
+              <button type="button" class="hw3d-list-close" id="hw3d-list-close">
+                Hide the list
+              </button>
+            </p>
+          </div>
+        </details>
       </div>
     </figure>
 

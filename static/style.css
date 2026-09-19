@@ -4681,7 +4681,126 @@ body.tour-active { overflow: hidden; }
 .hw3d-dim { color: #8a978f; }
 
 /* ---- parts list ---- */
-.hw3d-list { margin-top: 0.9rem; overflow-x: auto; }
+/* ---- the parts list, folded away ---- */
+/* Shut by default. Sixteen rows of coordinates below an interactive view is
+   a lot of page for something most readers will never open, and the Selection
+   panel already answers the question the table answers. */
+.hw3d-list {
+  margin-top: 0.9rem;
+  border: 1px solid #e8efe9;
+  border-radius: 10px;
+  background: #fff;
+}
+
+/* The header is the control: it opens the list and shuts it again, and says
+   which of the two the next click will do. */
+.hw3d-list-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  list-style: none;         /* no default triangle; the caret below is ours */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hw3d-list-head::-webkit-details-marker { display: none; }
+
+.hw3d-list-head:hover { background: #f6f9f7; }
+
+.hw3d-list[open] .hw3d-list-head { border-bottom: 1px solid #e8efe9; }
+
+.hw3d-list-head:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: -3px;
+}
+
+.hw3d-list-title {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #1f4a38;
+}
+
+.hw3d-list-count {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a978f;
+}
+
+/* Pushed to the far end, which is the "beside it" the header has room for. */
+.hw3d-list-state {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #4f8f74;
+}
+
+.hw3d-list-caret { transition: transform 0.18s ease; }
+.hw3d-list[open] .hw3d-list-caret { transform: rotate(180deg); }
+
+/* The word says what the next click does, so it changes when the list opens.
+   Both words are in the markup and one is hidden, rather than one word swapped
+   by ::after content: generated text cannot be selected, is not always read
+   out, and sizing around it means guessing how wide "Show" is. */
+.hw3d-list-verb[data-open="true"] { display: none; }
+.hw3d-list[open] .hw3d-list-verb[data-open="true"] { display: inline; }
+.hw3d-list[open] .hw3d-list-verb[data-open="false"] { display: none; }
+
+/* Only the table scrolls sideways, never the header: a scroll container
+   around the summary clips its focus ring. */
+.hw3d-list-body {
+  padding: 0 0.15rem 0.15rem;
+  overflow-x: auto;
+}
+
+.hw3d-list-foot {
+  margin: 0;
+  padding: 0.55rem 0.65rem 0.5rem;
+  text-align: right;
+}
+
+.hw3d-list-close {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid #cfe0d6;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1f4a38;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.hw3d-list-close:hover { background: #eef6f1; border-color: #a9cbb8; }
+
+.hw3d-list-close:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 2px;
+}
+
+/* .back-to-top is fixed at the bottom-right corner, 44px wide with a 16px
+   margin on a phone. A button of ours in that corner is a button that is
+   sometimes not clickable, so on narrow screens this one moves to the other
+   end of the row. */
+@media (max-width: 575.98px) {
+  .hw3d-list-foot { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hw3d-list-caret { transition: none; }
+}
+
+/* On paper the header is a control nobody can press, and the script has
+   already forced the list open for the print. */
+@media print {
+  .hw3d-list-head { display: none; }
+  .hw3d-list-foot { display: none; }
+  .hw3d-list { border: 0; }
+}
 /* 620px was the floor three columns needed before the list began to scroll
    sideways. Two columns do not need a floor at all: the range is held on one
    line and the part name is free to wrap, so the table fits whatever it is
