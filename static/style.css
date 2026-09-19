@@ -4160,6 +4160,42 @@ body.tour-active { overflow: hidden; }
   padding: 1.15rem 1.2rem;
 }
 
+/* ---- the mark in front of the claim ---- */
+/* Drawn inline in the markup, not fetched: iGEM serves no icon font and
+   allows no outside CDN. Each mark repeats what the words next to it say, so
+   each is aria-hidden and none of them is load-bearing -- lose every one and
+   the cards read exactly the same.
+
+   This is the one place on these cards where two flex items side by side is
+   the intention rather than the bug: the mark sits beside the claim, and the
+   claim takes whatever width is left. */
+/* Inline, at the head of the claim, rather than a flex item of its own beside
+   it. A sibling item is aligned against the face, and the face is as tall as
+   the longer of the two sides -- centred it landed next to line two of a
+   three-line claim, and flex-start sent it to the top of a 200px card with
+   the words still centred below. Inline, it rides the first line, which is
+   what "in front of the words" means. It also leaves the face with a single
+   flex item, which is how this pattern wants to be left. */
+.hw-ico {
+  display: inline-block;
+  vertical-align: -0.34em;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.5rem;
+  color: #4d8a70;
+}
+
+.hw-ico svg { display: block; width: 100%; height: 100%; }
+
+/* The claim takes the rest of the row and may wrap inside it; min-width:0 is
+   what lets a flex item be narrower than its longest word. */
+.hw-face-text,
+.hw-flip-front .hw-dec-claim { flex: 1 1 auto; min-width: 0; }
+
+/* On the two decisions that narrowed P1 the mark takes the gold the card's
+   accent and badge already use, so the three agree. */
+.hw-decs .is-narrow .hw-ico { color: #b5872f; }
+
 /* Front: the claim alone, centred so a one-line title does not sit stranded
    at the top of a card sized by the longer text behind it. */
 .hw-terms .hw-flip-front {
