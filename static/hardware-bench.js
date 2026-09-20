@@ -210,6 +210,40 @@
         vals: { F4: 0 }, tone: "ok",
         text: "The control tube read zero on the emission channel under the same settings in the same session. What distinguished the two tubes on this date is not established — the earlier induced and uninduced description was withdrawn on 2026-09-13.",
         src: "Fluorescence session, 2026-09-04, with its 2026-09-05 correction appendix"
+      },
+
+      /* The 2026-09-16 calibration session, at the 200 uL the assay actually
+         uses. These three are the top, the bottom and the blank of the matrix
+         plotted further down the page; the other thirty are in its table. */
+      "off-gfp200-dark": {
+        zero: true, tone: "ok",
+        text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
+        src: "Calibration matrix session, CAL_B12_d100_f100, 2026-09-16"
+      },
+      "off-nogfp200-dark": {
+        zero: true, tone: "ok",
+        text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
+        src: "Calibration matrix session, CAL_A10_d100, 2026-09-16"
+      },
+      "off-med200-dark": {
+        zero: true, tone: "ok",
+        text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
+        src: "Calibration matrix session, CAL_MEDIUM_BLANK, 2026-09-16"
+      },
+      "on-gfp200-dark": {
+        vals: { F2: 6.00, F3: 12.00, F4: 29.67, Clear: 37.67 }, tone: "ok",
+        text: "Undiluted GFP culture stock at the 200 µL assay volume — the fill the assay actually uses, measured for the first time in this session. At half this GFP fraction the emission channel read about 16 to 20 counts in the same session, and with no GFP present it read zero.",
+        src: "Calibration matrix session, CAL_B12_d100_f100, three cycles, 2026-09-16 · session evidence, not a change of project status"
+      },
+      "on-nogfp200-dark": {
+        vals: { F2: 5.67, F3: 4.67, F4: 0, Clear: 8.00 }, tone: "ok",
+        text: "Undiluted non-GFP culture at 200 µL. The emission channel reads exactly zero while the scattering channels clearly see the cells — which is the behaviour the 90° geometry is supposed to produce. Every non-GFP sample in the session read F4 = 0.",
+        src: "Calibration matrix session, CAL_A10_d100, three cycles, 2026-09-16"
+      },
+      "on-med200-dark": {
+        vals: { F2: 0, F3: 0, F4: 0, Clear: 0 }, tone: "ok",
+        text: "Dilution medium alone at 200 µL, with the LED energised. All four reported channels read zero. This is the 200 µL blank the earlier water blank could not provide — though it is a medium blank in a lab cuvette, not a full blank characterisation.",
+        src: "Calibration matrix session, CAL_MEDIUM_BLANK, three cycles, 2026-09-16"
       }
     };
 
@@ -217,8 +251,11 @@
       led: { off: "LED de-energised", on: "LED energised" },
       sample: {
         none: "empty holder", uvette: "empty UVette", paper: "paper scatterer",
-        water: "water blank, 1600 µL", cultA: "culture A, reporter-associated",
-        cultB: "control B"
+        water: "water blank, 1600 µL",
+        cultA: "GFP culture, 2026-09-04", cultB: "control, 2026-09-04",
+        gfp200: "GFP culture at 200 µL, 2026-09-16",
+        nogfp200: "non-GFP culture at 200 µL, 2026-09-16",
+        med200: "medium blank at 200 µL, 2026-09-16"
       },
       light: { dark: "darkened or shielded", room: "room light, unshielded" }
     };
@@ -231,7 +268,10 @@
       paper: "rgba(232,240,244,.50)",
       water: "rgba(120,180,220,.22)",
       cultA: "rgba(110,205,150,.34)",
-      cultB: "rgba(150,170,160,.22)"
+      cultB: "rgba(150,170,160,.22)",
+      gfp200: "rgba(110,205,150,.40)",
+      nogfp200: "rgba(150,170,160,.28)",
+      med200: "rgba(120,180,220,.14)"
     };
 
     var state = { led: "off", sample: "none", light: "dark" };
