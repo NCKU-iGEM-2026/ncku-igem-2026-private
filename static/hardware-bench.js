@@ -3,14 +3,17 @@
 
   /* Hardware page — the instrument panels.
    *
-   * Three things live here: a shared tooltip, the light-path bench and the
-   * AS7341 channel map.
+   * Four things live here: a shared tooltip, the light-path bench, the AS7341
+   * channel map, and the four figures of the September calibration session.
    *
    * No library, no network request, nothing from outside iGEM infrastructure.
    * The page is written so that losing this file costs a reader the
    * interaction and as little of the content as can be managed: each panel
-   * built here carries a written fallback until it is replaced, and the light
-   * path itself is drawn in the markup rather than by this script.
+   * built here carries a written fallback until it is replaced, the light path
+   * itself is drawn in the markup rather than by this script, and the
+   * calibration dataset lives in its own table -- the scatter reads its points
+   * back out of those rows, so the figure cannot drift from the record and the
+   * record survives this file failing to load.
    */
 
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -210,6 +213,40 @@
         vals: { F4: 0 }, tone: "ok",
         text: "The control tube read zero on the emission channel under the same settings in the same session. What distinguished the two tubes on this date is not established — the earlier induced and uninduced description was withdrawn on 2026-09-13.",
         src: "Fluorescence session, 2026-09-04, with its 2026-09-05 correction appendix"
+      },
+
+      /* The 2026-09-16 calibration session, at the 200 uL the assay actually
+         uses. These three are the top, the bottom and the blank of the matrix
+         plotted further down the page; the other thirty are in its table. */
+      "off-gfp200-dark": {
+        zero: true, tone: "ok",
+        text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
+        src: "Calibration matrix session, CAL_B12_d100_f100, 2026-09-16"
+      },
+      "off-nogfp200-dark": {
+        zero: true, tone: "ok",
+        text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
+        src: "Calibration matrix session, CAL_A10_d100, 2026-09-16"
+      },
+      "off-med200-dark": {
+        zero: true, tone: "ok",
+        text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
+        src: "Calibration matrix session, CAL_MEDIUM_BLANK, 2026-09-16"
+      },
+      "on-gfp200-dark": {
+        vals: { F2: 6.00, F3: 12.00, F4: 29.67, Clear: 37.67 }, tone: "ok",
+        text: "Undiluted GFP culture stock at the 200 µL assay volume — the fill the assay actually uses, measured for the first time in this session. It is the top point of the dose series: at half this GFP fraction the emission channel reads about 16 to 20 counts, and with no GFP present it reads zero.",
+        src: "Calibration matrix session, CAL_B12_d100_f100, three cycles, 2026-09-16 · session evidence, not a change of project status"
+      },
+      "on-nogfp200-dark": {
+        vals: { F2: 5.67, F3: 4.67, F4: 0, Clear: 8.00 }, tone: "ok",
+        text: "Undiluted non-GFP culture at 200 µL. The emission channel reads exactly zero while the scattering channels clearly see the cells — which is the behaviour the 90° geometry is supposed to produce. Every non-GFP sample in the session read F4 = 0.",
+        src: "Calibration matrix session, CAL_A10_d100, three cycles, 2026-09-16"
+      },
+      "on-med200-dark": {
+        vals: { F2: 0, F3: 0, F4: 0, Clear: 0 }, tone: "ok",
+        text: "Dilution medium alone at 200 µL, with the LED energised. All four reported channels read zero. This is the 200 µL blank the earlier water blank could not provide — though it is a medium blank in a lab cuvette, not a full blank characterisation.",
+        src: "Calibration matrix session, CAL_MEDIUM_BLANK, three cycles, 2026-09-16"
       }
     };
 
@@ -217,8 +254,11 @@
       led: { off: "LED de-energised", on: "LED energised" },
       sample: {
         none: "empty holder", uvette: "empty UVette", paper: "paper scatterer",
-        water: "water blank, 1600 µL", cultA: "culture A, reporter-associated",
-        cultB: "control B"
+        water: "water blank, 1600 µL",
+        cultA: "GFP culture, 2026-09-04", cultB: "control, 2026-09-04",
+        gfp200: "GFP culture at 200 µL, 2026-09-16",
+        nogfp200: "non-GFP culture at 200 µL, 2026-09-16",
+        med200: "medium blank at 200 µL, 2026-09-16"
       },
       light: { dark: "darkened or shielded", room: "room light, unshielded" }
     };
@@ -231,7 +271,10 @@
       paper: "rgba(232,240,244,.50)",
       water: "rgba(120,180,220,.22)",
       cultA: "rgba(110,205,150,.34)",
-      cultB: "rgba(150,170,160,.22)"
+      cultB: "rgba(150,170,160,.22)",
+      gfp200: "rgba(110,205,150,.40)",
+      nogfp200: "rgba(150,170,160,.28)",
+      med200: "rgba(120,180,220,.14)"
     };
 
     var state = { led: "off", sample: "none", light: "dark" };
@@ -419,5 +462,345 @@
 
     box.innerHTML = s;
     bindTips(box);
+  })();
+
+  /* ======================================================================
+     4. THE CALIBRATION MATRIX, 2026-09-16
+     Four figures. All of them are drawn from numbers that are in the markup:
+     the scatter reads its points out of the session table at the foot of the
+     section, and the other three carry their figures in their own fallback
+     text. Nothing here is computed from the data beyond placing it.
+
+     Colour does one job: green means the preparation contains GFP, neutral
+     means it reads zero. That pair was checked rather than eyeballed --
+     against this panel it separates at dE 14.0 under deutan simulation and
+     18.1 under normal vision. Shape carries the same distinction a second
+     time (filled disc, open ring, open square), so nothing depends on colour
+     alone.
+     ====================================================================== */
+
+  var CAL_GFP = "#64de9a";      /* the preparation contains GFP */
+  var CAL_ZERO = "#8aa2ac";     /* no GFP, or nothing at all */
+  var CAL_PANEL = "#0a1216";    /* the surface both were validated against */
+  var CAL_GRID = "#182731";
+  var CAL_AXIS = "#3b525c";
+  var CAL_INK = "#7e959f";
+  var CAL_INK2 = "#d6e4ea";
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  /* ---- the session table is the dataset ---- */
+  function readCalRows() {
+    return $$("#hwxCalData tbody tr").map(function (tr) {
+      var c = tr.children;
+      var n = function (i) { return parseFloat(c[i].textContent); };
+      var note = c[0].querySelector(".hwx-cal-note");
+      return {
+        id: c[0].querySelector("code").textContent.trim(),
+        note: note ? note.textContent.trim() : "",
+        series: tr.getAttribute("data-series"),
+        d: n(1), f: n(2), G: n(3), od: n(4),
+        F2: n(5), F3: n(6), F4: n(7), Clear: n(8),
+        cycles: c[9].textContent.trim()
+      };
+    });
+  }
+
+  (function () {
+    var box = $("#hwxDoseBox");
+    var table = $("#hwxCalData");
+    if (!box || !table) return;
+
+    var ROWS = readCalRows();
+    if (!ROWS.length) return;
+
+    var count = $("#hwxCalCount");
+    if (count) count.textContent = ROWS.length + " acquisitions";
+
+    var AXES = {
+      G: { key: "G", max: 1.05, label: "GFP stock volume fraction   G = d × f" },
+      d: { key: "d", max: 1.05, label: "Total culture dilution   d" },
+      od: { key: "od", max: 1.4, label: "Adjusted optical density   (display OD ÷ 1.2)" }
+    };
+    var CHANS = {
+      F4: { max: 32, label: "F4 515 nm counts" },
+      F3: { max: 14, label: "F3 480 nm counts" },
+      Clear: { max: 40, label: "Clear counts" }
+    };
+    var NOTE = {
+      F4: "The emission channel separates cleanly: every preparation containing GFP sits on a rising line, and every one without it sits flat on zero.",
+      F3: "F3 rises with GFP content rather than with cell content. The session cannot tell green emission bleeding into this channel apart from the two strains simply scattering differently.",
+      Clear: "Clear is dominated by the cuvette, not the sample. The empty cuvettes alone span 0 to 11.67 counts, which is as wide as the range the cells produce."
+    };
+
+    var state = { axis: "G", chan: "F4" };
+    /* TOP leaves a band above the plot for the y-axis label, which is set
+       horizontally at the left edge rather than rotated: anchored to the end
+       at L - 10 it ran off the viewBox and lost its first characters. */
+    var L = 76, R = 790, TOP = 40, BOT = 320;
+
+    function draw() {
+      var ax = AXES[state.axis];
+      var cy = CHANS[state.chan];
+      var X = function (v) { return L + v / ax.max * (R - L); };
+      var Y = function (v) { return BOT - v / cy.max * (BOT - TOP); };
+      var s = "";
+
+      /* Grid: solid hairlines, one shade off the panel. */
+      for (var i = 0; i <= 5; i++) {
+        var yv = cy.max * i / 5, y = Y(yv);
+        s += '<line x1="' + L + '" y1="' + y.toFixed(1) + '" x2="' + R +
+             '" y2="' + y.toFixed(1) + '" stroke="' + CAL_GRID + '" stroke-width="1"/>' +
+             '<text class="hwx-ax-tick" x="' + (L - 10) + '" y="' + (y + 4).toFixed(1) +
+             '" text-anchor="end">' + Math.round(yv) + "</text>";
+      }
+      for (var j = 0; j <= 5; j++) {
+        var xv = ax.max * j / 5;
+        s += '<text class="hwx-ax-tick" x="' + X(xv).toFixed(1) + '" y="' + (BOT + 20) +
+             '" text-anchor="middle">' + xv.toFixed(2) + "</text>";
+      }
+      s += '<line x1="' + L + '" y1="' + BOT + '" x2="' + R + '" y2="' + BOT +
+           '" stroke="' + CAL_AXIS + '" stroke-width="1.5"/>';
+      s += '<text class="hwx-ax-name" x="' + ((L + R) / 2) + '" y="' + (BOT + 46) +
+           '" text-anchor="middle">' + esc(ax.label) + "</text>";
+      s += '<text class="hwx-ax-name" x="6" y="18">' + esc(cy.label) + "</text>";
+
+      /* Points that land on the same pixel are drawn once and counted, rather
+         than jittered apart. Seven blanks all sit at G = 0, F4 = 0; nudging
+         them would put them where the session did not. */
+      /* On the G axis twenty-one acquisitions share one pixel at the origin.
+         Grouping per series left three markers stacked there with their counts
+         written over each other, and only the topmost was reachable. Rows that
+         land on one pixel now merge whatever series they came from: the mark
+         says how many, and the tooltip says which. */
+      var groups = {};
+      ROWS.forEach(function (r) {
+        var px = X(r[ax.key]), py = Y(r[state.chan]);
+        var k = Math.round(px) + ":" + Math.round(py);
+        (groups[k] = groups[k] || { x: px, y: py, rows: [] }).rows.push(r);
+      });
+
+      Object.keys(groups).map(function (k) { return groups[k]; })
+        .sort(function (a, b) { return a.rows.length - b.rows.length; })
+        .forEach(function (g) {
+          var kinds = {};
+          g.rows.forEach(function (r) { kinds[r.series] = true; });
+          var only = Object.keys(kinds).length === 1 ? g.rows[0].series : null;
+          var gfp = !!kinds.B;
+          var col = only === "B" ? CAL_GFP : CAL_ZERO;
+          var x = g.x.toFixed(1), y = g.y.toFixed(1);
+          var mark;
+          if (only === "B") {
+            mark = '<circle cx="' + x + '" cy="' + y + '" r="5" fill="' + col +
+                   '" stroke="' + CAL_PANEL + '" stroke-width="2"/>';
+          } else if (only === "A") {
+            mark = '<circle cx="' + x + '" cy="' + y + '" r="4.6" fill="none" stroke="' +
+                   col + '" stroke-width="2"/>';
+          } else if (only === "K") {
+            mark = '<rect x="' + (g.x - 4.4).toFixed(1) + '" y="' + (g.y - 4.4).toFixed(1) +
+                   '" width="8.8" height="8.8" fill="none" stroke="' + col +
+                   '" stroke-width="2"/>';
+          } else {
+            /* Several kinds on one reading: a ring for the pile, with a centre
+               when any of them contains GFP. */
+            mark = '<circle cx="' + x + '" cy="' + y + '" r="5.6" fill="none" stroke="' +
+                   col + '" stroke-width="2"/>' +
+                   (gfp ? '<circle cx="' + x + '" cy="' + y + '" r="2" fill="' +
+                          CAL_GFP + '"/>' : "");
+          }
+
+          var title, body;
+          if (g.rows.length === 1) {
+            var r0 = g.rows[0];
+            title = r0.id;
+            body = "d " + r0.d.toFixed(2) + " · f " + r0.f.toFixed(2) +
+                   " · G " + r0.G.toFixed(3) + " · OD " + r0.od.toFixed(2) +
+                   "<br>F4 " + r0.F4.toFixed(2) + " · F3 " + r0.F3.toFixed(2) +
+                   " · Clear " + r0.Clear.toFixed(2) +
+                   "<br>" + r0.cycles + " cycles" + (r0.note ? " · " + r0.note : "");
+          } else {
+            var byKind = { B: [], A: [], K: [] };
+            g.rows.forEach(function (r) { byKind[r.series].push(r); });
+            title = g.rows.length + " acquisitions at this reading";
+            body = ["B", "A", "K"].filter(function (k) { return byKind[k].length; })
+              .map(function (k) {
+                var name = k === "B" ? "contain GFP" :
+                           k === "A" ? "no GFP" : "blank or empty";
+                return "<b>" + byKind[k].length + " " + name + "</b>" +
+                  byKind[k].map(function (r) { return r.id; }).join(", ");
+              }).join("<br>");
+          }
+
+          /* A 24px target round a 10px mark, so a point does not have to be
+             hit dead centre. */
+          s += '<g class="hwx-pt" tabindex="0" role="button" data-tip-t="' +
+               esc(title) + '" data-tip="' + esc(body) + '">' +
+               '<circle cx="' + x + '" cy="' + y + '" r="12" fill="transparent"/>' +
+               mark +
+               (g.rows.length > 1
+                 ? '<text class="hwx-pt-n" x="' + (g.x + 12).toFixed(1) + '" y="' +
+                   (g.y - 7).toFixed(1) + '">×' + g.rows.length + "</text>"
+                 : "") +
+               "</g>";
+        });
+
+      return '<svg class="hwx-chart" viewBox="0 0 820 390" role="img" ' +
+        'aria-label="' + esc(cy.label + " against " + ax.label +
+        ". Preparations containing GFP are filled discs, preparations without " +
+        "GFP are open rings, and blanks and empty cuvettes are open squares. " +
+        "Every value is listed in the session table below this figure.") +
+        '">' + s + "</svg>";
+    }
+
+    function legend() {
+      return '<ul class="hwx-legend">' +
+        '<li><span class="hwx-key hwx-key-disc"></span>Contains GFP &mdash; series B</li>' +
+        '<li><span class="hwx-key hwx-key-ring"></span>No GFP &mdash; series A</li>' +
+        '<li><span class="hwx-key hwx-key-sq"></span>Blank or empty cuvette</li>' +
+        '<li><span class="hwx-key hwx-key-pile"></span>Several acquisitions on one reading, counted beside the mark</li>' +
+        "</ul>";
+    }
+
+    function render() {
+      box.innerHTML = draw() + legend();
+      bindTips(box);
+      var note = $("#hwxDoseNote");
+      if (note) note.innerHTML = "<span>" + NOTE[state.chan] + "</span>";
+    }
+
+    $$(".hwx-seg[data-dose-key]").forEach(function (seg) {
+      var key = seg.getAttribute("data-dose-key");
+      seg.addEventListener("click", function (e) {
+        var btn = e.target.closest("button");
+        if (!btn || !seg.contains(btn)) return;
+        $$("button", seg).forEach(function (b) {
+          b.setAttribute("aria-pressed", String(b === btn));
+        });
+        state[key] = btn.getAttribute("data-v");
+        render();
+      });
+    });
+
+    render();
+  })();
+
+  /* ---- the fitted coefficients ---- */
+  (function () {
+    var box = $("#hwxCoefBox");
+    if (!box) return;
+
+    /* estimate, standard error. t at 10 degrees of freedom, 95%. */
+    var TCRIT = 2.228;
+    var C = [
+      ["β₀", "baseline", -2.377, 1.642],
+      ["β₁ · G", "GFP content", 38.277, 6.271],
+      ["β₂ · G·d", "turbidity suppressing the signal", -8.807, 7.232],
+      ["β₃ · d", "cell content alone", 2.812, 2.467]
+    ];
+    /* R stops well short of the panel edge: the GFP interval reaches +52, and
+       at R = 742 its upper whisker ran underneath its own value label. */
+    var LO = -34, HI = 58, L = 268, R = 700;
+    var X = function (v) { return L + (v - LO) / (HI - LO) * (R - L); };
+    var z = X(0);
+    var s = "";
+
+    /* Dashed because it is a threshold, not a gridline. */
+    s += '<line x1="' + z.toFixed(1) + '" y1="20" x2="' + z.toFixed(1) +
+         '" y2="206" stroke="#e6a94b" stroke-width="1.5" stroke-dasharray="4 4"/>' +
+         '<text class="hwx-ax-name" x="' + z.toFixed(1) +
+         '" y="226" text-anchor="middle" fill="#e6a94b">no effect</text>';
+
+    C.forEach(function (c, i) {
+      var y = 46 + i * 44;
+      var ci = TCRIT * c[3];
+      var a = X(c[2] - ci), b = X(c[2] + ci), m = X(c[2]);
+      var clears = (c[2] - ci) > 0 || (c[2] + ci) < 0;
+      var col = clears ? CAL_GFP : CAL_ZERO;
+      /* Never colour alone: the verdict is also written out. */
+      s += '<text class="hwx-coef-name" x="14" y="' + (y + 4) + '">' + c[0] + "</text>" +
+           '<text class="hwx-coef-what" x="84" y="' + (y + 4) + '">' + esc(c[1]) + "</text>" +
+           '<line x1="' + a.toFixed(1) + '" y1="' + y + '" x2="' + b.toFixed(1) +
+           '" y2="' + y + '" stroke="' + col + '" stroke-width="2" opacity=".6"/>' +
+           '<line x1="' + a.toFixed(1) + '" y1="' + (y - 6) + '" x2="' + a.toFixed(1) +
+           '" y2="' + (y + 6) + '" stroke="' + col + '" stroke-width="2"/>' +
+           '<line x1="' + b.toFixed(1) + '" y1="' + (y - 6) + '" x2="' + b.toFixed(1) +
+           '" y2="' + (y + 6) + '" stroke="' + col + '" stroke-width="2"/>' +
+           '<circle cx="' + m.toFixed(1) + '" cy="' + y + '" r="5" fill="' + col +
+           '" stroke="' + CAL_PANEL + '" stroke-width="2"/>' +
+           '<text class="hwx-coef-val" x="812" y="' + (y - 3) + '" fill="' + col + '">' +
+           c[2].toFixed(2) + " ± " + c[3].toFixed(2) + "</text>" +
+           '<text class="hwx-coef-verdict" x="812" y="' + (y + 11) + '">' +
+           (clears ? "clears zero" : "includes zero") + "</text>";
+    });
+
+    s += '<text class="hwx-coef-what" x="14" y="226">Only the GFP term has an interval clear of zero.</text>';
+
+    box.innerHTML = '<svg class="hwx-chart" viewBox="0 0 820 246" role="img" ' +
+      'aria-label="Four fitted coefficients with 95 percent intervals. Baseline ' +
+      'minus 2.38 plus or minus 1.64, includes zero. GFP content plus 38.28 plus ' +
+      'or minus 6.27, clears zero. Turbidity interaction minus 8.81 plus or minus ' +
+      '7.23, includes zero. Cell content alone plus 2.81 plus or minus 2.47, ' +
+      'includes zero.">' + s + "</svg>";
+  })();
+
+  /* ---- repeatability, and the six empty cuvettes ---- */
+  (function () {
+    var box = $("#hwxCvBox");
+    if (!box) return;
+    var D = [
+      ["F4 · one cuvette, three insertions", 5.5, CAL_GFP],
+      ["F4 · three independent preparations", 7.4, CAL_GFP],
+      ["Clear · three preparations with cells", 38, CAL_ZERO],
+      ["Clear · three no-GFP preparations", 94, CAL_ZERO],
+      ["Clear · six empty cuvettes", 97, CAL_ZERO]
+    ];
+    var L = 16, R = 320, s = "";
+    D.forEach(function (d, i) {
+      var y = 26 + i * 44;
+      var w = Math.max(2, d[1] / 100 * (R - L));
+      s += '<text class="hwx-bar-name" x="' + L + '" y="' + (y - 7) + '">' + esc(d[0]) + "</text>" +
+           '<rect x="' + L + '" y="' + y + '" width="' + w.toFixed(1) +
+           '" height="12" rx="4" fill="' + d[2] + '"/>' +
+           '<text class="hwx-bar-val" x="' + (L + w + 8).toFixed(1) + '" y="' + (y + 11) +
+           '">' + d[1] + "%</text>";
+    });
+    /* No caption drawn here: the panel header already says "coefficient of
+       variation, lower is better", and saying it twice in one card is noise. */
+    box.innerHTML = '<svg class="hwx-chart" viewBox="0 0 420 230" role="img" ' +
+      'aria-label="Coefficient of variation by channel. F4 across one cuvette ' +
+      're-inserted three times, 5.5 percent. F4 across three independent ' +
+      'preparations, 7.4 percent. Clear across three preparations with cells, 38 ' +
+      'percent. Clear across three no-GFP preparations, 94 percent. Clear across ' +
+      'six empty cuvettes, 97 percent.">' + s + "</svg>";
+  })();
+
+  (function () {
+    var box = $("#hwxCupBox");
+    if (!box) return;
+    var D = [["G2", 1.67], ["C1", 3.67], ["C2", 5.00],
+             ["C3", 0.00], ["C4", 3.00], ["C5", 11.67]];
+    var BASE = 196, H = 140, s = "";
+    D.forEach(function (d, i) {
+      var x = 44 + i * 58;
+      var h = d[1] / 12 * H;
+      s += '<rect x="' + x + '" y="' + (BASE - h).toFixed(1) +
+           '" width="34" height="' + Math.max(2, h).toFixed(1) +
+           '" rx="4" fill="' + CAL_ZERO + '"/>' +
+           '<text class="hwx-bar-val" x="' + (x + 17) + '" y="' + (BASE - h - 8).toFixed(1) +
+           '" text-anchor="middle">' + d[1].toFixed(2) + "</text>" +
+           '<text class="hwx-bar-name" x="' + (x + 17) + '" y="' + (BASE + 18) +
+           '" text-anchor="middle">' + d[0] + "</text>";
+    });
+    s += '<text class="hwx-bar-foot" x="16" y="26">Clear counts, six empty cuvettes</text>' +
+         '<line x1="30" y1="' + BASE + '" x2="396" y2="' + BASE +
+         '" stroke="' + CAL_AXIS + '" stroke-width="1.5"/>' +
+         '<text class="hwx-bar-foot" x="16" y="' + (BASE + 48) + '" fill="' + CAL_GFP +
+         '">every one of them read F4 = 0</text>';
+    box.innerHTML = '<svg class="hwx-chart" viewBox="0 0 420 250" role="img" ' +
+      'aria-label="Clear counts from six empty cuvettes: 1.67, 3.67, 5.00, 0.00, ' +
+      '3.00 and 11.67. Every one of them read F4 equals zero.">' + s + "</svg>";
   })();
 })();

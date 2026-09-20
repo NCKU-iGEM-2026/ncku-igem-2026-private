@@ -457,8 +457,11 @@
             <button type="button" data-v="uvette" aria-pressed="false">Empty UVette</button>
             <button type="button" data-v="paper" aria-pressed="false">Paper scatterer</button>
             <button type="button" data-v="water" aria-pressed="false">Water, 1600&nbsp;&micro;L</button>
-            <button type="button" data-v="cultA" class="hwx-lit" aria-pressed="false">Culture A</button>
-            <button type="button" data-v="cultB" aria-pressed="false">Control B</button>
+            <button type="button" data-v="cultA" class="hwx-lit" aria-pressed="false">GFP culture &middot; 09-04</button>
+            <button type="button" data-v="cultB" aria-pressed="false">Control &middot; 09-04</button>
+            <button type="button" data-v="gfp200" class="hwx-lit" aria-pressed="false">GFP culture, 200&nbsp;&micro;L &middot; 09-16</button>
+            <button type="button" data-v="nogfp200" aria-pressed="false">Non-GFP, 200&nbsp;&micro;L &middot; 09-16</button>
+            <button type="button" data-v="med200" aria-pressed="false">Medium blank, 200&nbsp;&micro;L &middot; 09-16</button>
           </div>
         </div>
         <div class="hwx-cgroup">
@@ -570,7 +573,500 @@
         it &mdash; the instrument tells you when you have made a mistake,
         without needing a separate calibration step.
       </p>
+      <p>
+        It is not theoretical. During the September calibration session the
+        firmware flagged one acquisition cycle on its own: the pre-dark
+        near-infrared channel read 1 where every other channel read 0, almost
+        certainly light entering while the cuvette was being re-seated. That
+        cycle was dropped and the raw row kept. The other two cycles of the
+        same insertion agreed with the two insertions either side of it.
+      </p>
     </div>
+  </section>
+
+  <!-- ========================= calibration ========================= -->
+  <!--
+    The 2026-09-16 session. Added September 2026.
+
+    The dataset lives in the table at the foot of this section and nowhere
+    else: the chart reads its points back out of those rows. That is
+    deliberate. It means the figure cannot drift from the record underneath
+    it, and it means the record is still there, in full, when the script is
+    not.
+  -->
+  <section>
+    <h2>Does the reading track the reporter, or just the cells?</h2>
+
+    <p>
+      Every fluorescence reading before September carried the same unanswered
+      question. A tube of culture is both fluorescent and cloudy. If the number
+      goes up, is that more reporter protein &mdash; or simply more cells in
+      the beam? And if the cells scatter and absorb light on the way out, do
+      they suppress the very signal they produce?
+    </p>
+
+    <p>
+      The session of <strong>2026-09-16</strong> was built to separate those
+      two things. Two stock cultures were used, one reported to carry the GFP
+      reporter and one not. Preparations were mixed across two independent
+      axes: <code>d</code>, the total dilution of culture into medium, and
+      <code>f</code>, the fraction of that culture drawn from the GFP stock.
+      Their product <code>G = d &times; f</code> is how much GFP stock is in
+      the cuvette; <code>d</code> on its own is how much cell material is in
+      it. Vary them independently and the two effects come apart.
+    </p>
+
+    <p>
+      Everything ran at the assay volume &mdash; <strong>200&nbsp;&micro;L in a
+      lab cuvette</strong>, ORIENT-A, shielded, three acquisition cycles each,
+      firmware <code>P1-ACQ-1.0.0</code> at gate&nbsp;1. All 73 serial logs
+      were kept unfiltered, including the boot messages and the commands the
+      firmware refused.
+    </p>
+
+    <div class="hwx-rig">
+      <div class="hwx-rig-head">
+        <h3>Dose&ndash;response explorer</h3>
+        <p class="hwx-rig-sub">33 acquisitions, three cycles each &middot; hover or focus a point for its record</p>
+      </div>
+
+      <div class="hwx-rig-figure" id="hwxDoseBox">
+        <p class="hwx-fallback">
+          The plot needs the page script. Every point it draws is a row of the
+          table at the foot of this section, which is readable without it.
+        </p>
+      </div>
+
+      <div class="hwx-ctrls">
+        <div class="hwx-cgroup">
+          <p class="hwx-clabel" id="hwxAxisLabel">Horizontal axis</p>
+          <div class="hwx-seg" data-dose-key="axis" role="group" aria-labelledby="hwxAxisLabel">
+            <button type="button" data-v="G" aria-pressed="true">GFP stock fraction G</button>
+            <button type="button" data-v="d" aria-pressed="false">Total dilution d</button>
+            <button type="button" data-v="od" aria-pressed="false">Adjusted OD</button>
+          </div>
+        </div>
+        <div class="hwx-cgroup">
+          <p class="hwx-clabel" id="hwxChanLabel">Channel on the vertical axis</p>
+          <div class="hwx-seg" data-dose-key="chan" role="group" aria-labelledby="hwxChanLabel">
+            <button type="button" data-v="F4" aria-pressed="true">F4 515&nbsp;nm emission</button>
+            <button type="button" data-v="F3" aria-pressed="false">F3 480&nbsp;nm</button>
+            <button type="button" data-v="Clear" aria-pressed="false">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hwx-rig-foot" id="hwxDoseNote">
+        <span>The emission channel separates cleanly: every sample containing GFP sits on a rising line, and every sample without it sits flat on zero.</span>
+      </div>
+    </div>
+
+    <h3>What the model resolves, and what it does not</h3>
+
+    <p>
+      The analysis model was written down in the design document before the
+      session ran, so the result is a test rather than a search. It fits the
+      emission channel as a baseline, a term for GFP content, a term for total
+      cell content, and an interaction term that asks whether cells suppress
+      the signal. One coefficient comes out clearly. The rest do not &mdash;
+      and the honest reading of this session is mostly in that second sentence.
+    </p>
+
+    <div class="hwx-rig">
+      <div class="hwx-rig-head">
+        <h3>Coefficient estimates, with 95&nbsp;% intervals</h3>
+        <p class="hwx-rig-sub">F4 = &beta;&#8320; + &beta;&#8321;&middot;G + &beta;&#8322;&middot;G&middot;d + &beta;&#8323;&middot;d &middot; 14 preparations, 10 degrees of freedom</p>
+      </div>
+      <div class="hwx-rig-figure" id="hwxCoefBox">
+        <p class="hwx-fallback">
+          Baseline &minus;2.38 &plusmn; 1.64; GFP content +38.28 &plusmn; 6.27;
+          turbidity interaction &minus;8.81 &plusmn; 7.23; cell content alone
+          +2.81 &plusmn; 2.47 (standard errors). Only the GFP term has an
+          interval clear of zero.
+        </p>
+      </div>
+      <div class="hwx-rig-foot">
+        <span>Residual standard deviation 1.68 counts &middot; R&sup2; 0.976</span>
+        <span>&beta;&#8321; and &beta;&#8322; are correlated at &minus;0.96, so they cannot be separated cleanly</span>
+      </div>
+    </div>
+
+    <p>
+      <strong>The emission channel tracks GFP content, and the relationship is
+      close to linear.</strong> Each unit of GFP stock fraction is worth about
+      38 counts, with a residual scatter of 1.68 counts &mdash; small against a
+      signal range of 0 to 30. Adding a squared term to test for curvature
+      returns essentially nothing, and substituting the reported optical
+      density for the dilution axis changes no conclusion.
+    </p>
+
+    <p>
+      <strong>Whether the cells suppress that signal is not answerable from
+      this session.</strong> The interaction term's interval runs from
+      &minus;24.9 to +7.3, which in relative terms means the slope could fall
+      by 65&nbsp;% as turbidity goes from nothing to full strength, or rise by
+      19&nbsp;%. Both are compatible with the data. We can neither claim that
+      turbidity matters nor rule out that it matters a great deal.
+    </p>
+
+    <div class="hw-caution">
+      <p>
+        <em>This session should have stopped before it started.</em> The design
+        required the two stock cultures to be matched in concentration first,
+        so that the dilution axis would mean the same thing for both. Measured
+        on arrival, the GFP stock read an optical density of 1.56 against 0.98
+        for the non-GFP stock &mdash; a factor of about 2.6. Under the design's
+        own stopping rule, that difference meant the matrix should not be
+        opened. It was run anyway, knowingly, and the whole session is labelled
+        <strong>unmatched</strong> as a result. That is why <code>d</code>,
+        <code>f</code> and <code>G</code> cannot be read as cell counts or
+        protein amounts, and it is the single biggest reason the turbidity axis
+        came out unresolvable.
+      </p>
+    </div>
+
+    <div class="hwx-pair">
+      <div class="hwx-rig">
+        <div class="hwx-rig-head">
+          <h3>Repeatability by channel</h3>
+          <p class="hwx-rig-sub">Coefficient of variation &middot; lower is better</p>
+        </div>
+        <div class="hwx-rig-figure" id="hwxCvBox">
+          <p class="hwx-fallback">
+            F4 across three re-insertions of one cuvette, 5.5&nbsp;%; across
+            three independent preparations, 7.4&nbsp;%. Clear across three
+            preparations with cells, 38&nbsp;%; across three no-GFP
+            preparations, 94&nbsp;%; across six empty cuvettes, 97&nbsp;%.
+          </p>
+        </div>
+      </div>
+
+      <div class="hwx-rig">
+        <div class="hwx-rig-head">
+          <h3>Six empty cuvettes</h3>
+          <p class="hwx-rig-sub">Same instrument, same settings, nothing inside</p>
+        </div>
+        <div class="hwx-rig-figure" id="hwxCupBox">
+          <p class="hwx-fallback">
+            Clear counts from six empty cuvettes: 1.67, 3.67, 5.00, 0.00, 3.00
+            and 11.67. Every one of them read F4 = 0.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <p>
+      Those two figures are the most practically useful thing the session
+      produced. <strong>The emission channel is reproducible</strong> &mdash;
+      about 5&nbsp;% across three re-insertions of the same cuvette, about
+      7&nbsp;% across independently mixed preparations of the same recipe. That
+      is the number to carry into assay design.
+    </p>
+
+    <p>
+      <strong>The scattering channels are not.</strong> Six empty cuvettes,
+      with nothing in them at all, returned Clear readings from 0.00 to 11.67
+      &mdash; a spread as large as the entire range the cells produce. The
+      cuvette, not the sample, dominates those channels at these light levels.
+      An apparent turbidity trend in the no-GFP series survives or disappears
+      depending on which two cuvettes are included, so it is not a real result.
+    </p>
+
+    <p>
+      And one number recurs everywhere: <strong>every empty cuvette, the medium
+      blank, and every single sample containing no GFP read exactly zero on the
+      emission channel.</strong> Zero is a legitimate reading here, not a
+      detection floor and not missing data &mdash; worth stating because the
+      automated analysis pipeline currently discards those rows, which is why
+      this session was analysed from the raw logs instead.
+    </p>
+
+    <h3>Recorded deviations from the plan</h3>
+
+    <p>
+      Five departures from the written design were logged during the session.
+      They are listed here rather than buried, because three of them change how
+      the results may be read.
+    </p>
+
+    <div class="hwx-devs">
+      <details class="hwx-dev" data-weight="reads">
+        <summary><span class="hwx-dev-name">Stock matching was skipped entirely</span><span class="hwx-dev-tag hwx-t-reads">Changes how the results read</span></summary>
+        <p>
+          The design required the two stock cultures to be brought to the same
+          concentration before any mixing, with a stopping rule if they could
+          not be matched. That step was not performed; the stocks were used as
+          received and the session opened straight onto the first sample.
+          Measured display optical densities were 1.56 for the GFP stock and
+          0.98 for the non-GFP stock, and at a common 25&nbsp;% dilution 0.71
+          against 0.27. The whole session is therefore labelled unmatched, and
+          the mixing fractions cannot be read as cell counts.
+        </p>
+      </details>
+
+      <details class="hwx-dev" data-weight="minor">
+        <summary><span class="hwx-dev-name">The opening blank was moved to the end</span><span class="hwx-dev-tag hwx-t-minor">Minor</span></summary>
+        <p>
+          The design placed a 200&nbsp;&micro;L dilution-medium blank at the
+          start of the session. It was run at the end instead. It read zero on
+          all four reported channels.
+        </p>
+      </details>
+
+      <details class="hwx-dev" data-weight="reads">
+        <summary><span class="hwx-dev-name">One re-preparation was prompted by its reading</span><span class="hwx-dev-tag hwx-t-reads">Changes how the results read</span></summary>
+        <p>
+          A mid-session rule was agreed: re-prepare a sample only when the
+          cuvette is visibly marked before filling, never because the number
+          came out high. One re-test met that rule &mdash; the cuvette was
+          visibly dirty. A second did not: it was re-prepared because its
+          reading matched the dirty-cuvette pattern. That biases the no-GFP
+          series toward low readings, and it is the reason the apparent
+          turbidity trend in that series is not treated as a result.
+        </p>
+      </details>
+
+      <details class="hwx-dev" data-weight="ok">
+        <summary><span class="hwx-dev-name">One acquisition cycle was voided by the firmware</span><span class="hwx-dev-tag hwx-t-ok">Working as intended</span></summary>
+        <p>
+          During the second insertion of one sample the firmware flagged
+          <code>AMBIENT_PRESENT</code> on the first cycle: the pre-dark
+          near-infrared channel read 1 where every other pre-dark channel read
+          0, most likely a light leak while the cuvette was being re-seated.
+          That row was excluded from the average and kept in the raw log. The
+          other two cycles of that insertion agreed with the two insertions
+          either side of it.
+        </p>
+      </details>
+
+      <details class="hwx-dev" data-weight="plan">
+        <summary><span class="hwx-dev-name">One sample was measured three times over</span><span class="hwx-dev-tag hwx-t-plan">Planned</span></summary>
+        <p>
+          One recipe was deliberately re-inserted three times to separate
+          cuvette-handling variation from preparation variation. That
+          comparison is what produced the 5&nbsp;% and 7&nbsp;% repeatability
+          figures above.
+        </p>
+      </details>
+    </div>
+
+    <div class="hw-caution">
+      <p>
+        <em>None of this changes the project's test status.</em> The session
+        record is explicit that its canonical impact is nil: no test row moves,
+        no procurement or release state changes, and firmware hardware
+        validation stays where it was. Session evidence becomes project status
+        only through a separate synchronisation step with its own review.
+      </p>
+    </div>
+
+    <details class="hwx-cal-data" id="hwxCalData">
+      <summary class="hwx-cal-head">
+        <span class="hwx-cal-title">Every acquisition in the session</span>
+        <span class="hwx-cal-count" id="hwxCalCount"></span>
+        <span class="hwx-cal-state" aria-hidden="true">
+          <span class="hwx-cal-verb" data-open="false">Show</span>
+          <span class="hwx-cal-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
+               viewBox="0 0 16 16" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+               class="hwx-cal-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hwx-cal-body">
+        <table>
+          <caption class="visually-hidden">
+            Every acquisition of the 2026-09-16 calibration session, with its
+            mixing fractions, adjusted optical density and mean counts on four
+            channels. This table is the source the plot above is drawn from.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Sample</th>
+              <th scope="col">d</th><th scope="col">f</th>
+              <th scope="col">G</th><th scope="col">OD</th>
+              <th scope="col">F2</th><th scope="col">F3</th>
+              <th scope="col">F4</th><th scope="col">Clear</th>
+              <th scope="col">Cycles</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B01_d025_f000</code></th>
+              <td>0.25</td><td>0.00</td><td>0.000</td><td>0.23</td>
+              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B02_d025_f050</code></th>
+              <td>0.25</td><td>0.50</td><td>0.125</td><td>0.41</td>
+              <td>0.00</td><td>0.00</td><td>1.33</td><td>4.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B03_d025_f100</code></th>
+              <td>0.25</td><td>1.00</td><td>0.250</td><td>0.59</td>
+              <td>3.00</td><td>4.67</td><td>6.00</td><td>14.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B04_d050_f000</code></th>
+              <td>0.50</td><td>0.00</td><td>0.000</td><td>0.46</td>
+              <td>0.00</td><td>0.00</td><td>0.00</td><td>1.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B05_d050_f050_i1</code><span class="hwx-cal-note">insertion 1 of 3</span></th>
+              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.72</td>
+              <td>0.67</td><td>2.67</td><td>6.33</td><td>11.33</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B05_d050_f050_i2</code><span class="hwx-cal-note">insertion 2 &mdash; cycle 1 voided, AMBIENT_PRESENT</span></th>
+              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.72</td>
+              <td>1.00</td><td>3.50</td><td>6.00</td><td>11.50</td><td>2/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B05_d050_f050_i3</code><span class="hwx-cal-note">insertion 3 of 3</span></th>
+              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.72</td>
+              <td>0.33</td><td>2.33</td><td>5.67</td><td>11.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B06_d050_f100</code></th>
+              <td>0.50</td><td>1.00</td><td>0.500</td><td>0.94</td>
+              <td>2.00</td><td>7.33</td><td>19.67</td><td>25.33</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B07_d075_f000</code></th>
+              <td>0.75</td><td>0.00</td><td>0.000</td><td>0.64</td>
+              <td>0.33</td><td>0.00</td><td>0.00</td><td>2.33</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B08_d075_f050</code></th>
+              <td>0.75</td><td>0.50</td><td>0.375</td><td>0.96</td>
+              <td>2.33</td><td>5.67</td><td>10.00</td><td>17.33</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B09_d075_f100</code></th>
+              <td>0.75</td><td>1.00</td><td>0.750</td><td>1.15</td>
+              <td>3.33</td><td>9.00</td><td>22.67</td><td>28.33</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B10_d100_f000</code></th>
+              <td>1.00</td><td>0.00</td><td>0.000</td><td>0.82</td>
+              <td>4.33</td><td>3.33</td><td>0.00</td><td>7.33</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B11_d100_f050</code></th>
+              <td>1.00</td><td>0.50</td><td>0.500</td><td>1.14</td>
+              <td>5.00</td><td>8.67</td><td>16.33</td><td>25.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B12_d100_f100</code><span class="hwx-cal-note">undiluted GFP stock</span></th>
+              <td>1.00</td><td>1.00</td><td>1.000</td><td>1.30</td>
+              <td>6.00</td><td>12.00</td><td>29.67</td><td>37.67</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B13_d050_f050</code></th>
+              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.77</td>
+              <td>11.67</td><td>13.00</td><td>7.33</td><td>23.67</td><td>3/3</td>
+            </tr>
+            <tr data-series="B">
+              <th scope="row"><code>CAL_B14_d050_f050</code></th>
+              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.72</td>
+              <td>3.00</td><td>5.67</td><td>7.00</td><td>15.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A01_d010</code></th>
+              <td>0.10</td><td>0.00</td><td>0.000</td><td>0.10</td>
+              <td>0.33</td><td>0.33</td><td>0.00</td><td>3.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A02_d020</code><span class="hwx-cal-note">re-prepared, cuvette visibly marked</span></th>
+              <td>0.20</td><td>0.00</td><td>0.000</td><td>0.17</td>
+              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A03_d030</code><span class="hwx-cal-note">re-prepared on its reading &mdash; see deviation 3</span></th>
+              <td>0.30</td><td>0.00</td><td>0.000</td><td>0.27</td>
+              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.67</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A04_d040</code></th>
+              <td>0.40</td><td>0.00</td><td>0.000</td><td>0.41</td>
+              <td>2.00</td><td>1.00</td><td>0.00</td><td>3.33</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A05_d050</code></th>
+              <td>0.50</td><td>0.00</td><td>0.000</td><td>0.47</td>
+              <td>0.67</td><td>0.33</td><td>0.00</td><td>3.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A06_d050</code></th>
+              <td>0.50</td><td>0.00</td><td>0.000</td><td>0.48</td>
+              <td>5.33</td><td>4.33</td><td>0.00</td><td>7.67</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A07_d050</code></th>
+              <td>0.50</td><td>0.00</td><td>0.000</td><td>0.53</td>
+              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.67</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A08_d060</code></th>
+              <td>0.60</td><td>0.00</td><td>0.000</td><td>0.57</td>
+              <td>3.00</td><td>2.00</td><td>0.00</td><td>5.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A09_d080</code></th>
+              <td>0.80</td><td>0.00</td><td>0.000</td><td>0.74</td>
+              <td>3.33</td><td>2.67</td><td>0.00</td><td>5.33</td><td>3/3</td>
+            </tr>
+            <tr data-series="A">
+              <th scope="row"><code>CAL_A10_d100</code><span class="hwx-cal-note">undiluted non-GFP stock</span></th>
+              <td>1.00</td><td>0.00</td><td>0.000</td><td>0.84</td>
+              <td>5.67</td><td>4.67</td><td>0.00</td><td>8.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="K">
+              <th scope="row"><code>CAL_MEDIUM_BLANK</code><span class="hwx-cal-note">dilution medium, 200 &micro;L</span></th>
+              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
+              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="K">
+              <th scope="row"><code>CAL_G2_EMPTY</code><span class="hwx-cal-note">empty lab cuvette, armed</span></th>
+              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
+              <td>0.67</td><td>0.00</td><td>0.00</td><td>1.67</td><td>3/3</td>
+            </tr>
+            <tr data-series="K">
+              <th scope="row"><code>CAL_EMPTY_C1</code><span class="hwx-cal-note">empty cuvette 1</span></th>
+              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
+              <td>2.00</td><td>1.00</td><td>0.00</td><td>3.67</td><td>3/3</td>
+            </tr>
+            <tr data-series="K">
+              <th scope="row"><code>CAL_EMPTY_C2</code><span class="hwx-cal-note">empty cuvette 2</span></th>
+              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
+              <td>3.00</td><td>2.00</td><td>0.00</td><td>5.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="K">
+              <th scope="row"><code>CAL_EMPTY_C3</code><span class="hwx-cal-note">empty cuvette 3</span></th>
+              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
+              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="K">
+              <th scope="row"><code>CAL_EMPTY_C4</code><span class="hwx-cal-note">empty cuvette 4</span></th>
+              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
+              <td>1.67</td><td>1.00</td><td>0.00</td><td>3.00</td><td>3/3</td>
+            </tr>
+            <tr data-series="K">
+              <th scope="row"><code>CAL_EMPTY_C5</code><span class="hwx-cal-note">empty cuvette 5</span></th>
+              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
+              <td>7.67</td><td>6.33</td><td>0.00</td><td>11.67</td><td>3/3</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="hwx-cal-foot">
+          Counts are the mean of the accepted cycles. <code>d</code> is total
+          dilution, <code>f</code> the GFP fraction of the culture used, and
+          <code>G = d &times; f</code>. OD is the display reading divided by
+          1.2. Series B contains GFP, series A does not, and the last seven
+          rows are blanks and empty cuvettes.
+        </p>
+      </div>
+    </details>
   </section>
 
   <!-- ========================= decisions ========================= -->
