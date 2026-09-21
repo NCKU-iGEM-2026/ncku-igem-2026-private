@@ -770,13 +770,16 @@ footer a:hover { color: white; text-decoration: underline; }
    the same inset:0 treatment rather than trusting the grid track size. */
 .polaroid-photo.hw-flip { position: relative; }
 .polaroid-photo > .hw-flip-card { position: absolute; inset: 0; }
-/* The extra .polaroid ancestor exists only to outweigh the generic
-   mechanism's ".hw-flip-card > .hw-flip-front/.hw-flip-back" rule, which
-   also sets position (to relative) at the same specificity -- without it,
+/* .polaroid-photo.hw-flip (rather than plain .polaroid-photo) is what gives
+   this the extra specificity needed to outweigh the generic mechanism's own
+   ".hw-flip-card > .hw-flip-front/.hw-flip-back" rule, which also sets
+   position (to relative) at the same specificity otherwise -- without it,
    whichever of the two rules is declared later in this file wins, which is
-   the generic one. */
-.polaroid .polaroid-photo .hw-flip-front,
-.polaroid .polaroid-photo .hw-flip-back { position: absolute; inset: 0; }
+   the generic one. Deliberately not scoped under .polaroid: this photo node
+   gets cloned into the team-bio-modal's .team-bio-photo too, and needs the
+   same fix there without a .polaroid ancestor in sight. */
+.polaroid-photo.hw-flip .hw-flip-front,
+.polaroid-photo.hw-flip .hw-flip-back { position: absolute; inset: 0; }
 .polaroid-photo .hw-flip-front,
 .polaroid-photo .hw-flip-back { background: #ddd; }
 .polaroid-photo .hw-flip-back img { width: 100%; height: 100%; object-fit: cover; }
@@ -788,6 +791,111 @@ footer a:hover { color: white; text-decoration: underline; }
    same content/size at the same specificity declared later in this file. */
 .polaroid .polaroid-photo .hw-flip-front::before,
 .polaroid .polaroid-photo .hw-flip-front::after { content: none; }
+
+/* A card with a self-intro behind it reads as more than decoration, so it
+   gets its own focus ring and cursor on top of the base .polaroid look. */
+.polaroid-has-bio:focus { outline: none; }
+.polaroid-has-bio:focus-visible {
+  outline: 3px solid #075a3e;
+  outline-offset: 3px;
+}
+
+/* ===== Team: self-intro modal =====
+   team-bio-modal.js clones a card's .polaroid-photo (front/back images and
+   all) straight into .team-bio-photo below, so the same hw-flip mechanism
+   and every per-photo crop tweak in team.html keep working unmodified --
+   the same 1:1 square as the team page grid, on purpose, not a different
+   ratio. Those tweaks are all percentage-based, which is what makes them
+   portable from the small grid thumbnail to this larger square -- it's
+   capped below so scaling the crop up doesn't also blow up the photo
+   itself past a reasonable size next to the (wider) text column. */
+.team-bio-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 15, 10, 0.75);
+  z-index: 1000;
+  padding: 1.5rem;
+}
+
+.team-bio-overlay.is-open { display: flex; }
+
+body.team-bio-locked { overflow: hidden; }
+
+.team-bio-card {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #ffffff, #eaf6ff);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  padding: 1.5rem;
+}
+
+.team-bio-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 999px;
+  background: rgba(7, 90, 62, 0.1);
+  color: #075a3e;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  transition: background-color 0.15s ease;
+}
+.team-bio-close:hover { background: rgba(7, 90, 62, 0.2); }
+
+/* Fixed 1:1 ratio regardless of the source photo's own proportions -- every
+   card looks the same shape here, only the crop tuned per photo differs.
+   Capped and centered rather than filling the card's full (wider, for the
+   text below) width, so the square doesn't end up oversized. */
+.team-bio-photo {
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 0 auto 1.1rem;
+}
+.team-bio-photo .polaroid-photo { width: 100%; height: 100%; }
+/* Same suppression as the grid's ".polaroid .polaroid-photo .hw-flip-front"
+   rule -- the clone lands in .team-bio-photo instead of a .polaroid here, so
+   that selector doesn't reach it and the generic fold/hint would otherwise
+   show through. The extra .team-bio-card ancestor only exists to outweigh
+   the generic rule's own equal-specificity content declared later in this
+   file -- without it, file order decides and the generic rule wins. */
+.team-bio-card .team-bio-photo .hw-flip-front::before,
+.team-bio-card .team-bio-photo .hw-flip-front::after { content: none; }
+
+.team-bio-name {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #1f4a38;
+  margin-bottom: 0.75rem;
+}
+
+.team-bio-paragraphs p {
+  font-size: 0.98rem;
+  line-height: 1.65;
+  color: #4a3f35;
+  margin-bottom: 0.9rem;
+}
+.team-bio-paragraphs p:last-child { margin-bottom: 0; }
+
+@media (max-width: 480px) {
+  .team-bio-card { padding: 1.1rem; max-height: 90vh; }
+  .team-bio-name { font-size: 1.35rem; }
+}
 
 /*維持上方橫幅置中
 */
