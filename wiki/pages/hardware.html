@@ -13,10 +13,15 @@
     2 有無 user testing、有無從回饋學到東西   -> What changed when we took it
                                                 outside the team（目前只有專家
                                                 諮詢，不是使用者測試，見下）
-    3 proof of concept 的效用與功能           -> What the detector actually saw /
-                                                Does the reading track... /
-                                                What has actually been tested
-    4 文件是否足以讓別隊重現                  -> Reproducing it（含 file manifest）
+    3 proof of concept 的效用與功能           -> What the detector actually saw
+                                                （校正矩陣與證據登錄已移到 Model）
+    4 文件是否足以讓別隊重現                  -> Reproducing it
+                                                （含成本表與 file manifest）
+
+  ⚠ 第 3 題要注意：校正矩陣（劑量反應）和證據登錄搬去 Model 之後，這一頁對第 3 題
+     就只剩 light-path bench 了。Model 頁目前是空的（9 行）。評審是照著 Required
+     link 看的——如果那些證據只在 Model 上，務必在本頁明確連過去，或在 Judging Form
+     的 150 字裡點明。
 
   還需要你們補的，依對分數的影響排序：
 
@@ -37,9 +42,11 @@
      P1-PROTO-01 組裝外觀。一定要用 iGEM uploads tool 上傳到 static.igem.wiki，
      不可連外部網址或本機路徑。插入位置我用 <!-- PHOTO: ... --> 標了一處。
 
-  E. 成本
-     BOM.csv 目前所有 unit_price 都是 UNKNOWN，等 Mouser 訂單對帳完再補，
-     不要先估一個數字上去。
+  E. 成本（部分完成）
+     成本計算試算表的內容已經上頁了，匯率 NT$31.68 = US$1（2026-09-22）標在頁面上。
+     還缺的是電路上有、但試算表沒計價的四樣：電阻（218+216 Ω 串聯、217 Ω 閘極、
+     9.9 kΩ 下拉）、2N7000、Cree 470 nm LED、Eppendorf UVette。
+     我沒有替它們估價——有價格之後補進成本表即可。
 
   F. sfGFP 的確切 construct 與 strain（SYS-U013）目前是 UNKNOWN。
      這一頁只寫「reported to carry the sfGFP reporter」，沒有宣稱更多。
@@ -781,660 +788,6 @@
     </p>
   </section>
 
-  <!-- ========================= calibration ========================= -->
-  <!--
-    The 2026-09-16 session. Added September 2026.
-
-    The dataset lives in the table at the foot of this section and nowhere
-    else: the chart reads its points back out of those rows. That is
-    deliberate. It means the figure cannot drift from the record underneath
-    it, and it means the record is still there, in full, when the script is
-    not.
-  -->
-  <section>
-    <h2>Does the reading track the reporter, or just the cells?</h2>
-
-    <p>
-      Every fluorescence reading before September carried the same unanswered
-      question. A tube of culture is both fluorescent and cloudy. If the number
-      goes up, is that more reporter protein &mdash; or simply more cells in
-      the beam? And if the cells scatter and absorb light on the way out, do
-      they suppress the very signal they produce?
-    </p>
-
-    <p>
-      The session of <strong>2026-09-16</strong> was built to separate those
-      two things. Two stock cultures were used, one reported to carry the GFP
-      reporter and one not. Preparations were mixed across two independent
-      axes: <code>d</code>, the total dilution of culture into medium, and
-      <code>f</code>, the fraction of that culture drawn from the GFP stock.
-      Their product <code>G = d &times; f</code> is how much GFP stock is in
-      the cuvette; <code>d</code> on its own is how much cell material is in
-      it. Vary them independently and the two effects come apart.
-    </p>
-
-    <p>
-      Everything ran at the assay volume &mdash; <strong>200&nbsp;&micro;L in a
-      lab cuvette</strong>, ORIENT-A, shielded, three acquisition cycles each,
-      firmware <code>P1-ACQ-1.0.0</code> at gate&nbsp;1. All 73 serial logs
-      were kept unfiltered, including the boot messages and the commands the
-      firmware refused.
-    </p>
-
-    <div class="hwx-rig">
-      <div class="hwx-rig-head">
-        <h3>Dose&ndash;response explorer</h3>
-        <p class="hwx-rig-sub">33 acquisitions, three cycles each &middot; hover or focus a point for its record</p>
-      </div>
-
-      <div class="hwx-rig-figure" id="hwxDoseBox">
-        <p class="hwx-fallback">
-          The plot needs the page script. Every point it draws is a row of the
-          table at the foot of this section, which is readable without it.
-        </p>
-      </div>
-
-      <div class="hwx-ctrls">
-        <div class="hwx-cgroup">
-          <p class="hwx-clabel" id="hwxAxisLabel">Horizontal axis</p>
-          <div class="hwx-seg" data-dose-key="axis" role="group" aria-labelledby="hwxAxisLabel">
-            <button type="button" data-v="G" aria-pressed="true">GFP stock fraction G</button>
-            <button type="button" data-v="d" aria-pressed="false">Total dilution d</button>
-            <button type="button" data-v="od" aria-pressed="false">Adjusted OD</button>
-          </div>
-        </div>
-        <div class="hwx-cgroup">
-          <p class="hwx-clabel" id="hwxChanLabel">Channel on the vertical axis</p>
-          <div class="hwx-seg" data-dose-key="chan" role="group" aria-labelledby="hwxChanLabel">
-            <button type="button" data-v="F4" aria-pressed="true">F4 515&nbsp;nm emission</button>
-            <button type="button" data-v="F3" aria-pressed="false">F3 480&nbsp;nm</button>
-            <button type="button" data-v="Clear" aria-pressed="false">Clear</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="hwx-rig-foot" id="hwxDoseNote">
-        <span>The emission channel separates cleanly: every sample containing GFP sits on a rising line, and every sample without it sits flat on zero.</span>
-      </div>
-    </div>
-
-    <h3>What the model resolves, and what it does not</h3>
-
-    <p>
-      The analysis model was written down in the design document before the
-      session ran, so the result is a test rather than a search. It fits the
-      emission channel as a baseline, a term for GFP content, a term for total
-      cell content, and an interaction term that asks whether cells suppress
-      the signal. One coefficient comes out clearly. The rest do not &mdash;
-      and the honest reading of this session is mostly in that second sentence.
-    </p>
-
-    <div class="hwx-rig">
-      <div class="hwx-rig-head">
-        <h3>Coefficient estimates, with 95&nbsp;% intervals</h3>
-        <p class="hwx-rig-sub">F4 = &beta;&#8320; + &beta;&#8321;&middot;G + &beta;&#8322;&middot;G&middot;d + &beta;&#8323;&middot;d &middot; 14 preparations, 10 degrees of freedom</p>
-      </div>
-      <div class="hwx-rig-figure" id="hwxCoefBox">
-        <p class="hwx-fallback">
-          Baseline &minus;2.38 &plusmn; 1.64; GFP content +38.28 &plusmn; 6.27;
-          turbidity interaction &minus;8.81 &plusmn; 7.23; cell content alone
-          +2.81 &plusmn; 2.47 (standard errors). Only the GFP term has an
-          interval clear of zero.
-        </p>
-      </div>
-      <div class="hwx-rig-foot">
-        <span>Residual standard deviation 1.68 counts &middot; R&sup2; 0.976</span>
-        <span>&beta;&#8321; and &beta;&#8322; are correlated at &minus;0.96, so they cannot be separated cleanly</span>
-      </div>
-    </div>
-
-    <p>
-      <strong>The emission channel tracks GFP content, and the relationship is
-      close to linear.</strong> Each unit of GFP stock fraction is worth about
-      38 counts, with a residual scatter of 1.68 counts &mdash; small against a
-      signal range of 0 to 30. Adding a squared term to test for curvature
-      returns essentially nothing, and substituting the reported optical
-      density for the dilution axis changes no conclusion.
-    </p>
-
-    <p>
-      <strong>Whether the cells suppress that signal is not answerable from
-      this session.</strong> The interaction term's interval runs from
-      &minus;24.9 to +7.3, which in relative terms means the slope could fall
-      by 65&nbsp;% as turbidity goes from nothing to full strength, or rise by
-      19&nbsp;%. Both are compatible with the data. We can neither claim that
-      turbidity matters nor rule out that it matters a great deal.
-    </p>
-
-    <div class="hw-caution">
-      <p>
-        <em>This session should have stopped before it started.</em> The design
-        required the two stock cultures to be matched in concentration first,
-        so that the dilution axis would mean the same thing for both. Measured
-        on arrival, the GFP stock read an optical density of 1.56 against 0.98
-        for the non-GFP stock &mdash; a factor of about 2.6. Under the design's
-        own stopping rule, that difference meant the matrix should not be
-        opened. It was run anyway, knowingly, and the whole session is labelled
-        <strong>unmatched</strong> as a result. That is why <code>d</code>,
-        <code>f</code> and <code>G</code> cannot be read as cell counts or
-        protein amounts, and it is the single biggest reason the turbidity axis
-        came out unresolvable.
-      </p>
-    </div>
-
-    <div class="hwx-pair">
-      <div class="hwx-rig">
-        <div class="hwx-rig-head">
-          <h3>Repeatability by channel</h3>
-          <p class="hwx-rig-sub">Coefficient of variation &middot; lower is better</p>
-        </div>
-        <div class="hwx-rig-figure" id="hwxCvBox">
-          <p class="hwx-fallback">
-            F4 across three re-insertions of one cuvette, 5.5&nbsp;%; across
-            three independent preparations, 7.4&nbsp;%. Clear across three
-            preparations with cells, 38&nbsp;%; across three no-GFP
-            preparations, 94&nbsp;%; across six empty cuvettes, 97&nbsp;%.
-          </p>
-        </div>
-      </div>
-
-      <div class="hwx-rig">
-        <div class="hwx-rig-head">
-          <h3>Six empty cuvettes</h3>
-          <p class="hwx-rig-sub">Same instrument, same settings, nothing inside</p>
-        </div>
-        <div class="hwx-rig-figure" id="hwxCupBox">
-          <p class="hwx-fallback">
-            Clear counts from six empty cuvettes: 1.67, 3.67, 5.00, 0.00, 3.00
-            and 11.67. Every one of them read F4 = 0.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <p>
-      Those two figures are the most practically useful thing the session
-      produced. <strong>The emission channel is reproducible</strong> &mdash;
-      about 5&nbsp;% across three re-insertions of the same cuvette, about
-      7&nbsp;% across independently mixed preparations of the same recipe. That
-      is the number to carry into assay design.
-    </p>
-
-    <p>
-      <strong>The scattering channels are not.</strong> Six empty cuvettes,
-      with nothing in them at all, returned Clear readings from 0.00 to 11.67
-      &mdash; a spread as large as the entire range the cells produce. The
-      cuvette, not the sample, dominates those channels at these light levels.
-      An apparent turbidity trend in the no-GFP series survives or disappears
-      depending on which two cuvettes are included, so it is not a real result.
-    </p>
-
-    <p>
-      And one number recurs everywhere: <strong>every empty cuvette, the medium
-      blank, and every single sample containing no GFP read exactly zero on the
-      emission channel.</strong> Zero is a legitimate reading here, not a
-      detection floor and not missing data &mdash; worth stating because the
-      automated analysis pipeline currently discards those rows, which is why
-      this session was analysed from the raw logs instead.
-    </p>
-
-    <h3>Recorded deviations from the plan</h3>
-
-    <p>
-      Five departures from the written design were logged during the session.
-      They are listed here rather than buried, because three of them change how
-      the results may be read.
-    </p>
-
-    <div class="hwx-devs">
-      <details class="hwx-dev" data-weight="reads">
-        <summary><span class="hwx-dev-name">Stock matching was skipped entirely</span><span class="hwx-dev-tag hwx-t-reads">Changes how the results read</span></summary>
-        <p>
-          The design required the two stock cultures to be brought to the same
-          concentration before any mixing, with a stopping rule if they could
-          not be matched. That step was not performed; the stocks were used as
-          received and the session opened straight onto the first sample.
-          Measured display optical densities were 1.56 for the GFP stock and
-          0.98 for the non-GFP stock, and at a common 25&nbsp;% dilution 0.71
-          against 0.27. The whole session is therefore labelled unmatched, and
-          the mixing fractions cannot be read as cell counts.
-        </p>
-      </details>
-
-      <details class="hwx-dev" data-weight="minor">
-        <summary><span class="hwx-dev-name">The opening blank was moved to the end</span><span class="hwx-dev-tag hwx-t-minor">Minor</span></summary>
-        <p>
-          The design placed a 200&nbsp;&micro;L dilution-medium blank at the
-          start of the session. It was run at the end instead. It read zero on
-          all four reported channels.
-        </p>
-      </details>
-
-      <details class="hwx-dev" data-weight="reads">
-        <summary><span class="hwx-dev-name">One re-preparation was prompted by its reading</span><span class="hwx-dev-tag hwx-t-reads">Changes how the results read</span></summary>
-        <p>
-          A mid-session rule was agreed: re-prepare a sample only when the
-          cuvette is visibly marked before filling, never because the number
-          came out high. One re-test met that rule &mdash; the cuvette was
-          visibly dirty. A second did not: it was re-prepared because its
-          reading matched the dirty-cuvette pattern. That biases the no-GFP
-          series toward low readings, and it is the reason the apparent
-          turbidity trend in that series is not treated as a result.
-        </p>
-      </details>
-
-      <details class="hwx-dev" data-weight="ok">
-        <summary><span class="hwx-dev-name">One acquisition cycle was voided by the firmware</span><span class="hwx-dev-tag hwx-t-ok">Working as intended</span></summary>
-        <p>
-          During the second insertion of one sample the firmware flagged
-          <code>AMBIENT_PRESENT</code> on the first cycle: the pre-dark
-          near-infrared channel read 1 where every other pre-dark channel read
-          0, most likely a light leak while the cuvette was being re-seated.
-          That row was excluded from the average and kept in the raw log. The
-          other two cycles of that insertion agreed with the two insertions
-          either side of it.
-        </p>
-      </details>
-
-      <details class="hwx-dev" data-weight="plan">
-        <summary><span class="hwx-dev-name">One sample was measured three times over</span><span class="hwx-dev-tag hwx-t-plan">Planned</span></summary>
-        <p>
-          One recipe was deliberately re-inserted three times to separate
-          cuvette-handling variation from preparation variation. That
-          comparison is what produced the 5&nbsp;% and 7&nbsp;% repeatability
-          figures above.
-        </p>
-      </details>
-    </div>
-
-    <div class="hw-caution">
-      <p>
-        <em>None of this changes the project's test status.</em> The session
-        record is explicit that its canonical impact is nil: no test row moves,
-        no procurement or release state changes, and firmware hardware
-        validation stays where it was. Session evidence becomes project status
-        only through a separate synchronisation step with its own review.
-      </p>
-    </div>
-
-    <details class="hwx-cal-data" id="hwxCalData">
-      <summary class="hwx-cal-head">
-        <span class="hwx-cal-title">Every acquisition in the session</span>
-        <span class="hwx-cal-count" id="hwxCalCount"></span>
-        <span class="hwx-cal-state" aria-hidden="true">
-          <span class="hwx-cal-verb" data-open="false">Show</span>
-          <span class="hwx-cal-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"
-               viewBox="0 0 16 16" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-               class="hwx-cal-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hwx-cal-body">
-        <table>
-          <caption class="visually-hidden">
-            Every acquisition of the 2026-09-16 calibration session, with its
-            mixing fractions, adjusted optical density and mean counts on four
-            channels. This table is the source the plot above is drawn from.
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">Sample</th>
-              <th scope="col">d</th><th scope="col">f</th>
-              <th scope="col">G</th><th scope="col">OD</th>
-              <th scope="col">F2</th><th scope="col">F3</th>
-              <th scope="col">F4</th><th scope="col">Clear</th>
-              <th scope="col">Cycles</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B01_d025_f000</code></th>
-              <td>0.25</td><td>0.00</td><td>0.000</td><td>0.23</td>
-              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B02_d025_f050</code></th>
-              <td>0.25</td><td>0.50</td><td>0.125</td><td>0.41</td>
-              <td>0.00</td><td>0.00</td><td>1.33</td><td>4.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B03_d025_f100</code></th>
-              <td>0.25</td><td>1.00</td><td>0.250</td><td>0.59</td>
-              <td>3.00</td><td>4.67</td><td>6.00</td><td>14.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B04_d050_f000</code></th>
-              <td>0.50</td><td>0.00</td><td>0.000</td><td>0.46</td>
-              <td>0.00</td><td>0.00</td><td>0.00</td><td>1.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B05_d050_f050_i1</code><span class="hwx-cal-note">insertion 1 of 3</span></th>
-              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.72</td>
-              <td>0.67</td><td>2.67</td><td>6.33</td><td>11.33</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B05_d050_f050_i2</code><span class="hwx-cal-note">insertion 2 &mdash; cycle 1 voided, AMBIENT_PRESENT</span></th>
-              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.72</td>
-              <td>1.00</td><td>3.50</td><td>6.00</td><td>11.50</td><td>2/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B05_d050_f050_i3</code><span class="hwx-cal-note">insertion 3 of 3</span></th>
-              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.72</td>
-              <td>0.33</td><td>2.33</td><td>5.67</td><td>11.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B06_d050_f100</code></th>
-              <td>0.50</td><td>1.00</td><td>0.500</td><td>0.94</td>
-              <td>2.00</td><td>7.33</td><td>19.67</td><td>25.33</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B07_d075_f000</code></th>
-              <td>0.75</td><td>0.00</td><td>0.000</td><td>0.64</td>
-              <td>0.33</td><td>0.00</td><td>0.00</td><td>2.33</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B08_d075_f050</code></th>
-              <td>0.75</td><td>0.50</td><td>0.375</td><td>0.96</td>
-              <td>2.33</td><td>5.67</td><td>10.00</td><td>17.33</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B09_d075_f100</code></th>
-              <td>0.75</td><td>1.00</td><td>0.750</td><td>1.15</td>
-              <td>3.33</td><td>9.00</td><td>22.67</td><td>28.33</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B10_d100_f000</code></th>
-              <td>1.00</td><td>0.00</td><td>0.000</td><td>0.82</td>
-              <td>4.33</td><td>3.33</td><td>0.00</td><td>7.33</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B11_d100_f050</code></th>
-              <td>1.00</td><td>0.50</td><td>0.500</td><td>1.14</td>
-              <td>5.00</td><td>8.67</td><td>16.33</td><td>25.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B12_d100_f100</code><span class="hwx-cal-note">undiluted GFP stock</span></th>
-              <td>1.00</td><td>1.00</td><td>1.000</td><td>1.30</td>
-              <td>6.00</td><td>12.00</td><td>29.67</td><td>37.67</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B13_d050_f050</code></th>
-              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.77</td>
-              <td>11.67</td><td>13.00</td><td>7.33</td><td>23.67</td><td>3/3</td>
-            </tr>
-            <tr data-series="B">
-              <th scope="row"><code>CAL_B14_d050_f050</code></th>
-              <td>0.50</td><td>0.50</td><td>0.250</td><td>0.72</td>
-              <td>3.00</td><td>5.67</td><td>7.00</td><td>15.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A01_d010</code></th>
-              <td>0.10</td><td>0.00</td><td>0.000</td><td>0.10</td>
-              <td>0.33</td><td>0.33</td><td>0.00</td><td>3.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A02_d020</code><span class="hwx-cal-note">re-prepared, cuvette visibly marked</span></th>
-              <td>0.20</td><td>0.00</td><td>0.000</td><td>0.17</td>
-              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A03_d030</code><span class="hwx-cal-note">re-prepared on its reading &mdash; see deviation 3</span></th>
-              <td>0.30</td><td>0.00</td><td>0.000</td><td>0.27</td>
-              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.67</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A04_d040</code></th>
-              <td>0.40</td><td>0.00</td><td>0.000</td><td>0.41</td>
-              <td>2.00</td><td>1.00</td><td>0.00</td><td>3.33</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A05_d050</code></th>
-              <td>0.50</td><td>0.00</td><td>0.000</td><td>0.47</td>
-              <td>0.67</td><td>0.33</td><td>0.00</td><td>3.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A06_d050</code></th>
-              <td>0.50</td><td>0.00</td><td>0.000</td><td>0.48</td>
-              <td>5.33</td><td>4.33</td><td>0.00</td><td>7.67</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A07_d050</code></th>
-              <td>0.50</td><td>0.00</td><td>0.000</td><td>0.53</td>
-              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.67</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A08_d060</code></th>
-              <td>0.60</td><td>0.00</td><td>0.000</td><td>0.57</td>
-              <td>3.00</td><td>2.00</td><td>0.00</td><td>5.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A09_d080</code></th>
-              <td>0.80</td><td>0.00</td><td>0.000</td><td>0.74</td>
-              <td>3.33</td><td>2.67</td><td>0.00</td><td>5.33</td><td>3/3</td>
-            </tr>
-            <tr data-series="A">
-              <th scope="row"><code>CAL_A10_d100</code><span class="hwx-cal-note">undiluted non-GFP stock</span></th>
-              <td>1.00</td><td>0.00</td><td>0.000</td><td>0.84</td>
-              <td>5.67</td><td>4.67</td><td>0.00</td><td>8.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="K">
-              <th scope="row"><code>CAL_MEDIUM_BLANK</code><span class="hwx-cal-note">dilution medium, 200 &micro;L</span></th>
-              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
-              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="K">
-              <th scope="row"><code>CAL_G2_EMPTY</code><span class="hwx-cal-note">empty lab cuvette, armed</span></th>
-              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
-              <td>0.67</td><td>0.00</td><td>0.00</td><td>1.67</td><td>3/3</td>
-            </tr>
-            <tr data-series="K">
-              <th scope="row"><code>CAL_EMPTY_C1</code><span class="hwx-cal-note">empty cuvette 1</span></th>
-              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
-              <td>2.00</td><td>1.00</td><td>0.00</td><td>3.67</td><td>3/3</td>
-            </tr>
-            <tr data-series="K">
-              <th scope="row"><code>CAL_EMPTY_C2</code><span class="hwx-cal-note">empty cuvette 2</span></th>
-              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
-              <td>3.00</td><td>2.00</td><td>0.00</td><td>5.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="K">
-              <th scope="row"><code>CAL_EMPTY_C3</code><span class="hwx-cal-note">empty cuvette 3</span></th>
-              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
-              <td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="K">
-              <th scope="row"><code>CAL_EMPTY_C4</code><span class="hwx-cal-note">empty cuvette 4</span></th>
-              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
-              <td>1.67</td><td>1.00</td><td>0.00</td><td>3.00</td><td>3/3</td>
-            </tr>
-            <tr data-series="K">
-              <th scope="row"><code>CAL_EMPTY_C5</code><span class="hwx-cal-note">empty cuvette 5</span></th>
-              <td>0.00</td><td>0.00</td><td>0.000</td><td>0.00</td>
-              <td>7.67</td><td>6.33</td><td>0.00</td><td>11.67</td><td>3/3</td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="hwx-cal-foot">
-          Counts are the mean of the accepted cycles. <code>d</code> is total
-          dilution, <code>f</code> the GFP fraction of the culture used, and
-          <code>G = d &times; f</code>. OD is the display reading divided by
-          1.2. Series B contains GFP, series A does not, and the last seven
-          rows are blanks and empty cuvettes.
-        </p>
-      </div>
-    </details>
-  </section>
-
-  <!-- ========================= evidence ========================= -->
-  <section>
-    <h2>What has actually been tested</h2>
-
-    <p>
-      Hardware pages tend to report the things that worked. This is the whole
-      register, because the useful question is not &ldquo;did it work&rdquo;
-      but <em>what exactly was shown, on which build, under which
-      conditions</em>.
-    </p>
-
-    <p>
-      Four rules govern every row. A pass applies only to the scope written
-      next to it. A digital validation pass says nothing about printing, fit,
-      assembly or optical behaviour. Repeated acquisition cycles within one
-      insertion are not independent samples. And a test that was executed but
-      not accepted is not a pass.
-    </p>
-
-    <!-- The filter row is built by the script and stays out of the document
-         until it can actually do something; the rows themselves are <details>,
-         so they open and close with no script at all. -->
-    <div class="hwx-filters" id="hwxFilters" hidden></div>
-
-    <div class="hwx-ledger" id="hwxLedger">
-
-      <details class="hwx-row" data-state="pass">
-        <summary><span class="hwx-dom">Digital CAD and DFM</span><span class="hwx-scope">v0.6 targeted closure</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
-        <dl><dt>Evidence</dt><dd>Targeted DFM freeze pass, zero P1 and zero P2 findings.</dd>
-        <dt>What it does not cover</dt><dd>Digital scope only. It verifies neither printing nor physical or optical performance.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="pass">
-        <summary><span class="hwx-dom">Digital CAD reproducibility</span><span class="hwx-scope">v0.6 export set</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
-        <dl><dt>Evidence</dt><dd>36 of 36 non-STEP files matched byte for byte; 29 of 29 STEP geometries matched.</dd>
-        <dt>What it does not cover</dt><dd>Applies to the audited source and environment, and to digital outputs only.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="pass">
-        <summary><span class="hwx-dom">v0.7 digital CAD validation</span><span class="hwx-scope">Corrected detector locator frame and affected assemblies</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
-        <dl><dt>Evidence</dt><dd>Valid single solid, closed 2-manifold STL, a 1.600327&nbsp;mm C-support web recorded at both sockets, zero unexpected assembly collisions, 26 of 26 driver channels clear, 4 of 4 service sweeps clear, reproducible isolated export.</dd>
-        <dt>What it does not cover</dt><dd>It does not verify vendor slicing or any physical performance.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="cond">
-        <summary><span class="hwx-dom">v0.7 independent engineering review</span><span class="hwx-scope">Vendor-submitted corrected frame</span><span class="hwx-chip hwx-c-cond">Conditional</span></summary>
-        <dl><dt>Evidence</dt><dd>Zero P1, zero P2, five P3 findings.</dd>
-        <dt>What it does not cover</dt><dd>The P3 findings are accepted for the submitted correction but remain open pending their named physical checks.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="unk">
-        <summary><span class="hwx-dom">Slicing</span><span class="hwx-scope">v0.7 corrected package</span><span class="hwx-chip hwx-c-unk">Unknown</span></summary>
-        <dl><dt>Evidence</dt><dd>Earlier vendor evidence identified the v0.6 thin-web issue. No v0.7 re-slice result or vendor profile is recorded.</dd>
-        <dt>What it does not cover</dt><dd>Vendor re-slicing, support and orientation evidence are all still required.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="unk">
-        <summary><span class="hwx-dom">Printing</span><span class="hwx-scope">Submitted v0.7 correction</span><span class="hwx-chip hwx-c-unk">Unknown</span></summary>
-        <dl><dt>Evidence</dt><dd>Production is evidenced by the physically delivered parts. What is unknown is the recorded process: vendor acknowledgment, re-slicing outcome, orientation, supports and slicer settings.</dd>
-        <dt>What it does not cover</dt><dd>A delivered part proves production happened; it does not document how.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="not">
-        <summary><span class="hwx-dom">Physical fit</span><span class="hwx-scope">v0.7 printed parts</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
-        <dl><dt>Evidence</dt><dd>Parts received 2026-08-17, 57 of 59 pieces. No dimensional or fit measurement has been taken.</dd>
-        <dt>What it does not cover</dt><dd>Insertion behaviour, M3 ear clearance, detector datum seating, envelope impact, fasteners, warp and dimensions are all still to verify.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="not">
-        <summary><span class="hwx-dom">Assembly</span><span class="hwx-scope">v0.7 P1 hardware</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
-        <dl><dt>Evidence</dt><dd>No assembly record exists in the project state.</dd>
-        <dt>What it does not cover</dt><dd>The build was assembled in part and used optically &mdash; that is a different thing from an assembly test being run and accepted.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="pass">
-        <summary><span class="hwx-dom">Optical coupling</span><span class="hwx-scope">LED to detector, assembled P1-PROTO-01</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
-        <dl><dt>Evidence</dt><dd>With a scatterer at the sample position: F2 445&nbsp;nm = 87, F3 480&nbsp;nm = 81, F4 = 2, Clear = 116, against all-zero dark reads. The channel shape brackets the nominal 470&nbsp;nm source.</dd>
-        <dt>What it does not cover</dt><dd>It establishes that excitation reaches the sample, that the detection path is open and that 90&deg; collection works. Alignment is demonstrated functional, not quantified, and no fluorescence was measured in this test.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="cond">
-        <summary><span class="hwx-dom">Ambient light rejection</span><span class="hwx-scope">Assembled build, closed</span><span class="hwx-chip hwx-c-cond">Conditional</span></summary>
-        <dl><dt>Evidence</dt><dd>Darkened room: all twelve channels zero, holding to 25&times; integration. Normal room lighting unshielded: empty UVette F4 = 11, Clear = 53 &mdash; fails. Normal lighting under an opaque box: all channels zero.</dd>
-        <dt>What it does not cover</dt><dd>It passes only under a stated lighting condition. The room-light contribution is non-proportional across integration steps, consistent with lamp flicker, so dark-frame subtraction does not remove it. This is ambient rejection, not stray-light performance against the excitation source.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="pass">
-        <summary><span class="hwx-dom">Excitation stray light</span><span class="hwx-scope">Assembled optical path, no emission filter</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
-        <dl><dt>Evidence</dt><dd>Empty holder: zero counts on every channel with the LED energised. Empty UVette: F3 = 7, F4 = 0. Water-filled UVette: F3 = 1, F4 = 0, giving F4/F3 &lt; 1.35&nbsp;%.</dd>
-        <dt>What it does not cover</dt><dd>These are quantisation upper bounds, not measured leakage values. The water volume was 1600&nbsp;&micro;L, not the 200&nbsp;&micro;L assay fill, and a real culture scatters far more than pure water.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="pass">
-        <summary><span class="hwx-dom">Optical positional repeatability</span><span class="hwx-scope">Assembled build, post-settling, paper scatterer</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
-        <dl><dt>Evidence</dt><dd>After a one-time settling of about &minus;6.9&nbsp;% that converged, three undisturbed repetitions spread by 0.42&nbsp;% over nine cycles. A light touch on the LED cable changed the reading by +0.28&nbsp;%, about 0.46 pooled standard deviations.</dd>
-        <dt>What it does not cover</dt><dd>Not tested: harder disturbances, moving the instrument, the settling time constant, and UVette insertion and re-insertion.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="not">
-        <summary><span class="hwx-dom">Stray light, full scope</span><span class="hwx-scope">Assembled optical path</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
-        <dl><dt>Evidence</dt><dd>Only the excitation-leakage portion is measured, for the no-filter water-blank case.</dd>
-        <dt>What it does not cover</dt><dd>Untested: light-trap and boot variants, angled-wedge versus stepped-baffle, filter versus no filter, a real turbid sample, and the 200&nbsp;&micro;L fill.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="not">
-        <summary><span class="hwx-dom">Blank signal</span><span class="hwx-scope">Assembled optical path</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
-        <dl><dt>Evidence</dt><dd>The only blank-type reading on record is a water-filled UVette at 1600&nbsp;&micro;L.</dd>
-        <dt>What it does not cover</dt><dd>No blank dataset exists in a real sample matrix at the 200&nbsp;&micro;L assay fill.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="cond">
-        <summary><span class="hwx-dom">Fluorescence signal &mdash; reporter-associated observation</span><span class="hwx-scope">P1-PROTO-01, 200&nbsp;&micro;L, ORIENT-A, shielded, AGAIN 512&times; / ATIME 255 / ASTEP 280 &mdash; this configuration and this batch only</span><span class="hwx-chip hwx-c-cond">Conditional</span></summary>
-        <dl><dt>Evidence</dt><dd>A culture reported to carry the sfGFP reporter gave F4 515&nbsp;nm = 19.5833 &plusmn; 0.7930 raw counts against a control at F4 = 0, over twelve consecutive cycles across four timepoints, with concurrent change in F3, F5 and Clear. Every cycle flagged OK; pre-dark and post-dark reads were zero on all channels.</dd>
-        <dt>What it does not cover</dt><dd>It supports a measured, reporter-associated, sfGFP-compatible green signal in the stated configuration and nothing wider. The induction framing was withdrawn on 2026-09-13: no AHL induction has been performed, so neither tube was induced, and what distinguished the two tubes on that date is not established. Explicitly out of scope: sfGFP specificity, any dose-response claim, generalisation to independent samples, limits of detection, linearity, OD normalisation, sedimentation, emission-filter necessity, and the six-hour timed assay.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="prog">
-        <summary><span class="hwx-dom">Fluorescence signal, full validation scope</span><span class="hwx-scope">Assembled optical path</span><span class="hwx-chip hwx-c-prog">In progress</span></summary>
-        <dl><dt>Evidence</dt><dd>Measured data now exist &mdash; see the narrow row above.</dd>
-        <dt>What it does not cover</dt><dd>No fluorophore standard, no absolute calibration, no established linearity coefficient, limit of detection and quantitation unknown, no verified OD normalisation, no cross-day repeatability.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="not">
-        <summary><span class="hwx-dom">Signal-to-noise ratio</span><span class="hwx-scope">P1 optical configuration</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
-        <dl><dt>Evidence</dt><dd>A narrow-scope signal and a water blank exist separately.</dd>
-        <dt>What it does not cover</dt><dd>No traceable blank-and-signal dataset in one matrix and one configuration exists, so a ratio cannot be computed.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="not">
-        <summary><span class="hwx-dom">Repeatability</span><span class="hwx-scope">P1 optical configuration</span><span class="hwx-chip hwx-c-not">Not tested</span></summary>
-        <dl><dt>Evidence</dt><dd>Partial repeat data exist: undisturbed repetitions with a paper scatterer, and repeated cycles within one insertion.</dd>
-        <dt>What it does not cover</dt><dd>Repeated cycles within an insertion are not independent samples. No sample-level repeatability dataset exists.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="pass">
-        <summary><span class="hwx-dom">Electronics bench bring-up</span><span class="hwx-scope">Excitation branch and SEN0365, breadboard, no optics</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
-        <dl><dt>Evidence</dt><dd>I&sup2;C 0x39 stable 20/20; ATIME, ASTEP and AGAIN written and read back matching; the sensor's onboard LEDs electrically off and visually dark; 2N7000 pinout established by measurement; VGS 3.22&nbsp;V, VDS 0.01&nbsp;V, on-resistance 1.80&nbsp;&#8486;; I<sub>LED</sub> 5.553&nbsp;mA at R1 434&nbsp;&#8486;; 20/20 reliable off; 0&nbsp;% current spread over six pulses; hardware fail-off observed.</dd>
-        <dt>What it does not cover</dt><dd>Breadboard only. No enclosure, no optical path, no emission filter. It verifies no optical behaviour, and not the project firmware.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="pass">
-        <summary><span class="hwx-dom">Acquisition timing</span><span class="hwx-scope">AS7341 all-channel read, diagnostic sketch</span><span class="hwx-chip hwx-c-pass">Pass</span></summary>
-        <dl><dt>Evidence</dt><dd>451.6&nbsp;ms per all-channel read; LED-on window 551&ndash;552&nbsp;ms including the 100&nbsp;ms settling interval.</dd>
-        <dt>What it does not cover</dt><dd>It fits the 1.0&nbsp;s hard timeout with 448&nbsp;ms of margin and misses the conditional 0.5&nbsp;s target by about 52&nbsp;ms. Library, core and clock specific; it must be re-measured for the project firmware.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="prog">
-        <summary><span class="hwx-dom">Firmware hardware test</span><span class="hwx-scope">Project firmware on P1-PROTO-01, partial gate-0 and gate-1 execution only</span><span class="hwx-chip hwx-c-prog">In progress</span></summary>
-        <dl><dt>Evidence</dt><dd>Independently reviewed: retained boot and identity output, compile-gate and wrong-token refusals, a sensor-init failure followed by a run refusal with zero data rows, the disabled-run abort, 18 shielded OK rows, ambient-flag retention, and 550&ndash;552&nbsp;ms of software LED-on telemetry.</dd>
-        <dt>What it does not cover</dt><dd>Partial execution. It is not a pass, and it does not approve assay or data collection. The LED-on figure is the firmware's own arithmetic rather than a measured GPIO edge, and the normal path never reaches the 1&nbsp;s cutoff, so the hardware protection is unverified.</dd></dl>
-      </details>
-
-      <details class="hwx-row" data-state="unk">
-        <summary><span class="hwx-dom">Data pipeline test</span><span class="hwx-scope">Analysis pipeline</span><span class="hwx-chip hwx-c-unk">Unknown</span></summary>
-        <dl><dt>Evidence</dt><dd>Test source and synthetic sample data exist; no execution record.</dd>
-        <dt>What it does not cover</dt><dd>Synthetic demonstration data are not experimental evidence.</dd></dl>
-      </details>
-
-    </div>
-
-    <p class="hw-aside">
-      A conditional pass names the condition it depends on; an unknown means no
-      record exists either way. A filter cassette is not a filter, a reference
-      model in CAD is not a purchased component, and a part in the model is not
-      a part that was bought, received, installed or tested. Those distinctions
-      are maintained in the project record, and this page inherits them.
-    </p>
-  </section>
-
   <!-- ========================= decisions ========================= -->
   <section>
     <h2>Decisions that shaped P1</h2>
@@ -1591,12 +944,7 @@
       manifest underneath, with its current state stated plainly.
     </p>
 
-    <p>
-      Quantities and prices are being reconciled against our final order
-      records and are deliberately omitted until they are. An estimate that
-      later turns out wrong is worse for a team costing a rebuild than no
-      number at all.
-    </p>
+
 
     <div class="hw-figure">
       <table class="hw-table">
@@ -1615,6 +963,78 @@
         </tbody>
       </table>
     </div>
+
+    <h3>What one costs</h3>
+
+    <p>
+      This is our own costing sheet for the build in hand, converted at
+      <strong>NT$31.68 to US$1</strong> (2026-09-22). The rate is written
+      down because a dollar figure with no rate and no date stops meaning
+      anything within a year, and a team costing a rebuild needs to be able to
+      redo the sum at their own rate.
+    </p>
+
+    {#
+      === 給團隊 ===
+      這張表就是成本計算試算表的內容，匯率 31.68 標在頁面上。
+      下面「not in this costing」那一段列的是電路上有、但試算表沒有計價的零件
+      （電阻、MOSFET、LED、UVette）。我沒有替它們估價——估錯對要照著重建的
+      隊伍來說比沒有數字更糟。有價格之後補進上表即可。
+    #}
+    <div class="hw-figure">
+      <table class="hw-table hw-cost">
+        <caption>Cost of one CAPTURE-Screen P1, as built</caption>
+        <thead>
+          <tr>
+            <th scope="col">Item</th><th scope="col">Qty</th>
+            <th scope="col">NT$</th><th scope="col">US$</th>
+            <th scope="col">Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="hw-cost-head"><th scope="rowgroup" colspan="5">Electronics</th></tr>
+          <tr><td>ESP32 development board <span class="hw-cost-zh">esp32開發板</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">215</td><td class="hw-cost-n">$6.79</td><td></td></tr>
+          <tr><td>AS7341 spectral sensor board <span class="hw-cost-zh">AS7341光譜感測器</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">860</td><td class="hw-cost-n">$27.15</td><td></td></tr>
+          <tr><td>Button module <span class="hw-cost-zh">按鈕模組</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">16</td><td class="hw-cost-n">$0.51</td><td></td></tr>
+          <tr><td>OLED display <span class="hw-cost-zh">oLED液晶屏</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">150</td><td class="hw-cost-n">$4.73</td><td></td></tr>
+          <tr><td>Breadboard <span class="hw-cost-zh">麵包板</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">45</td><td class="hw-cost-n">$1.42</td><td></td></tr>
+          <tr><td>Jumper wires <span class="hw-cost-zh">杜邦線</span></td><td class="hw-cost-n">several</td><td class="hw-cost-n">50</td><td class="hw-cost-n">$1.58</td><td></td></tr>
+          <tr class="hw-cost-sub"><td>Electronics subtotal</td><td></td>
+            <td class="hw-cost-n">1336</td><td class="hw-cost-n">$42.17</td><td></td></tr>
+
+          <tr class="hw-cost-head"><th scope="rowgroup" colspan="5">Enclosure, as built</th></tr>
+          <tr><td>Wood board <span class="hw-cost-zh">木板</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">60</td><td class="hw-cost-n">$1.89</td><td>Not charged &mdash; the supplier waived it</td></tr>
+          <tr><td>Laser cutting <span class="hw-cost-zh">雷切代工</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">300</td><td class="hw-cost-n">$9.47</td><td></td></tr>
+          <tr class="hw-cost-sub"><td>Enclosure subtotal</td><td></td>
+            <td class="hw-cost-n">360</td><td class="hw-cost-n">$11.36</td><td></td></tr>
+
+          <tr class="is-total"><td>Total, as built</td><td></td>
+            <td class="hw-cost-n">1696</td><td class="hw-cost-n">$53.54</td>
+            <td>NT$1,636 / $51.64 actually paid &mdash; the board was free</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The enclosure can also be 3D printed instead of laser cut, which costs
+      <strong>NT$1,150</strong> ($36.30) for that fabrication step in place
+      of the board and the cutting. That route brings the build to
+      <strong>NT$2,486</strong> ($78.47) &mdash; about
+      1.5&times; the laser-cut build, and the difference is almost
+      entirely that one line.
+    </p>
+
+    <p class="hw-aside">
+      Four things on the circuit are not in this costing, because the sheet
+      never priced them: the <strong>resistors</strong> (the 218&nbsp;&#8486; +
+      216&nbsp;&#8486; series pair, the 217&nbsp;&#8486; gate resistor and the
+      9.9&nbsp;k&#8486; pulldown), the <strong>2N7000</strong> switch, the
+      <strong>Cree 470&nbsp;nm LED</strong> and the <strong>Eppendorf
+      UVette</strong>. We have not put estimates against them: a team costing a
+      rebuild is worse served by a figure that turns out wrong than by a line
+      telling them to price those four themselves. The first three are ordinary
+      passives and a small-signal MOSFET; the UVette is the one that is not.
+    </p>
 
     <h3>The file manifest</h3>
 
