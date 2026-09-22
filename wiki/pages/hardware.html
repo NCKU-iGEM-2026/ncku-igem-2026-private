@@ -7,14 +7,52 @@
 {#
   === 給團隊的說明，發布前請讀 ===
 
-  3. 需要你們補的：
-     - 實體照片：P1-PROTO-01 組裝外觀。
-       圖片一定要用 iGEM uploads tool 上傳到 static.igem.wiki，不可連外部網址或本機路徑。
-       建議插入位置我用 <!-- PHOTO: ... --> 標了一處。
-     - 成本與零件表：已經不在這一頁了。BOM.csv 目前所有 unit_price 都是 UNKNOWN，
-       等 Mouser 訂單對帳完再補，不要先估一個數字上去。
-     - sfGFP 的確切 construct 與 strain（SYS-U013）目前是 UNKNOWN。這一頁現在
-       只寫「reported to carry the sfGFP reporter」，沒有宣稱更多。
+  這一頁是 Best Hardware 的 Required link。評審的四道題與本頁的對應：
+
+    1 是否回應 synthetic biology 的需求      -> Background
+    2 有無 user testing、有無從回饋學到東西   -> What changed when we took it
+                                                outside the team（目前只有專家
+                                                諮詢，不是使用者測試，見下）
+    3 proof of concept 的效用與功能           -> What the detector actually saw
+                                                （校正矩陣與證據登錄已移到 Model）
+    4 文件是否足以讓別隊重現                  -> Reproducing it
+                                                （含成本表與 file manifest）
+
+  ⚠ 第 3 題要注意：校正矩陣（劑量反應）和證據登錄搬去 Model 之後，這一頁對第 3 題
+     就只剩 light-path bench 了。Model 頁目前是空的（9 行）。評審是照著 Required
+     link 看的——如果那些證據只在 Model 上，務必在本頁明確連過去，或在 Judging Form
+     的 150 字裡點明。
+
+  還需要你們補的，依對分數的影響排序：
+
+  A. USER TESTING（第 2 題，目前最弱）
+     把機器交給實際會用的人（其他隊、實驗室同學、濕實驗組），記錄他們遇到什麼、
+     回饋了什麼、你們因此改了什麼。哪怕只有三個人、一個下午，有記錄就遠勝於無。
+     完成後寫在 "What changed when we took it outside the team" 那一節。
+
+  B. 釋出設計檔（第 4 題）
+     CAD / STL / STEP / 韌體 / BOM 放到 iGEM GitLab repo 或 uploads tool，
+     然後把 "The file manifest" 表格裡每一列的 "Where it is" 換成真正的連結。
+     我沒有先填任何網址——填一個不存在的連結比誠實寫「尚未發布」更糟。
+
+  C. 組裝步驟（第 4 題）
+     manifest 裡誠實寫著「Not written」。就算只是照著拍的一串照片加圖說也算。
+
+  D. 實體照片
+     P1-PROTO-01 組裝外觀。一定要用 iGEM uploads tool 上傳到 static.igem.wiki，
+     不可連外部網址或本機路徑。插入位置我用 <!-- PHOTO: ... --> 標了一處。
+
+  E. 成本（部分完成）
+     成本計算試算表的內容已經上頁了，匯率 NT$31.68 = US$1（2026-09-22）標在頁面上。
+     還缺的是電路上有、但試算表沒計價的四樣：電阻（218+216 Ω 串聯、217 Ω 閘極、
+     9.9 kΩ 下拉）、2N7000、Cree 470 nm LED、Eppendorf UVette。
+     我沒有替它們估價——有價格之後補進成本表即可。
+
+  F. sfGFP 的確切 construct 與 strain（SYS-U013）目前是 UNKNOWN。
+     這一頁只寫「reported to carry the sfGFP reporter」，沒有宣稱更多。
+
+  另外：特殊獎是在 Judging Form 上自己提名的，最多三個，每個要填 Required link
+  加最多 150 字的說明。那 150 字要你們自己寫，我不曉得你們想主打哪三個獎。
 #}
 
 <div class="container my-4 hw">
@@ -584,6 +622,172 @@
     </div>
   </section>
 
+  <!-- ========================= electronics ========================= -->
+  <section>
+    <h2>A bench circuit, deliberately boring</h2>
+
+    <p>
+      The excitation branch does one job: turn a single LED on and off at a
+      current that cannot damage it, and be provably off when the
+      microcontroller is not driving it. It is a resistor-limited LED in series
+      with an N-channel MOSFET on the low side, switched from one GPIO. There
+      is no constant-current driver, no PWM dimming and no PCB &mdash; this is
+      a breadboard topology that was measured, not a product design.
+    </p>
+
+    <p>
+      The one part that is not optional is <strong>R3</strong>, the gate
+      pulldown. Without it the gate floats while the ESP32 boots or while it is
+      unpowered, and the LED can emit during what the firmware believes is a
+      dark baseline. That turns a safety detail into a data-integrity detail.
+    </p>
+
+    <div class="hwx-rig">
+      <div class="hwx-rig-head">
+        <h3>Excitation branch and sensor bus</h3>
+        <p class="hwx-rig-sub">Hover or focus a labelled node for its measured value</p>
+      </div>
+      <div class="hwx-rig-figure">
+        <svg class="hwx-sch" viewBox="0 0 820 300" role="img"
+             aria-label="Schematic of the excitation branch. An ESP32 drives a 2N7000 low-side switch through a 217 ohm gate resistor with a 9.9 kilohm pulldown to ground; the 470 nanometre LED sits in series with a 434 ohm current-limit resistor. The AS7341 board is on the same 3.3 volt rail and on the I2C bus at address 0x39. All returns meet at one named ground junction.">
+          <g fill="none" stroke="#3E5862" stroke-width="2">
+            <rect x="40" y="70" width="150" height="160" rx="8"></rect>
+            <rect x="620" y="60" width="160" height="96" rx="8"></rect>
+          </g>
+          <g class="hwx-sch-name">
+            <text x="58" y="96">ESP32-WROOM-32</text>
+            <text x="58" y="114" class="hwx-sch-sub">DOIT DevKit V1, 30-pin</text>
+            <text x="638" y="86">SEN0365</text>
+            <text x="638" y="104" class="hwx-sch-sub">AS7341 detector</text>
+          </g>
+
+          <g stroke="#5BAEFF" stroke-width="2.5" fill="none">
+            <path d="M190 150 H250"></path><path d="M290 150 H340"></path>
+            <path d="M380 150 H430"></path><path d="M470 150 V205 H300"></path>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="R1 &mdash; current limit"
+             data-tip="Two resistors in series, measured 218 &#8486; + 216 &#8486; = 434 &#8486;, replacing an unavailable 390 &#8486; part. In parallel they would give 108.5 &#8486; and roughly 48 mA, above the LED maximum, so the series arrangement is not optional.">
+            <rect x="250" y="138" width="40" height="24" rx="3" fill="#16242B" stroke="#5BAEFF" stroke-width="2"></rect>
+            <text class="hwx-sch-val" x="248" y="130">R1 434 &#8486;</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="Excitation LED"
+             data-tip="Cree C503B-BCN-CV0Z0461, nominal 470 nm. Measured forward voltage 2.65 V at 5.553 mA, giving 14.7 mW against a 120 mW package maximum. Irradiance at the sample has not been measured.">
+            <path d="M340 136 L340 164 L368 150 Z" fill="#5BAEFF"></path>
+            <path d="M368 134 V166" stroke="#5BAEFF" stroke-width="2.5"></path>
+            <path d="M350 126 l10 -10 M360 128 l10 -10" stroke="#5BAEFF" stroke-width="1.6"></path>
+            <text class="hwx-sch-val" x="326" y="182">470 nm LED</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="2N7000 low-side switch"
+             data-tip="Pinout established by body-diode measurement rather than assumed. Measured VGS 3.22 V, VDS 0.01 V, on-resistance 1.80 &#8486;, 20 of 20 reliable off. Manufacturer unknown: the part is marked and lot-coded but carries no logo. Conditional bench acceptance for this single unit only.">
+            <path d="M430 128 V172" stroke="#C4D6DD" stroke-width="2.5"></path>
+            <path d="M442 128 V146 M442 154 V172" stroke="#C4D6DD" stroke-width="2.5"></path>
+            <path d="M442 150 H470 M442 136 H470 V150" stroke="#C4D6DD" stroke-width="2.5"></path>
+            <path d="M430 150 H400" stroke="#C4D6DD" stroke-width="2.5"></path>
+            <text class="hwx-sch-val" x="450" y="190">2N7000</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="R2 &mdash; gate series"
+             data-tip="Nominal 220 &#8486;, measured 217 &#8486;. Protects the GPIO pin and damps the switching edge. Not electrically mandatory at this switching duty, but required for this build revision.">
+            <path d="M190 190 H220" stroke="#C4D6DD" stroke-width="2" fill="none"></path>
+            <rect x="220" y="178" width="40" height="24" rx="3" fill="#16242B" stroke="#C4D6DD" stroke-width="2"></rect>
+            <path d="M260 190 H400 V150" stroke="#C4D6DD" stroke-width="2" fill="none"></path>
+            <text class="hwx-sch-val" x="218" y="172">R2 217 &#8486;</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="R3 &mdash; gate pulldown"
+             data-tip="Nominal 10 k&#8486;, measured 9.9 k&#8486;. Holds the gate at ground during boot, during reset and with the controller unpowered. Safety and data integrity both: a floating gate can let the LED emit during a dark baseline.">
+            <rect x="386" y="226" width="28" height="40" rx="3" fill="#16242B" stroke="#C4D6DD" stroke-width="2"></rect>
+            <path d="M400 202 V226 M400 266 V280" stroke="#C4D6DD" stroke-width="2" fill="none"></path>
+            <text class="hwx-sch-val" x="420" y="252">R3 9.9 k&#8486;</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="J0 &mdash; single ground junction"
+             data-tip="One named junction for the LED return, the MOSFET source, the gate pulldown and the sensor ground. A single point avoids a return-current loop that would put the detector ground at a different potential while the LED is on.">
+            <path d="M300 280 H700" stroke="#7E959F" stroke-width="2"></path>
+            <path d="M486 280 V292 M470 292 H502 M476 298 H496 M482 304 H490" stroke="#7E959F" stroke-width="2"></path>
+            <text class="hwx-sch-val" x="508" y="300">J0</text>
+          </g>
+
+          <g class="hwx-node" tabindex="0" role="button"
+             data-tip-t="I&sup2;C bus"
+             data-tip="SEN0365 powered from the ESP32 3V3 rail. GPIO21 SDA, GPIO22 SCL. Responds at address 0x39, 20 of 20 stable scans; ATIME, ASTEP and AGAIN written and read back matching.">
+            <path d="M190 100 H620 M190 120 H620" stroke="#64DE9A" stroke-width="2" fill="none"></path>
+            <text class="hwx-sch-val hwx-sch-i2c" x="326" y="94">GPIO21 SDA &middot; 0x39</text>
+            <text class="hwx-sch-val hwx-sch-i2c" x="500" y="114">GPIO22 SCL</text>
+          </g>
+          <path d="M660 156 V280" stroke="#7E959F" stroke-width="2" fill="none"></path>
+          <text class="hwx-sch-val" x="196" y="216">GPIO25</text>
+          <text class="hwx-sch-val" x="196" y="144">VIN</text>
+        </svg>
+      </div>
+      <div class="hwx-rig-foot">
+        <span>Measured 2026-08-25 on breadboard. Total draw &asymp; 77&nbsp;mA.</span>
+        <span>I<sub>LED</sub> = 5.553&nbsp;mA &mdash; a safe-start value, not the operating current.</span>
+      </div>
+    </div>
+
+    <div class="hw-caution">
+      <p>
+        <em>Why the current is deliberately low.</em> The nominal design target
+        is 8&ndash;12&nbsp;mA; the bench branch runs at 5.553&nbsp;mA. That gap
+        is not an oversight and it has not been closed, because closing it
+        requires knowing how much signal is enough &mdash; and signal-to-noise,
+        limit of detection and the expected negative and positive range are all
+        still open. Raising the drive current without that basis would be
+        guessing.
+      </p>
+    </div>
+
+    <h3>Acquisition timing</h3>
+
+    <p>
+      One reading is not instantaneous. The LED turns on, the optical and
+      sensor state is given time to settle, the sensor integrates across two
+      SMUX configurations to cover all channels, and the LED turns off again.
+      The firmware holds a hard 1.0&nbsp;s ceiling on that window.
+    </p>
+
+    <div class="hwx-rig hwx-rig-plain">
+      <div class="hwx-rig-head">
+        <h3>One acquisition, against the 1.0&nbsp;s ceiling</h3>
+        <p class="hwx-rig-sub">Measured 2026-08-25, diagnostic sketch, one integration per SMUX configuration</p>
+      </div>
+      <div class="hwx-rig-figure">
+        <!-- Widths are percentages of the 1.0 s ceiling, so the bar is drawn
+             by the numbers rather than by eye. No script needed. -->
+        <div class="hwx-timing">
+          <div class="hwx-tseg hwx-t-settle" style="left:0;width:10%">settle 100&nbsp;ms</div>
+          <div class="hwx-tseg hwx-t-read" style="left:10%;width:45.16%">all-channel read 451.6&nbsp;ms</div>
+          <div class="hwx-tseg hwx-t-margin" style="left:55.16%;width:44.84%">remaining margin 448&nbsp;ms</div>
+          <div class="hwx-tmark hwx-tmark-left" style="left:50%"><span>0.5&nbsp;s target</span></div>
+          <div class="hwx-tmark hwx-tmark-led" style="left:55.16%"><span>LED off &middot; 551&ndash;552&nbsp;ms</span></div>
+          <div class="hwx-tscale">
+            <span style="left:0">0</span><span style="left:25%">250&nbsp;ms</span>
+            <span style="left:50%">500&nbsp;ms</span><span style="left:75%">750&nbsp;ms</span>
+            <span class="hwx-tscale-end">1.0&nbsp;s hard timeout</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="hw-aside">
+      The window fits the 1.0&nbsp;s hard timeout with 448&nbsp;ms of margin
+      and misses our own conditional 0.5&nbsp;s target by about 52&nbsp;ms. We
+      have recorded that as a missed target rather than quietly moving the
+      target. The figure is library, core and I&sup2;C-clock specific and must
+      be re-measured for the project firmware.
+    </p>
+  </section>
+
   <!-- ========================= decisions ========================= -->
   <section>
     <h2>Decisions that shaped P1</h2>
@@ -661,6 +865,224 @@
       </div>
     </dl>
 
+  </section>
+
+
+  <!-- ========================= interface ========================= -->
+  <section>
+    <h2>The wet&ndash;dry interface</h2>
+
+    <p>
+      The reader has to fit an assay that the wet lab defines. These are the
+      handoff facts we are designing against; where something is still unknown
+      we have left it unknown rather than assuming a value.
+    </p>
+
+    <dl class="hw-spec">
+      <div><dt>Reporter</dt><dd>sfGFP. The exact construct and strain are not yet specified.</dd></div>
+      <div><dt>AHL series</dt><dd>10&nbsp;&micro;M, 1&nbsp;&micro;M, 100&nbsp;nM, 10&nbsp;nM, 1&nbsp;nM.</dd></div>
+      <div><dt>Volume</dt><dd>200&nbsp;&micro;L per reaction.</dd></div>
+      <div><dt>Incubation</dt><dd>37&nbsp;&deg;C, read every hour for six hours. Whether the series includes a zero point is not yet settled.</dd></div>
+      <div><dt>Benchmark</dt><dd>Plate reader at excitation 485&nbsp;nm, emission 510&nbsp;nm, 200&nbsp;&micro;L.</dd></div>
+    </dl>
+
+    <p class="hw-aside">
+      Our nominal 470&nbsp;nm excitation is deliberately distinct from the
+      plate reader's 485&nbsp;nm, so the two instruments are comparable but not
+      identical &mdash; a difference we will have to characterise rather than
+      assume away. Negative-control definition, replicate counts and the
+      expected fluorescence range are still to come from the wet lab, and no
+      traceable raw plate-reader dataset is available yet.
+    </p>
+  </section>
+
+  <!-- ========================= outside the team ========================= -->
+  <section>
+    <h2>What changed when we took it outside the team</h2>
+
+    <p>
+      Between July and August the enclosure went through a series of materials
+      and designs, and most of those prototypes failed on strength or on
+      fabrication time. On <strong>10 September 2026</strong> we took the
+      design files to <em>Ai Wei Li Laser Engraving Studio</em> and worked
+      through them with the manufacturer.
+    </p>
+
+    <p>
+      Three things came back that we had not accounted for. Materials differ
+      in how they reflect light, and that has to be part of choosing one for an
+      optical enclosure rather than an afterthought. Wall thickness matters
+      most <em>at the joints</em>, because a badly made joint is where light
+      leaks in. And the assembly and adjustment were done at the studio with
+      the manufacturer present, which is how the two-layer shell we now have
+      came to be built the way it is.
+    </p>
+
+    <p>
+      The full write-up, and the rest of the people we consulted, are on the
+      <a href="{{ url_for('pages', page='human-practices') }}">Human
+      Practices</a> page.
+    </p>
+
+    <p class="hw-aside">
+      This is expert consultation that changed the build. It is not the same
+      thing as putting the finished instrument in front of the people who would
+      use it and recording what they found, and we are not presenting it as
+      that.
+    </p>
+  </section>
+
+  <!-- ========================= reproducing ========================= -->
+  <section>
+    <h2>Reproducing it</h2>
+
+    <p>
+      The instrument is built from catalogue parts and printed components.
+      Everything a second team needs falls into three groups: the parts to buy,
+      the files to print and flash, and the settings to run it at. The first
+      and the third are below and on this page; the second is listed in the
+      manifest underneath, with its current state stated plainly.
+    </p>
+
+
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption>Core parts</caption>
+        <thead>
+          <tr><th scope="col">Function</th><th scope="col">Part</th><th scope="col">State</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Excitation LED</td><td>Cree <code>C503B-BCN-CV0Z0461</code></td><td>Received; bench characterised</td></tr>
+          <tr><td>Detector</td><td>DFRobot <code>SEN0365</code> (AS7341)</td><td>Received; bench bring-up passed</td></tr>
+          <tr><td>Controller</td><td>ESP32-WROOM-32, DOIT DevKit V1 30-pin</td><td>In bench use</td></tr>
+          <tr><td>LED switch</td><td>2N7000 N-channel MOSFET</td><td>Conditional bench acceptance, single unit</td></tr>
+          <tr><td>Current limit / gate network</td><td>434&nbsp;&#8486; series, 217&nbsp;&#8486; gate, 9.9&nbsp;k&#8486; pulldown</td><td>Measured in place</td></tr>
+          <tr><td>Sample vessel</td><td>Eppendorf UVette</td><td>One unit held; benchmark only</td></tr>
+          <tr><td>Optical core</td><td>Printed PLA, v0.7 geometry</td><td>Received as <code>P1-PROTO-01</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What one costs</h3>
+
+    <p>
+      This is our own costing sheet for the build in hand, converted at
+      <strong>NT$31.68 to US$1</strong> (2026-09-22). The rate is written
+      down because a dollar figure with no rate and no date stops meaning
+      anything within a year, and a team costing a rebuild needs to be able to
+      redo the sum at their own rate.
+    </p>
+
+    {#
+      === 給團隊 ===
+      這張表就是成本計算試算表的內容，匯率 31.68 標在頁面上。
+      下面「not in this costing」那一段列的是電路上有、但試算表沒有計價的零件
+      （電阻、MOSFET、LED、UVette）。我沒有替它們估價——估錯對要照著重建的
+      隊伍來說比沒有數字更糟。有價格之後補進上表即可。
+    #}
+    <div class="hw-figure">
+      <table class="hw-table hw-cost">
+        <caption>Cost of one CAPTURE-Screen P1, as built</caption>
+        <thead>
+          <tr>
+            <th scope="col">Item</th><th scope="col">Qty</th>
+            <th scope="col">NT$</th><th scope="col">US$</th>
+            <th scope="col">Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="hw-cost-head"><th scope="rowgroup" colspan="5">Electronics</th></tr>
+          <tr><td>ESP32 development board <span class="hw-cost-zh">esp32開發板</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">215</td><td class="hw-cost-n">$6.79</td><td></td></tr>
+          <tr><td>AS7341 spectral sensor board <span class="hw-cost-zh">AS7341光譜感測器</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">860</td><td class="hw-cost-n">$27.15</td><td></td></tr>
+          <tr><td>Button module <span class="hw-cost-zh">按鈕模組</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">16</td><td class="hw-cost-n">$0.51</td><td></td></tr>
+          <tr><td>OLED display <span class="hw-cost-zh">oLED液晶屏</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">150</td><td class="hw-cost-n">$4.73</td><td></td></tr>
+          <tr><td>Breadboard <span class="hw-cost-zh">麵包板</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">45</td><td class="hw-cost-n">$1.42</td><td></td></tr>
+          <tr><td>Jumper wires <span class="hw-cost-zh">杜邦線</span></td><td class="hw-cost-n">several</td><td class="hw-cost-n">50</td><td class="hw-cost-n">$1.58</td><td></td></tr>
+          <tr class="hw-cost-sub"><td>Electronics subtotal</td><td></td>
+            <td class="hw-cost-n">1336</td><td class="hw-cost-n">$42.17</td><td></td></tr>
+
+          <tr class="hw-cost-head"><th scope="rowgroup" colspan="5">Enclosure, as built</th></tr>
+          <tr><td>Wood board <span class="hw-cost-zh">木板</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">60</td><td class="hw-cost-n">$1.89</td><td>Not charged &mdash; the supplier waived it</td></tr>
+          <tr><td>Laser cutting <span class="hw-cost-zh">雷切代工</span></td><td class="hw-cost-n">1</td><td class="hw-cost-n">300</td><td class="hw-cost-n">$9.47</td><td></td></tr>
+          <tr class="hw-cost-sub"><td>Enclosure subtotal</td><td></td>
+            <td class="hw-cost-n">360</td><td class="hw-cost-n">$11.36</td><td></td></tr>
+
+          <tr class="is-total"><td>Total, as built</td><td></td>
+            <td class="hw-cost-n">1696</td><td class="hw-cost-n">$53.54</td>
+            <td>NT$1,636 / $51.64 actually paid &mdash; the board was free</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The enclosure can also be 3D printed instead of laser cut, which costs
+      <strong>NT$1,150</strong> ($36.30) for that fabrication step in place
+      of the board and the cutting. That route brings the build to
+      <strong>NT$2,486</strong> ($78.47) &mdash; about
+      1.5&times; the laser-cut build, and the difference is almost
+      entirely that one line.
+    </p>
+
+    <p class="hw-aside">
+      Four things on the circuit are not in this costing, because the sheet
+      never priced them: the <strong>resistors</strong> (the 218&nbsp;&#8486; +
+      216&nbsp;&#8486; series pair, the 217&nbsp;&#8486; gate resistor and the
+      9.9&nbsp;k&#8486; pulldown), the <strong>2N7000</strong> switch, the
+      <strong>Cree 470&nbsp;nm LED</strong> and the <strong>Eppendorf
+      UVette</strong>. We have not put estimates against them: a team costing a
+      rebuild is worse served by a figure that turns out wrong than by a line
+      telling them to price those four themselves. The first three are ordinary
+      passives and a small-signal MOSFET; the UVette is the one that is not.
+    </p>
+
+    <h3>The file manifest</h3>
+
+    <p>
+      Mechanical source is versioned parametric CadQuery Python with STEP and
+      STL exports; the acquisition firmware targets the ESP32 with the Adafruit
+      AS7341 library. This table is every artefact needed to rebuild
+      <code>P1-PROTO-01</code>, and where each one currently stands.
+    </p>
+
+    {#
+      === 給團隊：Best Hardware 第 4 題就是看這張表 ===
+      每一列的「Where it is」等你們把檔案放上去之後，換成真正的連結即可，例如：
+        <a href="https://gitlab.igem.org/2026/hardware-ncku-tainan">GitLab</a>
+      檔案請放 iGEM 自己的 GitLab repo 或 uploads tool，不要連外部網址。
+      我沒有先填任何連結——填一個還不存在的網址，對照著檢查的評審來說
+      比誠實寫「尚未發布」更糟。
+    #}
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption>What you need to build one, and where it is</caption>
+        <thead>
+          <tr><th scope="col">Artefact</th><th scope="col">Format</th><th scope="col">Where it is</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Optical core geometry</td><td>Parametric CadQuery Python, v0.7</td><td class="hw-not">Held by the team, not yet published</td></tr>
+          <tr><td>Printable parts</td><td>STL, 22 mapped printable files</td><td class="hw-not">Held by the team, not yet published</td></tr>
+          <tr><td>Assembly geometry</td><td>STEP</td><td class="hw-not">Held by the team, not yet published</td></tr>
+          <tr><td>Acquisition firmware</td><td>ESP32 sketch, Adafruit AS7341 library, <code>P1-ACQ-1.0.0</code></td><td class="hw-not">Held by the team, not yet published</td></tr>
+          <tr><td>Bill of materials</td><td>CSV</td><td class="hw-not">Held by the team; unit prices still <code>UNKNOWN</code></td></tr>
+          <tr><td>Bench circuit</td><td>Schematic with measured values</td><td>On this page, in <em>A bench circuit, deliberately boring</em></td></tr>
+          <tr><td>Optical coordinates</td><td>Every part and its X extent</td><td>On this page, under the 3D cutaway</td></tr>
+          <tr><td>Working sensor settings</td><td>AGAIN 512&times;, ATIME 255, ASTEP 280</td><td>On this page, with the channel map</td></tr>
+          <tr><td>Operating rule</td><td>Darkened room or opaque shield</td><td>On this page, in <em>Ten channels instead of one filter</em></td></tr>
+          <tr><td>Assembly procedure</td><td>Written build order</td><td class="hw-not">Not written. The build was assembled once, at the manufacturer, without a recorded procedure</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      We would rather publish a build that has been shown to work than one we
+      hope works, and the rows marked above are the distance between those two
+      things. They are listed rather than left out so that a team deciding
+      whether to rebuild this knows exactly what they would be taking on.
+    </p>
+
+    <!-- PHOTO: UVette 座與 ORIENT-A 安裝方向照，上傳後插在這裡 -->
+
     <p class="hw-refs-note">
       Every measurement quoted on this page is drawn from our own dated
       engineering records, each of which names the session and the evidence
@@ -669,7 +1091,6 @@
       capability.
     </p>
   </section>
-
 
 </div>
 
