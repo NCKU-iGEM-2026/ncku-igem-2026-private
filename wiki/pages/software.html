@@ -1,8 +1,341 @@
 {% extends "layout.html" %}
-  
+
 {% block title %}Software{% endblock %}
-{% block lead %}Chun加油{% endblock %}
 
 {% block page_content %}
 
+<style>
+  /* Palette matches LasReader's frontend/css/style.css, which takes it from this wiki. */
+  .lv { --lv-ink: #3d3229; --lv-ink2: #5c4e42; --lv-muted: #8a7a6a;
+        --lv-rule: #dfe8e2; --lv-gold: #c9a227; --lv-gold-ink: #8a6d12;
+        --lv-accent: #075a3e; --lv-paper: #fffdf7; --lv-paper2: #f7faf8; }
+
+  .lv { margin: 0 0 3rem; padding: 30px; border: 1px solid var(--lv-rule);
+        border-radius: 18px; background: var(--lv-paper); color: var(--lv-ink); }
+  .lv-label { margin: 0 0 8px; color: var(--lv-gold-ink); font-size: .76rem; font-weight: 700; }
+  .lv-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  .lv-head h2 { margin: 0; font-size: 1.5rem; font-weight: 700; color: var(--lv-ink); }
+  .lv-desc { margin: 12px 0 0; color: var(--lv-ink2); line-height: 1.7; }
+
+  .lv-controls { display: flex; align-items: center; gap: 18px; }
+  .lv-state { display: inline-flex; align-items: center; gap: 7px; padding: 4px 12px;
+              border: 1px solid var(--lv-rule); border-radius: 999px; color: var(--lv-ink2);
+              background: #fff; font-size: .85rem; font-weight: 600; }
+  .lv-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--lv-muted);
+            box-shadow: 0 0 0 3px rgba(138,122,106,.12); }
+  .lv-dot.is-streaming { background: var(--lv-accent); box-shadow: 0 0 0 3px rgba(7,90,62,.14); }
+  .lv-dot.is-reconnecting { background: var(--lv-gold); box-shadow: 0 0 0 3px rgba(201,162,39,.16); }
+
+  .lv-switch { position: relative; display: inline-flex; align-items: center; gap: 8px; margin: 0;
+               cursor: pointer; font-weight: 600; }
+  .lv-switch input { position: absolute; opacity: 0; pointer-events: none; }
+  .lv-track { width: 42px; height: 24px; padding: 3px; border-radius: 999px; background: var(--lv-rule);
+              transition: background-color .15s ease; }
+  .lv-track span { display: block; width: 18px; height: 18px; border-radius: 50%; background: #fff;
+                   box-shadow: 0 1px 4px rgba(61,50,41,.22); transition: transform .15s ease; }
+  .lv-switch input:checked + .lv-track { background: var(--lv-accent); }
+  .lv-switch input:checked + .lv-track span { transform: translateX(18px); }
+  .lv-switch input:focus-visible + .lv-track { outline: 3px solid var(--lv-gold); outline-offset: 2px; }
+
+  .lv-stat { max-width: 280px; margin-top: 16px; padding: 12px 14px; border: 1px solid var(--lv-rule);
+             border-radius: 12px; background: #fff; }
+  .lv-stat-label { display: block; color: var(--lv-muted); font-size: .74rem; font-weight: 700; }
+  .lv-stat-value { display: block; margin-top: 4px; font-size: 1.6rem; font-weight: 700;
+                   color: var(--lv-ink); font-variant-numeric: tabular-nums; }
+  .lv-stat-sub { display: block; margin-top: 4px; color: var(--lv-muted); font-size: .85rem; }
+
+  .lv-empty { display: grid; min-height: 180px; margin-top: 16px; padding: 16px; place-items: center;
+              border: 1px dashed var(--lv-rule); border-radius: 12px; color: var(--lv-muted);
+              background: var(--lv-paper2); text-align: center; }
+  .lv-legend { display: flex; justify-content: flex-end; gap: 6px 16px; margin: 18px 0 6px;
+               color: var(--lv-muted); font-size: .8rem; }
+  .lv-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .lv-swatch { width: 10px; height: 10px; border-radius: 2px; background: var(--lv-accent); }
+  .lv-plate { margin: 8px 0 16px; padding: 14px; border: 1px solid var(--lv-rule);
+              border-radius: 12px; background: #fff; }
+  .lv-plate svg { display: block; max-width: 100%; height: auto; font-family: inherit; }
+
+  .lv-settings { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 8px; padding-top: 12px;
+                 border-top: 1px solid var(--lv-rule); color: var(--lv-ink2); font-size: .84rem; }
+  .lv-settings b { color: var(--lv-muted); font-weight: 700; }
+  .lv-fine { margin: 8px 0 0; color: var(--lv-muted); font-size: .88rem; line-height: 1.6; }
+
+  #live-spectrum, #live-f4 { transition: opacity .2s ease; }
+  .lv.is-paused #live-spectrum, .lv.is-paused #live-f4 { opacity: .45; }
+
+  /* Prose around the panel. */
+  .sw { max-width: 48rem; }
+  .sw section { margin-bottom: 2.75rem; }
+  .sw h2 { font-size: 1.35rem; font-weight: 700; color: var(--lv-ink);
+           margin-bottom: .9rem; padding-bottom: .45rem; border-bottom: 2px solid var(--lv-rule); }
+  .sw h3 { font-size: 1.05rem; font-weight: 700; color: var(--lv-ink); margin: 1.4rem 0 .5rem; }
+  .sw p, .sw li { color: var(--lv-ink2); line-height: 1.75; }
+  .sw li { margin-bottom: .5rem; }
+  .sw code { background: var(--lv-paper2); color: var(--lv-ink); padding: .1em .35em;
+             border-radius: 3px; font-size: .9em; }
+  .sw-lead p { font-size: 1.08rem; }
+
+  .sw-flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: .5rem; margin: 1.4rem 0; }
+  .sw-flow-node { flex: 1 1 10rem; border: 1.5px solid #b3a695; border-radius: 8px;
+                  background: var(--lv-paper); padding: .6rem .8rem; }
+  .sw-flow-node strong { display: block; color: var(--lv-ink); font-size: .92rem; }
+  .sw-flow-node span { display: block; color: var(--lv-muted); font-size: .8rem; line-height: 1.5; }
+  .sw-flow-arrow { align-self: center; color: var(--lv-muted); font-size: .78rem; text-align: center; }
+
+  .sw-terms { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1.2rem; margin: 1rem 0; }
+  .sw-terms dt { color: var(--lv-ink); font-weight: 700; }
+  .sw-terms dd { margin: 0; color: var(--lv-ink2); line-height: 1.65; }
+
+  @media (max-width: 720px) {
+    .sw-flow { flex-direction: column; }
+    .sw-terms { grid-template-columns: 1fr; }
+    .sw-terms dd { margin-bottom: .6rem; }
+    .lv { padding: 20px; }
+    .lv-controls { width: 100%; justify-content: space-between; }
+  }
+</style>
+
+{#
+  === 給團隊的說明，發布前請讀 ===
+  這一頁的敘述只寫了 LasReader repo（README、韌體註解、程式碼）裡查得到的事實，
+  以及 Hardware 頁已經寫過的硬體資訊。沒有任何實驗數據或效能數字。
+  需要你們補的：
+    - 原始碼連結：iGEM 要求軟體放在 gitlab.igem.org 的團隊 repo。
+      目前只放了 GitHub 連結；GitLab 網址確定後加到 "Source code" 一節。
+    - 如果之後加了裝置驗證（shared secret），把 Limitations 的第一點改掉。
+#}
+
+<div class="sw">
+
+  <section class="sw-lead">
+    <p>
+      CAPTURE-Screen, the fluorescence reader described on our
+      <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page, reads
+      sfGFP through an AS7341 spectral sensor. The instrument sits on a lab
+      bench; this page lets anyone watch what its sensor sees, as it sees it.
+    </p>
+    <p>
+      The panel below is part of <strong>LasReader</strong>, the software we
+      wrote to run the instrument. It shows the sensor's raw output, frame by
+      frame, straight from the device. Nothing in it is simulated: when
+      CAPTURE-Screen is switched off, the panel says so and shows no data.
+    </p>
+  </section>
+
+  <section>
+    <h2>Reading the panel</h2>
+    <p>
+      The AS7341 splits incoming light into ten channels. Eight are narrow
+      bands across the visible spectrum, from F1 (415&nbsp;nm) to
+      F8 (680&nbsp;nm); the other two are a broadband Clear channel and a
+      near-infrared (NIR) channel. Each bar is one channel's reading in the
+      latest frame.
+    </p>
+    <p>
+      <strong>F4 (515&nbsp;nm)</strong> is the band that covers sfGFP emission,
+      so it is the one bar drawn in green and the one number called out above
+      the chart. For comparison, the wet lab reads sfGFP on a plate reader at an
+      emission wavelength of 510&nbsp;nm.
+    </p>
+    <dl class="sw-terms">
+      <dt>Status</dt>
+      <dd><em>Connecting</em>: this page is still reaching our backend.
+        <em>Offline</em>: the backend is up, but CAPTURE-Screen is not connected.
+        <em>Online</em>: the device is ready. <em>Streaming</em>: frames are
+        arriving.</dd>
+      <dt>Live</dt>
+      <dd>Turns on the excitation LED and starts the stream. Off by default.</dd>
+      <dt>Raw counts</dt>
+      <dd>The sensor's ADC output for each channel, before any processing.</dd>
+      <dt>Gain, Integration</dt>
+      <dd>The sensor settings the counts were taken with. The same light gives
+        different counts at a different gain or integration time, so raw counts
+        cannot be interpreted without them.</dd>
+      <dt>Full scale</dt>
+      <dd>The highest count a channel can report at the current integration
+        settings: (ATIME&nbsp;+&nbsp;1)&nbsp;&times;&nbsp;(ASTEP&nbsp;+&nbsp;1),
+        capped at 65,535. A bar near full scale is close to saturating.</dd>
+      <dt>LED</dt>
+      <dd>The excitation LED's drive current, measured with a multimeter,
+        since the firmware cannot read it.</dd>
+      <dt>Build, Firmware, Wi-Fi</dt>
+      <dd>Which physical unit and firmware version is sending the data, and its
+        Wi-Fi signal strength.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Watch it live</h2>
+    <p>
+      If CAPTURE-Screen is online, switch on <strong>Live</strong>. Frames
+      arrive about once a second. If the page stays on <em>Connecting</em>, the
+      backend is waking up from idle, which can take up to a minute.
+    </p>
+  </section>
+
+</div>
+
+<section id="live-card" class="lv" aria-labelledby="live-heading">
+  <div class="lv-head">
+    <div>
+      <p class="lv-label">CAPTURE-Screen</p>
+      <h2 id="live-heading">Live spectrum</h2>
+    </div>
+    <div class="lv-controls">
+      <span class="lv-state" aria-live="polite">
+        <span id="live-dot" class="lv-dot is-reconnecting" aria-hidden="true"></span>
+        <span id="live-dot-label">Connecting</span>
+      </span>
+      <label class="lv-switch" for="live-toggle">
+        <!-- autocomplete="off": a browser restoring the checked box on reload would switch the LED on unasked. -->
+        <input id="live-toggle" type="checkbox" autocomplete="off" />
+        <span class="lv-track" aria-hidden="true"><span></span></span>
+        <span>Live</span>
+      </label>
+    </div>
+  </div>
+
+  <p class="lv-desc">
+    Real-time raw counts from CAPTURE-Screen's ten spectral channels; F4 (515 nm) is the sfGFP band.
+    The excitation LED is on only while Live is on, to avoid heating and bleaching the sample.
+  </p>
+
+  <div class="lv-stat">
+    <span class="lv-stat-label">sfGFP · F4 515 nm</span>
+    <span class="lv-stat-value" id="live-f4">--</span>
+    <span class="lv-stat-sub">raw counts</span>
+  </div>
+
+  <div id="live-empty" class="lv-empty">Connecting to backend (up to 1 min after idle)...</div>
+  <div id="live-spectrum" hidden>
+    <div class="lv-legend" aria-hidden="true">
+      <span><i class="lv-swatch"></i>F4 · sfGFP</span>
+    </div>
+    <div class="lv-plate">
+      <svg id="live-chart" role="img" aria-label="Raw counts in the latest frame for each of the ten spectral channels"></svg>
+    </div>
+  </div>
+
+  <div id="live-settings" class="lv-settings" hidden></div>
+  <p class="lv-fine">Display only: raw counts are not dark-subtracted and never stored.</p>
+</section>
+
+<div class="sw">
+
+  <section>
+    <h2>How a frame reaches this page</h2>
+    <div class="sw-flow" role="img"
+         aria-label="Data path: the ESP32 in CAPTURE-Screen reads the AS7341 sensor and sends each frame over a WebSocket it opened to the LasReader backend on Render, which forwards the frame over a second WebSocket to every browser watching this page.">
+      <div class="sw-flow-node"><strong>AS7341</strong><span>ten-channel spectral sensor</span></div>
+      <div class="sw-flow-arrow" aria-hidden="true">I&sup2;C &rarr;</div>
+      <div class="sw-flow-node"><strong>ESP32 firmware</strong><span>inside CAPTURE-Screen</span></div>
+      <div class="sw-flow-arrow" aria-hidden="true">WebSocket &rarr;<br>device dials out</div>
+      <div class="sw-flow-node"><strong>LasReader backend</strong><span>FastAPI on Render</span></div>
+      <div class="sw-flow-arrow" aria-hidden="true">WebSocket &rarr;</div>
+      <div class="sw-flow-node"><strong>This page</strong><span>every open browser</span></div>
+    </div>
+    <ol>
+      <li>When CAPTURE-Screen powers on and joins Wi-Fi, its ESP32 opens a
+        WebSocket to our backend and keeps it open, reconnecting on its own if
+        it drops. It reports its status every 5&nbsp;seconds; if the backend
+        hears nothing for 15&nbsp;seconds, it marks the device offline.</li>
+      <li>This page opens its own WebSocket to the backend as soon as it loads,
+        so it can show whether the device is online before anyone asks for
+        data.</li>
+      <li>Switching on Live tells the backend that one more person is watching.
+        When the first viewer arrives, the backend tells the device to turn on
+        the LED and start streaming.</li>
+      <li>The device reads all ten channels and sends each frame to the
+        backend, which forwards it to every browser that is watching.</li>
+      <li>When the last viewer switches Live off or closes the page, the
+        backend tells the device to stop, and the LED goes off.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Design choices</h2>
+
+    <h3>The device connects out, not in</h3>
+    <p>
+      The backend runs in the cloud, and a lab or home router does not let the
+      cloud reach a device behind it. So the direction is reversed:
+      CAPTURE-Screen dials out to the backend, and browsers talk only to the
+      backend. The device never needs a public address.
+    </p>
+
+    <h3>The LED is on only while someone is watching</h3>
+    <p>
+      Continuous excitation light warms the sample in the cuvette and
+      photobleaches it. So the LED follows viewers, not the page: it lights
+      when the first person switches on Live and turns off when the last one
+      leaves. Moving this tab to the background counts as leaving, because
+      nobody can see a hidden tab; the stream resumes when the tab comes back.
+      If the device loses its connection to the backend, the firmware turns
+      the LED off by itself.
+    </p>
+
+    <h3>Live data is shown, never kept</h3>
+    <p>
+      A live frame is a single reading with no dark subtraction. That is enough
+      to watch the sensor respond, but it is not a measurement. LasReader
+      therefore only draws live frames and never stores them, so they cannot
+      end up in a calibration or a result. Recorded measurements take a
+      separate path, with a dark reading before and after the lit one.
+    </p>
+
+    <h3>An old frame never looks current</h3>
+    <p>
+      When the device goes offline or the connection drops, the chart is
+      cleared instead of left showing the last frame. While the device is busy
+      with a measurement, which pauses the stream, the last frame is faded.
+    </p>
+
+    <h3>Nothing loaded from outside iGEM</h3>
+    <p>
+      The standalone LasReader site draws this chart with Chart.js. The wiki
+      may not load scripts from external servers, so for this page we redrew
+      the bar chart as plain SVG, with no third-party library.
+    </p>
+  </section>
+
+  <section>
+    <h2>Limitations</h2>
+    <ul>
+      <li><strong>No authentication yet.</strong> Anyone who knows the backend
+        address could pose as the device or ask it for a reading. We plan to
+        add a shared secret between the device and the backend.</li>
+      <li><strong>Slow first connection.</strong> The backend runs on a free
+        hosting tier that sleeps when idle. The first visitor after a quiet
+        period can wait up to a minute; the page and the device both keep
+        retrying on their own.</li>
+      <li><strong>One device, one server process.</strong> The backend keeps
+        its connections in memory, which works for a single CAPTURE-Screen and
+        a single server process. Scaling beyond that would need changes, such
+        as a shared message broker.</li>
+      <li><strong>Only while the device is on.</strong> The panel shows real
+        data only; when CAPTURE-Screen is switched off, it shows the device as
+        offline.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Source code</h2>
+    <p>
+      LasReader, including the backend, the CAPTURE-Screen firmware and the
+      original version of this panel, is released under the MIT License. Its
+      README explains how to install and run it locally and how to flash the
+      firmware.
+    </p>
+    <p>
+      <a href="https://github.com/igem-ncku-software/igem-software"
+         target="_blank" rel="noopener">LasReader source repository</a>
+    </p>
+  </section>
+
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename = 'software-live.js') }}"></script>
 {% endblock %}

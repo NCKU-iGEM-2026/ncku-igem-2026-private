@@ -7,6 +7,12 @@
     <link rel="shortcut icon" href="https://static.igem.wiki/teams/6379/wiki/logo/logo-only.avif"/>
     <link rel="license" href="https://creativecommons.org/licenses/by/4.0/"/>
 
+    <!-- Every page pulls its banner, photos and fonts from static.igem.wiki.
+         Opening that connection while the HTML is still being parsed gets the
+         DNS lookup and the TLS handshake out of the way before the first image
+         is even asked for. -->
+    <link rel="preconnect" href="https://static.igem.wiki" crossorigin>
+
     <!-- Bootstrap CSS -->
     <link href="{{ url_for('static', filename = 'bootstrap.min.css') }}" rel="stylesheet">
 
@@ -16,21 +22,25 @@
     <title>{% block title %}{% endblock %} | NCKU-Tainan - iGEM 2026</title>
 
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
   <!-- Navigation -->
   {% include 'menu.html' %}
 
   <!-- Header -->
-  <header class="bg-hero py-5 mb-5">
+  {% block header %}
+  <header class="bg-hero page-hero py-5 mb-5">
+    <div class="page-hero-bg" style="background-image: url('{% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/education.avif{% endblock %}');"></div>
+    <div class="page-hero-tint"></div>
     <div class="container h-100">
       <div class="row h-100 align-items-center">
         <div class="col-lg-12">
-          <h1 class="display-4 hero-title mt-5 mb-2">{{ self.title() }}</h1>
-	        <p class="lead mb-5 text-white-50">{% block lead %}{% endblock %}</p>
+          <h1 class="display-4 hero-title mt-5 mb-2">{% block hero_title %}{{ self.title() }}{% endblock %}</h1>
+	        <p class="lead mb-5 hero-sub">{% block lead %}{% endblock %}</p>
         </div>
       </div>
     </div>
   </header>
+  {% endblock %}
 
   <!-- Page Content -->
   <div class="container">
@@ -40,8 +50,18 @@
   <!-- Footer: MUST mention license AND have a link to team wiki's repository on gitlab.igem.org -->
   {% include 'footer.html' %}
 
+  <!-- Back to top: sits outside the footer so position:fixed is not affected
+       by any transformed ancestor. Hidden until the page is scrolled. -->
+  <button type="button" id="backToTop" class="back-to-top" aria-label="Back to top" title="Back to top">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 16 16" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8 13V3.5"/><path d="M3.5 8 8 3.5 12.5 8"/>
+    </svg>
+  </button>
+
   <!-- Bootstrap Bundle with Popper -->
   <script src="{{ url_for('static', filename = 'bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename = 'navbar-scroll.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>

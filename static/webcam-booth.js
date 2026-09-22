@@ -2,19 +2,19 @@
   // 特效框圖檔還沒畫好前先留空，之後美宣畫好上傳到 static.igem.wiki 後
   // 把對應的網址填進這裡就好，其他程式邏輯都不用動。
   var FRAME_URLS = [
-    "https://static.igem.wiki/teams/6379/wiki/filter/pikachu.avif", // 特效 1
-    "https://static.igem.wiki/teams/6379/wiki/filter/asiagodtone.avif", // 特效 2
-    "https://static.igem.wiki/teams/6379/wiki/filter/asiagodtone2.avif", // 特效 3
-    "https://static.igem.wiki/teams/6379/wiki/filter/alston.avif", // 特效 4
-    "https://static.igem.wiki/teams/6379/wiki/filter/hank.avif"  // 特效 5
+    "https://static.igem.wiki/teams/6379/wiki/filter/hank-heart.avif", // 特效 1
+    "https://static.igem.wiki/teams/6379/wiki/filter/hank-cat.avif", // 特效 2
+    null, // 特效 3
+    null, // 特效 4
+    null  // 特效 5
   ];
 
   // 每個特效框圖案要畫在畫面的哪個位置、多大，數字是相對畫面的比例 (0~1)。
   // 沒有特別設定的濾鏡預設是滿版；如果某個特效框圖案本身偏大/偏小或要放在
   // 角落，改這裡對應的 x / y / width / height 就好，相機畫面不受影響。
   var FRAME_RECTS = [
-    { x: 0.5, y: 0, width: 0.5, height: 0.5 }, // 特效 1
-    { x: 0, y: 0.4, width: 0.6, height: 0.6 }, // 特效 2
+    { x: 0.2, y: 0.3, width: 0.35, height: 0.9 }, // 特效 1
+    { x: 0.2, y: 0.3, width: 0.3, height: 0.9 }, // 特效 2
     { x: 0.4, y: 0.4, width: 0.6, height: 0.7}, // 特效 3
     { x: 0.4, y: 0.4, width: 0.6, height: 0.7}, // 特效 4
     { x: 0, y: 0.3, width: 0.3, height: 0.7 }  // 特效 5
@@ -41,8 +41,10 @@
   }
 
   function resizeCanvas() {
-    canvas.width = stage.clientWidth;
-    canvas.height = stage.clientHeight;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = stage.clientWidth * dpr;
+    canvas.height = stage.clientHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   function getFrameRect(index) {
@@ -65,8 +67,10 @@
 
   function drawLoop() {
     if (!stream) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawFrame(ctx, activeFilter, canvas.width, canvas.height);
+    var w = stage.clientWidth;
+    var h = stage.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    drawFrame(ctx, activeFilter, w, h);
     rafId = requestAnimationFrame(drawLoop);
   }
 

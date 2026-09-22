@@ -1,0 +1,688 @@
+================================================================================
+CAPTURE-SCREEN — HARDWARE PRINCIPLE EXPLAINER
+Shot sheet / 分鏡腳本
+================================================================================
+
+RUNTIME    3:23.05 (6090 frames @ 30 fps)
+SHOTS      12，剪接點全部是 0.47 秒交叉淡入淡出
+SUBJECT    P1-PROTO-01
+SOURCE     wiki/pages/hardware.html (state as of 2026-08-25)
+PROJECT    C:\Users\user\capture-screen-video  (Remotion, composition id "Film")
+OUTPUT     out/capture-screen-av.mp4 · out/capture-screen.srt
+SOUND      音樂一軌。無旁白、無音效。出處見 SOUND-CREDITS.md
+
+校對狀態 2026-09-14，逐行對照 src/shots/*.jsx 與 src/components/*.jsx。
+每個秒數都是從程式碼的 s(...) 常數抽出來的，不是憑印象寫的。
+影片改了就要回來改這裡。
+
+驗證方式：
+    python tools/audit.py        六段總檢查，目前 no failures
+    python tools/check_film.py   字幕時間、重疊、閱讀速度、覆蓋率
+
+
+--------------------------------------------------------------------------------
+這一版和前一版的差別
+--------------------------------------------------------------------------------
+
+片長從 3:00 變成 3:23。三件事造成的：
+
+1. 語速放慢。旁白從 SAPI Rate 2 降到 Rate 1，全片配音長 12%。
+2. 每個鏡頭依實際配音長度重訂長度，**鏡頭內部的 199 個 beat 也依比例
+   拉長**，編排維持原樣，只是整體變慢。
+3. 開頭重做，從 10 秒變 12 秒。
+
+副作用（好的）：**字幕現在每一句都完整落在自己的鏡頭裡**，不再有旁白
+跨越剪接點的情形。
+
+音效做過一輪，但依團隊決定沒有留在成品裡（見下面「聲音」一節）。
+
+
+--------------------------------------------------------------------------------
+範圍與現況
+--------------------------------------------------------------------------------
+
+只講原理與機器怎麼跑。製作過程的困難全部不在片子裡：
+缺件、兩處斷裂、三個黏合接點、沒達到的 0.5 秒目標、open items 表。
+沒有進片子不代表可以否認 —— 被問到就照 wiki 上寫的回答。
+
+全片無實拍。沒有照片、沒有錄影、沒有任何鏡頭前的東西。
+四種畫面材料：線稿光路圖、讀值面板、時序／長條圖、文字。
+
+字幕：燒進畫面，同時輸出 out/capture-screen.srt（53 個 cue）。
+畫面底部 950 px 以下是字幕帶，鏡頭裡的說明文字都避開了。
+
+
+--------------------------------------------------------------------------------
+聲音
+--------------------------------------------------------------------------------
+
+**旁白關閉**（src/Soundtrack.jsx 的 USE_VOICEOVER = false）。
+**音效也關閉**（src/components/Sfx.jsx 的 USE_SFX = false）。
+成品是「有字幕、有音樂、沒有人聲、沒有音效」。
+
+音樂：自己合成的 ambient bed（tools/make_music.py），全片只有這一軌。
+
+音效做過一輪但依團隊決定關掉。七個音效檔（public/sfx/）和 53 個 cue
+（src/sfx.json）都還在，USE_SFX 改成 true 就會回來。下面各鏡頭的
+SOUND 行是那份時間表的記錄，目前**不會出現在成品裡**。
+
+**沒有任何第三方音訊。** 出處與合成參數全部寫在 SOUND-CREDITS.md。
+
+public/vo/*.wav 是機器合成的暫用配音，不會播 —— 它現在的用途是幫字幕
+定時間。**不要刪**，刪了字幕秒數就沒有依據了。
+
+
+--------------------------------------------------------------------------------
+轉場：先讀這段
+--------------------------------------------------------------------------------
+
+11 個剪接點全部是 **14 格（0.47 秒）的交叉淡入淡出**，不是硬切。
+
+轉場會重疊兩個鏡頭。為了不讓時間軸整個往前位移，**每個鏡頭多渲染 0.47 秒**
+（最後一鏡除外），多出來那段正好被下一鏡的淡入蓋住。結果是：
+
+    鏡頭的絕對起點 = 各 dur 的累加
+    全片長度      = 各 dur 的總和 = 203.00 秒
+    字幕          = 不受轉場影響
+
+所以下面每個鏡頭寫的「可見長度」之後，實際上還會再演 0.47 秒的尾巴。
+
+**每個鏡頭左上角的說明區塊都在 0.55–1.45 秒之間淡入。**
+那是刻意排在轉場（0–0.47 秒）結束之後，否則文字會疊在前一個鏡頭上。
+語速放慢時這組數字**沒有**跟著拉長，因為它對的是轉場，不是鏡頭長度。
+
+
+--------------------------------------------------------------------------------
+時間表的單一真相來源
+--------------------------------------------------------------------------------
+
+    src/shots.json      鏡頭順序、長度、轉場長度 ← 改這裡
+    src/timing.js       React 端從 shots.json 推算絕對時間
+    tools/filmtime.py   工具端用同一套算法
+    src/narration.json  旁白記「鏡頭內的相對秒數」offset
+    src/sfx.json        音效也記 offset，同一套做法
+
+改鏡頭長度只要改 shots.json，然後跑
+    python tools/make_captions.py
+字幕、音樂 ducking、音效位置、composition 長度會全部自動跟上。
+
+
+--------------------------------------------------------------------------------
+TIMELINE
+--------------------------------------------------------------------------------
+
+  0:00   01   12 s   SETUP       The answer is light. Reading it is the problem.
+  0:12   02   14 s   SETUP       Why build a reader at all
+  0:26   03   12 s   SETUP       Title — CAPTURE-Screen
+  0:38   04   22 s   PRINCIPLE   Excitation — one blue LED at 470 nm
+  1:00   05   20 s   PRINCIPLE   Look across the beam, not down it
+  1:20   06   22 s   PRINCIPLE   What happens to the light we don't want
+  1:42   07   18 s   PRINCIPLE   The sample — 2 mm across, 10 mm along
+  2:00   08   22 s   PRINCIPLE   The detector — channels, not a single number
+  2:22   09   22 s   OPERATION   How one reading runs
+  2:44   10   16 s   OPERATION   What the detector sees
+  3:00   11   12 s   CLAIM       What it does
+  3:12   12   11 s   CLAIM       End card
+  3:23              END
+
+括號裡的是鏡頭內的相對秒數，也就是程式碼裡 s(...) 的值。
+
+
+================================================================================
+SHOT 01    0:00–0:12    12 s    SETUP
+The answer is light. Reading it is the problem.
+================================================================================
+
+開場就是這支片子的幾何本身：一道藍線、一道綠線、一個直角。
+交點長出比色管 —— 因為樣品本來就在兩道光交會的地方。片尾用同一個記號收尾。
+
+（舊版是一顆綠色圓點淡入，依團隊決定換掉。）
+
+ANIMATION
+  0:00.2–0:01.8 (0.2–1.8) A blue line draws left to right across the centre.
+  0:00.9–0:02.5 (0.9–2.5) A green line draws down through it.
+  0:02.1–0:02.9 (2.1–2.9) The right angle draws at the crossing.
+  0:03.1–0:04.3 (3.1–4.3) The arc fades; a cuvette cross-section grows out of
+                          the crossing; both lines drop back to 40 %.
+  0:03.8–0:05.4 (3.8–5.4) Liquid fills to a meniscus, a green glow builds.
+  0:04.6–0:06.2 (4.6–6.2) "AHL in → sfGFP out" types on below.
+  0:06.6–0:10   (6.6–10)  The frame pulls back to 74 %; a flat grey
+                          benchtop-instrument silhouette slides in from off
+                          screen right. Type fades 0:07–0:08.2, the glow
+                          0:07.4–0:08.8.
+  0:10–0:12               Hold on the grey box, then dissolve to shot 02.
+
+SOUND (目前關閉)   beam 0.2 · beam 0.9 · mark 2.1 · panel 3.2 · thud 6.9
+
+CAPTION (narration.json shot 01, offset 0.8 s)
+  Our cell-free reaction answers an AHL signal by making sfGFP.
+  Reading that answer normally means a benchtop plate reader.
+  [9.4 s of caption over a 12 s shot]
+
+
+================================================================================
+SHOT 02    0:12–0:26    14 s    SETUP
+Why build a reader at all
+================================================================================
+
+ANIMATION
+  0:12.5–0:15.7 (0.5–3.7) Three chips fade in one per second and clamp onto the
+                          instrument: "booked", "scheduled", "one building".
+  0:16.7–0:17.8 (4.67–5.83) The chips fade out.
+  0:16.7–0:19.7 (4.67–7.7)  The instrument shrinks slightly and slides out of
+                          frame to the right, fading to 65 %.
+  0:20.2–0:20.9 (8.17–8.87) The plan-view stage fades in, empty.
+  0:20.2–0:23.4 (8.17–11.4) Printed parts drop in from 240 units above frame:
+                          LED holder, baffle, sample, trap, then filter slot
+                          and detector from below — 0.29 s apart, each 1.75 s.
+  0:24.8–0:26   (12.8–14)  The optical axes fade in to 80 %. Hold.
+
+SOUND (目前關閉)   click ×6 as each part lands, 0.29 s apart from 9.3 s
+
+CAPTION (shot 02, offset 0.4 s)
+  A shared reader is booked, scheduled, and in someone else's building.
+  So we built our own. Cheap enough to sit next to the incubator, and open
+  enough that anyone can rebuild it.
+  [12.66 s over a 14 s shot]
+
+!! FLAG — Don't destroy the plate reader on screen.
+  The page is explicit that it has not been discarded; it is still the
+  reference condition. Letting it leave frame is fine, smashing or crossing
+  it out is not. The benchmark comparison is made at 0:44, on the spectrum strip.
+
+!! FLAG — 位移用 240 個 wiki 單位，不要再加大。鏡頭高度只有 338 個單位。
+
+
+================================================================================
+SHOT 03    0:26–0:38    12 s    SETUP
+Title — CAPTURE-Screen
+================================================================================
+
+ANIMATION
+  0:26.3–0:27.6 (0.3–1.6) Wordmark fades up over the assembled plan view.
+  0:30–0:31     (4–5)     Sub-line: "90° fluorescence · single cuvette".
+  0:34–0:35.4   (8–9.4)   The title block fades out.
+  0:34–0:38     (8–12)    The camera eases from wide to the standard plan view.
+  0:35–0:36.6   (9–10.6)  The schematic's own labels fade in. Hold.
+
+SOUND (目前關閉)   mark 0.3
+
+ON SCREEN
+  CAPTURE-Screen
+  90° fluorescence · single cuvette
+
+CAPTION (shot 03, offset 0.8 s)
+  This is CAPTURE-Screen: a research-use, single-cuvette, ninety-degree
+  fluorescence reader. Here is how it works.
+  [8.66 s over a 12 s shot]
+
+!! FLAG — Never "CAPTURE-Reader" anywhere on screen or in a file name (D-006).
+
+!! NOTE — 片頭的日期行與 "research use only" 已依團隊決定移除，但這一鏡的
+  **字幕**仍然帶著 "a research-use … reader"。那句是準確的，所以沒有動。
+
+
+================================================================================
+SHOT 04    0:38–1:00    22 s    PRINCIPLE
+Excitation — one blue LED at 470 nm
+================================================================================
+
+CAMERA  A slow 5 % push across the whole shot: full plan view → fullTight.
+
+ANIMATION
+  0:38.6–0:39.8 (0.61–1.83) The LED lights: blue, soft bloom. Everything else
+                          in the drawing sits at 25 %.
+  0:40.4–0:41.7 (2.44–3.67) The schematic's labels fade in.
+  0:41.7–0:42.6 (3.67–4.64) Chip: "Cree C503B-BCN-CV0Z0461".
+  0:42.4–0:44.4 (4.4–6.36)  "nominal 470 nm" types on under it.
+  0:44.1–0:45.3 (6.11–7.33) The spectrum strip fades in: a solid tick at 470
+                          marked "ours", a hollow dashed tick at 485 marked
+                          "plate reader".
+  0:47.8–0:50.2 (9.78–12.22) The blue beam draws from LED to sample; the rest
+                          of the drawing comes back up from 25 % to full.
+  0:50.2–0:52.1 (12.22–14.06) A green glow builds inside the cuvette.
+  0:55.1–0:57.6 (17.11–19.56) A short green stub grows out of the sample.
+                          That stub is the question shot 05 answers.
+
+SOUND (目前關閉)   mark 0.5 (the LED lights) · beam 9.78 · beam 17.11
+
+CAPTION (shot 04, offset 0.2 s)
+  It starts with one blue LED, a Cree part, nominal four hundred and seventy
+  nanometres. sfGFP takes in blue light and gives back green. Our benchmark
+  plate reader excites at four eighty-five. Four seventy is deliberately
+  different, and that difference is something we will have to characterise,
+  not assume away.
+  [21.5 s over a 22 s shot]
+
+!! FLAG — Don't put a number on irradiance. The page records it as unmeasured.
+
+
+================================================================================
+SHOT 05    1:00–1:20    20 s    PRINCIPLE
+The central idea — look across the beam, not down it
+================================================================================
+
+ANIMATION
+  1:00–1:01.1   (0–1.11)  Heading: "Where do you put the detector?"
+  1:00.3–1:03.6 (0.33–3.56) Left panel builds — the detector in line behind the
+                          sample — its beam draws, its meter fills: excitation
+                          almost full, emission a sliver.
+  1:05.6–1:09.1 (5.56–9.11) Right panel builds — detector at 90°, beam into the
+                          trap — the green emission beam draws down and its
+                          meter fills: a small green bar, almost no blue.
+  1:11.1–1:12.8 (11.11–12.78) Heading and left panel fade and slide off left.
+  1:11.1–1:14.4 (11.11–14.44) The right panel scales up 3.2× and fades out.
+  1:13.3–1:15.1 (13.33–15.11) The full plan view cross-fades in underneath;
+                          its labels follow at 1:15–1:16.1.
+  1:14.7–1:15.6 (14.67–15.56) The 90° arc draws; the "90°" label follows.
+  1:15.6–1:17.8 (15.56–17.78) The green emission beam draws to the detector.
+  1:17.6–1:18.7           Bottom-left: "EMISSION / collected at 90° to the
+                          excitation". Hold.
+
+  縮圖用 1:19 那一格：兩道光束都在，90° 弧線清楚。
+
+SOUND (目前關閉)   rise 2.22 (in-line meter) · rise 7.78 (90° meter) · mark 14.67 · beam 15.56
+
+CAPTION (shot 05, offset 0.6 s)
+  Here is the central idea. The excitation beam is overwhelmingly brighter
+  than the fluorescence we are trying to see. So the detector does not look
+  down the beam. It looks across it, at ninety degrees. On that axis it sees
+  the sample, and almost none of the source.
+  [18.86 s over a 20 s shot]
+
+!! FLAG — 那兩根長條沒有刻度也沒有數值。它們在說明「從光路正後方看，激發光
+  會把螢光淹掉」這個通則。MiniGeometry.jsx 的 LEVELS 不要填實測值。
+
+!! NOTE — 圖上的 "UVette, 200 µL" 標籤座標是 (372, 284) 靠右對齊。它一度被
+  移到 (396, 278)，正好壓在 "90°" 上面。動之前先在 1:16.5 那一格確認。
+
+
+================================================================================
+SHOT 06    1:20–1:42    22 s    PRINCIPLE
+What happens to the light we don't want
+================================================================================
+
+CAMERA  fullTight → baffle（到 1:24.6）→ trap（1:25.5–1:29.9）→ 停
+        → fullTight（1:36.5–1:40.4）
+
+ANIMATION
+  1:20.7–1:22   (0.66–1.98) The schematic's own labels fade OUT — they are
+                          drawn in wiki units, so the push-in would blow them up.
+  1:20.55–1:21.45         Top-left block fades in: "BEFORE THE SAMPLE /
+                          baffle · two aperture stops".
+  1:22.2–1:24.4 (2.2–4.4) The four aperture stops get a blue highlight ring;
+                          the beam before them thickens while after them it
+                          stays thin. That width difference is the point.
+  1:24.7–1:26.5 (4.73–6.49) The top-left block cross-fades to "AFTER THE
+                          SAMPLE / angled wedge light trap / Ø8.0 × 27 mm deep".
+  1:26–1:28.3   (6.05–8.25) The beam draws past the sample into the wedge.
+  1:27.7–1:29.5 (7.7–9.46)  The beam strikes the slanted end face, deflects,
+                          and fades to nothing INSIDE the wedge.
+  1:28.4–1:29.5 (8.36–9.46) The Ø8.0 × 27 mm dimension line draws.
+  1:32.1–1:34.3 (12.1–14.3) A ghost flat-ended trap fades in at 45 % with a red
+                          ray bouncing straight back up the axis; a red cross
+                          stamps over it. Caption at 812 px: "why the end face
+                          is slanted".
+  1:35–1:36.1   (14.96–16.06) The ghost and cross dissolve.
+  1:36.9–1:38   (16.94–18.04) The top-left block fades out, before the
+                          schematic labels come back.
+  1:37.6–1:39.4 (17.6–19.36) The green emission beam draws down.
+  1:38.5–1:39.8 (18.48–19.8) The schematic's labels fade back in; lower-left
+                          block appears: "THE GEOMETRY / the far side of the
+                          axis belongs to the trap, so this is a fluorescence
+                          geometry".
+
+SOUND (目前關閉)   click 2.2 (stops seat) · beam 6.05 · click 13.64 (the red cross) · beam 17.6
+
+CAPTION (shot 06, offset 0.6 s)
+  Before the sample, two aperture stops trim the beam. After it, whatever the
+  sample does not absorb runs into an angled wedge trap, slanted so that light
+  is deflected rather than returned. The far side of the axis belongs to that
+  trap, which is what makes this a fluorescence geometry, not a transmission one.
+  [20.63 s over a 22 s shot]
+
+!! FLAG — 偏折後的光線必須留在楔形裡（路徑 M601 247 L522 234）。楔形的底邊
+  在 y=250。曾經畫到 y=272，看起來就像光從吸光阱漏出去 —— 正好相反。
+
+!! FLAG — Never animate a ray returning up the axis, except as the ghost that
+  is explicitly crossed out.
+
+!! FLAG — 變焦時一定要關掉圖內標籤。這一鏡變焦到 5.8×。
+
+!! FLAG — Say it as what the geometry is, not as something the instrument
+  can't do.
+
+
+================================================================================
+SHOT 07    1:42–2:00    18 s    PRINCIPLE
+The sample — 2 mm across, 10 mm along
+================================================================================
+
+ANIMATION
+  1:42–1:44.3   (0–2.25)  The enlarged UVette chamber fades in.
+  1:42.55–1:43.45         Top-left block: "THE SAMPLE / Eppendorf UVette /
+                          200 µL per reaction".
+  1:45.4–1:48.5 (3.38–6.53) The 2 mm dimension draws across the excitation
+                          path, then 10 mm along the detection path.
+  1:48.1–1:50.1 (6.08–8.1)  Liquid fills the chamber to a meniscus.
+  1:51–1:52.4   (9–10.35)   The ORIENT-A arrow stamps on.
+  1:55.5–1:58.2 (13.5–16.2) The blue excitation crosses the 2 mm path; the
+                          green emission leaves along the 10 mm path.
+  1:57.8–1:58.9 (15.75–16.88) Bottom note: "UVette — validation vessel, not
+                          the final container".
+
+SOUND (目前關閉)   click 9.0 (the UVette seats) · beam 13.5 · beam 14.62
+
+CAPTION (shot 07, offset 0.8 s)
+  The sample sits in an Eppendorf UVette, in one fixed orientation we call
+  ORIENT-A. The excitation crosses the short two-millimetre path. The detector
+  looks along the ten-millimetre one. Two hundred microlitres.
+  [16.01 s over an 18 s shot]
+
+
+================================================================================
+SHOT 08    2:00–2:22    22 s    PRINCIPLE
+The detector — channels, not a single number
+================================================================================
+
+CAMERA  fullTight → detector（到 2:04.9）→ 停 → fullTight（2:17.1–2:20.8）
+
+右側面板只畫 **F2 / F3 / F4** 三個通道，不是全部十二個。
+面板尺寸 1146×498。
+
+ANIMATION
+  2:00.55–2:01.45         Top-left block: "THE DETECTOR / AS7341 / on a
+                          DFRobot SEN0365 board".
+  2:02.9–2:04.4 (2.93–4.4) The schematic's labels fade out for the push-in.
+  2:04.9–2:06.4 (4.89–6.36) The plan view dims to 14 % and the read-out panel
+                          fades in: three channel slots, spectral colours, all
+                          at zero, on a "dark = 0" baseline. Panel caption:
+                          "three of the twelve channels · each one its own band".
+  2:07.3–2:09.8 (7.33–9.78) Two bars rise: F3 (excitation-side) tall,
+                          F4 (emission-side) short.
+  2:12.2–2:16.6 (12.22–16.62) A dotted amber link draws between them:
+                          "leakage between them is measurable".
+  2:16.4–2:17.6 (16.38–17.6) The panel fades out.
+  2:17.8–2:19   (17.84–19.07) The top-left block fades out.
+  2:18.6–2:19.8 (18.58–19.8)  A block fades in at the LOWER LEFT: "EMISSION
+                          FILTER / position reserved / the slot is empty".
+  2:18.3–2:19.3 (18.33–19.31) The reserved filter slot pulses amber, empty.
+  2:19.8–2:21.3 (19.8–21.27)  The schematic's labels fade back in.
+
+SOUND (目前關閉)   panel 5.13 · rise 7.33 (F3) · rise 7.75 (F4) · mark 18.33
+
+CAPTION (shot 08, offset 0.2 s)
+  The detector is an AS7341, a spectral sensor with separate colour channels,
+  not a single photodiode. That lets us watch the excitation band and the
+  emission band apart, and measure the leakage between them. The slot in front
+  of it holds the emission filter, and is currently open.
+  [21.07 s over a 22 s shot]
+
+!! FLAG — 通道名稱不要自己補。Readout.jsx 只標了 F2 (445 nm)、F3 (480 nm)、
+  F4（波長未標）、Clear，因為 wiki 頁上只寫了這幾個。面板標題保留
+  "three of the twelve channels"，否則只看到三格會以為感測器只有三個通道。
+
+!! FLAG — 左上角的區塊要在圖內標籤回來之前交棒，而且濾光片那塊要放左下角。
+  兩者都放左上角會疊在 LED holder 上。
+
+
+================================================================================
+SHOT 09    2:22–2:44    22 s    OPERATION
+How one reading runs
+================================================================================
+
+ANIMATION
+  2:22.5–2:24.9 (0.49–2.93) The timing axis draws: 0 to 1.0 s, ticks every
+                          100 ms.
+  2:22.55–2:23.45         Top-left block: "ONE READING / a timed window".
+  2:26.9–2:29.8 (4.89–7.82) A blue "LED ON" bar grows to the 551 ms mark; its
+                          first 100 ms is hatched, "100 ms settle".
+  2:31.8–2:34.2 (9.78–12.22) A green bar grows beneath it, stopping at 451.6 ms.
+  2:34.5–2:37.2 (12.47–15.16) A bracket draws over the window — 551–552 ms —
+                          and an amber marker drops at 1.0 s: "hard timeout".
+  2:37.9–2:39.4 (15.89–17.36) The timing diagram fades out.
+  2:38.9–2:42   (16.87–20.04) Six pairs of bars appear one per hour on a
+                          six-hour axis.
+  2:42–2:44               Title and legend hold.
+
+SOUND (目前關閉)   panel 0.49 · rise 4.89 (LED bar) · rise 9.78 (read bar)
+        panel 16.87 · rise 17.4 (1 h) · fall 17.93 / 18.46 / 18.99 / 19.52 /
+        20.05 (2 h–6 h, the pitch falls with the bars)
+
+CAPTION (shot 09, offset 0.2 s)
+  A reading is a timed window. The LED comes on, a hundred milliseconds to
+  settle, then four hundred and fifty-two to read every channel. About five
+  hundred and fifty milliseconds in all, inside a one-second hard timeout.
+  That window repeats once an hour, for six hours at thirty-seven degrees.
+  [20.78 s over a 22 s shot]
+
+!! FLAG — 0.5 秒目標和差掉的 52 ms 刻意不在這支片子裡。那是專案管理的事，
+  不是機器怎麼跑。wiki 頁上還有，被問到就指向那裡。
+
+!! 六小時那張圖現在是**原理模式**：藍色（激發）每小時維持不變，綠色（放射）
+  逐小時下降，**不標任何數字**，圖上寫 "relative · no scale"。
+  下降的形狀寫在 TimingDiagram.jsx 的 SHAPE 常數，是示意的 —— 方向來自團隊
+  自己的觀察，高度是畫出來的，不是量出來的。那行 "relative · no scale" 是
+  製圖標註（等同工程圖的 not to scale），不要拿掉。
+
+  拿到實際數值就填 src/timecourse.json：
+      { "source": "…", "unit": "…", "values": [ , , , , , ] }
+  同一張圖會自動切換成實測模式：綠色照數值畫、標上數字、底下顯示來源與單位，
+  SHAPE 就不再被使用。**不要在那個檔案裡填猜的數字。**
+
+  另外 wiki 頁目前寫著 "no fluorescence of any kind has been measured" ——
+  如果那組數據是 CAPTURE-Screen 自己量到的，頁面已經過時，要一起更新。
+
+
+================================================================================
+SHOT 10    2:44–3:00    16 s    OPERATION
+What the detector sees
+================================================================================
+
+右側的讀值面板是**波長軸**（420–570 nm），不是通道編號軸。
+面板尺寸 946×486。src/components/SpectrumReadout.jsx。
+
+ANIMATION
+  2:44–2:45.2   (0–1.2)   The plan view settles into the left half, labels off.
+  2:44.55–2:45.45         Top-left block: "WHAT THE DETECTOR SEES /
+                          measured 2026-08-25".
+  2:44.6–2:45.8 (0.6–1.8) The wavelength panel fades in: excitation band (blue,
+                          440–495) and emission band (green, 495–560), dashed
+                          markers at 470 "LED" and 510 "benchmark", a
+                          "dark = 0" baseline, Clear off the axis.
+                          Caption: "lid closed · LED off · dark read".
+  2:47–2:51     (3–7)     A scatterer drops into the sample seat; two bars rise
+                          with counting numbers — F2 445 = 87, F3 480 = 81 —
+                          plus Clear = 116 off-axis.
+  2:51–2:55     (7–11)    Lid closed, the room brightens, the LED goes dark.
+                          Everything reads zero. Chip: "all twelve channels
+                          = 0, at 25× working integration time".
+  2:55–3:00     (11–16)   LED on, sample seat empty. The beam runs the full
+                          length into the trap. Still zero.
+                          Chip: "bare path: every channel 0".
+
+  四個階段之間不是硬切：面板在 3 / 7 / 11 秒各淡掉 0.35 秒再回來，數值在看
+  不見的時候換好；LED 與光束用 0.4 秒的緩步函數。
+
+SOUND (目前關閉)   panel 0.6 · rise 3.4 (F2 and F3) · click 7.0 · click 11.0
+
+CAPTION (shot 10, offset 0.6 s)
+  This is what the detector reads. With a scatterer in the sample seat, it
+  sees the excitation. Lid closed and the room lit, every channel reads zero.
+  LED on, nothing in the seat, still zero.
+  [14.61 s over a 16 s shot]
+
+!! FLAG — 綠色那側沒有長條，這是刻意的。能同時給出波長和數值的通道只有
+  F2 = 445 nm 和 F3 = 480 nm，兩個都是藍色。F4 在頁面上只出現在 F4/F3 這個
+  比值裡，沒有波長也沒有數值。所以綠色區域畫的是「我們收集的波段」，不是
+  一根量到 0 的長條，面板左下角也標了 "channels plotted: F2, F3, Clear"。
+  **不要在綠色那側補長條。**
+
+!! 這是全片唯一的實測數據，畫面上標了 "measured 2026-08-25"。片子裡已經沒有
+  任何「這是示意」的標記了，所以那個日期戳記是唯一能分辨「真的量到的」和
+  「示意圖」的東西。建議留著。
+
+!! 顏色不是裝飾：F2 與 F3 讀到的是被散射的**激發光**，所以畫成藍色；
+  Clear 是寬頻通道，用中性灰。全片色彩語言是「藍 = 激發、綠 = 放射」。
+
+!! FLAG — F4/F3 < 1.35 % 不在片子裡，也不要加進去。它是量化下限給的上界，
+  而且是在 1600 µL 而非 200 µL 工作體積下量的。
+
+
+================================================================================
+SHOT 11    3:00–3:12    12 s    CLAIM
+What it does
+================================================================================
+
+ANIMATION
+  3:00–3:02.4   (0–2.4)   The previous shot's beams drain out of frame.
+  3:00.55–3:01.45         "WHAT IT DOES" fades in.
+  3:03–3:04.6   (3–4.6)   A bordered box draws itself around the claim.
+  3:05.4–3:09.6 (5.4–9.6) Four capability lines appear in sequence under
+                          "IT ALSO", each with a small green marker.
+  3:09.6–3:12             Hold.
+
+SOUND (目前關閉)   mark 3.0 (the box draws) · click ×4 at 5.4 / 6.45 / 7.5 / 8.55
+
+ON SCREEN
+  WHAT IT DOES
+
+  ┌──────────────────────────────────────────────┐
+  │  It reads relative biosensor fluorescence    │
+  │  and flags optical interference.             │
+  └──────────────────────────────────────────────┘
+
+  IT ALSO
+  –  90° fluorescence geometry, 200 µL per reading
+  –  a full spectral read in about 550 ms
+  –  once an hour, for six hours at 37 °C
+  –  built from catalogue parts and printed optics
+
+CAPTION (shot 11, offset 0.3 s)
+  So, precisely: CAPTURE-Screen reads relative biosensor fluorescence,
+  and flags optical interference.
+  [7.84 s over a 12 s shot]
+
+!! FLAG — 這句的措辭不要改寬。"reads **relative** biosensor fluorescence" ——
+  relative 是關鍵，它讀的是相對強度，不是濃度也不是定量。
+
+!! 原本的「IT DOES NOT」四行與 "research use only · no fluorescence measured
+  to date" 依團隊決定移除。wiki 的 "What we are and are not claiming" 那一節
+  還在，兩邊現在不一樣。
+
+
+================================================================================
+SHOT 12    3:12–3:23    11 s    CLAIM
+End card
+================================================================================
+
+ANIMATION
+  3:12.2–3:14.2 (0.22–2.2) The blue excitation beam draws across frame.
+  3:13–3:15     (0.99–2.97) The green emission beam draws down through it; the
+                          90° arc and the 90° numeral appear at the crossing.
+  3:15.7–3:17.1 (3.74–5.06) The wordmark resolves below: CAPTURE-Screen.
+  3:17.3–3:18.6 (5.28–6.6)  Three lines fade in under it.
+  3:21.9–3:23   (9.9–11)    Fade to black.
+
+SOUND (目前關閉)   beam 0.22 · beam 0.99 · mark 2.4 · panel 3.74
+
+ON SCREEN
+  90°  (at the beam crossing, 58 px)
+  CAPTURE-Screen
+  90° fluorescence reader
+  Team NCKU-Tainan 2026
+  2026.igem.wiki/ncku-tainan · CC BY 4.0
+
+CAPTION (shot 12, offset 0.6 s)
+  CAPTURE-Screen. A ninety-degree fluorescence reader we can build, explain,
+  and hand to anyone who needs one.
+  [8.21 s over an 11 s shot]
+
+
+================================================================================
+PRODUCTION NOTES
+================================================================================
+
+REUSE THE ARTWORK YOU ALREADY HAVE
+  - src/components/PlanView.jsx 的每一個座標都是從 wiki/pages/hardware.html
+    那張 SVG 抄來的（viewBox 0 0 780 510，沿 X 軸 5 px = 1 mm）。
+    要改幾何，**先改 wiki 那張圖，再把新座標抄過來**，不要反過來。
+  - 色相跟 static/style.css 一樣：激發 #2b6cb0、放射 #2e9e5b、
+    光闌與吸光阱 #3a4640、樣品 #fdf1dd。只有明度翻成深底。
+  - 色彩語言：**藍 = 激發，綠 = 放射**。不要為了好看改。
+
+畫面配置的三條規則（都是踩過才寫下來的）
+  1. 變焦超過約 3× 就要關掉圖內標籤，說明文字改走螢幕座標。
+     SVG 裡的字會跟著鏡頭放大，5× 之後就是互相重疊的巨大字塊。
+  2. 螢幕座標的區塊在鏡頭拉回廣角之前要交棒。左上角是 LED holder 的位置，
+     左下角（top 636 附近）才是空的。
+  3. 底部 950 px 以下是字幕帶。任何說明文字都要在那之上。
+
+EVERYTHING IS DRAWN — NO LIVE ACTION
+  沒有照片、沒有錄影、沒有螢幕錄製的真實畫面。
+  - 影片可以在拍照之前就完成，也可以之後任意解析度重 render。
+  - 畫面上沒有任何東西能證明實體存在。所以不要動畫化 CAD 裡沒有的東西，
+    而且維持線稿、不要做成打光漂亮的產品 render。
+  - wiki 頁上那四個 <!-- PHOTO: --> 位置是另一件事，影片做完不會補起來。
+
+NUMBERS DISCIPLINE
+  - 片子裡每個數字都在 wiki 頁上。需要頁面上沒有的數字，就是不要放。
+  - 沒有成本數字（BOM unit_price 全是 UNKNOWN）。
+  - 沒有 sfGFP 的 construct 或 strain 名稱（未指定）。
+  - 沒有 irradiance、SNR、偵測極限（全部未量測）。
+  - 一律 CAPTURE-Screen，never CAPTURE-Reader。
+
+LINES THE FILM MUST NEVER SAY
+  - detects Pseudomonas aeruginosa
+  - diagnoses ventilator-associated pneumonia
+  - measures bacterial concentration
+  - quantifies AHL
+  - replaces the plate reader
+
+
+================================================================================
+工具鏈
+================================================================================
+
+專案在 C:\Users\user\capture-screen-video（刻意放在 wiki repo 外面，
+不要把 node_modules 或 out/ 丟進 ncku-tainan repo，會拖垮 GitLab CI）。
+
+  npm run studio          Remotion Studio，拉時間軸即時看
+  npx remotion render src/index.jsx Film out/capture-screen-av.mp4 --codec=h264
+                          出成品（畫面 + 字幕 + 音樂）
+
+  python tools/audit.py           六段總檢查
+  python tools/check_film.py      字幕時間、重疊、閱讀速度、覆蓋率
+  python tools/make_captions.py   重產字幕（改過旁白稿或鏡頭長度之後要跑）
+  python tools/measure_vo.py      重量配音長度（換過音檔之後要跑）
+  python tools/make_music.py      重產音樂
+  python tools/make_sfx.py        重產音效
+  tools/tts.ps1 -Rate 1           產暫用配音（目前語速）
+
+要加真人旁白，四步：
+  1. 錄好，覆蓋 public/vo/01.wav … 12.wav（檔名不要改）
+  2. python tools/measure_vo.py
+  3. python tools/make_captions.py
+  4. src/Soundtrack.jsx 的 USE_VOICEOVER 改成 true
+真人錄音的長度一定跟現在的機器配音不同，所以第 2 步之後要回頭看
+shots.json 的鏡頭長度夠不夠，不夠就加長再跑一次 make_captions.py。
+
+**不要刪 public/vo/*.wav。** 即使旁白關閉，那些檔案是字幕時間的唯一依據。
+
+DELIVERY
+  Host          video.igem.org（必要）。照 wiki/pages/home.html 既有的
+                embed 寫法，兩個 URL 都從 uploads 頁拿。
+  Captions      已燒進畫面，另有 out/capture-screen.srt（53 個 cue）。
+  Aspect / rate 16:9 · 1920×1080 · 30 fps
+  Thumbnail     1:19 那一格 —— 兩道光束加 90° 弧線。
+  Sound         音樂一軌，自製，無授權問題。詳見 SOUND-CREDITS.md。
+
+
+================================================================================
+最後一次驗證：python tools/audit.py → no failures
+  12 個鏡頭首尾相接、無空隙、總長 6090 格 = 203.00 秒
+  JS 與 Python 算出的時間一致
+  每個 beat 都在各自鏡頭的長度內
+  53 個字幕 cue 無重疊、無超界、最長 5.6 秒
+  out/capture-screen-av.mp4 = 3:23.05、1920×1080、H.264 + AAC
+================================================================================
