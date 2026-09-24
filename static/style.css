@@ -4970,6 +4970,94 @@ body.tour-active { overflow: hidden; }
   font-size: 0.85rem;
 }
 
+/* ---- a table folded away behind its own header ---- */
+/* The same disclosure the cutaway's parts list uses, so the folded tables on
+   this page all behave alike. A <details> rather than a scripted panel: it
+   opens, closes and is reachable by keyboard with nothing loaded.
+
+   Each header carries the one fact worth having without opening it -- how
+   many parts, or what the build came to -- so a reader who only wants the
+   number never has to expand anything. */
+.hw-fold {
+  margin: 1.5rem auto;
+  border: 1px solid #e8efe9;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.hw-fold-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.85rem;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hw-fold-head::-webkit-details-marker { display: none; }
+.hw-fold-head:hover { background: #f6f9f7; }
+.hw-fold[open] .hw-fold-head { border-bottom: 1px solid #e8efe9; }
+
+.hw-fold-head:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: -3px;
+}
+
+.hw-fold-title {
+  font-family: "Changa", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1f4a38;
+}
+
+.hw-fold-meta {
+  font-family: "Changa", sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a978f;
+  font-variant-numeric: tabular-nums;
+}
+
+.hw-fold-state {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  font-family: "Changa", sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #4f8f74;
+}
+
+/* Both words are in the markup and one is hidden, rather than one swapped by
+   ::after content: generated text cannot be selected, is not reliably read
+   out, and laying out around it means guessing how wide "Show" is. */
+.hw-fold-verb[data-open="true"] { display: none; }
+.hw-fold[open] .hw-fold-verb[data-open="true"] { display: inline; }
+.hw-fold[open] .hw-fold-verb[data-open="false"] { display: none; }
+
+.hw-fold-caret { transition: transform 0.18s ease; }
+.hw-fold[open] .hw-fold-caret { transform: rotate(180deg); }
+
+.hw-fold-body { padding: 0 0.15rem 0.15rem; }
+
+/* The figure inside is already the full width of the fold, which is itself
+   capped below. Its own cap and margin would double up. */
+.hw-fold .hw-figure { margin: 0; max-width: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hw-fold-caret { transition: none; }
+}
+
+/* On paper the header is a control nobody can press, and the script opens
+   every fold before printing. */
+@media print {
+  .hw-fold-head { display: none; }
+  .hw-fold { border: 0; }
+}
+
 /* A table is a column of short values, not prose, and stretched to the full
    measure it becomes mostly whitespace with the numbers pushed to the far
    edge. These are capped at roughly three quarters of the column and centred
@@ -4979,6 +5067,7 @@ body.tour-active { overflow: hidden; }
 
 @media (min-width: 768px) {
   .hw-figure-table { max-width: 72%; }
+  .hw-fold { max-width: 72%; }
   /* The cutaway's parts list is a table too, and is capped with them. It
      keeps its own smaller face, which was already set for a long list. */
   .hw3d-list { max-width: 72%; margin-inline: auto; }
