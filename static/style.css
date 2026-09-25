@@ -2345,7 +2345,7 @@ body.edu-cosmos-page .hero-sub {
      scrollbar, which is why the html rule at the top of this file carries
      overflow-x: clip. */
   margin-inline: calc(50% - 50vw);
-  padding: 1.6rem clamp(0.75rem, 4vw, 3rem) 2.2rem;
+  padding: 2.5rem clamp(0.75rem, 4vw, 3rem) 3rem;
   background:
     radial-gradient(120% 140% at 50% -20%, #f4faf6 0%, #eef6f1 45%, #e9f2ec 100%);
   border-block: 1px solid #e2ece6;
@@ -2360,16 +2360,27 @@ body.edu-cosmos-page .hero-sub {
   gap: 0.7rem 0.8rem;
   max-width: 1500px;
   margin: 0 auto;
+  /* Every bubble carries its own size, drift and spacing in px. These two
+     scale the whole set at once, so a narrow screen shrinks the wall
+     without flattening the spread of sizes into a few steps again. */
+  --dscale: 1;
+  --driftscale: 1;
 }
 
 .collab-bubble {
   position: relative;
   display: block;
   flex: none;
-  /* Every disc keeps its own drift so the wall reads as a raft of bubbles
-     rather than a grid of them. It is a static offset: nothing about it
-     changes on hover. */
-  margin-top: var(--drift, 0px);
+  --d: calc(var(--dbase, 80px) * var(--dscale, 1));
+  /* Every disc carries its own drift and its own side spacing, so the wall
+     reads as a raft of bubbles rather than a grid of them. Both are static:
+     nothing about them changes on hover.
+
+     The drift is a transform, not a margin. A margin-top pushes the row
+     taller and the wall pays for the drift in height; a transform is paint
+     only, so the drift can go up as well as down and cost nothing. */
+  transform: translateY(calc(var(--dy, 0px) * var(--driftscale, 1)));
+  margin-inline: calc(var(--mx, 0px) * var(--dscale, 1));
   text-decoration: none;
   color: inherit;
   line-height: 0;
@@ -2405,10 +2416,6 @@ body.edu-cosmos-page .hero-sub {
   background: rgb(246, 250, 223);
   border-color: rgb(233, 238, 205);
 }
-
-.collab-bubble.is-s { --d: 58px; }
-.collab-bubble.is-m { --d: 80px; }
-.collab-bubble.is-l { --d: 106px; }
 
 .collab-bubble-disc img {
   width: 72%;
@@ -2524,10 +2531,7 @@ body.edu-cosmos-page .hero-sub {
   .collab-bubble:nth-child(n + 25) { display: none; }
   .collab-wall { padding: 1.1rem 0.75rem 1.5rem; margin-bottom: 1.75rem; }
   .collab-wall-inner { gap: 0.5rem; }
-  .collab-bubble { margin-top: calc(var(--drift, 0px) * 0.45); }
-  .collab-bubble.is-s { --d: 42px; }
-  .collab-bubble.is-m { --d: 54px; }
-  .collab-bubble.is-l { --d: 68px; }
+  .collab-wall-inner { --dscale: 0.68; --driftscale: 0.5; }
   .collab-wall .collab-bubble:hover .collab-bubble-disc,
   .collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
     transform: scale(1.4);
