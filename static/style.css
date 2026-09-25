@@ -1,3 +1,13 @@
+html {
+  /* A full-bleed element sized in 100vw is as wide as the viewport INCLUDING
+     the scrollbar, which leaves the page a dozen-odd pixels of nothing to
+     scroll to sideways. clip rather than hidden: hidden would make the root a
+     scroll container and stop position:sticky working anywhere on the site.
+     (The other overflow-x: clip in this file is on .notebook and guards a
+     different element; it does nothing for this one.) */
+  overflow-x: clip;
+}
+
 body { padding-top: 104px; }
 .navbar {
   height: 80px;
@@ -2314,6 +2324,225 @@ body.edu-cosmos-page .hero-sub {
 
 .edu-session-block p {
   margin-top: 1rem;
+}
+
+/* ===== Collaboration: the wall of partner logos ======================
+   Full bleed, and the first thing on the page: fifty-four discs drawn from
+   six logos, so the teams repeat across it. Hovering one swells it and
+   shrinks the rest; clicking jumps to where that team is written up.
+
+   All of it is :hover and :focus-within, so it works from the keyboard and
+   needs no script.
+
+   The swell is a transform, never a width. Changing the size of a flex item
+   in a wrapped row of fifty-four re-flows the whole wall and throws discs
+   onto other rows, which reads as the page breaking rather than as a bubble
+   growing. A transform moves nothing: the layout is fixed and only the
+   paint changes.
+   -------------------------------------------------------------------- */
+.collab-wall {
+  /* Out of the page container and across the viewport. 100vw counts the
+     scrollbar, which is why the html rule at the top of this file carries
+     overflow-x: clip. */
+  margin-inline: calc(50% - 50vw);
+  padding: 1.6rem clamp(0.75rem, 4vw, 3rem) 2.2rem;
+  background:
+    radial-gradient(120% 140% at 50% -20%, #f4faf6 0%, #eef6f1 45%, #e9f2ec 100%);
+  border-block: 1px solid #e2ece6;
+  margin-bottom: 2.5rem;
+}
+
+.collab-wall-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem 0.8rem;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.collab-bubble {
+  position: relative;
+  display: block;
+  flex: none;
+  /* Every disc keeps its own drift so the wall reads as a raft of bubbles
+     rather than a grid of them. It is a static offset: nothing about it
+     changes on hover. */
+  margin-top: var(--drift, 0px);
+  text-decoration: none;
+  color: inherit;
+  line-height: 0;
+}
+
+.collab-bubble-disc {
+  display: grid;
+  place-items: center;
+  width: var(--d);
+  height: var(--d);
+  border: 1px solid #e0e8e3;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 6px 16px -10px rgba(10, 40, 26, 0.35);
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1),
+              box-shadow 0.3s ease, border-color 0.3s ease;
+  will-change: transform;
+}
+
+/* Four of the six logos sit on transparent or white ground, so the white
+   disc is already the right backing for them. Two carry their own opaque
+   square -- NYCU on navy, CCU on cream -- and inside a white circle that
+   square is exactly what you see. Each disc takes the colour sampled from
+   the edge pixels of its own logo, so the square edge disappears into the
+   bubble and no artwork has to be cropped to hide it. */
+.collab-bubble.is-nycu .collab-bubble-disc {
+  background: rgb(52, 100, 138);
+  border-color: rgb(52, 100, 138);
+}
+
+.collab-bubble.is-ccu .collab-bubble-disc {
+  background: rgb(246, 250, 223);
+  border-color: rgb(233, 238, 205);
+}
+
+.collab-bubble.is-s { --d: 58px; }
+.collab-bubble.is-m { --d: 80px; }
+.collab-bubble.is-l { --d: 106px; }
+
+.collab-bubble-disc img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+}
+
+/* The name rides under its disc, out of flow so that showing it cannot move
+   a single bubble. Only the hovered or focused one shows it. */
+.collab-bubble-name {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: "Changa", sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.3;
+  font-weight: 600;
+  color: #1f4a38;
+  background: rgba(255, 253, 247, 0.92);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
+
+/* Anything hovered or focused in the wall shrinks every disc... */
+.collab-wall:hover .collab-bubble-disc,
+.collab-wall:focus-within .collab-bubble-disc {
+  transform: scale(0.84);
+  box-shadow: 0 4px 10px -8px rgba(10, 40, 26, 0.3);
+}
+
+/* ...and the one actually under the pointer, or focused, swells past full
+   size and comes to the front. Higher specificity, so it wins. */
+.collab-wall .collab-bubble:hover .collab-bubble-disc,
+.collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
+  transform: scale(1.55);
+  border-color: #a9cbb8;
+  box-shadow: 0 16px 34px -14px rgba(10, 40, 26, 0.5);
+}
+
+.collab-bubble:hover,
+.collab-bubble:focus-visible { z-index: 4; }
+
+.collab-wall .collab-bubble:hover .collab-bubble-name,
+.collab-wall .collab-bubble:focus-visible .collab-bubble-name {
+  opacity: 1;
+  /* Clear of the swollen disc rather than under its edge. */
+  top: calc(100% + 0.3rem + var(--d) * 0.28);
+}
+
+.collab-bubble:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 6px;
+  border-radius: 50%;
+}
+
+/* ---- the four teams at the Meetup ---- */
+/* That session has no single partner, so it gets a strip instead of the one
+   logo the other headers carry. */
+.collab-teams {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.4rem;
+  margin: 0.75rem 0 1.1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.collab-teams li { display: flex; align-items: center; gap: 0.5rem; }
+
+.collab-teams img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex: none;
+}
+
+.collab-teams span {
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  color: #6b7a72;
+}
+
+/* Fifty-four discs is a wall on a wide screen and a barricade on a narrow
+   one: measured at 1125px tall on a tablet and 951px on a phone, which is
+   more than a screen of logos before the page says anything. Narrow screens
+   draw fewer. Every team's one real link sits inside the first twenty-four,
+   so none of them is ever the one that got cut. */
+@media (max-width: 1199.98px) {
+  .collab-bubble:nth-child(n + 37) { display: none; }
+}
+
+/* How many rows the wall wraps into depends on the height of the window as
+   well as its width, which a width query cannot see: a 1200x800 window drew
+   the full fifty-four and came to 108vh. A short window draws fewer. */
+@media (max-height: 860px) {
+  .collab-bubble:nth-child(n + 43) { display: none; }
+}
+
+@media (max-height: 700px) {
+  .collab-bubble:nth-child(n + 31) { display: none; }
+}
+
+@media (max-width: 991.98px) {
+  .collab-bubble:nth-child(n + 31) { display: none; }
+}
+
+@media (max-width: 767.98px) {
+  .collab-bubble:nth-child(n + 25) { display: none; }
+  .collab-wall { padding: 1.1rem 0.75rem 1.5rem; margin-bottom: 1.75rem; }
+  .collab-wall-inner { gap: 0.5rem; }
+  .collab-bubble { margin-top: calc(var(--drift, 0px) * 0.45); }
+  .collab-bubble.is-s { --d: 42px; }
+  .collab-bubble.is-m { --d: 54px; }
+  .collab-bubble.is-l { --d: 68px; }
+  .collab-wall .collab-bubble:hover .collab-bubble-disc,
+  .collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
+    transform: scale(1.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collab-bubble-disc,
+  .collab-bubble-name { transition: none; }
+}
+
+@media print {
+  /* On paper nothing is hoverable and fifty-four repeats of six logos is a
+     page of ink for no information. */
+  .collab-wall { display: none; }
 }
 
 .edu-section-header {
