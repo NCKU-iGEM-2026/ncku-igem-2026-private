@@ -460,4 +460,27 @@
     box.innerHTML = s;
     bindTips(box);
   })();
+  /* ======================================================================
+     FOLDED TABLES ON PAPER
+     A shut <details> prints as a single line where the table should be. The
+     stylesheet can override the display of a closed one in Chrome, but how a
+     closed <details> hides its content is not the same in every engine --
+     opening them outright is. The reader's own state is put back after.
+     ====================================================================== */
+
+  (function () {
+    var folds = $$(".hw-fold");
+    if (!folds.length) return;
+    var was = null;
+    window.addEventListener("beforeprint", function () {
+      was = folds.map(function (f) { return f.open; });
+      folds.forEach(function (f) { f.open = true; });
+    });
+    window.addEventListener("afterprint", function () {
+      if (!was) return;
+      folds.forEach(function (f, i) { f.open = was[i]; });
+      was = null;
+    });
+  })();
+
 })();
