@@ -2567,6 +2567,161 @@ body.edu-cosmos-page .hero-sub {
   .collab-wall { display: none; }
 }
 
+/* ===== Promotion: the microphone and its keys ========================
+   A microphone lying lower-left to upper-right, with one key per session
+   sitting on its body. Clicking a key jumps to that session.
+
+   The mic is one rotated group, so its parts stay on a single axis by
+   construction. The keys are placed at points computed on that same axis
+   and positioned in per-cent, so the stage holding its aspect ratio is what
+   keeps a key on the body at every width. That is why .promo-stage-inner
+   has an aspect-ratio and the svg has the matching viewBox: change one
+   without the other and the keys slide off the mic.
+
+   The keys are HTML over the picture rather than text inside it, because
+   SVG text does not wrap and these titles are long.
+   -------------------------------------------------------------------- */
+.promo-stage {
+  /* A panel, not a full-bleed band. A mic turned 52 degrees occupies a
+     roughly square area, so stretched across the viewport it would sit in
+     the middle of two very wide empty margins and read as small. Sized to
+     the drawing instead, it fills its own region. */
+  max-width: 760px;
+  margin: 0 auto 2.5rem;
+  padding: 1.2rem;
+  background:
+    radial-gradient(120% 130% at 65% 0%, #f4faf6 0%, #eef6f1 45%, #e7f1eb 100%);
+  border: 1px solid #e2ece6;
+  border-radius: 20px;
+}
+
+.promo-stage-inner {
+  position: relative;
+  /* Matches the svg viewBox, which is fitted to the drawing. The keys are
+     positioned in per-cent of this box, so the two have to agree: change
+     one without the other and the keys slide off the handle. */
+  aspect-ratio: 619.4 / 528.5;
+}
+
+.promo-mic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 18px 26px rgba(10, 40, 26, 0.22));
+}
+
+.promo-key {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  /* Puts the dot's centre, not the pill's corner, on the computed point:
+     one border plus the left padding plus half the dot. */
+  transform: translate(calc(-1.5rem - 1px), -50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: min(17rem, 42vw);
+  padding: 0.4rem 0.95rem 0.4rem 0.4rem;
+  border: 1px solid #cddcd4;
+  border-radius: 999px;
+  background: rgba(255, 253, 247, 0.96);
+  box-shadow: 0 8px 20px -12px rgba(10, 40, 26, 0.5);
+  text-decoration: none;
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.3, 1),
+              box-shadow 0.25s ease, border-color 0.25s ease,
+              background-color 0.25s ease;
+}
+
+.promo-key-dot {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: #1f4a38;
+  color: #fffdf7;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: background-color 0.25s ease;
+}
+
+.promo-key-text {
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #1f4a38;
+}
+
+.promo-key:hover,
+.promo-key:focus-visible {
+  /* Out along the pill, away from the mic, rather than simply bigger: the
+     key stays anchored to the body it belongs to. */
+  transform: translate(calc(-1.5rem - 1px), -50%) translateX(0.5rem);
+  border-color: #8fb3a3;
+  background: #fffdf7;
+  box-shadow: 0 16px 30px -14px rgba(10, 40, 26, 0.55);
+}
+
+.promo-key:hover .promo-key-dot,
+.promo-key:focus-visible .promo-key-dot {
+  background: #d8b26a;
+  color: #1f3a2c;
+}
+
+.promo-key:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 4px;
+}
+
+@media (max-width: 879.98px) {
+  /* The keys are eighty per cent of the picture apart at full size. Keeping
+     them absolute on a narrow screen stacks them on top of each other, so
+     the stage stops holding its shape, the mic becomes an ornament above
+     and the keys fall into an ordinary column. */
+  .promo-stage-inner {
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .promo-mic {
+    position: static;
+    width: min(320px, 72%);
+    height: auto;
+    margin-bottom: 0.4rem;
+  }
+
+  .promo-key {
+    position: static;
+    transform: none;
+    width: min(22rem, 100%);
+  }
+
+  .promo-key:hover,
+  .promo-key:focus-visible { transform: translateX(0.35rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Only the transition. An override with a transform in it would land
+     after the narrow-screen block above and shove the stacked keys back
+     half a line up and 1.5rem left. */
+  .promo-key { transition: none; }
+}
+
+@media print {
+  /* Nothing here is clickable on paper, and the three sessions it points at
+     are the three headings directly below it. */
+  .promo-stage { display: none; }
+}
+
 .edu-section-header {
   display: flex;
   align-items: center;
