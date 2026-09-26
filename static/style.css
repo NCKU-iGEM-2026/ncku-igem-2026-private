@@ -2345,7 +2345,7 @@ body.edu-cosmos-page .hero-sub {
      scrollbar, which is why the html rule at the top of this file carries
      overflow-x: clip. */
   margin-inline: calc(50% - 50vw);
-  padding: 1.6rem clamp(0.75rem, 4vw, 3rem) 2.2rem;
+  padding: 2rem clamp(0.75rem, 4vw, 3rem) 2.4rem;
   background:
     radial-gradient(120% 140% at 50% -20%, #f4faf6 0%, #eef6f1 45%, #e9f2ec 100%);
   border-block: 1px solid #e2ece6;
@@ -2366,10 +2366,16 @@ body.edu-cosmos-page .hero-sub {
   position: relative;
   display: block;
   flex: none;
-  /* Every disc keeps its own drift so the wall reads as a raft of bubbles
-     rather than a grid of them. It is a static offset: nothing about it
-     changes on hover. */
-  margin-top: var(--drift, 0px);
+  --d: var(--dbase, 80px);
+  /* Every disc carries its own drift and its own side spacing, so the wall
+     reads as a raft of bubbles rather than a grid of them. Both are static:
+     nothing about them changes on hover.
+
+     The drift is a transform, not a margin. A margin-top pushes the row
+     taller and the wall pays for the drift in height; a transform is paint
+     only, so the drift can go up as well as down and cost nothing. */
+  transform: translateY(var(--dy, 0px));
+  margin-inline: var(--mx, 0px);
   text-decoration: none;
   color: inherit;
   line-height: 0;
@@ -2406,10 +2412,6 @@ body.edu-cosmos-page .hero-sub {
   border-color: rgb(233, 238, 205);
 }
 
-.collab-bubble.is-s { --d: 58px; }
-.collab-bubble.is-m { --d: 80px; }
-.collab-bubble.is-l { --d: 106px; }
-
 .collab-bubble-disc img {
   width: 72%;
   height: 72%;
@@ -2417,12 +2419,23 @@ body.edu-cosmos-page .hero-sub {
 }
 
 /* The name rides under its disc, out of flow so that showing it cannot move
-   a single bubble. Only the hovered or focused one shows it. */
+   a single bubble. Only the hovered or focused one shows it.
+
+   Idle it is scaled to nothing, not merely transparent. A nowrap label is
+   wider than the disc it is centred on -- "Mingdao High School" is 129px --
+   so on a bubble near the right edge an invisible one still pushed the page
+   11px sideways at 390px. Scaling collapses the box it overflows with.
+
+   Scaled rather than display:none or visibility:hidden, because both of
+   those drop it out of the accessibility tree, and this span is where each
+   of the six real links gets its accessible name from. opacity and
+   transform leave it there to be read. */
 .collab-bubble-name {
   position: absolute;
   top: calc(100% + 0.3rem);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(0);
+  transform-origin: top center;
   white-space: nowrap;
   font-family: "Changa", sans-serif;
   font-size: 0.76rem;
@@ -2433,7 +2446,7 @@ body.edu-cosmos-page .hero-sub {
   padding: 0.1rem 0.45rem;
   border-radius: 999px;
   opacity: 0;
-  transition: opacity 0.22s ease;
+  transition: opacity 0.22s ease, transform 0.22s ease;
   pointer-events: none;
 }
 
@@ -2459,6 +2472,7 @@ body.edu-cosmos-page .hero-sub {
 .collab-wall .collab-bubble:hover .collab-bubble-name,
 .collab-wall .collab-bubble:focus-visible .collab-bubble-name {
   opacity: 1;
+  transform: translateX(-50%) scale(1);
   /* Clear of the swollen disc rather than under its edge. */
   top: calc(100% + 0.3rem + var(--d) * 0.28);
 }
@@ -2502,7 +2516,10 @@ body.edu-cosmos-page .hero-sub {
    draw fewer. Every team's one real link sits inside the first twenty-four,
    so none of them is ever the one that got cut. */
 @media (max-width: 1199.98px) {
-  .collab-bubble:nth-child(n + 37) { display: none; }
+  /* Thirty, not thirty-six. The discs run to 140px and do not shrink until
+     the phone tier, so a 1024px window wrapped thirty-six of them into a
+     90vh wall -- past a screen before the page says anything. */
+  .collab-bubble:nth-child(n + 31) { display: none; }
 }
 
 /* How many rows the wall wraps into depends on the height of the window as
@@ -2524,10 +2541,15 @@ body.edu-cosmos-page .hero-sub {
   .collab-bubble:nth-child(n + 25) { display: none; }
   .collab-wall { padding: 1.1rem 0.75rem 1.5rem; margin-bottom: 1.75rem; }
   .collab-wall-inner { gap: 0.5rem; }
-  .collab-bubble { margin-top: calc(var(--drift, 0px) * 0.45); }
-  .collab-bubble.is-s { --d: 42px; }
-  .collab-bubble.is-m { --d: 54px; }
-  .collab-bubble.is-l { --d: 68px; }
+  /* A phone is not this wall scaled down. Each bubble carries a second
+     size with the spread already squeezed toward the middle, because a disc
+     scaled from 140px would take a quarter of a 390px screen and one scaled
+     from 44px would be too small to read. */
+  .collab-bubble {
+    --d: var(--dnarrow, 56px);
+    transform: translateY(calc(var(--dy, 0px) * 0.55));
+    margin-inline: calc(var(--mx, 0px) * 0.5);
+  }
   .collab-wall .collab-bubble:hover .collab-bubble-disc,
   .collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
     transform: scale(1.4);
@@ -2543,6 +2565,211 @@ body.edu-cosmos-page .hero-sub {
   /* On paper nothing is hoverable and fifty-four repeats of six logos is a
      page of ink for no information. */
   .collab-wall { display: none; }
+}
+
+/* ===== Promotion: the microphone and its control keys ================
+   A microphone lying lower-left to upper-right with three keys on its body,
+   one per session. A key carries only its number; the session's name
+   arrives beside it when the pointer reaches it or it takes focus.
+
+   Line art in the wiki's green, one stroke weight, no gradients and no
+   shadows: the same drawing style as the podcast artwork further down this
+   page. Flat is the house style and the earlier glossy mic was the odd one
+   out.
+
+   The keys are placed at points computed on the mic's own axis and
+   positioned in per-cent, so .promo-stage-inner holding its aspect ratio is
+   what keeps a key on the handle at every width. That is why the inner box
+   and the svg viewBox carry the same numbers: change one without the other
+   and the keys slide off.
+   -------------------------------------------------------------------- */
+.promo-stage {
+  /* A panel, not a full-bleed band. A mic turned 52 degrees occupies a
+     roughly square area, so stretched across the viewport it would sit
+     between two very wide empty margins and read as small. */
+  max-width: 760px;
+  margin: 0 auto 2.5rem;
+  padding: 1.2rem;
+  background: #fffdf7;
+  border: 1px solid #dfe8e2;
+  border-radius: 20px;
+}
+
+.promo-stage-inner {
+  position: relative;
+  /* Matches the svg viewBox, which is fitted to the drawing. */
+  aspect-ratio: 623.5 / 532.9;
+}
+
+.promo-mic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.promo-keys {
+  position: absolute;
+  inset: 0;
+}
+
+.promo-key {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  /* Per-cent of the same box the mic is drawn in, so the key keeps its size
+     against the handle however wide the panel is. */
+  width: 8.34%;
+  height: 12.76%;
+  /* Centre on the computed point, then lie flat on the handle. The rotation
+     is about the key's own centre, so it does not move that point. */
+  transform: translate(-50%, -50%) rotate(52deg);
+  display: grid;
+  place-items: center;
+  border: 3px solid #075a3e;
+  border-radius: 9px;
+  background: #fffdf7;
+  color: #075a3e;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* The marking on a key: volume up, volume down, power, drawn rather than
+   typed so it carries the mic's line weight instead of a font's. */
+.promo-key-glyph {
+  /* Upright inside a key that is lying at 52 degrees. */
+  transform: rotate(-52deg);
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.promo-key:hover,
+.promo-key:focus-visible {
+  background: #075a3e;
+  transform: translate(-50%, -50%) rotate(52deg) scale(1.08);
+}
+
+.promo-key:hover,
+.promo-key:focus-visible { color: #fffdf7; }
+
+.promo-key:focus-visible {
+  outline: 3px solid #d8b26a;
+  outline-offset: 3px;
+}
+
+/* The name is a sibling rather than a child, so it can stay upright while
+   the key lies over at 52 degrees, and so the key can be named by it
+   through aria-labelledby instead of carrying a second copy of the text.
+
+   Idle it is scaled to nothing, not merely transparent: it is nowrap and
+   wider than the panel has to spare on that side, and an invisible one
+   still has a box that would push the page sideways. */
+.promo-key-name {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(7rem, -50%) scale(0);
+  transform-origin: left center;
+  /* 7rem because the handle is ~67px of half-width and moving straight
+     right off the axis only clears that past 109px. Wrapped rather than
+     nowrap: the longest of these names is ~307px on one line, which at that
+     offset would hang out of the panel. */
+  width: max-content;
+  max-width: 14rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 1px solid #cfdcd5;
+  border-radius: 999px;
+  padding: 0.24rem 0.72rem;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+}
+
+.promo-key:hover + .promo-key-name,
+.promo-key:focus-visible + .promo-key-name {
+  opacity: 1;
+  transform: translate(7rem, -50%) scale(1);
+}
+
+@media (max-width: 879.98px) {
+  /* The keys are most of the picture apart and would stack on each other,
+     and there is no pointer to reveal a name with. The mic becomes an
+     ornament above and each key pairs up with its name in a row. */
+  .promo-stage-inner {
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .promo-mic {
+    position: static;
+    width: min(280px, 66%);
+    height: auto;
+  }
+
+  .promo-keys {
+    position: static;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.55rem 0.75rem;
+    width: 100%;
+  }
+
+  .promo-key {
+    position: static;
+    width: 3.4rem;
+    height: 2.2rem;
+    transform: none;
+  }
+
+  .promo-key:hover,
+  .promo-key:focus-visible { transform: scale(1.04); }
+
+  .promo-key-glyph { transform: none; }
+
+  .promo-key-name {
+    position: static;
+    transform: none;
+    opacity: 1;
+    max-width: none;
+    width: auto;
+    border-color: transparent;
+    background: none;
+    padding: 0;
+    font-size: 0.86rem;
+  }
+
+  /* Higher specificity than the rule above, so it has to be restated. */
+  .promo-key:hover + .promo-key-name,
+  .promo-key:focus-visible + .promo-key-name { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Only the transitions. An override carrying a transform would land after
+     the narrow-screen block above and undo its layout. */
+  .promo-key,
+  .promo-key-glyph,
+  .promo-key-name { transition: none; }
+}
+
+@media print {
+  /* Nothing here is clickable on paper, and the three sessions it points at
+     are the three headings directly below it. */
+  .promo-stage { display: none; }
 }
 
 .edu-section-header {
