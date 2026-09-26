@@ -2567,40 +2567,38 @@ body.edu-cosmos-page .hero-sub {
   .collab-wall { display: none; }
 }
 
-/* ===== Promotion: the microphone and its keys ========================
-   A microphone lying lower-left to upper-right, with one key per session
-   sitting on its body. Clicking a key jumps to that session.
+/* ===== Promotion: the microphone and its control keys ================
+   A microphone lying lower-left to upper-right with three keys on its body,
+   one per session. A key carries only its number; the session's name
+   arrives beside it when the pointer reaches it or it takes focus.
 
-   The mic is one rotated group, so its parts stay on a single axis by
-   construction. The keys are placed at points computed on that same axis
-   and positioned in per-cent, so the stage holding its aspect ratio is what
-   keeps a key on the body at every width. That is why .promo-stage-inner
-   has an aspect-ratio and the svg has the matching viewBox: change one
-   without the other and the keys slide off the mic.
+   Line art in the wiki's green, one stroke weight, no gradients and no
+   shadows: the same drawing style as the podcast artwork further down this
+   page. Flat is the house style and the earlier glossy mic was the odd one
+   out.
 
-   The keys are HTML over the picture rather than text inside it, because
-   SVG text does not wrap and these titles are long.
+   The keys are placed at points computed on the mic's own axis and
+   positioned in per-cent, so .promo-stage-inner holding its aspect ratio is
+   what keeps a key on the handle at every width. That is why the inner box
+   and the svg viewBox carry the same numbers: change one without the other
+   and the keys slide off.
    -------------------------------------------------------------------- */
 .promo-stage {
   /* A panel, not a full-bleed band. A mic turned 52 degrees occupies a
-     roughly square area, so stretched across the viewport it would sit in
-     the middle of two very wide empty margins and read as small. Sized to
-     the drawing instead, it fills its own region. */
+     roughly square area, so stretched across the viewport it would sit
+     between two very wide empty margins and read as small. */
   max-width: 760px;
   margin: 0 auto 2.5rem;
   padding: 1.2rem;
-  background:
-    radial-gradient(120% 130% at 65% 0%, #f4faf6 0%, #eef6f1 45%, #e7f1eb 100%);
-  border: 1px solid #e2ece6;
+  background: #fffdf7;
+  border: 1px solid #dfe8e2;
   border-radius: 20px;
 }
 
 .promo-stage-inner {
   position: relative;
-  /* Matches the svg viewBox, which is fitted to the drawing. The keys are
-     positioned in per-cent of this box, so the two have to agree: change
-     one without the other and the keys slide off the handle. */
-  aspect-ratio: 619.4 / 528.5;
+  /* Matches the svg viewBox, which is fitted to the drawing. */
+  aspect-ratio: 623.5 / 532.9;
 }
 
 .promo-mic {
@@ -2609,111 +2607,159 @@ body.edu-cosmos-page .hero-sub {
   width: 100%;
   height: 100%;
   display: block;
-  filter: drop-shadow(0 18px 26px rgba(10, 40, 26, 0.22));
+}
+
+.promo-keys {
+  position: absolute;
+  inset: 0;
 }
 
 .promo-key {
   position: absolute;
   left: var(--x);
   top: var(--y);
-  /* Puts the dot's centre, not the pill's corner, on the computed point:
-     one border plus the left padding plus half the dot. */
-  transform: translate(calc(-1.5rem - 1px), -50%);
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  width: min(17rem, 42vw);
-  padding: 0.4rem 0.95rem 0.4rem 0.4rem;
-  border: 1px solid #cddcd4;
-  border-radius: 999px;
-  background: rgba(255, 253, 247, 0.96);
-  box-shadow: 0 8px 20px -12px rgba(10, 40, 26, 0.5);
-  text-decoration: none;
-  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.3, 1),
-              box-shadow 0.25s ease, border-color 0.25s ease,
-              background-color 0.25s ease;
-}
-
-.promo-key-dot {
-  flex: none;
+  /* Per-cent of the same box the mic is drawn in, so the key keeps its size
+     against the handle however wide the panel is. */
+  width: 8.34%;
+  height: 12.76%;
+  /* Centre on the computed point, then lie flat on the handle. The rotation
+     is about the key's own centre, so it does not move that point. */
+  transform: translate(-50%, -50%) rotate(52deg);
   display: grid;
   place-items: center;
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 50%;
-  background: #1f4a38;
-  color: #fffdf7;
-  font-family: "Changa", sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  line-height: 1;
-  transition: background-color 0.25s ease;
+  border: 3px solid #075a3e;
+  border-radius: 9px;
+  background: #fffdf7;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.promo-key-text {
+.promo-key-num {
+  /* Upright inside a key that is lying at 52 degrees. */
+  transform: rotate(-52deg);
   font-family: "Changa", sans-serif;
-  font-size: 0.8rem;
-  line-height: 1.25;
-  font-weight: 600;
-  color: #1f4a38;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #075a3e;
+  transition: color 0.2s ease;
 }
 
 .promo-key:hover,
 .promo-key:focus-visible {
-  /* Out along the pill, away from the mic, rather than simply bigger: the
-     key stays anchored to the body it belongs to. */
-  transform: translate(calc(-1.5rem - 1px), -50%) translateX(0.5rem);
-  border-color: #8fb3a3;
-  background: #fffdf7;
-  box-shadow: 0 16px 30px -14px rgba(10, 40, 26, 0.55);
+  background: #075a3e;
+  transform: translate(-50%, -50%) rotate(52deg) scale(1.08);
 }
 
-.promo-key:hover .promo-key-dot,
-.promo-key:focus-visible .promo-key-dot {
-  background: #d8b26a;
-  color: #1f3a2c;
-}
+.promo-key:hover .promo-key-num,
+.promo-key:focus-visible .promo-key-num { color: #fffdf7; }
 
 .promo-key:focus-visible {
   outline: 3px solid #d8b26a;
-  outline-offset: 4px;
+  outline-offset: 3px;
+}
+
+/* The name is a sibling rather than a child, so it can stay upright while
+   the key lies over at 52 degrees, and so the key can be named by it
+   through aria-labelledby instead of carrying a second copy of the text.
+
+   Idle it is scaled to nothing, not merely transparent: it is nowrap and
+   wider than the panel has to spare on that side, and an invisible one
+   still has a box that would push the page sideways. */
+.promo-key-name {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(7rem, -50%) scale(0);
+  transform-origin: left center;
+  /* 7rem because the handle is ~67px of half-width and moving straight
+     right off the axis only clears that past 109px. Wrapped rather than
+     nowrap: the longest of these names is ~307px on one line, which at that
+     offset would hang out of the panel. */
+  width: max-content;
+  max-width: 14rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 1px solid #cfdcd5;
+  border-radius: 999px;
+  padding: 0.24rem 0.72rem;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+}
+
+.promo-key:hover + .promo-key-name,
+.promo-key:focus-visible + .promo-key-name {
+  opacity: 1;
+  transform: translate(7rem, -50%) scale(1);
 }
 
 @media (max-width: 879.98px) {
-  /* The keys are eighty per cent of the picture apart at full size. Keeping
-     them absolute on a narrow screen stacks them on top of each other, so
-     the stage stops holding its shape, the mic becomes an ornament above
-     and the keys fall into an ordinary column. */
+  /* The keys are most of the picture apart and would stack on each other,
+     and there is no pointer to reveal a name with. The mic becomes an
+     ornament above and each key pairs up with its name in a row. */
   .promo-stage-inner {
     aspect-ratio: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.9rem;
   }
 
   .promo-mic {
     position: static;
-    width: min(320px, 72%);
+    width: min(280px, 66%);
     height: auto;
-    margin-bottom: 0.4rem;
+  }
+
+  .promo-keys {
+    position: static;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.55rem 0.75rem;
+    width: 100%;
   }
 
   .promo-key {
     position: static;
+    width: 3.4rem;
+    height: 2.2rem;
     transform: none;
-    width: min(22rem, 100%);
   }
 
   .promo-key:hover,
-  .promo-key:focus-visible { transform: translateX(0.35rem); }
+  .promo-key:focus-visible { transform: scale(1.04); }
+
+  .promo-key-num { transform: none; }
+
+  .promo-key-name {
+    position: static;
+    transform: none;
+    opacity: 1;
+    max-width: none;
+    width: auto;
+    border-color: transparent;
+    background: none;
+    padding: 0;
+    font-size: 0.86rem;
+  }
+
+  /* Higher specificity than the rule above, so it has to be restated. */
+  .promo-key:hover + .promo-key-name,
+  .promo-key:focus-visible + .promo-key-name { transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Only the transition. An override with a transform in it would land
-     after the narrow-screen block above and shove the stacked keys back
-     half a line up and 1.5rem left. */
-  .promo-key { transition: none; }
+  /* Only the transitions. An override carrying a transform would land after
+     the narrow-screen block above and undo its layout. */
+  .promo-key,
+  .promo-key-num,
+  .promo-key-name { transition: none; }
 }
 
 @media print {
