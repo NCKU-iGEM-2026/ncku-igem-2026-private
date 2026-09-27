@@ -7713,3 +7713,358 @@ body.quiz-active { overflow: hidden; }
   }
   .hp-map-icon { width: 72px; height: 72px; }
 }
+
+/* ===== Hardware: the deep-teal treatment ===================================
+   A page-scoped theme, switched on by body.hw-nexus from hardware.html and
+   nothing else. Purely additive: every rule here overrides the light theme
+   rather than replacing it, so removing that one class in the template puts
+   the page back exactly as it was.
+
+   The palette is sampled from the reference the team chose (Nexus, Awwwards
+   SOTD 2022-12-09): a deep petrol ground, mint and lime picking out what
+   matters. Contrast was checked against the ground and against both panel
+   tints before anything was written -- every text token below clears WCAG AA
+   on all three. The one colour that does not is the reference's own blue
+   (#2779a7, 3.3:1), so it is used for fills and borders only and a lifted
+   #5fb3e0 carries any blue that has to be read.
+   ========================================================================== */
+body.hw-nexus {
+  --nx-ground:  #0e242e;   /* page                                    */
+  --nx-panel:   #16323f;   /* cards, tables, diagram frames           */
+  --nx-raised:  #1c4352;   /* the layer above that                    */
+  --nx-line:    #24596b;   /* borders                                 */
+  --nx-mint:    #49c5b6;   /* headings, primary accent      7.6:1     */
+  --nx-lime:    #a0e860;   /* links and highlights         10.8:1     */
+  --nx-blue:    #2779a7;   /* fills and borders only        3.3:1     */
+  --nx-blue-up: #5fb3e0;   /* blue that has to be read      6.9:1     */
+  --nx-text:    #dbe9ee;   /* body                         12.9:1     */
+  --nx-muted:   #93b0bb;   /* secondary                     7.0:1     */
+  --nx-warm:    #e6b060;   /* the caution hue, lifted for a dark bed  */
+
+  background: var(--nx-ground);
+}
+
+/* ---- the shared chrome, so the page does not look half-converted ---- */
+body.hw-nexus .bg-hero { background-color: var(--nx-ground); }
+body.hw-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.42); }
+body.hw-nexus .page-hero-tint {
+  background: linear-gradient(to bottom,
+    rgba(14, 36, 46, 0.55), rgba(14, 36, 46, 0.97));
+}
+body.hw-nexus .hero-title {
+  color: var(--nx-mint);
+  /* The light theme fakes a pale outline to lift the title off a photo. On
+     this ground that outline is the brightest thing on the page, so it goes
+     and a plain shadow does the separating instead. */
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+}
+body.hw-nexus .hero-sub { color: var(--nx-muted); }
+
+body.hw-nexus .navbar {
+  background: rgba(14, 36, 46, 0.82) !important;
+  border: 1px solid var(--nx-line);
+}
+body.hw-nexus .navbar-nav .nav-link { color: var(--nx-text); }
+body.hw-nexus .navbar-nav .nav-link:hover,
+body.hw-nexus .navbar-nav .nav-link:focus { color: var(--nx-lime); }
+body.hw-nexus .dropdown-menu {
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+}
+body.hw-nexus .dropdown-item { color: var(--nx-text); }
+body.hw-nexus .dropdown-item:hover,
+body.hw-nexus .dropdown-item:focus {
+  background: var(--nx-raised);
+  color: var(--nx-lime);
+}
+
+/* ---- prose ---- */
+body.hw-nexus .hw h2 { color: var(--nx-mint); }
+body.hw-nexus .hw h3,
+body.hw-nexus .hw h4 { color: var(--nx-text); }
+body.hw-nexus .hw p,
+body.hw-nexus .hw li,
+body.hw-nexus .hw dd { color: var(--nx-text); }
+body.hw-nexus .hw a { color: var(--nx-lime); }
+body.hw-nexus .hw strong { color: #fff; }
+body.hw-nexus .hw code {
+  color: var(--nx-mint);
+  background: rgba(73, 197, 182, 0.10);
+  border: 1px solid rgba(73, 197, 182, 0.22);
+}
+body.hw-nexus .hw-lead { border-left-color: var(--nx-mint); }
+body.hw-nexus .hw-lead p { font-size: 1.14rem; }
+
+/* ---- anything that was a cream card ---- */
+body.hw-nexus .hw-module,
+body.hw-nexus .hw-group,
+body.hw-nexus .hw-branch,
+body.hw-nexus .hw-fold,
+body.hw-nexus .hw-diagram,
+body.hw-nexus .hw-flip-front,
+body.hw-nexus .hw-flip-back,
+body.hw-nexus .hw-terms > div {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+}
+body.hw-nexus .hw-flip-card:hover .hw-flip-front,
+body.hw-nexus .hw-flip-card:focus-within .hw-flip-front,
+body.hw-nexus .hw-flip-back { background: var(--nx-raised); }
+body.hw-nexus .hw-module-tag {
+  background: var(--nx-mint);
+  color: var(--nx-ground);
+}
+body.hw-nexus .hw-group-cond,
+body.hw-nexus .hw-module-what { color: var(--nx-muted); }
+body.hw-nexus .hw-ico { color: var(--nx-mint); }
+body.hw-nexus .hw-fold-head { color: var(--nx-text); }
+body.hw-nexus .hw-fold-meta,
+body.hw-nexus .hw-fold-state,
+body.hw-nexus .hw-legend,
+body.hw-nexus .hw-refs-note,
+body.hw-nexus .hw-figure figcaption { color: var(--nx-muted); }
+body.hw-nexus .hw-fold-title,
+body.hw-nexus .hw-fold-verb { color: var(--nx-mint); }
+
+/* ---- tables ---- */
+body.hw-nexus .hw-table { color: var(--nx-text); }
+body.hw-nexus .hw-table th,
+body.hw-nexus .hw-table td { border-bottom-color: var(--nx-line); }
+body.hw-nexus .hw-table thead th {
+  color: var(--nx-mint);
+  border-bottom-color: var(--nx-mint);
+}
+body.hw-nexus .hw-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.025);
+}
+body.hw-nexus .hw-cost-n { color: var(--nx-lime); }
+
+/* ---- the notes, which carry meaning by colour ---- */
+body.hw-nexus .hw-aside {
+  color: var(--nx-muted);
+  border-left-color: var(--nx-line);
+}
+body.hw-nexus .hw-caution {
+  background: rgba(230, 176, 96, 0.10);
+  border-left-color: var(--nx-warm);
+  color: var(--nx-warm);
+}
+body.hw-nexus .hw-dec-flag {
+  background: rgba(230, 176, 96, 0.12);
+  border-color: rgba(230, 176, 96, 0.45);
+  color: var(--nx-warm);
+}
+body.hw-nexus .hw-decs .is-narrow .hw-ico { color: var(--nx-warm); }
+
+/* ---- the inline SVG schematics --------------------------------------------
+   These were drawn for a light page: a near-white case, dark ink, and beams
+   in their natural colours. On the dark ground the fills invert and the ink
+   lifts, but the beams keep the colour of the light they stand for -- the
+   legend names them, and a reader who knows 470 nm is blue should not have
+   to relearn it because the page went dark. Blue and red are lifted only as
+   far as they need to be legible against petrol. */
+body.hw-nexus .hw-svg-case {
+  fill: rgba(255, 255, 255, 0.03);
+  stroke: var(--nx-line);
+}
+body.hw-nexus .hw-svg-body { stroke: #6f93a1; }
+body.hw-nexus .hw-svg-label { fill: var(--nx-text); }
+body.hw-nexus .hw-svg-sub   { fill: var(--nx-muted); }
+body.hw-nexus .hw-svg-note  { fill: #7d99a4; }
+body.hw-nexus .hw-svg-angle { fill: var(--nx-mint); }
+body.hw-nexus .hw-svg-axis  { stroke: #4d7383; }
+body.hw-nexus .hw-svg-dim   { stroke: #7d99a4; }
+body.hw-nexus .hw-svg-right-angle { stroke: var(--nx-mint); }
+body.hw-nexus .hw-svg-stop  { fill: #050f14; }
+body.hw-nexus .hw-svg-lid,
+body.hw-nexus .hw-svg-sensor { fill: var(--nx-raised); stroke: var(--nx-mint); }
+body.hw-nexus .hw-svg-sample { fill: rgba(230, 176, 96, 0.16); stroke: var(--nx-warm); }
+body.hw-nexus .hw-svg-meniscus { stroke: var(--nx-warm); }
+body.hw-nexus .hw-svg-filter { fill: rgba(230, 176, 96, 0.30); stroke: var(--nx-warm); }
+body.hw-nexus .hw-svg-filter-blue,
+body.hw-nexus .hw-svg-blue-box { fill: rgba(95, 179, 224, 0.20); stroke: var(--nx-blue-up); }
+body.hw-nexus .hw-svg-red-box { fill: rgba(224, 108, 95, 0.18); stroke: #e0705f; }
+body.hw-nexus .hw-svg-interlock { fill: rgba(230, 176, 96, 0.25); stroke: var(--nx-warm); }
+
+body.hw-nexus .hw-beam-blue  { stroke: var(--nx-blue-up); }
+body.hw-nexus .hw-beam-green { stroke: #55d98a; }
+body.hw-nexus .hw-beam-red   { stroke: #ef7361; }
+body.hw-nexus .hw-key-blue   { background: var(--nx-blue-up); }
+body.hw-nexus .hw-key-green  { background: #55d98a; }
+body.hw-nexus .hw-key-red    { background: #ef7361; }
+
+/* ---- the instrument panels were already dark; only the hue moves ----------
+   hwx-* and hw3d-* drive themselves from custom properties, so the whole
+   retune is done by redefining those rather than by chasing their rules. */
+body.hw-nexus .hwx-rig {
+  --hwx-green: var(--nx-mint);
+  --hwx-blue: var(--nx-blue-up);
+  --hwx-ink: var(--nx-text);
+  --hwx-dim: var(--nx-muted);
+  --hwx-rule: var(--nx-line);
+  --hwx-amber: var(--nx-warm);
+}
+
+/* The cutaway is the one instrument component that was drawn on paper rather
+   than on a dark bench, so its surfaces move as well as its ink. */
+body.hw-nexus .hw3d {
+  --hw3d-paper: var(--nx-panel);
+  --hw3d-panel: var(--nx-raised);
+  --hw3d-ink: var(--nx-text);
+  --hw3d-ink-2: var(--nx-muted);
+  --hw3d-ink-3: #7d99a4;
+  --hw3d-rule: var(--nx-line);
+  --hw3d-rule-2: #2d6577;
+  --hw3d-accent: var(--nx-mint);
+  --hw3d-accent-2: var(--nx-mint);
+  --hw3d-beam-ex: var(--nx-blue-up);
+  --hw3d-beam-em: #55d98a;
+  --hw3d-sample: var(--nx-warm);
+  --hw3d-frame: #6f93a1;
+  --hw3d-ghost: #4d7383;
+  --hw3d-warn: #e0705f;
+  --hw3d-gold: var(--nx-warm);
+  --hw3d-ledw: #dff3ee;
+
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+body.hw-nexus .hw3d-viewport,
+body.hw-nexus .hw3d-list,
+body.hw-nexus .hw3d-list-close {
+  background: var(--nx-raised);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+}
+body.hw-nexus .hw3d-views button {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+}
+body.hw-nexus .hw3d-views button[aria-pressed="true"] {
+  background: var(--nx-mint);
+  border-color: var(--nx-mint);
+  color: var(--nx-ground);
+}
+body.hw-nexus .hw3d input[type="range"] { accent-color: var(--nx-mint); }
+
+/* The total row read as a pale green band; on this ground it is a tint of
+   the accent instead. */
+body.hw-nexus .hw-table tr.is-total {
+  background: rgba(73, 197, 182, 0.12);
+  color: var(--nx-text);
+}
+
+/* Global controls that follow the reader down the page. */
+body.hw-nexus .back-to-top {
+  background: var(--nx-panel);
+  border-color: var(--nx-mint);
+  color: var(--nx-mint);
+}
+body.hw-nexus .back-to-top:hover,
+body.hw-nexus .back-to-top:focus-visible {
+  background: var(--nx-mint);
+  color: var(--nx-ground);
+}
+
+/* ---- footer ---- */
+body.hw-nexus footer.footer { background: #071820 !important; }
+
+/* The banner photo carries a lot of light on a page this dark. Reduce it
+   further where the viewport is small enough that the hero fills the screen
+   on arrival. */
+@media (max-width: 767.98px) {
+  body.hw-nexus .page-hero-bg { filter: blur(2px) saturate(0.5) brightness(0.32); }
+}
+
+@media (prefers-contrast: more) {
+  body.hw-nexus { --nx-text: #f2f8fa; --nx-muted: #b6ccd4; }
+}
+
+/* A range input paints its own track from the platform, so accent-color
+   alone leaves a white rail across the panel. */
+body.hw-nexus .hw3d input[type="range"] {
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+}
+body.hw-nexus .hw3d input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--nx-line);
+}
+body.hw-nexus .hw3d input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--nx-line);
+}
+body.hw-nexus .hw3d input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nx-mint);
+}
+body.hw-nexus .hw3d input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: none;
+  border-radius: 50%;
+  background: var(--nx-mint);
+}
+
+/* ---- what the variable retune could not reach ----------------------------
+   These carry their colour literally rather than through a custom property,
+   so the theme has to name them. Found by auditing the rendered page for
+   contrast rather than by reading the stylesheet, which is why they are
+   listed apart: every one of them was below AA on the dark ground. */
+body.hw-nexus .hw3d-list-title { color: var(--nx-text); }
+body.hw-nexus .hw3d-list-state,
+body.hw-nexus .hw3d-list-caret { color: var(--nx-mint); }
+body.hw-nexus .hw3d-dim,
+body.hw-nexus .hw3d-list thead th,
+body.hw-nexus .hw-cost-zh { color: var(--nx-muted); }
+body.hw-nexus .hw3d-num,
+body.hw-nexus .hw3d-name { color: var(--nx-text); }
+body.hw-nexus .hw3d-list td,
+body.hw-nexus .hw3d-list th { border-color: var(--nx-line); }
+
+/* The cost table's own cells and its subtotal rows. */
+body.hw-nexus .hw-cost td,
+body.hw-nexus .hw-cost th,
+body.hw-nexus .hw-table td,
+body.hw-nexus .hw-table th { color: var(--nx-text); }
+body.hw-nexus .hw-table tr.is-total td,
+body.hw-nexus .hw-table tr.is-total th { color: var(--nx-text); }
+
+/* The navbar's own dropdown rule is more specific than a bare
+   .dropdown-menu, so the theme has to match it to be heard. */
+body.hw-nexus .navbar .dropdown-menu {
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+}
+body.hw-nexus .navbar .dropdown-item { color: var(--nx-text); }
+body.hw-nexus .navbar .dropdown-item:hover,
+body.hw-nexus .navbar .dropdown-item:focus {
+  background: var(--nx-raised);
+  color: var(--nx-lime);
+}
+body.hw-nexus .hw3d-list-head,
+body.hw-nexus .hw3d-list-foot {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+
+/* The dog-eared corner and its "hover to read" cue, which were tuned to sit
+   quietly on cream. */
+body.hw-nexus .hw-flip-card > .hw-flip-front::after {
+  background: linear-gradient(45deg, transparent 50%, var(--nx-mint) 50%);
+}
+body.hw-nexus .hw-flip-card > .hw-flip-front::before,
+body.hw-nexus .hw-flip-card:focus-within > .hw-flip-front::before {
+  color: var(--nx-muted);
+}
