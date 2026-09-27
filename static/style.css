@@ -826,7 +826,12 @@ footer a:hover { color: white; text-decoration: underline; }
   align-items: center;
   justify-content: center;
   background: rgba(20, 15, 10, 0.75);
-  z-index: 1000;
+  /* Above the navbar, which is 1030 and fixed to the top. At 1000 this sat
+     under it, and on a phone the navbar's toggler landed squarely on top of
+     this card's close button -- measured at 390px, close button y 57-93,
+     navbar y 16-96 -- so there was no way to shut it. 1080 is the level the
+     site's other overlays already use. */
+  z-index: 1080;
   padding: 1.5rem;
 }
 
@@ -837,7 +842,11 @@ body.team-bio-locked { overflow: hidden; }
 .team-bio-card {
   position: relative;
   width: 100%;
-  max-width: 500px;
+  /* Two thirds of the viewport -- but never narrower than the 500px this
+     used to cap at. On a phone two thirds is about 260px, so a plain 66.67vw
+     would shrink the card instead of growing it; below ~750px the floor wins
+     and width:100% still fills the overlay exactly as before. */
+  max-width: max(500px, 66.6667vw);
   max-height: 85vh;
   overflow-y: auto;
   background: linear-gradient(180deg, #ffffff, #eaf6ff);
@@ -901,6 +910,37 @@ body.team-bio-locked { overflow: hidden; }
   margin-bottom: 0.9rem;
 }
 .team-bio-paragraphs p:last-child { margin-bottom: 0; }
+
+/* At two thirds of a wide screen this card is around 960px, and one column
+   of text that wide runs to roughly 130 characters a line -- past the point
+   where the eye finds the start of the next one. The photo moves beside the
+   text rather than above it, which is what the .team-bio-text wrapper was
+   always there for, and the measure is capped on top of that.
+
+   1200px, not the 750px where the card starts growing and not 992px either:
+   at 1024px the card is 683px, and splitting that leaves the text column
+   291px -- about 37 characters a line, which is as bad the other way. At
+   1200px the card is 800px and the text column keeps ~50. */
+@media (min-width: 1200px) {
+  .team-bio-card {
+    display: grid;
+    grid-template-columns: minmax(200px, 300px) 1fr;
+    gap: 1.75rem;
+    align-items: start;
+    padding: 2rem;
+  }
+
+  .team-bio-photo {
+    max-width: none;
+    margin: 0;
+  }
+
+  /* The close button is pinned to the card's top right, which is now the
+     text column's top right as well. */
+  .team-bio-name { padding-right: 2.75rem; }
+
+  .team-bio-paragraphs p { max-width: 68ch; }
+}
 
 @media (max-width: 480px) {
   .team-bio-card { padding: 1.1rem; max-height: 90vh; }
@@ -2710,13 +2750,6 @@ body.edu-cosmos-page .hero-sub {
   font-size: 0.92rem;
   line-height: 1.65;
   color: #4a5a51;
-}
-
-.story-note {
-  margin: 0;
-  font-size: 0.84rem;
-  font-style: italic;
-  color: #5f6e66;
 }
 
 @media (max-width: 991.98px) {
