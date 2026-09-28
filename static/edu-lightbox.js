@@ -1,6 +1,7 @@
 (function () {
-  // Click any photo in an .edu-gallery to open it full-size, with arrow
-  // keys / on-screen arrows to step through the rest of that gallery.
+  // Click any photo in an .edu-gallery -- or an .hp-figure-grid, the survey
+  // figure layout on Human Practices -- to open it full-size, with arrow
+  // keys / on-screen arrows to step through the rest of that gallery/grid.
   // The markup is untouched -- this only adds a click handler per <img>
   // and one shared overlay appended to <body>.
 
@@ -21,7 +22,7 @@
   }
 
   function init() {
-    var galleries = Array.prototype.slice.call(document.querySelectorAll('.edu-gallery'));
+    var galleries = Array.prototype.slice.call(document.querySelectorAll('.edu-gallery, .hp-figure-grid'));
     if (!galleries.length) return;
 
     var overlay = buildOverlay();
