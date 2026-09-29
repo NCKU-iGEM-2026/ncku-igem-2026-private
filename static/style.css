@@ -3875,6 +3875,20 @@ body.edu-lightbox-locked {
   list-style: none;
 }
 
+/* Only once the script has said it is running: without it the text is
+   simply there, which is the state that matters. is-in is set the moment a
+   stop enters the viewport, well before its circle lights. */
+.sgd-js .sgd-text {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.sgd-js .sgd-stop.is-in .sgd-text {
+  opacity: 1;
+  transform: none;
+}
+
 /* Left text, spine, right text. A stop puts its text in one outer column and
    leaves the other empty -- that emptiness is what the S runs through. */
 .sgd-stop {
@@ -3895,8 +3909,11 @@ body.edu-lightbox-locked {
    cannot go backwards, so it would start a second row -- which is exactly
    what every left-hand stop did, leaving its arc alone on a row of its own
    at the svg's intrinsic height instead of stretched down the whole stop. */
-.sgd-stop.is-right > .sgd-text { grid-column: 3; grid-row: 1; text-align: left; }
-.sgd-stop.is-left > .sgd-text { grid-column: 1; grid-row: 1; text-align: left; }
+/* is-right names which way the arc bends, not where its text sits. The
+   text sits in the hollow the bend leaves behind -- the opposite side -- so
+   the circle has the outside of the bulge to itself. */
+.sgd-stop.is-right > .sgd-text { grid-column: 1; grid-row: 1; text-align: left; }
+.sgd-stop.is-left > .sgd-text { grid-column: 3; grid-row: 1; text-align: left; }
 .sgd-spine { grid-column: 2; grid-row: 1; }
 
 .sgd-spine {
@@ -3904,14 +3921,33 @@ body.edu-lightbox-locked {
   align-self: stretch;
 }
 
+/* Both copies of the arc lie on top of each other, filling the spine. */
 .sgd-arc {
-  display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   fill: none;
-  stroke: #9ec5b2;
   stroke-width: 3;
   stroke-linecap: round;
+}
+
+.sgd-arc-track { stroke: #cfe0d6; }
+
+/* The fill is the same path in the ink colour, with its bottom cut away.
+   sgd-progress.js moves that cut down as the reader goes.
+
+   Cut, not dashed: these arcs are stretched with preserveAspectRatio="none"
+   and stroked with non-scaling-stroke, which puts a dash pattern in screen
+   space while the path's length stays in user space, and the arc comes out
+   striped down its whole length instead of drawn part way. Each arc only
+   ever descends, so taking the bottom off at a fraction of the height is
+   the same thing as having drawn the first part of it.
+
+   The cut defaults to nothing, so without the script the curve is whole. */
+.sgd-arc-fill {
+  stroke: #075a3e;
+  clip-path: inset(0 0 var(--cut, 0%) 0);
 }
 
 /* The node sits at the apex of its arc. For the cubic used here the extreme
@@ -3928,7 +3964,24 @@ body.edu-lightbox-locked {
   border-radius: 50%;
   background: #fffdf7;
   box-shadow: 0 0 0 7px #f3f8f5;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+              transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
+
+/* Filled once the reader has drawn level with it. */
+.sgd-stop.is-reached .sgd-node {
+  background: #075a3e;
+  box-shadow: 0 0 0 7px #e3efe8;
+}
+
+.sgd-stop.is-reached .sgd-icon { stroke: #fffdf7; }
+
+/* Pointing anywhere in a stop lifts that stop's own marker. It is the thing
+   tying a paragraph to a circle now that the two sit on opposite sides of
+   the bend. Both rules restate the centring translate, because a transform
+   replaces rather than adds to the one it overrides. */
+.sgd-stop.is-right:hover .sgd-node,
+.sgd-stop.is-left:hover .sgd-node { transform: translate(-50%, -50%) scale(1.12); }
 
 .sgd-stop.is-right .sgd-node { left: 86.25%; transform: translate(-50%, -50%); }
 .sgd-stop.is-left .sgd-node { left: 13.75%; transform: translate(-50%, -50%); }
@@ -3938,6 +3991,7 @@ body.edu-lightbox-locked {
   height: 2.7rem;
   fill: none;
   stroke: #075a3e;
+  transition: stroke 0.3s ease;
   stroke-width: 3.2;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -4012,6 +4066,14 @@ body.edu-lightbox-locked {
   }
 
   .sgd-icon { width: 2.1rem; height: 2.1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The script bows out entirely in this case, so every arc stays solid and
+     every circle stays in its resting state. All that is left to do is stop
+     the hover from sliding. */
+  .sgd-node,
+  .sgd-icon { transition: none; }
 }
 
 @media print {
