@@ -4,9 +4,11 @@
  * It is the same bacterium and the same signal disc the online game uses, so
  * the two read as the same thing in two places.
  *
- * What it lets go does not fade: each mark takes the next place in a line
- * of dots running down the margin below the cell, and stays there. The line
- * grows as the page is read and is a record of how much of it has gone by.
+ * What it lets go does not fade. The dots run down the margin below the
+ * cell, and how many there are is simply how far down the page you are --
+ * none at the top, the full line at the bottom. Going back up shortens it
+ * again, because the length is the position and not a tally of what has
+ * been released.
  *
  * The marks are held against the window rather than against the document.
  * Laid into the document they would be correct -- each one sitting at the
@@ -158,14 +160,23 @@
   var SLOT = 24;         // and the pitch of the line it joins
   var TAIL = 70;         // clear of the bottom of the window
   var marks = [];
-  var carried = 0;
-  var lastY = window.scrollY;
 
   function slotY(i) { return atY + atSize + 16 + i * SLOT; }
 
   function slots() {
     return Math.max(0, Math.floor(
       (window.innerHeight - TAIL - (atY + atSize + 16)) / SLOT));
+  }
+
+  /* How much of the page has gone by, 0 at the top and 1 at the bottom. The
+     length of the line is this and nothing else: it is not a tally of what
+     has been released, so going back up shortens it again. */
+  function progress() {
+    var d = document.documentElement;
+    var span = (d.scrollHeight || 0) - window.innerHeight;
+    if (span <= 0) return 0;
+    var p = window.scrollY / span;
+    return p < 0 ? 0 : (p > 1 ? 1 : p);
   }
 
   /* The column the line runs down, sampled rather than assumed. The dots are
@@ -181,9 +192,8 @@
     return true;
   }
 
-  function lay() {
+  function add() {
     var i = marks.length;
-    if (i >= slots()) return;                 // the line has reached the end
     var d = document.createElement('span');
     /* cap-ahl is the game's own disc, so the colour has one definition
        between the two places it appears. No lettering at this size: at 15px
@@ -196,14 +206,29 @@
     marks.push(d);
   }
 
+  function drop() {
+    var d = marks.pop();
+    if (!d) return;
+    /* Off the list at once, so the count is right the instant it is asked
+       for, and out of the page a moment later so it fades rather than
+       blinks. */
+    d.classList.add('is-out');
+    window.setTimeout(function () { d.remove(); }, 260);
+  }
+
+  function retune() {
+    var want = Math.round(progress() * slots());
+    var guard = 0;
+    while (marks.length < want && guard++ < 200) add();
+    while (marks.length > want && guard++ < 200) drop();
+  }
+
   function reflow() {
     var x = Math.round(atX + atSize * 0.5 - MARK / 2) + 'px';
     for (var i = 0; i < marks.length; i++) {
       marks[i].style.left = x;
       marks[i].style.top = Math.round(slotY(i)) + 'px';
     }
-    var n = slots();
-    while (marks.length > n) { marks.pop().remove(); }
   }
 
   var pending = false;
@@ -213,27 +238,16 @@
     pending = true;
     window.requestAnimationFrame(function () {
       pending = false;
-      var y = window.scrollY;
-      var moved = y - lastY;
-      lastY = y;
-
       place();
       if (!shown) { trail.classList.remove('is-on'); return; }
-
+      retune();
       reflow();
       trail.classList.toggle('is-on', columnFree());
-
-      if (moved <= 0) return;                 // only on the way down
-      carried += moved;
-      while (carried >= SPACING) {
-        carried -= SPACING;
-        lay();
-      }
     });
   }
 
   window.addEventListener('scroll', onScroll, {passive: true});
-  window.addEventListener('resize', function () { place(); reflow(); });
+  window.addEventListener('resize', function () { place(); retune(); reflow(); });
 
   /* The logo hangs below the bar and is a remote image, so the first
      placement happens before it has any height and lands the cell too high.
