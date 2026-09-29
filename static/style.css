@@ -8161,30 +8161,22 @@ body.hw-nexus::after {
 }
 
 body.hw-nexus::before {
-  /* Four pools, none of them centred, so no two parts of the field match,
-     and a faint set of rings off the top right: an aperture, which is what
-     this instrument is built around. Repeating-radial for the rings rather
-     than a stack of separate gradients, so their spacing stays even however
-     the window is sized. */
+  /* One wash, lighter at the top, which is how a lit surface reads. It
+     replaced four symmetrical pools and a set of concentric rings: stacked
+     soft glows are the stock background of every dark template going, and
+     they were also spending the brightness the orbs needed to be visible
+     at all. */
   background-image:
-    repeating-radial-gradient(circle at 96% 18%,
-      transparent 0 6.4rem,
-      rgba(73, 197, 182, 0.05) 6.4rem 6.5rem,
-      transparent 6.5rem 12rem),
-    radial-gradient(62rem 46rem at 10% 4%,
-      rgba(73, 197, 182, 0.07), transparent 70%),
-    radial-gradient(56rem 42rem at 90% 30%,
-      rgba(39, 121, 167, 0.10), transparent 70%),
-    radial-gradient(48rem 40rem at 24% 74%,
-      rgba(160, 232, 96, 0.045), transparent 70%),
-    radial-gradient(44rem 36rem at 78% 96%,
-      rgba(73, 197, 182, 0.05), transparent 70%);
+    linear-gradient(to bottom,
+      rgba(73, 197, 182, 0.05) 0%,
+      rgba(73, 197, 182, 0.015) 42%,
+      rgba(73, 197, 182, 0) 100%);
 }
 
 body.hw-nexus::after {
   background-image:
-    linear-gradient(rgba(36, 89, 107, 0.18) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(36, 89, 107, 0.18) 1px, transparent 1px);
+    linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
   background-size: 88px 88px;
   /* Strongest in the middle of the view and gone at the edges, so it reads
      as a surface the page is sitting on rather than as a chart drawn over
@@ -8209,18 +8201,17 @@ body.hw-nexus::after {
    and keeping those durations out of simple ratios is what stops the path
    retracing itself while anyone is watching.
 
-   Kept dim on purpose, and the ceiling is not a matter of taste. The pools,
-   the grid and an orb core can all land on the same spot, and text has to
-   stay readable there. Stepping the orbs through their travel and reading
-   the rendered pixels back on a lattice puts the brightest point any of it
-   reaches at #204038; every token still clears AA there -- body 12.9 ->
-   9.1:1, links 10.8 -> 7.7, caution 8.2 -> 5.8, headings 7.6 -> 5.4,
-   secondary 7.0 -> 5.0, lifted blue 6.9 -> 4.9.
+   How bright they get is not a matter of taste: text passes over them, and
+   it has to stay readable. Stepping the orbs through their travel and
+   reading the rendered pixels back on a lattice puts the brightest point
+   any of this reaches at #254237, where every token still clears AA --
+   body 12.9 -> 8.8:1, links 10.8 -> 7.4, caution 8.2 -> 5.6, headings
+   7.6 -> 5.2, secondary 7.0 -> 4.8, lifted blue 6.9 -> 4.7.
 
-   That is what set these alphas. At a core of 0.26 the same measurement
-   gave #3e6742 and five of the six tokens fell below AA, which no amount of
-   looking at it had suggested; the pools were eased back from their first
-   values to leave the orbs room.
+   That measurement is what set these alphas, and it contradicted the eye
+   twice. A core of 0.26 looked perfectly restrained on screen and put five
+   of the six tokens below AA. Dropping the four pools that used to sit
+   behind these is what bought the orbs the room to be seen at all.
    -------------------------------------------------------------------- */
 .hw-orbs {
   position: fixed;
@@ -8246,17 +8237,46 @@ body.hw-nexus::after {
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  /* Falls off to nothing well inside the box, so the edge is a glow rather
-     than a disc. --nx-lime through --nx-mint: the page's own greens. */
-  background:
-    radial-gradient(closest-side circle,
-      rgba(160, 232, 96, 0.085) 0%,
-      rgba(160, 232, 96, 0.05) 26%,
-      rgba(73, 197, 182, 0.02) 52%,
-      rgba(73, 197, 182, 0) 76%);
   animation: hw-orb-y var(--ty) ease-in-out infinite alternate;
   animation-delay: var(--dy);
+}
+
+/* Two gradients per orb, neither on its centre, so the light sits heavier
+   on one side than the other. A single centred gradient gives the perfectly
+   even disc that reads as a stock effect rather than as something glowing.
+   The offsets differ per orb, so the three are not one object three
+   times. */
+.hw-orb-a > span {
+  background:
+    radial-gradient(closest-side circle at 44% 40%,
+      rgba(160, 232, 96, 0.1148) 0%,
+      rgba(160, 232, 96, 0.0459) 44%,
+      rgba(73, 197, 182, 0) 72%),
+    radial-gradient(closest-side circle at 62% 61%,
+      rgba(73, 197, 182, 0.0536) 0%,
+      rgba(73, 197, 182, 0) 56%);
+}
+
+.hw-orb-b > span {
+  background:
+    radial-gradient(closest-side circle at 58% 37%,
+      rgba(160, 232, 96, 0.1186) 0%,
+      rgba(160, 232, 96, 0.0420) 40%,
+      rgba(73, 197, 182, 0) 70%),
+    radial-gradient(closest-side circle at 38% 64%,
+      rgba(73, 197, 182, 0.0459) 0%,
+      rgba(73, 197, 182, 0) 52%);
+}
+
+.hw-orb-c > span {
+  background:
+    radial-gradient(closest-side circle at 49% 55%,
+      rgba(160, 232, 96, 0.0994) 0%,
+      rgba(160, 232, 96, 0.0383) 46%,
+      rgba(73, 197, 182, 0) 74%),
+    radial-gradient(closest-side circle at 63% 36%,
+      rgba(160, 232, 96, 0.0459) 0%,
+      rgba(73, 197, 182, 0) 50%);
 }
 
 .hw-orb-a { --d: 26rem; --tx: 71s; --ty: 47s; --dx: 0s; --dy: -13s; }
