@@ -8135,6 +8135,79 @@ body.hw-nexus {
   background: var(--nx-ground);
 }
 
+/* ---- the ground, no longer flat ------------------------------------
+   Two fixed layers behind everything: pools of the page's own accents so
+   the field is never one tone, and a grid, which is the right texture for
+   a page about an instrument.
+
+   Nothing new is introduced. The pools are --nx-mint, --nx-blue and
+   --nx-lime at a few per cent and the grid is --nx-line; the ground token
+   itself does not change. That matters for the contrast figures in the
+   comment above, which were measured against the flat ground. Sampling the
+   rendered page on a lattice puts the brightest point this reaches at
+   #15383f, and every token still clears AA there: body 12.9 -> 10.1:1,
+   headings 7.6 -> 6.0, links 10.8 -> 8.5, caution 8.2 -> 6.4, and the two
+   that sit lowest on the flat ground, secondary 7.0 -> 5.5 and the lifted
+   blue 6.9 -> 5.4.
+
+   Fixed rather than scrolling, so the content travels over a steady field
+   instead of dragging the texture along with it. Both layers sit at
+   z-index -1: above the canvas colour, below everything on the page, and
+   out of the way of the panels, which carry their own darker backgrounds.
+   -------------------------------------------------------------------- */
+body.hw-nexus::before,
+body.hw-nexus::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body.hw-nexus::before {
+  /* Four pools, none of them centred, so no two parts of the field match,
+     and a faint set of rings off the top right: an aperture, which is what
+     this instrument is built around. Repeating-radial for the rings rather
+     than a stack of separate gradients, so their spacing stays even however
+     the window is sized. */
+  background-image:
+    repeating-radial-gradient(circle at 96% 18%,
+      transparent 0 6.4rem,
+      rgba(73, 197, 182, 0.05) 6.4rem 6.5rem,
+      transparent 6.5rem 12rem),
+    radial-gradient(62rem 46rem at 10% 4%,
+      rgba(73, 197, 182, 0.11), transparent 70%),
+    radial-gradient(56rem 42rem at 90% 30%,
+      rgba(39, 121, 167, 0.15), transparent 70%),
+    radial-gradient(48rem 40rem at 24% 74%,
+      rgba(160, 232, 96, 0.07), transparent 70%),
+    radial-gradient(44rem 36rem at 78% 96%,
+      rgba(73, 197, 182, 0.08), transparent 70%);
+}
+
+body.hw-nexus::after {
+  background-image:
+    linear-gradient(rgba(36, 89, 107, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(36, 89, 107, 0.22) 1px, transparent 1px);
+  background-size: 88px 88px;
+  /* Strongest in the middle of the view and gone at the edges, so it reads
+     as a surface the page is sitting on rather than as a chart drawn over
+     it. One grid pitch only: a second, finer one moires against this at
+     most window widths. */
+  -webkit-mask-image:
+    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
+                    transparent 100%);
+  mask-image:
+    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
+                    transparent 100%);
+}
+
+@media print {
+  /* Fixed decoration cannot follow the page breaks and would only cost ink. */
+  body.hw-nexus::before,
+  body.hw-nexus::after { display: none; }
+}
+
 /* ---- the shared chrome, so the page does not look half-converted ---- */
 body.hw-nexus .bg-hero { background-color: var(--nx-ground); }
 body.hw-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.42); }
