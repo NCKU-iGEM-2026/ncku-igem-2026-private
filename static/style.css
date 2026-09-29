@@ -8143,12 +8143,8 @@ body.hw-nexus {
    Nothing new is introduced. The pools are --nx-mint, --nx-blue and
    --nx-lime at a few per cent and the grid is --nx-line; the ground token
    itself does not change. That matters for the contrast figures in the
-   comment above, which were measured against the flat ground. Sampling the
-   rendered page on a lattice puts the brightest point this reaches at
-   #15383f, and every token still clears AA there: body 12.9 -> 10.1:1,
-   headings 7.6 -> 6.0, links 10.8 -> 8.5, caution 8.2 -> 6.4, and the two
-   that sit lowest on the flat ground, secondary 7.0 -> 5.5 and the lifted
-   blue 6.9 -> 5.4.
+   comment above, which were measured against the flat ground; the combined
+   figure for this and the orbs below is recorded there.
 
    Fixed rather than scrolling, so the content travels over a steady field
    instead of dragging the texture along with it. Both layers sit at
@@ -8176,19 +8172,19 @@ body.hw-nexus::before {
       rgba(73, 197, 182, 0.05) 6.4rem 6.5rem,
       transparent 6.5rem 12rem),
     radial-gradient(62rem 46rem at 10% 4%,
-      rgba(73, 197, 182, 0.11), transparent 70%),
+      rgba(73, 197, 182, 0.07), transparent 70%),
     radial-gradient(56rem 42rem at 90% 30%,
-      rgba(39, 121, 167, 0.15), transparent 70%),
+      rgba(39, 121, 167, 0.10), transparent 70%),
     radial-gradient(48rem 40rem at 24% 74%,
-      rgba(160, 232, 96, 0.07), transparent 70%),
+      rgba(160, 232, 96, 0.045), transparent 70%),
     radial-gradient(44rem 36rem at 78% 96%,
-      rgba(73, 197, 182, 0.08), transparent 70%);
+      rgba(73, 197, 182, 0.05), transparent 70%);
 }
 
 body.hw-nexus::after {
   background-image:
-    linear-gradient(rgba(36, 89, 107, 0.22) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(36, 89, 107, 0.22) 1px, transparent 1px);
+    linear-gradient(rgba(36, 89, 107, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(36, 89, 107, 0.18) 1px, transparent 1px);
   background-size: 88px 88px;
   /* Strongest in the middle of the view and gone at the edges, so it reads
      as a surface the page is sitting on rather than as a chart drawn over
@@ -8200,6 +8196,93 @@ body.hw-nexus::after {
   mask-image:
     radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
                     transparent 100%);
+}
+
+/* ---- three green glows, drifting ------------------------------------
+   The reporter in this project fluoresces, so the ground carries a few soft
+   green lights wandering over it.
+
+   No script. Each orb animates one axis on the outer element and the other
+   on the inner one, both with alternate, which turns it round at the edge
+   without anything needing to know how big the viewport is. Giving the two
+   axes different durations is what keeps an orb off a straight diagonal,
+   and keeping those durations out of simple ratios is what stops the path
+   retracing itself while anyone is watching.
+
+   Kept dim on purpose, and the ceiling is not a matter of taste. The pools,
+   the grid and an orb core can all land on the same spot, and text has to
+   stay readable there. Stepping the orbs through their travel and reading
+   the rendered pixels back on a lattice puts the brightest point any of it
+   reaches at #204038; every token still clears AA there -- body 12.9 ->
+   9.1:1, links 10.8 -> 7.7, caution 8.2 -> 5.8, headings 7.6 -> 5.4,
+   secondary 7.0 -> 5.0, lifted blue 6.9 -> 4.9.
+
+   That is what set these alphas. At a core of 0.26 the same measurement
+   gave #3e6742 and five of the six tokens fell below AA, which no amount of
+   looking at it had suggested; the pools were eased back from their first
+   values to leave the orbs room.
+   -------------------------------------------------------------------- */
+.hw-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* An orb travels the full width, and 100vw counts the scrollbar; without
+     this the last few pixels of that travel would widen the page. */
+  overflow: hidden;
+}
+
+.hw-orb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--d);
+  height: var(--d);
+  animation: hw-orb-x var(--tx) ease-in-out infinite alternate;
+  animation-delay: var(--dx);
+}
+
+.hw-orb > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  /* Falls off to nothing well inside the box, so the edge is a glow rather
+     than a disc. --nx-lime through --nx-mint: the page's own greens. */
+  background:
+    radial-gradient(closest-side circle,
+      rgba(160, 232, 96, 0.085) 0%,
+      rgba(160, 232, 96, 0.05) 26%,
+      rgba(73, 197, 182, 0.02) 52%,
+      rgba(73, 197, 182, 0) 76%);
+  animation: hw-orb-y var(--ty) ease-in-out infinite alternate;
+  animation-delay: var(--dy);
+}
+
+.hw-orb-a { --d: 26rem; --tx: 71s; --ty: 47s; --dx: 0s; --dy: -13s; }
+.hw-orb-b { --d: 19rem; --tx: 53s; --ty: 67s; --dx: -19s; --dy: -6s; }
+.hw-orb-c { --d: 31rem; --tx: 89s; --ty: 59s; --dx: -34s; --dy: -25s; }
+
+@keyframes hw-orb-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100vw - var(--d))); }
+}
+
+@keyframes hw-orb-y {
+  from { transform: translateY(0); }
+  to { transform: translateY(calc(100vh - var(--d))); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Drifting lights are the thing this setting is asking about. They stay,
+     because they are part of how the ground looks, but they stop where the
+     delays would have put them. */
+  .hw-orb,
+  .hw-orb > span { animation-play-state: paused; }
+}
+
+@media print {
+  .hw-orbs { display: none; }
 }
 
 @media print {
