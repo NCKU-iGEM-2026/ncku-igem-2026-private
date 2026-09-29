@@ -3818,6 +3818,208 @@ body.edu-lightbox-locked {
 /* All rules below are scoped under .board-game-page so this self-contained
    widget's tag-level styling (button, input, h1, h2, .card, .modal, ...)
    never leaks into the rest of the site. */
+/* ===== Board game: the S that runs past the stops ====================
+   How the game was made, above the game itself. Eight stops, alternating
+   sides, with an S snaking between them.
+
+   The S is assembled per stop rather than drawn once. Each row holds a
+   half-arc that bulges to the side its text is on and meets the centre line
+   at both ends, so consecutive arcs join whatever height the rows turn out
+   to be -- which matters, because these stops run from two sentences to five
+   paragraphs and one fixed path would need them all the same.
+
+   Line art in the wiki's green, the same weight as the microphone on
+   Promotion and the four beats on Home.
+   -------------------------------------------------------------------- */
+.sgd {
+  /* Out of the page container and across the viewport, like the
+     collaboration wall. The html rule at the top of this file carries the
+     overflow-x: clip that 100vw needs. */
+  margin-inline: calc(50% - 50vw);
+  padding: 3rem clamp(1rem, 5vw, 3rem) 3.5rem;
+  background:
+    radial-gradient(120% 120% at 50% -10%, #fffdf7 0%, #f6faf7 45%, #eef6f1 100%);
+  border-block: 1px solid #dfe8e2;
+  margin-bottom: 2.5rem;
+}
+
+.sgd-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.sgd-kicker {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #4f8f74;
+  margin: 0 0 0.4rem;
+  text-align: center;
+}
+
+.sgd-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3.2vw, 2.15rem);
+  line-height: 1.2;
+  color: #075a3e;
+  margin: 0 0 2.5rem;
+  text-align: center;
+}
+
+.sgd-stops {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Left text, spine, right text. A stop puts its text in one outer column and
+   leaves the other empty -- that emptiness is what the S runs through. */
+.sgd-stop {
+  display: grid;
+  /* The spine is wide because the S has to read as an S. At 120px the
+     curve was a wiggle a few dozen pixels either side of centre, and the
+     node -- which sits near the arc's apex -- hung out of the column and
+     landed on the text. A third of the width gives the curve a real swing
+     and keeps the node clear. */
+  grid-template-columns: 1fr minmax(310px, 32%) 1fr;
+  align-items: center;
+  /* Enough that a two-sentence stop still shows a bulge rather than a kink. */
+  min-height: 250px;
+}
+
+/* Both of these name their row as well as their column. Auto-placement is
+   sparse: the spine takes column 2, and a text that then asks for column 1
+   cannot go backwards, so it would start a second row -- which is exactly
+   what every left-hand stop did, leaving its arc alone on a row of its own
+   at the svg's intrinsic height instead of stretched down the whole stop. */
+.sgd-stop.is-right > .sgd-text { grid-column: 3; grid-row: 1; text-align: left; }
+.sgd-stop.is-left > .sgd-text { grid-column: 1; grid-row: 1; text-align: left; }
+.sgd-spine { grid-column: 2; grid-row: 1; }
+
+.sgd-spine {
+  position: relative;
+  align-self: stretch;
+}
+
+.sgd-arc {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #9ec5b2;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+/* The node sits at the apex of its arc. For the cubic used here the extreme
+   falls at 86.25% of the spine's width and halfway down it, and that holds
+   however far the arc is stretched vertically. */
+.sgd-node {
+  position: absolute;
+  top: 50%;
+  width: 5.2rem;
+  height: 5.2rem;
+  display: grid;
+  place-items: center;
+  border: 3px solid #075a3e;
+  border-radius: 50%;
+  background: #fffdf7;
+  box-shadow: 0 0 0 7px #f3f8f5;
+}
+
+.sgd-stop.is-right .sgd-node { left: 86.25%; transform: translate(-50%, -50%); }
+.sgd-stop.is-left .sgd-node { left: 13.75%; transform: translate(-50%, -50%); }
+
+.sgd-icon {
+  width: 2.7rem;
+  height: 2.7rem;
+  fill: none;
+  stroke: #075a3e;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sgd-text { padding: 1.25rem 0; }
+
+.sgd-heading {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  color: #075a3e;
+  margin: 0 0 0.6rem;
+}
+
+.sgd-sub {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #1f4a38;
+  margin: 1.1rem 0 0.35rem;
+}
+
+.sgd-text p,
+.sgd-list li {
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: #4a5a51;
+  margin: 0 0 0.8rem;
+}
+
+.sgd-text p:last-child { margin-bottom: 0; }
+
+.sgd-list {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.sgd-list li::marker { color: #d8b26a; }
+
+@media (max-width: 991.98px) {
+  /* No room for a column either side of a curve, so the curve goes rather
+     than being squeezed into something that reads as a wobble. The stops
+     become an ordinary list with each icon above its heading. */
+  .sgd { padding: 2rem 1rem 2.25rem; }
+  .sgd-title { margin-bottom: 1.75rem; }
+
+  .sgd-stop {
+    display: block;
+    min-height: 0;
+    padding-bottom: 1.9rem;
+  }
+
+  .sgd-stop.is-right > .sgd-text,
+  .sgd-stop.is-left > .sgd-text { grid-column: auto; padding: 0; }
+
+  .sgd-arc { display: none; }
+
+  .sgd-spine {
+    position: static;
+    margin-bottom: 0.85rem;
+  }
+
+  .sgd-stop.is-right .sgd-node,
+  .sgd-stop.is-left .sgd-node {
+    position: static;
+    left: auto;
+    transform: none;
+    width: 3.9rem;
+    height: 3.9rem;
+    box-shadow: none;
+  }
+
+  .sgd-icon { width: 2.1rem; height: 2.1rem; }
+}
+
+@media print {
+  .sgd { margin-inline: 0; padding: 0 0 1rem; background: none; }
+  .sgd-stop { display: block; min-height: 0; }
+  .sgd-arc { display: none; }
+}
+
 .board-game-page {
   /* Warm paper base, tuned to sit under the site's pale-yellow page header
      rather than reading as an unrelated grey panel. */
