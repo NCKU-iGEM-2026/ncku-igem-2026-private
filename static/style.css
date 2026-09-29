@@ -7193,34 +7193,58 @@ body.tour-active { overflow: hidden; }
   to { transform: translateY(5px) rotate(3deg); }
 }
 
-/* The signal, as the game draws it -- .cap-ahl carries the colour and the
-   lettering, and this only sets the scale and sends it on its way. */
-.gm-ahl {
-  position: absolute;
-  left: 46%;
-  top: 58%;
-  width: 1.65rem;
-  height: 1.65rem;
-  border-width: 2px;
-  font-size: 0.46rem;
-  letter-spacing: 0;
-  animation: gm-drift 3.4s ease-out forwards;
+/* The trail: a line of dots down the margin below the cell, one added for
+   every stretch of page that goes by, and none of them taken away again.
+
+   Held against the window rather than laid into the document. In the
+   document each dot would sit at the depth it was left at, which is correct
+   and invisible: the cell rides 96px from the top of the window, so anything
+   left behind it is off the top of the screen almost at once.
+
+   z-index 1 and pointer-events: none, the same as the cell. Because the page
+   slides underneath a fixed line, menu-germ.js samples the column on every
+   scroll and takes the whole line off when anything has come under it. */
+.gm-trail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
 }
 
-@keyframes gm-drift {
-  from { opacity: 0; transform: translate(0, 0) scale(0.5) rotate(0deg); }
-  18% { opacity: 0.9; }
-  to {
-    opacity: 0;
-    transform: translate(var(--gm-dx), var(--gm-dy)) scale(1)
-               rotate(var(--gm-turn));
-  }
+.gm-trail.is-on { opacity: 1; }
+
+/* .cap-ahl carries the colour -- the game's own disc. This sets the size and
+   the way a dot arrives. It has no lettering: at 15px "AHL" is a smudge, and
+   what is being read here is the line. */
+/* Two classes, not one: .cap-ahl sits further down this file and sets
+   width and height to 100%. At equal weight it would win on order alone,
+   and a fixed dot at 100% is the size of the window. */
+.gm-trail .gm-mark {
+  position: fixed;
+  width: 15px;
+  height: 15px;
+  border-width: 2px;
+  opacity: 0.66;
+  transition: top 0.3s ease, left 0.3s ease;
+  animation: gm-settle 0.45s ease-out backwards;
+}
+
+@keyframes gm-settle {
+  from { opacity: 0; transform: scale(0.2); }
+  to { opacity: 0.66; transform: scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* The script releases nothing in this case; all that is left is the
-     bacterium's own drift. */
-  .gm-cell { animation: none; }
+  /* The line is not motion -- it is how much of the page has gone by -- so
+     it stays. What goes is the cell's drift and the dots' arrival. */
+  .gm-cell,
+  .gm-trail .gm-mark { animation: none; }
+  .gm-trail .gm-mark { transition: none; }
 }
 
 @media print {

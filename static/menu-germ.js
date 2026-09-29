@@ -1,17 +1,29 @@
-/* A Pseudomonas aeruginosa under the left end of the menu, letting AHL go as
- * the page is scrolled.
+/* A Pseudomonas aeruginosa under the left end of the menu, leaving a trail
+ * of AHL down the page behind it.
  *
  * It is the same bacterium and the same signal disc the online game uses, so
  * the two read as the same thing in two places.
  *
- * Everything it needs is built here rather than put in the template: it is
+ * What it lets go does not fade: each mark takes the next place in a line
+ * of dots running down the margin below the cell, and stays there. The line
+ * grows as the page is read and is a record of how much of it has gone by.
+ *
+ * The marks are held against the window rather than against the document.
+ * Laid into the document they would be correct -- each one sitting at the
+ * depth it was left at -- and invisible: the cell rides 96px from the top of
+ * the window, so anything left behind it is off the top of the screen within
+ * a breath of being left.
+ *
+ * Everything is built here rather than put in the template: it is
  * decoration, and a page without JavaScript should simply not have it.
  *
- * Where it goes is measured, not guessed. The gap between the left edge of
- * the menu and the left edge of the page's own content runs from 200px at
- * 1920 down to nothing at all by 992, so the cell is sized to whatever is
- * actually free on the page it is on, and stays away entirely when that is
- * too little to hold it without reaching the text.
+ * Where the cell goes is measured, not guessed. The gap between the left
+ * edge of the menu and the left edge of the page's own content runs from
+ * 200px at 1920 down to nothing at all by 992, and three different things
+ * sit in that gap on different pages -- the site logo, which hangs below the
+ * bar; a full-bleed section, whose contents reach the viewport edge; and
+ * left-hand controls. So the cell is sized to what is free, and asks the
+ * page what is under it before showing itself at all.
  */
 (function () {
   'use strict';
@@ -20,8 +32,13 @@
 
   var MIN = 40;          // below this there is no room worth using
   var MAX = 62;
-  var EVERY = 300;       // one signal per this many pixels scrolled down
-  var LIVE = 5;          // at most this many in the air at once
+  var SPACING = 110;     // one mark per this much depth: close enough to read
+                         // as a line rather than as scattered dots
+  var KEEP = 140;        // a ceiling, so a very long page cannot grow forever
+
+  /* What counts as being in the way: anything a reader looks at or uses. */
+  var INUSE = 'a,button,input,select,textarea,img,svg,h1,h2,h3,h4,h5,h6,p,li,'
+            + 'td,th,label,summary,code,pre,figure,table,details';
 
   var navbar = document.querySelector('.navbar');
   if (!navbar) return;
@@ -30,10 +47,6 @@
   try {
     still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   } catch (e) { still = true; }
-
-  /* What counts as being in the way: anything a reader looks at or uses. */
-  var INUSE = 'a,button,input,select,textarea,img,svg,h1,h2,h3,h4,h5,h6,p,li,'
-            + 'td,th,label,summary,code,pre,figure,table,details';
 
   var host = document.createElement('div');
   host.className = 'gm-host';
@@ -47,13 +60,19 @@
   host.appendChild(cell);
   document.body.appendChild(host);
 
-  /* The content's left edge, taken from the widest thing the page actually
-     lays out in. Its padding counts as free: nothing is drawn there. */
+  /* The trail is laid in the document, not in the viewport, which is the
+     whole point: a mark stays at the depth it was left at while the cell
+     carries on down. */
+  var trail = document.createElement('div');
+  trail.className = 'gm-trail';
+  trail.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(trail);
+
+  /* The content's left edge. Not simply the first container on the page: the
+     menu has one of its own, full width, and taking that one leaves no room
+     anywhere and the cell never appears. Padding counts as free -- nothing
+     is drawn there. */
   function contentLeft() {
-    /* Not simply the first container on the page: the menu has one of its
-       own, and taking that one leaves no room anywhere and the cell never
-       appears. The first that belongs to the page itself is the one whose
-       left edge matters. */
     var all = document.querySelectorAll('.container, .container-fluid');
     for (var i = 0; i < all.length; i++) {
       var c = all[i];
@@ -65,37 +84,51 @@
     return window.innerWidth;
   }
 
-  /* Where the menu's own logo ends, in layout terms. Two things make this
-     the right anchor rather than the bar's own bottom edge: the logo hangs
-     below the bar, and it is large at the top of a page and shrinks once
-     the page is scrolled -- 209px down to 86px. offsetTop inside the navbar
-     is not touched by the transform that slides the bar away, so this holds
-     whether the menu is showing or not. The cell follows it; the stylesheet
-     puts a transition on top so it travels rather than jumps. */
-  function logoBottom() {
-    var brand = navbar.querySelector('.navbar-brand');
-    if (!brand) return navbar.offsetTop + navbar.offsetHeight;
-    return navbar.offsetTop + brand.offsetTop + brand.offsetHeight;
+  /* How far the bar has been slid vertically, if at all. It goes away with
+     transform: translate(-50%, -150%) on the way down the page; the -50%
+     across is its resting transform either way. */
+  function navShift() {
+    var t = getComputedStyle(navbar).transform;
+    if (!t || t === 'none') return 0;
+    try { return new DOMMatrix(t).f; } catch (e) { return 0; }
   }
 
-  /* Is the box free? Asked of the page rather than assumed: the gap beside
-     the menu holds the logo on one page, a full-bleed section on another and
-     a row of controls on a third. The cell is pointer-events: none, so what
-     comes back is whatever is underneath it. */
-  function free(x, y, size) {
-    var i = Math.max(4, size * 0.18);
+  /* Where the menu's own logo ends, with the bar in its resting place. The
+     logo is the right anchor rather than the bar's own bottom edge: it hangs
+     below the bar, and it is large at the top of a page and shrinks once the
+     page is scrolled -- 209px down to 86px. The cell follows it, and the
+     stylesheet transitions top so it travels rather than jumps.
+
+     Taken from the rendered box and corrected for that slide, not built up
+     from offsetTop. offsetTop said 160 on the engineering page where the
+     logo really ends at 181, and the cell sat on it. */
+  function logoBottom() {
+    var img = navbar.querySelector('.navbar-brand img')
+           || navbar.querySelector('.navbar-brand');
+    if (!img) return navbar.offsetTop + navbar.offsetHeight;
+    var r = img.getBoundingClientRect();
+    if (!r.height) return navbar.offsetTop + navbar.offsetHeight;
+    return r.bottom - navShift();
+  }
+
+  /* Is that box free? Asked of the page rather than assumed. Both the cell
+     and the marks are pointer-events: none, so what comes back is whatever
+     is underneath them. */
+  function freeAt(x, y, size) {
+    var i = Math.max(3, size * 0.18);
     var pts = [[x + size / 2, y + size / 2],
                [x + i, y + i], [x + size - i, y + i],
                [x + i, y + size - i], [x + size - i, y + size - i]];
     for (var k = 0; k < pts.length; k++) {
       var e = document.elementFromPoint(pts[k][0], pts[k][1]);
-      if (!e || host.contains(e)) continue;
+      if (!e || host.contains(e) || trail.contains(e)) continue;
       if (e.closest(INUSE)) return false;
     }
     return true;
   }
 
   var shown = false;
+  var atX = 0, atY = 0, atSize = 0;
 
   function hide() {
     if (shown) { host.classList.remove('is-on'); shown = false; }
@@ -107,55 +140,72 @@
     var size = Math.min(MAX, Math.floor(room));
 
     if (size < MIN) { hide(); return; }
-    host.style.setProperty('--gm-size', size + 'px');
-    /* x from the rect, y from the layout box. The menu slides away on the
-       way down with transform: translate(-50%, -150%), so its rect's top
-       goes with it and anything anchored to that leaves the screen. The
-       -50% across is its resting transform either way, so the rect's left
-       is right whether it is showing or not; offsetTop and offsetHeight
-       are not touched by either. */
+
     var x = Math.round(n.left);
     var y = Math.round(logoBottom() + 10);
 
-    if (!free(x, y, size)) { hide(); return; }
+    if (!freeAt(x, y, size)) { hide(); return; }
 
+    atX = x; atY = y; atSize = size;
+    host.style.setProperty('--gm-size', size + 'px');
     host.style.setProperty('--gm-x', x + 'px');
     host.style.setProperty('--gm-y', y + 'px');
     if (!shown) { host.classList.add('is-on'); shown = true; }
   }
 
-  /* ---- the signal ---- */
-  var live = 0;
+  /* ---- the trail ---- */
+  var MARK = 15;         // the dot itself
+  var SLOT = 24;         // and the pitch of the line it joins
+  var TAIL = 70;         // clear of the bottom of the window
+  var marks = [];
+  var carried = 0;
+  var lastY = window.scrollY;
 
-  function release() {
-    if (!shown || live >= LIVE) return;
-    var d = document.createElement('span');
-    /* cap-ahl is the game's own disc, so the colour and the lettering have
-       one definition between the two places they appear. */
-    d.className = 'cap-ahl gm-ahl';
-    d.textContent = 'AHL';
-    /* A little spread, so they do not come out in single file. */
-    /* Wider spread, and each one starts from a slightly different spot: a
-       fast scroll releases several at once, and without this they come out
-       stacked on each other. */
-    d.style.left = (30 + Math.random() * 34).toFixed(0) + '%';
-    d.style.top = (48 + Math.random() * 24).toFixed(0) + '%';
-    d.style.setProperty('--gm-dx', (2 + Math.random() * 48).toFixed(1) + 'px');
-    d.style.setProperty('--gm-dy', (46 + Math.random() * 56).toFixed(1) + 'px');
-    d.style.setProperty('--gm-turn', (Math.random() * 40 - 20).toFixed(1) + 'deg');
-    host.appendChild(d);
-    live++;
-    var done = function () { d.remove(); live--; };
-    d.addEventListener('animationend', done, {once: true});
-    /* animationend does not fire on a background tab, and the count would
-       stick at the cap for good. */
-    window.setTimeout(function () {
-      if (d.isConnected) { done(); }
-    }, 4000);
+  function slotY(i) { return atY + atSize + 16 + i * SLOT; }
+
+  function slots() {
+    return Math.max(0, Math.floor(
+      (window.innerHeight - TAIL - (atY + atSize + 16)) / SLOT));
   }
 
-  var last = window.scrollY;
-  var carried = 0;
+  /* The column the line runs down, sampled rather than assumed. The dots are
+     held against the window, so the page slides underneath them -- a spot
+     that was empty when a dot was placed does not stay empty. */
+  function columnFree() {
+    var x = atX + atSize * 0.5 - MARK / 2;
+    var n = Math.min(marks.length, 6);
+    for (var k = 0; k < n; k++) {
+      var i = Math.floor(k * marks.length / n);
+      if (!freeAt(x, slotY(i), MARK)) return false;
+    }
+    return true;
+  }
+
+  function lay() {
+    var i = marks.length;
+    if (i >= slots()) return;                 // the line has reached the end
+    var d = document.createElement('span');
+    /* cap-ahl is the game's own disc, so the colour has one definition
+       between the two places it appears. No lettering at this size: at 15px
+       "AHL" is a smudge, and the line is what is being read here. */
+    d.className = 'cap-ahl gm-mark';
+    d.style.left = Math.round(atX + atSize * 0.5 - MARK / 2) + 'px';
+    d.style.top = Math.round(slotY(i)) + 'px';
+    if (still) { d.style.animation = 'none'; }
+    trail.appendChild(d);
+    marks.push(d);
+  }
+
+  function reflow() {
+    var x = Math.round(atX + atSize * 0.5 - MARK / 2) + 'px';
+    for (var i = 0; i < marks.length; i++) {
+      marks[i].style.left = x;
+      marks[i].style.top = Math.round(slotY(i)) + 'px';
+    }
+    var n = slots();
+    while (marks.length > n) { marks.pop().remove(); }
+  }
+
   var pending = false;
 
   function onScroll() {
@@ -164,20 +214,26 @@
     window.requestAnimationFrame(function () {
       pending = false;
       var y = window.scrollY;
-      var moved = y - last;
-      last = y;
+      var moved = y - lastY;
+      lastY = y;
+
       place();
-      if (still || moved <= 0) return;   // only on the way down
+      if (!shown) { trail.classList.remove('is-on'); return; }
+
+      reflow();
+      trail.classList.toggle('is-on', columnFree());
+
+      if (moved <= 0) return;                 // only on the way down
       carried += moved;
-      while (carried >= EVERY) {
-        carried -= EVERY;
-        release();
+      while (carried >= SPACING) {
+        carried -= SPACING;
+        lay();
       }
     });
   }
 
   window.addEventListener('scroll', onScroll, {passive: true});
-  window.addEventListener('resize', place);
+  window.addEventListener('resize', function () { place(); reflow(); });
 
   /* The logo hangs below the bar and is a remote image, so the first
      placement happens before it has any height and lands the cell too high.
