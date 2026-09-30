@@ -8445,13 +8445,29 @@ body.quiz-active { overflow: hidden; }
   .hp-map-icon { width: 72px; height: 72px; }
 }
 
-/* Survey results, several Google Forms response charts per row with a
-   caption naming which figure the prose means by "(Figure N)". */
+/* Survey results, one Google Forms response chart per row with a caption
+   naming which figure the prose means by "(Figure N)". Population Sample
+   and Living Therapeutic Acceptance each used to put their three charts
+   side by side in one row; that's what .hp-figure-grid without a modifier
+   still means structurally, it just now stacks like everything else. Each
+   card still stays sized like one of the two-up cards below and centered
+   in its row, rather than stretching to the full row's width -- full width
+   read as oversized next to them.
+
+   The size rule is scoped with :not(.hp-figure-grid-2) because that
+   modifier class is added alongside .hp-figure-grid, not instead of it --
+   ".hp-figure-grid > .hp-figure" on its own would also match the already
+   half-width two-up cards and halve them again. */
 .hp-figure-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   margin: 1.5rem 0;
+}
+
+.hp-figure-grid:not(.hp-figure-grid-2) > .hp-figure {
+  max-width: calc(50% - 0.75rem);
+  justify-self: center;
 }
 
 .hp-figure-grid-2 { grid-template-columns: repeat(2, 1fr); }
@@ -8481,8 +8497,8 @@ body.quiz-active { overflow: hidden; }
 }
 
 @media (max-width: 767.98px) {
-  .hp-figure-grid,
   .hp-figure-grid-2 { grid-template-columns: 1fr; }
+  .hp-figure-grid > .hp-figure { max-width: none; }
 }
 
 /* ===== Hardware: the deep-teal treatment ===================================
