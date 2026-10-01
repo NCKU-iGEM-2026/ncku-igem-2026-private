@@ -9267,3 +9267,149 @@ body.hw-nexus .sw .sw-inv-out {
 @media print {
   .sw-lab { display: none; }
 }
+
+/* ===== Model: the reader's measurement model ================================
+   The Model page wears the same deep-teal treatment as Hardware and Software
+   (body.hw-nexus) and is built from their parts -- hw-lead, hw-flip, hw-flow,
+   hw-table, hw-spec, hw-fold, the hwx-rig panel and sw-eq. What is here is
+   only what neither of those pages needed: right-aligned figures in a table,
+   and the four plots that static/model-charts.js draws into hwx-rig panels.
+
+   Every colour is an --nx-* token, each with its value as a fallback so the
+   plots still read if the page is ever taken off the theme. The three
+   sessions are told apart by shape as well as by colour: lifted blue circle,
+   warm triangle, lime square. */
+
+/* The step strip never had a dark version: under the theme it kept its pale
+   boxes while the theme lifted its text to near-white, which left pale text
+   on a pale box. Hardware does not use the strip, so the gap went unseen
+   until Software and this page did. Fixed for both here. */
+body.hw-nexus .hw-flow li {
+  color: var(--nx-text);
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+body.hw-nexus .hw-flow li:last-child {
+  background: var(--nx-raised);
+  border-color: var(--nx-mint);
+}
+body.hw-nexus .hw-flow li:not(:last-child)::after { color: var(--nx-mint); }
+
+/* Five steps here, where the strip was sized for four to a row. */
+.md .hw-flow li { flex-basis: 128px; }
+
+.md .md-n {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.md .hw-two-tables { margin: 1.5rem 0; }
+/* A date or a range in the first column is one token and must not break. */
+.md .md-keep td:first-child { white-space: nowrap; }
+
+/* A term list on this page labels a finding, and some labels are two words. */
+.md .hw-spec > div { grid-template-columns: 7.5rem 1fr; }
+body.hw-nexus .md .hw-spec dt { color: var(--nx-mint); }
+body.hw-nexus .md .hw-spec dd { color: var(--nx-text); }
+body.hw-nexus .md .hw-spec > div { border-top-color: var(--nx-line); }
+.md .hw-spec { margin: 1.5rem 0; }
+
+/* ---- plots ----
+   Below about 560px a 760-unit drawing would put its axis numbers at six
+   pixels, so the plot keeps a floor on its width and the panel scrolls
+   sideways instead. */
+.md-scroll { overflow-x: auto; }
+.md-plot { min-width: 560px; }
+.md-plot text { font-family: inherit; }
+.md-grid { stroke: var(--nx-line, #24596b); stroke-opacity: 0.45; stroke-width: 1; }
+.md-axis { fill: none; stroke: var(--nx-muted, #93b0bb); stroke-width: 1.2; }
+.md-tick {
+  font-size: 13px;
+  fill: var(--nx-muted, #93b0bb);
+  font-variant-numeric: tabular-nums;
+}
+.md-tick-sub { font-size: 12px; opacity: 0.85; }
+.md-axis-title { font-size: 14px; fill: var(--nx-text, #dbe9ee); }
+.md-val {
+  font-size: 13px;
+  fill: var(--nx-text, #dbe9ee);
+  font-variant-numeric: tabular-nums;
+}
+.md-rowlbl {
+  font-size: 13px;
+  fill: var(--nx-text, #dbe9ee);
+  font-variant-numeric: tabular-nums;
+}
+.md-rowlbl.is-true { fill: var(--nx-lime, #a0e860); font-weight: 700; }
+
+.md-pt { stroke: #0a1216; stroke-width: 1.3; }
+.md-pt.md-s16 { fill: var(--nx-blue-up, #5fb3e0); }
+.md-pt.md-s21 { fill: var(--nx-warm, #e6b060); }
+.md-pt.md-s29 { fill: var(--nx-lime, #a0e860); }
+
+.md-ln { fill: none; stroke-width: 2; stroke-linecap: round; stroke-opacity: 0.8; }
+.md-ln16 { stroke: var(--nx-blue-up, #5fb3e0); }
+.md-ln21 { stroke: var(--nx-warm, #e6b060); }
+.md-ln29 { stroke: var(--nx-lime, #a0e860); }
+.md-ln-shared { stroke: var(--nx-mint, #49c5b6); stroke-width: 2.6; stroke-opacity: 1; }
+
+.md-lbl { font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.md-lbl16 { fill: var(--nx-blue-up, #5fb3e0); }
+.md-lbl21 { fill: var(--nx-warm, #e6b060); }
+.md-lbl29 { fill: var(--nx-lime, #a0e860); }
+.md-lbl-shared { fill: var(--nx-mint, #49c5b6); }
+
+.md-bar-raw,
+.md-bar-none { fill: #5c7f8c; }
+.md-bar-conv { fill: var(--nx-mint, #49c5b6); }
+.md-bar-true { fill: var(--nx-lime, #a0e860); }
+.md-bar-wrong { fill: var(--nx-warm, #e6b060); fill-opacity: 0.82; }
+/* The model-family ranking: everything tried afterwards in one quiet tone,
+   so the one bar that was fixed beforehand is the only thing that stands out. */
+.md-bar-fam { fill: var(--nx-mint, #49c5b6); fill-opacity: 0.55; }
+.md-bar-fixed { fill: var(--nx-lime, #a0e860); }
+.md-ref { stroke: var(--nx-warm, #e6b060); stroke-width: 1.4; stroke-dasharray: 5 5; }
+.md-ref-lbl { font-size: 12.5px; fill: var(--nx-warm, #e6b060); }
+
+/* ---- the key under a plot ---- */
+.md-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.6rem;
+  margin: 0;
+  padding: 0.75rem 1.1rem;
+  border-top: 1px solid var(--hwx-rule);
+  font-size: 0.82rem;
+}
+body.hw-nexus .hw .md-legend li {
+  display: flex;
+  align-items: center;
+  color: var(--nx-muted);
+}
+.md-key {
+  display: inline-block;
+  flex: none;
+  width: 11px;
+  height: 11px;
+  margin-right: 0.55rem;
+}
+.md-key-16 { border-radius: 50%; background: var(--nx-blue-up, #5fb3e0); }
+.md-key-21 {
+  width: 13px;
+  background: var(--nx-warm, #e6b060);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.md-key-29 { border-radius: 2px; background: var(--nx-lime, #a0e860); }
+.md-key-bar { width: 20px; height: 9px; border-radius: 2px; }
+.md-key-raw,
+.md-key-none { background: #5c7f8c; }
+.md-key-conv { background: var(--nx-mint, #49c5b6); }
+.md-key-true { background: var(--nx-lime, #a0e860); }
+.md-key-wrong { background: var(--nx-warm, #e6b060); opacity: 0.82; }
+.md-key-fam { background: var(--nx-mint, #49c5b6); opacity: 0.55; }
+.md-key-ref {
+  width: 20px;
+  height: 0;
+  border-top: 2px dashed var(--nx-warm, #e6b060);
+}
