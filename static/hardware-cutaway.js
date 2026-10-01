@@ -23,7 +23,7 @@
      src: "drawn"   -> read off the plan view on this page (5 px = 1 mm on X),
                        quoted in that page's text, or dimensioned on the 09-12
                        enclosure DWG.
-          "spec"    -> stated by the team for the built enclosure: 80 mm tall,
+          "spec"    -> stated by the team for the enclosure as designed: 80 mm tall,
                        two layers, UVette through the top plate, ESP32 above the
                        breadboard, no emission filter.
           "derived" -> arithmetic on two known numbers, or read off a vendor
