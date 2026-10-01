@@ -3981,215 +3981,73 @@ body.edu-lightbox-locked {
 
 .sgd-text p:last-child { margin-bottom: 0; }
 
-/* The playtest figures, as bar charts.
-
-   Horizontal, because the labels are long and the column is the half of the
-   page the bend leaves. Zero-based and proportional: a bar is its value over
-   --max, which is the longest bar in that chart, so lengths mean what they
-   look like. There is no tick scale -- every bar is labelled at its tip, so
-   ticks would only repeat the labels, and the write-up never states the
-   rating scale, so a fixed 0-5 axis would be a claim nobody made.
-
-   Two colours and no more: grey for the baseline, green for what was
-   measured after it. Both were run through the dataviz palette validator on
-   the surface they actually sit on -- #f1f8f3, read back out of a screenshot,
-   not the #f7fbf8 it was first checked against, which put the grey at 2.98:1
-   and just under the line. Bands, colour-blind separation (13.2 against a
-   target of 8) and normal-vision separation (17.0 against a floor of 15) all
-   pass, and both marks clear 3:1. The one check that does not apply is the
-   chroma floor on the grey, which is a de-emphasis grey on purpose.
-
-   Text wears text colours, never the series colour; the colour is carried by
-   the bar and the legend swatch beside it. */
-.sgd-chart {
-  --viz-surface: #f1f8f3;
-  --viz-grey: #7f8d86;
-  --viz-green: #0c6f4c;
-  --viz-text: #1f4a38;
-  --viz-text-2: #4a5a51;
-  --viz-muted: #5f6e66;
-  --viz-line: #cfdcd5;
-  /* Room kept at the right of the track for the value at the tip of the
-     longest bar. */
-  --viz-gutter: 5.8rem;
-  margin: 1.1rem 0 1.4rem;
-}
-
-.sgd-chart-title {
-  margin: 0 0 0.4rem;
-  font-family: "Changa", sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  line-height: 1.3;
-  color: var(--viz-text);
-}
-
-/* Two colours means a legend, always. */
-.sgd-key {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem 1.1rem;
-  margin: 0 0 0.3rem;
-  padding: 0;
-  list-style: none;
-  font-size: 0.78rem;
-  color: var(--viz-text-2);
-}
-
-.sgd-key li { display: flex; align-items: center; gap: 0.4rem; }
-
-.sgd-key li::before {
-  content: "";
-  width: 13px;
-  height: 8px;
-  border-radius: 2px;
-  background: var(--c);
-}
-
-.sgd-bars-group {
-  margin: 0.85rem 0 0.1rem;
-  font-family: "Changa", sans-serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--viz-muted);
-}
-
-.sgd-chart > .sgd-bars > .sgd-bar-row:first-child { margin-top: 0.1rem; }
-
-.sgd-bar-row {
-  position: relative;
-  padding: 0.3rem 0;
-  border-radius: 6px;
-}
-
-.sgd-bar-label {
-  display: block;
-  margin-bottom: 0.2rem;
-  font-size: 0.8rem;
-  line-height: 1.25;
-  color: var(--viz-text-2);
-}
-
-/* The baseline: one solid hairline, one step off the surface. */
-.sgd-track {
-  position: relative;
-  display: block;
-  height: 14px;
-  border-left: 1px solid var(--viz-line);
-}
-
-/* A thin mark with a 4px rounded data end and a square baseline end. The
-   length is the value over the chart's own maximum, taken out of the
-   gutter's width so the value at the tip always has room. */
-.sgd-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 14px;
-  width: calc(var(--v) / var(--max) * (100% - var(--viz-gutter)));
-  border-radius: 0 4px 4px 0;
-  background: var(--c);
-  transition: filter 0.15s ease;
-}
-
-.sgd-val {
-  position: absolute;
-  top: 50%;
-  left: calc(var(--v) / var(--max) * (100% - var(--viz-gutter)) + 0.5rem);
-  transform: translateY(-50%);
-  white-space: nowrap;
-  font-size: 0.82rem;
-  font-weight: 600;
-  line-height: 1;
-  color: var(--viz-text);
+/* The playtest figures. Two columns, because the stop's text column is half
+   the page less the bend: a measure and its value, with the groups of a
+   single analysis set off by a band rather than split into a table each.
+   tabular-nums so the digits line up down the value column. */
+.sgd-table {
+  width: 100%;
+  margin: 0.95rem 0 1.15rem;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  line-height: 1.4;
   font-variant-numeric: tabular-nums;
 }
 
-/* What the pointer finds. The tooltip enhances and never gates: every value
-   is already labelled on its bar and is in the hidden table as well. */
-.sgd-bar-row:hover { background: rgba(7, 90, 62, 0.05); }
-.sgd-bar-row:hover .sgd-bar { filter: brightness(1.14); }
-
-.sgd-tip {
-  position: absolute;
-  right: 0;
-  top: 0;
-  z-index: 3;
-  max-width: 17rem;
-  padding: 0.3rem 0.55rem;
-  border-radius: 6px;
-  background: #1f4a38;
-  color: #f4faf6;
-  font-size: 0.74rem;
-  line-height: 1.35;
-  opacity: 0;
-  transform: translateY(-82%);
-  pointer-events: none;
-  transition: opacity 0.12s ease;
+.sgd-table caption {
+  caption-side: top;
+  padding: 0 0 0.4rem;
+  text-align: left;
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f4a38;
 }
 
-.sgd-tip strong { color: #fff; font-weight: 700; }
-.sgd-bar-row:hover .sgd-tip { opacity: 1; }
-
-/* The annotation under the pair: the size of the difference. It is a
-   statistic, not a magnitude to draw, so it is written beside the bars
-   rather than made into one. */
-.sgd-delta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.15rem 0.9rem;
-  margin: 0.45rem 0 0.1rem;
-  font-size: 0.78rem;
-  line-height: 1.4;
-  color: var(--viz-text-2);
+.sgd-table th,
+.sgd-table td {
+  padding: 0.4rem 0.65rem;
+  border-bottom: 1px solid #dfe8e2;
+  text-align: left;
+  vertical-align: baseline;
 }
 
-.sgd-delta strong { color: var(--viz-text); font-weight: 700; }
-
-.sgd-delta-main { flex-basis: 100%; display: flex; align-items: center; gap: 0.4rem; }
-
-/* An upward triangle in the series colour, beside the text and not in it. */
-.sgd-delta-mark {
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 8px solid var(--viz-green);
+.sgd-table thead th {
+  background: #e7f1eb;
+  border-bottom: 2px solid #9ec5b2;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #075a3e;
 }
 
-/* The table twin: the same data, kept for a screen reader and for a keyboard
-   and invisible to everyone else.
-
-   The hiding is on a wrapper, not on the table. A table ignores width and
-   height and overflow: it sizes to its content, so a 1px table with
-   nowrap cells was 760px wide, and being absolutely positioned it pushed the
-   whole page out sideways by up to 400px. */
-.sgd-sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
+/* The band that names a group of rows. It sits in the body so a screen
+   reader meets it as part of the data, and colspan carries it across. */
+.sgd-table tbody th[scope="colgroup"] {
+  background: #f3f8f5;
+  border-top: 2px solid #cfdcd5;
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #075a3e;
 }
 
-@media (forced-colors: active) {
-  /* Colour is not available to carry identity here, so the bars say it with
-     the system's own two: the accent for what came after, grey text for the
-     baseline. */
-  .sgd-bar { forced-color-adjust: none; background: GrayText; }
-  .sgd-bar-row.is-after .sgd-bar,
-  .sgd-bar-row:not(.is-before) .sgd-bar { background: Highlight; }
+.sgd-table tbody:first-of-type th[scope="colgroup"] { border-top: 0; }
+
+.sgd-table tbody th[scope="row"] {
+  font-weight: 500;
+  color: #4a5a51;
 }
 
-@media print {
-  .sgd-tip { display: none; }
+.sgd-table td {
+  text-align: right;
+  font-weight: 600;
+  color: #1f4a38;
 }
+
+.sgd-table thead th:last-child { text-align: right; }
 
 .sgd-list {
   margin: 0;
