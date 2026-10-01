@@ -6394,6 +6394,25 @@ body.tour-active { overflow: hidden; }
   color: #075a3e;
 }
 .hw-spec dd { margin: 0; color: #4a5a51; line-height: 1.6; }
+/* A column of counts or readings in an ordinary table: right-aligned on
+   tabular figures, the same treatment the costing table gives its prices. */
+.hw-table .hw-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* A date in the first column is one token and must not break. */
+.hw-table.hw-keep td:first-child { white-space: nowrap; }
+
+/* Until now every table on the Hardware page hid its caption. The ones that
+   show it need the theme's heading colour, as Software's already have. */
+body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
+
+/* ---- numbered operating steps ---- */
+.hw-steps { padding-left: 1.3rem; margin: 1.25rem 0 1.5rem; }
+.hw-steps li { margin-bottom: 0.55rem; line-height: 1.7; padding-left: 0.2rem; }
+
 /* ---- the costing table ---- */
 /* Numbers right, names left, and tabular figures so a column of prices lines
    up on its decimal point rather than wandering. */
@@ -6569,14 +6588,82 @@ body.tour-active { overflow: hidden; }
   transition: opacity 0.25s ease, fill 0.25s ease;
 }
 
-/* ---- the controls ---- */
+/* ---- the three tests ----
+   The bench is three tests, not one grid of switches, and these are the tabs
+   that choose between them. They sit directly under the panel head, and the
+   chosen one opens onto the controls below it: same ground, no line between
+   them, an accent along its top edge. */
+.hwx-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  background: var(--hwx-dark2);
+  border-bottom: 1px solid var(--hwx-rule);
+}
+/* Both are filled in by the script. Until it runs they are empty, and an
+   empty bordered strip would read as something broken. */
+.hwx-tabs:empty, .hwx-ctrls:empty { display: none; }
+
+.hwx-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  /* One pixel taller than its row, so the chosen tab can paint over the
+     line under the row and join the panel beneath it. */
+  margin-bottom: -1px;
+  padding: 0.7rem 1.1rem 0.7rem;
+  border: 0;
+  border-top: 2px solid transparent;
+  border-right: 1px solid var(--hwx-rule);
+  border-bottom: 1px solid var(--hwx-rule);
+  background: none;
+  font-family: "Changa", sans-serif;
+  text-align: left;
+  color: var(--hwx-dim);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.hwx-tab:last-child { border-right: 0; }
+.hwx-tab-name { font-size: 0.98rem; font-weight: 600; line-height: 1.2; color: #a9bec7; }
+.hwx-tab-hint { font-size: 0.72rem; line-height: 1.35; }
+.hwx-tab:hover { background: rgba(255, 255, 255, 0.025); }
+.hwx-tab:hover .hwx-tab-name { color: #eaf2f6; }
+.hwx-tab[aria-pressed="true"] {
+  background: var(--hwx-dark);
+  border-top-color: var(--hwx-green);
+  border-bottom-color: var(--hwx-dark);
+}
+.hwx-tab[aria-pressed="true"] .hwx-tab-name { color: #fff; }
+.hwx-tab[aria-pressed="true"] .hwx-tab-hint { color: var(--hwx-ink); }
+.hwx-tab:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: -3px; }
+
+/* Three tabs across a phone leave each about 110px: room for the name of
+   the test, not for the line under it. */
+@media (max-width: 575.98px) {
+  .hwx-tab { padding: 0.65rem 0.6rem; }
+  .hwx-tab-name { font-size: 0.86rem; }
+  .hwx-tab-hint { display: none; }
+}
+
+/* ---- the controls ----
+   Above the diagram, not under it: a switch is thrown here and its effect is
+   the beam and the numbers directly below, all in view at once. */
 .hwx-ctrls {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.1rem 1.5rem;
-  padding: 0.9rem 1.1rem;
-  border-top: 1px solid var(--hwx-rule);
-  background: var(--hwx-dark2);
+  gap: 0.9rem 1.6rem;
+  padding: 0.95rem 1.1rem 1rem;
+  border-bottom: 1px solid var(--hwx-rule);
+  background: var(--hwx-dark);
+}
+
+/* What the chosen test was asking, in a sentence, across the full width. */
+.hw .hwx-ask {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--hwx-ink);
 }
 
 .hwx-cgroup { display: flex; flex-direction: column; gap: 0.4rem; }
@@ -6633,6 +6720,159 @@ body.tour-active { overflow: hidden; }
   color: #042415;
 }
 
+/* Room light is drawn in the caution colour in the diagram, so its switch
+   takes it too. */
+.hwx-seg button.hwx-warm[aria-pressed="true"] {
+  background: var(--hwx-amber);
+  border-color: var(--hwx-amber);
+  color: #241503;
+}
+
+/* An option the panel has no reading for, with the other switches where
+   they are. Greyed and inert, with the reason in its title. */
+.hwx-seg button:disabled { opacity: 0.38; cursor: default; }
+.hwx-seg button:disabled:hover { background: #16242b; color: #a9bec7; }
+
+/* ---- the development log -------------------------------------------------
+   A row of stops along a line, and under it the one step that is chosen.
+   The line is drawn by the stops themselves: each one draws the segment that
+   reaches back to the stop before it, and takes the accent once the reader
+   has got that far. Until the script marks the panel live there are no
+   stops, and every step simply follows the one before it. */
+.hwx-log-track {
+  display: flex;
+  padding: 1.05rem 0.6rem 0.85rem;
+  overflow-x: auto;
+  background: var(--hwx-dark2);
+  border-bottom: 1px solid var(--hwx-rule);
+}
+.hwx-log-track:empty { display: none; }
+
+.hwx-log-stop {
+  position: relative;
+  flex: 1 0 5.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0 0.3rem 0.25rem;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font-family: "Changa", sans-serif;
+  text-align: center;
+  color: var(--hwx-dim);
+  cursor: pointer;
+}
+.hwx-log-stop::before {
+  content: "";
+  position: absolute;
+  top: calc(0.5rem - 1px);
+  left: -50%;
+  width: 100%;
+  height: 2px;
+  background: var(--hwx-rule);
+  transition: background-color 0.2s ease;
+}
+.hwx-log-stop:first-child::before { content: none; }
+.hwx-log-stop.is-past::before,
+.hwx-log-stop[aria-pressed="true"]::before { background: var(--hwx-green); }
+
+.hwx-log-dot {
+  position: relative;
+  z-index: 1;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--hwx-rule);
+  border-radius: 50%;
+  background: var(--hwx-dark2);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.hwx-log-stop.is-past .hwx-log-dot { border-color: var(--hwx-green); }
+.hwx-log-stop[aria-pressed="true"] .hwx-log-dot {
+  border-color: var(--hwx-green);
+  background: var(--hwx-green);
+  box-shadow: 0 0 0 5px rgba(100, 222, 154, 0.16);
+}
+.hwx-log-stop:hover .hwx-log-dot { border-color: var(--hwx-green); }
+
+.hwx-log-when {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.hwx-log-name { font-size: 0.8rem; line-height: 1.25; color: var(--hwx-ink); }
+.hwx-log-stop[aria-pressed="true"] .hwx-log-when { color: var(--hwx-green); }
+.hwx-log-stop[aria-pressed="true"] .hwx-log-name,
+.hwx-log-stop:hover .hwx-log-name { color: #fff; }
+.hwx-log-stop:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
+
+.hwx-log-list { list-style: none; margin: 0; padding: 0; }
+.hwx-log-item { padding: 1.15rem 1.2rem 1.25rem; }
+.hwx-log-item + .hwx-log-item { border-top: 1px solid var(--hwx-rule); }
+/* One step at a time. Every step sits in the same grid cell and the ones not
+   chosen are made invisible rather than removed, so the panel is always as
+   tall as its longest step, at any width, and the page below does not move
+   as the reader steps through. Invisible content is also out of the tab
+   order and out of the accessibility tree, as a hidden step should be.
+   A class rather than the hidden attribute: Bootstrap's reboot gives
+   [hidden] a display:none !important, which would take the step out of the
+   grid and the height with it. */
+.hwx-log.is-live .hwx-log-list { display: grid; }
+.hwx-log.is-live .hwx-log-item { grid-area: 1 / 1; border-top: 0; }
+.hwx-log.is-live .hwx-log-item.is-off { visibility: hidden; }
+
+.hwx-log-date {
+  margin-bottom: 0.3rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hwx-dim);
+}
+.hw .hwx-log-item h4 {
+  margin: 0 0 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.2rem;
+  color: #eaf2f6;
+}
+.hwx-log-item p { margin: 0 0 0.75rem; font-size: 0.93rem; line-height: 1.7; }
+.hwx-log-item p:last-child { margin-bottom: 0; }
+.hwx-log-change { padding-left: 0.9rem; border-left: 3px solid var(--hwx-green); }
+.hwx-log-change > span {
+  display: block;
+  margin-bottom: 0.1rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hwx-green);
+}
+
+.hwx-log-nav { display: inline-flex; align-items: center; gap: 0.7rem; }
+.hwx-log-nav button {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid #26383f;
+  border-radius: 5px;
+  background: #16242b;
+  font-family: "Changa", sans-serif;
+  font-size: 0.76rem;
+  color: #a9bec7;
+  cursor: pointer;
+}
+.hwx-log-nav button[hidden] { display: none; }
+.hwx-log-nav button:hover:not(:disabled) { background: #1e313a; color: #dce9ee; }
+.hwx-log-nav button:disabled { opacity: 0.4; cursor: default; }
+.hwx-log-nav button:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hwx-log-stop::before, .hwx-log-dot { transition: none; }
+}
+
 /* ---- the readout ---- */
 .hwx-rig-body { padding: 1.1rem; border-top: 1px solid var(--hwx-rule); }
 
@@ -6682,6 +6922,25 @@ body.tour-active { overflow: hidden; }
   color: #53686f;
   padding: 0.2rem 0 0.15rem;
 }
+
+/* A channel the record has no figure for. A dash in a tile that steps back,
+   so the tiles that do carry a number are what the eye lands on. */
+.hwx-ch.is-blank { background: transparent; border-style: dashed; }
+.hwx-ch.is-blank .hwx-ch-val { font-weight: 400; color: #3e535c; }
+
+/* F4 is the emission channel, the one the assay reads. It is marked on the
+   tile itself so a reader does not need the channel map to find it. */
+.hwx-ch[data-ch="F4"] { border-color: rgba(100, 222, 154, 0.5); }
+.hwx-ch[data-ch="F4"] .hwx-ch-name { color: var(--hwx-green); }
+
+/* What the dashes and the bars mean, under the tiles. */
+.hwx-readout-note {
+  margin-top: 0.55rem;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: #61787f;
+}
+.hwx-readout-note:empty { display: none; }
 
 .hwx-ch-bar {
   position: absolute;
@@ -6991,7 +7250,7 @@ body.tour-active { overflow: hidden; }
   .hwx-rig-head h3 { color: #000; }
   .hwx-rig-sub, .hwx-rig-foot { color: #444; }
 
-  .hwx-ctrls, .hwx-tip { display: none !important; }
+  .hwx-ctrls, .hwx-tip, .hwx-log-track, .hwx-log-nav { display: none !important; }
 
   .hwx-lab, .hwx-spec { background: #fff; }
   .hwx-lab-solid rect { fill: #f2f2f2; stroke: #888; }
@@ -9309,10 +9568,13 @@ body.hw-nexus .hw-flow li:not(:last-child)::after { color: var(--nx-mint); }
 
 /* A term list on this page labels a finding, and some labels are two words. */
 .md .hw-spec > div { grid-template-columns: 7.5rem 1fr; }
-body.hw-nexus .md .hw-spec dt { color: var(--nx-mint); }
-body.hw-nexus .md .hw-spec dd { color: var(--nx-text); }
-body.hw-nexus .md .hw-spec > div { border-top-color: var(--nx-line); }
 .md .hw-spec { margin: 1.5rem 0; }
+/* The term list's dark-theme colours are not scoped to this page: Hardware's
+   wet-dry interface uses the same list and had its labels in the light
+   theme's dark green, which cannot be read on the petrol ground. */
+body.hw-nexus .hw-spec dt { color: var(--nx-mint); }
+body.hw-nexus .hw-spec dd { color: var(--nx-text); }
+body.hw-nexus .hw-spec > div { border-top-color: var(--nx-line); }
 
 /* ---- plots ----
    Below about 560px a 760-unit drawing would put its axis numbers at six

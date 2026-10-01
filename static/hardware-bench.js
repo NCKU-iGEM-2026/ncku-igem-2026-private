@@ -3,8 +3,8 @@
 
   /* Hardware page — the instrument panels.
    *
-   * Three things live here: a shared tooltip, the light-path bench and the
-   * AS7341 channel map.
+   * Four things live here: a shared tooltip, the light-path bench, the
+   * AS7341 channel map and the development log.
    *
    * No library, no network request, nothing from outside iGEM infrastructure.
    * The page is written so that losing this file costs a reader the
@@ -119,9 +119,12 @@
     var rig = $("#hwxBench");
     if (!rig) return;
 
+    var tabs = $("#hwxTabs");
+    var ctrls = $("#hwxCtrls");
     var readout = $("#hwxReadout");
+    var note = $("#hwxReadoutNote");
     var verdict = $("#hwxVerdict");
-    if (!readout || !verdict) return;
+    if (!tabs || !ctrls || !readout || !verdict) return;
 
     /* Ten named channels. An all-channel read returns twelve values; these are
        the ten the sessions reported by name. */
@@ -132,14 +135,11 @@
       ["Clear", "unfiltered", "k"], ["NIR", "910 nm", "k"]
     ];
 
-    /* Full scale for the bar under each channel. 116 counts (Clear, at first
-       light) is the largest figure on record, so one common scale keeps the
-       bars comparable between states instead of rescaling under the reader. */
-    var FULL_SCALE = 120;
-
-    /* The record. Keys are led-sample-light. A missing key is not an omission:
-       it is a state nobody measured, and the panel says so rather than
-       interpolating between the states either side of it. */
+    /* The record. Keys are led-sample-light, with @session after the sample
+       for the cultures. A missing key is not an omission: it is a state
+       nobody measured. The panel is built so that such a state cannot be
+       selected in the first place -- see TESTS below -- rather than offered
+       and then refused. */
     var REC = {
       "off-none-dark": {
         zero: true, tone: "ok",
@@ -161,12 +161,12 @@
         text: "Dark reads were zero on every channel in the stray-light decomposition.",
         src: "First-light evidence §6.6–6.7, 2026-08-25"
       },
-      "off-cultA-dark": {
+      "off-gfp@0904-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark and post-dark reads were zero on all twelve channels in every cycle of this session.",
         src: "Fluorescence session, 2026-09-04"
       },
-      "off-cultB-dark": {
+      "off-ctrl@0904-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark and post-dark reads were zero on all twelve channels in every cycle of this session.",
         src: "Fluorescence session, 2026-09-04"
@@ -201,50 +201,132 @@
         text: "Water blank. Excitation leakage into the emission channel sits below the quantisation floor: F4/F3 < 1.35%, i.e. under 0.0135 counts at working settings. That is an upper bound, not a measured leakage value — and it is 1600 µL of pure water, not the 200 µL assay volume.",
         src: "Excitation stray light §6.7, 2026-08-25"
       },
-      "on-cultA-dark": {
+      "on-gfp@0904-dark": {
         vals: { F4: 19.58 }, changed: ["F3", "F5", "Clear"], tone: "ok",
         text: "A measured, reporter-associated green signal: 19.5833 ± 0.7930 raw counts over twelve consecutive cycles across four timepoints — not twelve independent samples. Neighbouring channels changed concurrently; their magnitudes are not reported. Conditional pass for this configuration and this batch only. It does not establish sfGFP specificity, and no induction was performed.",
         src: "Fluorescence signal, reporter-associated observation, 2026-09-04 · CONDITIONAL"
       },
-      "on-cultB-dark": {
+      "on-ctrl@0904-dark": {
         vals: { F4: 0 }, tone: "ok",
         text: "The control tube read zero on the emission channel under the same settings in the same session. What distinguished the two tubes on this date is not established — the earlier induced and uninduced description was withdrawn on 2026-09-13.",
         src: "Fluorescence session, 2026-09-04, with its 2026-09-05 correction appendix"
       },
 
-      /* The 2026-09-16 calibration session, at the 200 uL the assay actually
-         uses. These three are the top, the bottom and the blank of the matrix
-         plotted further down the page; the other thirty are in its table. */
-      "off-gfp200-dark": {
+      /* The three mixing sessions, all at the 200 uL the assay uses.
+
+         Each session contributes the same three reference samples and no
+         more: its undiluted GFP stock, its undiluted non-GFP stock and its
+         medium blank. That is one named acquisition per sample, with any
+         replicate quoted in the text rather than averaged in, because a
+         number on this panel is a recorded reading and not a summary. The
+         other tubes of each session, fifty in the fits, are on the Model
+         page; putting them here would turn a bench into a spreadsheet.
+
+         Four channels are reported for these sessions. Source for 09-21 and
+         09-29: the per-tube appendices of the team's data analysis
+         (P1_DATA_ANALYSIS_2026-09-30, revision 2) and, for the 09-29 blanks,
+         the control list of the four-channel study. */
+      "off-gfp@0916-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
-        src: "Calibration matrix session, CAL_B12_d100_f100, 2026-09-16"
+        src: "Mixing session, CAL_B12_d100_f100, 2026-09-16"
       },
-      "off-nogfp200-dark": {
+      "off-ctrl@0916-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
-        src: "Calibration matrix session, CAL_A10_d100, 2026-09-16"
+        src: "Mixing session, CAL_A10_d100, 2026-09-16"
       },
-      "off-med200-dark": {
+      "off-med@0916-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
-        src: "Calibration matrix session, CAL_MEDIUM_BLANK, 2026-09-16"
+        src: "Mixing session, CAL_MEDIUM_BLANK, 2026-09-16"
       },
-      "on-gfp200-dark": {
+      "on-gfp@0916-dark": {
         vals: { F2: 6.00, F3: 12.00, F4: 29.67, Clear: 37.67 }, tone: "ok",
-        text: "Undiluted GFP culture stock at the 200 µL assay volume — the fill the assay actually uses, measured for the first time in this session. At half this GFP fraction the emission channel read about 16 to 20 counts in the same session, and with no GFP present it read zero.",
-        src: "Calibration matrix session, CAL_B12_d100_f100, three cycles, 2026-09-16 · session evidence, not a change of project status"
+        text: "Undiluted GFP culture stock, displayed OD 1.56. At half this GFP fraction the emission channel read about 16 to 20 counts in the same session, and with no GFP present it read zero.",
+        src: "Mixing session, CAL_B12_d100_f100, three cycles, 2026-09-16 · session evidence, not a change of project status"
       },
-      "on-nogfp200-dark": {
+      "on-ctrl@0916-dark": {
         vals: { F2: 5.67, F3: 4.67, F4: 0, Clear: 8.00 }, tone: "ok",
-        text: "Undiluted non-GFP culture at 200 µL. The emission channel reads exactly zero while the scattering channels clearly see the cells — which is the behaviour the 90° geometry is supposed to produce. Every non-GFP sample in the session read F4 = 0.",
-        src: "Calibration matrix session, CAL_A10_d100, three cycles, 2026-09-16"
+        text: "Undiluted non-GFP culture, displayed OD 1.01. The emission channel reads exactly zero while the scattering channels clearly see the cells — which is the behaviour the 90° geometry is supposed to produce. Every non-GFP sample in the session read F4 = 0.",
+        src: "Mixing session, CAL_A10_d100, three cycles, 2026-09-16"
       },
-      "on-med200-dark": {
+      "on-med@0916-dark": {
         vals: { F2: 0, F3: 0, F4: 0, Clear: 0 }, tone: "ok",
-        text: "Dilution medium alone at 200 µL, with the LED energised. All four reported channels read zero. This is the 200 µL blank the earlier water blank could not provide — though it is a medium blank in a lab cuvette, not a full blank characterisation.",
-        src: "Calibration matrix session, CAL_MEDIUM_BLANK, three cycles, 2026-09-16"
+        text: "Dilution medium alone, with the LED energised. All four reported channels read zero. This is the 200 µL blank the earlier water blank could not provide — though it is a medium blank in a lab cuvette, not a full blank characterisation.",
+        src: "Mixing session, CAL_MEDIUM_BLANK, three cycles, 2026-09-16"
+      },
+
+      "off-gfp@0921-dark": {
+        zero: true, tone: "ok",
+        text: "Pre-dark reads were zero on all twelve channels in every cycle of this session.",
+        src: "Mixing session, CAL_C09r1_d100_f100, 2026-09-21"
+      },
+      "off-ctrl@0921-dark": {
+        zero: true, tone: "ok",
+        text: "Pre-dark reads were zero on all twelve channels in every cycle of this session.",
+        src: "Mixing session, CAL_C07r1_d100_f000, 2026-09-21"
+      },
+      "off-med@0921-dark": {
+        zero: true, tone: "ok",
+        text: "Pre-dark reads were zero on all twelve channels in every cycle of this session.",
+        src: "Mixing session, BLANK_MEDIUM_OPEN, 2026-09-21"
+      },
+      "on-gfp@0921-dark": {
+        vals: { F2: 5.33, F3: 7.33, F4: 7.00, Clear: 19.33 }, tone: "ok",
+        text: "Undiluted GFP stock again, and the same detector settings, but this stock was thin: a displayed OD of 0.49, against 1.56 five days earlier. It reads 7 where that one read 29.67, and its replicate tube read 5.33. How far the density of the stock accounts for the difference is worked through on the Model page.",
+        src: "Mixing session, CAL_C09r1_d100_f100, three cycles, 2026-09-21 · replicate CAL_C09r2 · session evidence, not a change of project status"
+      },
+      "on-ctrl@0921-dark": {
+        vals: { F2: 0, F3: 0, F4: 0, Clear: 1.33 }, tone: "ok",
+        text: "Undiluted non-GFP culture, displayed OD 0.54. The emission channel reads zero. In this cuvette the scatter channels read zero too, while the replicate in another cuvette read F2 = 9.00 and F3 = 8.00. Scatter readings differ this much between cuvettes and sessions, and no turbidity rule has been built on them.",
+        src: "Mixing session, CAL_C07r1_d100_f000, three cycles, 2026-09-21 · replicate CAL_C07r2"
+      },
+      "on-med@0921-dark": {
+        vals: { F2: 0, F3: 0, F4: 0, Clear: 0.33 }, tone: "ok",
+        text: "Medium alone at the start of the session. The blank read again at the end gave Clear = 0.67 and zero on the other three.",
+        src: "Mixing session, BLANK_MEDIUM_OPEN, three cycles, 2026-09-21 · closing blank BLANK_MEDIUM_CLOSE"
+      },
+
+      "off-gfp@0929-dark": {
+        zero: true, tone: "ok",
+        text: "No cycle of this session had a non-zero pre-dark read.",
+        src: "Mixing session, ATN_D_1, 2026-09-29"
+      },
+      "off-ctrl@0929-dark": {
+        zero: true, tone: "ok",
+        text: "No cycle of this session had a non-zero pre-dark read.",
+        src: "Mixing session, ATN_F_1, 2026-09-29"
+      },
+      "off-med@0929-dark": {
+        zero: true, tone: "ok",
+        text: "No cycle of this session had a non-zero pre-dark read.",
+        src: "Mixing session, BLANK_MEDIUM_OPEN, 2026-09-29"
+      },
+      "on-gfp@0929-dark": {
+        vals: { F2: 0.33, F3: 5.33, F4: 18.00, Clear: 21.67 }, tone: "ok",
+        text: "Undiluted GFP stock, displayed OD 1.10. Its replicate tube read 20.00. At half this GFP fraction six tubes averaged 9.33, so doubling the GFP culture multiplied the reading by 2.04.",
+        src: "Mixing session, ATN_D_1, three cycles, 2026-09-29 · replicate ATN_D_2 · session evidence, not a change of project status"
+      },
+      "on-ctrl@0929-dark": {
+        vals: { F2: 6.00, F3: 5.33, F4: 0, Clear: 10.00 }, tone: "ok",
+        text: "Undiluted non-GFP culture at a displayed OD of 1.42, the densest sample without GFP the instrument has read. The emission channel still reads zero. Its replicate read F2 = 14.00, F3 = 12.00 and Clear = 20.33, with F4 at zero as well.",
+        src: "Mixing session, ATN_F_1, three cycles, 2026-09-29 · replicate ATN_F_2"
+      },
+      "on-med@0929-dark": {
+        vals: { F2: 0, F3: 0, F4: 0, Clear: 0 }, tone: "ok",
+        text: "Medium alone at the start of the session: all four reported channels zero. The blank read again at the end gave Clear = 0.33 and zero on the other three.",
+        src: "Mixing session, BLANK_MEDIUM_OPEN, 2026-09-29 · closing blank BLANK_MEDIUM_CLOSE"
       }
+    };
+
+    /* The samples that were read in more than one session. For these the
+       sample position alone does not name a record; the session does. */
+    var CULTURE = { gfp: true, ctrl: true, med: true };
+
+    var SESSION = {
+      "0904": "2026-09-04", "0916": "2026-09-16",
+      "0921": "2026-09-21", "0929": "2026-09-29"
     };
 
     var LABEL = {
@@ -252,10 +334,8 @@
       sample: {
         none: "empty holder", uvette: "empty UVette", paper: "paper scatterer",
         water: "water blank, 1600 µL",
-        cultA: "GFP culture, 2026-09-04", cultB: "control, 2026-09-04",
-        gfp200: "GFP culture at 200 µL, 2026-09-16",
-        nogfp200: "non-GFP culture at 200 µL, 2026-09-16",
-        med200: "medium blank at 200 µL, 2026-09-16"
+        gfp: "GFP culture, 200 µL", ctrl: "control culture, 200 µL",
+        med: "medium blank, 200 µL"
       },
       light: { dark: "darkened or shielded", room: "room light, unshielded" }
     };
@@ -267,14 +347,127 @@
       uvette: "rgba(140,190,215,.10)",
       paper: "rgba(232,240,244,.50)",
       water: "rgba(120,180,220,.22)",
-      cultA: "rgba(110,205,150,.34)",
-      cultB: "rgba(150,170,160,.22)",
-      gfp200: "rgba(110,205,150,.40)",
-      nogfp200: "rgba(150,170,160,.28)",
-      med200: "rgba(120,180,220,.14)"
+      gfp: "rgba(110,205,150,.40)",
+      ctrl: "rgba(150,170,160,.28)",
+      med: "rgba(120,180,220,.14)"
     };
 
-    var state = { led: "off", sample: "none", light: "dark" };
+    /* ------------------------------------------------------------------
+       THE THREE TESTS
+
+       The bench used to offer four free switches -- lamp, sample, session,
+       lighting -- and most of the hundred-odd combinations they allowed
+       were never measured, so a reader could switch their way into "no
+       dataset" in two clicks. The measurements were never a grid. They
+       were three tests, each of which moved a couple of things and held
+       the rest still, and that is how the panel is laid out: choose a
+       test, and it shows only the switches that test actually moved.
+
+       `fixed` is what a test held constant. `state` is where its switches
+       stand, kept per test, so coming back to a test finds it as it was
+       left. `scale` is the count the bars are drawn against: one scale per
+       test, so bars compare within a test, where the comparison means
+       something, and a culture's 18 counts is not drawn as a sliver against
+       a paper scatterer's 116.
+
+       An option with no record, the other switches being where they are,
+       is greyed out instead of being left to lead nowhere.
+       ------------------------------------------------------------------ */
+    var LED = ["led", "Excitation LED", [["off", "Off"], ["on", "On", "hwx-hot"]]];
+
+    var TESTS = [
+      {
+        id: "fluor", name: "Fluorescence", hint: "a GFP culture against one without",
+        ask: "Does the emission channel tell a culture with GFP from one without? Every reading in this test was taken shielded, at 200 µL.",
+        scale: 40,
+        fixed: { light: "dark" },
+        groups: [
+          LED,
+          ["sample", "In the cuvette", [["gfp", "GFP culture", "hwx-lit"], ["ctrl", "Control culture"], ["med", "Medium blank"]]],
+          ["session", "Session", [["0904", "09-04"], ["0916", "09-16"], ["0921", "09-21"], ["0929", "09-29"]]]
+        ],
+        state: { led: "on", sample: "gfp", session: "0929" }
+      },
+      {
+        id: "path", name: "Light path", hint: "the excitation, and where it ends up",
+        ask: "Does the excitation reach the sample position, and does it stay out of the emission channel? Every reading in this test was taken shielded.",
+        scale: 120,
+        fixed: { light: "dark" },
+        groups: [
+          LED,
+          ["sample", "At the sample position", [["none", "Empty holder"], ["uvette", "Empty UVette"], ["paper", "Paper scatterer"], ["water", "Water, 1600 µL"]]]
+        ],
+        state: { led: "on", sample: "paper" }
+      },
+      {
+        id: "ambient", name: "Room light", hint: "with the shield and without it",
+        ask: "Does room light reach the detector? The LED stays off throughout this test.",
+        scale: 60,
+        fixed: { led: "off" },
+        groups: [
+          ["sample", "At the sample position", [["none", "Empty holder"], ["uvette", "Empty UVette"]]],
+          ["light", "Lighting", [["dark", "Darkened or shielded"], ["room", "Room light, no shield", "hwx-warm"]]]
+        ],
+        state: { sample: "uvette", light: "room" }
+      }
+    ];
+
+    var test = TESTS[0];
+
+    /* The whole state of the instrument for the test on show: what the test
+       held fixed, where its switches stand, and optionally one switch moved,
+       which is how an option is tried before it is offered. */
+    function fullState(over) {
+      var s = {}, k;
+      for (k in test.fixed) s[k] = test.fixed[k];
+      for (k in test.state) s[k] = test.state[k];
+      for (k in over) s[k] = over[k];
+      return s;
+    }
+
+    function keyOf(s) {
+      return s.led + "-" + s.sample +
+             (CULTURE[s.sample] ? "@" + s.session : "") + "-" + s.light;
+    }
+
+    tabs.innerHTML = TESTS.map(function (t) {
+      return '<button type="button" class="hwx-tab" data-test="' + t.id + '">' +
+        '<span class="hwx-tab-name">' + t.name + "</span>" +
+        '<span class="hwx-tab-hint">' + t.hint + "</span></button>";
+    }).join("");
+
+    function buildControls() {
+      ctrls.innerHTML = '<p class="hwx-ask">' + test.ask + "</p>" +
+        test.groups.map(function (g, i) {
+          var id = "hwxGroup" + i;
+          return '<div class="hwx-cgroup">' +
+            '<p class="hwx-clabel" id="' + id + '">' + g[1] + "</p>" +
+            '<div class="hwx-seg" data-bench-key="' + g[0] + '" role="group" aria-labelledby="' + id + '">' +
+            g[2].map(function (o) {
+              return '<button type="button" data-v="' + o[0] + '"' +
+                (o[2] ? ' class="' + o[2] + '"' : "") + ">" + o[1] + "</button>";
+            }).join("") + "</div></div>";
+        }).join("");
+    }
+
+    function syncControls() {
+      $$(".hwx-tab", tabs).forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-test") === test.id));
+      });
+      $$(".hwx-seg", ctrls).forEach(function (seg) {
+        var key = seg.getAttribute("data-bench-key");
+        $$("button", seg).forEach(function (b) {
+          var v = b.getAttribute("data-v");
+          var over = {};
+          over[key] = v;
+          var have = !!REC[keyOf(fullState(over))];
+          b.setAttribute("aria-pressed", String(test.state[key] === v));
+          b.disabled = !have;
+          if (have) b.removeAttribute("title");
+          else b.title = "The panel holds no reading of this with the other switches where they are";
+        });
+      });
+    }
 
     readout.innerHTML = CHANNELS.map(function (c) {
       return '<div class="hwx-ch" data-band="' + c[2] + '" data-ch="' + c[0] + '">' +
@@ -290,55 +483,73 @@
     var ambient = $("#hwxAmbient");
     var fill = $("#hwxFill");
 
-    function drawDiagram(rec) {
-      var on = state.led === "on";
-      var loaded = state.sample !== "none";
+    function drawDiagram(rec, s) {
+      var on = s.led === "on";
+      var loaded = s.sample !== "none";
 
       beamEx.style.opacity = on ? 1 : 0;
       /* Paper stops the beam; everything else lets some of it through to the
          trap. */
-      beamTh.style.opacity = (on && state.sample !== "paper") ? 0.9 : 0;
+      beamTh.style.opacity = (on && s.sample !== "paper") ? 0.9 : 0;
       scatter.style.opacity = (on && loaded) ? 0.85 : 0;
-      scatter.setAttribute("r", (on && loaded) ? (state.sample === "paper" ? 18 : 10) : 0);
+      scatter.setAttribute("r", (on && loaded) ? (s.sample === "paper" ? 18 : 10) : 0);
 
       /* The emission arm lights only where the record actually shows light on
          the emission channel. It is drawn from the data, not from the state. */
       var emitting = on && rec && rec.vals && rec.vals.F4 > 1;
       beamEm.style.opacity = emitting ? 1 : 0;
 
-      ambient.style.opacity = state.light === "room" ? (loaded ? 1 : 0.45) : 0;
-      fill.setAttribute("fill", FILL[state.sample]);
+      ambient.style.opacity = s.light === "room" ? (loaded ? 1 : 0.45) : 0;
+      fill.setAttribute("fill", FILL[s.sample]);
     }
 
     function render() {
-      var key = state.led + "-" + state.sample + "-" + state.light;
-      var rec = REC[key];
+      var s = fullState();
+      var rec = REC[keyOf(s)];
+      var culture = !!CULTURE[s.sample];
+      var blanks = false;
+
+      syncControls();
 
       $$(".hwx-ch", readout).forEach(function (el) {
         var name = el.getAttribute("data-ch");
         var val = $(".hwx-ch-val", el);
         var bar = $(".hwx-ch-bar", el);
+        var v = rec && rec.vals ? rec.vals[name] : undefined;
+
         val.className = "hwx-ch-val";
+        el.classList.remove("is-blank");
         bar.style.width = "0";
 
-        if (!rec) { val.classList.add("hwx-ch-nr"); val.textContent = "no data"; return; }
-        if (rec.zero) { val.textContent = "0"; return; }
-        if (rec.changed && rec.changed.indexOf(name) > -1) {
+        if (rec && rec.zero) { val.textContent = "0"; return; }
+        if (rec && rec.changed && rec.changed.indexOf(name) > -1) {
           val.classList.add("hwx-ch-nr");
-          val.textContent = "changed, not reported";
+          val.textContent = "moved";
           return;
         }
-        if (rec.vals && rec.vals[name] !== undefined) {
-          val.textContent = rec.vals[name];
-          bar.style.width = Math.min(100, rec.vals[name] / FULL_SCALE * 100) + "%";
+        if (v !== undefined) {
+          val.textContent = v;
+          bar.style.width = Math.min(100, v / test.scale * 100) + "%";
           return;
         }
-        val.classList.add("hwx-ch-nr");
-        val.textContent = "not reported";
+        /* Not a zero. The record has no figure for this channel, and a dash
+           is quieter than the words "not reported" six times in a row. */
+        el.classList.add("is-blank");
+        val.innerHTML = '<span aria-hidden="true">–</span>' +
+                        '<span class="visually-hidden">not reported</span>';
+        blanks = true;
       });
 
-      var title = LABEL.led[state.led] + " · " + LABEL.sample[state.sample] +
-                  " · " + LABEL.light[state.light];
+      if (note) {
+        note.textContent =
+          (blanks ? "A dash is a channel this record does not report. " : "") +
+          (rec && rec.changed ? "“Moved” is a channel the record says changed along with F4, without giving a figure. " : "") +
+          "Bars are drawn against " + test.scale + " counts in this test.";
+      }
+
+      var title = LABEL.led[s.led] + " · " + LABEL.sample[s.sample] +
+                  (culture ? ", " + SESSION[s.session] : "") +
+                  " · " + LABEL.light[s.light];
 
       if (rec) {
         verdict.className = "hwx-verdict is-" + rec.tone;
@@ -347,31 +558,36 @@
           '<p class="hwx-verdict-text">' + rec.text + "</p>" +
           '<p class="hwx-verdict-src">' + rec.src + "</p>";
       } else {
+        /* Not reachable through the controls, which only offer what was
+           measured. Kept so that a record removed by mistake shows up as a
+           gap and not as a row of zeros. */
         verdict.className = "hwx-verdict is-none";
         verdict.innerHTML =
           '<p class="hwx-verdict-title">No recorded dataset</p>' +
-          '<p class="hwx-verdict-text">' + (state.light === "room"
-            ? "This combination was never measured, and it is outside the operating requirement: readings are taken in a darkened room or under an opaque shield. The panel shows nothing rather than an estimate."
-            : "This combination is not in the evidence set. Rather than interpolate a plausible number, the readout reports that no dataset exists.") +
-          "</p>";
+          '<p class="hwx-verdict-text">This state is not in the panel’s record, so the readout shows nothing rather than an estimate.</p>';
       }
 
-      drawDiagram(rec);
+      drawDiagram(rec, s);
     }
 
-    $$(".hwx-seg", rig).forEach(function (seg) {
-      var key = seg.getAttribute("data-bench-key");
-      seg.addEventListener("click", function (e) {
-        var btn = e.target.closest("button");
-        if (!btn || !seg.contains(btn)) return;
-        $$("button", seg).forEach(function (b) {
-          b.setAttribute("aria-pressed", String(b === btn));
-        });
-        state[key] = btn.getAttribute("data-v");
-        render();
-      });
+    tabs.addEventListener("click", function (e) {
+      var b = e.target.closest(".hwx-tab");
+      if (!b) return;
+      var next = TESTS.filter(function (t) { return t.id === b.getAttribute("data-test"); })[0];
+      if (!next || next === test) return;
+      test = next;
+      buildControls();
+      render();
     });
 
+    ctrls.addEventListener("click", function (e) {
+      var b = e.target.closest(".hwx-seg button");
+      if (!b || b.disabled) return;
+      test.state[b.parentNode.getAttribute("data-bench-key")] = b.getAttribute("data-v");
+      render();
+    });
+
+    buildControls();
     render();
   })();
 
@@ -460,6 +676,83 @@
     box.innerHTML = s;
     bindTips(box);
   })();
+  /* ======================================================================
+     3. THE DEVELOPMENT LOG
+     The steps are written out in the markup, every one of them, so the
+     section is a plain list if this never runs. Here they become a row of
+     stops with one step shown at a time: the stop's label comes from the
+     step's own data attributes, so there is nothing to keep in step with the
+     text but the text.
+     ====================================================================== */
+
+  (function () {
+    var log = $("#hwxLog");
+    var track = $("#hwxLogTrack");
+    if (!log || !track) return;
+
+    var items = $$(".hwx-log-item", log);
+    var count = $("#hwxLogCount");
+    var nav = $$("[data-log-step]", log);
+    if (!items.length) return;
+
+    var at = 0;
+
+    var stops = items.map(function (item, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "hwx-log-stop";
+      b.innerHTML =
+        '<span class="hwx-log-dot" aria-hidden="true"></span>' +
+        '<span class="hwx-log-when">' + item.getAttribute("data-when") + "</span>" +
+        '<span class="hwx-log-name">' + item.getAttribute("data-name") + "</span>";
+      b.addEventListener("click", function () { show(i, false); });
+      track.appendChild(b);
+      return b;
+    });
+
+    function show(i, focus) {
+      at = Math.max(0, Math.min(items.length - 1, i));
+
+      items.forEach(function (item, n) { item.classList.toggle("is-off", n !== at); });
+      stops.forEach(function (b, n) {
+        b.setAttribute("aria-pressed", String(n === at));
+        b.classList.toggle("is-past", n < at);
+      });
+      nav.forEach(function (b) {
+        var to = at + Number(b.getAttribute("data-log-step"));
+        b.disabled = to < 0 || to > items.length - 1;
+      });
+      if (count) count.textContent = "Step " + (at + 1) + " of " + items.length;
+
+      /* On a narrow screen the row of stops scrolls sideways. Bring the
+         chosen one to the middle of it by moving the row, never the page. */
+      var stop = stops[at];
+      track.scrollLeft = stop.offsetLeft - (track.clientWidth - stop.offsetWidth) / 2;
+      if (focus) stop.focus({ preventScroll: true });
+    }
+
+    track.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      e.preventDefault();
+      show(at + (e.key === "ArrowRight" ? 1 : -1), true);
+    });
+
+    nav.forEach(function (b) {
+      b.hidden = false;
+      b.addEventListener("click", function () {
+        show(at + Number(b.getAttribute("data-log-step")), false);
+      });
+    });
+
+    /* On paper there is nothing to click, so every step is printed, as the
+       plain list it is without this script. */
+    window.addEventListener("beforeprint", function () { log.classList.remove("is-live"); });
+    window.addEventListener("afterprint", function () { log.classList.add("is-live"); });
+
+    log.classList.add("is-live");
+    show(0, false);
+  })();
+
   /* ======================================================================
      FOLDED TABLES ON PAPER
      A shut <details> prints as a single line where the table should be. The
