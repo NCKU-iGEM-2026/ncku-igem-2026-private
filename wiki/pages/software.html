@@ -63,11 +63,117 @@
   #live-spectrum, #live-f4 { transition: opacity .2s ease; }
   .lv.is-paused #live-spectrum, .lv.is-paused #live-f4 { opacity: .45; }
 
+  /* Prose around the panel. */
+  .sw { max-width: 48rem; }
+  .sw section { margin-bottom: 2.75rem; }
+  .sw h2 { font-size: 1.35rem; font-weight: 700; color: var(--lv-ink);
+           margin-bottom: .9rem; padding-bottom: .45rem; border-bottom: 2px solid var(--lv-rule); }
+  .sw h3 { font-size: 1.05rem; font-weight: 700; color: var(--lv-ink); margin: 1.4rem 0 .5rem; }
+  .sw p, .sw li { color: var(--lv-ink2); line-height: 1.75; }
+  .sw li { margin-bottom: .5rem; }
+  .sw code { background: var(--lv-paper2); color: var(--lv-ink); padding: .1em .35em;
+             border-radius: 3px; font-size: .9em; }
+  .sw-lead p { font-size: 1.08rem; }
+
+  .sw-flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: .5rem; margin: 1.4rem 0; }
+  .sw-flow-node { flex: 1 1 10rem; border: 1.5px solid #b3a695; border-radius: 8px;
+                  background: var(--lv-paper); padding: .6rem .8rem; }
+  .sw-flow-node strong { display: block; color: var(--lv-ink); font-size: .92rem; }
+  .sw-flow-node span { display: block; color: var(--lv-muted); font-size: .8rem; line-height: 1.5; }
+  .sw-flow-arrow { align-self: center; color: var(--lv-muted); font-size: .78rem; text-align: center; }
+
+  .sw-terms { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1.2rem; margin: 1rem 0; }
+  .sw-terms dt { color: var(--lv-ink); font-weight: 700; }
+  .sw-terms dd { margin: 0; color: var(--lv-ink2); line-height: 1.65; }
+
   @media (max-width: 720px) {
+    .sw-flow { flex-direction: column; }
+    .sw-terms { grid-template-columns: 1fr; }
+    .sw-terms dd { margin-bottom: .6rem; }
     .lv { padding: 20px; }
     .lv-controls { width: 100%; justify-content: space-between; }
   }
 </style>
+
+{#
+  === 給團隊的說明，發布前請讀 ===
+  這一頁的敘述只寫了 LasReader repo（README、韌體註解、程式碼）裡查得到的事實，
+  以及 Hardware 頁已經寫過的硬體資訊。沒有任何實驗數據或效能數字。
+  需要你們補的：
+    - 原始碼連結：iGEM 要求軟體放在 gitlab.igem.org 的團隊 repo。
+      目前只放了 GitHub 連結；GitLab 網址確定後加到 "Source code" 一節。
+    - 如果之後加了裝置驗證（shared secret），把 Limitations 的第一點改掉。
+#}
+
+<div class="sw">
+
+  <section class="sw-lead">
+    <p>
+      CAPTURE-Screen, the fluorescence reader described on our
+      <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page, reads
+      sfGFP through an AS7341 spectral sensor. The instrument sits on a lab
+      bench; this page lets anyone watch what its sensor sees, as it sees it.
+    </p>
+    <p>
+      The panel below is part of <strong>LasReader</strong>, the software we
+      wrote to run the instrument. It shows the sensor's raw output, frame by
+      frame, straight from the device. Nothing in it is simulated: when
+      CAPTURE-Screen is switched off, the panel says so and shows no data.
+    </p>
+  </section>
+
+  <section>
+    <h2>Reading the panel</h2>
+    <p>
+      The AS7341 splits incoming light into ten channels. Eight are narrow
+      bands across the visible spectrum, from F1 (415&nbsp;nm) to
+      F8 (680&nbsp;nm); the other two are a broadband Clear channel and a
+      near-infrared (NIR) channel. Each bar is one channel's reading in the
+      latest frame.
+    </p>
+    <p>
+      <strong>F4 (515&nbsp;nm)</strong> is the band that covers sfGFP emission,
+      so it is the one bar drawn in green and the one number called out above
+      the chart. For comparison, the wet lab reads sfGFP on a plate reader at an
+      emission wavelength of 510&nbsp;nm.
+    </p>
+    <dl class="sw-terms">
+      <dt>Status</dt>
+      <dd><em>Connecting</em>: this page is still reaching our backend.
+        <em>Offline</em>: the backend is up, but CAPTURE-Screen is not connected.
+        <em>Online</em>: the device is ready. <em>Streaming</em>: frames are
+        arriving.</dd>
+      <dt>Live</dt>
+      <dd>Turns on the excitation LED and starts the stream. Off by default.</dd>
+      <dt>Raw counts</dt>
+      <dd>The sensor's ADC output for each channel, before any processing.</dd>
+      <dt>Gain, Integration</dt>
+      <dd>The sensor settings the counts were taken with. The same light gives
+        different counts at a different gain or integration time, so raw counts
+        cannot be interpreted without them.</dd>
+      <dt>Full scale</dt>
+      <dd>The highest count a channel can report at the current integration
+        settings: (ATIME&nbsp;+&nbsp;1)&nbsp;&times;&nbsp;(ASTEP&nbsp;+&nbsp;1),
+        capped at 65,535. A bar near full scale is close to saturating.</dd>
+      <dt>LED</dt>
+      <dd>The excitation LED's drive current, measured with a multimeter,
+        since the firmware cannot read it.</dd>
+      <dt>Build, Firmware, Wi-Fi</dt>
+      <dd>Which physical unit and firmware version is sending the data, and its
+        Wi-Fi signal strength.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Watch it live</h2>
+    <p>
+      If CAPTURE-Screen is online, switch on <strong>Live</strong>. Frames
+      arrive about once a second. If the page stays on <em>Connecting</em>, the
+      backend is waking up from idle, which can take up to a minute.
+    </p>
+  </section>
+
+</div>
 
 <section id="live-card" class="lv" aria-labelledby="live-heading">
   <div class="lv-head">
@@ -113,6 +219,120 @@
   <div id="live-settings" class="lv-settings" hidden></div>
   <p class="lv-fine">Display only: raw counts are not dark-subtracted and never stored.</p>
 </section>
+
+<div class="sw">
+
+  <section>
+    <h2>How a frame reaches this page</h2>
+    <div class="sw-flow" role="img"
+         aria-label="Data path: the ESP32 in CAPTURE-Screen reads the AS7341 sensor and sends each frame over a WebSocket it opened to the LasReader backend on Render, which forwards the frame over a second WebSocket to every browser watching this page.">
+      <div class="sw-flow-node"><strong>AS7341</strong><span>ten-channel spectral sensor</span></div>
+      <div class="sw-flow-arrow" aria-hidden="true">I&sup2;C &rarr;</div>
+      <div class="sw-flow-node"><strong>ESP32 firmware</strong><span>inside CAPTURE-Screen</span></div>
+      <div class="sw-flow-arrow" aria-hidden="true">WebSocket &rarr;<br>device dials out</div>
+      <div class="sw-flow-node"><strong>LasReader backend</strong><span>FastAPI on Render</span></div>
+      <div class="sw-flow-arrow" aria-hidden="true">WebSocket &rarr;</div>
+      <div class="sw-flow-node"><strong>This page</strong><span>every open browser</span></div>
+    </div>
+    <ol>
+      <li>When CAPTURE-Screen powers on and joins Wi-Fi, its ESP32 opens a
+        WebSocket to our backend and keeps it open, reconnecting on its own if
+        it drops. It reports its status every 5&nbsp;seconds; if the backend
+        hears nothing for 15&nbsp;seconds, it marks the device offline.</li>
+      <li>This page opens its own WebSocket to the backend as soon as it loads,
+        so it can show whether the device is online before anyone asks for
+        data.</li>
+      <li>Switching on Live tells the backend that one more person is watching.
+        When the first viewer arrives, the backend tells the device to turn on
+        the LED and start streaming.</li>
+      <li>The device reads all ten channels and sends each frame to the
+        backend, which forwards it to every browser that is watching.</li>
+      <li>When the last viewer switches Live off or closes the page, the
+        backend tells the device to stop, and the LED goes off.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Design choices</h2>
+
+    <h3>The device connects out, not in</h3>
+    <p>
+      The backend runs in the cloud, and a lab or home router does not let the
+      cloud reach a device behind it. So the direction is reversed:
+      CAPTURE-Screen dials out to the backend, and browsers talk only to the
+      backend. The device never needs a public address.
+    </p>
+
+    <h3>The LED is on only while someone is watching</h3>
+    <p>
+      Continuous excitation light warms the sample in the cuvette and
+      photobleaches it. So the LED follows viewers, not the page: it lights
+      when the first person switches on Live and turns off when the last one
+      leaves. Moving this tab to the background counts as leaving, because
+      nobody can see a hidden tab; the stream resumes when the tab comes back.
+      If the device loses its connection to the backend, the firmware turns
+      the LED off by itself.
+    </p>
+
+    <h3>Live data is shown, never kept</h3>
+    <p>
+      A live frame is a single reading with no dark subtraction. That is enough
+      to watch the sensor respond, but it is not a measurement. LasReader
+      therefore only draws live frames and never stores them, so they cannot
+      end up in a calibration or a result. Recorded measurements take a
+      separate path, with a dark reading before and after the lit one.
+    </p>
+
+    <h3>An old frame never looks current</h3>
+    <p>
+      When the device goes offline or the connection drops, the chart is
+      cleared instead of left showing the last frame. While the device is busy
+      with a measurement, which pauses the stream, the last frame is faded.
+    </p>
+
+    <h3>Nothing loaded from outside iGEM</h3>
+    <p>
+      The standalone LasReader site draws this chart with Chart.js. The wiki
+      may not load scripts from external servers, so for this page we redrew
+      the bar chart as plain SVG, with no third-party library.
+    </p>
+  </section>
+
+  <section>
+    <h2>Limitations</h2>
+    <ul>
+      <li><strong>No authentication yet.</strong> Anyone who knows the backend
+        address could pose as the device or ask it for a reading. We plan to
+        add a shared secret between the device and the backend.</li>
+      <li><strong>Slow first connection.</strong> The backend runs on a free
+        hosting tier that sleeps when idle. The first visitor after a quiet
+        period can wait up to a minute; the page and the device both keep
+        retrying on their own.</li>
+      <li><strong>One device, one server process.</strong> The backend keeps
+        its connections in memory, which works for a single CAPTURE-Screen and
+        a single server process. Scaling beyond that would need changes, such
+        as a shared message broker.</li>
+      <li><strong>Only while the device is on.</strong> The panel shows real
+        data only; when CAPTURE-Screen is switched off, it shows the device as
+        offline.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Source code</h2>
+    <p>
+      LasReader, including the backend, the CAPTURE-Screen firmware and the
+      original version of this panel, is released under the MIT License. Its
+      README explains how to install and run it locally and how to flash the
+      firmware.
+    </p>
+    <p>
+      <a href="https://github.com/igem-ncku-software/igem-software"
+         target="_blank" rel="noopener">LasReader source repository</a>
+    </p>
+  </section>
+
+</div>
 
 {% endblock %}
 
