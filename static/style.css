@@ -1,13 +1,17 @@
-body { padding-top: 104px; }
+/* 83px, not the original 104px: the navbar's footprint (top offset +
+   height) shrank by 21px when it became a shorter paper strip (16+80=96
+   down to 15+60=75), so the space reserved for it here and in .bg-hero's
+   matching offset below shrinks by the same amount. */
+body { padding-top: 83px; }
 .navbar {
-  height: 80px;
+  height: 60px;
   overflow: visible;
   padding-top: 0;
   padding-bottom: 0;
   /* Floating glass block: inset from the top and both sides instead of the
      usual edge-to-edge bar, so it reads as a panel hovering over the page
      rather than a strip glued to the browser chrome. */
-  top: 16px;
+  top: 15px;
   left: 50%;
   right: auto;
   transform: translateX(-50%);
@@ -17,7 +21,7 @@ body { padding-top: 104px; }
      get the room they were being squeezed out of. Below ~1500px the viewport
      is narrower than the floor anyway, so nothing there changes. */
   max-width: clamp(1400px, calc(100vw - 6rem), 1720px);
-  border-radius: 20px;
+  border-radius: 0;
   transition: transform 0.3s ease;
 }
 .navbar .container-fluid { padding-left: 150px; }
@@ -26,9 +30,10 @@ body { padding-top: 104px; }
   /* Tracks the logo size above so the overhang stays proportional. Shifted
      down by the navbar's 16px top inset so the logo lands at the same
      on-screen position it did when the bar sat flush at the very top, then
-     nudged up 10px and back down 8px of that. */
-  top: clamp(-57px, calc(-0.212 * (100vw - 872px) - 1px), -30px);
-  left: 24px;
+     nudged up 10px and back down 8px of that, then down another 8px and
+     left another 14px once the bar became a paper strip. */
+  top: calc(clamp(-57px, calc(-0.212 * (100vw - 872px) - 1px), -30px) + 8px);
+  left: 10px;
   font-size: 1.7rem;
   padding-top: 0;
   padding-bottom: 0;
@@ -42,15 +47,6 @@ body { padding-top: 104px; }
   width: clamp(120px, calc(100vw - 872px), 250px);
   height: clamp(120px, calc(100vw - 872px), 250px);
   transition: width 0.3s ease, height 0.3s ease;
-}
-
-body.navbar-scrolled .navbar-brand {
-  top: 0px;
-}
-
-body.navbar-scrolled .navbar-brand img {
-  width: 70px;
-  height: 70px;
 }
 
 body.navbar-hidden .navbar {
@@ -230,7 +226,7 @@ body.show-back-to-top .back-to-top {
    3.57:1 against it, so the resting colour moves darker instead. */
 .navbar-nav .nav-link { font-family: "Changa", sans-serif; font-size: 1.3rem; color: #05442e; transition: color 0.15s ease; }
 .navbar-nav .nav-link:hover,
-.navbar-nav .nav-link:focus { color: #fff6b7; }
+.navbar-nav .nav-link:focus { color: #ff8a3d; }
 
 /* Bootstrap's caret is a static triangle; spin it half a turn on hover so a
    dropdown toggle gives the same kind of feedback the link's colour change
@@ -322,13 +318,48 @@ body.show-back-to-top .back-to-top {
    dropped its white text -- including the licence and repository lines judges
    have to read -- from 8.3:1 to 2.3:1. Scope the green to the bar and leave
    the footer on the deep green it was designed against. */
+/* !important is required: Bootstrap's .bg-dark utility sets
+   background-color !important, which otherwise silently wins back over
+   this rule regardless of .navbar.bg-dark's higher specificity -- that's
+   what was showing as a flat black rectangle under the paper texture. */
 .navbar.bg-dark {
-  background: rgba(255, 255, 255, 0.4) !important;
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 12px rgba(5, 68, 46, 0.1);
+  background: none !important;
 }
+
+/* The paper texture + its torn-edge mask live on a ::before instead of on
+   .navbar directly. .navbar's own box stays a plain rectangle so the logo
+   -- which intentionally overhangs above that box via a negative top, per
+   .navbar-brand above -- doesn't get cut off by the mask along with it;
+   masking .navbar itself clips the whole element's rendering, overhang
+   included, to whatever the (non-repeated) mask image covers. A
+   drop-shadow filter is used instead of box-shadow because only
+   drop-shadow follows a masked element's actual alpha shape -- box-shadow
+   would still cast a rectangular shadow regardless of the mask. */
+.navbar::before {
+  content: "";
+  position: absolute;
+  /* cover crops to fill the box exactly, which eats the torn edges.
+     contain never crops (it scales to the largest size that still shows
+     the whole image), so nothing about the torn silhouette is lost; the
+     generous overhang just gives it enough canvas to scale up close to
+     the pill's own size while doing that. */
+  inset: -80px;
+  z-index: -1;
+  background-image: url("https://static.igem.wiki/teams/6379/wiki/paperclif/paper3.avif");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  -webkit-mask-image: url("https://static.igem.wiki/teams/6379/wiki/paperclif/paper3.avif");
+  mask-image: url("https://static.igem.wiki/teams/6379/wiki/paperclif/paper3.avif");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
+}
+
 footer.bg-dark { background-color: #075a3e !important; }
 
 /* Bootstrap's 50%-white utility sits at 3.3:1 on that deep green, under the
@@ -338,12 +369,13 @@ footer.bg-dark { background-color: #075a3e !important; }
 .footer .text-white-50 { color: rgba(255, 255, 255, 0.75) !important; }
 .bg-hero {
   background-color: #fff6b7;
-  /* Extend the colour band up behind the floating navbar's 104px reserved
-     gap, instead of stopping where the bar used to sit flush at the top.
-     padding-top makes up the same 104px so the title/subtitle land exactly
-     where they did before -- only the background reaches further up. */
-  margin-top: -104px;
-  padding-top: calc(3rem + 104px) !important;
+  /* Extend the colour band up behind the floating navbar's reserved gap
+     (83px, see body above), instead of stopping where the bar used to sit
+     flush at the top. padding-top makes up the same 83px so the
+     title/subtitle land exactly where they did before -- only the
+     background reaches further up. */
+  margin-top: -83px;
+  padding-top: calc(3rem + 83px) !important;
 }
 
 /* Every page's default banner: same flat yellow band as .bg-hero, sized the
@@ -1061,15 +1093,6 @@ footer a:hover { color: white; text-decoration: underline; }
   font-size: 3rem;
   color: #075a3e;
   line-height: 1;
-}
-
-/* Inside the cosmos glass cards, the same numbers get a neon glow instead
-   of the flat forest green -- a mid-saturation fill (so they stay legible
-   on the near-white glass) plus a bright blurred shadow behind it, which
-   is what actually reads as "glowing" rather than just a brighter fill. */
-body.edu-cosmos-page .edu-stat-number {
-  color: #0aa552;
-  text-shadow: 0 0 14px rgba(60, 255, 140, 0.65), 0 0 2px rgba(60, 255, 140, 0.4);
 }
 
 .edu-stat-label {
@@ -1842,11 +1865,14 @@ body.edu-cosmos-page .edu-stat-number {
 }
 
 /* ===== Education: session sidebar + detail sections ===== */
-/* ===== Education prototype: near-black cosmos backdrop + glass cards =====
-   Experimental, page-scoped theme: a starfield (with a couple of green-
-   tinted "bacteria" specks) behind the existing sidebar/session layout,
-   with each section reworked into its own translucent glass card instead
-   of a continuous flow separated by border lines.
+/* ===== Education prototype: collage-in-a-cosmos =====
+   Experimental, page-scoped theme (superseding an earlier glassmorphism
+   pass): a starfield behind the page, paper scraps drifting through it,
+   and the sidebar/each session reworked into an opaque paper card clipped
+   with a paperclip -- collage-on-a-corkboard rather than frosted glass.
+   Card/text colours are the site's existing palette (cream paper, dark
+   green/brown ink), not a new one, so only the cosmos backdrop and the
+   paper-clip motif are new here.
 
    The backdrop is a position:fixed layer instead of living inside the
    page's normal flow, so it covers the *entire* viewport -- behind the
@@ -1865,67 +1891,26 @@ body.edu-cosmos-page {
   z-index: -1;
   background-color: #05070d;
   background-image:
-    radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.9) 0 1px, transparent 1px),
-    radial-gradient(circle at 62% 8%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1px),
-    radial-gradient(circle at 84% 46%, rgba(255, 255, 255, 0.85) 0 1.2px, transparent 1.2px),
-    radial-gradient(circle at 30% 68%, rgba(255, 255, 255, 0.6) 0 1px, transparent 1px),
-    radial-gradient(circle at 8% 88%, rgba(255, 255, 255, 0.75) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 82%, rgba(140, 255, 150, 0.65) 0 1.6px, transparent 1.6px),
-    radial-gradient(circle at 46% 38%, rgba(140, 255, 150, 0.5) 0 1.8px, transparent 1.8px),
-    radial-gradient(circle at 94% 20%, rgba(255, 255, 255, 0.5) 0 1px, transparent 1px);
-  background-size: 260px 260px;
+    radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.85) 0 1px, transparent 1px),
+    radial-gradient(circle at 84% 46%, rgba(255, 255, 255, 0.8) 0 1.2px, transparent 1.2px),
+    radial-gradient(circle at 30% 68%, rgba(255, 255, 255, 0.55) 0 1px, transparent 1px),
+    radial-gradient(circle at 70% 82%, rgba(255, 246, 183, 0.5) 0 1.6px, transparent 1.6px);
+  background-size: 380px 380px;
   animation: eduStarDrift 120s linear infinite;
 }
 
 @keyframes eduStarDrift {
   from { background-position: 0 0; }
-  to { background-position: -260px -260px; }
-}
-
-/* Two soft green glows, like bioluminescence, so the cosmos reads as this
-   site's brand green rather than a generic starfield. */
-.edu-cosmos-backdrop::before,
-.edu-cosmos-backdrop::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  pointer-events: none;
-}
-
-.edu-cosmos-backdrop::before {
-  top: -80px;
-  left: -60px;
-  width: 360px;
-  height: 360px;
-  background: rgba(70, 255, 130, 0.45);
-  animation: eduGlowDrift 22s ease-in-out infinite;
-}
-
-.edu-cosmos-backdrop::after {
-  bottom: -100px;
-  right: -60px;
-  width: 420px;
-  height: 420px;
-  background: rgba(40, 255, 190, 0.35);
-  animation: eduGlowDrift 26s ease-in-out infinite -9s;
-}
-
-/* Combines the old opacity pulse with a slow positional wander, so the
-   ambient glow itself feels like it's swimming rather than just
-   breathing in place. */
-@keyframes eduGlowDrift {
-  0%, 100% { opacity: 0.65; transform: translate(0, 0) scale(1); }
-  33%      { opacity: 1;    transform: translate(70px, 40px) scale(1.15); }
-  66%      { opacity: 0.8;  transform: translate(-40px, 60px) scale(0.9); }
+  to { background-position: -380px -380px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .edu-cosmos-backdrop::before, .edu-cosmos-backdrop::after { animation: none; }
+  .edu-cosmos-backdrop { animation: none; }
 }
 
-/* The "bacteria": small fluorescent-green blobs that drift on independent,
-   staggered loops so the motion never looks synchronized. */
+/* Paper scraps floating through the cosmos, like torn-off collage bits
+   adrift in space. Cream/goose-yellow, the site's own paper colours, not
+   a new palette. */
 .edu-cosmos-critters {
   position: absolute;
   inset: 0;
@@ -1933,44 +1918,31 @@ body.edu-cosmos-page {
   pointer-events: none;
 }
 
-.edu-critter {
+.edu-paper-scrap {
   position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, #f2ffe0 0%, #91ffb0 35%, rgba(60, 255, 140, 0.8) 65%, transparent 100%);
-  box-shadow: 0 0 34px 10px rgba(90, 255, 160, 0.85);
-  opacity: 0.85;
-  animation-name: eduDrift;
+  background: #fff3d0;
+  border: 1px solid rgba(43, 30, 23, 0.15);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.55);
+  opacity: 0.92;
+  animation-name: eduPaperDrift;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
 }
 
-/* Spread across the full viewport -- including the far edges (exposed
-   past the content column's max-width on most screens), the gap between
-   the sidebar and the session cards, and the seam below the hero -- so
-   at least a few are visibly swimming in open backdrop at any scroll
-   position, not hidden behind the hero photo or a glass card. */
-.edu-critter.c1  { top: 42%; left: 3%;  width: 11px; height: 11px; animation-duration: 23s; animation-delay: -2s; }
-.edu-critter.c2  { top: 22%; left: 96%; width: 8px;  height: 8px;  animation-duration: 27s; animation-delay: -9s; }
-.edu-critter.c3  { top: 60%; left: 25%; width: 9px;  height: 9px;  animation-duration: 19s; animation-delay: -14s; }
-.edu-critter.c4  { top: 75%; left: 94%; width: 8px;  height: 8px;  animation-duration: 25s; animation-delay: -5s; }
-.edu-critter.c5  { top: 88%; left: 45%; width: 12px; height: 12px; animation-duration: 31s; animation-delay: -18s; }
-.edu-critter.c6  { top: 15%; left: 55%; width: 7px;  height: 7px;  animation-duration: 21s; animation-delay: -11s; }
-.edu-critter.c7  { top: 34%; left: 2%;  width: 8px;  height: 8px;  animation-duration: 29s; animation-delay: -6s; }
-.edu-critter.c8  { top: 6%;  left: 97%; width: 10px; height: 10px; animation-duration: 24s; animation-delay: -16s; }
-.edu-critter.c9  { top: 50%; left: 65%; width: 7px;  height: 7px;  animation-duration: 26s; animation-delay: -20s; }
-.edu-critter.c10 { top: 95%; left: 8%;  width: 9px;  height: 9px;  animation-duration: 22s; animation-delay: -8s; }
+.edu-paper-scrap.p1 { top: 14%; left: 4%;  width: 30px; height: 22px; --rot: -10deg; background: #fff6b7; animation-duration: 26s; animation-delay: -3s; }
+.edu-paper-scrap.p2 { top: 40%; left: 95%; width: 22px; height: 30px; --rot: 8deg;   animation-duration: 30s; animation-delay: -11s; }
+.edu-paper-scrap.p3 { top: 70%; left: 3%;  width: 26px; height: 26px; --rot: 14deg;  animation-duration: 22s; animation-delay: -7s; }
+.edu-paper-scrap.p4 { top: 85%; left: 92%; width: 30px; height: 20px; --rot: -6deg;  background: #fff6b7; animation-duration: 28s; animation-delay: -18s; }
+.edu-paper-scrap.p5 { top: 5%;  left: 55%; width: 20px; height: 28px; --rot: 5deg;   animation-duration: 24s; animation-delay: -14s; }
 
-@keyframes eduDrift {
-  0%   { transform: translate(0, 0) scale(1); opacity: 0.6; }
-  25%  { transform: translate(60px, -45px) scale(1.3); opacity: 1; }
-  50%  { transform: translate(-38px, 32px) scale(0.8); opacity: 0.5; }
-  75%  { transform: translate(44px, 55px) scale(1.2); opacity: 0.95; }
-  100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+@keyframes eduPaperDrift {
+  0%   { transform: translate(0, 0) rotate(var(--rot, 0deg)); }
+  50%  { transform: translate(28px, -22px) rotate(calc(var(--rot, 0deg) + 10deg)); }
+  100% { transform: translate(0, 0) rotate(var(--rot, 0deg)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .edu-cosmos-backdrop { animation: none; }
-  .edu-critter { animation: none; }
+  .edu-paper-scrap { animation: none; }
 }
 
 body.edu-cosmos-page .edu-detail-layout {
@@ -1978,34 +1950,35 @@ body.edu-cosmos-page .edu-detail-layout {
   z-index: 1;
 }
 
-/* The actual glassmorphism recipe. Plain alpha-blending a near-opaque white
-   over near-black math's out to flat grey (0.9 white + 0.1 black ~= light
-   grey, no "glass" quality) -- brightness()+saturate() on the backdrop
-   filter push what's behind it lighter and more vivid *before* the white
-   tint blends in, which is what actually reads as frosted glass instead of
-   a grey card. The inset highlight is the glossy top-edge sheen. */
+/* Sidebar and each session become opaque paper cards -- the site's usual
+   card cream (#fffdf6), not a translucent glass tint -- lifted off the
+   dark cosmos with a plain drop shadow, each one clipped at the top with
+   the same paperclip used on the hero. */
 body.edu-cosmos-page .edu-sidebar,
 body.edu-cosmos-page .edu-session-block {
-  /* Not position:relative here -- .edu-sidebar's base rule already sets
-     position:sticky (it needs to stay pinned while scrolling); overriding
-     it to relative was quietly breaking that stickiness. Sticky elements
-     support z-index the same as relative/absolute ones, so no positioning
-     value is needed here, just the stacking order. */
+  /* Not position:relative on .edu-sidebar -- its base rule already sets
+     position:sticky (it needs to stay pinned while scrolling), and
+     overriding that to relative would quietly break the stickiness.
+     Sticky elements support z-index/pseudo-elements the same as relative
+     ones, so no positioning value is needed here. */
   z-index: 1;
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(20px) saturate(180%) brightness(1.6);
-  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.6);
-  border: 1px solid rgba(190, 255, 210, 0.8);
-  border-radius: 18px;
-  /* The neon tube-light ring: a crisp bright edge, a soft green bloom
-     outside it, and a wider ambient glow -- stacked instead of one big
-     blur so it reads as a lit border, not just a fuzzy shadow. */
-  box-shadow:
-    0 0 0 1px rgba(120, 255, 160, 0.55),
-    0 0 18px rgba(80, 255, 150, 0.45),
-    0 0 44px rgba(60, 255, 170, 0.25),
-    0 14px 38px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  background: #fffdf6;
+  border: 1px solid #e7dcc2;
+  border-radius: 6px;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.6);
+}
+
+body.edu-cosmos-page .edu-sidebar::before,
+body.edu-cosmos-page .edu-session-block::before {
+  content: "";
+  position: absolute;
+  top: -17px;
+  left: 22px;
+  width: 26px;
+  height: 44px;
+  background: url("https://static.igem.wiki/teams/6379/wiki/paperclif/paperclip.avif") no-repeat center / contain;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
 }
 
 body.edu-cosmos-page .edu-sidebar {
@@ -2024,15 +1997,11 @@ body.edu-cosmos-page .edu-session-block:last-child {
 
 /* Hero photo hands off into the cosmos instead of fading to the site's
    usual white, so the transition from banner photo to page body is
-   seamless with the fixed backdrop behind it. */
+   seamless with the fixed backdrop behind it. Title colour is untouched --
+   .hero-title's default goose-yellow-on-black-vignette already works
+   against a dark background, so there's nothing to override here. */
 body.edu-cosmos-page .page-hero-tint {
   background: linear-gradient(to bottom, rgba(5, 7, 13, 0.05), rgba(5, 7, 13, 0.97));
-}
-
-body.edu-cosmos-page .hero-title,
-body.edu-cosmos-page .hero-sub {
-  color: #fff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 .edu-detail-layout {
@@ -2045,10 +2014,10 @@ body.edu-cosmos-page .hero-sub {
 
 .edu-sidebar {
   position: sticky;
-  top: 84px;
+  top: 63px;
   flex: 0 0 200px;
   padding-left: 0;
-  max-height: calc(100vh - 104px);
+  max-height: calc(100vh - 83px);
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -5570,7 +5539,7 @@ body.tour-active { overflow: hidden; }
   padding: 1.6rem 0;
   border-bottom: 1px solid var(--nb-rule);
   /* Clears the floating navbar when the contents jumps to a week. */
-  scroll-margin-top: 104px;
+  scroll-margin-top: 83px;
 }
 
 .nb-week-id {
