@@ -3960,21 +3960,25 @@ body.edu-lightbox-locked {
   height: 5.2rem;
   display: grid;
   place-items: center;
-  border: 3px solid #075a3e;
+  /* Pale until the reader draws level with it. A picture cannot change
+     colour the way the drawing it replaced could, so the ring carries that
+     state and the picture comes up out of grey beside it. */
+  border: 3px solid #a9cbb8;
   border-radius: 50%;
   background: #fffdf7;
+  overflow: hidden;
   box-shadow: 0 0 0 7px #f3f8f5;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+  transition: border-color 0.3s ease, box-shadow 0.3s ease,
               transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
-/* Filled once the reader has drawn level with it. */
+/* Reached: the ring goes to the full green, the picture to full colour. */
 .sgd-stop.is-reached .sgd-node {
-  background: #075a3e;
+  border-color: #075a3e;
   box-shadow: 0 0 0 7px #e3efe8;
 }
 
-.sgd-stop.is-reached .sgd-icon { stroke: #fffdf7; }
+.sgd-stop.is-reached .sgd-icon { filter: none; }
 
 /* Pointing anywhere in a stop lifts that stop's own marker. It is the thing
    tying a paragraph to a circle now that the two sit on opposite sides of
@@ -3986,15 +3990,25 @@ body.edu-lightbox-locked {
 .sgd-stop.is-right .sgd-node { left: 86.25%; transform: translate(-50%, -50%); }
 .sgd-stop.is-left .sgd-node { left: 13.75%; transform: translate(-50%, -50%); }
 
+/* contain at 96%, not cover: these are square and the circle is inscribed in
+   that square, so cover throws the corners away -- which costs the SDG wheel
+   its left and right edges and the laurel its tips.
+
+   96 rather than a round 100 because it was measured rather than guessed.
+   Six of the eight do carry something past the inscribed circle, but on five
+   of them it is only the soft shadow under the drawing -- near-white, no
+   colour in it. The furthest actual drawing on any of them is the podium on
+   playtest-feedback at 1.035 of that radius, so 1/1.035 is where the clip
+   stops costing anything that was drawn on purpose.
+
+   Per cent, not rem, so the one rule also serves the smaller circle the
+   stacked layout uses. */
 .sgd-icon {
-  width: 2.7rem;
-  height: 2.7rem;
-  fill: none;
-  stroke: #075a3e;
-  transition: stroke 0.3s ease;
-  stroke-width: 3.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 96%;
+  height: 96%;
+  object-fit: contain;
+  filter: grayscale(0.62) opacity(0.72);
+  transition: filter 0.4s ease;
 }
 
 .sgd-text { padding: 1.25rem 0; }
@@ -4065,7 +4079,6 @@ body.edu-lightbox-locked {
     box-shadow: none;
   }
 
-  .sgd-icon { width: 2.1rem; height: 2.1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
