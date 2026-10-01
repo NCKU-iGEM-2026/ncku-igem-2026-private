@@ -1221,15 +1221,6 @@ body.team-bio-locked { overflow: hidden; }
   line-height: 1;
 }
 
-/* Inside the cosmos glass cards, the same numbers get a neon glow instead
-   of the flat forest green -- a mid-saturation fill (so they stay legible
-   on the near-white glass) plus a bright blurred shadow behind it, which
-   is what actually reads as "glowing" rather than just a brighter fill. */
-body.edu-cosmos-page .edu-stat-number {
-  color: #0aa552;
-  text-shadow: 0 0 14px rgba(60, 255, 140, 0.65), 0 0 2px rgba(60, 255, 140, 0.4);
-}
-
 .edu-stat-label {
   font-family: "Changa", sans-serif;
   font-weight: 400;
@@ -8783,11 +8774,16 @@ body.quiz-active { overflow: hidden; }
   .hp-figure-grid > .hp-figure { max-width: none; }
 }
 
-/* ===== Hardware: the deep-teal treatment ===================================
+/* ===== The deep-teal treatment ==============================================
    A page-scoped theme, switched on by body.hw-nexus from hardware.html and
-   nothing else. Purely additive: every rule here overrides the light theme
-   rather than replacing it, so removing that one class in the template puts
-   the page back exactly as it was.
+   body.edu-nexus from education.html, and nothing else. Purely additive:
+   every rule here overrides the light theme rather than replacing it, so
+   removing that one class in a template puts the page back exactly as it was.
+
+   This first half is the part both pages share -- the palette, the ground,
+   the orbs and the site chrome. What each page does with its own content
+   then follows in its own section: the .hw rules below, and the Education
+   block further down.
 
    The palette is sampled from the reference the team chose (Nexus, Awwwards
    SOTD 2022-12-09): a deep petrol ground, mint and lime picking out what
@@ -8797,7 +8793,8 @@ body.quiz-active { overflow: hidden; }
    (#2779a7, 3.3:1), so it is used for fills and borders only and a lifted
    #5fb3e0 carries any blue that has to be read.
    ========================================================================== */
-body.hw-nexus {
+body.hw-nexus,
+body.edu-nexus {
   --nx-ground:  #0e242e;   /* page                                    */
   --nx-panel:   #16323f;   /* cards, tables, diagram frames           */
   --nx-raised:  #1c4352;   /* the layer above that                    */
@@ -8830,7 +8827,9 @@ body.hw-nexus {
    out of the way of the panels, which carry their own darker backgrounds.
    -------------------------------------------------------------------- */
 body.hw-nexus::before,
-body.hw-nexus::after {
+body.hw-nexus::after,
+body.edu-nexus::before,
+body.edu-nexus::after {
   content: "";
   position: fixed;
   inset: 0;
@@ -8838,7 +8837,8 @@ body.hw-nexus::after {
   pointer-events: none;
 }
 
-body.hw-nexus::before {
+body.hw-nexus::before,
+body.edu-nexus::before {
   /* One wash, lighter at the top, which is how a lit surface reads. It
      replaced four symmetrical pools and a set of concentric rings: stacked
      soft glows are the stock background of every dark template going, and
@@ -8851,7 +8851,8 @@ body.hw-nexus::before {
       rgba(73, 197, 182, 0) 100%);
 }
 
-body.hw-nexus::after {
+body.hw-nexus::after,
+body.edu-nexus::after {
   background-image:
     linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
     linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
@@ -8986,39 +8987,54 @@ body.hw-nexus::after {
 @media print {
   /* Fixed decoration cannot follow the page breaks and would only cost ink. */
   body.hw-nexus::before,
-  body.hw-nexus::after { display: none; }
+  body.hw-nexus::after,
+  body.edu-nexus::before,
+  body.edu-nexus::after { display: none; }
 }
 
 /* ---- the shared chrome, so the page does not look half-converted ---- */
-body.hw-nexus .bg-hero { background-color: var(--nx-ground); }
-body.hw-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.42); }
-body.hw-nexus .page-hero-tint {
+body.hw-nexus .bg-hero,
+body.edu-nexus .bg-hero { background-color: var(--nx-ground); }
+body.hw-nexus .page-hero-bg,
+body.edu-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.42); }
+body.hw-nexus .page-hero-tint,
+body.edu-nexus .page-hero-tint {
   background: linear-gradient(to bottom,
     rgba(14, 36, 46, 0.55), rgba(14, 36, 46, 0.97));
 }
-body.hw-nexus .hero-title {
+body.hw-nexus .hero-title,
+body.edu-nexus .hero-title {
   color: var(--nx-mint);
   /* The light theme fakes a pale outline to lift the title off a photo. On
      this ground that outline is the brightest thing on the page, so it goes
      and a plain shadow does the separating instead. */
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
 }
-body.hw-nexus .hero-sub { color: var(--nx-muted); }
+body.hw-nexus .hero-sub,
+body.edu-nexus .hero-sub { color: var(--nx-muted); }
 
-body.hw-nexus .navbar {
+body.hw-nexus .navbar,
+body.edu-nexus .navbar {
   background: rgba(14, 36, 46, 0.82) !important;
   border: 1px solid var(--nx-line);
 }
-body.hw-nexus .navbar-nav .nav-link { color: var(--nx-text); }
+body.hw-nexus .navbar-nav .nav-link,
+body.edu-nexus .navbar-nav .nav-link { color: var(--nx-text); }
 body.hw-nexus .navbar-nav .nav-link:hover,
-body.hw-nexus .navbar-nav .nav-link:focus { color: var(--nx-lime); }
-body.hw-nexus .dropdown-menu {
+body.hw-nexus .navbar-nav .nav-link:focus,
+body.edu-nexus .navbar-nav .nav-link:hover,
+body.edu-nexus .navbar-nav .nav-link:focus { color: var(--nx-lime); }
+body.hw-nexus .dropdown-menu,
+body.edu-nexus .dropdown-menu {
   background: var(--nx-panel);
   border: 1px solid var(--nx-line);
 }
-body.hw-nexus .dropdown-item { color: var(--nx-text); }
+body.hw-nexus .dropdown-item,
+body.edu-nexus .dropdown-item { color: var(--nx-text); }
 body.hw-nexus .dropdown-item:hover,
-body.hw-nexus .dropdown-item:focus {
+body.hw-nexus .dropdown-item:focus,
+body.edu-nexus .dropdown-item:hover,
+body.edu-nexus .dropdown-item:focus {
   background: var(--nx-raised);
   color: var(--nx-lime);
 }
@@ -9699,6 +9715,504 @@ body.hw-nexus .hw .md-legend li {
   border-top: 2px dashed var(--nx-warm, #e6b060);
 }
 
+/* ===== Education: the deep-teal treatment, content side =====================
+   The shared half of this theme -- palette, ground, orbs, hero, navbar -- is
+   up in "The deep-teal treatment" and is turned on here by body.edu-nexus
+   from education.html. What follows is only the Education page's own
+   furniture being moved onto those tokens.
+
+   No new colours. Every value below is one of the --nx-* tokens whose
+   contrast against this ground (and against the orbs at their brightest)
+   was measured where they are defined, so the figures recorded there hold
+   for this page too. The light theme's dark green #075a3e, which carries
+   almost everything on this page, is 1.9:1 on petrol and so cannot simply
+   be left in place -- it becomes --nx-mint where it was a heading and
+   --nx-lime where it was a link or an active state.
+   ========================================================================== */
+
+/* ---- prose ---- */
+body.edu-nexus .edu-session-block h2 { color: var(--nx-mint); }
+body.edu-nexus .edu-session-block h3 { color: var(--nx-text); }
+body.edu-nexus .edu-session-block p,
+body.edu-nexus .edu-session-block li { color: var(--nx-text); }
+body.edu-nexus .edu-session-block strong { color: #fff; }
+body.edu-nexus .edu-session-block a { color: var(--nx-lime); }
+body.edu-nexus .edu-heading-date { color: var(--nx-muted); }
+body.edu-nexus .edu-quote {
+  border-left-color: var(--nx-mint);
+  color: var(--nx-text);
+}
+
+/* Sessions are divided by a rule rather than boxed into panels, which is how
+   the prose on Hardware is set too. */
+body.edu-nexus .edu-session-block { border-bottom-color: var(--nx-line); }
+
+/* ---- the overview dashboard ---- */
+body.edu-nexus .edu-stat-number { color: var(--nx-lime); }
+body.edu-nexus .edu-stat-label { color: var(--nx-muted); }
+
+/* ---- the session sidebar ---- */
+body.edu-nexus .edu-sidebar-group-title,
+body.edu-nexus .edu-sidebar-link.edu-sidebar-top-link { color: var(--nx-mint); }
+body.edu-nexus .edu-sidebar-group-title::before { border-left-color: var(--nx-mint); }
+body.edu-nexus .edu-sidebar-link { color: var(--nx-muted); }
+body.edu-nexus .edu-sidebar-link:hover,
+body.edu-nexus .edu-sidebar-link.active { color: var(--nx-lime); }
+body.edu-nexus .edu-sidebar-link::before { border-left-color: var(--nx-line); }
+body.edu-nexus .edu-sidebar-link:hover::before,
+body.edu-nexus .edu-sidebar-link.active::before { border-left-color: var(--nx-lime); }
+body.edu-nexus .edu-sidebar-track { background: var(--nx-line); }
+body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(73, 197, 182, 0.45); }
+
+/* ---- the map ---- */
+body.edu-nexus .edu-map-viewport { background: var(--nx-panel); }
+body.edu-nexus .edu-map-county,
+body.edu-nexus .edu-map-county-interactive { stroke: var(--nx-mint); }
+body.edu-nexus .edu-map-leader-line { stroke: var(--nx-mint); }
+
+/* The orbiting chips are liquid glass in the light theme: translucent white
+   over blur, with dark ink on top. Over petrol that white settles to a mid
+   grey and the ink goes with it, so the chip becomes a panel and the ink
+   becomes the body token. The blur stays -- it is what keeps the map legible
+   underneath a chip passing over it. */
+body.edu-nexus .edu-map-orbit-item {
+  background: rgba(22, 50, 63, 0.82);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+body.edu-nexus .edu-map-orbit-item .edu-map-info-title { color: var(--nx-text); }
+body.edu-nexus .edu-map-orbit-item.is-active {
+  background: var(--nx-raised);
+  border-color: var(--nx-mint);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* ---- the galleries and their controls ---- */
+body.edu-nexus .edu-arrow {
+  color: var(--nx-mint);
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+body.edu-nexus .edu-arrow:hover,
+body.edu-nexus .edu-arrow:focus-visible {
+  background: var(--nx-raised);
+  border-color: var(--nx-mint);
+}
+body.edu-nexus .edu-arrow:focus-visible { outline-color: var(--nx-mint); }
+body.edu-nexus .edu-dot::before { background: var(--nx-line); }
+body.edu-nexus .edu-dot:hover::before,
+body.edu-nexus .edu-dot:focus-visible::before { background: var(--nx-muted); }
+body.edu-nexus .edu-dot[aria-current="true"]::before { background: var(--nx-lime); }
+body.edu-nexus .edu-dot:focus-visible { outline-color: var(--nx-mint); }
+body.edu-nexus .edu-carousel-status,
+body.edu-nexus .edu-feedback figcaption { color: var(--nx-muted); }
+
+/* ---- the PDF and podcast blocks ---- */
+body.edu-nexus .edu-pdf-link a {
+  color: var(--nx-mint);
+  background: var(--nx-panel);
+  border-color: var(--nx-mint);
+}
+body.edu-nexus .edu-pdf-link a:hover,
+body.edu-nexus .edu-pdf-link a:focus-visible {
+  background: var(--nx-mint);
+  color: var(--nx-ground);
+}
+body.edu-nexus .edu-consent-note {
+  color: var(--nx-muted);
+  border-top-color: var(--nx-line);
+}
+
+/* The school logos are supplied as dark artwork on transparency -- correct on
+   cream, invisible on petrol. A white plate behind each one keeps every
+   school's mark exactly as that school draws it rather than recolouring
+   someone else's logo to suit this page. */
+body.edu-nexus .edu-logo {
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+/* ===== Page transitions ====================================================
+   Cross-document view transitions. The site is a set of real pages -- each
+   link is a full navigation, and this is the browser's own way of smoothing
+   one into the next: it snapshots the outgoing page, loads the new one, and
+   animates between the two. No script, nothing intercepting clicks, and no
+   delay added before the navigation starts.
+
+   Everything here is inert where it is not supported (Firefox, at writing):
+   the at-rule is ignored, the pseudo-elements match nothing, and the
+   navigation happens the way it always did. Nothing below is load-bearing
+   for reading the page, which is the point -- a wiki being judged must not
+   depend on an animation having run.
+   ========================================================================== */
+@view-transition { navigation: auto; }
+
+/* The bar is in the same place on every page, so lifting it out of the page
+   snapshot leaves it sitting still while the content changes underneath --
+   which is what makes this read as one site rather than as a slideshow. Its
+   own contents still cross-fade, which is what carries the paper strip on
+   the light pages into the teal bar on Hardware and Education. */
+.navbar { view-transition-name: site-navbar; }
+
+/* Short on purpose. A judge clicking through fourteen pages should feel the
+   pages join up, not wait for each one. The two halves overlap, so the total
+   is the longer of the pair, not their sum. */
+::view-transition-old(root) { animation: page-leave 170ms ease-in both; }
+::view-transition-new(root) { animation: page-enter 260ms ease-out both; }
+
+@keyframes page-leave {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px); }
+}
+
+/* Movement is the part this setting is asking about, so the travel goes and
+   a plain cross-fade does the joining instead. Keeping the fade rather than
+   dropping to an instant cut is deliberate: a fade carries no motion signal
+   and still shows that the page changed. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root) { animation: page-leave-flat 120ms ease both; }
+  ::view-transition-new(root) { animation: page-enter-flat 120ms ease both; }
+}
+
+@keyframes page-leave-flat { to { opacity: 0; } }
+@keyframes page-enter-flat { from { opacity: 0; } }
+
+/* Where view transitions are not supported there is no outgoing snapshot to
+   work with, so only the arrival can be softened. This is written as an
+   animation rather than a static opacity:0 plus a transition on purpose: an
+   element that is only ever made visible BY an animation disappears
+   completely if that animation never runs. Driven this way the content sits
+   at its normal opacity whatever happens, and the fade is the bonus. */
+@supports not (view-transition-name: none) {
+  @media (prefers-reduced-motion: no-preference) {
+    .container > :first-child,
+    .page-hero { animation: page-enter 260ms ease-out backwards; }
+  }
+}
+
+/* ===== Education: the STEAM from Seed album ================================
+   Ten school sessions, two photos each, as one card you move along -- by
+   dragging it, by the arrow either side of the bar underneath, or by one of
+   that bar's ten segments.
+
+   Underneath it is ten complete <figure>s. Without education-album.js they
+   lay out as the contact sheet immediately below -- every photo visible,
+   every sidebar link landing on its own school -- and .is-scroller, which
+   that script adds, is what switches the block over. Same arrangement as
+   .is-carousel on the other galleries: the markup stays readable on its own
+   and the script is an enhancement on top of it.
+   ========================================================================== */
+
+/* ---- the fallback, and the shape of one school's entry ---------------------
+   auto-fit rather than a fixed column count: the card has a sensible floor
+   (320px, below which two photos side by side stop being readable) and the
+   row count follows the window instead of a set of breakpoints. */
+.edu-album {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem 1.75rem;
+  margin: 1.5rem 0 0;
+}
+
+.edu-album-item {
+  margin: 0;
+  /* Same offset the h3s it replaces used, so a sidebar jump clears the
+     fixed navbar and does not land with the caption under the bar. */
+  scroll-margin-top: 90px;
+}
+
+.edu-album-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.edu-album-photos img {
+  display: block;
+  width: 100%;
+  /* The session photos are a mix of portrait and landscape. A shared ratio is
+     what makes the sheet read as a grid rather than as a ragged pile; cover
+     crops to it rather than letterboxing or distorting anyone's photo. */
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.edu-album-item figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
+  margin-top: 0.6rem;
+}
+
+/* A heading, not a styled span: ten schools that were each an <h3> stay
+   reachable by heading navigation, one level down now that the sheet itself
+   carries the h3. */
+.edu-album-item figcaption h4 {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #2b1e17;
+  margin: 0;
+}
+
+body.edu-nexus .edu-album-item figcaption h4 { color: var(--nx-text); }
+
+/* ---- with the script: one card you scroll through ------------------------
+   The ten schools sit side by side in a single card and you move along them
+   -- by dragging, by the arrow floating over either side of the photos, or
+   by one of the ten segments underneath.
+
+   Every school stays in the flow and on screen -- nothing is display:none
+   here. That is what lets the sidebar's ten deep links work with no script
+   at all: scrollIntoView walks every scrollable ancestor, so landing on a
+   school scrolls this track sideways as well as scrolling the page down.
+
+   The two lengths below are shared by the layout and by where the arrows are
+   pinned, so the arrows cannot drift off the edge of the photos when either
+   one is changed. */
+.edu-album.is-scroller {
+  --edu-pad: 1.4rem;
+  --edu-meta: 148px;
+  /* How much of the row the arrows take. The bar under the card is indented
+     by the same amount, so the two line up however these are changed. */
+  --edu-arrow: 38px;
+  --edu-arrow-gap: 0.75rem;
+  display: block;
+  margin-top: 1.5rem;
+}
+
+/* The row: back arrow, card, forward arrow. The arrows are laid out beside
+   the track rather than inside it -- a scroll container carries its own
+   absolutely positioned children along with its content, so an arrow pinned
+   within this one would slide away with the card it belongs to.
+
+   The card takes what is left after the two arrows, and everything in it is
+   sized from that, so making room here is all that giving them a place
+   costs. */
+.edu-album-frame {
+  display: flex;
+  align-items: center;
+  gap: var(--edu-arrow-gap);
+}
+
+.edu-album-frame .edu-album-track { flex: 1 1 auto; min-width: 0; }
+
+.edu-album-track {
+  display: flex;
+  /* No padding and no gap on the scroller itself -- each school carries its
+     own padding instead. With padding here the next card showed through the
+     strip beside the snap position, and because every card leads with its
+     name and dates, what showed was a column of text cut down the middle.
+     Owning the padding per card makes one card exactly one scroll step. */
+  gap: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border: 1px solid #e0d6c0;
+  border-radius: 18px;
+  background: #fffdf7;
+}
+
+.edu-album-track::-webkit-scrollbar { display: none; }
+
+/* A region you scroll has to be reachable from the keyboard, and the ring has
+   to be visible when it is. */
+.edu-album-track:focus-visible {
+  outline: 2px solid #075a3e;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edu-album-track { scroll-behavior: auto; }
+}
+
+.edu-album.is-scroller .edu-album-item {
+  /* One school fills the card exactly; the next begins where the scroll
+     stops. min-width:0 so a flex item is allowed to be narrower than the
+     photographs inside it -- without it the track grows to the width of a
+     4000px original and the whole card goes with it. */
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  display: grid;
+  grid-template-columns: var(--edu-meta) minmax(0, 1fr);
+  gap: var(--edu-pad);
+  align-items: center;
+  padding: var(--edu-pad);
+  /* Clears the fixed navbar when a sidebar link lands on this school. */
+  scroll-margin-top: 90px;
+}
+
+.edu-album-num {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 2.1rem;
+  line-height: 1;
+  color: #075a3e;
+  margin: 0 0 0.6rem;
+}
+
+.edu-album.is-scroller .edu-album-meta h4 {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.3;
+  color: #2b1e17;
+  margin: 0 0 0.5rem;
+}
+
+.edu-album-meta .edu-heading-date {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #2b1e17;
+}
+
+/* ---- the photos ----------------------------------------------------------
+   Two per school, side by side. There is no scrolling between these two --
+   with a pair there was never anywhere to scroll to; the scrolling here is
+   between schools, one card at a time. */
+.edu-album.is-scroller .edu-album-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  min-width: 0;
+}
+
+.edu-album.is-scroller .edu-album-photos img {
+  width: 100%;
+  height: auto;
+  /* A shared ratio is what makes the pair read as one card rather than two
+     loose pictures; cover crops to it rather than distorting anyone's photo.
+     The uncropped original is a click away in the lightbox. */
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* ---- the arrows, either side of the card --------------------------------
+   Outside the card, not floating on it: nothing they sit on is a photograph
+   any more, so they need no disc of their own to stay legible and they cover
+   none of the picture. */
+.edu-album-arrow {
+  flex: none;
+  width: var(--edu-arrow);
+  height: var(--edu-arrow);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  color: #075a3e;
+  background: #fffdf7;
+  border: 1px solid #c6bda6;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* One drawing, turned over, so the pair cannot drift apart. */
+.edu-album-arrow-prev svg { transform: scaleX(-1); }
+
+.edu-album-arrow:hover:not(:disabled) { border-color: #075a3e; }
+.edu-album-arrow:focus-visible { outline: 2px solid #075a3e; outline-offset: 2px; }
+
+/* disabled, not hidden: a control that vanishes at the end of the row moves
+   everything beside it, and anyone who has tabbed to it loses their place. */
+.edu-album-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ---- the ten sessions, as a bar ------------------------------------------
+   One segment per school: it says where in the ten the card has got to, and
+   it is also how you jump straight to one. Each is a 24px target with the
+   thin bar drawn inside it -- WCAG 2.5.8 -- so the 5px line is not the thing
+   anyone has to hit. */
+.edu-album-steps {
+  display: flex;
+  gap: 6px;
+  /* Indented to the card, not to the whole row: a bar running out under the
+     arrows reads as measuring something wider than the thing it belongs to. */
+  margin: 0.9rem calc(var(--edu-arrow) + var(--edu-arrow-gap)) 0;
+}
+
+.edu-album-step {
+  flex: 1 1 0;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.edu-album-step::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: #ded4bd;
+  transition: background-color 0.2s ease;
+}
+
+.edu-album-step[aria-current="true"]::before { background: #075a3e; }
+.edu-album-step:focus-visible { outline: 2px solid #075a3e; outline-offset: 2px; }
+
+/* ---- narrow: the card stacks ---- */
+@media (max-width: 860px) {
+  .edu-album.is-scroller { --edu-pad: 1.15rem; }
+  .edu-album.is-scroller .edu-album-item { grid-template-columns: 1fr; gap: 1.1rem; }
+  .edu-album-num { font-size: 1.9rem; margin-bottom: 0.35rem; }
+  .edu-album-meta .edu-heading-date { font-size: 1.2rem; }
+  /* There is far less card to give away here, so the arrows take less of
+     it -- still above the 24px WCAG 2.5.8 floor for a target. */
+  .edu-album.is-scroller { --edu-arrow: 30px; --edu-arrow-gap: 0.45rem; }
+  .edu-album-arrow { font-size: 0.9rem; }
+}
+
+/* The card names the school and its dates at the size the reference gives
+   them, so the original caption has nothing left to say. It stays in the
+   markup for the no-script layout, where it is the only label a school has. */
+.edu-album.is-scroller .edu-album-item figcaption { display: none; }
+
+/* ---- the same block under the deep-teal theme ---- */
+body.edu-nexus .edu-album-track {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+body.edu-nexus .edu-album-track:focus-visible { outline-color: var(--nx-mint); }
+
+/* Scoped through .edu-album-meta, not just the class on its own: the number
+   is a <p> inside a session, and this theme's `.edu-session-block p` rule
+   carries one more element in its selector, so the shorter form loses to it
+   and the number comes out body-coloured. */
+body.edu-nexus .edu-album-meta .edu-album-num { color: var(--nx-lime); }
+body.edu-nexus .edu-album.is-scroller .edu-album-meta h4 { color: var(--nx-muted); }
+body.edu-nexus .edu-album-meta .edu-heading-date { color: var(--nx-text); }
+
+body.edu-nexus .edu-album-arrow {
+  color: var(--nx-mint);
+  background: rgba(14, 36, 46, 0.92);
+  border-color: var(--nx-line);
+}
+body.edu-nexus .edu-album-arrow:hover:not(:disabled) { border-color: var(--nx-mint); }
+body.edu-nexus .edu-album-arrow:focus-visible { outline-color: var(--nx-mint); }
+
+body.edu-nexus .edu-album-step::before { background: var(--nx-line); }
+body.edu-nexus .edu-album-step[aria-current="true"]::before { background: var(--nx-lime); }
+body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 /* ===== Parts: the registry list =============================================
    A judge arriving here wants two things in order: what the parts are, and
    then what each one does. So the page is a single table first -- grouped by
