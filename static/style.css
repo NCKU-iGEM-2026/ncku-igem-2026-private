@@ -2686,10 +2686,29 @@ body.edu-cosmos-page .hero-sub {
   margin: 0 auto;
 }
 
+/* Wide enough, the nineteen discs stay on ONE line, because the line is the
+   word: COLLABORATION has to read left to right as a single run, which a
+   wrapping row stops being. They are not given a smaller size to fit -- each
+   disc is allowed to shrink (see .collab-bubble) and the aspect-ratio keeps
+   it round, so the whole row scales down together and the uneven sizes stay
+   in the same proportion to one another.
+
+   1200px, and it was measured rather than guessed: the smallest letter is
+   14.6px there and goes under 14px at about 1180. At 992 -- where this first
+   started -- it was 11px, which is not a letter any more. Below this the row
+   wraps and the word reads across the lines the way text does. */
+@media (min-width: 1200px) {
+  .collab-wall-inner { flex-wrap: nowrap; }
+}
+
 .collab-bubble {
   position: relative;
   display: block;
-  flex: none;
+  /* Basis is the disc's own size and it may shrink, which is what lets a
+     nowrap row of nineteen fit any width above 992px. min-width: 0 because a
+     flex item will not shrink below its content otherwise. */
+  flex: 0 1 var(--d);
+  min-width: 0;
   --d: var(--dbase, 80px);
   /* Every disc carries its own drift and its own side spacing, so the wall
      reads as a raft of bubbles rather than a grid of them. Both are static:
@@ -2708,8 +2727,12 @@ body.edu-cosmos-page .hero-sub {
 .collab-bubble-disc {
   display: grid;
   place-items: center;
-  width: var(--d);
-  height: var(--d);
+  /* The bubble's width, kept round by the ratio -- not var(--d) directly,
+     or a disc that has been shrunk would keep its old height. Also a size
+     container, so a letter can be sized against its own disc. */
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  container-type: inline-size;
   border: 1px solid #e0e8e3;
   border-radius: 50%;
   background: #fff;
@@ -2734,6 +2757,26 @@ body.edu-cosmos-page .hero-sub {
 .collab-bubble.is-ccu .collab-bubble-disc {
   background: rgb(246, 250, 223);
   border-color: rgb(233, 238, 205);
+}
+
+/* A letter of the word. The ink green and the Changa face are the site's own,
+   and the disc is a soft mint rather than the white of a school badge, so a
+   badge is never mistaken for a letter at a glance.
+
+   cqw because the disc is a size container and a plain rem would be the same
+   size in a 50px disc and a 112px one. */
+.collab-bubble.is-letter .collab-bubble-disc {
+  background: #e7f1eb;
+  border-color: #cfe0d6;
+}
+
+.collab-letter {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 56cqw;
+  line-height: 1;
+  color: #075a3e;
+  user-select: none;
 }
 
 .collab-bubble-disc img {
@@ -2834,35 +2877,13 @@ body.edu-cosmos-page .hero-sub {
   color: #6b7a72;
 }
 
-/* Fifty-four discs is a wall on a wide screen and a barricade on a narrow
-   one: measured at 1125px tall on a tablet and 951px on a phone, which is
-   more than a screen of logos before the page says anything. Narrow screens
-   draw fewer. Every team's one real link sits inside the first twenty-four,
-   so none of them is ever the one that got cut. */
-@media (max-width: 1199.98px) {
-  /* Thirty, not thirty-six. The discs run to 140px and do not shrink until
-     the phone tier, so a 1024px window wrapped thirty-six of them into a
-     90vh wall -- past a screen before the page says anything. */
-  .collab-bubble:nth-child(n + 31) { display: none; }
-}
-
-/* How many rows the wall wraps into depends on the height of the window as
-   well as its width, which a width query cannot see: a 1200x800 window drew
-   the full fifty-four and came to 108vh. A short window draws fewer. */
-@media (max-height: 860px) {
-  .collab-bubble:nth-child(n + 43) { display: none; }
-}
-
-@media (max-height: 700px) {
-  .collab-bubble:nth-child(n + 31) { display: none; }
-}
-
-@media (max-width: 991.98px) {
-  .collab-bubble:nth-child(n + 31) { display: none; }
-}
+/* No tiers that draw fewer. The wall used to cut fifty-four discs down to
+   thirty and then twenty-four on a narrow screen; it is nineteen now, and
+   each of them is spoken for -- thirteen letters of a word, and one badge for
+   each of six schools -- so hiding any would spell the word wrong or lose a
+   school's only link. */
 
 @media (max-width: 767.98px) {
-  .collab-bubble:nth-child(n + 25) { display: none; }
   .collab-wall { padding: 1.1rem 0.75rem 1.5rem; margin-bottom: 1.75rem; }
   .collab-wall-inner { gap: 0.5rem; }
   /* A phone is not this wall scaled down. Each bubble carries a second
