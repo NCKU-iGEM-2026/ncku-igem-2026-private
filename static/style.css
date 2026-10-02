@@ -2669,7 +2669,7 @@ body.edu-cosmos-page .hero-sub {
      scrollbar, which is why the html rule at the top of this file carries
      overflow-x: clip. */
   margin-inline: calc(50% - 50vw);
-  padding: 2rem clamp(0.75rem, 4vw, 3rem) 2.4rem;
+  padding: 2.6rem clamp(0.75rem, 4vw, 3rem) 3rem;
   background:
     radial-gradient(120% 140% at 50% -20%, #f4faf6 0%, #eef6f1 45%, #e9f2ec 100%);
   border-block: 1px solid #e2ece6;
@@ -2679,45 +2679,47 @@ body.edu-cosmos-page .hero-sub {
 .collab-wall-inner {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 0.7rem 0.8rem;
-  max-width: 1500px;
+  gap: 1.1rem 1rem;
+  /* Capped so the nineteen discs are always THREE lines, at every desktop
+     width. Without the cap it was two lines on a wide screen and three on a
+     narrow one, and the wall's height jumped by 200px between them. The
+     height is the point of this wall, so it is held still.
+
+     980px because it was measured: it splits the word 7 / 6 / 6, where 1180
+     gave 8 / 8 / 3 and left two lonely discs on the last line. */
+  max-width: 980px;
   margin: 0 auto;
 }
 
-/* Wide enough, the nineteen discs stay on ONE line, because the line is the
-   word: COLLABORATION has to read left to right as a single run, which a
-   wrapping row stops being. They are not given a smaller size to fit -- each
-   disc is allowed to shrink (see .collab-bubble) and the aspect-ratio keeps
-   it round, so the whole row scales down together and the uneven sizes stay
-   in the same proportion to one another.
-
-   1200px, and it was measured rather than guessed: the smallest letter is
-   14.6px there and goes under 14px at about 1180. At 992 -- where this first
-   started -- it was 11px, which is not a letter any more. Below this the row
-   wraps and the word reads across the lines the way text does. */
-@media (min-width: 1200px) {
-  .collab-wall-inner { flex-wrap: nowrap; }
-}
+/* The row wraps, at every width. Bigger discs cannot all fit on one line, and
+   the earlier answer -- let each one shrink to fit -- is exactly what made the
+   wall small. So the nineteen run across two or three lines and the word
+   reads the way text does, left to right and then down. */
 
 .collab-bubble {
   position: relative;
   display: block;
-  /* Basis is the disc's own size and it may shrink, which is what lets a
-     nowrap row of nineteen fit any width above 992px. min-width: 0 because a
-     flex item will not shrink below its content otherwise. */
-  flex: 0 1 var(--d);
-  min-width: 0;
+  /* The disc's own size, set first so everything below can read it. The
+     width is explicit rather than folded into the flex shorthand: a flex item
+     with no width of its own and a disc inside it that is 100% of it has
+     nothing to be a percentage of, and the whole row collapsed to 2px. */
   --d: var(--dbase, 80px);
+  width: var(--d);
+  flex: none;
   /* Every disc carries its own drift and its own side spacing, so the wall
      reads as a raft of bubbles rather than a grid of them. Both are static:
      nothing about them changes on hover.
 
-     The drift is a transform, not a margin. A margin-top pushes the row
-     taller and the wall pays for the drift in height; a transform is paint
-     only, so the drift can go up as well as down and cost nothing. */
-  transform: translateY(var(--dy, 0px));
+     The drop is a margin, deliberately. It used to be a transform, which is
+     paint only and costs the wall no height -- so the skyline could be as
+     uneven as it liked and the wall stayed a thin strip. Now the unevenness
+     is meant to be big and the wall is meant to be tall, so each disc is let
+     down from the top of its row by its own distance and the row grows to
+     hold the lowest. Downward only: it is a margin, so a negative one would
+     pull a disc into the row above. */
+  margin-top: var(--dy, 0px);
   margin-inline: var(--mx, 0px);
   text-decoration: none;
   color: inherit;
@@ -2883,17 +2885,50 @@ body.edu-cosmos-page .hero-sub {
    each of six schools -- so hiding any would spell the word wrong or lose a
    school's only link. */
 
-@media (max-width: 767.98px) {
-  .collab-wall { padding: 1.1rem 0.75rem 1.5rem; margin-bottom: 1.75rem; }
-  .collab-wall-inner { gap: 0.5rem; }
+/* Everything below a desktop gets the second set of sizes, not just a phone.
+   Between 768 and 991 there used to be none, so a tablet drew the desktop
+   discs into a narrower row: five lines and a wall 1065px high, taller than
+   the screen it was on.
+
+   1060px is where the desktop sizes stop fitting. Measured by stepping the
+   width: the nineteen are three lines from 1060 up and four below it, with a
+   lone N on the last, which is what 1000px used to draw. */
+@media (max-width: 1059.98px) {
+  .collab-wall { padding: 1.4rem 0.9rem 1.8rem; margin-bottom: 1.75rem; }
+  .collab-wall-inner { gap: 0.6rem 0.5rem; max-width: none; }
   /* A phone is not this wall scaled down. Each bubble carries a second
      size with the spread already squeezed toward the middle, because a disc
-     scaled from 140px would take a quarter of a 390px screen and one scaled
-     from 44px would be too small to read. */
+     scaled from 148px would take over a third of a 390px screen and one
+     scaled from 84px would be too small to read. */
   .collab-bubble {
     --d: var(--dnarrow, 56px);
-    transform: translateY(calc(var(--dy, 0px) * 0.55));
+    margin-top: calc(var(--dy, 0px) * 0.45);
     margin-inline: calc(var(--mx, 0px) * 0.5);
+  }
+}
+
+/* A tablet is not a phone. Between a phone and a desktop the discs grow with
+   the window instead of sitting at the phone's size for three hundred pixels
+   and then jumping to the desktop's: --dnarrow is the phone size, and this
+   adds to it in proportion to how much wider the window is. Without it the
+   wall was 272px tall at 1000px -- shorter than on a phone, which is
+   backwards.
+
+   Written as the phone size plus a few vw rather than a ratio of two
+   lengths, (100vw - 600px) / 1000px, which only newer browsers can divide;
+   an older one would drop the whole declaration and leave every disc at
+   nothing. 1vw is a length, so adding it needs no division. */
+@media (min-width: 600px) and (max-width: 1059.98px) {
+  .collab-bubble {
+    --d: calc(var(--dnarrow, 56px) + (100vw - 600px) * 0.09);
+    margin-top: calc(var(--dy, 0px) * 0.7);
+  }
+}
+
+@media (max-width: 1059.98px) {
+  .collab-wall .collab-bubble:hover .collab-bubble-disc,
+  .collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
+    transform: scale(1.4);
   }
   .collab-wall .collab-bubble:hover .collab-bubble-disc,
   .collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
