@@ -2342,6 +2342,157 @@ body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: 
 }
 
 /* ===== Education: session sidebar + detail sections ===== */
+/* ===== Education prototype: near-black cosmos backdrop + glass cards =====
+   Experimental, page-scoped theme: a starfield (with a couple of green-
+   tinted "bacteria" specks) behind the existing sidebar/session layout,
+   with each section reworked into its own translucent glass card instead
+   of a continuous flow separated by border lines.
+
+   The backdrop is a position:fixed layer instead of living inside the
+   page's normal flow, so it covers the *entire* viewport -- behind the
+   hero photo's fade and the page container alike -- rather than being a
+   boxed-off rectangle that starts partway down a white page. Everything
+   is scoped off body.edu-cosmos-page (set via layout.html's body_class
+   block, education.html only), so pulling that one class off the <body>
+   fully reverts the page to the plain-white look. */
+/* Same ground + wash + grid recipe as body.hw-nexus, reproduced here rather
+   than shared because hw-nexus's version also carries --nx-* custom
+   properties and a full component re-theme (headings, tables, navbar...)
+   that only make sense on the Hardware page. Only the backdrop itself is
+   reused outright -- the .hw-orbs/.hw-orb classes in education.html's
+   markup are the literal same ones hardware.html uses, since those were
+   never scoped to body.hw-nexus to begin with. */
+body.edu-cosmos-page {
+  background: #0e242e;
+  /* Headings on this page already set their own weight (700) through other
+     classes; this just gives the rest of the page -- body copy, labels,
+     anything that was inheriting the Bootstrap default sans -- the same
+     typeface, at a plain reading weight. */
+  font-family: "Changa", sans-serif;
+  font-weight: 400;
+}
+
+body.edu-cosmos-page::before,
+body.edu-cosmos-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body.edu-cosmos-page::before {
+  background-image:
+    linear-gradient(to bottom,
+      rgba(73, 197, 182, 0.05) 0%,
+      rgba(73, 197, 182, 0.015) 42%,
+      rgba(73, 197, 182, 0) 100%);
+}
+
+body.edu-cosmos-page::after {
+  background-image:
+    linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
+  background-size: 88px 88px;
+  -webkit-mask-image:
+    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
+                    transparent 100%);
+  mask-image:
+    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
+                    transparent 100%);
+}
+
+@media print {
+  body.edu-cosmos-page::before, body.edu-cosmos-page::after { display: none; }
+}
+
+body.edu-cosmos-page .edu-detail-layout {
+  position: relative;
+  z-index: 1;
+}
+
+/* The actual glassmorphism recipe. Plain alpha-blending a near-opaque white
+   over near-black math's out to flat grey (0.9 white + 0.1 black ~= light
+   grey, no "glass" quality) -- brightness()+saturate() on the backdrop
+   filter push what's behind it lighter and more vivid *before* the white
+   tint blends in, which is what actually reads as frosted glass instead of
+   a grey card. The inset highlight is the glossy top-edge sheen. */
+body.edu-cosmos-page .edu-sidebar,
+body.edu-cosmos-page .edu-session-block {
+  /* Not position:relative here -- .edu-sidebar's base rule already sets
+     position:sticky (it needs to stay pinned while scrolling); overriding
+     it to relative was quietly breaking that stickiness. Sticky elements
+     support z-index the same as relative/absolute ones, so no positioning
+     value is needed here, just the stacking order. */
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%) brightness(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.6);
+  border: 1px solid rgba(190, 255, 210, 0.8);
+  border-radius: 18px;
+  /* The neon tube-light ring: a crisp bright edge, a soft green bloom
+     outside it, and a wider ambient glow -- stacked instead of one big
+     blur so it reads as a lit border, not just a fuzzy shadow. */
+  box-shadow:
+    0 0 0 1px rgba(120, 255, 160, 0.55),
+    0 0 18px rgba(80, 255, 150, 0.45),
+    0 0 44px rgba(60, 255, 170, 0.25),
+    0 14px 38px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+body.edu-cosmos-page .edu-sidebar {
+  padding: 1.25rem 1rem;
+}
+
+/* The light theme's tan arrow (#c9bfa8) for a not-yet-reached link all but
+   disappears against this page's dark glass panel. White keeps it visible
+   while still reading as "not yet" next to .passed/.active's green. The
+   :not()s keep this from outranking those two states' own arrow colour. */
+body.edu-cosmos-page .edu-sidebar-link:not(.active):not(.passed)::before {
+  border-left-color: #fff;
+}
+
+/* Group headers (the collapsible section titles) have no passed/active
+   tracking of their own -- white by default, green only while the reader is
+   actually inside that group, same on/off signal as the links underneath. */
+body.edu-cosmos-page .edu-sidebar-group-title::before {
+  border-left-color: #fff;
+}
+
+body.edu-cosmos-page .edu-sidebar-group.active-group .edu-sidebar-group-title::before {
+  border-left-color: #075a3e;
+}
+
+/* The base :hover::before rule loses to the override just above on
+   specificity, so it needs restating here to still take effect. */
+body.edu-cosmos-page .edu-sidebar-link:not(.active):not(.passed):hover::before {
+  border-left-color: #075a3e;
+}
+
+body.edu-cosmos-page .edu-session-block {
+  position: relative;
+  padding: 2.25rem 2rem;
+  margin-bottom: 2rem;
+}
+
+body.edu-cosmos-page .edu-session-block:last-child {
+  margin-bottom: 0;
+}
+
+/* Hero photo hands off into the cosmos instead of fading to the site's
+   usual white, so the transition from banner photo to page body is
+   seamless with the fixed backdrop behind it. */
+body.edu-cosmos-page .page-hero-tint {
+  background: linear-gradient(to bottom, rgba(5, 7, 13, 0.05), rgba(5, 7, 13, 0.97));
+}
+
+body.edu-cosmos-page .hero-title,
+body.edu-cosmos-page .hero-sub {
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
 .edu-detail-layout {
   display: flex;
   align-items: flex-start;
@@ -2370,31 +2521,6 @@ body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: 
   font-weight: 700;
   font-size: 1rem;
   color: #075a3e;
-}
-
-.edu-sidebar-track {
-  position: absolute;
-  top: 8px;
-  bottom: 8px;
-  left: 4px;
-  width: 2px;
-  background: #e0d6c0;
-}
-
-.edu-sidebar-indicator {
-  position: absolute;
-  left: 4px;
-  top: 0;
-  width: 0;
-  height: 0;
-  margin-top: -8px;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-left: 11px solid rgba(7, 90, 62, 0.2);
-  opacity: 0;
-  transition: top 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease;
-  pointer-events: none;
-  z-index: 2;
 }
 
 .edu-sidebar-group {
@@ -2442,13 +2568,14 @@ body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: 
 .edu-sidebar-link {
   position: relative;
   display: block;
-  padding: 0.35rem 0 0.35rem 1.15rem;
+  padding: 0.35rem 0.6rem 0.35rem 1.15rem;
+  border-radius: 8px;
   font-family: "Changa", sans-serif;
   font-size: 0.95rem;
   color: #6b6055;
   text-decoration: none;
   line-height: 1.3;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
 }
 
 .edu-sidebar-link::before {
@@ -2471,6 +2598,10 @@ body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: 
   transform: translate(-8px, -50%);
 }
 
+/* Scrolled past already, not the one currently being read: the arrow marks
+   it as done, same green as .active's, but without the active link's own
+   background/bold -- only one row should read as "you are here". */
+.edu-sidebar-link.passed::before,
 .edu-sidebar-link.active::before {
   border-left-color: #075a3e;
 }
@@ -2480,7 +2611,11 @@ body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: 
   transform: translateX(8px);
 }
 
+/* No floating indicator any more -- the highlight lives on the link's own
+   box (background tint), so there is no separate element's position to
+   compute or for it to drift out of sync with. */
 .edu-sidebar-link.active {
+  background: rgba(7, 90, 62, 0.12);
   color: #075a3e;
   font-weight: 700;
 }
