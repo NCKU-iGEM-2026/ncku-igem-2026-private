@@ -1742,6 +1742,10 @@ body.engineering-page .navbar-toggler { z-index: 3; }
 body.engineering-page .navbar .dropdown-menu { z-index: 4; }
 body.engineering-page .navbar-nav .nav-link:hover,
 body.engineering-page .navbar-nav .nav-link:focus { color: #747b77; }
+/* No bacterium under the menu here, nor its AHL trail (menu-germ.js): the
+   left margin belongs to the module rail. */
+body.engineering-page .gm-host,
+body.engineering-page .gm-trail { display: none; }
 /* One block of colour: the hero reaches up behind the navbar (the body's
    104px top padding), so the two can never drift apart and flash white while
    the navbar slides away. The navbar and its logo stay a separate layer above
@@ -1876,7 +1880,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   position: relative; border-radius: 0 7px 7px 0; transition: background-color .25s ease, color .25s ease;
 }
 .engineering-iteration-button::before {
-  content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; border-radius: 2px;
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 0;
   background: var(--eng-accent); opacity: 0; transition: opacity .25s ease;
 }
 .engineering-iteration-button.is-current {
@@ -1890,7 +1894,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-iteration-note { display: block; min-width: 0; margin-top: 1px; font-size: .74rem; font-weight: 500; line-height: 1.3; color: #5d6c62; letter-spacing: .01em; }
 .engineering-iteration-note:empty { display: none; }
 .engineering-cycle { position: relative; width: var(--eng-cycle-size); aspect-ratio: 1; margin: 0 auto; --rotation: 0deg; }
-.engineering-ring { display: block; width: 100%; height: 100%; overflow: visible; transform: rotate(var(--rotation)) scale(.94); transition: transform .9s cubic-bezier(.3,.05,.2,1); }
+.engineering-ring { display: block; width: 100%; height: 100%; overflow: visible; transform: rotate(var(--rotation)) scale(.94); transition: transform .5s cubic-bezier(.3,.05,.2,1); }
 .engineering-ring-track { fill: none; stroke: var(--eng-line); stroke-width: 1; }
 .engineering-arc {
   stroke: none; pointer-events: visiblePainted; cursor: pointer; -webkit-tap-highlight-color: transparent;
@@ -1924,11 +1928,11 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   border: 0; border-radius: 999px; padding: 0; background: transparent; color: #123b31;
   font-size: calc(var(--eng-cycle-size) * .0367); font-weight: 650; pointer-events: none; opacity: 1;
   transform: translate(-50%, -50%) rotate(calc(var(--bearing) + var(--rotation))) translateY(-216.6667%) rotate(calc(-1 * (var(--bearing) + var(--rotation))));
-  transition: transform .9s cubic-bezier(.3,.05,.2,1);
+  transition: transform .5s cubic-bezier(.3,.05,.2,1);
 }
-.engineering-stage-tab[data-stage="build"] { --bearing: 270deg; }
+.engineering-stage-tab[data-stage="build"] { --bearing: 90deg; }
 .engineering-stage-tab[data-stage="test"] { --bearing: 180deg; }
-.engineering-stage-tab[data-stage="learn"] { --bearing: 90deg; }
+.engineering-stage-tab[data-stage="learn"] { --bearing: 270deg; }
 .engineering-stage-tab span { display: inline-block; transition: transform .25s ease; }
 .engineering-stage-tab.is-current span { font-weight: 800; font-size: calc(1.45em + 3px); }
 /* Keep the module name centred in the ring. The iteration pager and count
@@ -2161,6 +2165,17 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-page-nav button:focus-visible { transform: translateY(-2px); background: var(--eng-accent); border-color: var(--eng-accent); color: #fff; }
 .engineering-page-nav button:disabled { filter: grayscale(.65); opacity: .38; cursor: default; }
 .engineering-page-nav button span { flex: 0 0 auto; font-size: 1.25em; }
+/* While a page turn builds, the button it will land on fills in step with
+   the cue: forward buttons from the left, back buttons from the right, the
+   way their arrows point. */
+.engineering-page-nav button { position: relative; overflow: hidden; isolation: isolate; }
+.engineering-page-nav button::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: color-mix(in srgb, var(--eng-hero) 62%, #fff);
+  transform: scaleX(var(--pull-progress, 0)); transform-origin: left center;
+}
+#engineering-previous-module::before, #engineering-last-iteration::before { transform-origin: right center; }
+.engineering-page-nav button.is-charging { border-color: var(--eng-accent); }
 .engineering button:focus-visible, .engineering-record:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 4px; }
 .engineering-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .engineering-noscript { margin-top: 2rem; font-size: .85rem; }
