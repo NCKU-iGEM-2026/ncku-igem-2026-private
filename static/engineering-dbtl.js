@@ -605,12 +605,17 @@
     lastModule = state.module;
     if (announce) setText('engineering-announcement', module.name + ', Iteration ' + (state.iteration + 1) + ', ' + title(stage) + '.');
   }
-  function selectStage(index, announce) {
-    // The stages sit anticlockwise (D top, B left, T bottom, L right), so each
-    // next stage waits on the left and a quarter turn clockwise brings it to
-    // the top. Positive angles keep every transition clockwise.
+  function selectStage(index, announce, direction) {
+    // The stages sit clockwise (D top, B right, T bottom, L left), following
+    // the arrows, so each next stage waits on the right. Each step the ring
+    // takes the long way round, three quarters of a turn: on (scrolling down)
+    // clockwise to bring the next stage up, back (scrolling up) anticlockwise
+    // to bring the previous one up. A page turn passes its own direction,
+    // since there Learn and Design are neighbours.
     if (index === state.stage) return;
-    state.rotation += ((index - state.stage + 4) % 4) * 90;
+    if (!direction) direction = index > state.stage ? 1 : -1;
+    if (direction > 0) state.rotation += ((index - state.stage + 4) % 4) * 270;
+    else state.rotation -= ((state.stage - index + 4) % 4) * 270;
     state.stage = index;
     render(announce !== false);
   }
@@ -673,12 +678,15 @@
   function flipTo(target) {
     if (flipping || !target) return;
     if (tocOpen()) setToc(false);
+    // A page earlier in the notebook counts as going back, like scrolling up.
+    var earlier = target.module < state.module || (target.module === state.module && target.iteration < state.iteration);
+    var direction = target.backward || earlier ? -1 : 1;
     function apply() {
       state.module = target.module;
       state.iteration = target.iteration;
       state.expanded = target.module;
       fillSheet();
-      selectStage(target.stage || 0);
+      selectStage(target.stage || 0, undefined, direction);
       render(true);
       // 'instant', not 'auto': Bootstrap makes the page scroll smoothly by default.
       // A target stage, if given, opens the new page at that stage.
@@ -807,6 +815,17 @@
     cue.classList.toggle('is-pulling', !backward && progress > 0);
     cueUp.style.setProperty('--flip-progress', (backward ? progress : 0).toFixed(3));
     cueUp.classList.toggle('is-pulling', backward && progress > 0);
+    // The page-nav button the turn will land on fills along with the cue:
+    // Next iteration within a module, Next module across into the next one,
+    // and the matching back buttons when pulling up.
+    var target = backward ? precedingIteration() : followingIteration();
+    var charging = !progress || !target ? null
+      : backward ? (target.module === state.module ? lastIteration : previousModule)
+      : (target.module === state.module ? nextIteration : nextModule);
+    [previousModule, lastIteration, nextIteration, nextModule].forEach(function (button) {
+      button.style.setProperty('--pull-progress', button === charging ? progress.toFixed(3) : '0');
+      button.classList.toggle('is-charging', button === charging);
+    });
   }
   function syncCue() {
     var next = followingIteration();
