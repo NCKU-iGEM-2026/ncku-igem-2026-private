@@ -5032,6 +5032,128 @@ body.edu-lightbox-locked {
   .labbook .protocol-viewer { display: none; }
 }
 
+/* Twenty-one protocols is too many to scroll past looking for one, so the
+   page opens on an index grouped by stage of the work, and each group gets a
+   heading the index can jump to. */
+.labbook .protocol-index {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.25rem 1.75rem;
+  background: #fffdf9;
+  border: 1px solid #e6ddc8;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(43, 30, 23, 0.06);
+  padding: 1.5rem 1.5rem 1.35rem;
+  margin-bottom: 2.75rem;
+}
+
+.labbook .protocol-index-title {
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid #075a3e;
+}
+
+.labbook .protocol-index-title a {
+  color: #075a3e;
+  text-decoration: none;
+}
+
+.labbook .protocol-index ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.labbook .protocol-index li {
+  margin: 0.3rem 0;
+  font-size: 0.93rem;
+  line-height: 1.4;
+}
+
+.labbook .protocol-index li a {
+  color: #2b1e17;
+  text-decoration: none;
+}
+
+.labbook .protocol-index a:hover,
+.labbook .protocol-index a:focus-visible {
+  text-decoration: underline;
+}
+
+.labbook .protocol-group {
+  font-family: "Changa", sans-serif;
+  font-size: clamp(1.45rem, 1.1rem + 1.5vw, 2rem);
+  color: #075a3e;
+  margin: 3.25rem 0 1.25rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 3px solid #075a3e;
+  scroll-margin-top: 90px;
+}
+
+.labbook .protocol-index + .protocol-group { margin-top: 0; }
+
+.labbook .protocol { scroll-margin-top: 90px; }
+
+/* Twenty-one open viewers would make a page twenty metres long, so each PDF
+   is folded away until it is asked for. A closed <details> never lays out its
+   lazy iframe, so nothing is fetched until then either. */
+.labbook .protocol-preview > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #075a3e;
+  background: #fffdf9;
+  border-bottom: 1px solid #e6ddc8;
+}
+
+.labbook .protocol-preview > summary::-webkit-details-marker { display: none; }
+
+.labbook .protocol-preview > summary::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+
+.labbook .protocol-preview[open] > summary::before { transform: rotate(45deg); }
+
+.labbook .protocol-preview > summary:hover,
+.labbook .protocol-preview > summary:focus-visible { background: #f5f1e4; }
+
+.labbook .protocol-pages {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: #6b5d4f;
+}
+
+/* Phones get no viewer (above), so a toggle that opens nothing goes too. */
+@media (max-width: 575.98px) {
+  .labbook .protocol-preview { display: none; }
+  .labbook .protocol-index { padding: 1.2rem 1.15rem; }
+}
+
+@media print {
+  .labbook .protocol-index,
+  .labbook .protocol-preview { display: none !important; }
+  .labbook .protocol-group { margin: 1rem 0 0.5rem; font-size: 14pt; color: #000; border-color: #000; }
+  /* A sheet that is only a title and a link does not need a page to itself. */
+  .labbook .protocol.protocol-pdf-only,
+  .labbook .protocol + .protocol.protocol-pdf-only { break-before: auto !important; margin-bottom: 0.6rem; }
+  .labbook #appendix { break-before: page !important; }
+}
+
 
 /* Site tour: a first look at the wiki, one section at a time ----------------
    Modal by design. A visitor who wants none of it can leave at any step --
