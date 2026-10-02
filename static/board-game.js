@@ -133,7 +133,9 @@ var SDG_NAMES = {
   en: {1:"No Poverty",2:"Zero Hunger",3:"Good Health",4:"Quality Education",5:"Gender Equality",6:"Clean Water",7:"Affordable Energy",8:"Decent Work",9:"Industry Innovation",10:"Reduced Inequalities",11:"Sustainable Cities",12:"Responsible Consumption",13:"Climate Action",14:"Life Below Water",15:"Life on Land",16:"Peace & Justice",17:"Partnerships"}
 };
 
-var currentLang = localStorage.getItem("tgc_lang") || "zh";
+// English by default: the wiki is written in English and the judges read
+// it first. A reader who switches is remembered from then on.
+var currentLang = localStorage.getItem("tgc_lang") || "en";
 function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.zh[key] || key; }
 function sdgName(id) { return (SDG_NAMES[currentLang] && SDG_NAMES[currentLang][id]) || id; }
 function cardTitle(c) { return currentLang === "en" ? (c.title_en || c.title_zh) : (c.title_zh || c.title_en); }
