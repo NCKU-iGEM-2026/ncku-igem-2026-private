@@ -1,0 +1,115 @@
+/* ============================================================
+   EDITORIAL — 內頁編輯式皮膚（全站自動生效）
+   原則：以結構 selector 套用，不改各頁 HTML；
+   nexus 系（hardware/model/software/education）與 engineering 排除。
+   ============================================================ */
+
+/* ---- 內頁 hero：加高＋內容靠下（stage 感）---- */
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.edu-cosmos-page) .page-hero {
+  padding-top: calc(var(--nav-h) + 4rem) !important;
+  padding-bottom: 4.5rem;
+  margin-bottom: var(--sp-7) !important;
+}
+
+/* ---- 章節節奏：h2 前加螢光短線 ---- */
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container > section > h2:first-child,
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container > div > h2:first-child {
+  position: relative;
+  padding-top: 1.1rem;
+  color: var(--c-ink);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+html:not([data-theme="dark"]) body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container > section > h2:first-child::before,
+html:not([data-theme="dark"]) body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container > div > h2:first-child::before {
+  content: ""; position: absolute; top: 0; left: 0; width: 44px; height: 3px;
+  background: linear-gradient(90deg, var(--c-teal), var(--c-glow));
+  border-radius: 99px;
+}
+
+/* ---- 內頁底子：紙白 ---- */
+html[data-theme="light"] body:not(.hw-nexus):not(.edu-nexus):not(.edu-cosmos-page):not(.engineering-page) {
+  background-color: var(--c-paper);
+}
+
+/* ---- 深色模式：把 bootstrap 白底掃描成深夜 ---- */
+html[data-theme="dark"] body:not(.engineering-page) { background-color: var(--c-dark); color: var(--c-text); }
+html[data-theme="dark"] .page-hero-bg { filter: blur(2px) brightness(0.42) saturate(0.8); }
+html[data-theme="dark"] .page-hero-tint {
+  background: linear-gradient(to bottom, rgba(4,21,15,0.35), rgba(4,21,15,0.96));
+}
+html[data-theme="dark"] .dropdown-menu:not(.navbar .dropdown-menu) { background: #07211a; border-color: rgba(160,232,96,0.14); }
+html[data-theme="dark"] .bg-white, html[data-theme="dark"] .card-body { background-color: var(--c-dark-2) !important; color: var(--c-text); }
+html[data-theme="dark"] .border { border-color: var(--c-line) !important; }
+html[data-theme="dark"] .text-dark { color: var(--c-text) !important; }
+html[data-theme="dark"] .text-body { color: var(--c-text) !important; }
+html[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * { color: var(--c-text-2); }
+html[data-theme="dark"] .form-control, html[data-theme="dark"] .form-select {
+  background-color: var(--c-dark-3); color: var(--c-text); border-color: var(--c-line-2);
+}
+html[data-theme="dark"] img:not(.sponsor-logo):not(.rx-hero img) { opacity: 0.92; }
+/* quiz / tour 對話框現已有的樣式由舊 css 管；只保底文字 */
+html[data-theme="dark"] .quiz-card, html[data-theme="dark"] .tour-card { color: var(--c-text); }
+
+/* ---- 表格翻新（既有 table 統一臉孔，nexus 除外）---- */
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container table:not(.parts-table) {
+  width: 100%; border-collapse: collapse; font-size: 0.95rem;
+}
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container table:not(.parts-table) th {
+  text-align: left; font-weight: 700; color: var(--c-ink-2);
+  border-bottom: 2px solid var(--c-ink-2); padding: 0.7rem 0.9rem;
+}
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container table:not(.parts-table) td {
+  border-bottom: 1px solid var(--c-line); padding: 0.65rem 0.9rem; color: var(--c-text-2);
+}
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container table:not(.parts-table) tr:hover td {
+  background: color-mix(in srgb, var(--c-glow) 9%, transparent);
+}
+html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container table:not(.parts-table) th { color: var(--c-glow); border-color: var(--c-glow); }
+html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container table:not(.parts-table) td { border-color: var(--c-line); }
+
+/* ---- 內文連結统一 teal（避开特殊按钮/卡片族）---- */
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container > section a:not(.btn):not(.nav-link):not(.dropdown-item):not([class*="cap-"]):not([class*="quiz"]):not([class*="tour"]) {
+  color: var(--c-teal-deep); text-decoration-thickness: 2px; text-underline-offset: 3px;
+  transition: color var(--t-fast) ease;
+}
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container > section a:not(.btn):not(.nav-link):not(.dropdown-item):hover { color: var(--c-ink-2); }
+html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container > section a:not(.btn):not(.nav-link):not(.dropdown-item):not([class*="cap-"]):not([class*="quiz"]):not([class*="tour"]) { color: var(--c-teal); }
+
+/* ---- 空白頁骨架（由 motion.js 注入 .rx-empty-mount）---- */
+.rx-empty-mount { margin: var(--sp-7) 0 var(--sp-9); }
+
+/* ---- sticky 章節導航條（結構由 motion.js 注入）---- */
+.rx-tocbar {
+  position: sticky; top: 74px; z-index: 1020;
+  margin: 0 0 var(--sp-5);
+  padding: 0.5rem 0;
+  background: color-mix(in srgb, var(--c-paper) 88%, transparent);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--c-line);
+}
+html[data-theme="dark"] .rx-tocbar { background: rgba(4,21,15,0.82); border-color: var(--c-line); }
+.rx-tocbar-inner { display: flex; gap: 0.45rem; overflow-x: auto; scrollbar-width: none; }
+.rx-tocbar-inner::-webkit-scrollbar { display: none; }
+.rx-tocbar a {
+  flex: none; padding: 0.35rem 0.95rem; border-radius: var(--r-pill);
+  font-size: 0.8rem; font-weight: 600; text-decoration: none;
+  color: var(--c-text-3); border: 1px solid transparent;
+  transition: all var(--t-fast) ease;
+}
+.rx-tocbar a:hover { color: var(--c-teal-deep); border-color: var(--c-line-2); }
+.rx-tocbar a.active { color: #fff; background: var(--c-ink-2); border-color: var(--c-ink-2); }
+html[data-theme="dark"] .rx-tocbar a.active { color: #06221a; background: var(--c-glow); border-color: var(--c-glow); }
+body.rx-editorial .page-hero { margin-bottom: var(--sp-5) !important; }
+
+/* ---- 图片默认加入圆角阴影（nexus 除外）---- */
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .container img:not([class*="polaroid"]):not([class*="sponsor"]):not([class*="edu-album"]):not([class*="edu-map"]):not([class*="tour"]):not([class*="cap-"]):not([class*="hp-"]):not([class*="nb-"]) {
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+}
+
+/* ---- print：不動黑白基线 ---- */
+@media print {
+  html[data-theme="dark"] body { background: #fff !important; color: #000 !important; }
+  .rx-tocbar, #rxProgress { display: none !important; }
+}
