@@ -1,10 +1,10 @@
 /* ============================================================
    MOTION.JS — 全站動態引擎
-   這裡只做「裝飾層」：任何一支失敗或被擋，頁面都必须照常可讀。
+   這裡只做「裝飾層」：任何一支失敗或被擋，頁面都必須照常可讀。
    - 深淺色切換（localStorage + 系統偏好）
    - 閲讀進度條 #rxProgress
    - [data-reveal] 進場動畫（IO；reduced-motion 下 CSS 已直接顯示）
-   - 自訂游標（僅 pointer:fine + 無 reduced-motion）
+   - 自訂遊標（僅 pointer:fine + 無 reduced-motion）
    - .rx-magnetic 磁吸鈕
    - Lenis 平滑捲動（engineering/hardware 頁停用：
      dbtl 的滾輪翻頁與剖面圖有自己的 wheel 處理）
@@ -28,7 +28,7 @@
   }
   var current = root.getAttribute('data-theme') || 'light';
 
-  /* 把切換鈕塞進導覽列（burger 旁边；不碰 Bootstrap 結構） */
+  /* 把切換鈕塞進導覽列（burger 旁邊；不碰 Bootstrap 結構） */
   var nav = document.querySelector('.navbar .container-fluid');
   if (nav) {
     var btn = document.createElement('button');
@@ -97,7 +97,7 @@
       el.addEventListener('pointerleave', function () { el.style.transform = ''; });
     });
 
-    /* ---------- 自訂游標 ---------- */
+    /* ---------- 自訂遊標 ---------- */
     var cur = document.createElement('div');
     cur.id = 'rxCursor';
     cur.setAttribute('aria-hidden', 'true');

@@ -1,6 +1,6 @@
 /* ============================================================
-   HOME.JS — 首頁专属：分子粒子 hero（Canvas 2D）
-   - 氟光分子在培養皿中游動，滑鼠靠近會排斥＋牽連出鍵结線
+   HOME.JS — 首頁專屬：分子粒子 hero（Canvas 2D）
+   - 氟光分子在培養皿中遊動，滑鼠靠近會排斥＋牽連出鍵結線
    - 分頁不可見時暫停（rAF 停）
    - prefers-reduced-motion / 無 canvas → 靜態漸層背景（CSS 已有）
    ============================================================ */
@@ -12,7 +12,7 @@
 
   var reduce = false;
   try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
-  if (reduce) return;  /* 留 CSS 漸層做静态封面 */
+  if (reduce) return;  /* 留 CSS 漸層做靜態封面 */
 
   var ctx = canvas.getContext('2d');
   var DPR = Math.min(2, window.devicePixelRatio || 1);
@@ -51,7 +51,7 @@
     ctx.clearRect(0, 0, W, H);
 
     var i, j, p, q, dx, dy, d2;
-    /* 連線：近邻鍵结 */
+    /* 連線：近邻鍵結 */
     ctx.lineWidth = 1;
     for (i = 0; i < particles.length; i++) {
       p = particles[i];
@@ -76,7 +76,7 @@
       }
     }
 
-    /* 游走 + 阻尼 + 音符呼吸 */
+    /* 遊走 + 阻尼 + 音符呼吸 */
     for (i = 0; i < particles.length; i++) {
       p = particles[i];
       p.vx *= 0.985; p.vy *= 0.985;
@@ -105,7 +105,7 @@
 
   var rootTheme = document.documentElement.getAttribute('data-theme');
   function paint() {
-    /* 深淺色：亮色下画布节点減淡，以免在深绿 hero 上过亮刺眼 */
+    /* 深淺色：亮色下画布節點減淡，以免在深綠 hero 上過亮刺眼 */
     canvas.style.opacity = (rootTheme === 'light') ? '0.55' : '0.9';
   }
 
@@ -123,14 +123,14 @@
     rsT = setTimeout(function () { size(); seed(); }, 180);
   });
 
-  /* 分頁不可见 → 暂停；回来 → 重启 */
+  /* 分頁不可见 → 暂停；回來 → 重啟 */
   document.addEventListener('visibilitychange', function () {
     rootTheme = document.documentElement.getAttribute('data-theme');
     paint();
     if (document.hidden) stop(); else start();
   });
 
-  /* 主题切换时同步亮度 */
+  /* 主题切換時同步亮度 */
   new MutationObserver(function () {
     rootTheme = document.documentElement.getAttribute('data-theme');
     paint();

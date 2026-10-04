@@ -1,7 +1,7 @@
 # DESIGN SYSTEM —「Bioluminescence 生物螢光」
 
 NCKU-Tainan iGEM 2026 wiki 全新品牌系統。靈感：螢光蛋白在培養皿中發光、
-DNA 双螺旋的深度、金色菌落在暗處的光暈。專業科學感為骨，生物發光為魂。
+DNA 雙螺旋的深度、金色菌落在暗處的光暈。專業科學感為骨，生物發光為魂。
 
 ## 1. 色彩系統
 
@@ -48,14 +48,14 @@ DNA 双螺旋的深度、金色菌落在暗處的光暈。專業科學感為骨�
 
 ## 5. 元件清單（styleguide.html 實際展示）
 玻璃卡 `.rx-card`｜按鈕 `.rx-btn`（solid / ghost / magnetic）｜kicker 標籤｜
-數據 `.rx-stat`｜进度條 #rxProgress｜導覽列（滾縮＋mega menu）｜行動全螢幕選單｜
-深淺色鈕｜自訂游標｜reveal / clip 揭露｜sticky 目錄 scroll-spy｜空白頁骨架 `.rx-coming-soon`。
+數據 `.rx-stat`｜進度條 #rxProgress｜導覽列（滾縮＋mega menu）｜行動全螢幕選單｜
+深淺色鈕｜自訂遊標｜reveal / clip 揭露｜sticky 目錄 scroll-spy｜空白頁骨架 `.rx-coming-soon`。
 
 ## 6. 動態原則
 - 曲線：`--ease-out`（expo-out）為全站主曲線；回彈 `--ease-spring` 僅鈕按 feedback。
 - 時長：fast 0.22s（hover）、med 0.45s（切換）、slow 0.8s（hero）。
 - stagger 0.06–0.09s；滾動敘事 scrub 只在首頁；`prefers-reduced-motion` 時：
-  粒子停、scrub 關、游標關、reveal 全部直接可見（CSS !important 兜底）。
+  粒子停、scrub 關、遊標關、reveal 全部直接可見（CSS !important 兜底）。
 - 換頁：View Transitions（circle bloom）＋ Lenis 平滑捲動；Lenis 對 `#engineering`、
   `#hw3d-view`、`.cap-field`、`.board-game-page` 以 `data-lenis-prevent` 局部停用，
   不干預 DBTL 滾輪翻頁、剖面圖旋轉、抓阿漢遊戲與桌遊的內部捲動。

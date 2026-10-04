@@ -37,7 +37,7 @@
 - blocks：`title, body_class, header, hero_image, hero_title, lead, page_content, extra_scripts`。
 - 預設 hero：全站同一張 `banner/education.avif` 黃帶＋`page-hero-tint`，多數頁面沿用預設 → **hero 辨識度低的根因**。
 - 已內建 `#backToTop`（由 `navbar-scroll.js` 驅動）。
-- 载入順序：bootstrap → style.css（單檔 10,406 行全站載入）→ bundle → navbar-scroll → menu-germ。
+- 載入順序：bootstrap → style.css（單檔 10,406 行全站載入）→ bundle → navbar-scroll → menu-germ。
 
 ### `wiki/menu.html`（78 行）
 - Bootstrap `fixed-top` dark navbar；六個 dropdown：Home / Project / Wet / Dry / HP / Team。
@@ -69,8 +69,8 @@
 
 ### 字型
 - 全站主體：**Changa**（7 個 weight，`@font-face` 指向 iGEM 靜態槽）——無襯線、偏科技感，**不支持中文**。
-- 註记提及 `Noto Sans TC`（僅 1 處）、標題偶見 `Chango`、程式碼用系統 monospace（`--hwx-mono` 等）。
-- ⚠️ 中文內容（聽寫、特殊獎註解、地圖縣市名）落在 fallback 字型上，視覺不一致。若換字型需透過 iGEM uploads 上傳 woff2（清單見 §6）。
+- 註記提及 `Noto Sans TC`（僅 1 處）、標題偶見 `Chango`、程式碼用系統 monospace（`--hwx-mono` 等）。
+- ⚠️ 中文內容（逐字稿、特殊獎註解、地圖縣市名）落在 fallback 字型上，視覺不一致。若換字型需透過 iGEM uploads 上傳 woff2（清單見 §6）。
 
 ### style.css 區塊地圖（10,406 行）
 | 行區 | 區塊 | 對應頁 |
@@ -112,14 +112,14 @@
 | **hardware** 1513 | `hw-nexus` | hardware-bench（`.hwx-*`）, hardware-cutaway（`#hw3d-*`、`[data-view]`） | 10 大 section、剖面圖、儀表板、Markdown log。全研究最重。**單獨一輪處理**；剖面 canvas 不得碰 |
 | **model** 868 | `hw-nexus` | model-charts（canvas 自繪圖表） | 10 sections。編輯式：sticky TOC＋圖表 reveal；`hw-nexus` 深青色底已是半沉浸式 |
 | **software** 1047 | `hw-nexus` | software-fit（`#swLab`）, lasreader-curve-fit | 擬合互動。編輯式＋ interact sandbox 視覺翻新 |
-| **description** 440 | — | 無 JS | 8 sections、翻面卡、引用表。已有完整敘事骨架——編輯式直接加分：段落 reveal、引文标示（`desc-pending` badge 要保留，它标记缺引用处） |
+| **description** 440 | — | 無 JS | 8 sections、翻面卡、引用表。已有完整敘事骨架——編輯式直接加分：段落 reveal、引文標示（`desc-pending` badge 要保留，它標記缺引用处） |
 | **team** 571 | — | team-bio-modal（`.polaroid-*`）, webcam-booth（camera！） | 47 張人像、翻面卡＋自拍亭。flip card 保留結構、強化 hover／focus |
-| **education** 420 | `edu-nexus` | taiwan-map（`#edu-map` SVG）, education-{album,sidebar,gallery,counters}, edu-lightbox | 地圖＋側欄＋相簿＋counters＋ 4 個 iframe。互動密度全站第二高；Deep-teal cosmos 底已自成一格，翻新以「不加新機制、只升級质感」為原則 |
+| **education** 420 | `edu-nexus` | taiwan-map（`#edu-map` SVG）, education-{album,sidebar,gallery,counters}, edu-lightbox | 地圖＋側欄＋相簿＋counters＋ 4 個 iframe。互動密度全站第二高；Deep-teal cosmos 底已自成一格，翻新以「不加新機制、只升級質感」為原則 |
 | **collaboration** 450 | — | education-gallery, edu-lightbox, education-sidebar | 80 張圖的 logo 牆＋相簿。編輯式画廊化 |
 | **promotion** 236 | — | education-gallery, edu-lightbox, education-sidebar | 麥克風互動。編輯式＋保留 mic keys |
 | **human-practices** 259 | — | 同上三件套 | 8 sections 10 圖。編輯式 |
-| **notebook** 273 | — | notebook-{counters,hover-image,sort}（`#nbLedger`、`#nbSort`、`[data-hover-img]`） | 帳殿排序＋hover 照。玻璃窗區（style.css 481–780）正在建设期，只能微調不能重做 |
-| **board-game** 464 | — | board-game.js（≈ 155KB 完整遊戲！）, board-game-net.js, sgd-progress（`.sgd-*`） | 綠能櫥游戏＋Firebase 連線。**邏輯零更動**，只做外框／排版翻新（`[data-i18n]` 雙語要留） |
+| **notebook** 273 | — | notebook-{counters,hover-image,sort}（`#nbLedger`、`#nbSort`、`[data-hover-img]`） | 帳簿排序＋hover 照。玻璃窗區（style.css 481–780）正在建設期，只能微調不能重做 |
+| **board-game** 464 | — | board-game.js（≈ 155KB 完整遊戲！）, board-game-net.js, sgd-progress（`.sgd-*`） | 綠能櫥遊戏＋Firebase 連線。**邏輯零更動**，只做外框／排版翻新（`[data-i18n]` 雙語要留） |
 | **lab-book** 167 | — | 無 JS（print 樣式在 5181） | 玻璃窗(proto cols)已有設計語彙，統一化即可 |
 | **engineering** 170 | `engineering-page` | engineering-dbtl（67KB！`#engineering-*`、`[data-stage]`、`.engineering-arc`）, engineering-gallery | 已有完整 rail+環形 DBTL 互動，最近才打磨過——**建議近乎不動**，只套 tokens |
 | **parts** 210 | — | 無 JS | registry 列表。編輯式表格翻新 |
@@ -135,12 +135,12 @@
 ## 4. 外部資源稽核（iGEM 紅線）
 
 **✅ 無違規的「資源載入」**：全站 CSS/JS 皆自架或指向 `static.igem.wiki`；無 Google Fonts／CDN；Bootstrap 已自架。
-**⚠️ 分類清單**（重設計時不可把非白名单連結當成「檔住」誤修，也不可新增）：
+**⚠️ 分類清單**（重設計時不可把非白名單連結當成「檔住」誤修，也不可新增）：
 
 | 類別 | 網域 | 處置 |
 |---|---|---|
 | 功能必需（保留） | `*.firebasedatabase.app`×2（桌遊連線）、`console.firebase.google.com` | 不動 |
-| 內容引用連結（可留） | en/zh/gan.wikipedia.org ×153、doi.org ×10、parts.igem.org | 是文字超連結不是資源載入；description 的引用位待補（已有 `desc-pending` 標记） |
+| 內容引用連結（可留） | en/zh/gan.wikipedia.org ×153、doi.org ×10、parts.igem.org | 是文字超連結不是資源載入；description 的引用位待補（已有 `desc-pending` 標記） |
 | 社群／聯絡（保留） | instagram、facebook、share.google | footer 既有 |
 | 其它團隊頁（可留） | teams.igem.org ×4、`igem-ncku-software.github.io` ×2 | 確認後保留 |
 | 文件腳註（無害） | getbootstrap.com、popper.js.org、docs.gitlab.com、palletsprojects.com、pypi.org、python.org | 多在 vendor 檔头註解，不動 |
@@ -148,9 +148,9 @@
 
 ---
 
-## 5. 風險與不可破壞清單（全階段贴身守則）
+## 5. 風險與不可破壞清單（全階段貼身守則）
 
-1. **`hw-nexus` 一底四页**：hardware/model/software/（qx education 變體）共用——改 `style.css` 該區段（8600–9332）牽動四頁。遷移時按「頁」不按「前缀」。
+1. **`hw-nexus` 一底四頁**：hardware/model/software/（qx education 變體）共用——改 `style.css` 該區段（8600–9332）牽動四頁。遷移時按「頁」不按「前缀」。
 2. **Firebase 桌遊連線**：board-game-net.js 的 RTDB 位址與 `[data-i18n]` 雙語鍵不可動。
 3. **webcam-booth**：相機權限流程動不得。
 4. **engineering-dbtl（67KB）／board-game.js（155KB）**：剛完成的大模組，外殼翻新時只調 CSS，JS 不動。

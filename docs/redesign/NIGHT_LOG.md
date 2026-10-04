@@ -14,7 +14,7 @@
 
 ## P1 設計系統（22:50–23:10）
 - 新建 `static/css/tokens.css`：「Bioluminescence 生物螢光」色彩系統（紙白 #fffdf7 / 深墨綠 #06402e / 生技 teal #14b391 / GFP 螢光 #a0e860 / 琥珀 #d8b26a）＋ 深色模式（深夜 #04150f 上螢光文字）＋字級 clamp 階 / 間距 / 圓角 / 陰影 / easing token。主要搭配已驗算 WCAG AA。
-- 新建 `static/css/base.css`：data-theme 深色覆蓋、閱讀進度條 #rxProgress、深淺色切換鈕、[data-reveal] 純 CSS 降級動畫、sticky 目錄 rx-toc、自訂游標、View Transitions、focus-visible。
+- 新建 `static/css/base.css`：data-theme 深色覆蓋、閱讀進度條 #rxProgress、深淺色切換鈕、[data-reveal] 純 CSS 降級動畫、sticky 目錄 rx-toc、自訂遊標、View Transitions、focus-visible。
 - 新建 `static/css/motion.css`：Lenis 配套、章節進度軌道 rx-chapter-rail、kinetic type 拆字類 rx-split、呼吸光暈、scroll cue。
 - 新建 `docs/redesign/DESIGN_SYSTEM.md`、`wiki/pages/styleguide.html`（token/元件展示頁，自動進 freeze）。
 - 驗證：freeze OK → curl 每頁 200 → 外部網址 grep 乾淨 → 保護檔 diff 為空。

@@ -19,7 +19,7 @@
 
   var isHome = location.pathname.replace(/\/+$/, '') === '' || /\/index\.html$/.test(location.pathname);
 
-  /* ---- 空白頁偵測：page_content 无任何实质内容 → 注入骨架 ---- */
+  /* ---- 空白頁偵測：page_content 無任何實質內容 → 注入骨架 ---- */
   var content = main.textContent.replace(/\s+/g, '');
   var hasInteractive = main.querySelector('canvas, iframe, table, .cap-game, svg');
   if (!isHome && content.length < 40 && !hasInteractive) {
@@ -37,8 +37,8 @@
 
   if (isHome) return; /* 首頁有自己的沉浸式腳本 */
 
-  /* 已有自製側欄（education 三件套）的頁面不再注入第二套導航 */
-  if (main.querySelector('.edu-sidebar, aside')) return;
+  /* 已有自製側欄（education 三件套）或整頁遊戲（桌遊）的頁面不再注入第二套導航 */
+  if (main.querySelector('.edu-sidebar, aside, .board-game-page')) return;
 
   /* ---- 收集章節標題 ---- */
   var heads = [];
@@ -83,7 +83,7 @@
       var on = l.getAttribute('href') === '#' + id;
       l.classList.toggle('active', on);
       if (on && !reduce && bar.getBoundingClientRect) {
-        /* 讓 active chip 維持在可视范围 */
+        /* 讓 active chip 維持在可視范围 */
         try { l.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) {}
       }
     });
@@ -95,7 +95,7 @@
     heads.forEach(function (h) { spy.observe(h); });
   }
 
-  /* ---- 平滑滚到錨點（统一点擊體驗；reduced 則直跳）---- */
+  /* ---- 平滑滚到錨點（统一點擊體驗；reduced 則直跳）---- */
   bar.addEventListener('click', function (ev) {
     var a = ev.target.closest('a[href^="#"]');
     if (!a) return;
@@ -119,7 +119,7 @@
       });
     }, { threshold: 0.08 });
     secs.forEach(function (s) { io.observe(s); });
-    /* 没有章节容器的直接子元素们也给一次淡入节奏 */
+    /* 没有章節容器的直接子元素們也給一次淡入節奏 */
     var kids = main.querySelectorAll(':scope > article, :scope > .row');
     kids.forEach(function (s) {
       s.setAttribute('data-reveal', '');
