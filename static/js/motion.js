@@ -66,22 +66,24 @@
     progress();
   });
 
-  /* ---------- reveal 進場 ---------- */
-  var revealEls = document.querySelectorAll('[data-reveal]');
-  if (revealEls.length) {
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      revealEls.forEach(function (el) { el.classList.add('rx-in'); });
-    } else {
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) {
-          if (!en.isIntersecting) return;
-          en.target.classList.add('rx-in');
-          io.unobserve(en.target);
-        });
-      }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
-      revealEls.forEach(function (el) { io.observe(el); });
-    }
+  /* ---------- reveal 進場（可重複掃描：其他腳本動態加入 data-reveal 後呼叫 window.rxRevealScan）---------- */
+  var revealIO = null;
+  if (!reduceMotion && 'IntersectionObserver' in window) {
+    revealIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('rx-in');
+        revealIO.unobserve(en.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
   }
+  function revealScan() {
+    var els = document.querySelectorAll('[data-reveal]:not(.rx-in)');
+    if (!revealIO) { els.forEach(function (el) { el.classList.add('rx-in'); }); return; }
+    els.forEach(function (el) { revealIO.observe(el); });
+  }
+  revealScan();
+  window.rxRevealScan = revealScan;
 
   /* ---------- 磁吸按鈕（pointer:fine）---------- */
   var fine = false;

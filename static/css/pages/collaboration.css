@@ -15,10 +15,12 @@
   margin-inline: calc(50% - 50vw);
   padding: 2.2rem 1rem 2.6rem;
   background:
-    radial-gradient(130% 120% at 50% -18%, #0c3a2a 0%, #062a1e 48%, #04150f 100%);
-  border-block: 1px solid rgba(160, 232, 96, 0.16);
+    radial-gradient(120% 130% at 50% -18%, rgba(73, 197, 182, 0.10), transparent 55%),
+    linear-gradient(165deg, #123642 0%, #0e242e 48%, #0a1c24 100%);
+  border-block: 1px solid rgba(73, 197, 182, 0.24);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* ---- 正方形舞台＋四邊大 r 角 ---- */
@@ -28,14 +30,15 @@
   aspect-ratio: 1 / 1;
   border-radius: clamp(28px, 7vw, 56px);
   background:
-    radial-gradient(90% 90% at 50% 42%, rgba(20, 179, 145, 0.13), transparent 62%),
-    linear-gradient(165deg, #073526 0%, #05271c 55%, #04150f 100%);
-  border: 1px solid rgba(160, 232, 96, 0.22);
+    radial-gradient(90% 90% at 50% 42%, rgba(73, 197, 182, 0.12), transparent 62%),
+    linear-gradient(165deg, #123845 0%, #0e2b36 55%, #0a1e26 100%);
+  border: 1px solid rgba(73, 197, 182, 0.34);
   box-shadow:
-    inset 0 0 90px rgba(4, 21, 15, 0.9),
-    inset 0 0 26px rgba(20, 179, 145, 0.10),
+    inset 0 0 90px rgba(7, 20, 26, 0.85),
+    inset 0 0 26px rgba(73, 197, 182, 0.10),
     0 30px 80px -40px rgba(0, 0, 0, 0.9);
   overflow: hidden;
+  touch-action: none; /* 觸控拖曳不滾頁 */
 }
 
 /* 科技感：細格網（皿內坐標紙） */
@@ -43,8 +46,8 @@
   content: "";
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(160, 232, 96, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(160, 232, 96, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(73, 197, 182, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(73, 197, 182, 0.055) 1px, transparent 1px);
   background-size: 44px 44px;
   -webkit-mask-image: radial-gradient(75% 75% at 50% 50%, #000 30%, transparent 78%);
           mask-image: radial-gradient(75% 75% at 50% 50%, #000 30%, transparent 78%);
@@ -55,7 +58,7 @@
 .rx-dish-stage::after {
   content: "";
   position: absolute; left: -20%; right: -20%; top: 0; height: 120px;
-  background: linear-gradient(180deg, transparent, rgba(160, 232, 96, 0.07) 46%, rgba(200, 255, 170, 0.16) 50%, rgba(160, 232, 96, 0.07) 54%, transparent);
+  background: linear-gradient(180deg, transparent, rgba(73, 197, 182, 0.07) 46%, rgba(160, 232, 96, 0.16) 50%, rgba(73, 197, 182, 0.07) 54%, transparent);
   animation: rx-scan 9s linear infinite;
   pointer-events: none;
 }
@@ -69,14 +72,14 @@
   position: absolute;
   width: 46%; aspect-ratio: 1 / 1;
   clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
-  border: 1px solid rgba(160, 232, 96, 0.14);
-  background: rgba(160, 232, 96, 0.028);
+  border: 1px solid rgba(73, 197, 182, 0.16);
+  background: rgba(73, 197, 182, 0.03);
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
 .rx-dish-hex-a { animation: rx-hex 60s linear infinite; }
-.rx-dish-hex-b { width: 30%; border-color: rgba(20, 179, 145, 0.16); animation: rx-hex 44s linear infinite reverse; }
+.rx-dish-hex-b { width: 30%; border-color: rgba(39, 121, 167, 0.24); animation: rx-hex 44s linear infinite reverse; }
 @keyframes rx-hex { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
 /* 分子連線 canvas：鋪在最底、節點之下 */
@@ -104,45 +107,75 @@
   100% { transform: translate(-50%, -50%) rotate(360deg) scaleX(1); }
 }
 
-/* ---- 節點：位置固定，不晃 ---- */
+/* ---- 節點：可拖曳重組，位置由 --nx/--ny 控制 ---- */
 .rx-node {
   position: absolute;
   left: var(--nx); top: var(--ny);
   transform: translate(-50%, -50%);
   z-index: 3;
+  touch-action: none; /* 觸控拖曳時不滾動頁面 */
+  cursor: grab;
+}
+/* 自動換位重組：JS 加上 .rx-swap 時以彈跳曲線滑向新位置 */
+.rx-node.rx-swap {
+  transition: left 1.6s cubic-bezier(0.5, 1.5, 0.35, 1),
+              top 1.6s cubic-bezier(0.5, 1.5, 0.35, 1);
+}
+.rx-node.rx-dragging { cursor: grabbing; z-index: 9; transition: none; }
+.rx-node.rx-homing {
+  transition: left 1s cubic-bezier(0.3, 1.2, 0.4, 1),
+              top 1s cubic-bezier(0.3, 1.2, 0.4, 1);
 }
 .rx-node-link {
   display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
   text-decoration: none;
   color: inherit;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
+/* 方圓之間（squircle）：logo 底色填滿整個方塊——
+   不透明底圖（mingdao／NYCU／VIS／CCU）用 object-fit:cover 滿版撐出，
+   盤面底色取樣自 logo 本身、border 同色無縫，
+   不會在方盤裡看到「另一個正方形的框」。
+   透明底圖（Okinawa／HIA）落在深青raised底上，圖形完整浮現。 */
 .rx-node-disc {
-  display: grid; place-items: center;
   width: clamp(64px, 13vw, 96px);
   aspect-ratio: 1 / 1;
   border-radius: 26%;
-  background: rgba(255, 253, 247, 0.96);
-  border: 1px solid rgba(160, 232, 96, 0.4);
+  background: var(--nx-fill, var(--nx-raised));
+  border: 1px solid var(--nx-fill, var(--nx-raised));
   box-shadow:
-    0 0 0 5px rgba(4, 21, 15, 0.6),
-    0 0 26px rgba(160, 232, 96, 0.22),
+    0 0 0 5px rgba(7, 20, 26, 0.6),
+    0 0 26px rgba(73, 197, 182, 0.2),
     0 14px 30px -14px rgba(0, 0, 0, 0.85);
   transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.25, 1),
               box-shadow 0.35s ease, border-color 0.35s ease;
   position: relative;
+  overflow: hidden;
 }
-/* 方圓之間（squircle）：logo 站得更穩，也呼應方盤 r 角 */
 .rx-node-disc img {
-  width: 68%; height: 68%;
-  object-fit: contain;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; /* 底色滿版 */
+  -webkit-user-drag: none;
 }
+/* 取樣自 logo 邊緣的實際底色 */
+.rx-node-mingdao .rx-node-disc { --nx-fill: #F5F5F4; }
+.rx-node-nycu    .rx-node-disc { --nx-fill: #2E6084; }
+.rx-node-vis     .rx-node-disc { --nx-fill: #F5F5F4; }
+.rx-node-ccu     .rx-node-disc { --nx-fill: #EEF6D6; }
+/* 透明底兩隊：深青盤底＋圖形完整（contain） */
+.rx-node-okinawa .rx-node-disc,
+.rx-node-hia .rx-node-disc { --nx-fill: #1c4352; }
+.rx-node-okinawa .rx-node-disc img,
+.rx-node-hia .rx-node-disc img { object-fit: contain; inset: 10%; width: 80%; height: 80%; }
 /* 環形雷達脈衝（動畫感；位置不動，只有光在動） */
 .rx-node-disc::after {
   content: "";
   position: absolute; inset: -5px;
   border-radius: 26%;
-  border: 1.5px solid rgba(160, 232, 96, 0.5);
+  border: 1.5px solid rgba(73, 197, 182, 0.55);
   opacity: 0;
   animation: rx-pulse 3.2s ease-out infinite;
   animation-delay: var(--pd, 0s);
@@ -163,15 +196,15 @@
 .rx-node-link:hover .rx-node-disc,
 .rx-node-link:focus-visible .rx-node-disc {
   transform: translateY(-4px) scale(1.06);
-  border-color: var(--c-glow);
+  border-color: var(--nx-lime, #a0e860);
   box-shadow:
-    0 0 0 5px rgba(4, 21, 15, 0.6),
+    0 0 0 5px rgba(7, 20, 26, 0.6),
     0 0 0 9px rgba(160, 232, 96, 0.25),
-    0 0 44px rgba(160, 232, 96, 0.5),
+    0 0 44px rgba(73, 197, 182, 0.5),
     0 20px 40px -16px rgba(0, 0, 0, 0.9);
 }
 .rx-node-link:focus-visible {
-  outline: 3px solid var(--c-glow);
+  outline: 3px solid var(--nx-lime, #a0e860);
   outline-offset: 8px;
   border-radius: 30%;
 }
@@ -182,18 +215,36 @@
   letter-spacing: 0.04em;
   font-weight: 600;
   white-space: nowrap;
-  color: #d7f5b8;
-  background: rgba(4, 21, 15, 0.72);
-  border: 1px solid rgba(160, 232, 96, 0.28);
+  color: var(--nx-text, #dbe9ee);
+  background: rgba(10, 28, 36, 0.78);
+  border: 1px solid rgba(73, 197, 182, 0.32);
   border-radius: 999px;
   padding: 0.16rem 0.6rem;
   backdrop-filter: blur(4px);
   transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
 }
 .rx-node-link:hover .rx-node-name {
-  color: #eafff3;
-  border-color: var(--c-glow);
-  background: rgba(4, 21, 15, 0.9);
+  color: var(--nx-lime, #a0e860);
+  border-color: var(--nx-lime, #a0e860);
+  background: rgba(10, 28, 36, 0.92);
+}
+
+/* 拖曳／重組操作提示 */
+.rx-dish-hint {
+  margin: 0.9rem auto 0;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--nx-muted, #93b0bb);
+  opacity: 0.85;
+}
+.rx-dish-hint kbd {
+  font: inherit;
+  color: var(--nx-mint, #49c5b6);
+  border: 1px solid var(--nx-line, #24596b);
+  border-radius: 6px;
+  padding: 0 0.35em;
+  background: rgba(22, 50, 63, 0.6);
 }
 
 /* ---- 進場：整塊皿由中心縮放浮現 ---- */
