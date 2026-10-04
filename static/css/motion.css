@@ -1,0 +1,69 @@
+/* ============================================================
+   MOTION — 動效層：Lenis 平滑捲動需要的位置修正與工具類
+   （真正的動畫驅動在 static/js/motion.js）
+   ============================================================ */
+
+/* Lenis 平滑捲動 */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* 敘事段落＋綁定滾動的 progress 條（pin 失敗時 CSS 降級版） */
+.rx-chapter {
+  position: relative;
+}
+.rx-chapter-rail {
+  position: absolute; left: -2.25rem; top: 0; bottom: 0; width: 2px;
+  background: var(--c-line); display: none;
+}
+.rx-chapter-rail::after {
+  content: ""; position: absolute; top: 0; left: 0; width: 100%;
+  height: var(--rx-chap, 0%);
+  background: linear-gradient(180deg, var(--c-teal), var(--c-glow));
+  box-shadow: 0 0 10px rgba(20, 179, 145, 0.5);
+}
+@media (min-width: 1200px) { .rx-chapter-rail { display: block; } }
+
+/* 大字 kinetic typography：逐字包裹（JS 包字） */
+.rx-split .rx-word { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.rx-split .rx-char { display: inline-block; transform: translateY(110%); }
+html.rx-done .rx-split .rx-char { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .rx-split .rx-char { transform: none !important; }
+}
+
+/* 章节标题渐显已交给 data-reveal，自動完成 */
+
+/* 綠色光暈呼吸（用於 hero 裝飾菌落） */
+@keyframes rx-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.95; transform: scale(1.06); }
+}
+.rx-breathe { animation: rx-breathe 5.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .rx-breathe { animation: none; opacity: 0.8; }
+}
+
+/* hero ScrollIndicator */
+.rx-scroll-cue {
+  position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+  z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: rgba(255,255,255,0.85); font-size: 0.72rem; letter-spacing: 0.2em;
+  text-transform: uppercase; pointer-events: none;
+}
+.rx-scroll-cue i {
+  width: 1.4rem; height: 2.2rem; border: 2px solid rgba(255,255,255,0.7);
+  border-radius: 99px; position: relative; display: block;
+}
+.rx-scroll-cue i::after {
+  content: ""; position: absolute; top: 5px; left: 50%; margin-left: -2px;
+  width: 4px; height: 6px; border-radius: 99px; background: var(--c-glow);
+  animation: rx-cue-drop 1.8s var(--ease-io) infinite;
+}
+@keyframes rx-cue-drop {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .rx-scroll-cue i::after { animation: none; } }

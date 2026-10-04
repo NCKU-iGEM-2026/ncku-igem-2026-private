@@ -1,0 +1,154 @@
+/* ============================================================
+   SHELL — 全站外殼翻新（導覽列 / hero / footer）
+   原則：DOM 結構不動（menu-germ.js / navbar-scroll.js 依賴它），
+   只覆蓋顏色、質感與微互動。特定頁（engineering / nexus 系）
+   自己的規則優先，这里一律用低特異性或 body scope 讓路。
+   ============================================================ */
+
+/* ---- 導覽列：深墨綠玻璃 + 螢光底线 ---- */
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus) .navbar.bg-dark {
+  background: linear-gradient(180deg, rgba(255,253,247,0.78), rgba(255,253,247,0.62)) !important;
+  border: 1px solid rgba(6, 64, 46, 0.10);
+  box-shadow: 0 10px 34px -18px rgba(6, 64, 46, 0.35);
+}
+html[data-theme="dark"] body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus) .navbar.bg-dark {
+  background: linear-gradient(180deg, rgba(4, 21, 15, 0.86), rgba(4, 21, 15, 0.72)) !important;
+  border: 1px solid rgba(160, 232, 96, 0.14);
+  box-shadow: 0 12px 40px -18px rgba(0, 0, 0, 0.75);
+}
+/* 懸浮玻璃下緣的一絲螢光 */
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus) .navbar::after {
+  content: ""; position: absolute; left: 8%; right: 8%; bottom: 0; height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--c-teal), var(--c-glow), var(--c-teal), transparent);
+  opacity: 0; transition: opacity var(--t-med) ease;
+  pointer-events: none;
+}
+body.navbar-scrolled:not(.engineering-page):not(.hw-nexus):not(.edu-nexus) .navbar::after { opacity: 0.85; }
+
+/* nav 連結：-grow underline ---- */
+.navbar .nav-link { position: relative; letter-spacing: 0.02em; transition: color var(--t-fast) ease; }
+.navbar .nav-link::after {
+  content: ""; position: absolute; left: 50%; bottom: 2px; width: 0; height: 2px;
+  border-radius: 2px; background: linear-gradient(90deg, var(--c-teal), var(--c-glow));
+  transition: width var(--t-fast) var(--ease-out), left var(--t-fast) var(--ease-out);
+}
+.navbar .nav-link:hover::after,
+.navbar .nav-link:focus-visible::after,
+.navbar .nav-link.active::after { width: 70%; left: 15%; }
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .navbar .nav-link { color: #075a3e; }
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .navbar .nav-link:hover,
+body:not(.hw-nexus):not(.edu-nexus):not(.engineering-page) .navbar .nav-link:focus-visible { color: var(--c-teal-deep); }
+
+/* ---- mega menu：寬版雙欄下拉（保持 Bootstrap 置中機制不動）---- */
+@media (min-width: 992px) {
+  body:not(.hw-nexus):not(.edu-nexus) .navbar .dropdown-menu {
+    padding: 0.9rem;
+    border-radius: var(--r-lg);
+    border: 1px solid rgba(6,64,46,0.08);
+    box-shadow: 0 24px 60px -24px rgba(6,64,46,0.45);
+  }
+  .navbar .dropdown-menu > li { border-radius: var(--r-sm); }
+  .navbar .dropdown-item {
+    border-radius: var(--r-sm);
+    padding: 0.55rem 1.1rem;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .dropdown-menu.dropdown-menu-center { min-width: 320px; }
+  .navbar .dropdown-item::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--c-teal); position: absolute; left: 0.9rem;
+    opacity: 0; transform: scale(0.4);
+    transition: opacity var(--t-fast) ease, transform var(--t-fast) var(--ease-spring);
+  }
+  .navbar .dropdown-item:hover::before,
+  .navbar .dropdown-item:focus-visible::before { opacity: 1; transform: scale(1); }
+  /* hover 時背景改用 glow tint，接回 design system */
+  body:not(.hw-nexus):not(.edu-nexus) .navbar .dropdown-item:hover,
+  body:not(.hw-nexus):not(.edu-nexus) .navbar .dropdown-item:focus {
+    background: color-mix(in srgb, var(--c-glow) 35%, #ffffff) !important;
+    color: var(--c-ink) !important;
+  }
+  html[data-theme="dark"] .navbar .dropdown-menu { background: #07211a; border-color: rgba(160,232,96,0.14); }
+  html[data-theme="dark"] .navbar .dropdown-item { color: #d7f5b8; }
+  html[data-theme="dark"] .navbar .dropdown-item:hover,
+  html[data-theme="dark"] .navbar .dropdown-item:focus { background: rgba(160,232,96,0.12) !important; color: #b8f57e !important; }
+}
+
+/* ---- 行動版：全螢幕選單（純 CSS，不改 Bootstrap 行為）---- */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    position: fixed; inset: 0; z-index: 1030;
+    background:
+      radial-gradient(90% 70% at 80% -10%, rgba(20,179,145,0.28), transparent 60%),
+      radial-gradient(70% 60% at 10% 110%, rgba(216,178,106,0.22), transparent 60%),
+      linear-gradient(160deg, #06402e 0%, #052b1f 55%, #04150f 100%);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 4.5rem 2rem 2rem;
+    opacity: 0; visibility: hidden; transform: translateY(-12px);
+    transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out), visibility 0.35s;
+  }
+  .navbar-collapse.show, .navbar-collapse.collapsing.show {
+    opacity: 1; visibility: visible; transform: none;
+  }
+  /* Bootstrap 的 height 摺疊動畫在 fixed 面板上沒有意義，放掉高度動作 */
+  .navbar-collapse.collapsing { height: 100vh !important; transition: none; }
+  .navbar-collapse .navbar-nav { gap: 0.4rem; }
+  .navbar-collapse .nav-item { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0.35rem 0; }
+  .navbar-collapse .nav-link { color: #fff !important; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em; }
+  /* dropdown 在行動板內展開成內嵌小連結 */
+  .navbar-collapse .dropdown-menu {
+    background: transparent !important; border: none; box-shadow: none;
+    position: static; min-width: 0; padding: 0 0 0.4rem 1rem;
+  }
+  .navbar-collapse .dropdown-item { color: rgba(255,255,255,0.72) !important; justify-content: flex-start; font-size: 1.05rem; }
+  .navbar-collapse .dropdown-item:hover { background: rgba(160,232,96,0.12) !important; color: #b8f57e !important; }
+  /* 開バルガー钮转 X 由 Bootstrap 处理，这里只让它更清晰 */
+  .navbar-toggler { border-color: rgba(6,64,46,0.25); }
+  html[data-theme="dark"] .navbar-toggler { border-color: rgba(160,232,96,0.35); }
+}
+/* 選單開啟時把 burger 抬到全螢幕之上 */
+body:has(.navbar-collapse.show) .navbar-toggler { position: relative; z-index: 1040; }
+
+/* ---- 内页 hero：墨绿浸润 + 荧光点缀（stage 版式）----
+   nexus 系（hardware/model/software/education）自持深青主题、
+   engineering 自持白绿主题——都不准覆盖它们的 hero 颜色。 */
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.edu-cosmos-page) .page-hero.bg-hero {
+  background-color: #0b4d36 !important;
+}
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.edu-cosmos-page) .page-hero .hero-title { color: #eafff3; text-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.edu-cosmos-page) .page-hero .hero-sub { color: #d7f5b8; }
+
+/* ---- footer：深夜培养皿 ---- */
+footer.bg-dark, footer.footer {
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(20,179,145,0.16), transparent 55%),
+    linear-gradient(180deg, #07211a 0%, #04150f 100%) !important;
+  border-top: 1px solid rgba(160,232,96,0.16);
+  position: relative;
+}
+footer .sponsor-logo {
+  background: rgba(255,253,247,0.94);
+  border: 1px solid rgba(160,232,96,0.18);
+  border-radius: 10px;
+  transition: transform var(--t-fast) var(--ease-spring), box-shadow var(--t-fast) ease;
+}
+footer .sponsor-logo:hover { transform: translateY(-3px) scale(1.05); box-shadow: var(--sh-glow); }
+footer .hover-icon:hover { color: var(--c-glow) !important; transform: translateY(-3px); }
+footer .hover-icon { transition: transform var(--t-fast) var(--ease-spring), color var(--t-fast) ease; }
+footer a[href*="gitlab"] { color: var(--c-glow) !important; }
+footer .text-white-50 { color: rgba(215, 245, 184, 0.78) !important; }
+footer h2, footer h4 { letter-spacing: 0.04em; }
+footer hr.border-secondary { border-color: rgba(160,232,96,0.14) !important; }
+
+/* ---- back-to-top：微升级 ---- */
+.back-to-top { transition: transform var(--t-fast) var(--ease-spring), box-shadow var(--t-fast) ease; }
+.back-to-top:hover { transform: translateY(-3px) scale(1.06); box-shadow: var(--sh-glow); }
+
+/* ---- print：保持黑白，不貢獻漸層 ---- */
+@media print {
+  body:not(.engineering-page) .page-hero.bg-hero,
+  footer.bg-dark { background: none !important; background-color: #fff !important; color: #000 !important; }
+  #rxProgress, .rx-theme-toggle, #rxCursor { display: none !important; }
+}

@@ -19,7 +19,27 @@
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename = 'style.css') }}" rel="stylesheet">
 
+    <!-- Redesign layers: tokens → base → components → shell（順序即覆蓋順序） -->
+    <link href="{{ url_for('static', filename = 'css/tokens.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'css/base.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'css/components.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'css/shell.css') }}" rel="stylesheet">
+    {% block page_css %}{% endblock %}
+
     <title>{% block title %}{% endblock %} | NCKU-Tainan - iGEM 2026</title>
+
+    <!-- 深淺色：在首幀前定色，避免閃白 -->
+    <script>
+      (function () {
+        var t = 'light';
+        try {
+          t = localStorage.getItem('rx-theme') ||
+              (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.classList.add('rx-js');
+      })();
+    </script>
 
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -63,6 +83,11 @@
   <script src="{{ url_for('static', filename = 'bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename = 'navbar-scroll.js') }}"></script>
   <script src="{{ url_for('static', filename = 'menu-germ.js') }}"></script>
+  <!-- Redesign motion: vendor GSAP/ScrollTrigger/Lenis（自架）+ 全站動態 -->
+  <script src="{{ url_for('static', filename = 'vendor/gsap.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename = 'vendor/ScrollTrigger.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename = 'vendor/lenis.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename = 'js/motion.js') }}" defer></script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>
