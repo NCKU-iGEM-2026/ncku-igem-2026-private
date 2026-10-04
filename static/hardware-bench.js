@@ -3,8 +3,9 @@
 
   /* Hardware page — the instrument panels.
    *
-   * Four things live here: a shared tooltip, the light-path bench, the
-   * AS7341 channel map and the development log.
+   * Five things live here: a shared tooltip, the light-path bench, the
+   * AS7341 channel map, the development log and the switch between the
+   * circuit's two states.
    *
    * No library, no network request, nothing from outside iGEM infrastructure.
    * The page is written so that losing this file costs a reader the
@@ -751,6 +752,48 @@
 
     log.classList.add("is-live");
     show(0, false);
+  })();
+
+  /* ======================================================================
+     4. THE CIRCUIT, BEFORE AND AFTER
+     One resistor was changed on 2026-10-03. Both states are written out in
+     the markup: an element with data-v2 carries the later wording, a node
+     with data-tip-v2 the later tooltip. All this does is swap between them.
+     The switch itself is hidden until this runs, so a page without the
+     script shows the circuit the readings were taken on and no dead buttons;
+     the table under the schematic has both columns either way.
+     ====================================================================== */
+
+  (function () {
+    var rig = $("#hwxCircuit");
+    var ctrls = $("#hwxCircCtrls");
+    if (!rig || !ctrls) return;
+
+    var texts = $$("[data-v2]", rig);
+    var tips = $$("[data-tip-v2]", rig);
+    var buttons = $$("button[data-circ]", ctrls);
+    if (!buttons.length) return;
+
+    /* The first state is whatever the markup says. Keep it to come back to. */
+    texts.forEach(function (el) { el.setAttribute("data-v1", el.textContent); });
+    tips.forEach(function (el) { el.setAttribute("data-tip-v1", el.getAttribute("data-tip")); });
+
+    function show(v) {
+      texts.forEach(function (el) { el.textContent = el.getAttribute("data-" + v); });
+      tips.forEach(function (el) { el.setAttribute("data-tip", el.getAttribute("data-tip-" + v)); });
+      buttons.forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute("data-circ") === v));
+      });
+      /* A tooltip left open would go on describing the other state. */
+      hideTip();
+    }
+
+    ctrls.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-circ]");
+      if (b) show(b.getAttribute("data-circ"));
+    });
+
+    ctrls.hidden = false;
   })();
 
   /* ======================================================================
