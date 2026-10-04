@@ -8,306 +8,64 @@
 
 {% block page_content %}
 
-<!--
-  The wall. Six teams, fifty-four bubbles, so the logos repeat -- which is
-  free: they are six URLs however many discs are drawn from them.
+<nav class="rx-dish" aria-label="Teams we collaborated with">
+  <div class="rx-dish-stage">
+    <canvas class="rx-dish-canvas" aria-hidden="true"></canvas>
 
-  Exactly one bubble per team is a real link. It carries the team's name and
-  is in the tab order. The other forty-eight are echoes: still clickable with
-  a mouse, but tabindex="-1" and aria-hidden, because a screen reader working
-  through this page should hear six teams once each, not every team nine
-  times.
+    <div class="rx-dish-hexes" aria-hidden="true">
+      <span class="rx-dish-hex rx-dish-hex-a"></span>
+      <span class="rx-dish-hex rx-dish-hex-b"></span>
+    </div>
 
-  Size, drift and spacing are a seeded shuffle written into each bubble, not
-  a repeating pattern. A row holds about thirteen discs, so anything on a
-  short cycle -- the six logos in order, three sizes, a twelve-long drift --
-  walks one step per row and draws diagonal stripes across the wall. Nine of
-  each logo, no two neighbours alike, and a wide continuous spread of sizes
-  leave nothing for the eye to lock on to. The drift is small on purpose:
-  the sizes are meant to be what you notice, not the scatter.
+    <div class="rx-node rx-node-mingdao" style="--nx:50%;--ny:13%">
+      <a class="rx-node-link" href="#session-mingdao">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">Mingdao High School</span>
+      </a>
+    </div>
 
-  Every bubble carries two sizes. A phone is not the same wall scaled down:
-  squeezed toward the middle first, because a disc scaled from 140px would
-  take a quarter of a 390px screen and one scaled from 44px would be too
-  small to read.
+    <div class="rx-node rx-node-nycu" style="--nx:15%;--ny:34%">
+      <a class="rx-node-link" href="#session-meetup">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">NYCU</span>
+      </a>
+    </div>
 
-  The grow-and-squeeze is done with transform, not width. Changing the size
-  of a flex item in a wrapped row of fifty-four re-flows the whole wall and
-  throws items onto other rows; a transform moves nothing. The layout is
-  fixed and only the paint changes.
--->
-<nav class="collab-wall" aria-label="Teams we collaborated with">
-  <div class="collab-wall-inner">
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:54px;--dnarrow:49px;--dy:0px;--mx:3px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <a class="collab-bubble is-ccu" href="#session-ccu"
-       style="--dbase:66px;--dnarrow:53px;--dy:13px;--mx:3px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <a class="collab-bubble is-lead" href="#session-mingdao"
-       style="--dbase:127px;--dnarrow:77px;--dy:-2px;--mx:4px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <a class="collab-bubble" href="#session-hia"
-       style="--dbase:77px;--dnarrow:57px;--dy:10px;--mx:4px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <a class="collab-bubble is-nycu" href="#session-meetup"
-       style="--dbase:87px;--dnarrow:61px;--dy:12px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <a class="collab-bubble" href="#session-mingdao"
-       style="--dbase:105px;--dnarrow:68px;--dy:13px;--mx:4px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <a class="collab-bubble" href="#session-hia"
-       style="--dbase:57px;--dnarrow:50px;--dy:4px;--mx:1px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <a class="collab-bubble is-nycu is-lead" href="#session-meetup"
-       style="--dbase:105px;--dnarrow:68px;--dy:13px;--mx:0px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <a class="collab-bubble" href="#session-mingdao"
-       style="--dbase:125px;--dnarrow:76px;--dy:13px;--mx:2px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:55px;--dnarrow:49px;--dy:0px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <a class="collab-bubble is-nycu" href="#session-meetup"
-       style="--dbase:78px;--dnarrow:58px;--dy:-12px;--mx:2px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <a class="collab-bubble is-lead" href="#session-meetup"
-       style="--dbase:106px;--dnarrow:69px;--dy:0px;--mx:1px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:69px;--dnarrow:54px;--dy:14px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <a class="collab-bubble" href="#session-hia"
-       style="--dbase:74px;--dnarrow:56px;--dy:8px;--mx:2px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <a class="collab-bubble is-nycu" href="#session-meetup"
-       style="--dbase:79px;--dnarrow:58px;--dy:-9px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <a class="collab-bubble is-lead" href="#session-meetup"
-       style="--dbase:120px;--dnarrow:74px;--dy:-8px;--mx:2px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <a class="collab-bubble is-ccu" href="#session-ccu"
-       style="--dbase:140px;--dnarrow:82px;--dy:-3px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:49px;--dnarrow:47px;--dy:5px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
-    <a class="collab-bubble" href="#session-mingdao"
-       style="--dbase:127px;--dnarrow:77px;--dy:-13px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <a class="collab-bubble is-ccu is-lead" href="#session-ccu"
-       style="--dbase:107px;--dnarrow:69px;--dy:-7px;--mx:3px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:136px;--dnarrow:80px;--dy:-7px;--mx:1px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <a class="collab-bubble is-nycu" href="#session-meetup"
-       style="--dbase:90px;--dnarrow:62px;--dy:-1px;--mx:4px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:102px;--dnarrow:67px;--dy:-11px;--mx:3px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
-    <a class="collab-bubble is-lead" href="#session-hia"
-       style="--dbase:126px;--dnarrow:76px;--dy:-8px;--mx:0px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <a class="collab-bubble is-ccu" href="#session-ccu"
-       style="--dbase:73px;--dnarrow:56px;--dy:-13px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <a class="collab-bubble" href="#session-mingdao"
-       style="--dbase:66px;--dnarrow:53px;--dy:6px;--mx:4px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:65px;--dnarrow:53px;--dy:6px;--mx:1px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
-    <a class="collab-bubble is-ccu" href="#session-ccu"
-       style="--dbase:54px;--dnarrow:49px;--dy:-7px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <a class="collab-bubble" href="#session-hia"
-       style="--dbase:50px;--dnarrow:47px;--dy:5px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <a class="collab-bubble is-nycu" href="#session-meetup"
-       style="--dbase:47px;--dnarrow:46px;--dy:12px;--mx:1px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:51px;--dnarrow:47px;--dy:9px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:58px;--dnarrow:50px;--dy:-4px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
-    <a class="collab-bubble" href="#session-hia"
-       style="--dbase:133px;--dnarrow:79px;--dy:9px;--mx:3px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:73px;--dnarrow:56px;--dy:-6px;--mx:1px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:77px;--dnarrow:57px;--dy:-9px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
-    <a class="collab-bubble" href="#session-hia"
-       style="--dbase:58px;--dnarrow:50px;--dy:11px;--mx:2px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <a class="collab-bubble is-nycu" href="#session-meetup"
-       style="--dbase:64px;--dnarrow:52px;--dy:4px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <a class="collab-bubble is-ccu" href="#session-ccu"
-       style="--dbase:50px;--dnarrow:47px;--dy:-2px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:79px;--dnarrow:58px;--dy:12px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
-    <a class="collab-bubble" href="#session-mingdao"
-       style="--dbase:99px;--dnarrow:66px;--dy:1px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:71px;--dnarrow:55px;--dy:-9px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
-    <a class="collab-bubble is-ccu" href="#session-ccu"
-       style="--dbase:94px;--dnarrow:64px;--dy:-13px;--mx:4px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <a class="collab-bubble" href="#session-mingdao"
-       style="--dbase:57px;--dnarrow:50px;--dy:2px;--mx:2px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:75px;--dnarrow:57px;--dy:12px;--mx:2px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <a class="collab-bubble" href="#session-mingdao"
-       style="--dbase:63px;--dnarrow:52px;--dy:3px;--mx:4px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <a class="collab-bubble" href="#session-hia"
-       style="--dbase:46px;--dnarrow:45px;--dy:8px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <a class="collab-bubble is-nycu" href="#session-meetup"
-       style="--dbase:74px;--dnarrow:56px;--dy:12px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <a class="collab-bubble is-ccu" href="#session-ccu"
-       style="--dbase:50px;--dnarrow:47px;--dy:13px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <a class="collab-bubble" href="#session-hia"
-       style="--dbase:80px;--dnarrow:59px;--dy:-12px;--mx:3px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:116px;--dnarrow:72px;--dy:8px;--mx:2px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <a class="collab-bubble" href="#session-mingdao"
-       style="--dbase:55px;--dnarrow:49px;--dy:-2px;--mx:5px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <a class="collab-bubble is-ccu" href="#session-ccu"
-       style="--dbase:65px;--dnarrow:53px;--dy:12px;--mx:2px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <a class="collab-bubble is-nycu" href="#session-meetup"
-       style="--dbase:78px;--dnarrow:58px;--dy:-1px;--mx:0px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <a class="collab-bubble" href="#session-meetup"
-       style="--dbase:129px;--dnarrow:77px;--dy:-5px;--mx:1px" tabindex="-1" aria-hidden="true">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
+    <div class="rx-node rx-node-vis" style="--nx:85%;--ny:34%">
+      <a class="rx-node-link" href="#session-meetup">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">VIS</span>
+      </a>
+    </div>
+
+    <div class="rx-node rx-node-okinawa" style="--nx:16%;--ny:76%">
+      <a class="rx-node-link" href="#session-meetup">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">Okinawa</span>
+      </a>
+    </div>
+
+    <div class="rx-node rx-node-ccu" style="--nx:84%;--ny:76%">
+      <a class="rx-node-link" href="#session-ccu">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">CCU-Taiwan</span>
+      </a>
+    </div>
+
+    <div class="rx-node rx-node-hia" style="--nx:50%;--ny:87%">
+      <a class="rx-node-link" href="#session-hia">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">HIA-Taiwan</span>
+      </a>
+    </div>
+
+    <div class="rx-dish-core" aria-hidden="true">
+      <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13 8c10 5 8 11 0 14s-8 9 0 14"/>
+        <path d="M31 8c-10 5-8 11 0 14s8 9 0 14"/>
+        <path d="M15.5 11h13M15.5 33h13M18 15h8M18 29h8M13.5 22h17"/>
+      </svg>
+    </div>
   </div>
 </nav>
 

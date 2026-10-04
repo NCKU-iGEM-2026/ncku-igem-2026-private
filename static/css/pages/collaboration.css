@@ -1,129 +1,224 @@
 /* ============================================================
-   COLLABORATION — logo 牆重製：深空生物星座皿
-   原本 54 顆 logo 排成平平的貼紙牆；這裡改成一個培養皿：
-   深夜皿面＋聚光跟隨游標，logo 沿三條逆行軌道緩慢公轉，
-   進入視窗時由皿心彈射組裝，游標靠近會磁偏發亮。
-   軌道由 js/pages/collaboration.js 布點；JS 沒跑時自動退回
-   舊 flex 牆（HTML 結構完全沒動），每次升級都是可逆的。
+   COLLABORATION — 重製 v2：方皿分子網絡（位置固定不晃）
+   使用者回饋照辦：
+   - 一個 logo 只出現一次（六隊六節點，不再重複貼紙）
+   - 舞台是正方形，四邊都帶大 r 角
+   - 節點不晃：固定在盤面六方位
+   - 動畫感＋科技感＋生物元素：連線沿用首頁底色那套分子鍵結
+     （canvas：底層粒子＋近鄰鍵結線＋游標牽線，粒子慢、線密），
+     盤心一組雙股螺旋緩旋、scan 掃描線掠過、格網底＋六邊紋
+   舊 .collab-wall 的 DOM 已整段移除；JS 沒跑時節點仍完整可見。
    ============================================================ */
 
-/* ---- 皿面：不管亮色深色，這一段都是深夜（hero 式展示帶）---- */
-.collab-wall {
+/* ---- 整帶：深夜培養皿 ---- */
+.rx-dish {
+  margin-inline: calc(50% - 50vw);
+  padding: 2.2rem 1rem 2.6rem;
   background:
-    radial-gradient(120% 130% at 50% -12%, #0c3a2a 0%, #062a1e 46%, #04150f 100%) !important;
-  border-block: 1px solid rgba(160, 232, 96, 0.16) !important;
+    radial-gradient(130% 120% at 50% -18%, #0c3a2a 0%, #062a1e 48%, #04150f 100%);
+  border-block: 1px solid rgba(160, 232, 96, 0.16);
+  display: flex;
+  justify-content: center;
+}
+
+/* ---- 正方形舞台＋四邊大 r 角 ---- */
+.rx-dish-stage {
   position: relative;
+  width: min(580px, 88vw);
+  aspect-ratio: 1 / 1;
+  border-radius: clamp(28px, 7vw, 56px);
+  background:
+    radial-gradient(90% 90% at 50% 42%, rgba(20, 179, 145, 0.13), transparent 62%),
+    linear-gradient(165deg, #073526 0%, #05271c 55%, #04150f 100%);
+  border: 1px solid rgba(160, 232, 96, 0.22);
+  box-shadow:
+    inset 0 0 90px rgba(4, 21, 15, 0.9),
+    inset 0 0 26px rgba(20, 179, 145, 0.10),
+    0 30px 80px -40px rgba(0, 0, 0, 0.9);
   overflow: hidden;
 }
-/* 皿緣：一圈極淡的螢光環，把整帶定義成一個培養皿 */
-.collab-wall::before {
+
+/* 科技感：細格網（皿內坐標紙） */
+.rx-dish-stage::before {
   content: "";
-  position: absolute; inset: 1.1rem 2vw;
-  border: 1px solid rgba(160, 232, 96, 0.10);
-  border-radius: 999px;
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(160, 232, 96, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(160, 232, 96, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(75% 75% at 50% 50%, #000 30%, transparent 78%);
+          mask-image: radial-gradient(75% 75% at 50% 50%, #000 30%, transparent 78%);
   pointer-events: none;
-  box-shadow: inset 0 0 60px rgba(20, 179, 145, 0.10);
 }
 
-/* ---- 軌道環（JS 依實際半徑插 .rx-ring）---- */
-.rx-ring {
-  position: absolute; left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  border: 1.5px dashed rgba(160, 232, 96, 0.16);
-  border-radius: 50%;
-  pointer-events: none;
-  animation: rx-ring-spin 26s linear infinite;
-}
-.rx-ring:nth-of-type(2) { animation-duration: 34s; animation-direction: reverse; }
-.rx-ring:nth-of-type(3) { animation-duration: 44s; }
-.rx-ring::after {
-  content: ""; position: absolute; inset: -1px; border-radius: 50%;
-  box-shadow: 0 0 26px rgba(20, 179, 145, 0.12) inset;
-}
-@keyframes rx-ring-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-
-/* ---- 聚光燈：跟隨游標的一團柔光 ---- */
-.collab-wall.rx-orbital::after {
+/* 科技感：一條 scan 掃描線緩慢掠過（純裝飾） */
+.rx-dish-stage::after {
   content: "";
+  position: absolute; left: -20%; right: -20%; top: 0; height: 120px;
+  background: linear-gradient(180deg, transparent, rgba(160, 232, 96, 0.07) 46%, rgba(200, 255, 170, 0.16) 50%, rgba(160, 232, 96, 0.07) 54%, transparent);
+  animation: rx-scan 9s linear infinite;
+  pointer-events: none;
+}
+@keyframes rx-scan {
+  0%   { transform: translateY(-140px); }
+  100% { transform: translateY(680px); }
+}
+
+/* 六邊形紋（生物×科技主題裝飾，落在底層） */
+.rx-dish-hex {
   position: absolute;
-  left: var(--sx, 50%); top: var(--sy, 40%);
-  width: 460px; height: 460px;
+  width: 46%; aspect-ratio: 1 / 1;
+  clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  border: 1px solid rgba(160, 232, 96, 0.14);
+  background: rgba(160, 232, 96, 0.028);
+  left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(160, 232, 96, 0.11), rgba(160, 232, 96, 0.03) 45%, transparent 68%);
   pointer-events: none;
-  transition: opacity .4s ease;
+}
+.rx-dish-hex-a { animation: rx-hex 60s linear infinite; }
+.rx-dish-hex-b { width: 30%; border-color: rgba(20, 179, 145, 0.16); animation: rx-hex 44s linear infinite reverse; }
+@keyframes rx-hex { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+/* 分子連線 canvas：鋪在最底、節點之下 */
+.rx-dish-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
 }
 
-/* ---- logo 碟：發光膠囊 ---- */
-.collab-wall .collab-bubble-disc {
-  background: rgba(255, 253, 247, 0.95) !important;
-  border: 1px solid rgba(160, 232, 96, 0.38) !important;
-  box-shadow:
-    0 0 0 4px rgba(4, 21, 15, 0.55),
-    0 12px 30px -12px rgba(0, 0, 0, 0.8),
-    0 0 22px rgba(160, 232, 96, 0.16);
-}
-.collab-wall .collab-bubble.is-nycu .collab-bubble-disc {
-  background: #d7e8f2 !important;
-  border-color: rgba(160, 232, 96, 0.38) !important;
-}
-.collab-wall .collab-bubble.is-ccu .collab-bubble-disc {
-  background: #f6fae0 !important;
-  border-color: rgba(160, 232, 96, 0.38) !important;
-}
-
-/* hover：變成一颗發亮的菌落，名字浮牌升級 */
-.collab-wall .collab-bubble:hover .collab-bubble-disc,
-.collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
-  box-shadow:
-    0 0 0 4px rgba(4, 21, 15, 0.55),
-    0 0 0 7px rgba(160, 232, 96, 0.28),
-    0 0 42px rgba(160, 232, 96, 0.55),
-    0 18px 40px -14px rgba(0, 0, 0, 0.85) !important;
-}
-.collab-wall .collab-bubble-name {
-  background: rgba(4, 21, 15, 0.78) !important;
-  color: #d7f5b8 !important;
-  border: 1px solid rgba(160, 232, 96, 0.30);
-  backdrop-filter: blur(4px);
-  font-size: 0.72rem !important;
-  letter-spacing: 0.02em;
-}
-/* 六個「真連結」常驻名字（其他 echo 仍 hover 才出） */
-.collab-wall .collab-bubble:not([tabindex]) .collab-bubble-name {
-  opacity: 0.82 !important;
-  transform: translateX(-50%) scale(1) !important;
-}
-html[data-theme="dark"] .collab-wall .collab-bubble:focus-visible { outline-color: var(--c-glow); }
-
-/* ---- 軌道層：公轉啟動後浮游（JS 跑時才加 class）---- */
-.collab-wall.rx-orbital .collab-bubble { z-index: 2; position: absolute; left: 0; top: 0; }
-.collab-wall.rx-orbital .collab-wall-inner { position: relative; max-width: 1500px; }
-
-/* ---- 載入中的皿心 ---- */
-.rx-orbit-core {
+/* ---- 盤心：雙股螺旋（生物核心）---- */
+.rx-dish-core {
   position: absolute; left: 50%; top: 50%;
-  width: 14px; height: 14px; transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--c-glow), rgba(160,232,96,0.25) 55%, transparent 75%);
-  animation: rx-breathe 2.6s ease-in-out infinite;
+  width: 54px; height: 54px;
+  transform: translate(-50%, -50%);
+  color: rgba(160, 232, 96, 0.85);
+  filter: drop-shadow(0 0 12px rgba(160, 232, 96, 0.55));
+  animation: rx-core-spin 14s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.rx-dish-core svg { width: 100%; height: 100%; display: block; }
+@keyframes rx-core-spin {
+  0%   { transform: translate(-50%, -50%) rotate(0deg)   scaleX(1); }
+  50%  { transform: translate(-50%, -50%) rotate(180deg) scaleX(0.42); }
+  100% { transform: translate(-50%, -50%) rotate(360deg) scaleX(1); }
+}
+
+/* ---- 節點：位置固定，不晃 ---- */
+.rx-node {
+  position: absolute;
+  left: var(--nx); top: var(--ny);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+.rx-node-link {
+  display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.rx-node-disc {
+  display: grid; place-items: center;
+  width: clamp(64px, 13vw, 96px);
+  aspect-ratio: 1 / 1;
+  border-radius: 26%;
+  background: rgba(255, 253, 247, 0.96);
+  border: 1px solid rgba(160, 232, 96, 0.4);
+  box-shadow:
+    0 0 0 5px rgba(4, 21, 15, 0.6),
+    0 0 26px rgba(160, 232, 96, 0.22),
+    0 14px 30px -14px rgba(0, 0, 0, 0.85);
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.25, 1),
+              box-shadow 0.35s ease, border-color 0.35s ease;
+  position: relative;
+}
+/* 方圓之間（squircle）：logo 站得更穩，也呼應方盤 r 角 */
+.rx-node-disc img {
+  width: 68%; height: 68%;
+  object-fit: contain;
+}
+/* 環形雷達脈衝（動畫感；位置不動，只有光在動） */
+.rx-node-disc::after {
+  content: "";
+  position: absolute; inset: -5px;
+  border-radius: 26%;
+  border: 1.5px solid rgba(160, 232, 96, 0.5);
+  opacity: 0;
+  animation: rx-pulse 3.2s ease-out infinite;
+  animation-delay: var(--pd, 0s);
   pointer-events: none;
 }
-
-/* ---- 行動版：一層單軌、皿縮小 ---- */
-@media (max-width: 767.98px) {
-  .collab-wall { padding: 1.4rem 0.6rem 2rem !important; }
-  .collab-wall::before { inset: 0.8rem 1.5vw; border-radius: 48% 48% 48% 48% / 50%; }
+.rx-node-nycu .rx-node-disc::after { animation-delay: 0.4s; }
+.rx-node-vis .rx-node-disc::after { animation-delay: 0.8s; }
+.rx-node-okinawa .rx-node-disc::after { animation-delay: 1.2s; }
+.rx-node-ccu .rx-node-disc::after { animation-delay: 1.6s; }
+.rx-node-hia .rx-node-disc::after { animation-delay: 2.0s; }
+@keyframes rx-pulse {
+  0%   { transform: scale(1);    opacity: 0.55; }
+  70%  { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(1.35); opacity: 0; }
 }
 
-/* ---- 無障礙：減少動態時全靜態（軌道停、聚光留）---- */
+/* hover／焦點：微升＋發亮（只有縮放與光，不位移散落） */
+.rx-node-link:hover .rx-node-disc,
+.rx-node-link:focus-visible .rx-node-disc {
+  transform: translateY(-4px) scale(1.06);
+  border-color: var(--c-glow);
+  box-shadow:
+    0 0 0 5px rgba(4, 21, 15, 0.6),
+    0 0 0 9px rgba(160, 232, 96, 0.25),
+    0 0 44px rgba(160, 232, 96, 0.5),
+    0 20px 40px -16px rgba(0, 0, 0, 0.9);
+}
+.rx-node-link:focus-visible {
+  outline: 3px solid var(--c-glow);
+  outline-offset: 8px;
+  border-radius: 30%;
+}
+
+/* 名字：常駐小浮標（深色毛玻璃 micro-label） */
+.rx-node-name {
+  font-size: clamp(0.62rem, 1.5vw, 0.74rem);
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #d7f5b8;
+  background: rgba(4, 21, 15, 0.72);
+  border: 1px solid rgba(160, 232, 96, 0.28);
+  border-radius: 999px;
+  padding: 0.16rem 0.6rem;
+  backdrop-filter: blur(4px);
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+.rx-node-link:hover .rx-node-name {
+  color: #eafff3;
+  border-color: var(--c-glow);
+  background: rgba(4, 21, 15, 0.9);
+}
+
+/* ---- 進場：整塊皿由中心縮放浮現 ---- */
+html.rx-js .rx-dish-stage {
+  opacity: 0; transform: scale(0.92);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+html.rx-js .rx-dish-stage.rx-in { opacity: 1; transform: scale(1); }
+
+/* ---- 行動版 ---- */
+@media (max-width: 575.98px) {
+  .rx-dish-stage { width: min(420px, 92vw); border-radius: 34px; }
+  .rx-node-disc { width: 58px; }
+  .rx-node-name { font-size: 0.58rem; padding: 0.12rem 0.45rem; }
+  .rx-dish-core { width: 40px; height: 40px; }
+}
+
+/* ---- 無障礙：減少動態全靜態 ---- */
 @media (prefers-reduced-motion: reduce) {
-  .rx-ring, .rx-ring::after, .rx-orbit-core { animation: none !important; }
-  .rx-ring { border-style: solid; border-color: rgba(160, 232, 96, 0.12); }
+  .rx-dish-stage::after, .rx-dish-hex, .rx-dish-core, .rx-node-disc::after { animation: none !important; }
+  html.rx-js .rx-dish-stage { opacity: 1; transform: none; transition: none; }
 }
 
-/* ---- print：維持原協議（不印展示帶），连带 hides 軌道 ---- */
+/* ---- print ---- */
 @media print {
-  .rx-ring, .rx-orbit-core, .collab-wall.rx-orbital::after { display: none !important; }
+  .rx-dish { background: none !important; }
+  .rx-dish-canvas, .rx-dish-hex, .rx-dish-stage::after { display: none !important; }
 }

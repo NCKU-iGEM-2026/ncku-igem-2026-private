@@ -1,230 +1,209 @@
 /* ============================================================
-   COLLABORATION — 星座皿引擎（logo 牆動態布點與漂移）
-   - 進入視窗時：所有 logo 由皿心爆發、彈跳到各自的家位（組裝）
-   - 穩態：各碟受彈簧牵引向家位＋兩兩碰撞分離＋全域緩旋，
-     像培養皿裡緩慢漂移的菌落；滑鼠靠近會被推开
-   - 分頁不可見暫停；reduced-motion 直接摆在家位不跑迴圈
-   - JS 沒跑／載入失敗：HTML 原樣是舊 flex 牆，自動降級
+   COLLABORATION — 方皿分子網絡引擎 v2
+   使用者回饋照辦：位置固定不晃、連線做首頁底色那套分子動畫。
+   - Canvas（方盤內、節點下）：慢速浮游粒子＋近鄰鍵結線
+     ＋六節點間固定鍵結線，線上跑動螢光電子（科技感）
+   - 游標進入盤面：附近粒子被牽引、連出螢光線（互動感）
+   - 節點本身零位移；只有環形脈衝與 hover 光（CSS 負責）
+   - 分頁不可見暫停；reduced-motion 只画一次靜態鍵結
    ============================================================ */
 (function () {
   'use strict';
-  var wall = document.querySelector('.collab-wall');
-  if (!wall) return;
-  var inner = wall.querySelector('.collab-wall-inner');
-  var bubbles = [].slice.call(wall.querySelectorAll('.collab-bubble'));
-  if (!inner || !bubbles.length) return;
+  var stage = document.querySelector('.rx-dish-stage');
+  var canvas = stage && stage.querySelector('.rx-dish-canvas');
+  if (!canvas || !canvas.getContext) return;
 
   var reduce = false;
   try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
 
-  /* ---- 裝飾：三條橢圓軌道環＋皿心 ---- */
-  var rings = [0.93, 0.64, 0.36].map(function () {
-    var d = document.createElement('div');
-    d.className = 'rx-ring';
-    wall.appendChild(d);
-    return d;
-  });
-  var core = document.createElement('span');
-  core.className = 'rx-orbit-core';
-  wall.appendChild(core);
-
+  var ctx = canvas.getContext('2d');
+  var DPR = Math.min(2, window.devicePixelRatio || 1);
   var W = 0, H = 0;
+  var particles = [];
+  var nodes = [];
   var mouse = { x: -9999, y: -9999, on: false };
-  var rafId = null, assembled = false;
+  var rafId = null, running = false;
 
-  var parts = bubbles.map(function (el, i) {
-    return { el: el, i: i, x: 0, y: 0, vx: 0, vy: 0, hx: 0, hy: 0, r: 30, hw: 60, hh: 60 };
-  });
+  var PALETTE = ['#a0e860', '#14b391', '#49c5b6', '#d8b26a', '#d7f5b8'];
 
-  function rnd(i) { var x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
-
-  function visible(p) {
-    return p.el.offsetParent !== null || getComputedStyle(p.el).display !== 'none';
+  function size() {
+    var r = stage.getBoundingClientRect();
+    W = Math.max(80, r.width); H = Math.max(80, r.height);
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
 
-  function measure() {
-    var r = inner.getBoundingClientRect();
-    W = Math.max(320, r.width);
-    var tall = W < 768 ? 640 : (W < 1200 ? 560 : 660);
-    inner.style.height = tall + 'px';
-    inner.style.position = 'relative';
-    H = tall;
-    /* 軌道環跟皿同橢圓 */
-    rings.forEach(function (d, k) {
-      var f = [0.93, 0.64, 0.36][k];
-      var rw = (W - 90) * f, rh = (H - 90) * f;
-      d.style.width = rw + 'px';
-      d.style.height = rh + 'px';
+  /* 節點錨點：讀各 .rx-node 的 --nx/--ny（%，與盤面同基） */
+  function nodeAnchors() {
+    nodes = [];
+    stage.querySelectorAll('.rx-node').forEach(function (el) {
+      var st = getComputedStyle(el);
+      var nx = parseFloat(st.getPropertyValue('--nx')) / 100;
+      var ny = parseFloat(st.getPropertyValue('--ny')) / 100;
+      if (isFinite(nx) && isFinite(ny)) nodes.push({ nx: nx, ny: ny });
     });
   }
 
-  /* 家位：黃金角螺旋均勻鋪在橢圓場內（面積均勻、不疊） */
-  function assignHomes() {
-    var cx = W / 2, cy = H / 2;
-    var roomX = W / 2 - 46, roomY = H / 2 - 46;
-    var vis = parts.filter(visible);
-    vis.forEach(function (p, k) {
-      var disc = p.el.querySelector('.collab-bubble-disc');
-      p.hw = disc ? disc.offsetWidth : 64;
-      p.r = p.hw / 2 + 2;
-      var ang = k * 2.39996322;
-      var rad = Math.sqrt((k + 0.7) / (vis.length + 0.7));
-      var j = (rnd(p.i) - 0.5) * 0.16;
-      p.hx = cx + Math.cos(ang) * rad * roomX * (1 + j);
-      p.hy = cy + Math.sin(ang) * rad * roomY * (1 + j * 1.4);
-    });
-    return vis;
+  /* 粒子：慢速浮游（速度約首頁的 1/3，盤面才安穩） */
+  function seed() {
+    particles = [];
+    var n = Math.round(Math.min(72, Math.max(34, W * H / 5200)));
+    for (var i = 0; i < n; i++) {
+      particles.push({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.1, vy: (Math.random() - 0.5) * 0.1,
+        r: 1 + Math.random() * 1.5,
+        c: PALETTE[(Math.random() * PALETTE.length) | 0],
+        pulse: Math.random() * Math.PI * 2
+      });
+    }
   }
 
-  /* 爆發：全部從皿心給一記向外初速 */
-  function explode() {
-    var cx = W / 2, cy = H / 2;
-    parts.forEach(function (p, i) {
-      var a = i * 2.39996322 + (rnd(i + 7) - 0.5) * 0.9;
-      p.x = cx + Math.cos(a) * 4;
-      p.y = cy + Math.sin(a) * 4;
-      var kick = 2.4 + rnd(i + 3) * 3.8;
-      p.vx = Math.cos(a) * kick;
-      p.vy = Math.sin(a) * kick * 0.8;
-      var disc = p.el.querySelector('.collab-bubble-disc');
-      p.hw = disc ? disc.offsetWidth : 64;
-      p.r = p.hw / 2 + 2;
-    });
+  /* 固定鍵結：六節點彼此連線，距離越近線越實（結構感） */
+  function nodeLines() {
+    var i, j, a, b, dx, dy, d;
+    ctx.lineWidth = 1.2;
+    for (i = 0; i < nodes.length; i++) {
+      a = nodes[i];
+      for (j = i + 1; j < nodes.length; j++) {
+        b = nodes[j];
+        dx = (a.nx - b.nx) * W; dy = (a.ny - b.ny) * H;
+        d = Math.sqrt(dx * dx + dy * dy);
+        if (d < W * 0.55) {
+          var al = 0.18 * (1 - d / (W * 0.55)) + 0.05;
+          ctx.strokeStyle = 'rgba(20,179,145,' + al.toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.moveTo(a.nx * W, a.ny * H);
+          ctx.lineTo(b.nx * W, b.ny * H);
+          ctx.stroke();
+        }
+      }
+    }
   }
 
-  function place(p, s) {
-    p.el.style.transform = 'translate3d(' + (p.x - p.hw / 2).toFixed(1) + 'px,' +
-      (p.y - p.hw / 2).toFixed(1) + 'px,0) scale(' + s + ')';
+  /* 螢光電子：沿六邊形相鄰鍵結循環跑（科技感心跳） */
+  var electronPairs = [[0,1],[1,2],[2,4],[4,5],[5,3],[3,0]];
+  function electrons(t) {
+    var span = 5600;
+    for (var k = 0; k < electronPairs.length; k++) {
+      var A = nodes[electronPairs[k][0]], B = nodes[electronPairs[k][1]];
+      if (!A || !B) continue;
+      var ph = ((t / span) + k / electronPairs.length) % 1;
+      var ex = (A.nx + (B.nx - A.nx) * ph) * W;
+      var ey = (A.ny + (B.ny - A.ny) * ph) * H;
+      var g = ctx.createRadialGradient(ex, ey, 0, ex, ey, 9);
+      g.addColorStop(0, 'rgba(160,232,96,0.9)');
+      g.addColorStop(1, 'rgba(160,232,96,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(ex, ey, 9, 0, 7); ctx.fill();
+      ctx.fillStyle = '#c8ffaa';
+      ctx.beginPath(); ctx.arc(ex, ey, 1.8, 0, 7); ctx.fill();
+    }
   }
 
-  /* ---- 物理：彈簧回家长＋碰撞分離＋緩旋＋鼠斥＋橢圓壁 ---- */
-  function step(t) {
-    rafId = requestAnimationFrame(step);
-    var dt = Math.min(2.2, Math.max(0.5, (t - (step.last || t)) / 16.667));
-    step.last = t;
-    var cx = W / 2, cy = H / 2;
-    var vis = parts.filter(visible);
-    var i, j, p, q;
-
-    for (i = 0; i < vis.length; i++) {
-      p = vis[i];
-      /* 彈簧向家 */
-      p.vx += (p.hx - p.x) * 0.018 * dt;
-      p.vy += (p.hy - p.y) * 0.018 * dt;
-      /* 全域緩旋（半徑越大越慢，近開普勒） */
-      var dx = p.x - cx, dy = p.y - cy;
-      var rr = Math.sqrt(dx * dx + dy * dy) + 30;
-      var w = 0.055 / Math.sqrt(rr / 60) * dt;
-      p.vx += -dy * w * 0.06; p.vy += dx * w * 0.06;
-      /* 滑鼠斥力 */
+  /* 粒子鍵結線（首頁同款：近鄰連線＋游標牽線） */
+  function links() {
+    var i, j, p, q, dx, dy, d2;
+    ctx.lineWidth = 1;
+    for (i = 0; i < particles.length; i++) {
+      p = particles[i];
+      for (j = i + 1; j < particles.length; j++) {
+        q = particles[j];
+        dx = p.x - q.x; dy = p.y - q.y; d2 = dx * dx + dy * dy;
+        if (d2 < 11000) {
+          ctx.strokeStyle = 'rgba(20,179,145,' + ((1 - d2 / 11000) * 0.22).toFixed(3) + ')';
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+        }
+      }
       if (mouse.on) {
-        var mx = p.x - mouse.x, my = p.y - mouse.y;
-        var md = Math.sqrt(mx * mx + my * my);
-        if (md < 170 && md > 0.1) {
-          var f = (1 - md / 170) * 0.9 * dt;
-          p.vx += mx / md * f; p.vy += my / md * f;
-        }
-      }
-      p.vx *= Math.pow(0.94, dt); p.vy *= Math.pow(0.94, dt);
-      p.x += p.vx * dt; p.y += p.vy * dt;
-    }
-
-    /* 碰撞分離（兩次疊代，菌落不相疊） */
-    for (var pass = 0; pass < 2; pass++) {
-      for (i = 0; i < vis.length; i++) {
-        p = vis[i];
-        for (j = i + 1; j < vis.length; j++) {
-          q = vis[j];
-          var ox = p.x - q.x, oy = p.y - q.y;
-          var need = p.r + q.r;
-          var od = Math.sqrt(ox * ox + oy * oy);
-          if (od < need && od > 0.01) {
-            var push = (need - od) / 2 * 0.55;
-            var nx = ox / od, ny = oy / od;
-            p.x += nx * push; p.y += ny * push;
-            q.x -= nx * push; q.y -= ny * push;
-          }
+        dx = p.x - mouse.x; dy = p.y - mouse.y; d2 = dx * dx + dy * dy;
+        if (d2 < 18000) {
+          ctx.strokeStyle = 'rgba(160,232,96,' + (0.42 * (1 - Math.sqrt(d2) / 134)).toFixed(3) + ')';
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
         }
       }
     }
+  }
 
-    /* 橢圓壁：_out_of dish → 推回並吸能 */
-    for (i = 0; i < vis.length; i++) {
-      p = vis[i];
-      var rx = W / 2 - p.r - 8, ry = H / 2 - p.r - 8;
-      var ex = (p.x - cx) / rx, ey = (p.y - cy) / ry;
-      var m2 = ex * ex + ey * ey;
-      if (m2 > 1) {
-        var back = 1 - 1 / Math.sqrt(m2);
-        p.x -= (p.x - cx) * back * 0.8;
-        p.y -= (p.y - cy) * back * 0.8;
-        p.vx *= 0.6; p.vy *= 0.6;
+  function dots() {
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      ctx.globalAlpha = 0.5 + Math.sin(p.pulse) * 0.18;
+      ctx.fillStyle = p.c;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* reduced-motion：只畫一次靜態鍵結 */
+  function still() {
+    ctx.clearRect(0, 0, W, H);
+    nodeLines(); links(); dots();
+  }
+
+  function frame(t) {
+    if (!running) { rafId = null; return; }
+    rafId = requestAnimationFrame(frame);
+    var i, p;
+    ctx.clearRect(0, 0, W, H);
+    for (i = 0; i < particles.length; i++) {
+      p = particles[i];
+      p.x += p.vx + Math.sin(t / 3400 + p.pulse) * 0.05;
+      p.y += p.vy + Math.cos(t / 4100 + p.pulse) * 0.05;
+      if (mouse.on) {
+        var dx = mouse.x - p.x, dy = mouse.y - p.y;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < 18000 && d2 > 1) {
+          p.vx += dx * 0.00012; p.vy += dy * 0.00012;
+        }
       }
-      place(p, 1);
+      p.vx *= 0.992; p.vy *= 0.992;
+      if (p.x < -6) p.x = W + 6; if (p.x > W + 6) p.x = -6;
+      if (p.y < -6) p.y = H + 6; if (p.y > H + 6) p.y = -6;
+      p.pulse += 0.02;
     }
+    nodeLines(); links(); dots(); electrons(t);
   }
 
-  /* ---- 亮色模式：皿盤內碟保留白底，曝光壓暗 --------------------------------
-     （CSS 已經把 wall 改成深夜；亮色下保持同樣深色—這是設計意圖） */
+  function start() { if (!rafId && !reduce && running) rafId = requestAnimationFrame(frame); }
+  function stop() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
 
-  function startLoop() {
-    if (rafId || reduce) return;
-    rafId = requestAnimationFrame(step);
-  }
-  function stopLoop() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
-
-  function assemble() {
-    if (assembled) return;
-    assembled = true;
-    wall.classList.add('rx-orbital');
-    inner.classList.add('rx-orbital');
-    measure();
-    assignHomes();
-    if (reduce) {
-      parts.forEach(function (p) { p.x = p.hx; p.y = p.hy; place(p, 1); });
-      return;
-    }
-    explode();
-    /* 進入/boot：先隱藏 CSS 淡入由 reveal 動畫負責，這裡直接開跑物理 */
-    startLoop();
+  function init() {
+    size(); nodeAnchors(); seed();
+    if (reduce) { still(); return; }
+    running = true; start();
   }
 
-  /* ---- 觸發：進視窗才組裝（首次載入更有戲劇性）---- */
+  /* 進場：整皿浮現（CSS 靠 .rx-in）＋啟動畫布 */
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (!en.isIntersecting) return;
-        assemble();
+        stage.classList.add('rx-in');
+        init();
         io.disconnect();
       });
-    }, { threshold: 0.12 });
-    io.observe(wall);
+    }, { threshold: 0.18 });
+    io.observe(stage);
   } else {
-    assemble();
+    stage.classList.add('rx-in');
+    init();
   }
 
-  /* ---- 游標：斥力＋聚光燈 ---- */
-  wall.addEventListener('pointermove', function (e) {
-    var r = wall.getBoundingClientRect();
+  stage.addEventListener('pointermove', function (e) {
+    var r = stage.getBoundingClientRect();
     mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; mouse.on = true;
-    wall.style.setProperty('--sx', mouse.x + 'px');
-    wall.style.setProperty('--sy', mouse.y + 'px');
   });
-  wall.addEventListener('pointerleave', function () { mouse.on = false; });
+  stage.addEventListener('pointerleave', function () { mouse.on = false; mouse.x = mouse.y = -9999; });
 
-  /* ---- 尺寸變動：重算家位，位置保留（不重新爆發）---- */
   var rsT = null;
   window.addEventListener('resize', function () {
     clearTimeout(rsT);
-    rsT = setTimeout(function () {
-      if (!assembled) return;
-      measure(); assignHomes();
-    }, 220);
+    rsT = setTimeout(function () { size(); nodeAnchors(); seed(); if (reduce) still(); }, 200);
   });
 
-  /* ---- 分頁不可見暫停 ---- */
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) stopLoop();
-    else if (assembled && !reduce) startLoop();
+    if (document.hidden) stop(); else { running = true; start(); }
   });
 })();
