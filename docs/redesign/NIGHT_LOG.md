@@ -19,3 +19,23 @@
 - 新建 `docs/redesign/DESIGN_SYSTEM.md`、`wiki/pages/styleguide.html`（token/元件展示頁，自動進 freeze）。
 - 驗證：freeze OK → curl 每頁 200 → 外部網址 grep 乾淨 → 保護檔 diff 為空。
 - commit：`P1 設計系統：tokens/base/motion + styleguide` → hash 見 MORNING_REPORT。
+
+## P4 內頁編輯式（23:30–00:10）
+- 新建 static/css/editorial.css（編輯式皮膚）＋ static/js/editorial.js（自動偵測注入）。
+- editorial.js：章節≥3 的內頁注入 sticky 章節膠囊導航＋IntersectionObserver scroll-spy；空白頁注入 coming-soon 骨架；首頁/engineering/hw-nexus/edu-nexus/桌遊/已有 edu-sidebar 頁一律跳過。
+- layout.html 掛 editorial.css/js（全域）。
+- 驗證：freeze EXIT=0；curl 各頁全 200。
+- commit：76d871d
+
+## 收尾（00:10–00:40）
+- 全站新增檔註解「一律正體」掃修（13 檔簡體混字全部替換為正體）。
+- hero ghost 鈕深底亮字修正；深淺色預設改為亮色（localStorage 記憶深色）。
+- 編修時曾因批次字元替換誤觸「漢→漢」以外的乱替換（如 里→裡），逐一 grep 复核修正。
+- 最終 gate 重跑：freeze OK、24 頁 200、public 24 份 footer 全含 CC-BY-4.0＋gitlab.igem.org/2026/ncku-tainan、保護檔 diff 空。
+- commit：e087653
+- 在留下的 dev server（佔 8080）上驗證：/ hero 元素在、/styleguide 正常。
+- **將 8080 歸還**：結束我的 venv/bin/python app.py 程序，早上由使用者雙擊 本機預覽.command 自行開站。
+
+## 未做（如實）
+- 無頭瀏覽器 375/1440 截圖（環境無可用 Chromium profile）。
+- 未完成 P5 之後各組的逐頁深改版（hardware/model/software/education 本輪刻意不碰）。
