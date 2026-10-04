@@ -19,9 +19,14 @@
 
   var isHome = location.pathname.replace(/\/+$/, '') === '' || /\/index\.html$/.test(location.pathname);
 
+  /* 內容容器：layout.html 的 page_content 是 body 直下的 .container；
+     hero 裡那個 .container 只有標題文字——若誤拿它判空白，會在每頁
+     hero 誤插「coming soon」骨架並讓整頁失去章節導航。 */
+  var contentMain = document.querySelector('body > .container') || main;
+
   /* ---- 空白頁偵測：page_content 無任何實質內容 → 注入骨架 ---- */
-  var content = main.textContent.replace(/\s+/g, '');
-  var hasInteractive = main.querySelector('canvas, iframe, table, .cap-game, svg');
+  var content = contentMain.textContent.replace(/\s+/g, '');
+  var hasInteractive = contentMain.querySelector('canvas, iframe, table, .cap-game, svg, img');
   if (!isHome && content.length < 40 && !hasInteractive) {
     var mount = document.createElement('div');
     mount.className = 'rx-empty-mount';
