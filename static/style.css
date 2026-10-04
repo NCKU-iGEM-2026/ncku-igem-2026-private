@@ -7084,6 +7084,282 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 .hwx-seg button:disabled { opacity: 0.38; cursor: default; }
 .hwx-seg button:disabled:hover { background: #16242b; color: #a9bec7; }
 
+/* ---- the printed parts ---------------------------------------------------
+   The STL files, drawn by static/hardware-parts.js. Until that script has a
+   WebGL context the controls, the view and the readout stay hidden and the
+   panel is its heading and the list of files, which is complete without it.
+
+   The part colours are custom properties because the script reads them from
+   here: a part is drawn in the colour the legend shows for it. */
+.hwp {
+  --hwp-both: #b3c1cb;
+  --hwp-v1: #66757f;
+  --hwp-v2: #49c5b6;
+  --hwp-proxy: #5fb3e0;
+  --hwp-absent: #8fa5b0;
+  --hwp-hot: #e6b060;
+  --hwp-bed: #12222b;
+  --hwp-grid: #23404d;
+}
+
+/* Two links on the page land here; stop short of the fixed menu. */
+.hwp { scroll-margin-top: 90px; }
+
+/* Six module names do not fit beside the other controls, so they take a row
+   of their own under them and the zoom buttons stay where they were. */
+.hwp-tools { order: 1; margin-left: auto; }
+.hwp-wide { order: 2; flex-basis: 100%; }
+
+.hwp-stage {
+  position: relative;
+  height: clamp(320px, 52vw, 540px);
+  /* A drag that starts on the view and runs off it should not end up
+     selecting the paragraph underneath. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* Vertical swipes still scroll the page on a touch screen; a sideways drag
+   turns the view. */
+.hwp-view {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.hwp-view:active { cursor: grabbing; }
+.hwp-view:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: -3px; }
+
+.hwp-legend,
+.hwp-hud,
+.hwp-hint {
+  position: absolute;
+  margin: 0;
+  pointer-events: none;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--hwx-dim);
+}
+.hw .hwp-legend {
+  top: 0.7rem;
+  left: 1.1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1rem;
+  padding: 0;
+  list-style: none;
+}
+.hw .hwp-legend li { margin: 0; }
+.hwp-legend li::before {
+  content: "";
+  display: inline-block;
+  width: 0.62rem;
+  height: 0.62rem;
+  margin-right: 0.4rem;
+  border-radius: 2px;
+  background: var(--hwp-both);
+}
+.hwp-legend .hwp-k-v1::before { background: var(--hwp-v1); }
+.hwp-legend .hwp-k-v2::before { background: var(--hwp-v2); }
+.hwp-legend .hwp-k-proxy::before { background: var(--hwp-proxy); }
+/* Drawn the way the view draws it: an outline with nothing in it. */
+.hwp-legend .hwp-k-absent::before {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--hwp-absent);
+}
+.hwp-hud {
+  left: 1.1rem;
+  bottom: 0.65rem;
+  font-family: var(--hwx-mono);
+  font-size: 0.78rem;
+  color: var(--hwx-ink);
+}
+.hwp-hint { right: 1.1rem; bottom: 0.65rem; }
+
+.hwp-status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--hwx-dim);
+  pointer-events: none;
+}
+.hwp-status:empty { display: none; }
+
+/* ---- the selected part ---- */
+/* Tall enough for a part with a note, so choosing one does not move the
+   rest of the page. */
+.hw .hwp-readout { min-height: 7.6rem; }
+.hwp-r-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem 1rem;
+  margin-bottom: 0.25rem;
+}
+.hw .hwp-readout .hwp-r-head p { margin: 0; }
+.hw .hwp-readout p {
+  max-width: none;
+  margin: 0 0 0.3rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--hwx-ink);
+}
+.hw .hwp-readout .hwp-r-lead { color: var(--hwx-dim); }
+.hw .hwp-readout .hwp-r-lead strong { color: #eaf2f6; font-weight: 600; }
+.hw .hwp-readout .hwp-r-name {
+  font-family: "Changa", sans-serif;
+  font-size: 1.02rem;
+  color: #eaf2f6;
+}
+.hwp-back {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #26383f;
+  border-radius: 5px;
+  background: #16242b;
+  font-family: "Changa", sans-serif;
+  font-size: 0.76rem;
+  color: #a9bec7;
+  cursor: pointer;
+}
+.hwp-back:hover { background: #1e313a; color: #dce9ee; }
+.hwp-back:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
+
+/* ---- what a part's line is made of, in the list and in the readout ---- */
+.hwp-meta {
+  font-family: var(--hwx-mono);
+  font-size: 0.76rem;
+  color: var(--hwx-dim);
+}
+.hwp-meta .hwp-qty { color: var(--hwx-ink); }
+.hwp-meta .hwp-dims::before,
+.hwp-meta .hwp-state::before { content: "\00b7\00a0"; }
+.hwp-note { color: var(--hwx-dim); }
+.hw .hwp .hwp-dl {
+  min-width: 0;
+  /* It is a button once the script has it, and plain text until then. */
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: inherit;
+  font-size: 0.78rem;
+  color: var(--hwx-blue);
+  overflow-wrap: anywhere;
+}
+.hw .hwp .hwp-dl code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+  color: inherit;
+  white-space: normal;
+  /* File names have no spaces; without this the longest one sets the
+     width of its column and runs out of the panel on a phone. */
+  overflow-wrap: anywhere;
+}
+.hw .hwp .hwp-dl span { color: var(--hwx-dim); }
+.hw .hwp button.hwp-dl { cursor: pointer; }
+.hw .hwp button.hwp-dl code { text-decoration: underline; }
+.hw .hwp button.hwp-dl:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
+/* Before the script has run a file name is only a name. */
+.hw .hwp span.hwp-dl { color: var(--hwx-dim); }
+
+/* Where the files are, and the one link that works without the script. */
+.hw .hwp .hwp-get {
+  max-width: none;
+  margin: 0.2rem 0 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--hwx-dim);
+}
+.hw .hwp .hwp-get a { color: var(--hwx-blue); overflow-wrap: anywhere; }
+.hw .hwp .hwp-get .hwp-back { display: block; margin-top: 0.6rem; }
+
+/* ---- every file, folded away ---- */
+.hwp-files { border-top: 1px solid var(--hwx-rule); }
+.hwp-files-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.9rem;
+  padding: 0.75rem 1.1rem;
+  cursor: pointer;
+  list-style: none;
+}
+.hwp-files-head::-webkit-details-marker { display: none; }
+.hwp-files-head:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: -3px; }
+.hwp-files-title { font-family: "Changa", sans-serif; font-size: 0.92rem; color: #eaf2f6; }
+.hwp-files-meta { font-size: 0.78rem; color: var(--hwx-dim); }
+.hwp-files-state { margin-left: auto; font-size: 0.78rem; color: var(--hwx-green); }
+.hwp-files:not([open]) .hwp-files-state [data-open="true"],
+.hwp-files[open] .hwp-files-state [data-open="false"] { display: none; }
+.hwp-files-body { padding: 0 1.1rem 1rem; }
+
+.hw .hwp-group h4 {
+  margin: 1.1rem 0 0.35rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hwx-ink);
+}
+.hwp-group:first-child h4 { margin-top: 0.2rem; }
+.hwp-group h4 span {
+  margin-left: 0.5rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--hwx-dim);
+}
+.hw .hwp-group ul { margin: 0; padding: 0; list-style: none; }
+.hw .hwp-group li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.25fr);
+  gap: 0.1rem 1rem;
+  align-items: baseline;
+  margin: 0;
+  padding: 0.45rem 0.5rem;
+  border-top: 1px solid var(--hwx-rule);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.hwp-group li.is-on { background: rgba(230, 176, 96, 0.12); }
+.hwp-group .hwp-name { color: var(--hwx-ink); font-weight: 600; }
+/* The note comes before the link in the markup, which is the order it should
+   be read in, but sits under the row the other three share. */
+.hwp-group .hwp-note { grid-column: 1 / -1; grid-row: 2; font-size: 0.78rem; }
+.hwp-group .hwp-dl { grid-column: 3; grid-row: 1; justify-self: end; text-align: right; }
+.hwp-group button.hwp-pick {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--hwx-green);
+  cursor: pointer;
+}
+.hwp-group button.hwp-pick:hover { text-decoration: underline; }
+.hwp-group button.hwp-pick:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
+
+@media (max-width: 720px) {
+  .hw .hwp-group li { grid-template-columns: minmax(0, 1fr); }
+  .hwp-group .hwp-note,
+  .hwp-group .hwp-dl { grid-column: 1; grid-row: auto; }
+  .hwp-group .hwp-dl { justify-self: start; text-align: left; }
+  .hwp-tools { margin-left: 0; }
+  .hwp-hint { display: none; }
+}
+
 /* ---- the development log -------------------------------------------------
    A row of stops along a line, and under it the one step that is chosen.
    The line is drawn by the stops themselves: each one draws the segment that

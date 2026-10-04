@@ -48,6 +48,14 @@
            plan view 上的 ORIENT-A 標籤、內文裡的 P1／safe-start／SMUX 這類內部用語。
     沒動   3D 剖視圖、bench、channel map、Development log、兩張三場結果的表、What version 2 changes 那張表。
 
+  ── 2026-10-04 之後又加了一塊：真正的 CAD 組裝圖（The instrument 裡，id="hwParts"）──
+
+  對照過去的得獎隊伍：多數有放可下載的 CAD（TU Darmstadt 2025 放 ZIP、Aachen 2024 放 GitLab、
+  Brno 2025 放 GitHub），頁面上則是靜態的 CAD 圖；唯一試著做可旋轉檢視器的 Rochester 2025
+  線上沒有顯示出來。本頁現在是直接讀 STL 畫出組裝起來的樣子（可拉開、可切換第一／二版、
+  可逐件看），每個檔都能下載。原本的 3D 剖視圖是示意圖，收進它下面的摺疊裡，內容沒有動。
+  詳細說明寫在那一塊上方的註解。
+
   精簡前的版本留在硬體負責人手上；第二版更新前的版本就是 PR #122 合併進 dev 的那一版，可從 git 歷史還原。
   開頭仍然缺一張實機照片或影片：得獎頁面幾乎都以實機畫面開場，本頁目前零張圖。
 
@@ -114,9 +122,11 @@
   A. USER TESTING（第 2 題，目前最弱）見上。
 
   B. 釋出設計檔（第 4 題）
-     CAD / STL / STEP / 韌體 / BOM 放到 iGEM GitLab repo 或 uploads tool，並決定授權。
-     v0.8 的五個 STL 與 STEP 在 P1_MECH_V08_ROUND2_2026-10-02/exports/。
-     "The file manifest" 表格下方那段話說明目前還沒發布；檔案上線後換成連結。沒有先填任何網址。
+     2026-10-04：可列印的 STL（53 檔）已經做成 The instrument 裡的 CAD 組裝圖，可以在頁面上
+     轉著看、逐件存成 STL。檔案是一個 .glb，放在 static.igem.wiki（uploads tool 不收 STL 和 ZIP），
+     不在 repo 裡；說明寫在那一塊上方的註解。
+     還沒放的：CadQuery 原始碼、STEP、韌體、BOM。建議放到 iGEM GitLab（跟 LasReader 同一個群組），
+     並決定授權；"The file manifest" 下方那段話照實寫了哪些已經在頁面上、哪些還沒有。沒有先填任何網址。
 
   C. 組裝步驟與照片（第 4 題）
      "Fitting the version 2 parts" 是 round-2 README 的「組裝提示」改寫的：那是設計時寫的提示，
@@ -445,6 +455,481 @@
     {# VIDEO: 示範影片上傳到 video.igem.org 之後放在這裡（寫法照 home.html 的 promotion video），
        圖說要寫清楚拍的是哪一台、哪一版。10-03 錄的那幾段沒有罩紙箱，畫面上的讀值不能當數據。 #}
 
+    {#
+      === 給團隊：真正的 CAD（2026-10-04 新增，取代剖視圖成為主要的 3D 圖）===
+      下面摺疊起來的剖視圖是用光路座標畫的示意圖，不是 CAD。這一塊畫的是真正拿去列印的 STL，
+      而且每一件都放在 CAD 組裝檔指定的位置上。畫圖的是 static/hardware-parts.js
+      （WebGL，沒有外部函式庫）。三種看法：
+
+        Assembled      組裝起來的樣子（預設，第二版）
+        Pulled apart   拉開：照 CAD 自己的爆炸組裝檔移動
+        Laid out       把一個模組的檔案並排攤在 10 mm 格線上（沒進組裝的零件只在這裡看得到）
+
+      位置從哪裡來：STL 各自在自己的座標裡（多半是躺在列印床上的方向），檔案本身沒有位置資訊。
+      位置是從硬體資料夾的 STEP 組裝檔讀出來的，再逐點核對：組裝檔裡每個實體的所有頂點，
+      都要落在移動後的 STL 頂點上；外框誤差最大 0.05 mm。結果就是下面那段 JSON（id="hwPartsPlan"），
+      程式只照著擺，不自己算位置。
+        第一版    output/capture_screen_optical_core_base_plate_v0_7/optical_core_full_assembly_v0_7_angled_wedge.step
+        拉開      同資料夾 optical_core_exploded_assembly_v0_7.step（設計者自己的爆炸圖）
+        第二版    _AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/exports/v0_8_round2_reference_assembly.step
+                  （五件新零件的位置；其餘沿用第一版組裝檔。新零件在「拉開」時跟著它取代的舊件移動）
+
+      組裝圖裡有、但這裡沒畫的：8 支 M3 螺絲、LED 的兩支接腳、偵測器的 optional aperture mask
+      （有 STL，但列印包明寫不含）。UVette、LED、感測器板是買的，沒有 STL，照 CAD 給的外框
+      畫成一個方塊或圓柱（藍色）。
+      第一版用「只畫外框」標出五件當時不在機器上的零件：沒到貨的 LED-holder cap 和 retainer clip、
+      只做了一片所以缺的那片 leaf（+X 那一側；裝上的是 +Y 那片）、設計圖裡有但從沒裝過的兩片光闌片。
+      第二版畫的是「設計上的樣子」：紀錄裡沒有回報五件新零件哪幾件實際裝上，頁面上照實寫了。
+
+      沒有出現在組裝圖裡的零件（只在 Laid out 看得到）：1.5／6 mm 光闌片、gate B、collar gauge、
+      三片 shim、圓形與方形濾片 insert、fit coupons。
+
+      檔案放在哪裡：iGEM 的 uploads tool 不收 .stl（422 Unable to determine file type）、不收 .zip
+      （mime-type not allowed），把 STL 改名成 .json 也會被擋（會檢查內容是不是 JSON）。.glb 收。
+      所以 53 個 STL 被包成一個 glTF 模型（.glb），傳到
+        https://static.igem.wiki/teams/6379/wiki/hardware-cad/
+      網址寫在下面 <div id="hwParts"> 的 data-model，還有 "Every file" 裡那個下載連結，共兩處。
+      這個 .glb 不是簡化過的版本：每個 STL 是一個 mesh，名字就是 STL 檔名，頂點是原檔的 32 位元
+      浮點數，三角形順序也一樣。打包時讀回來逐個三角形比對過，全部相同。
+      所以頁面上的下載按鈕可以在瀏覽器裡把零件還原成 STL（單一零件，或全部包成一個 ZIP）。
+      repo 裡沒有任何 STL 或 .glb，build 不依賴它們。
+      ⚠ static.igem.wiki 的快取是兩年。模型要更新時不要覆蓋同名檔，請換檔名（檔名裡有日期），
+        再把上面兩處網址一起改掉。
+
+      下面的清單是文字資料的來源：名稱、件數、尺寸、說明都寫在這裡，程式只負責畫。
+      沒有 JavaScript 或 WebGL 的時候，這份清單和那個模型的下載連結照樣能用。
+      檔案來源（原檔名沒有改）：
+        第一版 59 件／46 檔  output/CAPTURE_Screen_P1_PRINT_ONLY_v0_6（紀錄裡指定 59 件的那個列印包）
+                             其中底板那一組用 output/capture_screen_optical_core_base_plate_v0_7 的 v0.7 檔
+                             （只有 detector_locator_frame 跟 v0.6 不同，其餘逐位元相同）
+        第二版 5 件          _AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/exports
+        第二版試配件 2 件    _AI_REFACTOR_WORK/P1_MECH_V08_ROUND1_HANDOFF_2026-09-25/vendor_package
+      尺寸是每個檔案在自己的 X、Y、Z 上的範圍，由檔案算出來，取到 0.05 mm。
+
+      ⚠ 英文零件名稱多半是從檔名寫的，請硬體負責人看一遍。
+      ⚠ 授權還沒決定。頁面上沒有另外寫授權聲明；要標硬體授權請告訴我。
+      ⚠ CAD 是用 AI 工具協助寫出來的（CadQuery 原始碼），Attributions 要寫。
+    #}
+    <p>
+      Below is the 3D-printed optical core itself. Every printed part is
+      drawn with the mesh of the STL file that was prepared for printing,
+      and stands where the CAD assembly puts it. Pull it apart, switch
+      between the two versions, or lay one module's parts side by side.
+    </p>
+
+    <div class="hwx-rig hwp" id="hwParts"
+         data-model="https://static.igem.wiki/teams/6379/wiki/hardware-cad/capture-screen-printed-parts-20261004.glb">
+      <div class="hwx-rig-head">
+        <h3>The optical core, from its CAD files</h3>
+        <p class="hwx-rig-sub">Every printed part, with the mesh of its STL file &middot; grid 10&nbsp;mm</p>
+      </div>
+
+      <div class="hwx-ctrls hwp-ctrls" hidden></div>
+
+      <div class="hwx-rig-figure hwp-stage" hidden>
+        <canvas class="hwp-view" tabindex="0" role="img"
+          aria-label="Three-dimensional view of the 3D-printed optical core, drawn from its STL files. A base plate carries, along the excitation axis, the LED holder, the aperture baffle, the cuvette holder and the light trap; the detector holder stands at right angles to that axis. Drag to rotate, or use the arrow keys. The list under the view gives every part, its size and its file."></canvas>
+        <ul class="hwp-legend">
+          <li class="hwp-k-both" data-in="v1 v2 laid">in both versions</li>
+          <li class="hwp-k-v1" data-in="v1 laid">version 1 only</li>
+          <li class="hwp-k-v2" data-in="v2 laid">version 2</li>
+          <li class="hwp-k-proxy" data-in="v1 v2">bought, not printed</li>
+          <li class="hwp-k-absent" data-in="v1">specified, not on the instrument</li>
+        </ul>
+        <div class="hwp-hud" aria-hidden="true"></div>
+        <div class="hwp-hint" aria-hidden="true">drag to rotate &middot; click a part &middot; ctrl + scroll to zoom</div>
+        <div class="hwp-status" role="status"></div>
+      </div>
+
+      <div class="hwx-rig-body hwp-readout" hidden aria-live="polite"></div>
+
+      {# 每種看法底下那一句話。程式從這裡拿字，改這裡就會改到畫面上。 #}
+      <div class="hwp-says" hidden>
+        <p data-for="v2">Version 2 as designed: 38 printed pieces. The five replacement parts are in green; which of them are fitted on the real instrument is not yet on record. Pick a part for its size and its file.</p>
+        <p data-for="v1">Version 1 as designed: 45 printed pieces. The five in outline were specified but not on the instrument: a cap and a clip that never arrived, a second leaf that was never made, and two aperture disks that were never fitted. Pick a part for its size and its file.</p>
+        <p data-for="laid">Every file of the module, side by side as it was exported. Pick a part for its size and its file.</p>
+      </div>
+
+      {# 每一件的位置（由 STEP 組裝檔讀出、逐點核對過）。f 檔名、t 位移、r 旋轉（沒有就是不轉）、
+         x 拉開時移動多少、a 表示當時不在機器上。p1／p2 是買來的零件，只有外框。 #}
+      <script type="application/json" id="hwPartsPlan">{% raw %}{"v1":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"uvette_datum_riser_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_LED_holder_v0_7.stl","t":[-37.5,0.0,8.5],"x":[0.0,0.0,28.8],"a":1},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"capture_screen_led_holder_v0_1_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"capture_screen_led_holder_v0_1_retainer_clip.stl","t":[-44.0,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,38.4],"a":1},{"f":"capture_screen_aperture_baffle_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-11.2,0.0,16.0]},{"f":"aperture_disk_2p5mm.stl","t":[-30.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"aperture_disk_4mm.stl","t":[-22.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"uvette_holder_common_body.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_orientation_gate_A.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,48.0]},{"f":"uvette_preload_leaf.stl","t":[6.45,0.0,13.0],"x":[0.0,0.0,40.0],"a":1},{"f":"uvette_preload_leaf.stl","t":[0.0,6.45,13.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,40.0]},{"f":"uvette_index_collar.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,58.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]}],"v2":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]},{"f":"uvette_holder_body_v0_3.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_seat_riser_v0_2.stl","t":[0.0,0.0,-11.5]},{"f":"led_holder_body_v0_3.stl","t":[-52.8,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"aperture_baffle_body_v0_2.stl","t":[-33.25,0.0,13.5],"r":[1,0,0,0,-1,0,0,0,-1],"x":[-11.2,0.0,16.0]},{"f":"excitation_cap_LED_holder_v0_7_roof_down.stl","t":[-37.5,0.0,20.95],"r":[1,0,0,0,-1,0,0,0,-1],"x":[0.0,0.0,28.8]}],"p1":[{"id":"led","shape":"cyl","lo":[-42.55,-2.9,5.6],"hi":[-33.75,2.9,11.4],"x":[-50.8,-11.2,22.4]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]}],"p2":[{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"led","shape":"cyl","lo":[-42.5,-2.9,5.6],"hi":[-33.7,2.9,11.4],"x":[-50.8,-11.2,22.4]}]}{% endraw %}</script>
+
+      <details class="hwp-files">
+        <summary class="hwp-files-head">
+          <span class="hwp-files-title">Every file</span>
+          <span class="hwp-files-meta">53 STL files, 66 pieces</span>
+          <span class="hwp-files-state" aria-hidden="true">
+            <span data-open="false">Show</span>
+            <span data-open="true">Hide</span>
+          </span>
+        </summary>
+        <div class="hwp-files-body">
+          {# 沒有 JavaScript 時只有這個連結；有的話程式會在後面加一顆「全部存成 STL」的按鈕，
+             清單裡每個檔名也會變成下載該零件 STL 的按鈕。 #}
+          <p class="hwp-get">
+            iGEM's file server takes neither STL nor ZIP files, so the 53 STL
+            files are kept as one glTF model, triangle for triangle:
+            <a href="https://static.igem.wiki/teams/6379/wiki/hardware-cad/capture-screen-printed-parts-20261004.glb">capture-screen-printed-parts-20261004.glb</a>
+            <span>(1.7&nbsp;MB)</span>. With JavaScript on, each file name
+            below saves that part as an STL again.
+          </p>
+          <section class="hwp-group" data-group="excitation">
+            <h4>Excitation end <span>14 files, 15 pieces</span></h4>
+            <ul>
+              <li data-file="excitation_cradle_v0_7.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Excitation cradle</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">36.5 &times; 38 &times; 20&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-note">Carries the LED holder and the baffle on the base plate.</span>
+                <span class="hwp-dl" data-stl="excitation_cradle_v0_7.stl"><code>excitation_cradle_v0_7.stl</code> <span>195&nbsp;KB</span></span>
+              </li>
+              <li data-file="capture_screen_led_holder_v0_1_body.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">LED holder body</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">20.4 &times; 20.4 &times; 21.3&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-note">Split in two at its clip slot when the supports were removed, and was taped back together.</span>
+                <span class="hwp-dl" data-stl="capture_screen_led_holder_v0_1_body.stl"><code>capture_screen_led_holder_v0_1_body.stl</code> <span>259&nbsp;KB</span></span>
+              </li>
+              <li data-file="led_holder_body_v0_3.stl" data-qty="1" data-state="v2">
+                <span class="hwp-name">LED holder body, version 2</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">21.6 &times; 21.6 &times; 21.3&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
+                <span class="hwp-note">Replaces the old body and its clip. It has no clip slot.</span>
+                <span class="hwp-dl" data-stl="led_holder_body_v0_3.stl"><code>led_holder_body_v0_3.stl</code> <span>292&nbsp;KB</span></span>
+              </li>
+              <li data-file="capture_screen_led_holder_v0_1_retainer_clip.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">LED retainer clip</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">14.5 &times; 11.5 &times; 1&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-note">Specified, but it never arrived.</span>
+                <span class="hwp-dl" data-stl="capture_screen_led_holder_v0_1_retainer_clip.stl"><code>capture_screen_led_holder_v0_1_retainer_clip.stl</code> <span>35&nbsp;KB</span></span>
+              </li>
+              <li data-file="capture_screen_aperture_baffle_body.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">Aperture baffle body</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">16 &times; 16 &times; 15&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-note">Broke at both disk slots when the supports were removed, and was taped back together in three pieces.</span>
+                <span class="hwp-dl" data-stl="capture_screen_aperture_baffle_body.stl"><code>capture_screen_aperture_baffle_body.stl</code> <span>247&nbsp;KB</span></span>
+              </li>
+              <li data-file="aperture_baffle_body_v0_2.stl" data-qty="1" data-state="v2">
+                <span class="hwp-name">Aperture baffle body, version 2</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">15 &times; 16 &times; 13&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
+                <span class="hwp-note">Drawn to print on its side.</span>
+                <span class="hwp-dl" data-stl="aperture_baffle_body_v0_2.stl"><code>aperture_baffle_body_v0_2.stl</code> <span>146&nbsp;KB</span></span>
+              </li>
+              <li data-file="excitation_cap_LED_holder_v0_7.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">LED-holder cap</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">6 &times; 30.6 &times; 12.45&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-note">Specified, but it never arrived.</span>
+                <span class="hwp-dl" data-stl="excitation_cap_LED_holder_v0_7.stl"><code>excitation_cap_LED_holder_v0_7.stl</code> <span>79&nbsp;KB</span></span>
+              </li>
+              <li data-file="excitation_cap_LED_holder_v0_7_roof_down.stl" data-qty="1" data-state="v2">
+                <span class="hwp-name">LED-holder cap, version 2</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">6 &times; 30.6 &times; 12.45&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
+                <span class="hwp-note">The same shape, turned over so it prints flat face down.</span>
+                <span class="hwp-dl" data-stl="excitation_cap_LED_holder_v0_7_roof_down.stl"><code>excitation_cap_LED_holder_v0_7_roof_down.stl</code> <span>93&nbsp;KB</span></span>
+              </li>
+              <li data-file="excitation_cap_baffle_v0_7.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Baffle cap</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">6 &times; 26.4 &times; 10.25&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="excitation_cap_baffle_v0_7.stl"><code>excitation_cap_baffle_v0_7.stl</code> <span>80&nbsp;KB</span></span>
+              </li>
+              <li data-file="excitation_locator_key_print_two_v0_7.stl" data-qty="2" data-state="both">
+                <span class="hwp-name">Excitation locator key</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">8 &times; 4.8 &times; 4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="excitation_locator_key_print_two_v0_7.stl"><code>excitation_locator_key_print_two_v0_7.stl</code> <span>0.7&nbsp;KB</span></span>
+              </li>
+              <li data-file="aperture_disk_1p5mm.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Aperture disk, 1.5 mm</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12 &times; 12 &times; 1&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-note">No disk was fitted for any measurement.</span>
+                <span class="hwp-dl" data-stl="aperture_disk_1p5mm.stl"><code>aperture_disk_1p5mm.stl</code> <span>111&nbsp;KB</span></span>
+              </li>
+              <li data-file="aperture_disk_2p5mm.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Aperture disk, 2.5 mm</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12 &times; 12 &times; 1&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-note">No disk was fitted for any measurement.</span>
+                <span class="hwp-dl" data-stl="aperture_disk_2p5mm.stl"><code>aperture_disk_2p5mm.stl</code> <span>111&nbsp;KB</span></span>
+              </li>
+              <li data-file="aperture_disk_4mm.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Aperture disk, 4 mm</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12 &times; 12 &times; 1&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-note">No disk was fitted for any measurement.</span>
+                <span class="hwp-dl" data-stl="aperture_disk_4mm.stl"><code>aperture_disk_4mm.stl</code> <span>99&nbsp;KB</span></span>
+              </li>
+              <li data-file="aperture_disk_6mm.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Aperture disk, 6 mm</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12 &times; 12 &times; 1&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-note">No disk was fitted for any measurement.</span>
+                <span class="hwp-dl" data-stl="aperture_disk_6mm.stl"><code>aperture_disk_6mm.stl</code> <span>99&nbsp;KB</span></span>
+              </li>
+            </ul>
+          </section>
+          <section class="hwp-group" data-group="cuvette">
+            <h4>Cuvette seat <span>11 files, 13 pieces</span></h4>
+            <ul>
+              <li data-file="uvette_holder_common_body.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">UVette holder body</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">36 &times; 36 &times; 25.5&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-dl" data-stl="uvette_holder_common_body.stl"><code>uvette_holder_common_body.stl</code> <span>308&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_holder_body_v0_3.stl" data-qty="1" data-state="v2">
+                <span class="hwp-name">UVette holder body, version 2</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">36 &times; 36 &times; 25.5&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
+                <span class="hwp-note">One piece in place of the old body, both gates, the collar, the gauge and the leaf. Eight ribs locate the cuvette.</span>
+                <span class="hwp-dl" data-stl="uvette_holder_body_v0_3.stl"><code>uvette_holder_body_v0_3.stl</code> <span>215&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_datum_riser_v0_7.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">UVette riser</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">43 &times; 42.5 &times; 13&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-dl" data-stl="uvette_datum_riser_v0_7.stl"><code>uvette_datum_riser_v0_7.stl</code> <span>172&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_seat_riser_v0_2.stl" data-qty="1" data-state="v2">
+                <span class="hwp-name">UVette seat riser, version 2</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">43 &times; 42.5 &times; 13&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
+                <span class="hwp-dl" data-stl="uvette_seat_riser_v0_2.stl"><code>uvette_seat_riser_v0_2.stl</code> <span>207&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_orientation_gate_A.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">Orientation gate A</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">32 &times; 32 &times; 2&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-dl" data-stl="uvette_orientation_gate_A.stl"><code>uvette_orientation_gate_A.stl</code> <span>101&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_orientation_gate_B.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">Orientation gate B</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">32 &times; 32 &times; 2&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-dl" data-stl="uvette_orientation_gate_B.stl"><code>uvette_orientation_gate_B.stl</code> <span>101&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_index_collar.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">Index collar</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">24 &times; 20 &times; 5&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-dl" data-stl="uvette_index_collar.stl"><code>uvette_index_collar.stl</code> <span>5.0&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_collar_setting_gauge.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">Collar setting gauge</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">7 &times; 3 &times; 8.5&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-dl" data-stl="uvette_collar_setting_gauge.stl"><code>uvette_collar_setting_gauge.stl</code> <span>1.4&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_preload_leaf.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">Preload leaf</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">1.7 &times; 10 &times; 12&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-note">One was specified and received. The holder design called for two.</span>
+                <span class="hwp-dl" data-stl="uvette_preload_leaf.stl"><code>uvette_preload_leaf.stl</code> <span>2.2&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_x_hold_down_clip_print_two_v0_7.stl" data-qty="2" data-state="both">
+                <span class="hwp-name">Hold-down clip, X side</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">6.4 &times; 8.6 &times; 4.9&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="uvette_x_hold_down_clip_print_two_v0_7.stl"><code>uvette_x_hold_down_clip_print_two_v0_7.stl</code> <span>2.6&nbsp;KB</span></span>
+              </li>
+              <li data-file="uvette_y_hold_down_clip_print_two_v0_7.stl" data-qty="2" data-state="both">
+                <span class="hwp-name">Hold-down clip, Y side</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">6.4 &times; 7.6 &times; 4.9&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="uvette_y_hold_down_clip_print_two_v0_7.stl"><code>uvette_y_hold_down_clip_print_two_v0_7.stl</code> <span>2.6&nbsp;KB</span></span>
+              </li>
+            </ul>
+          </section>
+          <section class="hwp-group" data-group="detection">
+            <h4>Detection side <span>17 files, 20 pieces</span></h4>
+            <ul>
+              <li data-file="as7341_detector_body.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Detector holder body</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">40 &times; 30 &times; 40&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="as7341_detector_body.stl"><code>as7341_detector_body.stl</code> <span>399&nbsp;KB</span></span>
+              </li>
+              <li data-file="as7341_pcb_carrier.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Sensor board carrier</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">32 &times; 3.2 &times; 32&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="as7341_pcb_carrier.stl"><code>as7341_pcb_carrier.stl</code> <span>151&nbsp;KB</span></span>
+              </li>
+              <li data-file="as7341_pcb_retainer.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Sensor board retainer</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">25.4 &times; 1.5 &times; 16.8&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="as7341_pcb_retainer.stl"><code>as7341_pcb_retainer.stl</code> <span>86&nbsp;KB</span></span>
+              </li>
+              <li data-file="detector_locator_frame_v0_7.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Detector locator frame</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">55 &times; 34.15 &times; 6&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-note">The one part redrawn for v0.7, after the print shop&#x27;s slicer showed thin walls at the pin sockets.</span>
+                <span class="hwp-dl" data-stl="detector_locator_frame_v0_7.stl"><code>detector_locator_frame_v0_7.stl</code> <span>83&nbsp;KB</span></span>
+              </li>
+              <li data-file="detector_locator_pin_print_two_v0_7.stl" data-qty="2" data-state="both">
+                <span class="hwp-name">Detector locator pin</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">3.2 &times; 3.2 &times; 4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="detector_locator_pin_print_two_v0_7.stl"><code>detector_locator_pin_print_two_v0_7.stl</code> <span>20&nbsp;KB</span></span>
+              </li>
+              <li data-file="detector_side_clamp_print_two_v0_7.stl" data-qty="2" data-state="both">
+                <span class="hwp-name">Detector side clamp</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">10 &times; 10 &times; 6&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="detector_side_clamp_print_two_v0_7.stl"><code>detector_side_clamp_print_two_v0_7.stl</code> <span>22&nbsp;KB</span></span>
+              </li>
+              <li data-file="common_cassette_body.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Filter cassette body</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">22 &times; 22 &times; 8&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="common_cassette_body.stl"><code>common_cassette_body.stl</code> <span>72&nbsp;KB</span></span>
+              </li>
+              <li data-file="blank_open_control_insert.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Cassette insert, open</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">24.25 &times; 20.5 &times; 5.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="blank_open_control_insert.stl"><code>blank_open_control_insert.stl</code> <span>53&nbsp;KB</span></span>
+              </li>
+              <li data-file="round_12p5_insert_base.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Cassette insert, round 12.5 mm: base</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">24.25 &times; 20.5 &times; 5.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="round_12p5_insert_base.stl"><code>round_12p5_insert_base.stl</code> <span>126&nbsp;KB</span></span>
+              </li>
+              <li data-file="round_12p5_insert_cap.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Cassette insert, round 12.5 mm: cap</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">15 &times; 15 &times; 1.3&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="round_12p5_insert_cap.stl"><code>round_12p5_insert_cap.stl</code> <span>49&nbsp;KB</span></span>
+              </li>
+              <li data-file="round_12p5_2mm_spacer.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Cassette insert, round 12.5 mm: 1.5 mm spacer for a 2 mm filter</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12.5 &times; 12.5 &times; 1.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="round_12p5_2mm_spacer.stl"><code>round_12p5_2mm_spacer.stl</code> <span>49&nbsp;KB</span></span>
+              </li>
+              <li data-file="square_6x6_insert_base.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Cassette insert, square 6 mm: base</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">24.25 &times; 20.5 &times; 5.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="square_6x6_insert_base.stl"><code>square_6x6_insert_base.stl</code> <span>55&nbsp;KB</span></span>
+              </li>
+              <li data-file="square_6x6_insert_cap.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Cassette insert, square 6 mm: cap</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">10 &times; 10 &times; 1.3&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="square_6x6_insert_cap.stl"><code>square_6x6_insert_cap.stl</code> <span>1.6&nbsp;KB</span></span>
+              </li>
+              <li data-file="replacement_filter_cassette_clamp_bar_print_two_v0_7.stl" data-qty="2" data-state="both">
+                <span class="hwp-name">Cassette clamp bar</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">36.4 &times; 2.5 &times; 6.4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="replacement_filter_cassette_clamp_bar_print_two_v0_7.stl"><code>replacement_filter_cassette_clamp_bar_print_two_v0_7.stl</code> <span>42&nbsp;KB</span></span>
+              </li>
+              <li data-file="alignment_shim_1p5mm.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Alignment shim, 1.5 mm</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">20 &times; 2.5 &times; 1.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="alignment_shim_1p5mm.stl"><code>alignment_shim_1p5mm.stl</code> <span>0.7&nbsp;KB</span></span>
+              </li>
+              <li data-file="alignment_shim_2p0mm.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Alignment shim, 2.0 mm</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">20 &times; 2.5 &times; 2&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="alignment_shim_2p0mm.stl"><code>alignment_shim_2p0mm.stl</code> <span>0.7&nbsp;KB</span></span>
+              </li>
+              <li data-file="alignment_shim_2p5mm.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Alignment shim, 2.5 mm</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">20 &times; 2.5 &times; 2.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="alignment_shim_2p5mm.stl"><code>alignment_shim_2p5mm.stl</code> <span>0.7&nbsp;KB</span></span>
+              </li>
+            </ul>
+          </section>
+          <section class="hwp-group" data-group="trap">
+            <h4>Light trap <span>3 files, 4 pieces</span></h4>
+            <ul>
+              <li data-file="optical_light_trap_angled_wedge_v0_1.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Light trap, angled wedge</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">27 &times; 40 &times; 18&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="optical_light_trap_angled_wedge_v0_1.stl"><code>optical_light_trap_angled_wedge_v0_1.stl</code> <span>133&nbsp;KB</span></span>
+              </li>
+              <li data-file="light_trap_adapter_riser_v0_7.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Light-trap riser</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">29 &times; 42 &times; 13&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="light_trap_adapter_riser_v0_7.stl"><code>light_trap_adapter_riser_v0_7.stl</code> <span>126&nbsp;KB</span></span>
+              </li>
+              <li data-file="light_trap_clamp_plate_print_two_v0_7.stl" data-qty="2" data-state="both">
+                <span class="hwp-name">Light-trap clamp plate</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">10 &times; 8.7 &times; 2&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="light_trap_clamp_plate_print_two_v0_7.stl"><code>light_trap_clamp_plate_print_two_v0_7.stl</code> <span>37&nbsp;KB</span></span>
+              </li>
+            </ul>
+          </section>
+          <section class="hwp-group" data-group="base">
+            <h4>Base plate <span>3 files, 9 pieces</span></h4>
+            <ul>
+              <li data-file="optical_core_base_plate_v0_7.stl" data-qty="1" data-state="both">
+                <span class="hwp-name">Base plate</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">120 &times; 110 &times; 4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="optical_core_base_plate_v0_7.stl"><code>optical_core_base_plate_v0_7.stl</code> <span>563&nbsp;KB</span></span>
+              </li>
+              <li data-file="bench_foot_print_four_v0_7.stl" data-qty="4" data-state="both">
+                <span class="hwp-name">Bench foot</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;4</span> <span class="hwp-dims">10 &times; 10 &times; 4.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="bench_foot_print_four_v0_7.stl"><code>bench_foot_print_four_v0_7.stl</code> <span>42&nbsp;KB</span></span>
+              </li>
+              <li data-file="locator_pin_print_four_v0_7.stl" data-qty="4" data-state="both">
+                <span class="hwp-name">Locator pin</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;4</span> <span class="hwp-dims">4.8 &times; 4.8 &times; 4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-dl" data-stl="locator_pin_print_four_v0_7.stl"><code>locator_pin_print_four_v0_7.stl</code> <span>20&nbsp;KB</span></span>
+              </li>
+            </ul>
+          </section>
+          <section class="hwp-group" data-group="coupons">
+            <h4>Fit coupons <span>5 files, 5 pieces</span></h4>
+            <ul>
+              <li data-file="uvette_fit_coupon_v0_2.stl" data-qty="1" data-state="v2">
+                <span class="hwp-name">UVette fit coupon</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">70 &times; 21.9 &times; 26.7&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
+                <span class="hwp-note">Four cuvette pockets, 0.05 to 0.20 mm clear on each side. Print it before the holder body.</span>
+                <span class="hwp-dl" data-stl="uvette_fit_coupon_v0_2.stl"><code>uvette_fit_coupon_v0_2.stl</code> <span>293&nbsp;KB</span></span>
+              </li>
+              <li data-file="led_fit_coupon_v0_2.stl" data-qty="1" data-state="v2">
+                <span class="hwp-name">LED fit coupon</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">44 &times; 12 &times; 11.6&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
+                <span class="hwp-note">Four LED sockets, 0 to 0.30 mm tight. Print it before the LED holder body.</span>
+                <span class="hwp-dl" data-stl="led_fit_coupon_v0_2.stl"><code>led_fit_coupon_v0_2.stl</code> <span>692&nbsp;KB</span></span>
+              </li>
+              <li data-file="fit_coupon_interface_base_v0_7.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">Interface coupon, base</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">110 &times; 60 &times; 10&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-note">Specified for printing first, to check holes, pins and sliding fits.</span>
+                <span class="hwp-dl" data-stl="fit_coupon_interface_base_v0_7.stl"><code>fit_coupon_interface_base_v0_7.stl</code> <span>583&nbsp;KB</span></span>
+              </li>
+              <li data-file="fit_coupon_planar_clearance_base_v0_7.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">Planar clearance coupon, base</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">82 &times; 30 &times; 8&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-note">Specified for printing first, to check holes, pins and sliding fits.</span>
+                <span class="hwp-dl" data-stl="fit_coupon_planar_clearance_base_v0_7.stl"><code>fit_coupon_planar_clearance_base_v0_7.stl</code> <span>212&nbsp;KB</span></span>
+              </li>
+              <li data-file="fit_coupon_slider_v0_7.stl" data-qty="1" data-state="v1">
+                <span class="hwp-name">Coupon slider</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">10 &times; 18 &times; 9&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
+                <span class="hwp-note">Specified for printing first, to check holes, pins and sliding fits.</span>
+                <span class="hwp-dl" data-stl="fit_coupon_slider_v0_7.stl"><code>fit_coupon_slider_v0_7.stl</code> <span>1.4&nbsp;KB</span></span>
+              </li>
+            </ul>
+          </section>
+          {# 買來的零件沒有 STL，但畫面上點得到，所以在清單裡也有一行（程式用 data-standin 對應）。
+             尺寸是 CAD 組裝檔裡那個替身的外框。 #}
+          <section class="hwp-group hwp-bought">
+            <h4>Bought, not printed <span>3 parts, drawn as plain shapes in the assembly</span></h4>
+            <ul>
+              <li data-standin="uvette">
+                <span class="hwp-name">Eppendorf UVette</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12.5 &times; 12.5 &times; 36&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-note">The sample cuvette. Drawn as a plain block of the size the CAD gives it.</span>
+              </li>
+              <li data-standin="led">
+                <span class="hwp-name">Cree 5 mm LED</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">8.8 &times; 5.8 &times; 5.8&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-note">The excitation LED. Drawn as a plain cylinder of the size the CAD gives it.</span>
+              </li>
+              <li data-standin="board">
+                <span class="hwp-name">AS7341 sensor board</span>
+                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">18 &times; 2.4 &times; 14&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
+                <span class="hwp-note">The detector board. Drawn as a plain block of the size the CAD gives it.</span>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </details>
+
+      <div class="hwx-rig-foot">
+        <span>Placed as in the CAD assemblies. Screws, the LED's leads and the optional detector mask are left out.</span>
+        <span>Specified in matte black PLA; drawn in grey so the shapes can be read.</span>
+      </div>
+    </div>
+
+    <details class="hw-fold hw-fold-wide">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">The light path inside the planned enclosure</span>
+        <span class="hw-fold-meta">schematic</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
     <!--
       The 3D cutaway. The plan view above is the drawing; this is the same
       optical core placed inside the two-layer enclosure drawn for it, so a
@@ -568,8 +1053,12 @@
     <p class="hw-aside">
       This view places the optical core in the two-layer laser-cut enclosure
       as it was drawn, optics above and electronics below. No reading on this
-      page was taken inside it.
+      page was taken inside it. It is a schematic built from the optical
+      coordinates, not from the CAD files: the printed parts themselves are
+      in the view above.
     </p>
+      </div>
+    </details>
 
     {# PHOTO: 量測時的樣子（3D 列印機構與遮光紙箱），上傳到 static.igem.wiki 後插在這裡 #}
 
@@ -1580,6 +2069,12 @@
       alignment was shown to work but never quantified.
     </p>
 
+    <p>
+      The printed parts are in the 3D view under
+      <a href="#hwParts">The instrument</a>. Each part there carries its
+      size and can be saved as an STL file.
+    </p>
+
     {# 來源：_AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/README.md「這 5 件是什麼」與
        vendor_package/PRINT_INSTRUCTIONS_ROUND2_zh-TW.txt（擺放方向、列印規格）。
        誰印的、實際用的切片設定，紀錄裡是 UNKNOWN，所以這裡寫的是「指定的規格」。 #}
@@ -1841,7 +2336,7 @@
           </thead>
           <tbody>
             <tr><td>Optical core geometry</td><td>Parametric CadQuery Python: v0.7, and the five v0.8 parts</td></tr>
-            <tr><td>Printable parts</td><td>STL: 22 mapped printable files for v0.7, five for v0.8</td></tr>
+            <tr><td>Printable parts</td><td>STL: 46 files for the 59 pieces of version 1, five for version 2, two version 2 fit coupons</td></tr>
             <tr><td>Assembly geometry</td><td>STEP</td></tr>
             <tr><td>Acquisition firmware</td><td>ESP32 sketch, Adafruit AS7341 library, <code>P1-ACQ-1.0.0</code></td></tr>
             <tr><td>Bill of materials</td><td>CSV</td></tr>
@@ -1857,9 +2352,11 @@
 
     <p class="hw-aside">
       The circuit, the coordinates, the sensor settings and the operating
-      rule are on this page. The source files, the firmware and the bill of
-      materials are not published yet, and there is no complete written
-      assembly procedure: version 2 has only the fitting notes above.
+      rule are on this page, and every printed part can be saved as an STL
+      file from the 3D view under <a href="#hwParts">The instrument</a>. The CadQuery source,
+      the STEP files, the firmware and the bill of materials are not
+      published yet, and there is no complete written assembly procedure:
+      version 2 has only the fitting notes above.
     </p>
 
     {# PHOTO: UVette 座與 ORIENT-A 安裝方向照，上傳後插在這裡 #}
@@ -1891,5 +2388,6 @@
 
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename = 'hardware-cutaway.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-parts.js') }}"></script>
 <script src="{{ url_for('static', filename = 'hardware-bench.js') }}"></script>
 {% endblock %}
