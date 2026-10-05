@@ -11344,3 +11344,210 @@ body.bg-nexus .sgd-list li::marker { color: var(--nx-mint); }
 /* The game's own secondary ink, which drives "choose a game mode" and the
    rest of its hint text. */
 body.bg-nexus .board-game-page { --muted: #c6dde4; --ink2: #c6dde4; }
+
+/* ===== SDGs (sustainability.html) ===========================================
+   The seventeen goals as a strip of tiles, then one section per goal we work
+   on. Every goal's colour arrives as --sdg, set inline on the tile or the
+   section, so one set of rules draws all of them. Prefixed sdgp- to stay
+   clear of the board game's own .sdg-* and .sgd-* rules.
+
+   A goal we work on is a solid tile in its colour, white text, and a link.
+   The others are outlines in their colour on white: still all seventeen,
+   still recognisable, but plainly not claimed. Yellow SDG 7 is never solid,
+   which is the one tile white text could not be read on. SDG 5's official
+   #ff3a21 is darkened to #e2361a for the same reason.
+   ========================================================================== */
+.sdgp-strip { margin: 1.75rem 0 0.5rem; }
+
+.sdgp-tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 0.6rem;
+}
+
+.sdgp-tile {
+  border: 2px solid var(--sdg);
+  border-radius: 8px;
+  background: #fff;
+  color: #4a4a4a;
+  min-height: 124px;
+  opacity: 0.55;
+}
+
+.sdgp-tile > a,
+.sdgp-tile:not(.is-ours) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.6rem;
+}
+
+.sdgp-tile > a {
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.sdgp-tile.is-ours {
+  background: var(--sdg);
+  color: #fff;
+  opacity: 1;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sdgp-tile.is-ours:hover,
+.sdgp-tile.is-ours:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.sdgp-tile.is-ours a:focus-visible {
+  outline: 3px solid #2b1e17;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.sdgp-num {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.sdgp-tile:not(.is-ours) .sdgp-num,
+.sdgp-tile:not(.is-ours) .sdgp-icon { color: var(--sdg); }
+
+/* The number and the goal's icon share the top of the tile, number on the
+   left the way the UN's own tiles have it, icon pushed to the right. */
+.sdgp-tile-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.3rem;
+  margin-bottom: 0.35rem;
+}
+
+.sdgp-icon {
+  flex: none;
+  width: 2.1rem;
+  height: 2.1rem;
+}
+
+.sdgp-name {
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  /* Long words break only at the soft hyphens the markup puts in them. */
+  hyphens: manual;
+}
+
+.sdgp-legend {
+  margin-top: 0.9rem;
+  font-size: 0.88rem;
+  color: #5c6b62;
+}
+
+.sdgp-key {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 3px;
+  vertical-align: -0.1em;
+  background: linear-gradient(135deg, #4c9f38 0 33%, #c5192d 33% 66%, #19486a 66%);
+}
+
+/* One goal's section: its number in a badge of its colour, beside the name. */
+.sdgp-goal-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.sdgp-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  height: 3rem;
+  padding: 0 0.5rem;
+  border-radius: 8px;
+  background: var(--sdg);
+  color: #fff;
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* SDG 5 and 10 share a section, so their badge is two halves. */
+.sdgp-badge-pair { padding: 0; overflow: hidden; }
+.sdgp-badge-pair > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: 2.6rem;
+  background: var(--sdg);
+}
+
+.sdgp-goal h3 {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--sdg);
+  margin-top: 1.6rem;
+}
+
+.sdgp-target {
+  font-size: 0.92rem;
+  color: #5c6b62;
+  border-left: 3px solid var(--sdg);
+  padding-left: 0.8rem;
+}
+
+.sdgp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.4rem 0 0.4rem;
+}
+
+.sdgp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem 1.1rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--sdg) 8%, #fff);
+  border-top: 4px solid var(--sdg);
+}
+
+.sdgp-stat-num {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  line-height: 1.1;
+  color: var(--sdg);
+}
+
+.sdgp-stat-label { font-size: 0.88rem; color: #4a4a4a; line-height: 1.35; }
+
+@media (max-width: 575.98px) {
+  .sdgp-tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+  .sdgp-tile { min-height: 108px; }
+  .sdgp-num { font-size: 1.4rem; }
+  .sdgp-icon { width: 1.7rem; height: 1.7rem; }
+  .sdgp-name { font-size: 0.66rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sdgp-tile.is-ours { transition: none; }
+  .sdgp-tile.is-ours:hover,
+  .sdgp-tile.is-ours:focus-within { transform: none; }
+}
