@@ -12,8 +12,8 @@
   // ones with a clickable overlay group that zooms in. Everywhere else on
   // the island is just geographic context.
   var INTERACTIVE_COUNTY_IDS = ['10007', '67000'];
-  var INTERACTIVE_COLOR = '#fff6b7';
-  var DEFAULT_COUNTY_COLOR = 'none';
+  var INTERACTIVE_COLOR = '#f7f1de';      /* 淡米黃白：有活動的縣市 */
+  var DEFAULT_COUNTY_COLOR = '#0b4a33';   /* 整島不透明深綠（適配 Collaboration 主視覺） */
 
   // 縣市名稱，滑鼠移到該縣市時顯示。英文取自 topojson 自己的 properties.name，
   // 中文是另外對照標準行政區代碼填的。
@@ -156,6 +156,11 @@
       return OUTLYING_ISLAND_IDS.indexOf(g.properties.id) === -1;
     });
 
+    // ---- 全島輪廓 hover 發光的資料準備 ------------------------------
+    // （舊版曾用「海岸弧段拼接」畫描邊，但這份 TopoJSON 的海岸弧拆得
+    //   不完整，任何容差都會在島上留下橫穿直線——已改用 SVG filter 從
+    //   填色剪影生成光暈，見下方 twHaloWide／twHaloRim，這裡不再需要。）
+
     var minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
     var geoRings = geometries.map(function (g) {
       var rings = geometryToRings(g, decodedArcs, true);
@@ -202,7 +207,55 @@
       svg.appendChild(path);
     });
 
+    // ---- 全島輪廓 hover 發光（呼吸光暈）-----------------------------
+    // 不做弧段拼接（這份資料的海岸弧拆得不完整，拼接必出橫穿直線）。
+    // 改用 SVG filter：把整組縣市填色看作一個 alpha 形體，
+    // feMorphology dilate 膨漲出外擴帶 → out 減掉原形體 → 只剩島的外圈
+    // → blur 暈開 → flood 螢光綠上色。輪廓自動是「島_union_的邊」，
+    // 縣市內界線不會出現。CSS 再加呼吸明暗動畫。
+    var defs = document.createElementNS(svgNS, 'defs');
+    defs.innerHTML =
+      '<filter id="twHaloWide" x="-20%" y="-20%" width="140%" height="140%">' +
+      '<feMorphology operator="dilate" radius="6" in="SourceAlpha" result="sp"/>' +
+      '<feComposite in="sp" in2="SourceAlpha" operator="out" result="rim"/>' +
+      '<feGaussianBlur in="rim" stdDeviation="7" result="bl"/>' +
+      '<feFlood flood-color="#a0e860" flood-opacity="0.9"/>' +
+      '<feComposite in2="bl" operator="in"/>' +
+      '</filter>' +
+      '<filter id="twHaloRim" x="-10%" y="-10%" width="120%" height="120%">' +
+      '<feMorphology operator="dilate" radius="1.6" in="SourceAlpha" result="sp"/>' +
+      '<feComposite in="sp" in2="SourceAlpha" operator="out" result="rim"/>' +
+      '<feGaussianBlur in="rim" stdDeviation="1.4" result="bl"/>' +
+      '<feFlood flood-color="#d7f5b8" flood-opacity="1"/>' +
+      '<feComposite in2="bl" operator="in"/>' +
+      '</filter>';
+    svg.appendChild(defs);
+
+    function silhouetteCopy(filterId) {
+      var g = document.createElementNS(svgNS, 'g');
+      g.setAttribute('filter', 'url(#' + filterId + ')');
+      g.setAttribute('pointer-events', 'none');
+      geoRings.forEach(function (rg) {
+        var p = document.createElementNS(svgNS, 'path');
+        p.setAttribute('d', ringsToPath(rg.rings, project));
+        p.setAttribute('fill', '#fff');
+        p.setAttribute('fill-rule', 'evenodd');
+        g.appendChild(p);
+      });
+      return g;
+    }
+    var glowLayer = document.createElementNS(svgNS, 'g');
+    glowLayer.setAttribute('class', 'tw-coast-glow-group');
+    glowLayer.setAttribute('aria-hidden', 'true');
+    glowLayer.appendChild(silhouetteCopy('twHaloWide'));
+    glowLayer.appendChild(silhouetteCopy('twHaloRim'));
+    svg.appendChild(glowLayer);
+
     container.insertBefore(svg, container.firstChild);
+
+    // hover：亮起（呼吸動畫在 CSS），離開淡滅
+    container.addEventListener('mouseenter', function () { glowLayer.classList.add('is-lit'); });
+    container.addEventListener('mouseleave', function () { glowLayer.classList.remove('is-lit'); });
 
     var pinEls = Array.prototype.slice.call(container.querySelectorAll('.edu-pin'));
 

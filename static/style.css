@@ -1409,11 +1409,10 @@ body.team-bio-locked { overflow: hidden; }
 }
 
 .edu-map-county {
-  /* DEFAULT_COUNTY_COLOR is 'none' (see taiwan-map.js) -- counties are drawn
-     as outlines only, so the stroke itself needs to read as the map rather
-     than just separate a fill from its neighbours. */
-  stroke: #075a3e;
-  stroke-width: 1.25;
+  /* 整島不透明深綠填色（DEFAULT_COUNTY_COLOR 在 taiwan-map.js），島外透明；
+     縣市細線壓淡，輪廓靠整島邊界自然成形 */
+  stroke: rgba(7, 90, 62, 0.35);
+  stroke-width: 0.8;
   transition: fill 0.15s ease, opacity 0.15s ease;
 }
 
@@ -2363,7 +2362,7 @@ body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: 
    markup are the literal same ones hardware.html uses, since those were
    never scoped to body.hw-nexus to begin with. */
 body.edu-cosmos-page {
-  background: #0e242e;
+  background: #052b1f;
   /* Headings on this page already set their own weight (700) through other
      classes; this just gives the rest of the page -- body copy, labels,
      anything that was inheriting the Bootstrap default sans -- the same
@@ -2384,22 +2383,14 @@ body.edu-cosmos-page::after {
 body.edu-cosmos-page::before {
   background-image:
     linear-gradient(to bottom,
-      rgba(73, 197, 182, 0.05) 0%,
-      rgba(73, 197, 182, 0.015) 42%,
-      rgba(73, 197, 182, 0) 100%);
+      rgba(20, 179, 145, 0.06) 0%,
+      rgba(20, 179, 145, 0.02) 42%,
+      rgba(20, 179, 145, 0) 100%);
 }
 
 body.edu-cosmos-page::after {
-  background-image:
-    linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
-  background-size: 88px 88px;
-  -webkit-mask-image:
-    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
-                    transparent 100%);
-  mask-image:
-    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
-                    transparent 100%);
+  /* 橫豎網格依使用者要求取消：Education 底圖只留純色，不畫線 */
+  background-image: none;
 }
 
 @media print {
@@ -8786,25 +8777,26 @@ body.quiz-active { overflow: hidden; }
    block further down.
 
    The palette is sampled from the reference the team chose (Nexus, Awwwards
-   SOTD 2022-12-09): a deep petrol ground, mint and lime picking out what
-   matters. Contrast was checked against the ground and against both panel
-   tints before anything was written -- every text token below clears WCAG AA
-   on all three. The one colour that does not is the reference's own blue
-   (#2779a7, 3.3:1), so it is used for fills and borders only and a lifted
-   #5fb3e0 carries any blue that has to be read.
+   SOTD 2022-12-09), then re-tuned onto the home hero's deep-green family:
+   a deep forest ground (#052b1f), mint and lime picking out what matters.
+   Contrast was checked against the ground and against both panel tints
+   before anything was written -- every text token below clears WCAG AA on
+   all three. The teal that used to be the reference's blue is now
+   #0d8a70 (fills and borders only) with a lifted
+   #2edbb4 carrying anything that has to be read.
    ========================================================================== */
 body.hw-nexus,
 body.edu-nexus {
-  --nx-ground:  #0e242e;   /* page                                    */
-  --nx-panel:   #16323f;   /* cards, tables, diagram frames           */
-  --nx-raised:  #1c4352;   /* the layer above that                    */
-  --nx-line:    #24596b;   /* borders                                 */
+  --nx-ground:  #052b1f;   /* page                                    */
+  --nx-panel:   #073c29;   /* cards, tables, diagram frames           */
+  --nx-raised:  #0b4a33;   /* the layer above that                    */
+  --nx-line:    #14584a;   /* borders                                 */
   --nx-mint:    #49c5b6;   /* headings, primary accent      7.6:1     */
   --nx-lime:    #a0e860;   /* links and highlights         10.8:1     */
-  --nx-blue:    #2779a7;   /* fills and borders only        3.3:1     */
-  --nx-blue-up: #5fb3e0;   /* blue that has to be read      6.9:1     */
+  --nx-blue:    #0d8a70;   /* fills and borders only        3.3:1     */
+  --nx-blue-up: #2edbb4;   /* blue that has to be read      6.9:1     */
   --nx-text:    #dbe9ee;   /* body                         12.9:1     */
-  --nx-muted:   #93b0bb;   /* secondary                     7.0:1     */
+  --nx-muted:   #a9c3b4;   /* secondary                     7.0:1     */
   --nx-warm:    #e6b060;   /* the caution hue, lifted for a dark bed  */
 
   background: var(--nx-ground);
@@ -8828,13 +8820,21 @@ body.edu-nexus {
    -------------------------------------------------------------------- */
 body.hw-nexus::before,
 body.hw-nexus::after,
-body.edu-nexus::before,
+body.edu-nexus::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+/* Education 的橫豎網格依使用者要求取消：::after 不再掛網格 */
 body.edu-nexus::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  background-image: none;
 }
 
 body.hw-nexus::before,
@@ -8846,13 +8846,15 @@ body.edu-nexus::before {
      at all. */
   background-image:
     linear-gradient(to bottom,
-      rgba(73, 197, 182, 0.05) 0%,
-      rgba(73, 197, 182, 0.015) 42%,
-      rgba(73, 197, 182, 0) 100%);
+      rgba(20, 179, 145, 0.06) 0%,
+      rgba(20, 179, 145, 0.02) 42%,
+      rgba(20, 179, 145, 0) 100%);
 }
 
-body.hw-nexus::after,
-body.edu-nexus::after {
+body.hw-nexus::after {
+  /* Education／Collaboration／Promotion 的橫豎網格已依使用者要求取消
+     （Education 從這組共用選擇器拆出來；Collaboration／Promotion 的
+     body.hp-nexus::after 在 hp-nexus.css 改為 none）。Hardware 保留。 */
   background-image:
     linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
     linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
@@ -8930,10 +8932,10 @@ body.edu-nexus::after {
     radial-gradient(closest-side circle at 44% 40%,
       rgba(160, 232, 96, 0.1148) 0%,
       rgba(160, 232, 96, 0.0459) 44%,
-      rgba(73, 197, 182, 0) 72%),
+      rgba(20, 179, 145, 0) 72%),
     radial-gradient(closest-side circle at 62% 61%,
-      rgba(73, 197, 182, 0.0536) 0%,
-      rgba(73, 197, 182, 0) 56%);
+      rgba(20, 179, 145, 0.05) 0%,
+      rgba(20, 179, 145, 0) 56%);
 }
 
 .hw-orb-b > span {
@@ -8941,10 +8943,10 @@ body.edu-nexus::after {
     radial-gradient(closest-side circle at 58% 37%,
       rgba(160, 232, 96, 0.1186) 0%,
       rgba(160, 232, 96, 0.0420) 40%,
-      rgba(73, 197, 182, 0) 70%),
+      rgba(20, 179, 145, 0) 70%),
     radial-gradient(closest-side circle at 38% 64%,
-      rgba(73, 197, 182, 0.0459) 0%,
-      rgba(73, 197, 182, 0) 52%);
+      rgba(20, 179, 145, 0.04) 0%,
+      rgba(20, 179, 145, 0) 52%);
 }
 
 .hw-orb-c > span {
@@ -8952,10 +8954,10 @@ body.edu-nexus::after {
     radial-gradient(closest-side circle at 49% 55%,
       rgba(160, 232, 96, 0.0994) 0%,
       rgba(160, 232, 96, 0.0383) 46%,
-      rgba(73, 197, 182, 0) 74%),
+      rgba(20, 179, 145, 0) 74%),
     radial-gradient(closest-side circle at 63% 36%,
       rgba(160, 232, 96, 0.0459) 0%,
-      rgba(73, 197, 182, 0) 50%);
+      rgba(20, 179, 145, 0) 50%);
 }
 
 .hw-orb-a { --d: 26rem; --tx: 71s; --ty: 47s; --dx: 0s; --dy: -13s; }
@@ -9000,7 +9002,7 @@ body.edu-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.42)
 body.hw-nexus .page-hero-tint,
 body.edu-nexus .page-hero-tint {
   background: linear-gradient(to bottom,
-    rgba(14, 36, 46, 0.55), rgba(14, 36, 46, 0.97));
+    rgba(5, 43, 31, 0.55), rgba(4, 21, 15, 0.97));
 }
 body.hw-nexus .hero-title,
 body.edu-nexus .hero-title {
@@ -9015,7 +9017,7 @@ body.edu-nexus .hero-sub { color: var(--nx-muted); }
 
 body.hw-nexus .navbar,
 body.edu-nexus .navbar {
-  background: rgba(14, 36, 46, 0.82) !important;
+  background: rgba(5, 43, 31, 0.86) !important;
   border: 1px solid var(--nx-line);
 }
 body.hw-nexus .navbar-nav .nav-link,
@@ -9050,8 +9052,8 @@ body.hw-nexus .hw a { color: var(--nx-lime); }
 body.hw-nexus .hw strong { color: #fff; }
 body.hw-nexus .hw code {
   color: var(--nx-mint);
-  background: rgba(73, 197, 182, 0.10);
-  border: 1px solid rgba(73, 197, 182, 0.22);
+  background: rgba(20, 179, 145, 0.12);
+  border: 1px solid rgba(20, 179, 145, 0.24);
 }
 body.hw-nexus .hw-lead { border-left-color: var(--nx-mint); }
 body.hw-nexus .hw-lead p { font-size: 1.14rem; }
@@ -9144,7 +9146,7 @@ body.hw-nexus .hw-svg-sample { fill: rgba(230, 176, 96, 0.16); stroke: var(--nx-
 body.hw-nexus .hw-svg-meniscus { stroke: var(--nx-warm); }
 body.hw-nexus .hw-svg-filter { fill: rgba(230, 176, 96, 0.30); stroke: var(--nx-warm); }
 body.hw-nexus .hw-svg-filter-blue,
-body.hw-nexus .hw-svg-blue-box { fill: rgba(95, 179, 224, 0.20); stroke: var(--nx-blue-up); }
+body.hw-nexus .hw-svg-blue-box { fill: rgba(46, 219, 180, 0.20); stroke: var(--nx-blue-up); }
 body.hw-nexus .hw-svg-red-box { fill: rgba(224, 108, 95, 0.18); stroke: #e0705f; }
 body.hw-nexus .hw-svg-interlock { fill: rgba(230, 176, 96, 0.25); stroke: var(--nx-warm); }
 
@@ -9213,7 +9215,7 @@ body.hw-nexus .hw3d input[type="range"] { accent-color: var(--nx-mint); }
 /* The total row read as a pale green band; on this ground it is a tint of
    the accent instead. */
 body.hw-nexus .hw-table tr.is-total {
-  background: rgba(73, 197, 182, 0.12);
+  background: rgba(20, 179, 145, 0.14);
   color: var(--nx-text);
 }
 
@@ -9533,17 +9535,17 @@ body.hw-nexus .sw .sw-lab-msg.is-error { color: var(--nx-warm); }
   border: 1px solid var(--nx-line);
   border-radius: 10px;
 }
-.sw-plot-grid { stroke: rgba(36, 89, 107, 0.6); stroke-width: 1; }
+.sw-plot-grid { stroke: rgba(20, 179, 145, 0.45); stroke-width: 1; }
 .sw-plot-axis { stroke: var(--nx-muted); stroke-width: 1.2; fill: none; }
 .sw-plot-tick { font-size: 12px; fill: var(--nx-muted); }
 .sw-plot-title { font-size: 13px; fill: var(--nx-text); }
-.sw-plot-range { fill: rgba(73, 197, 182, 0.1); }
+.sw-plot-range { fill: rgba(20, 179, 145, 0.12); }
 .sw-plot-lod { stroke: var(--nx-warm); stroke-width: 1.3; stroke-dasharray: 6 5; }
 .sw-plot-curve { fill: none; stroke: var(--nx-mint); stroke-width: 2.5; }
 .sw-plot-pt { fill: var(--nx-lime); fill-opacity: 0.85; stroke: #0a1c24; stroke-width: 1; }
 .sw-plot-pt.is-blank { fill: var(--nx-muted); }
 .sw-plot-inv { stroke: var(--nx-blue-up); stroke-width: 1.4; stroke-dasharray: 4 4; }
-.sw-plot-ci { fill: rgba(95, 179, 224, 0.28); stroke: var(--nx-blue-up); stroke-width: 1; }
+.sw-plot-ci { fill: rgba(46, 219, 180, 0.28); stroke: var(--nx-blue-up); stroke-width: 1; }
 .sw-plot-mark { fill: var(--nx-blue-up); stroke: #0a1c24; stroke-width: 1.5; }
 
 .sw-lab-table { max-width: 40rem; }
@@ -9622,11 +9624,11 @@ body.hw-nexus .hw-spec > div { border-top-color: var(--nx-line); }
 .md-scroll { overflow-x: auto; }
 .md-plot { min-width: 560px; }
 .md-plot text { font-family: inherit; }
-.md-grid { stroke: var(--nx-line, #24596b); stroke-opacity: 0.45; stroke-width: 1; }
-.md-axis { fill: none; stroke: var(--nx-muted, #93b0bb); stroke-width: 1.2; }
+.md-grid { stroke: var(--nx-line, #14584a); stroke-opacity: 0.45; stroke-width: 1; }
+.md-axis { fill: none; stroke: var(--nx-muted, #a9c3b4); stroke-width: 1.2; }
 .md-tick {
   font-size: 13px;
-  fill: var(--nx-muted, #93b0bb);
+  fill: var(--nx-muted, #a9c3b4);
   font-variant-numeric: tabular-nums;
 }
 .md-tick-sub { font-size: 12px; opacity: 0.85; }
@@ -9644,18 +9646,18 @@ body.hw-nexus .hw-spec > div { border-top-color: var(--nx-line); }
 .md-rowlbl.is-true { fill: var(--nx-lime, #a0e860); font-weight: 700; }
 
 .md-pt { stroke: #0a1216; stroke-width: 1.3; }
-.md-pt.md-s16 { fill: var(--nx-blue-up, #5fb3e0); }
+.md-pt.md-s16 { fill: var(--nx-blue-up, #2edbb4); }
 .md-pt.md-s21 { fill: var(--nx-warm, #e6b060); }
 .md-pt.md-s29 { fill: var(--nx-lime, #a0e860); }
 
 .md-ln { fill: none; stroke-width: 2; stroke-linecap: round; stroke-opacity: 0.8; }
-.md-ln16 { stroke: var(--nx-blue-up, #5fb3e0); }
+.md-ln16 { stroke: var(--nx-blue-up, #2edbb4); }
 .md-ln21 { stroke: var(--nx-warm, #e6b060); }
 .md-ln29 { stroke: var(--nx-lime, #a0e860); }
 .md-ln-shared { stroke: var(--nx-mint, #49c5b6); stroke-width: 2.6; stroke-opacity: 1; }
 
 .md-lbl { font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.md-lbl16 { fill: var(--nx-blue-up, #5fb3e0); }
+.md-lbl16 { fill: var(--nx-blue-up, #2edbb4); }
 .md-lbl21 { fill: var(--nx-warm, #e6b060); }
 .md-lbl29 { fill: var(--nx-lime, #a0e860); }
 .md-lbl-shared { fill: var(--nx-mint, #49c5b6); }
@@ -9695,7 +9697,7 @@ body.hw-nexus .hw .md-legend li {
   height: 11px;
   margin-right: 0.55rem;
 }
-.md-key-16 { border-radius: 50%; background: var(--nx-blue-up, #5fb3e0); }
+.md-key-16 { border-radius: 50%; background: var(--nx-blue-up, #2edbb4); }
 .md-key-21 {
   width: 13px;
   background: var(--nx-warm, #e6b060);
@@ -9762,13 +9764,27 @@ body.edu-nexus .edu-sidebar-link::before { border-left-color: var(--nx-line); }
 body.edu-nexus .edu-sidebar-link:hover::before,
 body.edu-nexus .edu-sidebar-link.active::before { border-left-color: var(--nx-lime); }
 body.edu-nexus .edu-sidebar-track { background: var(--nx-line); }
-body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(73, 197, 182, 0.45); }
+body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(20, 179, 145, 0.5); }
 
 /* ---- the map ---- */
-body.edu-nexus .edu-map-viewport { background: var(--nx-panel); }
+body.edu-nexus .edu-map-viewport { background: transparent; }   /* 島外全透明：只剩台灣島本身 */
 body.edu-nexus .edu-map-county,
-body.edu-nexus .edu-map-county-interactive { stroke: var(--nx-mint); }
+body.edu-nexus .edu-map-county-interactive { stroke: var(--nx-mint); stroke-width: 0.8; }
 body.edu-nexus .edu-map-leader-line { stroke: var(--nx-mint); }
+
+/* ---- 台灣全島輪廓 hover 呼吸光暈（taiwan-map.js 以 SVG filter 生成）----
+   光暈由 feMorphology＋blur 直接從島的填色剪影生成（绝無橫穿直線）；
+   這裡只管亮度呼吸：亮起 3.6s 一吸一吐，離開淡滅。 */
+.tw-coast-glow-group { opacity: 0; transition: opacity 0.5s ease; }
+.tw-coast-glow-group.is-lit { animation: tw-breathe 3.6s ease-in-out infinite; }
+@keyframes tw-breathe {
+  0%   { opacity: 0.45; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tw-coast-glow-group.is-lit { opacity: 0.85; animation: none; }
+}
 
 /* The orbiting chips are liquid glass in the light theme: translucent white
    over blur, with dark ink on top. Over petrol that white settles to a mid
@@ -9776,7 +9792,7 @@ body.edu-nexus .edu-map-leader-line { stroke: var(--nx-mint); }
    becomes the body token. The blur stays -- it is what keeps the map legible
    underneath a chip passing over it. */
 body.edu-nexus .edu-map-orbit-item {
-  background: rgba(22, 50, 63, 0.82);
+  background: rgba(7, 60, 41, 0.82);
   border-color: var(--nx-line);
   color: var(--nx-text);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
@@ -10204,7 +10220,7 @@ body.edu-nexus .edu-album-meta .edu-heading-date { color: var(--nx-text); }
 
 body.edu-nexus .edu-album-arrow {
   color: var(--nx-mint);
-  background: rgba(14, 36, 46, 0.92);
+  background: rgba(5, 43, 31, 0.92);
   border-color: var(--nx-line);
 }
 body.edu-nexus .edu-album-arrow:hover:not(:disabled) { border-color: var(--nx-mint); }
