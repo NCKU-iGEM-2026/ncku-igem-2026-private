@@ -64,16 +64,17 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
   }
   .navbar .dropdown-item:hover::before,
   .navbar .dropdown-item:focus-visible::before { opacity: 1; transform: scale(1); }
-  /* hover 時背景改用 glow tint，接回 design system */
-  body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:hover,
-  body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:focus {
+  /* hover 時背景改用 glow tint（僅淺色模式；深夜模式有自己的 tint，見下）*/
+  html:not([data-theme="dark"]) body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:hover,
+  html:not([data-theme="dark"]) body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:focus {
     background: color-mix(in srgb, var(--c-glow) 35%, #ffffff) !important;
     color: var(--c-ink) !important;
   }
-  html[data-theme="dark"] .navbar .dropdown-menu { background: #07211a; border-color: rgba(160,232,96,0.14); }
-  html[data-theme="dark"] .navbar .dropdown-item { color: #d7f5b8; }
-  html[data-theme="dark"] .navbar .dropdown-item:hover,
-  html[data-theme="dark"] .navbar .dropdown-item:focus { background: rgba(160,232,96,0.12) !important; color: #b8f57e !important; }
+  /* 深夜下拉：同等 :not 特異性鏈，必勝上條（淺底混色在深夜一律禁用） */
+  html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-menu { background: #07211a; border-color: rgba(160,232,96,0.14); }
+  html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item { color: #d7f5b8; }
+  html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:hover,
+  html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:focus { background: rgba(160,232,96,0.16) !important; color: #fff6b7 !important; }
 }
 
 /* ---- 行動版：全螢幕選單（純 CSS，不改 Bootstrap 行為）---- */
