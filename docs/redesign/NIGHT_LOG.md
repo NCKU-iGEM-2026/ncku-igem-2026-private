@@ -30,7 +30,7 @@
 ## 收尾（00:10–00:40）
 - 全站新增檔註解「一律正體」掃修（13 檔簡體混字全部替換為正體）。
 - hero ghost 鈕深底亮字修正；深淺色預設改為亮色（localStorage 記憶深色）。
-- 編修時曾因批次字元替換誤觸「漢→漢」以外的乱替換（如 里→裡），逐一 grep 复核修正。
+- 編修時曾因批次字元替換誤觸「漢→漢」以外的亂替換（如 裏→裡），逐一 grep 復核修正。
 - 最終 gate 重跑：freeze OK、24 頁 200、public 24 份 footer 全含 CC-BY-4.0＋gitlab.igem.org/2026/ncku-tainan、保護檔 diff 空。
 - commit：e087653
 - 在留下的 dev server（佔 8080）上驗證：/ hero 元素在、/styleguide 正常。

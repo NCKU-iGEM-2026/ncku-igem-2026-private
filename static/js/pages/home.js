@@ -51,7 +51,7 @@
     ctx.clearRect(0, 0, W, H);
 
     var i, j, p, q, dx, dy, d2;
-    /* 連線：近邻鍵結 */
+    /* 連線：近鄰鍵結 */
     ctx.lineWidth = 1;
     for (i = 0; i < particles.length; i++) {
       p = particles[i];
@@ -105,7 +105,7 @@
 
   var rootTheme = document.documentElement.getAttribute('data-theme');
   function paint() {
-    /* 深淺色：亮色下画布節點減淡，以免在深綠 hero 上過亮刺眼 */
+    /* 深淺色：亮色下畫布節點減淡，以免在深綠 hero 上過亮刺眼 */
     canvas.style.opacity = (rootTheme === 'light') ? '0.55' : '0.9';
   }
 
@@ -123,14 +123,14 @@
     rsT = setTimeout(function () { size(); seed(); }, 180);
   });
 
-  /* 分頁不可见 → 暂停；回來 → 重啟 */
+  /* 分頁不可見 → 暫停；回來 → 重啟 */
   document.addEventListener('visibilitychange', function () {
     rootTheme = document.documentElement.getAttribute('data-theme');
     paint();
     if (document.hidden) stop(); else start();
   });
 
-  /* 主题切換時同步亮度 */
+  /* 主題切換時同步亮度 */
   new MutationObserver(function () {
     rootTheme = document.documentElement.getAttribute('data-theme');
     paint();

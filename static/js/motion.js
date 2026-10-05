@@ -26,7 +26,7 @@
       b.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
     });
   }
-  var current = root.getAttribute('data-theme') || 'light';
+  var current = root.getAttribute('data-theme') || 'dark';
 
   /* 把切換鈕塞進導覽列（burger 旁邊；不碰 Bootstrap 結構） */
   var nav = document.querySelector('.navbar .container-fluid');

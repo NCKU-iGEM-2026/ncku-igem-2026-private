@@ -2,7 +2,7 @@
    EDITORIAL.JS — 內頁編輯式互動（自動偵測，不改各頁 HTML）
    1) 章節 ≥3 的內頁：注入 sticky 導覽條 + scroll-spy
    2) 空白頁：注入「即將上線」骨架（不改原文，不改寫內容）
-   3) 通用：給 .container 直下章節補 data-reveal（纯装饰）
+   3) 通用：給 .container 直下章節補 data-reveal（純裝飾）
    保護名單：engineering / hw-nexus / edu-nexus（自有互動）一律跳過。
    ============================================================ */
 (function () {
@@ -88,7 +88,7 @@
       var on = l.getAttribute('href') === '#' + id;
       l.classList.toggle('active', on);
       if (on && !reduce && bar.getBoundingClientRect) {
-        /* 讓 active chip 維持在可視范围 */
+        /* 讓 active chip 維持在可視範圍 */
         try { l.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) {}
       }
     });
@@ -100,7 +100,7 @@
     heads.forEach(function (h) { spy.observe(h); });
   }
 
-  /* ---- 平滑滚到錨點（统一點擊體驗；reduced 則直跳）---- */
+  /* ---- 平滑滾到錨點（統一點擊體驗；reduced 則直跳）---- */
   bar.addEventListener('click', function (ev) {
     var a = ev.target.closest('a[href^="#"]');
     if (!a) return;
@@ -112,7 +112,7 @@
     setActive(a.getAttribute('href').slice(1));
   });
 
-  /* ---- 章節漸顯：給頂層 section 加 data-reveal（裝饰性）---- */
+  /* ---- 章節漸顯：給頂層 section 加 data-reveal（裝飾性）---- */
   if (!reduce && 'IntersectionObserver' in window) {
     var secs = main.querySelectorAll(':scope > section');
     secs.forEach(function (s) { s.setAttribute('data-reveal', ''); });
@@ -124,7 +124,7 @@
       });
     }, { threshold: 0.08 });
     secs.forEach(function (s) { io.observe(s); });
-    /* 没有章節容器的直接子元素們也給一次淡入節奏 */
+    /* 沒有章節容器的直接子元素們也給一次淡入節奏 */
     var kids = main.querySelectorAll(':scope > article, :scope > .row');
     kids.forEach(function (s) {
       s.setAttribute('data-reveal', '');

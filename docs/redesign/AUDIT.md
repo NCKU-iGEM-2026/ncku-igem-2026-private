@@ -22,7 +22,7 @@
 | `static/vendor/` | 尚不存在（GSAP／Lenis／Three.js 皆未下載） |
 
 **現況技術棧**：Flask 3.1.3 + Frozen-Flask 1.0.2（版本釘死於 `dependencies.txt`）、Bootstrap 5.3（自架 `static/bootstrap.min.css`）、原生 JS。
-無 Node、無 build step——新互動必須維持「纯 HTML+CSS+原生 JS＋可自架 vendor 庫」路線。
+無 Node、無 build step——新互動必須維持「純 HTML+CSS+原生 JS＋可自架 vendor 庫」路線。
 
 ---
 
@@ -45,7 +45,7 @@
 - 選單未收錄的頁面（靠 generator 進建置）：`entrepreneurship`、`inclusivity`、`sustainability`、`alternative-platform`——這四個「特殊獎」頁目前**沒有入口連結**，階段 2 需決定要不要進選單。
 
 ### `wiki/footer.html`（74 行）
-- ✅ CC-BY-4.0 聲明齐全（第 68 行）。
+- ✅ CC-BY-4.0 聲明齊全（第 68 行）。
 - ⚠️ **第 69 行 GitLab repo 連結是通用的 `https://gitlab.igem.org`**，未指向團隊 repo（應為 `gitlab.igem.org/2026/ncku-tainan` 之類，請人類確認實際 repo 位址）。階段 2 一併修。
 - 贊助商跑馬燈（兩軌重複 logo，`sponsor-marquee`）11 家贊助。
 
@@ -95,7 +95,7 @@
 | 9333–9568 | software LasReader | software |
 | 9569–9717 | model | model |
 | 9718–9836 | education content 側 | education |
-| 9837–9897 | page transitions（已有轉場雏形） | layout |
+| 9837–9897 | page transitions（已有轉場雛形） | layout |
 | 9898–10215 | education album | education |
 | 10216–end | parts registry | parts |
 
@@ -112,14 +112,14 @@
 | **hardware** 1513 | `hw-nexus` | hardware-bench（`.hwx-*`）, hardware-cutaway（`#hw3d-*`、`[data-view]`） | 10 大 section、剖面圖、儀表板、Markdown log。全研究最重。**單獨一輪處理**；剖面 canvas 不得碰 |
 | **model** 868 | `hw-nexus` | model-charts（canvas 自繪圖表） | 10 sections。編輯式：sticky TOC＋圖表 reveal；`hw-nexus` 深青色底已是半沉浸式 |
 | **software** 1047 | `hw-nexus` | software-fit（`#swLab`）, lasreader-curve-fit | 擬合互動。編輯式＋ interact sandbox 視覺翻新 |
-| **description** 440 | — | 無 JS | 8 sections、翻面卡、引用表。已有完整敘事骨架——編輯式直接加分：段落 reveal、引文標示（`desc-pending` badge 要保留，它標記缺引用处） |
+| **description** 440 | — | 無 JS | 8 sections、翻面卡、引用表。已有完整敘事骨架——編輯式直接加分：段落 reveal、引文標示（`desc-pending` badge 要保留，它標記缺引用處） |
 | **team** 571 | — | team-bio-modal（`.polaroid-*`）, webcam-booth（camera！） | 47 張人像、翻面卡＋自拍亭。flip card 保留結構、強化 hover／focus |
 | **education** 420 | `edu-nexus` | taiwan-map（`#edu-map` SVG）, education-{album,sidebar,gallery,counters}, edu-lightbox | 地圖＋側欄＋相簿＋counters＋ 4 個 iframe。互動密度全站第二高；Deep-teal cosmos 底已自成一格，翻新以「不加新機制、只升級質感」為原則 |
-| **collaboration** 450 | — | education-gallery, edu-lightbox, education-sidebar | 80 張圖的 logo 牆＋相簿。編輯式画廊化 |
+| **collaboration** 450 | — | education-gallery, edu-lightbox, education-sidebar | 80 張圖的 logo 牆＋相簿。編輯式畫廊化 |
 | **promotion** 236 | — | education-gallery, edu-lightbox, education-sidebar | 麥克風互動。編輯式＋保留 mic keys |
 | **human-practices** 259 | — | 同上三件套 | 8 sections 10 圖。編輯式 |
 | **notebook** 273 | — | notebook-{counters,hover-image,sort}（`#nbLedger`、`#nbSort`、`[data-hover-img]`） | 帳簿排序＋hover 照。玻璃窗區（style.css 481–780）正在建設期，只能微調不能重做 |
-| **board-game** 464 | — | board-game.js（≈ 155KB 完整遊戲！）, board-game-net.js, sgd-progress（`.sgd-*`） | 綠能櫥遊戏＋Firebase 連線。**邏輯零更動**，只做外框／排版翻新（`[data-i18n]` 雙語要留） |
+| **board-game** 464 | — | board-game.js（≈ 155KB 完整遊戲！）, board-game-net.js, sgd-progress（`.sgd-*`） | 綠能櫥遊戲＋Firebase 連線。**邏輯零更動**，只做外框／排版翻新（`[data-i18n]` 雙語要留） |
 | **lab-book** 167 | — | 無 JS（print 樣式在 5181） | 玻璃窗(proto cols)已有設計語彙，統一化即可 |
 | **engineering** 170 | `engineering-page` | engineering-dbtl（67KB！`#engineering-*`、`[data-stage]`、`.engineering-arc`）, engineering-gallery | 已有完整 rail+環形 DBTL 互動，最近才打磨過——**建議近乎不動**，只套 tokens |
 | **parts** 210 | — | 無 JS | registry 列表。編輯式表格翻新 |
@@ -127,7 +127,7 @@
 
 ### 內容空白（只做骨架，禁止捏造）
 `results` `contribution` `biosafety-and-security` `entrepreneurship` `inclusivity` `sustainability` `alternative-platform`
-（共 7 頁，均為 11–14 行空壳；部分註解留中文提示如「特殊獎SDGs」）
+（共 7 頁，均為 11–14 行空殼；部分註解留中文提示如「特殊獎SDGs」）
 → 統一「即將上線」編輯式骨架＋顯眼 `<!-- TODO: 內容待團隊提供 -->`＋視覺佔位；不做假資料。**是否進導覽列請使用者拍板。**
 
 ---
@@ -141,16 +141,16 @@
 |---|---|---|
 | 功能必需（保留） | `*.firebasedatabase.app`×2（桌遊連線）、`console.firebase.google.com` | 不動 |
 | 內容引用連結（可留） | en/zh/gan.wikipedia.org ×153、doi.org ×10、parts.igem.org | 是文字超連結不是資源載入；description 的引用位待補（已有 `desc-pending` 標記） |
-| 社群／聯絡（保留） | instagram、facebook、share.google | footer 既有 |
+| 社羣／聯絡（保留） | instagram、facebook、share.google | footer 既有 |
 | 其它團隊頁（可留） | teams.igem.org ×4、`igem-ncku-software.github.io` ×2 | 確認後保留 |
-| 文件腳註（無害） | getbootstrap.com、popper.js.org、docs.gitlab.com、palletsprojects.com、pypi.org、python.org | 多在 vendor 檔头註解，不動 |
+| 文件腳註（無害） | getbootstrap.com、popper.js.org、docs.gitlab.com、palletsprojects.com、pypi.org、python.org | 多在 vendor 檔頭註解，不動 |
 | **必修** | footer `gitlab.igem.org` 通用連結 | 改成團隊 repo 確切位址 |
 
 ---
 
 ## 5. 風險與不可破壞清單（全階段貼身守則）
 
-1. **`hw-nexus` 一底四頁**：hardware/model/software/（qx education 變體）共用——改 `style.css` 該區段（8600–9332）牽動四頁。遷移時按「頁」不按「前缀」。
+1. **`hw-nexus` 一底四頁**：hardware/model/software/（qx education 變體）共用——改 `style.css` 該區段（8600–9332）牽動四頁。遷移時按「頁」不按「前綴」。
 2. **Firebase 桌遊連線**：board-game-net.js 的 RTDB 位址與 `[data-i18n]` 雙語鍵不可動。
 3. **webcam-booth**：相機權限流程動不得。
 4. **engineering-dbtl（67KB）／board-game.js（155KB）**：剛完成的大模組，外殼翻新時只調 CSS，JS 不動。
@@ -163,7 +163,7 @@
 
 ## 6. 需要人類處理的事項（彙總）
 
-- [ ] 重建 venv（python3.12 + `pip install -r dependencies.txt`），恢复本機預覽／freeze 能力
+- [ ] 重建 venv（python3.12 + `pip install -r dependencies.txt`），恢復本機預覽／freeze 能力
 - [ ] 確認 GitLab 團隊 repo 正確位址（footer 用）
 - [ ] 下載 vendor 庫到 `static/vendor/`：GSAP 3（gsap.min.js + ScrollTrigger.min.js）、Lenis（lenis.min.js）；（Three.js 視首頁方案再定）
 - [ ] 若要換字型：上傳 Inter／Space Grotesk + Noto Sans TC 的 woff2 子集到 iGEM uploads

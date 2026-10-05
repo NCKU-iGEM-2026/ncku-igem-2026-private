@@ -61,7 +61,7 @@ DNA 雙螺旋的深度、金色菌落在暗處的光暈。專業科學感為骨�
   不干預 DBTL 滾輪翻頁、剖面圖旋轉、抓阿漢遊戲與桌遊的內部捲動。
 
 ## 7. 深色模式遷移策略
-舊 style.css 多数頁面白底；`base.css` 先以 `html[data-theme="dark"]` 覆蓋
+舊 style.css 多數頁面白底；`base.css` 先以 `html[data-theme="dark"]` 覆蓋
 body/container/table/footer 底色文字，逐頁細修。shallow-first：
 外殼（導覽/頁尾/hero）先支援，內頁保底可讀，特殊深色頁（education cosmos、
 hw-nexus）原本就深，視為通過。
