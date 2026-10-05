@@ -15,30 +15,35 @@
   margin-inline: calc(50% - 50vw);
   padding: 2.2rem 1rem 2.6rem;
   background:
-    radial-gradient(120% 130% at 50% -18%, rgba(73, 197, 182, 0.10), transparent 55%),
-    linear-gradient(165deg, #123642 0%, #0e242e 48%, #0a1c24 100%);
-  border-block: 1px solid rgba(73, 197, 182, 0.24);
+    radial-gradient(120% 90% at 80% 0%, rgba(20,179,145,0.20), transparent 55%),
+    radial-gradient(90% 70% at 12% 100%, rgba(216,178,106,0.12), transparent 60%),
+    linear-gradient(165deg, #053423 0%, #06402e 45%, #04150f 100%);
+  border-block: 1px solid rgba(20, 179, 145, 0.28);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* ---- 正方形舞台＋四邊大 r 角 ---- */
+/* ---- 寬版舞台＋四邊大 r 角：橫向铺滿大區域，不再是正方形。
+       桌面 16:7、平板 16:8、手機 4:3——行動版自動縮矮縮窄。---- */
 .rx-dish-stage {
   position: relative;
-  width: min(580px, 88vw);
-  aspect-ratio: 1 / 1;
-  border-radius: clamp(28px, 7vw, 56px);
+  width: min(1180px, 94vw);
+  aspect-ratio: 16 / 7;
+  border-radius: clamp(28px, 4vw, 56px);
   background:
-    radial-gradient(90% 90% at 50% 42%, rgba(73, 197, 182, 0.12), transparent 62%),
-    linear-gradient(165deg, #123845 0%, #0e2b36 55%, #0a1e26 100%);
-  border: 1px solid rgba(73, 197, 182, 0.34);
+    radial-gradient(90% 90% at 50% 42%, rgba(20, 179, 145, 0.14), transparent 62%),
+    linear-gradient(165deg, #06402e 0%, #052b1f 55%, #04150f 100%);
+  border: 1px solid rgba(20, 179, 145, 0.36);
   box-shadow:
-    inset 0 0 90px rgba(7, 20, 26, 0.85),
-    inset 0 0 26px rgba(73, 197, 182, 0.10),
+    inset 0 0 90px rgba(3, 15, 10, 0.85),
+    inset 0 0 26px rgba(20, 179, 145, 0.12),
     0 30px 80px -40px rgba(0, 0, 0, 0.9);
   overflow: hidden;
   touch-action: none; /* 觸控拖曳不滾頁 */
+}
+@media (max-width: 991.98px) {
+  .rx-dish-stage { aspect-ratio: 16 / 8; }
 }
 
 /* 科技感：細格網（皿內坐標紙） */
@@ -46,8 +51,8 @@
   content: "";
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(73, 197, 182, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(73, 197, 182, 0.055) 1px, transparent 1px);
+    linear-gradient(rgba(20, 179, 145, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 179, 145, 0.06) 1px, transparent 1px);
   background-size: 44px 44px;
   -webkit-mask-image: radial-gradient(75% 75% at 50% 50%, #000 30%, transparent 78%);
           mask-image: radial-gradient(75% 75% at 50% 50%, #000 30%, transparent 78%);
@@ -58,7 +63,7 @@
 .rx-dish-stage::after {
   content: "";
   position: absolute; left: -20%; right: -20%; top: 0; height: 120px;
-  background: linear-gradient(180deg, transparent, rgba(73, 197, 182, 0.07) 46%, rgba(160, 232, 96, 0.16) 50%, rgba(73, 197, 182, 0.07) 54%, transparent);
+  background: linear-gradient(180deg, transparent, rgba(20, 179, 145, 0.08) 46%, rgba(160, 232, 96, 0.18) 50%, rgba(20, 179, 145, 0.08) 54%, transparent);
   animation: rx-scan 9s linear infinite;
   pointer-events: none;
 }
@@ -67,19 +72,72 @@
   100% { transform: translateY(680px); }
 }
 
+/* ---- 盤內底色不再平坦：三顆螢光光球在皿內漂移（同底層 .hw-orbs 配方，
+       只是座標系換成盤面：外層跑 X、內層跑 Y，錯週期合成不規則軌跡）---- */
+.rx-dish-orbs {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.rx-dish-orbs > span {
+  position: absolute; left: 0; top: 0;
+  width: var(--d); height: var(--d);
+  animation: rx-orb-x var(--tx) ease-in-out infinite alternate;
+  animation-delay: var(--dx);
+}
+.rx-dish-orbs > span > span {
+  display: block; width: 100%; height: 100%;
+  animation: rx-orb-y var(--ty) ease-in-out infinite alternate;
+  animation-delay: var(--dy);
+  background:
+    radial-gradient(closest-side circle at 45% 42%,
+      rgba(160, 232, 96, 0.16) 0%,
+      rgba(160, 232, 96, 0.06) 44%,
+      rgba(20, 179, 145, 0) 72%),
+    radial-gradient(closest-side circle at 60% 60%,
+      rgba(20, 179, 145, 0.10) 0%,
+      rgba(20, 179, 145, 0) 58%);
+}
+.rx-dish-orbs > span:nth-child(1) { --d: 62%;  --tx: 37s; --ty: 29s; --dx: 0s;   --dy: -11s; }
+.rx-dish-orbs > span:nth-child(2) { --d: 44%;  --tx: 47s; --ty: 23s; --dx: -17s; --dy: -5s; }
+.rx-dish-orbs > span:nth-child(3) { --d: 78%;  --tx: 29s; --ty: 41s; --dx: -23s; --dy: -19s; }
+.rx-dish-orbs > span:nth-child(2) > span {
+  background:
+    radial-gradient(closest-side circle at 58% 38%,
+      rgba(160, 232, 96, 0.15) 0%,
+      rgba(160, 232, 96, 0.05) 42%,
+      rgba(20, 179, 145, 0) 70%),
+    radial-gradient(closest-side circle at 38% 62%,
+      rgba(216, 178, 106, 0.08) 0%,
+      rgba(20, 179, 145, 0) 55%);
+}
+.rx-dish-orbs > span:nth-child(3) > span {
+  background:
+    radial-gradient(closest-side circle at 48% 55%,
+      rgba(20, 179, 145, 0.14) 0%,
+      rgba(20, 179, 145, 0.06) 46%,
+      rgba(20, 179, 145, 0) 74%),
+    radial-gradient(closest-side circle at 62% 38%,
+      rgba(160, 232, 96, 0.07) 0%,
+      rgba(160, 232, 96, 0) 52%);
+}
+@keyframes rx-orb-x { from { transform: translateX(-25%); } to { transform: translateX(210%); } }
+@keyframes rx-orb-y { from { transform: translateY(-25%); } to { transform: translateY(180%); } }
+
 /* 六邊形紋（生物×科技主題裝飾，落在底層） */
 .rx-dish-hex {
   position: absolute;
   width: 46%; aspect-ratio: 1 / 1;
   clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
-  border: 1px solid rgba(73, 197, 182, 0.16);
-  background: rgba(73, 197, 182, 0.03);
+  border: 1px solid rgba(20, 179, 145, 0.18);
+  background: rgba(20, 179, 145, 0.04);
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
 .rx-dish-hex-a { animation: rx-hex 60s linear infinite; }
-.rx-dish-hex-b { width: 30%; border-color: rgba(39, 121, 167, 0.24); animation: rx-hex 44s linear infinite reverse; }
+.rx-dish-hex-b { width: 30%; border-color: rgba(13, 138, 112, 0.30); animation: rx-hex 44s linear infinite; }
 @keyframes rx-hex { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
 /* 分子連線 canvas：鋪在最底、節點之下 */
@@ -116,15 +174,11 @@
   touch-action: none; /* 觸控拖曳時不滾動頁面 */
   cursor: grab;
 }
-/* 自動換位重組：JS 加上 .rx-swap 時以彈跳曲線滑向新位置 */
-.rx-node.rx-swap {
-  transition: left 1.6s cubic-bezier(0.5, 1.5, 0.35, 1),
-              top 1.6s cubic-bezier(0.5, 1.5, 0.35, 1);
-}
-.rx-node.rx-dragging { cursor: grabbing; z-index: 9; transition: none; }
-.rx-node.rx-homing {
-  transition: left 1s cubic-bezier(0.3, 1.2, 0.4, 1),
-              top 1s cubic-bezier(0.3, 1.2, 0.4, 1);
+/* 拖曳中的節點：不套 CSS transition（歸位由 JS 每幀緩動牽回） */
+.rx-node.rx-dragging { cursor: grabbing; z-index: 9; }
+/* 被牽回途中：微傾、發亮，提醒「線還有張力」（JS 進出場加註用） */
+.rx-node.rx-homing .rx-node-disc {
+  filter: drop-shadow(0 0 14px rgba(160, 232, 96, 0.45));
 }
 .rx-node-link {
   display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
@@ -146,8 +200,8 @@
   background: var(--nx-fill, var(--nx-raised));
   border: 1px solid var(--nx-fill, var(--nx-raised));
   box-shadow:
-    0 0 0 5px rgba(7, 20, 26, 0.6),
-    0 0 26px rgba(73, 197, 182, 0.2),
+    0 0 0 5px rgba(3, 19, 13, 0.62),
+    0 0 26px rgba(20, 179, 145, 0.22),
     0 14px 30px -14px rgba(0, 0, 0, 0.85);
   transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.25, 1),
               box-shadow 0.35s ease, border-color 0.35s ease;
@@ -165,9 +219,9 @@
 .rx-node-nycu    .rx-node-disc { --nx-fill: #2E6084; }
 .rx-node-vis     .rx-node-disc { --nx-fill: #F5F5F4; }
 .rx-node-ccu     .rx-node-disc { --nx-fill: #EEF6D6; }
-/* 透明底兩隊：深青盤底＋圖形完整（contain） */
+/* 透明底兩隊：淡米黃白盤底＋圖形完整（contain） */
 .rx-node-okinawa .rx-node-disc,
-.rx-node-hia .rx-node-disc { --nx-fill: #1c4352; }
+.rx-node-hia .rx-node-disc { --nx-fill: #f7f1de; }
 .rx-node-okinawa .rx-node-disc img,
 .rx-node-hia .rx-node-disc img { object-fit: contain; inset: 10%; width: 80%; height: 80%; }
 /* 環形雷達脈衝（動畫感；位置不動，只有光在動） */
@@ -175,7 +229,7 @@
   content: "";
   position: absolute; inset: -5px;
   border-radius: 26%;
-  border: 1.5px solid rgba(73, 197, 182, 0.55);
+  border: 1.5px solid rgba(46, 219, 180, 0.55);
   opacity: 0;
   animation: rx-pulse 3.2s ease-out infinite;
   animation-delay: var(--pd, 0s);
@@ -192,15 +246,29 @@
   100% { transform: scale(1.35); opacity: 0; }
 }
 
+/* 吸附中：logo 被磁鐵吸向游標——盤緣亮起螢光描邊＋外擴光暈，
+   名牌轉 lime：一眼看出「這顆吸住了」 */
+.rx-node.rx-magnet .rx-node-disc {
+  border-color: var(--nx-lime, #a0e860);
+  box-shadow:
+    inset 0 0 26px rgba(160, 232, 96, 0.22),
+    0 0 22px rgba(160, 232, 96, 0.55),
+    0 0 54px rgba(160, 232, 96, 0.28);
+}
+.rx-node.rx-magnet .rx-node-name {
+  color: var(--nx-lime, #a0e860);
+  border-color: var(--nx-lime, #a0e860);
+}
+
 /* hover／焦點：微升＋發亮（只有縮放與光，不位移散落） */
 .rx-node-link:hover .rx-node-disc,
 .rx-node-link:focus-visible .rx-node-disc {
   transform: translateY(-4px) scale(1.06);
   border-color: var(--nx-lime, #a0e860);
   box-shadow:
-    0 0 0 5px rgba(7, 20, 26, 0.6),
+    0 0 0 5px rgba(3, 19, 13, 0.62),
     0 0 0 9px rgba(160, 232, 96, 0.25),
-    0 0 44px rgba(73, 197, 182, 0.5),
+    0 0 44px rgba(20, 179, 145, 0.5),
     0 20px 40px -16px rgba(0, 0, 0, 0.9);
 }
 .rx-node-link:focus-visible {
@@ -216,8 +284,8 @@
   font-weight: 600;
   white-space: nowrap;
   color: var(--nx-text, #dbe9ee);
-  background: rgba(10, 28, 36, 0.78);
-  border: 1px solid rgba(73, 197, 182, 0.32);
+  background: rgba(6, 32, 22, 0.8);
+  border: 1px solid rgba(20, 179, 145, 0.34);
   border-radius: 999px;
   padding: 0.16rem 0.6rem;
   backdrop-filter: blur(4px);
@@ -226,7 +294,7 @@
 .rx-node-link:hover .rx-node-name {
   color: var(--nx-lime, #a0e860);
   border-color: var(--nx-lime, #a0e860);
-  background: rgba(10, 28, 36, 0.92);
+  background: rgba(6, 32, 22, 0.92);
 }
 
 /* 拖曳／重組操作提示 */
@@ -235,16 +303,16 @@
   text-align: center;
   font-size: 0.78rem;
   letter-spacing: 0.06em;
-  color: var(--nx-muted, #93b0bb);
+  color: var(--nx-muted, #a9c3b4);
   opacity: 0.85;
 }
 .rx-dish-hint kbd {
   font: inherit;
   color: var(--nx-mint, #49c5b6);
-  border: 1px solid var(--nx-line, #24596b);
+  border: 1px solid var(--nx-line, #14584a);
   border-radius: 6px;
   padding: 0 0.35em;
-  background: rgba(22, 50, 63, 0.6);
+  background: rgba(11, 44, 34, 0.6);
 }
 
 /* ---- 進場：整塊皿由中心縮放浮現 ---- */
@@ -265,6 +333,7 @@ html.rx-js .rx-dish-stage.rx-in { opacity: 1; transform: scale(1); }
 /* ---- 無障礙：減少動態全靜態 ---- */
 @media (prefers-reduced-motion: reduce) {
   .rx-dish-stage::after, .rx-dish-hex, .rx-dish-core, .rx-node-disc::after { animation: none !important; }
+  .rx-dish-orbs > span, .rx-dish-orbs > span > span { animation-play-state: paused; }
   html.rx-js .rx-dish-stage { opacity: 1; transform: none; transition: none; }
 }
 
