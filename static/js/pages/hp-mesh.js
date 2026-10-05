@@ -11,6 +11,8 @@
    ============================================================ */
 (function () {
   'use strict';
+  if (window.__hpMeshMounted) return;   /* 防重複載入：全站 layout 掛一次就夠 */
+  window.__hpMeshMounted = true;
   var body = document.body;
   var rootEl = document.documentElement;
   /* engineering（DBTL 白紙世界）與 board-game（桌遊紙世界）有自己的視覺，不打攪 */
