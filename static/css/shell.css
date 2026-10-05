@@ -79,30 +79,59 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
 
 /* ---- 行動版：全螢幕選單（純 CSS，不改 Bootstrap 行為）---- */
 @media (max-width: 991.98px) {
+  /* 根治：桌面版 navbar 用 left:50%＋translateX(-50%) 置中——這個 transform
+     會把子層 position:fixed 的全螢幕選單面板劫持成「以 navbar 為基準」，
+     面板被壓進 navbar 的狹窄盒子裡，選單項目溢出裁切＝看起來縮起來看不見。
+     小螢幕 navbar 本来就接近全幅，改 left/right 直接定位、transform 拿掉。 */
+  .navbar {
+    left: 1.5rem;
+    right: 1.5rem;
+    width: auto;
+    max-width: none;
+    transform: none !important;
+    transition: top 0.3s ease, opacity 0.3s ease;
+  }
+  /* 遮罩（style.css .navbar.bg-dark blur(24px) 帶 !important）同樣會劫持 fixed 子層 */
+  .navbar.bg-dark {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(4, 21, 15, 0.96) !important;
+  }
+  body.navbar-hidden .navbar { top: -110px; }
   .navbar-collapse {
     position: fixed; inset: 0; z-index: 1030;
     background:
       radial-gradient(90% 70% at 80% -10%, rgba(20,179,145,0.28), transparent 60%),
       radial-gradient(70% 60% at 10% 110%, rgba(216,178,106,0.22), transparent 60%),
       linear-gradient(160deg, #06402e 0%, #052b1f 55%, #04150f 100%);
-    display: flex; flex-direction: column; justify-content: center;
+    display: flex; flex-direction: column;
     padding: 4.5rem 2rem 2rem;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
     opacity: 0; visibility: hidden; transform: translateY(-12px);
     transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out), visibility 0.35s;
   }
+  /* 置中改用 auto margin（justify-content:center 遇溢出會把頂部頂出可捲範圍） */
+  .navbar-collapse .navbar-nav { margin: auto 0; }
   .navbar-collapse.show, .navbar-collapse.collapsing.show {
     opacity: 1; visibility: visible; transform: none;
   }
   /* Bootstrap 的 height 摺疊動畫在 fixed 面板上沒有意義，放掉高度動作 */
   .navbar-collapse.collapsing { height: 100vh !important; transition: none; }
-  .navbar-collapse .navbar-nav { gap: 0.4rem; }
+  .navbar-collapse .navbar-nav { gap: 0.4rem; margin-left: 0 !important; width: 100%; }
   .navbar-collapse .nav-item { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0.35rem 0; }
-  .navbar-collapse .nav-link { color: #fff !important; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em; }
-  /* dropdown 在行動板內展開成內嵌小連結 */
+  .navbar-collapse .nav-link { color: #fff !important; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em; text-align: left; }
+  /* dropdown 在行動板內展開成內嵌小連結
+     （position 用 !important：蓋掉 Bootstrap Popper 寫進來的 inline 絕對定位，
+       否則子選單會被定位到面板外的亂位置，看起來像「縮起來看不見」） */
   .navbar-collapse .dropdown-menu {
     background: transparent !important; border: none; box-shadow: none;
-    position: static; min-width: 0; padding: 0 0 0.4rem 1rem;
+    position: static !important; transform: none !important;
+    min-width: 0; width: 100%; padding: 0 0 0.4rem 1rem;
+    margin: 0 !important; opacity: 1 !important;
+    display: none; max-height: 0; overflow: visible;
+    transition: none;
   }
+  .navbar-collapse .dropdown-menu.show { display: block; max-height: none; }
   .navbar-collapse .dropdown-item { color: rgba(255,255,255,0.72) !important; justify-content: flex-start; font-size: 1.05rem; }
   .navbar-collapse .dropdown-item:hover { background: rgba(160,232,96,0.12) !important; color: #b8f57e !important; }
   /* burger 鈕轉 X 由 Bootstrap 處理，這裡只讓它更清晰 */
