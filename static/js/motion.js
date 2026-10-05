@@ -17,7 +17,10 @@
   var reduceMotion = false;
   try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
 
-  /* ---------- 深淺色切換 ---------- */
+  /* ---------- 深淺色切換 ----------
+     暫時關閉：false＝不顯示太陽/月亮鈕、全站固定深夜綠。
+     要恢復時改回 true，並把 wiki/layout.html 首幀腳本的 RX_THEME_TOGGLE 一起改回 true。 */
+  var THEME_TOGGLE_ENABLED = false;
   function applyTheme(t) {
     root.setAttribute('data-theme', t);
     try { localStorage.setItem('rx-theme', t); } catch (e) {}
@@ -26,10 +29,10 @@
       b.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
     });
   }
-  var current = root.getAttribute('data-theme') || 'dark';
+  var current = THEME_TOGGLE_ENABLED ? (root.getAttribute('data-theme') || 'dark') : 'dark';
 
   /* 把切換鈕塞進導覽列（burger 旁邊；不碰 Bootstrap 結構） */
-  var nav = document.querySelector('.navbar .container-fluid');
+  var nav = THEME_TOGGLE_ENABLED ? document.querySelector('.navbar .container-fluid') : null;
   if (nav) {
     var btn = document.createElement('button');
     btn.type = 'button';

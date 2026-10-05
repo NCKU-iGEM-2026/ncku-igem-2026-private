@@ -110,8 +110,15 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
     opacity: 0; visibility: hidden; transform: translateY(-12px);
     transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out), visibility 0.35s;
   }
-  /* 置中改用 auto margin（justify-content:center 遇溢出會把頂部頂出可捲範圍） */
-  .navbar-collapse .navbar-nav { margin: auto 0; }
+  /* 選單從頂部排起，緊貼在 navbar（logo＋burger 那條，底緣約 96px）下方。
+     menu.html 的 justify-content-end / mb-2 都是 Bootstrap !important 工具類，
+     不壓掉會把整串選單推到面板最底——所以這裡要 !important。
+     style.css 舊版下拉面板留下 max-height: calc(100vh - 64px)，底部會露出一截頁面。 */
+  .navbar-collapse {
+    justify-content: flex-start !important; height: 100vh; height: 100dvh; max-height: none !important;
+    padding-top: 7rem !important;
+  }
+  .navbar-collapse .navbar-nav { margin-top: 0 !important; margin-bottom: 0 !important; }
   .navbar-collapse.show, .navbar-collapse.collapsing.show {
     opacity: 1; visibility: visible; transform: none;
   }
@@ -119,7 +126,17 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
   .navbar-collapse.collapsing { height: 100vh !important; transition: none; }
   .navbar-collapse .navbar-nav { gap: 0.4rem; margin-left: 0 !important; width: 100%; }
   .navbar-collapse .nav-item { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0.35rem 0; }
-  .navbar-collapse .nav-link { color: #fff !important; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em; text-align: left; }
+  .navbar-collapse .nav-link {
+    color: #fff !important; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em;
+    display: flex; align-items: center; justify-content: space-between;
+    text-align: left !important; padding: 0.5rem 0.25rem;
+  }
+  /* 下拉三角形放在同一行最右邊（原本被設成 block，掉到文字下面） */
+  .navbar-collapse .dropdown-toggle::after {
+    display: inline-block !important; position: static !important;
+    margin: 0 0 0 0.75rem !important; flex: none;
+  }
+  .navbar-collapse .dropdown-toggle[aria-expanded="true"]::after { transform: rotate(180deg); }
   /* dropdown 在行動板內展開成內嵌小連結
      （position 用 !important：蓋掉 Bootstrap Popper 寫進來的 inline 絕對定位，
        否則子選單會被定位到面板外的亂位置，看起來像「縮起來看不見」） */
@@ -132,14 +149,16 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
     transition: none;
   }
   .navbar-collapse .dropdown-menu.show { display: block; max-height: none; }
-  .navbar-collapse .dropdown-item { color: rgba(255,255,255,0.72) !important; justify-content: flex-start; font-size: 1.05rem; }
+  .navbar-collapse .dropdown-item { color: rgba(255,255,255,0.72) !important; justify-content: flex-start; text-align: left !important; font-size: 1.05rem; padding-left: 1rem; }
   .navbar-collapse .dropdown-item:hover { background: rgba(160,232,96,0.12) !important; color: #b8f57e !important; }
   /* burger 鈕轉 X 由 Bootstrap 處理，這裡只讓它更清晰 */
   .navbar-toggler { border-color: rgba(6,64,46,0.25); }
   html[data-theme="dark"] .navbar-toggler { border-color: rgba(160,232,96,0.35); }
 }
 /* 選單開啟時把 burger 抬到全螢幕之上 */
-body:has(.navbar-collapse.show) .navbar-toggler { position: relative; z-index: 1040; }
+body:has(.navbar-collapse.show) .navbar-toggler,
+body:has(.navbar-collapse.show) .navbar-brand,
+body:has(.navbar-collapse.show) .rx-theme-toggle { position: relative; z-index: 1040; }
 
 /* ---- 內頁 hero：墨綠浸潤 + 熒光點綴（stage 版式）----
    nexus 系（hardware/model/software/education）自持深青主題、
