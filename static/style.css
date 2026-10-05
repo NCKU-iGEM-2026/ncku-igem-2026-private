@@ -1741,6 +1741,10 @@ body.engineering-page .navbar-toggler { z-index: 3; }
 body.engineering-page .navbar .dropdown-menu { z-index: 4; }
 body.engineering-page .navbar-nav .nav-link:hover,
 body.engineering-page .navbar-nav .nav-link:focus { color: #747b77; }
+/* No bacterium under the menu here, nor its AHL trail (menu-germ.js): the
+   left margin belongs to the module rail. */
+body.engineering-page .gm-host,
+body.engineering-page .gm-trail { display: none; }
 /* One block of colour: the hero reaches up behind the navbar (the body's
    104px top padding), so the two can never drift apart and flash white while
    the navbar slides away. The navbar and its logo stay a separate layer above
@@ -1875,7 +1879,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   position: relative; border-radius: 0 7px 7px 0; transition: background-color .25s ease, color .25s ease;
 }
 .engineering-iteration-button::before {
-  content: ""; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; border-radius: 2px;
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 0;
   background: var(--eng-accent); opacity: 0; transition: opacity .25s ease;
 }
 .engineering-iteration-button.is-current {
@@ -1889,7 +1893,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-iteration-note { display: block; min-width: 0; margin-top: 1px; font-size: .74rem; font-weight: 500; line-height: 1.3; color: #5d6c62; letter-spacing: .01em; }
 .engineering-iteration-note:empty { display: none; }
 .engineering-cycle { position: relative; width: var(--eng-cycle-size); aspect-ratio: 1; margin: 0 auto; --rotation: 0deg; }
-.engineering-ring { display: block; width: 100%; height: 100%; overflow: visible; transform: rotate(var(--rotation)) scale(.94); transition: transform .9s cubic-bezier(.3,.05,.2,1); }
+.engineering-ring { display: block; width: 100%; height: 100%; overflow: visible; transform: rotate(var(--rotation)) scale(.94); transition: transform .5s cubic-bezier(.3,.05,.2,1); }
 .engineering-ring-track { fill: none; stroke: var(--eng-line); stroke-width: 1; }
 .engineering-arc {
   stroke: none; pointer-events: visiblePainted; cursor: pointer; -webkit-tap-highlight-color: transparent;
@@ -1923,11 +1927,11 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   border: 0; border-radius: 999px; padding: 0; background: transparent; color: #123b31;
   font-size: calc(var(--eng-cycle-size) * .0367); font-weight: 650; pointer-events: none; opacity: 1;
   transform: translate(-50%, -50%) rotate(calc(var(--bearing) + var(--rotation))) translateY(-216.6667%) rotate(calc(-1 * (var(--bearing) + var(--rotation))));
-  transition: transform .9s cubic-bezier(.3,.05,.2,1);
+  transition: transform .5s cubic-bezier(.3,.05,.2,1);
 }
-.engineering-stage-tab[data-stage="build"] { --bearing: 270deg; }
+.engineering-stage-tab[data-stage="build"] { --bearing: 90deg; }
 .engineering-stage-tab[data-stage="test"] { --bearing: 180deg; }
-.engineering-stage-tab[data-stage="learn"] { --bearing: 90deg; }
+.engineering-stage-tab[data-stage="learn"] { --bearing: 270deg; }
 .engineering-stage-tab span { display: inline-block; transition: transform .25s ease; }
 .engineering-stage-tab.is-current span { font-weight: 800; font-size: calc(1.45em + 3px); }
 /* Keep the module name centred in the ring. The iteration pager and count
@@ -2160,6 +2164,17 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-page-nav button:focus-visible { transform: translateY(-2px); background: var(--eng-accent); border-color: var(--eng-accent); color: #fff; }
 .engineering-page-nav button:disabled { filter: grayscale(.65); opacity: .38; cursor: default; }
 .engineering-page-nav button span { flex: 0 0 auto; font-size: 1.25em; }
+/* While a page turn builds, the button it will land on fills in step with
+   the cue: forward buttons from the left, back buttons from the right, the
+   way their arrows point. */
+.engineering-page-nav button { position: relative; overflow: hidden; isolation: isolate; }
+.engineering-page-nav button::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: color-mix(in srgb, var(--eng-hero) 62%, #fff);
+  transform: scaleX(var(--pull-progress, 0)); transform-origin: left center;
+}
+#engineering-previous-module::before, #engineering-last-iteration::before { transform-origin: right center; }
+.engineering-page-nav button.is-charging { border-color: var(--eng-accent); }
 .engineering button:focus-visible, .engineering-record:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 4px; }
 .engineering-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .engineering-noscript { margin-top: 2rem; font-size: .85rem; }
@@ -2660,7 +2675,7 @@ body.edu-cosmos-page .hero-sub {
      scrollbar, which is why the html rule at the top of this file carries
      overflow-x: clip. */
   margin-inline: calc(50% - 50vw);
-  padding: 2rem clamp(0.75rem, 4vw, 3rem) 2.4rem;
+  padding: 2.6rem clamp(0.75rem, 4vw, 3rem) 3.3rem;
   background:
     radial-gradient(120% 140% at 50% -20%, #f4faf6 0%, #eef6f1 45%, #e9f2ec 100%);
   border-block: 1px solid #e2ece6;
@@ -2670,27 +2685,69 @@ body.edu-cosmos-page .hero-sub {
 .collab-wall-inner {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 0.7rem 0.8rem;
-  max-width: 1500px;
+  /* No gap along the row: what separates neighbours is --lap, below, and it
+     is negative. The row gap is for when the row wraps. */
+  gap: 0.9rem 0;
+  /* Wide, so the discs can be: they are as big as nineteen fit across the
+     row, so the row is as wide as the screen allows. The cap is only for a
+     very large monitor, where the discs would otherwise stop at their own
+     size and leave the row a stripe in the middle. */
+  max-width: 2000px;
   margin: 0 auto;
+}
+
+/* One line, because the line is the word: COLLABORATION has to read left to
+   right as a single run. A wrapping row stops being that -- it was tried, in
+   three lines, and rejected. The discs are not given a smaller size to fit;
+   each one may shrink (see .collab-bubble) and the aspect-ratio keeps it
+   round, so the row scales as a whole and the discs are as big as nineteen
+   can be across whatever width there is.
+
+   1100px, because below it nineteen discs on one line are too small to be
+   letters. Under that the row wraps and the word reads the way text does. */
+@media (min-width: 1100px) {
+  /* The overlap is a share of the viewport rather than a fixed length, so it
+     keeps its proportion to the discs, which are themselves sized from the
+     row's width: 0.8vw is about 12px a side at 1440 and 15px at 1920.
+
+     0.8 because it was measured against the alternatives. At 0.6vw a disc is
+     covered by at most 19% of its width by a neighbour and the discs average
+     78px at 1440; at 1.2vw they average 95px but a neighbour covers 37% of a
+     disc and the letters start to be eaten. Past 1.5vw the discs stop growing
+     at all, since each has a size it will not exceed. */
+  .collab-wall-inner { flex-wrap: nowrap; --lap: 0.8vw; }
 }
 
 .collab-bubble {
   position: relative;
   display: block;
-  flex: none;
+  /* The disc's own size, and the most it will be. The basis is that size and
+     the item may shrink, which is what lets nineteen discs fit one line at
+     any width. min-width: 0 because a flex item will not shrink below its
+     content otherwise. --d is declared first so the shorthand can read it. */
   --d: var(--dbase, 80px);
+  flex: 0 1 var(--d);
+  min-width: 0;
   /* Every disc carries its own drift and its own side spacing, so the wall
      reads as a raft of bubbles rather than a grid of them. Both are static:
      nothing about them changes on hover.
 
-     The drift is a transform, not a margin. A margin-top pushes the row
-     taller and the wall pays for the drift in height; a transform is paint
-     only, so the drift can go up as well as down and cost nothing. */
-  transform: translateY(var(--dy, 0px));
-  margin-inline: var(--mx, 0px);
+     The drop is a margin, deliberately. It used to be a transform, which is
+     paint only and costs the wall no height -- so the skyline could be as
+     uneven as it liked and the wall stayed a thin strip. Now the unevenness
+     is meant to be big and the wall is meant to be tall, so each disc is let
+     down from the top of the row by its own distance, up to 290px, and the
+     row grows to hold the lowest. Below 1100px the row wraps and a drop that
+     size would make each line taller than the whole line is wide, so there it
+     is a fifth or so of that. Downward only: it is a margin, so a
+     negative one would pull a disc up out of the wall. */
+  margin-top: var(--dy, 0px);
+  /* --lap pulls a disc into its neighbours by that much on each side. It is
+     0 until the row is a single line (see below), because a wrapped row
+     has the room for its discs and no need to overlap them. */
+  margin-inline: calc(var(--mx, 0px) - var(--lap, 0px));
   text-decoration: none;
   color: inherit;
   line-height: 0;
@@ -2699,8 +2756,12 @@ body.edu-cosmos-page .hero-sub {
 .collab-bubble-disc {
   display: grid;
   place-items: center;
-  width: var(--d);
-  height: var(--d);
+  /* The bubble's width, kept round by the ratio -- not var(--d) directly,
+     or a disc that has been shrunk would keep its old height. Also a size
+     container, so a letter can be sized against its own disc. */
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  container-type: inline-size;
   border: 1px solid #e0e8e3;
   border-radius: 50%;
   background: #fff;
@@ -2725,6 +2786,26 @@ body.edu-cosmos-page .hero-sub {
 .collab-bubble.is-ccu .collab-bubble-disc {
   background: rgb(246, 250, 223);
   border-color: rgb(233, 238, 205);
+}
+
+/* A letter of the word. The ink green and the Changa face are the site's own,
+   and the disc is a soft mint rather than the white of a school badge, so a
+   badge is never mistaken for a letter at a glance.
+
+   cqw because the disc is a size container and a plain rem would be the same
+   size in a 50px disc and a 112px one. */
+.collab-bubble.is-letter .collab-bubble-disc {
+  background: #e7f1eb;
+  border-color: #cfe0d6;
+}
+
+.collab-letter {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 56cqw;
+  line-height: 1;
+  color: #075a3e;
+  user-select: none;
 }
 
 .collab-bubble-disc img {
@@ -2781,6 +2862,18 @@ body.edu-cosmos-page .hero-sub {
   box-shadow: 0 16px 34px -14px rgba(10, 40, 26, 0.5);
 }
 
+/* Discs overlap now, and later ones paint over earlier ones. A badge is a
+   link and a letter is decoration, so the badges sit one layer up and are
+   never covered by the letter next to them. A disc under the pointer or under
+   focus comes to the very front, over whatever it swells across. */
+.collab-bubble.is-lead { z-index: 1; }
+
+/* The overlap is between neighbours, so the two ends of the row have nothing
+   to overlap on their outer side. Left negative they poke out of the row by
+   --lap, past the wall's own edge. */
+.collab-bubble:first-child { margin-left: var(--mx, 0px); }
+.collab-bubble:last-child { margin-right: var(--mx, 0px); }
+
 .collab-bubble:hover,
 .collab-bubble:focus-visible { z-index: 4; }
 
@@ -2825,45 +2918,55 @@ body.edu-cosmos-page .hero-sub {
   color: #6b7a72;
 }
 
-/* Fifty-four discs is a wall on a wide screen and a barricade on a narrow
-   one: measured at 1125px tall on a tablet and 951px on a phone, which is
-   more than a screen of logos before the page says anything. Narrow screens
-   draw fewer. Every team's one real link sits inside the first twenty-four,
-   so none of them is ever the one that got cut. */
-@media (max-width: 1199.98px) {
-  /* Thirty, not thirty-six. The discs run to 140px and do not shrink until
-     the phone tier, so a 1024px window wrapped thirty-six of them into a
-     90vh wall -- past a screen before the page says anything. */
-  .collab-bubble:nth-child(n + 31) { display: none; }
-}
+/* No tiers that draw fewer. The wall used to cut fifty-four discs down to
+   thirty and then twenty-four on a narrow screen; it is nineteen now, and
+   each of them is spoken for -- thirteen letters of a word, and one badge for
+   each of six schools -- so hiding any would spell the word wrong or lose a
+   school's only link. */
 
-/* How many rows the wall wraps into depends on the height of the window as
-   well as its width, which a width query cannot see: a 1200x800 window drew
-   the full fifty-four and came to 108vh. A short window draws fewer. */
-@media (max-height: 860px) {
-  .collab-bubble:nth-child(n + 43) { display: none; }
-}
+/* Everything below a desktop gets the second set of sizes, not just a phone.
+   Between 768 and 991 there used to be none, so a tablet drew the desktop
+   discs into a narrower row: five lines and a wall 1065px high, taller than
+   the screen it was on.
 
-@media (max-height: 700px) {
-  .collab-bubble:nth-child(n + 31) { display: none; }
-}
-
-@media (max-width: 991.98px) {
-  .collab-bubble:nth-child(n + 31) { display: none; }
-}
-
-@media (max-width: 767.98px) {
-  .collab-bubble:nth-child(n + 25) { display: none; }
-  .collab-wall { padding: 1.1rem 0.75rem 1.5rem; margin-bottom: 1.75rem; }
-  .collab-wall-inner { gap: 0.5rem; }
+   Below 1100px the nineteen cannot stay on one line and be legible, so the
+   row wraps; the word then reads across the lines the way text does. */
+@media (max-width: 1099.98px) {
+  .collab-wall { padding: 1.4rem 0.9rem 1.8rem; margin-bottom: 1.75rem; }
+  .collab-wall-inner { gap: 0.6rem 0.5rem; max-width: none; }
   /* A phone is not this wall scaled down. Each bubble carries a second
      size with the spread already squeezed toward the middle, because a disc
-     scaled from 140px would take a quarter of a 390px screen and one scaled
-     from 44px would be too small to read. */
+     scaled from 148px would take over a third of a 390px screen and one
+     scaled from 84px would be too small to read. */
   .collab-bubble {
     --d: var(--dnarrow, 56px);
-    transform: translateY(calc(var(--dy, 0px) * 0.55));
+    margin-top: calc(var(--dy, 0px) * 0.17);
     margin-inline: calc(var(--mx, 0px) * 0.5);
+  }
+}
+
+/* A tablet is not a phone. Between a phone and a desktop the discs grow with
+   the window instead of sitting at the phone's size for three hundred pixels
+   and then jumping to the desktop's: --dnarrow is the phone size, and this
+   adds to it in proportion to how much wider the window is. Without it the
+   wall was 272px tall at 1000px -- shorter than on a phone, which is
+   backwards.
+
+   Written as the phone size plus a few vw rather than a ratio of two
+   lengths, (100vw - 600px) / 1000px, which only newer browsers can divide;
+   an older one would drop the whole declaration and leave every disc at
+   nothing. 1vw is a length, so adding it needs no division. */
+@media (min-width: 600px) and (max-width: 1099.98px) {
+  .collab-bubble {
+    --d: calc(var(--dnarrow, 56px) + (100vw - 600px) * 0.09);
+    margin-top: calc(var(--dy, 0px) * 0.22);
+  }
+}
+
+@media (max-width: 1099.98px) {
+  .collab-wall .collab-bubble:hover .collab-bubble-disc,
+  .collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
+    transform: scale(1.4);
   }
   .collab-wall .collab-bubble:hover .collab-bubble-disc,
   .collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
@@ -3928,9 +4031,14 @@ body.edu-lightbox-locked {
    Per cent, not rem, so the one rule also serves the smaller circle the
    stacked layout uses. */
 .sgd-icon {
-  width: 96%;
-  height: 96%;
-  object-fit: contain;
+  /* Fill the ring rather than fit inside it. These pictures carry their own
+     background, so at 96% with object-fit: contain the square sat short of
+     the circle on all four sides and its straight edges showed through as
+     chords. The sources are square and so is the box, so cover crops
+     nothing -- it just lets the picture reach the clip. */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   filter: grayscale(0.62) opacity(0.72);
   transition: filter 0.4s ease;
 }
@@ -4913,6 +5021,132 @@ body.edu-lightbox-locked {
    document in the browser's own viewer, which is what works there. */
 @media (max-width: 575.98px) {
   .labbook .protocol-viewer { display: none; }
+}
+
+/* Twenty-one protocols is too many to scroll past looking for one, so the
+   page opens on an index grouped by stage of the work, and each group gets a
+   heading the index can jump to. */
+.labbook .protocol-index {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.25rem 1.75rem;
+  background: #fffdf9;
+  border: 1px solid #e6ddc8;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(43, 30, 23, 0.06);
+  padding: 1.5rem 1.5rem 1.35rem;
+  margin-bottom: 2.75rem;
+}
+
+.labbook .protocol-index-title {
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid #075a3e;
+}
+
+.labbook .protocol-index-title a {
+  color: #075a3e;
+  text-decoration: none;
+}
+
+.labbook .protocol-index ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.labbook .protocol-index li {
+  margin: 0.3rem 0;
+  font-size: 0.93rem;
+  line-height: 1.4;
+}
+
+.labbook .protocol-index li a {
+  color: #2b1e17;
+  text-decoration: none;
+}
+
+.labbook .protocol-index a:hover,
+.labbook .protocol-index a:focus-visible {
+  text-decoration: underline;
+}
+
+.labbook .protocol-group {
+  font-family: "Changa", sans-serif;
+  font-size: clamp(1.45rem, 1.1rem + 1.5vw, 2rem);
+  color: #075a3e;
+  margin: 3.25rem 0 1.25rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 3px solid #075a3e;
+  scroll-margin-top: 90px;
+}
+
+.labbook .protocol-index + .protocol-group { margin-top: 0; }
+
+.labbook .protocol,
+.labbook .protocol-embed { scroll-margin-top: 90px; }
+
+/* Each protocol is its PDF, shown in place: a title, the document itself,
+   and a rule before the next one. No card around it -- the PDF already is
+   the sheet. */
+.labbook .protocol-embed > h2 {
+  font-family: "Changa", sans-serif;
+  font-size: clamp(1.2rem, 1rem + 0.9vw, 1.5rem);
+  line-height: 1.3;
+  color: #075a3e;
+  margin: 0 0 0.85rem;
+}
+
+.labbook .protocol-embed .protocol-viewer {
+  border: 1px solid #e6ddc8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.labbook .protocol-embed .protocol-pdf {
+  background: none;
+  border: none;
+  padding: 0.85rem 0 0;
+}
+
+.labbook .protocol-rule {
+  border: 0;
+  border-top: 2px solid #d9cdb2;
+  opacity: 1;
+  margin: 2.5rem 0;
+}
+
+@media (max-width: 575.98px) {
+  .labbook .protocol-index { padding: 1.2rem 1.15rem; }
+  .labbook .protocol-embed .protocol-pdf { padding-top: 0; }
+  .labbook .protocol-rule { margin: 1.75rem 0; }
+}
+
+@media print {
+  .labbook .protocol-index { display: none !important; }
+  .labbook .protocol-group { margin: 1rem 0 0.5rem; font-size: 14pt; color: #000; border-color: #000; }
+  .labbook .protocol-embed { break-inside: avoid; }
+  .labbook .protocol-embed > h2 { color: #000; font-size: 12pt; margin: 0 0 0.2rem; }
+  .labbook .protocol-rule { margin: 0.6rem 0; border-color: #999; }
+  /* The PDF cannot print from its frame, so on paper each protocol keeps its
+     address written out. */
+  .labbook .protocol-embed .protocol-pdf { display: block !important; padding: 0; }
+  .labbook .protocol-embed .protocol-pdf a {
+    display: inline;
+    border: none;
+    padding: 0;
+    font-weight: 400;
+  }
+  .labbook .protocol-embed .protocol-pdf svg { display: none; }
+  .labbook .protocol-embed .protocol-pdf a::after {
+    content: " — " attr(href);
+    font-size: 8.5pt;
+    word-break: break-all;
+  }
+  .labbook #appendix { break-before: page !important; }
 }
 
 
@@ -6418,6 +6652,108 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
 .hw-steps { padding-left: 1.3rem; margin: 1.25rem 0 1.5rem; }
 .hw-steps li { margin-bottom: 0.55rem; line-height: 1.7; padding-left: 0.2rem; }
 
+/* ---- the row of shortcuts at the head of the page ----
+   The page runs to ten sections, and this is how a reader gets to the one
+   they came for. The chips are the Software page's; only the spacing is
+   local. Targets stop short of the top so the fixed menu does not sit on the
+   heading that was asked for. */
+.hw-jump .sw-links { margin: 0 0 2.4rem; }
+.hw section[id],
+.hw h3[id] { scroll-margin-top: 90px; }
+
+/* ---- which build is which ----
+   Three cards in the grid Software uses for its three tools. The facts in
+   each are a short definition list, so its label column is narrower than the
+   page-width one, and a photograph, once there is one, takes the card's
+   width. */
+.hw-builds {
+  /* Narrower than the shared grid's 300px floor, so all three sit in one
+     row on a desktop column instead of two and a straggler. */
+  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  gap: 1.5rem 1.1rem;
+  margin-bottom: 1.5rem;
+}
+.hw-builds .hw-module h4 { margin: 0.35rem 0 0.5rem; font-size: 1.15rem; }
+/* A build's record name is one token; broken across two lines its chip
+   reads as two. */
+.hw-builds code { white-space: nowrap; }
+.hw-builds .hw-spec > div { grid-template-columns: 5.6rem 1fr; gap: 0.5rem; }
+.hw-builds .hw-module img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 0 1rem;
+  border-radius: 8px;
+}
+
+/* A slot in the plan view where a part could go and none has been fitted:
+   an outline, the same way the reserved filter position is drawn. */
+.hw-svg-slot { fill: none; stroke: #6b7a72; stroke-width: 1.2; stroke-dasharray: 3 3; }
+body.hw-nexus .hw-svg-slot { stroke: #6f93a1; }
+
+/* A fold that holds prose or a list instead of a table, and a table's note
+   when it is folded away with it: both need the inset a table's own cells
+   give it. */
+.hw-fold-prose { padding: 0.85rem 1rem 0.4rem; }
+.hw-fold-prose > p:first-child { margin-top: 0; }
+.hw-fold-prose .hw-steps { margin: 0.8rem 0 0.6rem; }
+.hw-fold .hw-figure figcaption { padding: 0.7rem 0.85rem 0.75rem; }
+
+/* A token that must stay on one line: a record name, a set of dimensions. */
+.hw-nb { white-space: nowrap; }
+
+/* A row heading in a table that sets two states side by side. */
+.hw-table tbody th[scope="row"] { font-weight: 600; }
+
+/* Version against version, in prose: equal columns, so neither reads as a
+   note on the other. */
+.hw-table.hw-vs th,
+.hw-table.hw-vs td { width: 50%; }
+
+/* ---- the opening, and the three numbers under it ----
+   The first screen has to say what the reader is and what it has shown. The
+   lead is the shared one; here it sits closer to the numbers that back it. */
+.hw-lead.hw-lead-tight { margin-bottom: 1.6rem; }
+.hw-keys {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: 1rem;
+  margin: 0 0 2rem;
+}
+.hw-keys > div {
+  padding: 0.95rem 1.1rem 1rem;
+  border: 1px solid #cfdcd5;
+  border-radius: 12px;
+  background: #fffdf7;
+}
+.hw-keys dt {
+  font-family: "Changa", sans-serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: #075a3e;
+  font-variant-numeric: tabular-nums;
+}
+.hw-keys dd { margin: 0.35rem 0 0; font-size: 0.9rem; line-height: 1.5; color: #4a5a51; }
+body.hw-nexus .hw .hw-keys > div { background: var(--nx-panel); border-color: var(--nx-line); }
+body.hw-nexus .hw .hw-keys dt { color: var(--nx-lime); }
+body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
+
+/* A fold that holds a figure or a set of cards, not a narrow table: it takes
+   the column's full width instead of the table folds' three quarters. */
+@media (min-width: 768px) {
+  .hw-fold.hw-fold-wide { max-width: none; }
+}
+.hw-fold-prose > .hwx-rig { margin: 1rem 0 1.1rem; }
+.hw-fold-prose > .hw-terms { margin-bottom: 0.8rem; }
+
+/* ---- references ---- */
+.hw-ref { font-size: 0.72em; line-height: 0; }
+.hw-ref a { text-decoration: none; padding: 0 0.1em; }
+.hw-refs { padding-left: 1.3rem; font-size: 0.9rem; }
+.hw-refs li { margin-bottom: 0.6rem; line-height: 1.6; }
+.hw section[id] li[id] { scroll-margin-top: 90px; }
+
 /* ---- the costing table ---- */
 /* Numbers right, names left, and tabular figures so a column of prices lines
    up on its decimal point rather than wandering. */
@@ -6566,7 +6902,8 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
 .hwx-lab { background: var(--hwx-dark); }
 .hwx-lab-solid rect { fill: #1a272d; stroke: #2f454f; stroke-width: 1; }
 .hwx-lab-bore { fill: #0e171c; stroke: #3a5761; stroke-width: 1; }
-.hwx-lab-stop line { stroke: #41616c; stroke-width: 2; }
+/* Dashed: these are the baffle's two disk slots, and no disk has been fitted. */
+.hwx-lab-stop line { stroke: #41616c; stroke-width: 2; stroke-dasharray: 3 4; }
 .hwx-lab-cell { fill: #0c161b; stroke: #44636e; stroke-width: 1; }
 .hwx-lab-trap { fill: #141f24; stroke: #2f454f; stroke-width: 1; }
 .hwx-lab-trap-in { fill: #0b1216; }
@@ -6737,6 +7074,282 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
    they are. Greyed and inert, with the reason in its title. */
 .hwx-seg button:disabled { opacity: 0.38; cursor: default; }
 .hwx-seg button:disabled:hover { background: #16242b; color: #a9bec7; }
+
+/* ---- the printed parts ---------------------------------------------------
+   The STL files, drawn by static/hardware-parts.js. Until that script has a
+   WebGL context the controls, the view and the readout stay hidden and the
+   panel is its heading and the list of files, which is complete without it.
+
+   The part colours are custom properties because the script reads them from
+   here: a part is drawn in the colour the legend shows for it. */
+.hwp {
+  --hwp-both: #b3c1cb;
+  --hwp-v1: #66757f;
+  --hwp-v2: #49c5b6;
+  --hwp-proxy: #5fb3e0;
+  --hwp-absent: #8fa5b0;
+  --hwp-hot: #e6b060;
+  --hwp-bed: #12222b;
+  --hwp-grid: #23404d;
+}
+
+/* Two links on the page land here; stop short of the fixed menu. */
+.hwp { scroll-margin-top: 90px; }
+
+/* Six module names do not fit beside the other controls, so they take a row
+   of their own under them and the zoom buttons stay where they were. */
+.hwp-tools { order: 1; margin-left: auto; }
+.hwp-wide { order: 2; flex-basis: 100%; }
+
+.hwp-stage {
+  position: relative;
+  height: clamp(320px, 52vw, 540px);
+  /* A drag that starts on the view and runs off it should not end up
+     selecting the paragraph underneath. */
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* Vertical swipes still scroll the page on a touch screen; a sideways drag
+   turns the view. */
+.hwp-view {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.hwp-view:active { cursor: grabbing; }
+.hwp-view:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: -3px; }
+
+.hwp-legend,
+.hwp-hud,
+.hwp-hint {
+  position: absolute;
+  margin: 0;
+  pointer-events: none;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--hwx-dim);
+}
+.hw .hwp-legend {
+  top: 0.7rem;
+  left: 1.1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1rem;
+  padding: 0;
+  list-style: none;
+}
+.hw .hwp-legend li { margin: 0; }
+.hwp-legend li::before {
+  content: "";
+  display: inline-block;
+  width: 0.62rem;
+  height: 0.62rem;
+  margin-right: 0.4rem;
+  border-radius: 2px;
+  background: var(--hwp-both);
+}
+.hwp-legend .hwp-k-v1::before { background: var(--hwp-v1); }
+.hwp-legend .hwp-k-v2::before { background: var(--hwp-v2); }
+.hwp-legend .hwp-k-proxy::before { background: var(--hwp-proxy); }
+/* Drawn the way the view draws it: an outline with nothing in it. */
+.hwp-legend .hwp-k-absent::before {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--hwp-absent);
+}
+.hwp-hud {
+  left: 1.1rem;
+  bottom: 0.65rem;
+  font-family: var(--hwx-mono);
+  font-size: 0.78rem;
+  color: var(--hwx-ink);
+}
+.hwp-hint { right: 1.1rem; bottom: 0.65rem; }
+
+.hwp-status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--hwx-dim);
+  pointer-events: none;
+}
+.hwp-status:empty { display: none; }
+
+/* ---- the selected part ---- */
+/* Tall enough for a part with a note, so choosing one does not move the
+   rest of the page. */
+.hw .hwp-readout { min-height: 7.6rem; }
+.hwp-r-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem 1rem;
+  margin-bottom: 0.25rem;
+}
+.hw .hwp-readout .hwp-r-head p { margin: 0; }
+.hw .hwp-readout p {
+  max-width: none;
+  margin: 0 0 0.3rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--hwx-ink);
+}
+.hw .hwp-readout .hwp-r-lead { color: var(--hwx-dim); }
+.hw .hwp-readout .hwp-r-lead strong { color: #eaf2f6; font-weight: 600; }
+.hw .hwp-readout .hwp-r-name {
+  font-family: "Changa", sans-serif;
+  font-size: 1.02rem;
+  color: #eaf2f6;
+}
+.hwp-back {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #26383f;
+  border-radius: 5px;
+  background: #16242b;
+  font-family: "Changa", sans-serif;
+  font-size: 0.76rem;
+  color: #a9bec7;
+  cursor: pointer;
+}
+.hwp-back:hover { background: #1e313a; color: #dce9ee; }
+.hwp-back:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
+
+/* ---- what a part's line is made of, in the list and in the readout ---- */
+.hwp-meta {
+  font-family: var(--hwx-mono);
+  font-size: 0.76rem;
+  color: var(--hwx-dim);
+}
+.hwp-meta .hwp-qty { color: var(--hwx-ink); }
+.hwp-meta .hwp-dims::before,
+.hwp-meta .hwp-state::before { content: "\00b7\00a0"; }
+.hwp-note { color: var(--hwx-dim); }
+.hw .hwp .hwp-dl {
+  min-width: 0;
+  /* It is a button once the script has it, and plain text until then. */
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: inherit;
+  font-size: 0.78rem;
+  color: var(--hwx-blue);
+  overflow-wrap: anywhere;
+}
+.hw .hwp .hwp-dl code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+  color: inherit;
+  white-space: normal;
+  /* File names have no spaces; without this the longest one sets the
+     width of its column and runs out of the panel on a phone. */
+  overflow-wrap: anywhere;
+}
+.hw .hwp .hwp-dl span { color: var(--hwx-dim); }
+.hw .hwp button.hwp-dl { cursor: pointer; }
+.hw .hwp button.hwp-dl code { text-decoration: underline; }
+.hw .hwp button.hwp-dl:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
+/* Before the script has run a file name is only a name. */
+.hw .hwp span.hwp-dl { color: var(--hwx-dim); }
+
+/* Where the files are, and the one link that works without the script. */
+.hw .hwp .hwp-get {
+  max-width: none;
+  margin: 0.2rem 0 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--hwx-dim);
+}
+.hw .hwp .hwp-get a { color: var(--hwx-blue); overflow-wrap: anywhere; }
+.hw .hwp .hwp-get .hwp-back { display: block; margin-top: 0.6rem; }
+
+/* ---- every file, folded away ---- */
+.hwp-files { border-top: 1px solid var(--hwx-rule); }
+.hwp-files-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.9rem;
+  padding: 0.75rem 1.1rem;
+  cursor: pointer;
+  list-style: none;
+}
+.hwp-files-head::-webkit-details-marker { display: none; }
+.hwp-files-head:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: -3px; }
+.hwp-files-title { font-family: "Changa", sans-serif; font-size: 0.92rem; color: #eaf2f6; }
+.hwp-files-meta { font-size: 0.78rem; color: var(--hwx-dim); }
+.hwp-files-state { margin-left: auto; font-size: 0.78rem; color: var(--hwx-green); }
+.hwp-files:not([open]) .hwp-files-state [data-open="true"],
+.hwp-files[open] .hwp-files-state [data-open="false"] { display: none; }
+.hwp-files-body { padding: 0 1.1rem 1rem; }
+
+.hw .hwp-group h4 {
+  margin: 1.1rem 0 0.35rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hwx-ink);
+}
+.hwp-group:first-child h4 { margin-top: 0.2rem; }
+.hwp-group h4 span {
+  margin-left: 0.5rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--hwx-dim);
+}
+.hw .hwp-group ul { margin: 0; padding: 0; list-style: none; }
+.hw .hwp-group li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.25fr);
+  gap: 0.1rem 1rem;
+  align-items: baseline;
+  margin: 0;
+  padding: 0.45rem 0.5rem;
+  border-top: 1px solid var(--hwx-rule);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.hwp-group li.is-on { background: rgba(230, 176, 96, 0.12); }
+.hwp-group .hwp-name { color: var(--hwx-ink); font-weight: 600; }
+/* The note comes before the link in the markup, which is the order it should
+   be read in, but sits under the row the other three share. */
+.hwp-group .hwp-note { grid-column: 1 / -1; grid-row: 2; font-size: 0.78rem; }
+.hwp-group .hwp-dl { grid-column: 3; grid-row: 1; justify-self: end; text-align: right; }
+.hwp-group button.hwp-pick {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--hwx-green);
+  cursor: pointer;
+}
+.hwp-group button.hwp-pick:hover { text-decoration: underline; }
+.hwp-group button.hwp-pick:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
+
+@media (max-width: 720px) {
+  .hw .hwp-group li { grid-template-columns: minmax(0, 1fr); }
+  .hwp-group .hwp-note,
+  .hwp-group .hwp-dl { grid-column: 1; grid-row: auto; }
+  .hwp-group .hwp-dl { justify-self: start; text-align: left; }
+  .hwp-tools { margin-left: 0; }
+  .hwp-hint { display: none; }
+}
 
 /* ---- the development log -------------------------------------------------
    A row of stops along a line, and under it the one step that is chosen.
@@ -8786,6 +9399,7 @@ body.quiz-active { overflow: hidden; }
    #2edbb4 carrying anything that has to be read.
    ========================================================================== */
 body.hw-nexus,
+body.bg-nexus,
 body.edu-nexus {
   --nx-ground:  #052b1f;   /* page                                    */
   --nx-panel:   #073c29;   /* cards, tables, diagram frames           */
@@ -8819,7 +9433,9 @@ body.edu-nexus {
    out of the way of the panels, which carry their own darker backgrounds.
    -------------------------------------------------------------------- */
 body.hw-nexus::before,
+body.bg-nexus::before,
 body.hw-nexus::after,
+body.bg-nexus::after,
 body.edu-nexus::before {
   content: "";
   position: fixed;
@@ -8838,6 +9454,7 @@ body.edu-nexus::after {
 }
 
 body.hw-nexus::before,
+body.bg-nexus::before,
 body.edu-nexus::before {
   /* One wash, lighter at the top, which is how a lit surface reads. It
      replaced four symmetrical pools and a set of concentric rings: stacked
@@ -8851,10 +9468,12 @@ body.edu-nexus::before {
       rgba(20, 179, 145, 0) 100%);
 }
 
-body.hw-nexus::after {
+body.hw-nexus::after,
+body.bg-nexus::after {
   /* Education／Collaboration／Promotion 的橫豎網格已依使用者要求取消
      （Education 從這組共用選擇器拆出來；Collaboration／Promotion 的
-     body.hp-nexus::after 在 hp-nexus.css 改為 none）。Hardware 保留。 */
+     body.hp-nexus::after 在 hp-nexus.css 改為 none）。Hardware 與
+     Board game（bg-nexus）保留。 */
   background-image:
     linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
     linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
@@ -8996,15 +9615,19 @@ body.hw-nexus::after {
 
 /* ---- the shared chrome, so the page does not look half-converted ---- */
 body.hw-nexus .bg-hero,
+body.bg-nexus .bg-hero,
 body.edu-nexus .bg-hero { background-color: var(--nx-ground); }
 body.hw-nexus .page-hero-bg,
+body.bg-nexus .page-hero-bg,
 body.edu-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.42); }
 body.hw-nexus .page-hero-tint,
+body.bg-nexus .page-hero-tint,
 body.edu-nexus .page-hero-tint {
   background: linear-gradient(to bottom,
     rgba(5, 43, 31, 0.55), rgba(4, 21, 15, 0.97));
 }
 body.hw-nexus .hero-title,
+body.bg-nexus .hero-title,
 body.edu-nexus .hero-title {
   color: var(--nx-mint);
   /* The light theme fakes a pale outline to lift the title off a photo. On
@@ -9013,28 +9636,37 @@ body.edu-nexus .hero-title {
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
 }
 body.hw-nexus .hero-sub,
+body.bg-nexus .hero-sub,
 body.edu-nexus .hero-sub { color: var(--nx-muted); }
 
 body.hw-nexus .navbar,
+body.bg-nexus .navbar,
 body.edu-nexus .navbar {
   background: rgba(5, 43, 31, 0.86) !important;
   border: 1px solid var(--nx-line);
 }
 body.hw-nexus .navbar-nav .nav-link,
+body.bg-nexus .navbar-nav .nav-link,
 body.edu-nexus .navbar-nav .nav-link { color: var(--nx-text); }
 body.hw-nexus .navbar-nav .nav-link:hover,
+body.bg-nexus .navbar-nav .nav-link:hover,
 body.hw-nexus .navbar-nav .nav-link:focus,
+body.bg-nexus .navbar-nav .nav-link:focus,
 body.edu-nexus .navbar-nav .nav-link:hover,
 body.edu-nexus .navbar-nav .nav-link:focus { color: var(--nx-lime); }
 body.hw-nexus .dropdown-menu,
+body.bg-nexus .dropdown-menu,
 body.edu-nexus .dropdown-menu {
   background: var(--nx-panel);
   border: 1px solid var(--nx-line);
 }
 body.hw-nexus .dropdown-item,
+body.bg-nexus .dropdown-item,
 body.edu-nexus .dropdown-item { color: var(--nx-text); }
 body.hw-nexus .dropdown-item:hover,
+body.bg-nexus .dropdown-item:hover,
 body.hw-nexus .dropdown-item:focus,
+body.bg-nexus .dropdown-item:focus,
 body.edu-nexus .dropdown-item:hover,
 body.edu-nexus .dropdown-item:focus {
   background: var(--nx-raised);
@@ -9220,19 +9852,22 @@ body.hw-nexus .hw-table tr.is-total {
 }
 
 /* Global controls that follow the reader down the page. */
-body.hw-nexus .back-to-top {
+body.hw-nexus .back-to-top,
+body.bg-nexus .back-to-top {
   background: var(--nx-panel);
   border-color: var(--nx-mint);
   color: var(--nx-mint);
 }
 body.hw-nexus .back-to-top:hover,
+body.bg-nexus .back-to-top:hover,
 body.hw-nexus .back-to-top:focus-visible {
   background: var(--nx-mint);
   color: var(--nx-ground);
 }
 
 /* ---- footer ---- */
-body.hw-nexus footer.footer { background: #071820 !important; }
+body.hw-nexus footer.footer,
+body.bg-nexus footer.footer { background: #071820 !important; }
 
 /* The banner photo carries a lot of light on a page this dark. Reduce it
    further where the viewport is small enough that the hero fills the screen
@@ -9306,12 +9941,15 @@ body.hw-nexus .hw-table tr.is-total th { color: var(--nx-text); }
 
 /* The navbar's own dropdown rule is more specific than a bare
    .dropdown-menu, so the theme has to match it to be heard. */
-body.hw-nexus .navbar .dropdown-menu {
+body.hw-nexus .navbar .dropdown-menu,
+body.bg-nexus .navbar .dropdown-menu {
   background: var(--nx-panel);
   border: 1px solid var(--nx-line);
 }
-body.hw-nexus .navbar .dropdown-item { color: var(--nx-text); }
+body.hw-nexus .navbar .dropdown-item,
+body.bg-nexus .navbar .dropdown-item { color: var(--nx-text); }
 body.hw-nexus .navbar .dropdown-item:hover,
+body.bg-nexus .navbar .dropdown-item:hover,
 body.hw-nexus .navbar .dropdown-item:focus {
   background: var(--nx-raised);
   color: var(--nx-lime);
@@ -10419,4 +11057,514 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
   .parts-card { padding: 1.1rem 1rem; }
   .parts-meta { grid-template-columns: 1fr; gap: 0.1rem 0; }
   .parts-meta dd { margin-bottom: 0.5rem; }
+}
+
+/* ===== Board game: the deep-teal treatment =================================
+   The page runs long-form write-up first, then the game. Under the light
+   theme those were two unrelated surfaces -- a pale mint timeline, then a
+   cream wooden slab -- meeting with nothing in between. This themes both to
+   the same ground and puts a hand-off between them.
+
+   The game is a self-contained widget whose colours all come from custom
+   properties on .board-game-page, so retuning it is a matter of redefining
+   those rather than chasing its rules. Its tokens are named for what they
+   mean (--positive, --neutral, --paper) rather than for a colour, which is
+   what makes that possible.
+   ========================================================================== */
+
+/* ---- the write-up ---- */
+body.bg-nexus .sgd {
+  background: transparent;
+  border-block-color: var(--nx-line);
+}
+body.bg-nexus .sgd-kicker { color: var(--nx-mint); }
+body.bg-nexus .sgd-title { color: var(--nx-mint); }
+body.bg-nexus .sgd-heading { color: var(--nx-text); }
+body.bg-nexus .sgd-text p,
+body.bg-nexus .sgd-lead { color: var(--nx-text); }
+body.bg-nexus .sgd-arc path { stroke: var(--nx-line); }
+body.bg-nexus .sgd-arc .sgd-arc-done { stroke: var(--nx-mint); }
+body.bg-nexus .sgd-dot,
+body.bg-nexus .sgd-icon-wrap {
+  background: var(--nx-panel);
+  border-color: var(--nx-mint);
+}
+
+/* ---- the hand-off ---- */
+.bg-handoff {
+  max-width: 46rem;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+  text-align: center;
+}
+.bg-handoff-kicker {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #4f8f74;
+  margin-bottom: 0.4rem;
+}
+.bg-handoff-title {
+  font-family: "Changa", sans-serif;
+  color: #075a3e;
+  margin-bottom: 0.75rem;
+}
+.bg-handoff-lead { line-height: 1.8; color: #33413a; }
+.bg-handoff-facts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1.25rem;
+  padding: 0;
+  margin: 1.1rem 0 0;
+  font-size: 0.92rem;
+  color: #5f6e66;
+}
+/* Inline rather than flex: a flex item per text node puts a gap between
+   "2-4 players" and the comma after it. */
+.bg-handoff-facts li { display: inline; }
+.bg-handoff-facts li + li::before {
+  content: "·";
+  margin: 0 0.6rem;
+  opacity: 0.55;
+}
+/* A quiet arrow rather than an animated one: it points at something a
+   screen-length away, and a moving glyph in the corner of the eye for the
+   rest of the page is a cost with no matching gain. */
+.bg-handoff-cue {
+  margin: 1.4rem 0 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #75b299;
+}
+
+body.bg-nexus .bg-handoff-kicker { color: var(--nx-mint); }
+body.bg-nexus .bg-handoff-title { color: var(--nx-mint); }
+body.bg-nexus .bg-handoff-lead { color: var(--nx-text); }
+body.bg-nexus .bg-handoff-facts { color: var(--nx-muted); }
+body.bg-nexus .bg-handoff-facts strong { color: var(--nx-text); }
+body.bg-nexus .bg-handoff-cue { color: var(--nx-mint); }
+
+/* The game opens with its own <h1> repeating the page title, which the
+   hand-off heading above now does properly. Keep it for assistive
+   technology and take it out of the picture. */
+body.bg-nexus #mainMenu > h1 {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+  /* One per line on a narrow screen, where the separators would otherwise
+     fall at the ends of wrapped lines. */
+  .bg-handoff-facts li { display: block; }
+  .bg-handoff-facts li + li { margin-top: 0.3rem; }
+  .bg-handoff-facts li + li::before { content: none; }
+}
+
+/* ---- the game ------------------------------------------------------------
+   Every one of these tokens already existed; only their values move. The
+   paper greys become the panel tints, the warm scrapbook ink becomes the
+   page's text colour, and the two action colours keep doing what they did:
+   --positive stays the green "go" and --neutral stays visibly darker, so
+   Play and Discard are still told apart by lightness and not only by hue.
+
+   The sticky-note colours keep their hues -- yellow, pink, green are how
+   the three effect types are read at a glance -- but drop to tints that
+   carry dark text on a dark card instead of light text on a bright one. */
+body.bg-nexus .board-game-page {
+  --wood-light: #16323f; --wood-mid: #123040; --wood-dark: #0e242e;
+  --paper: #1c4352; --paper2: #16323f;
+  --ink: #dbe9ee; --ink2: #93b0bb; --border: #24596b;
+
+  --positive: #2f9e86; --positive-edge: #268470; --positive-drop: #1a5f51;
+  --brand: #49c5b6; --brand-soft: #a0e860; --brand-tint: rgba(73, 197, 182, 0.14);
+  --neutral: #1c4352; --neutral-edge: #14323d; --neutral-drop: #0c2029;
+  --red: #e0705f; --gold: #e6b060; --muted: #93b0bb;
+  --sticky-y: #5a4a1e; --sticky-p: #5a2740; --sticky-g: #1d5244;
+
+  background: linear-gradient(160deg, var(--wood-light), var(--wood-mid), var(--wood-dark));
+  border: 1px solid var(--nx-line);
+}
+
+/* The torn-page card dialog was literally paper: a cream sheet with a
+   perforated edge and an inset warm glow. */
+body.bg-nexus .board-game-page .tgc-torn-page {
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+}
+body.bg-nexus .board-game-page .tgc-torn-page::before,
+body.bg-nexus .board-game-page .tgc-torn-page::after { opacity: 0.18; }
+body.bg-nexus .board-game-page .card-announce-name { color: var(--nx-text); }
+body.bg-nexus .board-game-page .card-announce-desc {
+  color: var(--nx-muted);
+  border-left-color: var(--nx-line);
+}
+body.bg-nexus .board-game-page .card-announce-link:hover,
+body.bg-nexus .board-game-page .card-announce-link:focus-visible { color: var(--nx-lime); }
+body.bg-nexus .board-game-page .sticky-note { color: #f2f8fa; }
+
+body.bg-nexus .board-game-page .menu-box,
+body.bg-nexus .board-game-page .tgc-dialog,
+body.bg-nexus .board-game-page .card,
+body.bg-nexus .board-game-page .panel {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+}
+body.bg-nexus .board-game-page h1,
+body.bg-nexus .board-game-page h2,
+body.bg-nexus .board-game-page h3 { color: var(--nx-mint); }
+body.bg-nexus .board-game-page select,
+body.bg-nexus .board-game-page input[type="text"],
+body.bg-nexus .board-game-page input[type="number"] {
+  background: var(--nx-raised);
+  border: 1px solid var(--nx-line);
+  color: var(--nx-text);
+}
+body.bg-nexus .board-game-page .lang-bar {
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+}
+
+/* The two the retune did not reach: the stop markers, whose ring and halo
+   were drawn for a pale page, and the playtest table's header band. */
+body.bg-nexus .sgd-node {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+  box-shadow: 0 0 0 7px rgba(73, 197, 182, 0.08);
+}
+body.bg-nexus .sgd-stop.is-reached .sgd-node {
+  border-color: var(--nx-mint);
+  box-shadow: 0 0 0 7px rgba(73, 197, 182, 0.18);
+}
+body.bg-nexus .sgd-table caption { color: var(--nx-mint); }
+body.bg-nexus .sgd-table th,
+body.bg-nexus .sgd-table td {
+  border-bottom-color: var(--nx-line);
+  color: var(--nx-text);
+}
+body.bg-nexus .sgd-table thead th {
+  background: rgba(73, 197, 182, 0.12);
+  border-bottom-color: var(--nx-mint);
+  color: var(--nx-mint);
+}
+body.bg-nexus .sgd-table tbody th[scope="colgroup"] {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--nx-text);
+}
+
+/* The two coloured actions kept white text, which on these fills is 3.3:1
+   and 3.2:1 -- under AA for the label on a button. The reference solves the
+   same problem by putting dark ink on a bright pill, which also matches what
+   the rest of this theme does with mint, so they take that: 7.6:1 for the
+   primary and 5.1:1 for the destructive one. The neutral button is
+   unchanged, light on dark, so the three are still told apart by lightness
+   and not by hue alone. */
+body.bg-nexus .board-game-page button.success {
+  background: var(--nx-mint);
+  border-color: #3aa89b;
+  box-shadow: 0 3px 0 #27796f;
+  color: var(--nx-ground);
+}
+body.bg-nexus .board-game-page button.danger {
+  background: var(--red);
+  border-color: #c25646;
+  box-shadow: 0 3px 0 #9c4133;
+  color: var(--nx-ground);
+}
+body.bg-nexus .board-game-page .tutorial-lang-tag {
+  color: var(--nx-mint);
+  background: rgba(73, 197, 182, 0.12);
+  border-color: var(--nx-line);
+}
+
+/* ---- the two playtest figures --------------------------------------------
+   They replaced two tables, so they carry what a table carried: every value
+   is labelled on the mark. That is also why there is no hover layer -- with
+   six bars and two points there is nothing a tooltip could reveal that is
+   not already on screen, and a wiki page should not need a pointer to read.
+
+   Mark colours were validated against the #16323f panel for the dark-mode
+   lightness band, chroma, colour-vision separation and contrast, rather
+   than chosen to match the page accent: the page's mint sits well outside
+   the band a fill is allowed to occupy on a dark surface. */
+.sgd-fig { margin: 1.3rem 0 1.1rem; }
+.sgd-fig-cap {
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f4a38;
+  margin-bottom: 0.5rem;
+}
+.sgd-chart { display: block; width: 100%; height: auto; }
+.sgd-fig-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #5f6e66;
+}
+
+.sgd-chart-grid line { stroke: #dfe8e2; stroke-width: 1; }
+.sgd-chart-tick { font-size: 13px; fill: #8a978f; }
+.sgd-chart-axis { font-size: 12px; fill: #8a978f; }
+.sgd-chart-lab { font-size: 14px; fill: #33413a; }
+.sgd-chart-val { font-size: 14px; font-weight: 700; fill: #1f4a38; }
+
+.sgd-bar rect { fill: #279a8c; }
+.sgd-bar-rev { fill: #b8853a; }
+
+.sgd-sd { stroke: #9ec5b2; stroke-width: 2; }
+.sgd-sd-end { stroke: #9ec5b2; stroke-width: 2; }
+.sgd-dumb { stroke: #279a8c; stroke-width: 2; }
+/* Two shades of the one hue: the lighter end is where it started. */
+.sgd-dot-before { fill: #fffdf7; stroke: #279a8c; stroke-width: 2.5; }
+.sgd-dot-after { fill: #279a8c; stroke: #fffdf7; stroke-width: 2; }
+
+/* On the dark page the ink and the rules move; the marks do not, because
+   they were validated against that surface in the first place. */
+body.bg-nexus .sgd-fig-cap { color: var(--nx-mint); }
+body.bg-nexus .sgd-fig-note { color: var(--nx-muted); }
+body.bg-nexus .sgd-chart-grid line { stroke: var(--nx-line); }
+body.bg-nexus .sgd-chart-tick,
+body.bg-nexus .sgd-chart-axis { fill: var(--nx-muted); }
+body.bg-nexus .sgd-chart-lab { fill: var(--nx-text); }
+body.bg-nexus .sgd-chart-val { fill: var(--nx-text); }
+body.bg-nexus .sgd-sd,
+body.bg-nexus .sgd-sd-end { stroke: #4d7383; }
+body.bg-nexus .sgd-dot-before { fill: var(--nx-panel); stroke: #279a8c; }
+body.bg-nexus .sgd-dot-after { fill: #279a8c; stroke: var(--nx-panel); }
+
+/* ---- text that was still reading grey ------------------------------------
+   The bullet lists kept the light theme's #4a5a51 and landed at 2.19:1 on
+   this ground -- effectively invisible, and it covered the rules, the
+   challenges and the improvements, which became lists in the rewrite. They
+   take the body colour.
+
+   The secondary tone is lifted too. #93b0bb passed AA, but "passes" and
+   "comfortable" are different things at 12 and 13px, and the reader said so.
+   It moves to #c6dde4: 11.3:1 on the ground, 9.5:1 on a panel. The hierarchy
+   survives because the gap to the body colour is still there, just smaller. */
+body.bg-nexus { --nx-muted: #c6dde4; }
+
+body.bg-nexus .sgd-list li { color: var(--nx-text); }
+body.bg-nexus .sgd-list li strong { color: #fff; }
+body.bg-nexus .sgd-list li::marker { color: var(--nx-mint); }
+
+/* The game's own secondary ink, which drives "choose a game mode" and the
+   rest of its hint text. */
+body.bg-nexus .board-game-page { --muted: #c6dde4; --ink2: #c6dde4; }
+
+/* ===== SDGs (sustainability.html) ===========================================
+   The seventeen goals as a strip of tiles, then one section per goal we work
+   on. Every goal's colour arrives as --sdg, set inline on the tile or the
+   section, so one set of rules draws all of them. Prefixed sdgp- to stay
+   clear of the board game's own .sdg-* and .sgd-* rules.
+
+   A goal we work on is a solid tile in its colour, white text, and a link.
+   The others are outlines in their colour on white: still all seventeen,
+   still recognisable, but plainly not claimed. Yellow SDG 7 is never solid,
+   which is the one tile white text could not be read on. SDG 5's official
+   #ff3a21 is darkened to #e2361a for the same reason.
+   ========================================================================== */
+.sdgp-strip { margin: 1.75rem 0 0.5rem; }
+
+.sdgp-tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 0.6rem;
+}
+
+.sdgp-tile {
+  border: 2px solid var(--sdg);
+  border-radius: 8px;
+  background: #fff;
+  color: #4a4a4a;
+  min-height: 124px;
+  opacity: 0.55;
+}
+
+.sdgp-tile > a,
+.sdgp-tile:not(.is-ours) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.6rem;
+}
+
+.sdgp-tile > a {
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.sdgp-tile.is-ours {
+  background: var(--sdg);
+  color: #fff;
+  opacity: 1;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sdgp-tile.is-ours:hover,
+.sdgp-tile.is-ours:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.sdgp-tile.is-ours a:focus-visible {
+  outline: 3px solid #2b1e17;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.sdgp-num {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.sdgp-tile:not(.is-ours) .sdgp-num,
+.sdgp-tile:not(.is-ours) .sdgp-icon { color: var(--sdg); }
+
+/* The number and the goal's icon share the top of the tile, number on the
+   left the way the UN's own tiles have it, icon pushed to the right. */
+.sdgp-tile-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.3rem;
+  margin-bottom: 0.35rem;
+}
+
+.sdgp-icon {
+  flex: none;
+  width: 2.1rem;
+  height: 2.1rem;
+}
+
+.sdgp-name {
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  /* Long words break only at the soft hyphens the markup puts in them. */
+  hyphens: manual;
+}
+
+.sdgp-legend {
+  margin-top: 0.9rem;
+  font-size: 0.88rem;
+  color: #5c6b62;
+}
+
+.sdgp-key {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  border-radius: 3px;
+  vertical-align: -0.1em;
+  background: linear-gradient(135deg, #4c9f38 0 33%, #c5192d 33% 66%, #19486a 66%);
+}
+
+/* One goal's section: its number in a badge of its colour, beside the name. */
+.sdgp-goal-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.sdgp-badge {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  height: 3rem;
+  padding: 0 0.5rem;
+  border-radius: 8px;
+  background: var(--sdg);
+  color: #fff;
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* SDG 5 and 10 share a section, so their badge is two halves. */
+.sdgp-badge-pair { padding: 0; overflow: hidden; }
+.sdgp-badge-pair > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-width: 2.6rem;
+  background: var(--sdg);
+}
+
+.sdgp-goal h3 {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--sdg);
+  margin-top: 1.6rem;
+}
+
+.sdgp-target {
+  font-size: 0.92rem;
+  color: #5c6b62;
+  border-left: 3px solid var(--sdg);
+  padding-left: 0.8rem;
+}
+
+.sdgp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1.4rem 0 0.4rem;
+}
+
+.sdgp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem 1.1rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--sdg) 8%, #fff);
+  border-top: 4px solid var(--sdg);
+}
+
+.sdgp-stat-num {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  line-height: 1.1;
+  color: var(--sdg);
+}
+
+.sdgp-stat-label { font-size: 0.88rem; color: #4a4a4a; line-height: 1.35; }
+
+@media (max-width: 575.98px) {
+  .sdgp-tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+  .sdgp-tile { min-height: 108px; }
+  .sdgp-num { font-size: 1.4rem; }
+  .sdgp-icon { width: 1.7rem; height: 1.7rem; }
+  .sdgp-name { font-size: 0.66rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sdgp-tile.is-ours { transition: none; }
+  .sdgp-tile.is-ours:hover,
+  .sdgp-tile.is-ours:focus-within { transform: none; }
 }
