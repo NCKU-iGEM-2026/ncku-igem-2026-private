@@ -4,7 +4,9 @@
    ============================================================ */
 
 /* ---- 深色模式基礎：跟隨 data-theme ---- */
-html[data-theme="dark"] body {
+/* engineering（DBTL）與 board-game（桌遊）各持完整紙白世界主題，
+   全站深夜底不得蓋過去（屬性選擇器特異性較高，會誤傷它們的 --paper 底）*/
+html[data-theme="dark"] body:not(.engineering-page):not(.board-game-page) {
   background-color: var(--c-dark);
   color: var(--c-text);
   transition: background-color 0.5s var(--ease-io), color 0.5s var(--ease-io);
@@ -109,6 +111,25 @@ html[data-theme="dark"] .text-muted, html[data-theme="dark"] .text-white-50 { co
 /* ---- 磁吸按鈕 ---- */
 .rx-magnetic { display: inline-block; will-change: transform; transition: transform 0.35s var(--ease-out); }
 
+/* ---- 全站深夜（Collaboration 主視覺）外殼適配 ----
+   導覽列文字：深夜底上轉螢光綠家族（原 #075a3e 深綠只屬淺色模式） */
+html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link { color: #d7f5b8; }
+html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link:hover,
+html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link:focus-visible { color: #b8f57e; }
+
+/* ---- 深夜底打底洗光：頂部一抹 Collaboration 青綠（全站，engineering 除外）---- */
+html[data-theme="dark"] body:not(.engineering-page)::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    radial-gradient(120% 70% at 85% -10%, rgba(20, 179, 145, 0.10), transparent 55%),
+    radial-gradient(90% 60% at 8% 105%, rgba(160, 232, 96, 0.05), transparent 60%),
+    linear-gradient(to bottom, rgba(20, 179, 145, 0.05) 0%, rgba(20, 179, 145, 0) 45%);
+}
+/* nexus 系頁面自己管底光／網格，不重複上妝 */
+html[data-theme="dark"] body.hp-nexus::before,
+html[data-theme="dark"] body.edu-nexus::before,
+html[data-theme="dark"] body.hw-nexus::before { background-image: none; }
+
 /* ---- 自訂遊標（僅 pointer:fine）---- */
 @media (pointer: fine) {
   html.rx-cursor, html.rx-cursor a, html.rx-cursor button { cursor: none; }
@@ -122,8 +143,9 @@ html[data-theme="dark"] .text-muted, html[data-theme="dark"] .text-white-50 { co
   }
   html[data-theme="dark"] #rxCursor { mix-blend-mode: screen; }
   #rxCursor.rx-big { width: 52px; height: 52px; background: rgba(20,179,145,0.22); border: 2px solid var(--c-teal); }
-  /* HP 深夜系頁面（Education／Collaboration／Promotion）：深 petrol 底上
-     青點游標看不清——一律轉螢光綠黃 lime + 同色光暈，一眼找到鼠標。 */
+  /* 深夜系頁面一律螢光綠游標＋同色光暈（含 Nexus 三頁與全站深色模式）：
+     深底上青點看不清，lime 一眼找到鼠標。 */
+  html[data-theme="dark"] #rxCursor,
   body.hp-nexus #rxCursor,
   body.edu-nexus #rxCursor {
     background: #a0e860;
@@ -132,6 +154,7 @@ html[data-theme="dark"] .text-muted, html[data-theme="dark"] .text-white-50 { co
       0 0 12px rgba(160, 232, 96, 0.9),
       0 0 34px rgba(160, 232, 96, 0.45);
   }
+  html[data-theme="dark"] #rxCursor.rx-big,
   body.hp-nexus #rxCursor.rx-big,
   body.edu-nexus #rxCursor.rx-big {
     background: transparent;
@@ -148,15 +171,19 @@ html[data-theme="dark"] .text-muted, html[data-theme="dark"] .text-white-50 { co
   html.rx-js [data-reveal], html.rx-js [data-reveal="clip"] { opacity: 1 !important; transform: none !important; clip-path: none !important; transition: none !important; }
 }
 
-/* ---- View Transitions：換頁如細胞分裂的交融 ---- */
+/* ---- View Transitions：換頁如細胞分裂的交融（深夜版：螢光 bloom）---- */
 @media (view-transition) {
-  ::view-transition-old(root) { animation: rx-fade-out 0.32s var(--ease-io) both; }
-  ::view-transition-new(root) { animation: rx-bloom-in 0.55s var(--ease-out) both; }
+  ::view-transition-old(root) { animation: rx-fade-out 0.3s var(--ease-io) both; }
+  ::view-transition-new(root) { animation: rx-bloom-in 0.6s var(--ease-out) both; }
 }
-@keyframes rx-fade-out { to { opacity: 0; } }
+@keyframes rx-fade-out {
+  to { opacity: 0; filter: blur(3px); transform: scale(0.995); }
+}
 @keyframes rx-bloom-in {
-  from { opacity: 0; clip-path: circle(0% at 50% 40%); }
-  to   { opacity: 1; clip-path: circle(75% at 50% 40%); }
+  from { opacity: 0; filter: blur(8px);
+         clip-path: circle(0% at 50% 42%); }
+  to   { opacity: 1; filter: blur(0);
+         clip-path: circle(78% at 50% 42%); }
 }
 
 /* ---- 首頁專屬 token 骨幹（home.css 使用）---- */
