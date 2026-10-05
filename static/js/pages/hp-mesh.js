@@ -83,14 +83,14 @@
         b = pos(neigh[k], t);
         var d = Math.hypot(a.x - b.x, a.y - b.y);
         /* 淡：0.045～0.105，線越短越清楚（網格像活的一樣呼吸） */
-        ctx.strokeStyle = 'rgba(73,197,182,' + (0.105 - 0.06 * Math.min(1, d / 220)).toFixed(3) + ')';
+        ctx.strokeStyle = 'rgba(20,179,145,' + (0.105 - 0.06 * Math.min(1, d / 220)).toFixed(3) + ')';
         ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
       }
       /* 網點：更大膽幾顆螢光（定錨視覺） */
       ctx.fillStyle = (i % 7 === 0)
         ? 'rgba(160,232,96,0.30)'
-        : 'rgba(73,197,182,0.16)';
+        : 'rgba(20,179,145,0.16)';
       ctx.beginPath(); ctx.arc(a.x, a.y, (i % 7 === 0) ? 2.1 : 1.3, 0, 7); ctx.fill();
     }
   }
@@ -104,7 +104,7 @@
     ctx.rotate(0.22);
     var i, y, sw;
     ctx.lineWidth = 1.1;
-    ctx.strokeStyle = 'rgba(73,197,182,0.10)';
+    ctx.strokeStyle = 'rgba(20,179,145,0.10)';
     ctx.beginPath();
     for (y = y0; y < slope; y += 6) {
       var xx = Math.sin(y / band + phase) * 34;
