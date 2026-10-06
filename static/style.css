@@ -370,11 +370,38 @@ footer.bg-dark { background-color: #075a3e !important; }
 .page-hero-bg {
   position: absolute;
   inset: -6px;
+  /* The photo comes in as --hero-img from the page's hero_image block
+     (layout.html), so a page can also lay it out differently, below. */
+  background-image: var(--hero-img);
   background-size: cover;
   background-position: center;
   filter: blur(2px);
   transform: scale(1.03);
 }
+
+/* The whole photo, top to bottom, instead of a band across its middle. For a
+   photo much less wide than the banner, which "cover" would crop to its
+   centre. The photo is fitted to the banner's height and the space either
+   side is filled with a gradient between --hero-fill-from and --hero-fill-to,
+   colours taken from the photo's own left and right edges so the join does
+   not show. A page asks for it with {% block hero_class %}. */
+.page-hero-bg.is-fit-height {
+  background-image: var(--hero-img),
+    linear-gradient(90deg, var(--hero-fill-from, #333), var(--hero-fill-to, #222));
+  /* --hero-zoom above 100% lets a page show a little less than the whole
+     photo, cropping evenly off the top and bottom. */
+  background-size: auto var(--hero-zoom, 100%), cover;
+  background-repeat: no-repeat;
+}
+
+/* Hardware: the bench photo (4000 x 1821). Its left edge is the lit grey of
+   the bench, its right edge the bench in shadow. */
+.page-hero-bg.hero-hardware { --hero-fill-from: #5b5855; --hero-fill-to: #21201d; --hero-zoom: 125%; }
+
+/* Brighter than the other deep-teal banners (brightness 0.42, 0.32 on a
+   phone): the bench photo is dark to begin with -- a black base plate on a
+   black bench -- and at that level it all but disappeared. */
+body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(0.75) brightness(0.75); }
 
 .page-hero-tint {
   position: absolute;
@@ -2360,6 +2387,10 @@ body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: 
 @media (prefers-reduced-motion: reduce) {
   body.engineering-page, .engineering-page *, .engineering-page *::before, .engineering-page *::after { transition: none !important; }
 }
+
+/* Attributions: the team photo in the banner sits a little lower than the
+   default centre, so the faces clear the menu bar. */
+body.attr-page .page-hero-bg { background-position: center 35%; }
 
 /* Attributions: the AI disclosure the Judge Handbook asks for (2026, p.95).
    Set apart from the rest of the page so it reads as a deliberate statement
