@@ -12426,8 +12426,44 @@ body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
    gets a deeper shadow to stand clear of a light photo. Hardware's bench
    photo is treated the same way (its brightness is set with its other
    banner rules, near the top of this file). */
-body.team-page .page-hero-bg,
 body.hw-nexus.attr-page .page-hero-bg { filter: blur(2px) saturate(1) brightness(0.8); }
+
+/* ---- the Team banner, taller and sharp ----
+   This one banner is the group photo, and the point of it is that the faces
+   can be made out, so it gets three things the other banners do not. It is
+   tall enough for the photo to be read as a photo rather than as a band
+   across the middle of one; the 2px blur every other banner carries is off,
+   since it is the one thing that would stop a face resolving; and the title
+   is anchored to the bottom, where the tint is already near-opaque, so it
+   has something dark to sit on without being laid over anybody's face. */
+body.team-page .page-hero-bg { filter: saturate(1) brightness(0.8); }
+
+body.team-page .page-hero {
+  min-height: clamp(520px, 82vh, 900px);
+  display: flex;
+  align-items: center;
+  /* Centred, then pushed about 100px below centre: dead centre laid the
+     title across the face of the person on the left of the group. The
+     padding is what does the pushing -- centring happens inside the content
+     box, so a heavier top padding lowers where "centre" lands, by half the
+     difference between the two. Change that difference to move the title up
+     or down the photo. */
+  padding-top: 204px !important;
+  padding-bottom: 104px;
+}
+
+/* .container is a flex item here, and would otherwise shrink to its text. */
+body.team-page .page-hero > .container { width: 100%; }
+
+/* This page sets no subtitle, so layout.html's <p class="lead mb-5 hero-sub">
+   renders empty -- but an empty <p> still holds a line box and its 3rem
+   bottom margin. Left in, that weight sits below the title and pushes it off
+   centre; the title's own margins do the same thing on a smaller scale. With
+   the title the only thing in the banner, all three go, so what is centred is
+   the title itself. Scoped here because every other banner relies on that
+   spacing for its height. */
+body.team-page .page-hero .hero-sub:empty { display: none; }
+body.team-page .page-hero .hero-title { margin: 0 !important; }
 body.team-page .page-hero-tint,
 body.hw-nexus.attr-page .page-hero-tint,
 body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
