@@ -21,16 +21,16 @@
   // rho: the stock density index of that session (displayed OD read in the
   // low range, multiplied back by the dilution). tubes: [sample, G, F4].
   const SESSIONS = [
-    { id: "16", date: "2026-09-16", shape: "circle", rho: 2.84, tubes: [
+    { id: "16", name: "Mixing session 1", short: "Session 1", date: "2026-09-16", shape: "circle", rho: 2.84, tubes: [
       ["CAL_B03", 0.25, 6.000], ["CAL_B06", 0.50, 19.667],
       ["CAL_B09", 0.75, 22.667], ["CAL_B12", 1.00, 29.667],
     ] },
-    { id: "21", date: "2026-09-21", shape: "triangle", rho: 0.5125, tubes: [
+    { id: "21", name: "Mixing session 2", short: "Session 2", date: "2026-09-21", shape: "triangle", rho: 0.5125, tubes: [
       ["CAL_C03r1", 0.50, 0.667], ["CAL_C03r2", 0.50, 0.667],
       ["CAL_C06r1", 0.75, 4.333], ["CAL_C06r2", 0.75, 3.333],
       ["CAL_C09r1", 1.00, 7.000], ["CAL_C09r2", 1.00, 5.333],
     ] },
-    { id: "29", date: "2026-09-29", shape: "square", rho: 1.72, tubes: [
+    { id: "29", name: "Mixing session 3", short: "Session 3", date: "2026-09-29", shape: "square", rho: 1.72, tubes: [
       ["ATN_E_1", 0.25, 3.667], ["ATN_E_2", 0.25, 3.333],
       ["ATN_A_1", 0.50, 11.000], ["ATN_A_2", 0.50, 8.667], ["ATN_A_3", 0.50, 8.000],
       ["ATN_A_4", 0.50, 9.667], ["ATN_A_5", 0.50, 8.667], ["ATN_A_6", 0.50, 10.000],
@@ -151,7 +151,7 @@
           const dx = (i - (tubes.length - 1) / 2) * 9;
           const xv = xOf(s, t);
           p.svg.appendChild(mark(s.shape, p.X(xv) + dx, p.Y(t[2]), "md-s" + s.id,
-            `${t[0]} · ${s.date} · ${xName} ${xv.toFixed(xName === "G" ? 2 : 3)} · F4 ${t[2].toFixed(3)} counts`));
+            `${t[0]} · ${s.name} · ${xName} ${xv.toFixed(xName === "G" ? 2 : 3)} · F4 ${t[2].toFixed(3)} counts`));
         });
       });
     });
@@ -164,7 +164,7 @@
       xtitle: "G, volume fraction of GFP stock in the tube", ytitle: "F4 (counts)",
       label: "Emission-channel counts against the volume fraction of GFP stock, pure-GFP tubes only, for the three sessions. " +
         "Each session lies close to its own straight line through the origin, and the three lines have very different slopes: " +
-        SESSIONS.map((s) => `${s.date} ${slope(byG(s)).toFixed(2)}`).join(", ") + " counts per unit G.",
+        SESSIONS.map((s) => `${s.name} ${slope(byG(s)).toFixed(2)}`).join(", ") + " counts per unit G.",
     });
     SESSIONS.forEach((s) => {
       const k = slope(byG(s));
@@ -201,18 +201,18 @@
     const p = frame(host, {
       h: 360, x: [0, rows.length], y: [0, 15], yticks: [0, 3, 6, 9, 12, 15], ytitle: "held-out error (counts)",
       label: "Error when each session is predicted from the other two. " +
-        rows.map((r) => `${r.s.date}: ${r.raw.toFixed(2)} counts without conversion, ${r.conv.toFixed(2)} with it`).join("; ") + ".",
+        rows.map((r) => `${r.s.name}: ${r.raw.toFixed(2)} counts without conversion, ${r.conv.toFixed(2)} with it`).join("; ") + ".",
     });
     const bw = 64;
     rows.forEach((r, i) => {
       const cx = p.X(i + 0.5);
       [["raw", r.raw, cx - bw - 4], ["conv", r.conv, cx + 4]].forEach(([kind, v, x]) => {
         const bar = el("rect", { class: "md-bar md-bar-" + kind, x, y: p.Y(v), width: bw, height: p.Y(0) - p.Y(v), rx: 3 });
-        bar.appendChild(el("title", {}, `${r.s.date} held out, ${kind === "raw" ? "no conversion" : "converted"}: ${v.toFixed(2)} counts`));
+        bar.appendChild(el("title", {}, `${r.s.name} held out, ${kind === "raw" ? "no conversion" : "converted"}: ${v.toFixed(2)} counts`));
         p.svg.appendChild(bar);
         p.svg.appendChild(el("text", { class: "md-val", x: x + bw / 2, y: p.Y(v) - 7, "text-anchor": "middle" }, v.toFixed(2)));
       });
-      p.svg.appendChild(el("text", { class: "md-tick", x: cx, y: p.H - p.m.b + 21, "text-anchor": "middle" }, r.s.date + " held out"));
+      p.svg.appendChild(el("text", { class: "md-tick", x: cx, y: p.H - p.m.b + 21, "text-anchor": "middle" }, r.s.short + " held out"));
       p.svg.appendChild(el("text", { class: "md-tick md-tick-sub", x: cx, y: p.H - p.m.b + 39, "text-anchor": "middle" },
         `${r.s.tubes.length} tubes`));
     });
