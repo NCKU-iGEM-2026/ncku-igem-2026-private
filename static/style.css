@@ -236,6 +236,45 @@ body.show-back-to-top .back-to-top {
   font-display: swap;
 }
 
+/* ===== the site's one typeface =========================================
+   Changa everywhere, set once here so no rule has to ask for it by name.
+   Three things are needed to actually cover every page: <body> carries it,
+   Bootstrap's own --bs-body-font-family is repointed at it (that variable
+   is what its components resolve to rather than the body rule), and form
+   controls come along through reboot's font-family:inherit.
+
+   Changa draws no CJK, so Noto Sans TC follows it in the stack instead of
+   Changa standing alone: Latin renders in Changa and the Chinese on the
+   page -- workshop names, notebook entries, the whole board game -- falls
+   through to a face that can draw it rather than to whatever the browser
+   picks on its own.
+
+   All seven weights are on the server, so they are used as a scale rather
+   than as just regular and bold: 200/300 for display numerals and large
+   intro copy, 400 for body, 500 for labels, 600 for sub-headings and table
+   headers, 700 for headings, 800 for page titles. Everything below is a
+   default -- any component setting its own weight still wins, since a type
+   selector loses to every class. */
+:root { --bs-body-font-family: "Changa", "Noto Sans TC", sans-serif; }
+
+body {
+  font-family: "Changa", "Noto Sans TC", sans-serif;
+  font-weight: 400;
+}
+
+h1, .h1 { font-weight: 800; }
+h2, .h2,
+h3, .h3 { font-weight: 700; }
+h4, .h4,
+h5, .h5,
+h6, .h6 { font-weight: 600; }
+
+/* Intro copy is set large, and large copy reads better light than regular. */
+.lead { font-weight: 300; }
+
+th { font-weight: 600; }
+strong, b { font-weight: 700; }
+
 /* Ink for the bright green bar. The site's usual #075a3e reads at only
    3.57:1 against it, so the resting colour moves darker instead. */
 .navbar-nav .nav-link { font-family: "Changa", sans-serif; font-size: 1.3rem; color: #05442e; transition: color 0.15s ease; }
@@ -537,14 +576,6 @@ footer a:hover { color: white; text-decoration: underline; }
   .footer-mark { transition: none; }
   .footer a.footer-mark:hover,
   .footer a.footer-mark:focus-visible { transform: none; }
-}
-
-@font-face {
-  font-family: "Chango";
-  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/chango-regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
 }
 
 .hero-title {
@@ -1980,7 +2011,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   background: var(--eng-accent); opacity: 0; transition: opacity .25s ease;
 }
 .engineering-iteration-button.is-current {
-  color: var(--eng-accent); font-weight: 750;
+  color: var(--eng-accent); font-weight: 800;
   background: color-mix(in srgb, var(--eng-accent) 9%, #fff); padding-left: .55rem;
 }
 .engineering-iteration-button.is-current::before { opacity: 1; }
@@ -2022,7 +2053,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-stage-tab {
   --bearing: 0deg; position: absolute; left: 50%; top: 50%; width: 28%; height: 18%;
   border: 0; border-radius: 999px; padding: 0; background: transparent; color: #123b31;
-  font-size: calc(var(--eng-cycle-size) * .0367); font-weight: 650; pointer-events: none; opacity: 1;
+  font-size: calc(var(--eng-cycle-size) * .0367); font-weight: 700; pointer-events: none; opacity: 1;
   transform: translate(-50%, -50%) rotate(calc(var(--bearing) + var(--rotation))) translateY(-216.6667%) rotate(calc(-1 * (var(--bearing) + var(--rotation))));
   transition: transform .5s cubic-bezier(.3,.05,.2,1);
 }
@@ -2041,10 +2072,10 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   margin: 0; line-height: 1.1;
 }
 #engineering-module-title {
-  color: var(--eng-ink); font-size: calc(var(--eng-cycle-size) * .0696); font-weight: 750; letter-spacing: -.04em; line-height: 1.12;
+  color: var(--eng-ink); font-size: calc(var(--eng-cycle-size) * .0696); font-weight: 800; letter-spacing: -.04em; line-height: 1.12;
   text-wrap: balance; overflow-wrap: break-word; transition: color .4s ease;
 }
-.engineering-iteration-pager { position: absolute; top: calc(100% + .48rem); left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0503); font-weight: 650; color: color-mix(in srgb, var(--eng-accent) 72%, #fff); }
+.engineering-iteration-pager { position: absolute; top: calc(100% + .48rem); left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0503); font-weight: 700; color: color-mix(in srgb, var(--eng-accent) 72%, #fff); }
 .engineering-iteration-pager button { display: grid; place-items: center; flex: 0 0 18px; width: 18px; height: 22px; padding: 0; border: 0; background: transparent; color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .037); border-radius: 50%; cursor: pointer; }
 .engineering-iteration-pager button:hover:not(:disabled) { background: var(--eng-surface); }
 .engineering-iteration-pager button:disabled { color: #a5afa8; cursor: default; }
@@ -2055,7 +2086,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-toc-cycle .engineering-cycle-center h2 { top: 50%; left: 0; width: 100%; margin: 0; padding-bottom: 0; }
 .engineering-toc-cycle .engineering-iteration-pager { position: static; transform: none; }
 .engineering-toc-module-title {
-  color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .0613); font-weight: 750;
+  color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .0613); font-weight: 800;
   letter-spacing: -.04em; line-height: 1.12; text-wrap: balance; overflow-wrap: break-word;
 }
 .engineering-iteration-count { position: absolute; top: calc(100% + 1.86rem); left: 50%; transform: translateX(-50%); display: block; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0413); line-height: 1.5; letter-spacing: .08em; color: #6b7b70; }
@@ -2068,7 +2099,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   position: relative; min-width: 0; padding-top: .1rem;
 }
 .engineering-workspace .engineering-eyebrow { white-space: nowrap; }
-.engineering-context { font-size: clamp(1.65rem, 2.6vw, 2.6rem); font-weight: 550; letter-spacing: -.045em; margin: .45rem 0 .5rem; line-height: 1.12; text-wrap: balance; }
+.engineering-context { font-size: clamp(1.65rem, 2.6vw, 2.6rem); font-weight: 600; letter-spacing: -.045em; margin: .45rem 0 .5rem; line-height: 1.12; text-wrap: balance; }
 /* The module's question, then which iteration is on the page. */
 .engineering-question { max-width: 60ch; margin: 0 0 .6rem; font-size: 1.02rem; line-height: 1.5; color: #4a5a50; text-wrap: pretty; }
 .engineering-iteration-line { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.35rem; font-size: .84rem; font-weight: 600; color: #5d6c62; }
@@ -2097,7 +2128,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 @media (max-width: 767px) { .engineering-record--wrapped-figure > .engineering-figure:not([hidden]) { float: none; width: min(100%, 340px); margin: .25rem 0 1rem; } }
 .engineering-figure-label { font-weight: 800; color: var(--eng-accent); letter-spacing: .04em; }
 .engineering-attachment-gallery[hidden] { display: none; }
-.engineering-gallery-title { margin: 1.4rem 0 .65rem; color: #4a5a50; font-size: 1rem; font-weight: 650; }
+.engineering-gallery-title { margin: 1.4rem 0 .65rem; color: #4a5a50; font-size: 1rem; font-weight: 700; }
 .engineering-gallery-note { margin: 0 0 .9rem; color: #5d6c62; font-size: .84rem; line-height: 1.5; }
 .engineering-figure-gallery-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .engineering-figure-gallery-grid.is-single { grid-template-columns: minmax(0, 1fr); }
@@ -2132,7 +2163,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-carousel-card.is-current .engineering-carousel-paper { box-shadow: 0 18px 36px rgba(22, 42, 32, .2); }
 .engineering-carousel-paper img { display: block; width: 100%; flex: 1 1 auto; min-height: 0; object-fit: contain; }
 .engineering-carousel-card-caption { display: flex; flex-direction: column; flex: 0 0 auto; gap: .2rem; min-height: 5.5rem; padding: .75rem .75rem .35rem; border-top: 1px solid var(--eng-line); text-align: left; }
-.engineering-carousel-card-label { color: var(--eng-accent); font-size: .88rem; font-weight: 750; line-height: 1.35; }
+.engineering-carousel-card-label { color: var(--eng-accent); font-size: .88rem; font-weight: 800; line-height: 1.35; }
 .engineering-carousel-card-description { color: #4a5a50; font-size: .81rem; font-weight: 400; line-height: 1.42; }
 .engineering-carousel-arrow {
   position: absolute; top: 50%; z-index: 4; display: grid; place-items: center; width: 2.3rem; height: 2.3rem;
@@ -2143,7 +2174,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-carousel-arrow.is-next { right: .15rem; }
 .engineering-carousel-arrow:focus-visible,
 .engineering-gallery-viewer button:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-carousel-count { margin: .15rem 0 .3rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 750; letter-spacing: .16em; }
+.engineering-carousel-count { margin: .15rem 0 .3rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 800; letter-spacing: .16em; }
 .engineering-gallery-viewer {
   width: min(1080px, calc(100vw - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; padding: 1rem;
   border: 1px solid var(--eng-line); border-radius: 18px; background: #fff; color: var(--eng-ink);
@@ -2154,7 +2185,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-gallery-viewer-body { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem; align-items: center; gap: .4rem; touch-action: pan-y; }
 .engineering-gallery-viewer-body img { display: block; width: 100%; height: min(70dvh, 700px); object-fit: contain; }
 .engineering-gallery-viewer-arrow { width: 2.4rem; height: 2.4rem; padding: 0; border: 1px solid var(--eng-line); border-radius: 50%; background: #fff; color: var(--eng-accent); font-size: 1.7rem; line-height: 1; cursor: pointer; }
-.engineering-gallery-viewer-count { display: block; margin: .35rem 0 .25rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 750; letter-spacing: .14em; }
+.engineering-gallery-viewer-count { display: block; margin: .35rem 0 .25rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 800; letter-spacing: .14em; }
 .engineering-gallery-viewer-caption { margin: 0; text-align: center; font-size: .9rem; line-height: 1.5; }
 @media (max-width: 575.98px) {
   .engineering-carousel-stage { height: 365px; }
@@ -2172,7 +2203,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   .engineering-carousel-card { transition: none; }
 }
 .engineering-record { position: relative; z-index: 1; min-width: 0; background: #fff; padding: .75rem 0 0; }
-.engineering-record h3 { color: var(--eng-accent); font-size: 2.8rem; font-weight: 550; letter-spacing: -.055em; margin: .25rem 0 .7rem; line-height: 1.05; text-wrap: balance; transition: color .6s ease; }
+.engineering-record h3 { color: var(--eng-accent); font-size: 2.8rem; font-weight: 600; letter-spacing: -.055em; margin: .25rem 0 .7rem; line-height: 1.05; text-wrap: balance; transition: color .6s ease; }
 .engineering-record-title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; margin: .2rem 0 .8rem; }
 .engineering-record-title-row h3 { display: flex; align-items: center; gap: .65rem; margin: 0; }
 .engineering-record-title-row h3::before {
@@ -2192,7 +2223,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 }
 .engineering-record.is-current .engineering-science-sketch { color: color-mix(in srgb, var(--eng-live-accent) 80%, var(--eng-paper)); }
 .engineering-sketch-detail { stroke-width: 1.55; }
-.engineering-record h4 { font-size: 1.1rem; font-weight: 650; line-height: 1.3; margin: 0 0 .5rem; color: var(--eng-ink); text-wrap: balance; }
+.engineering-record h4 { font-size: 1.1rem; font-weight: 700; line-height: 1.3; margin: 0 0 .5rem; color: var(--eng-ink); text-wrap: balance; }
 .engineering-record > p[data-field="description"],
 .engineering-record-detail p,
 .engineering-takeaway p { font-size: .96rem; line-height: 1.62; margin: 0; color: #46594d; text-wrap: pretty; orphans: 2; widows: 2; }
@@ -2237,7 +2268,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-takeaway { padding-left: .9rem; border-left: 3px solid var(--eng-accent); margin-top: 1.3rem; }
 .engineering-requests { margin-top: 2.5rem; padding: 1.35rem 1.5rem; border: 1px solid var(--eng-line); border-radius: 14px; background: #f6f8f6; color: #4a5a50; }
 .engineering-requests-heading .engineering-eyebrow { color: #6b7b70; }
-.engineering-requests h3 { margin: .35rem 0 .35rem; font-size: 1.3rem; font-weight: 650; color: var(--eng-ink); }
+.engineering-requests h3 { margin: .35rem 0 .35rem; font-size: 1.3rem; font-weight: 700; color: var(--eng-ink); }
 .engineering-requests-heading p { margin: 0; font-size: .85rem; line-height: 1.5; }
 .engineering-requests ul { display: grid; gap: .85rem; margin: 1.15rem 0 0; padding: 0; list-style: none; }
 .engineering-requests li { display: grid; grid-template-columns: 1rem minmax(0, 1fr); align-items: start; column-gap: .7rem; font-size: .84rem; line-height: 1.55; }
@@ -2252,7 +2283,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   display: flex; align-items: center; justify-content: center; gap: .35rem; width: 100%;
   border: 1px solid color-mix(in srgb, var(--eng-accent) 42%, #fff); border-radius: 999px;
   background: color-mix(in srgb, var(--eng-hero) 18%, #fff); color: var(--eng-accent);
-  font-size: clamp(.56rem, .72vw, .72rem); font-weight: 650; line-height: 1.15; text-align: center;
+  font-size: clamp(.56rem, .72vw, .72rem); font-weight: 700; line-height: 1.15; text-align: center;
   transition: transform .2s ease, color .2s ease, background-color .2s ease, border-color .2s ease;
 }
 .engineering-page-nav-edge { min-height: 38px; padding: .5rem .55rem; }
@@ -4321,7 +4352,7 @@ body.edu-lightbox-locked {
   --neutral: #4a3f35; --neutral-edge: #3a312a; --neutral-drop: #2a231e;
   --red: #c44536; --gold: #c9a227; --muted: #8a7a6a;
   --sticky-y: #fff3a3; --sticky-p: #ffcce0; --sticky-g: #c8f0d4;
-  font-family: "Segoe UI", "Noto Sans TC", system-ui, sans-serif;
+  font-family: "Changa", "Noto Sans TC", sans-serif;
   background: linear-gradient(160deg, var(--wood-light), var(--wood-mid), var(--wood-dark));
   color: var(--ink); line-height: 1.5; position: relative;
   border-radius: 16px; padding: 18px; margin-bottom: 2rem;
