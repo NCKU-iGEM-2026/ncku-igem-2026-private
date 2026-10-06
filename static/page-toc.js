@@ -19,8 +19,9 @@
   var host = document.querySelector("body > .container");
   if (!host || document.getElementById("siteTour") || document.querySelector(".edu-sidebar")) return;
   /* A band that runs the full width of the screen (the board game's story, the
-     collaboration wall) would sit under the list, so those pages go without. */
-  if (document.querySelector(".sgd, .story, .collab-wall")) return;
+     collaboration wall) would sit under the list, so those pages go without.
+     Engineering's DBTL cycle stands in the same place and does the same job. */
+  if (document.querySelector(".sgd, .story, .collab-wall, .eng-dbtl")) return;
 
   var MIN = 2;
   var OFFSET = 130;          /* a heading counts as "reached" this far below the top */

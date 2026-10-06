@@ -1902,637 +1902,186 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   .desc-table th, .desc-table td { padding: 0.5rem 0.4rem; }
 }
 
-/* Engineering: one module rail, with the active DBTL cycle in place. */
-body.engineering-page {
-  --eng-ink: #193e34;
-  /* Accent (text, lines) and header colour for each stage. The page follows
-     the stage in progress; each stage section keeps its own. */
-  --eng-accent-design: #5d7d21; --eng-hero-design: #b4d96d;
-  --eng-accent-build: #307853;  --eng-hero-build: #7ed8a2;
-  --eng-accent-test: #266e6b;   --eng-hero-test: #70d3c8;
-  --eng-accent-learn: #385e6b;  --eng-hero-learn: #79c4df;
-  --eng-accent: var(--eng-accent-design);
-  --eng-paper: #fff;
-  --eng-surface: #f6f8f5;
-  --eng-line: #dce3dc;
-  --eng-hero: var(--eng-hero-design);
-  --eng-design: #a8d943;
-  --eng-build: #43ca85;
-  --eng-test: #32bfb5;
-  --eng-learn: #55afce;
-  background: var(--eng-paper);
-  color: var(--eng-ink);
+/* Engineering: the DBTL cycle on the left, the four stages beside it. */
+/* ---- the cycle ----
+   The four stage colours are the site's own lime-to-blue run (the same lime
+   and mint as the links and headings), so the ring sits in the palette rather
+   than on top of it. Each arrow runs from a deeper tail to a brighter head. */
+.eng-cycle { margin: 0; }
+.eng-cycle svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
-body.engineering-page[data-engineering-stage="build"] { --eng-accent: var(--eng-accent-build); --eng-hero: var(--eng-hero-build); }
-body.engineering-page[data-engineering-stage="test"] { --eng-accent: var(--eng-accent-test); --eng-hero: var(--eng-hero-test); }
-body.engineering-page[data-engineering-stage="learn"] { --eng-accent: var(--eng-accent-learn); --eng-hero: var(--eng-hero-learn); }
-/* Engineering navigation is one top-layer group: bar, logo, controls, mobile
-   panel and dropdowns enter and leave together above the hero. Only the
-   layering is engineering's own. The bar itself is the same frosted glass
-   every other light page has -- it used to be painted solid white here,
-   which made this the one page whose menu did not match the rest. */
-body.engineering-page .navbar {
-  z-index: 1100;
-  isolation: isolate;
+.eng-cycle-tail-design { stop-color: #6fb83a; }
+.eng-cycle-head-design { stop-color: #a0e860; }   /* --nx-lime */
+.eng-cycle-tail-build  { stop-color: #23955e; }
+.eng-cycle-head-build  { stop-color: #4fd48f; }
+.eng-cycle-tail-test   { stop-color: #23928a; }
+.eng-cycle-head-test   { stop-color: #49c5b6; }   /* --nx-mint */
+.eng-cycle-tail-learn  { stop-color: #1f6f9c; }   /* near --nx-blue */
+.eng-cycle-head-learn  { stop-color: #5bb6e6; }
+/* The stroke in the arrow's own paint rounds every corner of the shape. */
+.eng-cycle-arrow { stroke-width: 6; stroke-linejoin: round; }
+.eng-cycle-track {
+  fill: none;
+  stroke: rgba(73, 197, 182, 0.35);
+  stroke-width: 1.2;
+  stroke-dasharray: 1.5 7;
+  stroke-linecap: round;
 }
-body.engineering-page .navbar .container-fluid { position: relative; z-index: 1; }
-body.engineering-page .navbar-brand { z-index: 10; transform: translateY(4px); }
-/* No background of its own: on a desktop this is the row of menu items and
-   sits on the glass; on a phone it is the drop-down panel, which takes the
-   site's own panel colour like every other page. Painting it white here
-   left a white slab inside the glass on desktop. */
-body.engineering-page .navbar-collapse { z-index: 2; }
-body.engineering-page .navbar-toggler { z-index: 3; }
-body.engineering-page .navbar .dropdown-menu { z-index: 4; }
-body.engineering-page .navbar-nav .nav-link:hover,
-body.engineering-page .navbar-nav .nav-link:focus { color: #747b77; }
-/* One block of colour: the hero reaches up behind the navbar (the body's
-   104px top padding), so the two can never drift apart and flash white while
-   the navbar slides away. The navbar and its logo stay a separate layer above
-   it (rules just above). With the navbar out, the hero sticks 104px above the
-   viewport -- the strip that sat behind the navbar leaves with it and the
-   hero itself keeps its height. */
-.engineering-hero {
-  --eng-nav-space: 104px;
-  /* Two blank 16px lines kept above the label while the hero is stuck to the top. */
-  --eng-stuck-reserve: 32px;
-  position: sticky; top: 0; z-index: 1020; isolation: isolate; overflow: hidden;
-  margin-top: calc(-1 * var(--eng-nav-space)); padding: var(--eng-nav-space) 0 calc(.5rem + 16px);
-  background-color: var(--eng-paper);
-  /* Keep the strongest colour high in the header, then soften it over a
-     longer distance into the wide white area around the position line. */
-  background-image:
-    linear-gradient(180deg,
-      transparent calc(100% - 180px),
-      color-mix(in srgb, var(--eng-paper) 10%, transparent) calc(100% - 135px),
-      color-mix(in srgb, var(--eng-paper) 42%, transparent) calc(100% - 91px),
-      var(--eng-paper) calc(100% - 58px)),
-    radial-gradient(ellipse 440px 145px at max(2rem, calc(50% - 420px)) calc(100% - 38px),
-      color-mix(in srgb, var(--eng-paper) 96%, var(--eng-hero)) 0%,
-      color-mix(in srgb, var(--eng-paper) 88%, transparent) 25%,
-      color-mix(in srgb, var(--eng-paper) 42%, transparent) 55%,
-      transparent 100%),
-    radial-gradient(ellipse at 92% 0%,
-      color-mix(in srgb, var(--eng-hero) 72%, var(--eng-accent)) 0%,
-      transparent 72%),
-    linear-gradient(120deg,
-      color-mix(in srgb, var(--eng-hero) 74%, var(--eng-paper)) 0%,
-      var(--eng-hero) 46%,
-      color-mix(in srgb, var(--eng-hero) 84%, var(--eng-accent)) 100%);
-  transition: background-color .8s ease, top .3s ease;
+.eng-cycle-core { stroke: rgba(73, 197, 182, 0.22); stroke-width: 1; }
+.eng-cycle-core-in  { stop-color: #1c4352; stop-opacity: 0.9; }   /* --nx-raised */
+.eng-cycle-core-out { stop-color: #16323f; stop-opacity: 0.6; }   /* --nx-panel */
+/* Type sizes are in the drawing's units: the ring is drawn 400 across and
+   shown about half that, so these read at roughly half size on screen. */
+.eng-cycle-label {
+  font-family: "Changa", sans-serif;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  fill: #0e242e;          /* --nx-ground: dark type on the bright arrows */
 }
-body.engineering-page.navbar-hidden .engineering-hero { top: calc(var(--eng-stuck-reserve) - var(--eng-nav-space)); }
-.engineering-hero .container { position: relative; z-index: 0; }
-.engineering-stage-mark {
-  position: absolute; top: .95rem; right: 0; display: grid; place-items: center;
-  width: 90px; height: 56px; color: var(--eng-accent); pointer-events: none;
-  transition: color .6s ease;
+.eng-cycle-centre {
+  font-family: "Changa", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  fill: #f2f8fa;
 }
-.engineering-stage-mark svg { width: 56px; height: 56px; }
-.engineering-stage-mark-tint { fill: color-mix(in srgb, currentColor 13%, var(--eng-paper)); }
-.engineering-stage-mark-paper { fill: var(--eng-paper); }
-.engineering-stage-mark [data-stage-mark] { opacity: 0; transition: opacity .35s ease; }
-body.engineering-page:not([data-engineering-stage]) .engineering-stage-mark [data-stage-mark="design"],
-body.engineering-page[data-engineering-stage="design"] .engineering-stage-mark [data-stage-mark="design"],
-body.engineering-page[data-engineering-stage="build"] .engineering-stage-mark [data-stage-mark="build"],
-body.engineering-page[data-engineering-stage="test"] .engineering-stage-mark [data-stage-mark="test"],
-body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [data-stage-mark="learn"] { opacity: 1; }
-.engineering-eyebrow { font-size: .63rem; font-weight: 700; letter-spacing: .16em; line-height: 1.6; }
-/* Engineering only: the desktop logo has two states, full size or gone with
-   the navbar -- it never shrinks on scroll. It is raised by 7/15 of its
-   artwork's height (the artwork is the middle 41.6% of the square image), so
-   it clears the hero's title instead of hanging over it. */
-@media (min-width: 992px) {
-  body.engineering-page .navbar-brand {
-    top: calc(clamp(-57px, calc(-0.212 * (100vw - 872px) - 1px), -30px) - 0.1941 * clamp(120px, calc(100vw - 872px), 250px));
-  }
-  body.engineering-page .navbar-brand img {
-    width: clamp(120px, calc(100vw - 872px), 250px);
-    height: clamp(120px, calc(100vw - 872px), 250px);
-  }
+.eng-cycle-kicker {
+  font-family: "Changa", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  fill: #49c5b6;
 }
-/* On desktop the full-size navbar logo hangs over the hero's label, so the
-   label shows only while the navbar (and its logo) is away. Its space is kept
-   so the hero does not jump. */
-.engineering-hero .engineering-eyebrow { font-size: .85rem; line-height: 1.2; transition: opacity .3s ease; }
-@media (min-width: 992px) {
-  body.engineering-page:not(.navbar-hidden) .engineering-hero .engineering-eyebrow { opacity: 0; }
+.eng-cycle-label { pointer-events: none; }
+/* Progress: engineering-cycle.js lengthens the mask over the lit copy of the
+   ring clockwise as the reader goes down the stages. Underneath, the arrows
+   wait dimmed; the one being read stands a little clearer, so a reader who
+   jumps to a stage sees where they are before the light reaches it. */
+.eng-cycle-lit { filter: drop-shadow(0 0 12px rgba(160, 232, 96, 0.3)); }
+.eng-cycle-base .eng-cycle-arrow { transition: opacity 0.4s ease; }
+.eng-cycle[data-active] .eng-cycle-base .eng-cycle-arrow { opacity: 0.24; }
+.eng-cycle[data-active] .eng-cycle-base [aria-current] .eng-cycle-arrow { opacity: 0.5; }
+.eng-cycle .eng-cycle-base .eng-cycle-link:hover .eng-cycle-arrow,
+.eng-cycle .eng-cycle-base .eng-cycle-link:focus-visible .eng-cycle-arrow { opacity: 0.75; }
+.eng-cycle-link { cursor: pointer; outline: none; text-decoration: none; }
+.eng-cycle-link:focus-visible .eng-cycle-arrow { stroke: #f2f8fa; }
+/* The bright point at the leading edge of the light. It waits, faint, at the
+   start until the reader sets off, and goes out once the loop is closed. */
+.eng-cycle-spark {
+  fill: #f2f8fa;
+  filter: drop-shadow(0 0 5px #a0e860) drop-shadow(0 0 12px rgba(160, 232, 96, 0.7));
+  opacity: 0.35;
+  transition: opacity 0.4s ease;
 }
-.engineering-hero h1 { max-width: 880px; margin: .2rem 0 .25rem; font-size: calc(clamp(2rem, 4.2vw, 3.6rem) - 4px); line-height: .95; letter-spacing: -.055em; font-weight: 600; color: var(--eng-ink); }
-.engineering-hero p { max-width: 680px; margin: 0; font-size: calc(.9rem + 6px); line-height: 1.25; }
-
-.engineering { --eng-rail-width: 240px; --eng-cycle-size: 240px; display: grid; grid-template-columns: var(--eng-rail-width) minmax(0, 1fr); gap: 48px; align-items: start; padding: 1.4rem 0 2.5rem; }
-.engineering-sidebar { min-width: 0; align-self: stretch; }
-.engineering-rail { position: relative; width: var(--eng-rail-width); background: transparent; transform-origin: top left; }
-.engineering-rail.is-floating { position: fixed; z-index: 1010; left: var(--eng-rail-left); top: var(--eng-rail-top); transform: scale(var(--eng-rail-fit, 1)); }
-.engineering-rail > .engineering-eyebrow { margin: 0 0 1.1rem; padding-left: calc(var(--eng-list-inset) + .1rem); text-align: left; color: #4a5a50; font-size: .7rem; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
-.engineering-modules, .engineering-iterations { list-style: none; padding: 0; margin: 0; }
-.engineering-module { position: relative; padding-bottom: 12px; }
-.engineering-module:last-child { padding-bottom: 0; }
-/* Modules not yet open sit closer together. */
-.engineering-module:not(.is-current) { padding-bottom: 2px; }
-.engineering-module:not(.is-current) .engineering-module-button { min-height: 24px; align-items: flex-start; padding-top: 4px; padding-bottom: 4px; }
-/* A pending module reads as waiting: lighter strokes and paler ink than the one
-   being read, which is named in the ring rather than in this list. Hover and
-   focus bring it back to full strength, so it is still easy to read to use. */
-.engineering-module:not(.is-current) .engineering-module-button { color: #8a948c; font-weight: 400; }
-.engineering-module:not(.is-current) .engineering-module-title { color: #9aa49d; font-weight: 400; }
-.engineering-module:not(.is-current) .engineering-rail-node { background: #c9d1cb; }
-.engineering-module:not(.is-current) .engineering-expand { color: #a7b0a9; }
-.engineering-module-button:focus-visible,
-.engineering-module-button:focus-visible .engineering-module-title { color: #4a5a50; }
-.engineering-module-button {
-  position: relative; display: flex; align-items: center; justify-content: flex-start; gap: .55rem;
-  min-height: 32px; width: 100%; border: 0; padding: 0 .25rem 0 calc(var(--eng-list-inset) + .1rem); background: transparent;
-  color: #737d75; text-align: left; font-size: .9rem; font-weight: 500; cursor: pointer;
-  border-radius: 7px; transition: background-color .25s ease;
-}
-.engineering-module-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1 1 auto; }
-.engineering-module-title {
-  display: block; font-size: .74rem; font-weight: 600; line-height: 1.3; color: #4a5a50;
-  letter-spacing: -.01em; text-wrap: pretty; transition: color .25s ease;
-}
-.engineering-module-title:empty { display: none; }
-/* The current module is named inside the ring, so its row stays a number. */
-.engineering-module.is-current .engineering-module-title { display: none; }
-/* The marker sits on the middle of the whole row, not on its first line. */
-.engineering-module:not(.is-current) .engineering-rail-node { align-self: center; }
-.engineering-module:not(.is-current) .engineering-expand { align-self: center; }
-.engineering-module-button[hidden], .engineering-iterations[hidden] { display: none; }
-.engineering-rail-node { flex: 0 0 5px; height: 5px; border-radius: 50%; background: #9ca89f; }
-.engineering-module-label, .engineering-iteration-label {
-  display: inline-block; transition: transform .25s ease, color .25s ease; transform-origin: center;
-}
-.engineering-expand { flex: 0 0 auto; font-size: .8rem; color: #869187; margin-left: .15rem; }
-.engineering-cycle-slot:empty { display: none; }
-.engineering-module:not(.is-current) .engineering-cycle-slot { display: none; }
-.engineering-cycle-slot:not(:empty) { padding-bottom: 2.8rem; }
-/* The rail reads from the left: the label, iterations and pending
-   modules all start on the page's left content edge (the safe zone). */
-.engineering-rail { --eng-list-inset: 0rem; }
-.engineering-iterations { padding: .15rem 0 .3rem 2ch; }
-.engineering-iteration-button {
-  display: flex; align-items: center; justify-content: flex-start; gap: .75rem;
-  width: 100%; min-height: 25px; padding: .2rem .1rem; border: 0; background: transparent;
-  color: #758077; text-align: left; font-size: calc(.64rem + 4px); cursor: pointer;
-}
-.engineering-iteration-button {
-  position: relative; border-radius: 0 7px 7px 0; transition: background-color .25s ease, color .25s ease;
-}
-.engineering-iteration-button::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 0;
-  background: var(--eng-accent); opacity: 0; transition: opacity .25s ease;
-}
-.engineering-iteration-button.is-current {
-  color: var(--eng-accent); font-weight: 800;
-  background: color-mix(in srgb, var(--eng-accent) 9%, #fff); padding-left: .55rem;
-}
-.engineering-iteration-button.is-current::before { opacity: 1; }
-.engineering-iteration-button.is-current .engineering-iteration-note { color: color-mix(in srgb, var(--eng-accent) 78%, #000); }
-.engineering-iteration-button.is-current .engineering-iteration-label { transform: scale(1.12); transform-origin: left center; }
-.engineering-iteration-button .engineering-iteration-label { flex: 0 0 auto; white-space: nowrap; }
-.engineering-iteration-note { display: block; min-width: 0; margin-top: 1px; font-size: .74rem; font-weight: 500; line-height: 1.3; color: #5d6c62; letter-spacing: .01em; }
-.engineering-iteration-note:empty { display: none; }
-.engineering-cycle { position: relative; width: var(--eng-cycle-size); aspect-ratio: 1; margin: 0 auto; --rotation: 0deg; }
-.engineering-ring { display: block; width: 100%; height: 100%; overflow: visible; transform: rotate(var(--rotation)) scale(.94); transition: transform .5s cubic-bezier(.3,.05,.2,1); }
-.engineering-ring-track { fill: none; stroke: var(--eng-line); stroke-width: 1; }
-.engineering-arc {
-  stroke: none; pointer-events: visiblePainted; cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: filter .35s ease, fill .35s ease;
-}
-.engineering-arc:focus { outline: none; }
-.engineering-arc:focus-visible:not(.is-current) { filter: brightness(1.15); }
-.engineering-toc-cycle .engineering-arc { pointer-events: none; cursor: default; }
-.engineering-arc { fill: var(--arc-colour); }
-.engineering-arc[data-stage="design"] { --arc-colour: var(--eng-design); }
-.engineering-arc[data-stage="build"] { --arc-colour: var(--eng-build); }
-.engineering-arc[data-stage="test"] { --arc-colour: var(--eng-test); }
-.engineering-arc[data-stage="learn"] { --arc-colour: var(--eng-learn); }
-/* Only the stage in progress is lit; the others fade to grey but keep a
-   trace of their own colour so the four stages stay recognisable. */
-.engineering-arc:not(.is-current) { fill: color-mix(in srgb, color-mix(in srgb, var(--arc-colour) 38%, #c9cecb) 78%, #000); }
-/* The arc in progress glows in its own colour: a tight bright halo plus a
-   wide soft one that breathes slowly. */
-.engineering-arc.is-current {
-  --arc-glow: color-mix(in srgb, var(--arc-colour) 85%, #fff);
-  filter: saturate(1.05) brightness(1.08) drop-shadow(0 0 5px var(--arc-glow)) drop-shadow(0 0 16px color-mix(in srgb, var(--arc-glow) 70%, transparent));
-  animation: engineering-arc-glow 2.8s ease-in-out infinite;
-}
-@keyframes engineering-arc-glow {
-  50% { filter: saturate(1.1) brightness(1.1) drop-shadow(0 0 7px var(--arc-glow)) drop-shadow(0 0 26px color-mix(in srgb, var(--arc-glow) 85%, transparent)); }
-}
-@media (prefers-reduced-motion: reduce) { .engineering-arc.is-current { animation: none; } }
-.engineering-stage-tabs { position: absolute; inset: 0; pointer-events: none; user-select: none; transform: scale(.94); }
-.engineering-stage-tab {
-  --bearing: 0deg; position: absolute; left: 50%; top: 50%; width: 28%; height: 18%;
-  border: 0; border-radius: 999px; padding: 0; background: transparent; color: #123b31;
-  font-size: calc(var(--eng-cycle-size) * .0367); font-weight: 700; pointer-events: none; opacity: 1;
-  transform: translate(-50%, -50%) rotate(calc(var(--bearing) + var(--rotation))) translateY(-216.6667%) rotate(calc(-1 * (var(--bearing) + var(--rotation))));
-  transition: transform .5s cubic-bezier(.3,.05,.2,1);
-}
-.engineering-stage-tab[data-stage="build"] { --bearing: 90deg; }
-.engineering-stage-tab[data-stage="test"] { --bearing: 180deg; }
-.engineering-stage-tab[data-stage="learn"] { --bearing: 270deg; }
-.engineering-stage-tab span { display: inline-block; transition: transform .25s ease; }
-.engineering-stage-tab.is-current span { font-weight: 800; font-size: calc(1.45em + 3px); }
-/* Keep the module name centred in the ring. The iteration pager and count
-   keep their order but sit immediately below it, outside the circular arcs. */
-.engineering-cycle-center {
-  position: absolute; inset: 0; display: block; text-align: center; pointer-events: none;
-}
-.engineering-cycle-center h2 {
-  position: absolute; top: 50%; left: 23%; width: 54%; transform: translateY(-50%);
-  margin: 0; line-height: 1.1;
-}
-#engineering-module-title {
-  color: var(--eng-ink); font-size: calc(var(--eng-cycle-size) * .0696); font-weight: 800; letter-spacing: -.04em; line-height: 1.12;
-  text-wrap: balance; overflow-wrap: break-word; transition: color .4s ease;
-}
-.engineering-iteration-pager { position: absolute; top: calc(100% + .48rem); left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0503); font-weight: 700; color: color-mix(in srgb, var(--eng-accent) 72%, #fff); }
-.engineering-iteration-pager button { display: grid; place-items: center; flex: 0 0 18px; width: 18px; height: 22px; padding: 0; border: 0; background: transparent; color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .037); border-radius: 50%; cursor: pointer; }
-.engineering-iteration-pager button:hover:not(:disabled) { background: var(--eng-surface); }
-.engineering-iteration-pager button:disabled { color: #a5afa8; cursor: default; }
-#engineering-iteration-title, .engineering-toc-iteration-title { white-space: nowrap; display: inline-block; transition: transform .25s ease; }
-/* The small fixed Cycle button has no room below its clipped circular icon,
-   so its miniature keeps the pager and count inside the ring. */
-.engineering-toc-cycle .engineering-cycle-center { top: 23%; left: 23%; right: auto; bottom: auto; width: 54%; height: 54%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
-.engineering-toc-cycle .engineering-cycle-center h2 { top: 50%; left: 0; width: 100%; margin: 0; padding-bottom: 0; }
-.engineering-toc-cycle .engineering-iteration-pager { position: static; transform: none; }
-.engineering-toc-module-title {
-  color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .0613); font-weight: 800;
-  letter-spacing: -.04em; line-height: 1.12; text-wrap: balance; overflow-wrap: break-word;
-}
-.engineering-iteration-count { position: absolute; top: calc(100% + 1.86rem); left: 50%; transform: translateX(-50%); display: block; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0413); line-height: 1.5; letter-spacing: .08em; color: #6b7b70; }
-.engineering-toc-cycle .engineering-iteration-count { position: static; transform: none; }
-
-.engineering-workspace {
-  /* Resolve the live colour here, above each record's own stage accent. */
-  --eng-live-accent: var(--eng-accent);
-  --eng-reading-width: 74ch;
-  position: relative; min-width: 0; padding-top: .1rem;
-}
-.engineering-workspace .engineering-eyebrow { white-space: nowrap; }
-.engineering-context { font-size: clamp(1.65rem, 2.6vw, 2.6rem); font-weight: 600; letter-spacing: -.045em; margin: .45rem 0 .5rem; line-height: 1.12; text-wrap: balance; }
-/* The module's question, then which iteration is on the page. */
-.engineering-question { max-width: 60ch; margin: 0 0 .6rem; font-size: 1.02rem; line-height: 1.5; color: #4a5a50; text-wrap: pretty; }
-.engineering-iteration-line { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.35rem; font-size: .84rem; font-weight: 600; color: #5d6c62; }
-.engineering-status {
-  padding: .12rem .55rem; border-radius: 999px; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  background: color-mix(in srgb, var(--eng-accent) 14%, #fff); color: var(--eng-accent); border: 1px solid color-mix(in srgb, var(--eng-accent) 34%, #fff);
-}
-.engineering-status[data-status="pending"] { background: #f1f3f1; color: #6b7b70; border-color: #dbe0dc; }
-/* The approach this iteration tried, and what it set out to measure. */
-.engineering-approach { max-width: 62ch; margin: -.85rem 0 1.35rem; font-size: .92rem; line-height: 1.55; color: #4a5a50; text-wrap: pretty; }
-.engineering-approach-name { font-weight: 700; color: var(--eng-accent); }
-.engineering-approach-name::after { content: " — "; color: #97a49b; font-weight: 400; }
-/* A figure carries its own evidence; while the image is still missing the slot
-   says so rather than leaving a gap that could read as a result. */
-.engineering-figure { margin: 1.15rem 0 0; }
-.engineering-record--wrapped-figure > .engineering-figure:not([hidden]) { float: right; width: clamp(220px, 32%, 300px); margin: .1rem 0 1rem 1.5rem; }
-.engineering-record--wrapped-figure::after { content: ""; display: table; clear: both; }
-.engineering-figure a { display: block; }
-.engineering-figure a:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; border-radius: 10px; }
-.engineering-figure img { display: block; width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--eng-line); }
-.engineering-figure-missing {
-  margin: 0; padding: 1.1rem 1rem; border: 1px dashed color-mix(in srgb, var(--eng-accent) 40%, #cfd8d2); border-radius: 10px;
-  background: color-mix(in srgb, var(--eng-accent) 5%, #fff); color: #6b7b70; font-size: .84rem; text-align: center;
-}
-.engineering-figure figcaption { margin-top: .5rem; font-size: .86rem; line-height: 1.55; color: #4a5a50; }
-@media (max-width: 767px) { .engineering-record--wrapped-figure > .engineering-figure:not([hidden]) { float: none; width: min(100%, 340px); margin: .25rem 0 1rem; } }
-.engineering-figure-label { font-weight: 800; color: var(--eng-accent); letter-spacing: .04em; }
-.engineering-attachment-gallery[hidden] { display: none; }
-.engineering-gallery-title { margin: 1.4rem 0 .65rem; color: #4a5a50; font-size: 1rem; font-weight: 700; }
-.engineering-gallery-note { margin: 0 0 .9rem; color: #5d6c62; font-size: .84rem; line-height: 1.5; }
-.engineering-figure-gallery-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.engineering-figure-gallery-grid.is-single { grid-template-columns: minmax(0, 1fr); }
-.engineering-figure-gallery-grid.is-uniform-photos { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; }
-.engineering-gallery-item { min-width: 0; margin: 0; }
-.engineering-gallery-item a { display: block; overflow: hidden; border: 1px solid var(--eng-line); border-radius: 8px; background: #f5f7f6; }
-.engineering-gallery-item a:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-gallery-item img { display: block; width: 100%; height: auto; }
-.engineering-figure-gallery-grid.is-uniform-photos img { aspect-ratio: 4 / 3; height: auto; object-fit: cover; }
-.engineering-figure-gallery-grid.is-streak img { aspect-ratio: 1 / 1; object-fit: contain; background: #080f2a; }
-.engineering-figure-gallery-grid.is-uniform-photos .engineering-gallery-item figcaption { font-size: .78rem; }
-.engineering-figure-gallery-grid.is-uniform-photos .engineering-figure-label { display: block; margin-bottom: .16rem; }
-.engineering-gallery-item figcaption { margin-top: .4rem; color: #4a5a50; font-size: .82rem; line-height: 1.45; }
-@media (max-width: 767px) { .engineering-figure-gallery-grid { grid-template-columns: 1fr; } .engineering-figure-gallery-grid.is-uniform-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.engineering-carousel { min-width: 0; outline-offset: 5px; }
-.engineering-carousel:focus-visible { outline: 2px solid var(--eng-accent); }
-.engineering-carousel-stage { position: relative; height: clamp(345px, 43vw, 470px); overflow: hidden; touch-action: pan-y; }
-.engineering-carousel-card {
-  position: absolute; top: 7%; left: 50%; display: block; width: 62%; height: 86%; padding: 0; border: 0;
-  background: transparent; cursor: pointer; transform: translateX(-50%) scale(.82); opacity: 0;
-  transition: left .38s cubic-bezier(.22,.8,.25,1), transform .38s cubic-bezier(.22,.8,.25,1), opacity .38s ease, filter .38s ease;
-}
-.engineering-carousel-card[hidden] { display: none; }
-.engineering-carousel-card.is-previous { left: 23%; z-index: 1; opacity: .72; filter: saturate(.65); }
-.engineering-carousel-card.is-current { left: 50%; z-index: 3; transform: translateX(-50%) scale(1); opacity: 1; }
-.engineering-carousel-card.is-next { left: 77%; z-index: 1; opacity: .72; filter: saturate(.65); }
-.engineering-carousel-card:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-carousel-paper {
-  display: flex; flex-direction: column; width: 100%; height: 100%; padding: .5rem; border: 1px solid var(--eng-line); border-radius: 10px;
-  background: #fff; box-shadow: 0 12px 28px rgba(22, 42, 32, .13); overflow: hidden;
-}
-.engineering-carousel-card.is-current .engineering-carousel-paper { box-shadow: 0 18px 36px rgba(22, 42, 32, .2); }
-.engineering-carousel-paper img { display: block; width: 100%; flex: 1 1 auto; min-height: 0; object-fit: contain; }
-.engineering-carousel-card-caption { display: flex; flex-direction: column; flex: 0 0 auto; gap: .2rem; min-height: 5.5rem; padding: .75rem .75rem .35rem; border-top: 1px solid var(--eng-line); text-align: left; }
-.engineering-carousel-card-label { color: var(--eng-accent); font-size: .88rem; font-weight: 800; line-height: 1.35; }
-.engineering-carousel-card-description { color: #4a5a50; font-size: .81rem; font-weight: 400; line-height: 1.42; }
-.engineering-carousel-arrow {
-  position: absolute; top: 50%; z-index: 4; display: grid; place-items: center; width: 2.3rem; height: 2.3rem;
-  padding: 0; border: 1px solid var(--eng-line); border-radius: 50%; background: #fff; color: var(--eng-accent);
-  box-shadow: 0 4px 12px rgba(22, 42, 32, .14); font-size: 1.7rem; line-height: 1; cursor: pointer; transform: translateY(-50%);
-}
-.engineering-carousel-arrow.is-previous { left: .15rem; }
-.engineering-carousel-arrow.is-next { right: .15rem; }
-.engineering-carousel-arrow:focus-visible,
-.engineering-gallery-viewer button:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-carousel-count { margin: .15rem 0 .3rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 800; letter-spacing: .16em; }
-.engineering-gallery-viewer {
-  width: min(1080px, calc(100vw - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; padding: 1rem;
-  border: 1px solid var(--eng-line); border-radius: 18px; background: #fff; color: var(--eng-ink);
-  box-shadow: 0 24px 70px rgba(13, 30, 20, .35);
-}
-.engineering-gallery-viewer::backdrop { background: rgba(14, 29, 22, .72); }
-.engineering-gallery-viewer-close { display: block; margin: 0 0 .25rem auto; padding: 0 .3rem; border: 0; background: transparent; color: var(--eng-ink); font-size: 1.8rem; line-height: 1; cursor: pointer; }
-.engineering-gallery-viewer-body { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem; align-items: center; gap: .4rem; touch-action: pan-y; }
-.engineering-gallery-viewer-body img { display: block; width: 100%; height: min(70dvh, 700px); object-fit: contain; }
-.engineering-gallery-viewer-arrow { width: 2.4rem; height: 2.4rem; padding: 0; border: 1px solid var(--eng-line); border-radius: 50%; background: #fff; color: var(--eng-accent); font-size: 1.7rem; line-height: 1; cursor: pointer; }
-.engineering-gallery-viewer-count { display: block; margin: .35rem 0 .25rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 800; letter-spacing: .14em; }
-.engineering-gallery-viewer-caption { margin: 0; text-align: center; font-size: .9rem; line-height: 1.5; }
-@media (max-width: 575.98px) {
-  .engineering-carousel-stage { height: 365px; }
-  .engineering-carousel-card { width: 77%; }
-  .engineering-carousel-card-caption { min-height: 7.25rem; padding: .55rem .45rem .2rem; }
-  .engineering-carousel-card-label { font-size: .78rem; }
-  .engineering-carousel-card-description { font-size: .72rem; line-height: 1.35; }
-  .engineering-carousel-card.is-previous { left: 18%; }
-  .engineering-carousel-card.is-next { left: 82%; }
-  .engineering-gallery-viewer { padding: .7rem; }
-  .engineering-gallery-viewer-body { grid-template-columns: 1.7rem minmax(0, 1fr) 1.7rem; gap: .2rem; }
-  .engineering-gallery-viewer-arrow { width: 1.7rem; height: 1.7rem; }
-}
+.eng-cycle.is-started .eng-cycle-spark { opacity: 1; }
+.eng-cycle.is-complete .eng-cycle-spark { opacity: 0; }
+/* Dark type reads on a lit arrow; on a dim one it would sink, so it stays
+   light until the sweep has passed under it. */
+.eng-cycle-label { transition: fill 0.4s ease; }
+.eng-cycle[data-active] .eng-cycle-label { fill: #b6ccd4; }
+.eng-cycle[data-active] .eng-cycle-label.is-lit { fill: #0e242e; }
 @media (prefers-reduced-motion: reduce) {
-  .engineering-carousel-card { transition: none; }
+  .eng-cycle .eng-cycle-arrow, .eng-cycle .eng-cycle-label, .eng-cycle .eng-cycle-spark { transition: none; }
 }
-.engineering-record { position: relative; z-index: 1; min-width: 0; background: #fff; padding: .75rem 0 0; }
-.engineering-record h3 { color: var(--eng-accent); font-size: 2.8rem; font-weight: 600; letter-spacing: -.055em; margin: .25rem 0 .7rem; line-height: 1.05; text-wrap: balance; transition: color .6s ease; }
-.engineering-record-title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; margin: .2rem 0 .8rem; }
-.engineering-record-title-row h3 { display: flex; align-items: center; gap: .65rem; margin: 0; }
-.engineering-record-title-row h3::before {
-  content: ""; flex: 0 0 .5rem; width: .5rem; height: .5rem; border-radius: 2px;
-  border: 1px solid color-mix(in srgb, var(--eng-live-accent) 45%, var(--eng-paper));
-  background: color-mix(in srgb, var(--eng-live-accent) 10%, var(--eng-paper));
-  transform: rotate(45deg); transition: border-color .6s ease, background-color .6s ease;
-}
-.engineering-record.is-current .engineering-record-title-row h3::before { border-color: var(--eng-live-accent); background: var(--eng-live-accent); }
-/* The two illustrations belong to the sheet's Design and Test heading rows,
-   so they scroll and turn with the page. */
-.engineering-lab-slot { display: block; flex: 0 0 auto; width: 90px; height: 48px; pointer-events: none; }
-.engineering-science-sketch {
-  display: block; width: 100%; height: 100%;
-  color: color-mix(in srgb, var(--eng-live-accent) 65%, var(--eng-paper));
-  pointer-events: none; user-select: none; transition: color .6s ease;
-}
-.engineering-record.is-current .engineering-science-sketch { color: color-mix(in srgb, var(--eng-live-accent) 80%, var(--eng-paper)); }
-.engineering-sketch-detail { stroke-width: 1.55; }
-.engineering-record h4 { font-size: 1.1rem; font-weight: 700; line-height: 1.3; margin: 0 0 .5rem; color: var(--eng-ink); text-wrap: balance; }
-.engineering-record > p[data-field="description"],
-.engineering-record-detail p,
-.engineering-takeaway p { font-size: .96rem; line-height: 1.62; margin: 0; color: #46594d; text-wrap: pretty; orphans: 2; widows: 2; }
-.engineering-record > p[data-field="description"],
-.engineering-record-detail,
-.engineering-takeaway { max-width: var(--eng-reading-width); }
-.engineering-record--wrapped-figure > p[data-field="description"],
-.engineering-record--wrapped-figure .engineering-record-detail,
-.engineering-record--wrapped-figure .engineering-takeaway { max-width: none; }
-/* Pull-to-turn cue under the page nav: a line of text and a bar that fills
-   as the reader keeps scrolling at the foot of the page. */
-.engineering-flip-cue {
-  display: flex; flex-direction: column; align-items: center; gap: .4rem; margin-top: 1.1rem;
-  font-size: .72rem; letter-spacing: .04em; color: var(--eng-accent);
-  opacity: 0; transform: translateY(6px); transition: opacity .3s ease, transform .3s ease; pointer-events: none;
-}
-.engineering-flip-cue.is-ready { opacity: .75; transform: none; }
-.engineering-flip-cue.is-pulling { opacity: 1; }
-.engineering-flip-cue-bar { width: 160px; height: 3px; border-radius: 3px; background: var(--eng-line); overflow: hidden; }
-.engineering-flip-cue-bar i { display: block; height: 100%; width: calc(var(--flip-progress, 0) * 100%); background: var(--eng-accent); }
-/* The backward cue sits in the gap that opens above the sheet as it is
-   pulled down, and only shows while pulling. */
-.engineering-flip-cue.is-top { position: relative; height: 0; margin: 0; overflow: visible; z-index: 0; }
-.engineering-flip-cue.is-top .engineering-flip-cue-text { position: absolute; top: .9rem; left: 0; right: 0; text-align: center; }
-.engineering-flip-cue.is-top .engineering-flip-cue-bar { position: absolute; top: 2.3rem; left: calc(50% - 80px); }
-.engineering-flip-cue.is-top.is-pulling { opacity: 1; transform: none; }
-/* The page-turn tilts the sheet in 3D, which makes its far edge reach past the
-   column. Clipping sideways keeps that inside the notebook column instead of
-   widening the page; overflow-x: clip leaves vertical overflow alone, so the
-   sticky header and the flip cues still work. */
-.engineering-workspace { overflow-x: clip; }
-.engineering-sheet { will-change: transform; }
-/* While a page turns it reads as a sheet of paper, so its shadow has an edge. */
-.engineering-sheet.is-turning { background: #fff; border-radius: 14px; }
-.engineering-record[data-stage="design"] { --eng-accent: var(--eng-accent-design); }
-.engineering-record[data-stage="build"] { --eng-accent: var(--eng-accent-build); }
-.engineering-record[data-stage="test"] { --eng-accent: var(--eng-accent-test); }
-.engineering-record[data-stage="learn"] { --eng-accent: var(--eng-accent-learn); }
-.engineering-record + .engineering-record { margin-top: clamp(2.25rem, 3vw, 2.75rem); }
-.engineering-record-detail { margin-top: 1.25rem; }
-.engineering-record-detail p, .engineering-takeaway p { margin-top: .4rem; }
-.engineering-takeaway { padding-left: .9rem; border-left: 3px solid var(--eng-accent); margin-top: 1.3rem; }
-.engineering-requests { margin-top: 2.5rem; padding: 1.35rem 1.5rem; border: 1px solid var(--eng-line); border-radius: 14px; background: #f6f8f6; color: #4a5a50; }
-.engineering-requests-heading .engineering-eyebrow { color: #6b7b70; }
-.engineering-requests h3 { margin: .35rem 0 .35rem; font-size: 1.3rem; font-weight: 700; color: var(--eng-ink); }
-.engineering-requests-heading p { margin: 0; font-size: .85rem; line-height: 1.5; }
-.engineering-requests ul { display: grid; gap: .85rem; margin: 1.15rem 0 0; padding: 0; list-style: none; }
-.engineering-requests li { display: grid; grid-template-columns: 1rem minmax(0, 1fr); align-items: start; column-gap: .7rem; font-size: .84rem; line-height: 1.55; }
-.engineering-requests li strong { font-weight: 700; }
-.engineering-request-box { display: block; width: .9rem; height: .9rem; margin-top: .2rem; border: 1.5px solid #8d9d91; border-radius: 3px; background: #fff; }
-.engineering-request-attachment .engineering-request-box { border-color: var(--eng-accent); }
-.engineering-page-nav {
-  display: grid; grid-template-columns: .82fr 1.14fr 1.14fr .82fr; align-items: center; gap: .55rem;
-  margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--eng-line);
-}
-.engineering-page-nav button {
-  display: flex; align-items: center; justify-content: center; gap: .35rem; width: 100%;
-  border: 1px solid color-mix(in srgb, var(--eng-accent) 42%, #fff); border-radius: 999px;
-  background: color-mix(in srgb, var(--eng-hero) 18%, #fff); color: var(--eng-accent);
-  font-size: clamp(.56rem, .72vw, .72rem); font-weight: 700; line-height: 1.15; text-align: center;
-  transition: transform .2s ease, color .2s ease, background-color .2s ease, border-color .2s ease;
-}
-.engineering-page-nav-edge { min-height: 38px; padding: .5rem .55rem; }
-.engineering-page-nav-main { min-height: 50px; padding: .65rem .75rem; font-size: clamp(.62rem, .82vw, .8rem) !important; }
-.engineering-page-nav button:hover:not(:disabled),
-.engineering-page-nav button:focus-visible { transform: translateY(-2px); background: var(--eng-accent); border-color: var(--eng-accent); color: #fff; }
-.engineering-page-nav button:disabled { filter: grayscale(.65); opacity: .38; cursor: default; }
-.engineering-page-nav button span { flex: 0 0 auto; font-size: 1.25em; }
-/* While a page turn builds, the button it will land on fills in step with
-   the cue: forward buttons from the left, back buttons from the right, the
-   way their arrows point. */
-.engineering-page-nav button { position: relative; overflow: hidden; isolation: isolate; }
-.engineering-page-nav button::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: color-mix(in srgb, var(--eng-hero) 62%, #fff);
-  transform: scaleX(var(--pull-progress, 0)); transform-origin: left center;
-}
-#engineering-previous-module::before, #engineering-last-iteration::before { transform-origin: right center; }
-.engineering-page-nav button.is-charging { border-color: var(--eng-accent); }
-.engineering button:focus-visible, .engineering-record:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 4px; }
-.engineering-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.engineering-noscript { margin-top: 2rem; font-size: .85rem; }
 
-/* Hover enlarges only the label under the pointer, never the whole rail. */
-@media (hover: hover) and (pointer: fine) {
-  .engineering-module-button:hover { background: color-mix(in srgb, var(--eng-accent) 7%, #fff); }
-  .engineering-module-button:hover .engineering-module-label { color: var(--eng-accent); }
-  .engineering-module-button:hover .engineering-module-title { color: var(--eng-accent); }
-  .engineering-iteration-button:hover .engineering-iteration-label { transform: scale(1.16); transform-origin: left center; color: var(--eng-accent); }
-  #engineering-iteration-title:hover { transform: scale(1.12); }
+/* ---- the DBTL layout: the cycle on the left, the four stages on the right ----
+   The cycle takes the place of the other .hw pages' "On this page" list,
+   out to the left of the text, so the page is widened by the cycle's column
+   and the text keeps the same 58rem measure as theirs. */
+.hw.eng { max-width: 73.5rem; }
+.eng-dbtl {
+  display: grid;
+  grid-template-columns: minmax(0, 12.5rem) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+  margin-top: 1rem;
 }
-.engineering-module-button:focus-visible .engineering-module-label,
-.engineering-iteration-button:focus-visible .engineering-iteration-label { transform: scale(1.12); color: var(--eng-accent); }
-@media (min-width: 1400px) {
-  .engineering { --eng-cycle-size: 240px; gap: 64px; }
+.eng-dbtl-rail {
+  position: sticky;
+  top: calc(50vh - 6.25rem);
 }
+.eng-dbtl-stage {
+  --stage: #a0e860;
+  scroll-margin-top: 110px;
+  margin-bottom: 4.5rem;
+}
+/* Room enough under the last stage for every stage, the last one included,
+   to scroll up to where the cycle picks it up -- otherwise the page bottoms
+   out with Test still at the top of the screen. */
+.eng-dbtl-stage:last-child { min-height: calc(100vh - 140px); margin-bottom: 0; }
+.eng-dbtl-stage[data-stage="build"] { --stage: #4fd48f; }
+.eng-dbtl-stage[data-stage="test"]  { --stage: #49c5b6; }
+.eng-dbtl-stage[data-stage="learn"] { --stage: #5bb6e6; }
+.eng-dbtl-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  align-items: baseline;
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #24596b;   /* --nx-line */
+}
+.eng-dbtl-num {
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--stage);
+  opacity: 0.8;
+}
+body.hw-nexus .hw .eng-dbtl-head h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--stage);
+}
+.eng-dbtl-note {
+  grid-column: 2;
+  margin: 0.2rem 0 0;
+  font-size: 0.98rem;
+}
+body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
+/* Where the stage's content will go: an empty frame in the stage's colour,
+   so the layout can be judged before the text arrives. */
+.eng-dbtl-empty {
+  min-height: 46vh;
+  border: 1.5px dashed color-mix(in srgb, var(--stage) 38%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--stage) 5%, transparent);
+}
+
+/* Narrow screens: no room for a column beside the text, so a small cycle
+   floats in the bottom-left corner instead (the back-to-top button has the
+   right), turning the same way. engineering-cycle.js shows it only while the
+   stages are on screen; without the script it simply stays. */
 @media (max-width: 991.98px) {
-  .engineering { --eng-rail-width: 204px; --eng-cycle-size: 204px; gap: 30px; }
-}
-@media (max-width: 767.98px) {
-  .engineering-hero { padding: var(--eng-nav-space) 0 calc(1.2rem + 16px); }
-  .engineering-hero h1 { font-size: calc(clamp(1.55rem, 6vw, 2.4rem) - 4px); }
-  .engineering-hero p { font-size: calc(.75rem + 6px); }
-  .engineering { --eng-rail-width: 200px; --eng-cycle-size: 200px; gap: 18px; padding-top: 1rem; }
-  .engineering-workspace { padding-top: 0; }
-  .engineering-context { margin-bottom: .6rem; }
-  .engineering-record h3 { font-size: 2.4rem; }
-  .engineering-record-title-row { min-height: 2.7rem; gap: .75rem; }
-  .engineering-lab-slot { width: 64px; height: 38px; }
-}
-/* Cycle button and scrim: only used when the screen is too narrow for the
-   rail and the notebook side by side (below). The button is a small copy of
-   the DBTL ring, drawn and turned by the same rules as the big one. */
-.engineering-toc-button {
-  --eng-toc-size: 104px; --eng-toc-source: 240px;
-  display: none; position: fixed; left: 12px; bottom: 12px; z-index: 1107;
-  place-items: center; width: var(--eng-toc-size); height: var(--eng-toc-size); padding: 0; border: 0; border-radius: 50%;
-  background: #fff; box-shadow: 0 8px 22px rgba(0, 0, 0, .22); cursor: pointer;
-}
-/* The miniature is the cycle at its full-screen size, scaled as one piece, so
-   every proportion inside it matches the wide-screen ring exactly. */
-.engineering-toc-stage {
-  display: block; width: var(--eng-toc-size); height: var(--eng-toc-size); overflow: hidden;
-}
-.engineering-toc-cycle {
-  --eng-cycle-size: var(--eng-toc-source);
-  transform: scale(calc(var(--eng-toc-size) / var(--eng-toc-source)));
-  transform-origin: top left; pointer-events: none;
-}
-/* A close mark takes over the middle of the miniature while the card is open. */
-.engineering-toc-mark {
-  position: absolute; inset: 0; display: none; place-items: center; border-radius: 50%;
-  background: #fffffff2; color: var(--eng-accent);
-}
-.engineering-toc-mark svg { display: block; width: 26px; height: 26px; }
-body.engineering-toc-open .engineering-toc-mark { display: grid; }
-.engineering-toc-button:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-toc-scrim {
-  position: fixed; inset: 0; z-index: 1105;
-  background: linear-gradient(180deg, rgba(44, 48, 46, .42) 0%, rgba(12, 14, 13, .64) 100%);
-  opacity: 0; visibility: hidden; transition: opacity .22s ease, visibility 0s linear .22s;
-}
-body.engineering-toc-open .engineering-toc-scrim { opacity: 1; visibility: visible; transition: opacity .22s ease; }
-@media (max-width: 575.98px) {
-  .engineering { grid-template-columns: minmax(0, 1fr); --eng-cycle-size: 200px; }
-  /* Too narrow for both columns: the rail leaves the page and opens as a
-     card from the bottom-left Cycle button, over the scrim. */
-  .engineering-sidebar {
-    position: fixed; left: 12px; bottom: 126px; z-index: 1106;
-    width: min(300px, calc(100vw - 24px)); max-height: calc(100vh - 208px); overflow-y: auto; overscroll-behavior: contain;
-    padding: 16px 14px; background: #fff; border-radius: 18px; box-shadow: 0 18px 50px rgba(0, 0, 0, .28);
-    opacity: 0; visibility: hidden; transform: translateY(12px) scale(.98); transform-origin: bottom left;
-    transition: opacity .22s ease, transform .22s ease, visibility 0s linear .22s;
+  .eng-dbtl { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .eng-dbtl-rail {
+    position: fixed;
+    top: auto;
+    left: 12px;
+    bottom: 12px;
+    z-index: 1010;
+    width: 104px;
+    padding: 5px;
+    border-radius: 50%;
+    background: rgba(14, 36, 46, 0.86);   /* --nx-ground */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
   }
-  body.engineering-toc-open .engineering-sidebar { opacity: 1; visibility: visible; transform: none; transition: opacity .22s ease, transform .22s ease; }
-  .engineering-sidebar .engineering-rail { width: 100%; }
-  .engineering-toc-button { display: grid; }
+  .eng-dbtl-rail.is-tracked:not(.is-in-view) {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+    pointer-events: none;
+  }
+  .eng-dbtl-stage:last-child { min-height: calc(100vh - 140px); }
+  .eng-dbtl-empty { min-height: 38vh; }
 }
-/* Engineering: the footer is the site's own, at its usual size, on every
-   page. It used to be cut to half height and hidden on all but a module's
-   last iteration, so that reading on at the foot of the page would turn
-   straight to the next one. That made the licence notice and the repository
-   link -- required on every page -- come and go, and the page strip in the
-   hero (below) now turns pages from anywhere, so neither is needed. */
-
-/* ---- the page strip, in the sticky hero ----
-   One numbered button per iteration, grouped under its module, with a step
-   either side. The hero is sticky, so this row is always on screen. */
-.engineering-pages {
-  display: flex; align-items: center; gap: .4rem;
-  margin-top: .6rem;
-}
-.engineering-pages[hidden] { display: none; }
-.engineering-pages-list {
-  display: flex; flex-wrap: wrap; align-items: center; gap: .3rem 1rem;
-  margin: 0; padding: 0; list-style: none;
-}
-.engineering-pages-group { display: flex; align-items: center; gap: .3rem; }
-.engineering-pages-label {
-  margin-right: .15rem;
-  font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--eng-ink) 62%, transparent);
-}
-.engineering-pages-chip,
-.engineering-pages-step {
-  display: inline-grid; place-items: center;
-  min-width: 30px; height: 30px; padding: 0 .3rem;
-  border: 1px solid color-mix(in srgb, var(--eng-ink) 22%, transparent);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--eng-paper) 82%, transparent);
-  color: var(--eng-ink);
-  font-size: .85rem; font-weight: 600; line-height: 1;
-  cursor: pointer;
-  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .15s ease;
-}
-.engineering-pages-step { font-size: 1.15rem; }
-.engineering-pages-chip:hover,
-.engineering-pages-step:hover:not(:disabled) { border-color: var(--eng-accent); color: var(--eng-accent); transform: translateY(-1px); }
-.engineering-pages-chip:focus-visible,
-.engineering-pages-step:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 2px; }
-/* The page being read. */
-.engineering-pages-chip.is-current {
-  background: var(--eng-accent); border-color: var(--eng-accent); color: #fff; cursor: default; transform: none;
-}
-.engineering-pages-step:disabled { opacity: .35; cursor: default; }
-
-/* ---- phone ----
-   The hero text keeps clear of the stage mark in the top-right corner (the
-   subtitle ran underneath it), and the module labels shorten to M1 / M2 so
-   all six pages and both steps fit one line at 390px. The chips carry the
-   full name for a screen reader, so the shorter label loses nothing. */
-@media (max-width: 575.98px) {
-  .engineering-hero h1,
-  .engineering-hero #engineering-hero-position { padding-right: 60px; }
-  .engineering-pages { gap: .3rem; }
-  .engineering-pages-list { gap: .25rem .6rem; }
-  .engineering-pages-label { font-size: 0; margin-right: .1rem; }
-  .engineering-pages-label::before { content: attr(data-short); font-size: .68rem; }
-  .engineering-pages-chip,
-  .engineering-pages-step { min-width: 28px; height: 28px; }
-}
-
-/* The Cycle button on a phone is pinned bottom-left, where the footer's
-   licence line arrives. While the footer is on screen it steps aside; it
-   stays put if its card is open, so an open card never loses its button. */
-.engineering-toc-button { transition: opacity .2s ease, transform .2s ease; }
-body.engineering-footer-in-view:not(.engineering-toc-open) .engineering-toc-button {
-  opacity: 0; transform: translateY(24px) scale(.9); pointer-events: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  body.engineering-page, .engineering-page *, .engineering-page *::before, .engineering-page *::after { transition: none !important; }
-}
-
-/* Attributions: the team photo in the banner sits a little lower than the
-   default centre, so the faces clear the menu bar. */
-body.attr-page .page-hero-bg { background-position: center 35%; }
 
 /* Attributions: the thank-you that opens the page. A step above body size,
    because it is addressed to people rather than describing the project. No
@@ -10134,6 +9683,126 @@ body.quiz-active { overflow: hidden; }
   .hp-figure-grid > .hp-figure { max-width: none; }
 }
 
+/* ---- the survey charts ----
+   Each figure carries its numbers as a table; static/hp-survey-pies.js draws
+   them as a donut with a legend beside it and adds .is-drawn. The table then
+   stays for screen readers only, and the drawing is hidden from them, so the
+   numbers are read once. Without the script the table is what shows. */
+.hp-pie-source {
+  font-size: 0.85rem;
+  color: #6b6055;
+}
+
+.hp-pie-chart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem 1.4rem;
+  padding: 0.4rem 0.2rem 0.2rem;
+}
+
+.hp-pie-svg {
+  flex: none;
+  width: clamp(150px, 40%, 200px);
+  height: auto;
+  overflow: visible;
+}
+
+.hp-pie-slice path { transition: opacity 0.15s ease; }
+.hp-pie.is-focusing .hp-pie-slice:not(.is-on) path { opacity: 0.35; }
+.hp-pie.is-focusing .hp-pie-slice:not(.is-on) .hp-pie-pct { opacity: 0.35; }
+
+.hp-pie-pct {
+  font-family: "Changa", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.hp-pie-total {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  text-anchor: middle;
+  fill: #2b2b2b;
+}
+.hp-pie-total-sub {
+  font-family: "Changa", sans-serif;
+  font-size: 12px;
+  text-anchor: middle;
+  fill: #6b6055;
+}
+
+.hp-pie-legend {
+  flex: 1 1 170px;
+  max-width: 260px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.25;
+}
+.hp-pie-legend li {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.22rem 0.4rem;
+  border-radius: 6px;
+  color: #2b2b2b;
+  transition: background-color 0.15s ease;
+}
+.hp-pie-legend li.is-on { background: rgba(0, 0, 0, 0.06); }
+.hp-pie-swatch { width: 12px; height: 12px; border-radius: 3px; }
+.hp-pie-val { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+
+/* the data, as a table: what shows without the script, and what a screen
+   reader reads with it */
+.hp-pie-table table {
+  width: 100%;
+  font-size: 0.88rem;
+  border-collapse: collapse;
+}
+.hp-pie-table caption { caption-side: top; font-weight: 600; padding-bottom: 0.3rem; }
+.hp-pie-table th,
+.hp-pie-table td { padding: 0.2rem 0.4rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+.hp-pie-table td { text-align: right; font-variant-numeric: tabular-nums; }
+.hp-pie.is-drawn .hp-pie-table {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.hp-pie { position: relative; }
+
+.hp-pie-tip {
+  position: fixed;
+  z-index: 1090;
+  max-width: 260px;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2b2b2b;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  pointer-events: none;
+}
+.hp-pie-tip strong { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-pie-slice path,
+  .hp-pie-legend li { transition: none; }
+}
+
 /* ===== The deep-teal treatment ==============================================
    A page-scoped theme, switched on by body.hw-nexus from hardware.html and
    body.edu-nexus from education.html, and nothing else. Purely additive:
@@ -12444,6 +12113,20 @@ body.edu-nexus .hp-figure {
   border-color: var(--nx-line);
 }
 body.edu-nexus .hp-figure figcaption { color: var(--nx-muted); }
+body.edu-nexus .hp-pie-source { color: var(--nx-muted); }
+body.edu-nexus .hp-pie-total { fill: var(--nx-text); }
+body.edu-nexus .hp-pie-total-sub { fill: var(--nx-muted); }
+body.edu-nexus .hp-pie-legend li { color: var(--nx-text); }
+body.edu-nexus .hp-pie-legend li.is-on { background: var(--nx-raised); }
+body.edu-nexus .hp-pie-table th,
+body.edu-nexus .hp-pie-table td { color: var(--nx-text); border-bottom-color: var(--nx-line); }
+body.edu-nexus .hp-pie-table caption { color: var(--nx-muted); }
+body.edu-nexus .hp-pie-tip {
+  background: var(--nx-raised);
+  color: var(--nx-text);
+  border: 1px solid var(--nx-line);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
 
 /* ---- the Collaboration wall ---- */
 
@@ -12732,6 +12415,136 @@ body.hw-nexus .hw .hw-shot figcaption b {
   body.hw-nexus .hw .hw-shots { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* Placing the cuvette, in photographs: one deck to a version. As written,
+   each deck is a row of small pictures. static/hardware-steps.js adds
+   .is-live, and then the pictures of a deck share one cell and one shows at
+   a time; the cell is as tall as the tallest caption, so nothing jumps. */
+body.hw-nexus .hw .hw-place {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.3rem 0 1.4rem;
+}
+body.hw-nexus .hw .hw-place-deck {
+  margin: 0;
+  padding: 0.95rem 0.95rem 1rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 12px;
+  background: var(--nx-panel);
+}
+body.hw-nexus .hw .hw-place-who {
+  margin-bottom: 0.7rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-place-deck[data-deck="v2"] .hw-place-who { color: var(--nx-lime); }
+body.hw-nexus .hw .hw-place-who span { margin-left: 0.5rem; font-weight: 500; color: var(--nx-muted); }
+body.hw-nexus .hw .hw-place-slides {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+body.hw-nexus .hw .hw-place-slides img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--nx-ground);
+}
+body.hw-nexus .hw .hw-place-slides p {
+  margin: 0.6rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-place-slides b {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+body.hw-nexus .hw .hw-place-deck[data-deck="v2"] .hw-place-slides b { color: var(--nx-lime); }
+
+body.hw-nexus .hw .hw-place.is-live .hw-place-slides { grid-template-columns: minmax(0, 1fr); }
+body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li.is-on {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease, visibility 0s;
+}
+
+body.hw-nexus .hw .hw-place-ctrl {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem 0.5rem;
+}
+/* One mark to a step: the one showing is bright, the ones passed stay lit. */
+body.hw-nexus .hw .hw-place-marks {
+  flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+}
+body.hw-nexus .hw .hw-place-marks i {
+  width: 1.7rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--nx-line);
+  transition: background-color 0.25s ease;
+}
+body.hw-nexus .hw .hw-place-marks i.is-done { background: var(--nx-mint); }
+body.hw-nexus .hw .hw-place-marks i.is-on { background: var(--nx-lime); }
+body.hw-nexus .hw .hw-place-btn {
+  min-width: 2.3rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 999px;
+  background: var(--nx-panel);
+  font-family: "Changa", sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--nx-lime);
+  cursor: pointer;
+}
+body.hw-nexus .hw .hw-place-btn:hover { border-color: var(--nx-mint); }
+body.hw-nexus .hw .hw-place-btn:focus-visible { outline: 2px solid var(--nx-lime); outline-offset: 2px; }
+body.hw-nexus .hw .hw-place-prev,
+body.hw-nexus .hw .hw-place-next { font-size: 1.1rem; line-height: 1.1; }
+body.hw-nexus .hw .hw-place-toggle { margin-left: 0.6rem; min-width: 4.4rem; }
+body.hw-nexus .hw .hw-place-at {
+  min-width: 6.6rem;
+  text-align: center;
+  font-family: "Changa", sans-serif;
+  font-size: 0.86rem;
+  color: var(--nx-muted);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  body.hw-nexus .hw .hw-place { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li,
+  body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li.is-on { transition: none; }
+}
+
 /* Building one: three steps, each a way into its own tables. */
 body.hw-nexus .hw .hw-do > li { counter-increment: hw-do; }
 body.hw-nexus .hw .hw-do > li::before { content: "Step " counter(hw-do); }
@@ -12950,19 +12763,27 @@ body.hw-nexus.attr-page .attr-todo { color: var(--nx-muted); }
    gets a deeper shadow to stand clear of a light photo. Hardware's bench
    photo is treated the same way (its brightness is set with its other
    banner rules, near the top of this file). */
-body.hw-nexus.attr-page .page-hero-bg { filter: blur(2px) saturate(1) brightness(0.8); }
+/* (Attributions has since moved to the Team treatment below.) */
 
-/* ---- the Team banner, taller and sharp ----
-   This one banner is the group photo, and the point of it is that the faces
+/* ---- the Team and Attributions banners, taller and sharp ----
+   These two banners are group photos from the same shoot, and the point of
+   them is that the faces
    can be made out, so it gets three things the other banners do not. It is
    tall enough for the photo to be read as a photo rather than as a band
    across the middle of one; the 2px blur every other banner carries is off,
    since it is the one thing that would stop a face resolving; and the title
    is anchored to the bottom, where the tint is already near-opaque, so it
-   has something dark to sit on without being laid over anybody's face. */
-body.team-page .page-hero-bg { filter: saturate(1) brightness(0.8); }
+   has something dark to sit on without being laid over anybody's face.
+   At 70% brightness. */
+/* body.hw-nexus.team-page rather than body.team-page: the site-wide dark
+   mode (css/editorial.css, html[data-theme="dark"] .page-hero-bg) sets every
+   banner to 0.42 at the same specificity and loads later, so the shorter
+   selector lost to it. */
+body.hw-nexus.team-page .page-hero-bg,
+body.hw-nexus.attr-page .page-hero-bg { filter: saturate(1) brightness(0.7); }
 
-body.team-page .page-hero {
+body.team-page .page-hero,
+body.hw-nexus.attr-page .page-hero {
   min-height: clamp(520px, 82vh, 900px);
   display: flex;
   align-items: center;
@@ -12977,7 +12798,8 @@ body.team-page .page-hero {
 }
 
 /* .container is a flex item here, and would otherwise shrink to its text. */
-body.team-page .page-hero > .container { width: 100%; }
+body.team-page .page-hero > .container,
+body.hw-nexus.attr-page .page-hero > .container { width: 100%; }
 
 /* This page sets no subtitle, so layout.html's <p class="lead mb-5 hero-sub">
    renders empty -- but an empty <p> still holds a line box and its 3rem
@@ -12986,9 +12808,11 @@ body.team-page .page-hero > .container { width: 100%; }
    the title the only thing in the banner, all three go, so what is centred is
    the title itself. Scoped here because every other banner relies on that
    spacing for its height. */
-body.team-page .page-hero .hero-sub:empty { display: none; }
-body.team-page .page-hero .hero-title { margin: 0 !important; }
-body.team-page .page-hero-tint,
+body.team-page .page-hero .hero-sub:empty,
+body.hw-nexus.attr-page .page-hero .hero-sub:empty { display: none; }
+body.team-page .page-hero .hero-title,
+body.hw-nexus.attr-page .page-hero .hero-title { margin: 0 !important; }
+body.hw-nexus.team-page .page-hero-tint,
 body.hw-nexus.attr-page .page-hero-tint,
 body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
   background: linear-gradient(to bottom,
