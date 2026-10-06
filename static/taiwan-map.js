@@ -385,7 +385,9 @@
         line.setAttribute('class', 'edu-map-leader-line');
         leaderSvg.appendChild(line);
 
-        orbitItems.push({ pin: pin, el: item, line: line, baseAngle: (2 * Math.PI * i) / pinEls.length });
+        line.style.opacity = '0';
+        orbitItems.push({ pin: pin, el: item, line: line, active: false,
+                          baseAngle: (2 * Math.PI * i) / pinEls.length });
       });
     }
 
@@ -401,6 +403,10 @@
     var ACTIVE_THRESHOLD = (10 * Math.PI) / 180;
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // 效能：每一幀都在跑，所以 (1) 所有量測（getBoundingClientRect）都放在
+    // 寫入之前，避免「寫了又讀」逼瀏覽器每幀重排版；(2) 卡片位置改用
+    // transform 移動（只需合成，不觸發 layout），不再改 left/top；
+    // (3) class 與連線透明度只在狀態真的改變時才寫。
     function layoutOrbit(rotation) {
       if (!orbitItems.length) return;
       var rowRect = row.getBoundingClientRect();
@@ -409,26 +415,34 @@
       var rx = Math.max(0, cx - 140);
       var ry = Math.max(0, cy - 24);
 
-      orbitItems.forEach(function (it) {
+      // 先讀：算出每張卡的位置與狀態，啟用中的卡才量它的圖釘位置
+      var frame = orbitItems.map(function (it) {
         var angle = it.baseAngle + rotation;
-        var x = cx + rx * Math.cos(angle);
-        var y = cy + ry * Math.sin(angle);
-        it.el.style.left = x + 'px';
-        it.el.style.top = y + 'px';
-
         var active = Math.abs(angleDiff(angle, 0)) < ACTIVE_THRESHOLD ||
                      Math.abs(angleDiff(angle, Math.PI)) < ACTIVE_THRESHOLD;
-        it.el.classList.toggle('is-active', active);
+        return {
+          x: cx + rx * Math.cos(angle),
+          y: cy + ry * Math.sin(angle),
+          active: active,
+          pinRect: active ? it.pin.getBoundingClientRect() : null
+        };
+      });
 
-        if (active) {
-          var pinRect = it.pin.getBoundingClientRect();
-          it.line.setAttribute('x1', x);
-          it.line.setAttribute('y1', y);
-          it.line.setAttribute('x2', pinRect.left + pinRect.width / 2 - rowRect.left);
-          it.line.setAttribute('y2', pinRect.top + pinRect.height / 2 - rowRect.top);
-          it.line.style.opacity = '';
-        } else {
-          it.line.style.opacity = '0';
+      // 再寫
+      orbitItems.forEach(function (it, i) {
+        var f = frame[i];
+        it.el.style.transform = 'translate3d(' + f.x.toFixed(1) + 'px,' + f.y.toFixed(1) + 'px,0) translate(-50%,-50%)';
+
+        if (f.active !== it.active) {
+          it.active = f.active;
+          it.el.classList.toggle('is-active', f.active);
+          it.line.style.opacity = f.active ? '' : '0';
+        }
+        if (f.active) {
+          it.line.setAttribute('x1', f.x);
+          it.line.setAttribute('y1', f.y);
+          it.line.setAttribute('x2', f.pinRect.left + f.pinRect.width / 2 - rowRect.left);
+          it.line.setAttribute('y2', f.pinRect.top + f.pinRect.height / 2 - rowRect.top);
         }
       });
     }
@@ -437,13 +451,39 @@
       if (reduceMotion) {
         layoutOrbit(0);
       } else {
-        var orbitStart = null;
-        function orbitTick(ts) {
-          if (orbitStart === null) orbitStart = ts;
-          layoutOrbit(((ts - orbitStart) / ROTATION_PERIOD_MS) * 2 * Math.PI);
-          requestAnimationFrame(orbitTick);
+        // 只在「寬螢幕（環繞卡片有顯示）＋地圖在畫面內」時才跑動畫，其餘時間
+        // 整個停掉（分頁切到背景時瀏覽器本來就會停 requestAnimationFrame）；
+        // 旋轉角度以暫停前累積的進度接續，不會跳格。
+        var wideMq = window.matchMedia('(min-width: 861px)');
+        var rowVisible = true;
+        var rafId = null, lastTs = null, elapsed = 0;
+
+        var orbitTick = function (ts) {
+          if (lastTs !== null) elapsed += Math.min(ts - lastTs, 100);
+          lastTs = ts;
+          layoutOrbit((elapsed / ROTATION_PERIOD_MS) * 2 * Math.PI);
+          rafId = requestAnimationFrame(orbitTick);
+        };
+        var syncOrbit = function () {
+          var shouldRun = wideMq.matches && rowVisible;
+          if (shouldRun && rafId === null) {
+            lastTs = null;
+            rafId = requestAnimationFrame(orbitTick);
+          } else if (!shouldRun && rafId !== null) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+          }
+        };
+
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver(function (entries) {
+            rowVisible = entries[0].isIntersecting;
+            syncOrbit();
+          }, { rootMargin: '100px 0px' }).observe(row);
         }
-        requestAnimationFrame(orbitTick);
+        if (wideMq.addEventListener) wideMq.addEventListener('change', syncOrbit);
+        else if (wideMq.addListener) wideMq.addListener(syncOrbit);
+        syncOrbit();
       }
     }
 

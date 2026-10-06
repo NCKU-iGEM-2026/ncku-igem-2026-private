@@ -10655,10 +10655,14 @@ body.edu-nexus .edu-map-leader-line { stroke: var(--nx-mint); }
 /* The orbiting chips are liquid glass in the light theme: translucent white
    over blur, with dark ink on top. Over petrol that white settles to a mid
    grey and the ink goes with it, so the chip becomes a panel and the ink
-   becomes the body token. The blur stays -- it is what keeps the map legible
-   underneath a chip passing over it. */
+   becomes the body token.
+   效能：深色底的卡片幾乎不透明（0.9／啟用中完全不透明），backdrop-filter
+   模糊幾乎看不出來，卻要對 15 張每幀移動的卡片、壓在每幀重畫的背景
+   canvas 上重算，是這頁卡頓的主因之一，所以在這裡關掉。 */
 body.edu-nexus .edu-map-orbit-item {
-  background: rgba(7, 60, 41, 0.82);
+  background: rgba(7, 60, 41, 0.9);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   border-color: var(--nx-line);
   color: var(--nx-text);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);

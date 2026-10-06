@@ -73,32 +73,63 @@
     };
   }
 
-  /* 網格鍵結：右、下、右下三向鄰居 → 不規則多邊形拼貼 */
+  /* 網格鍵結：右、下、右下三向鄰居 → 不規則多邊形拼貼
+     效能：節點位置每幀只算一次；線依透明度分成 ALPHA_STEPS 桶、網點分兩色，
+     每桶合成一條 path 一次 stroke/fill（原本每條線各 stroke 一次，約兩百次
+     draw call）。分桶後透明度差 < 0.004，肉眼看不出差別。 */
+  var ALPHA_STEPS = 12;
+  var lineBuckets = [];
+  for (var bk = 0; bk < ALPHA_STEPS; bk++) lineBuckets.push([]);
+  var BUCKET_STYLE = lineBuckets.map(function (_, j) {
+    /* 淡：0.045～0.105，線越短越清楚（網格像活的一樣呼吸） */
+    return 'rgba(20,179,145,' + (0.105 - 0.06 * (j + 0.5) / ALPHA_STEPS).toFixed(3) + ')';
+  });
+  var xs = [], ys = [];
+
   function mesh(t) {
     var cols = Math.ceil(W / 150) + 1;
-    var i, p, q, a, b;
-    for (i = 0; i < pts.length; i++) {
+    var n = pts.length, i, j, k, p, q, d;
+    for (i = 0; i < n; i++) { p = pos(pts[i], t); xs[i] = p.x; ys[i] = p.y; }
+    for (j = 0; j < ALPHA_STEPS; j++) lineBuckets[j].length = 0;
+
+    for (i = 0; i < n; i++) {
       p = pts[i];
-      var neigh = [];
-      if (p.c + 1 < cols) neigh.push(pts[i + 1]);               /* 右 */
-      if (i + cols < pts.length) {
-        neigh.push(pts[i + cols]);                               /* 下 */
-        if (p.c + 1 < cols) neigh.push(pts[i + cols + 1]);   /* 右下（產生三角形） */
+      var right = p.c + 1 < cols, down = i + cols < n;
+      var nb = [right ? i + 1 : -1,                      /* 右 */
+                down ? i + cols : -1,                    /* 下 */
+                right && down ? i + cols + 1 : -1];      /* 右下（產生三角形） */
+      for (k = 0; k < 3; k++) {
+        q = nb[k];
+        if (q < 0) continue;
+        d = Math.hypot(xs[i] - xs[q], ys[i] - ys[q]);
+        j = Math.min(ALPHA_STEPS - 1, (Math.min(1, d / 220) * ALPHA_STEPS) | 0);
+        lineBuckets[j].push(i, q);
       }
-      a = pos(p, t);
-      for (var k = 0; k < neigh.length; k++) {
-        b = pos(neigh[k], t);
-        var d = Math.hypot(a.x - b.x, a.y - b.y);
-        /* 淡：0.045～0.105，線越短越清楚（網格像活的一樣呼吸） */
-        ctx.strokeStyle = 'rgba(20,179,145,' + (0.105 - 0.06 * Math.min(1, d / 220)).toFixed(3) + ')';
-        ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    ctx.lineWidth = 1;
+    for (j = 0; j < ALPHA_STEPS; j++) {
+      var bucket = lineBuckets[j];
+      if (!bucket.length) continue;
+      ctx.strokeStyle = BUCKET_STYLE[j];
+      ctx.beginPath();
+      for (k = 0; k < bucket.length; k += 2) {
+        ctx.moveTo(xs[bucket[k]], ys[bucket[k]]);
+        ctx.lineTo(xs[bucket[k + 1]], ys[bucket[k + 1]]);
       }
-      /* 網點：更大膽幾顆螢光（定錨視覺） */
-      ctx.fillStyle = (i % 7 === 0)
-        ? 'rgba(160,232,96,0.30)'
-        : 'rgba(20,179,145,0.16)';
-      ctx.beginPath(); ctx.arc(a.x, a.y, (i % 7 === 0) ? 2.1 : 1.3, 0, 7); ctx.fill();
+      ctx.stroke();
+    }
+
+    /* 網點：更大膽幾顆螢光（定錨視覺） */
+    for (var bright = 0; bright < 2; bright++) {
+      ctx.fillStyle = bright ? 'rgba(160,232,96,0.30)' : 'rgba(20,179,145,0.16)';
+      var r = bright ? 2.1 : 1.3;
+      ctx.beginPath();
+      for (i = 0; i < n; i++) {
+        if ((i % 7 === 0) !== !!bright) continue;
+        ctx.moveTo(xs[i] + r, ys[i]);
+        ctx.arc(xs[i], ys[i], r, 0, 7);
+      }
+      ctx.fill();
     }
   }
 
@@ -177,9 +208,14 @@
     mesh(t); dna(t);
   }
 
+  /* 節點每秒只漂幾個像素，30fps 跟 60fps 看不出差別，但重畫成本減半，
+     把主執行緒留給捲動與頁面上其他動畫 */
+  var FRAME_MS = 1000 / 30, lastPaint = 0;
   function frame(t) {
     if (!running) { rafId = null; return; }
     rafId = requestAnimationFrame(frame);
+    if (t - lastPaint < FRAME_MS - 2) return;
+    lastPaint = t;
     paint(t);
   }
 
