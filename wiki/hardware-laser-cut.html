@@ -57,7 +57,8 @@
       0916/0917/0920/0922 的 CSV（圖上的數字都從這些檔案來，見 static/hardware-laser-figs.js）。
     使用者確認過的事：9/16–9/22 全部數據是這台、在自己的外殼內蓋上外殼量的；LED 為 Cree C503B 470 nm；
       UVette 2 mm 光徑對 LED、10 mm 對感測器；R chamber 是 light trap；無發射濾片；感測器模組 DFRobot SEN0364。
-    刻意不寫的：LED 電流（未在這台量過）；菌株／質體名稱（未提供）；「sfGFP」（未確認，先寫 GFP）。
+    刻意不寫的：LED 電流（未在這台量過）；菌株／質體名稱（未提供）。
+    2026-10-06 使用者確認：報告物是 sfGFP（全文已統一）；9/17 的批次間隔照 CSV 寫成約 3 分鐘（報告原寫 60 秒）。
     比原報告保守的兩處（使用者可改回）：
       - 空倉 F3 那段寫成「consistent with」，不是「only side-on detection gives」——空倉沒有放比色管。
       - 碰到 LED 線那次寫成「most likely the LED moved」——只有這一次事件，數據分不出是位置還是接觸。
@@ -68,9 +69,9 @@
   <div class="hw-lead hw-lead-tight">
     <p>
       Over four sessions between 2026-09-16 and 09-22, this build took 600
-      readings of <em>E.&nbsp;coli</em> cultures with and without GFP. Its
-      green-to-blue ratio rose in a straight line with the fraction of GFP
-      cells (r&sup2;&nbsp;&asymp;&nbsp;0.97), resolved down to about 3% GFP
+      readings of <em>E.&nbsp;coli</em> cultures with and without sfGFP. Its
+      green-to-blue ratio rose in a straight line with the fraction of sfGFP
+      cells (r&sup2;&nbsp;&asymp;&nbsp;0.97), resolved down to about 3% sfGFP
       cells, and drifted by about 1% in an hour. Across its ten channels the
       added signal has the spectral shape of fluorescence, not of scattering.
       It has not been compared against a plate reader, so nothing here is a
@@ -78,8 +79,8 @@
     </p>
   </div>
   <dl class="hw-keys">
-    <div><dt>r&sup2; &asymp; 0.97</dt><dd>signal against the fraction of GFP cells, 7 tubes, 2026-09-22</dd></div>
-    <div><dt>&asymp; 3%</dt><dd>GFP cells, the 3&sigma; detection limit on the same day</dd></div>
+    <div><dt>r&sup2; &asymp; 0.97</dt><dd>signal against the fraction of sfGFP cells, 7 tubes, 2026-09-22</dd></div>
+    <div><dt>&asymp; 3%</dt><dd>sfGFP cells, the 3&sigma; detection limit on the same day</dd></div>
     <div><dt>&asymp; 1% / hour</dt><dd>drift of one undisturbed sample, 2026-09-17</dd></div>
   </dl>
 
@@ -105,7 +106,19 @@
       wiring below, with a light-tight deck between them. An OLED shows each
       result and one button starts a measurement.
     </p>
-    {# PHOTO: 雷切那一台的外觀照（外殼、OLED 看得到），以及打開上蓋後的光學層，上傳後插在這裡 #}
+    {# PHOTO: 下面兩格是照片的空位。照片用 iGEM uploads tool 上傳（轉成 .webp 或 .avif），網址是
+       https://static.igem.wiki/teams/6379/wiki/hardware/<檔名>。拿到網址後，把整個 <div class="lc-photo-slot">
+       換成 <img src="網址" alt="照片內容的描述" loading="lazy">，圖說留著。 #}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;margin:1.25rem 0;">
+      <figure class="hw-figure" style="margin:0">
+        <div class="lc-photo-slot" style="aspect-ratio:4/3;border:2px dashed #cfdcd5;border-radius:8px;background:#f6f9f7;"></div>
+        <figcaption>The laser-cut build, closed, with the OLED and button.</figcaption>
+      </figure>
+      <figure class="hw-figure" style="margin:0">
+        <div class="lc-photo-slot" style="aspect-ratio:4/3;border:2px dashed #cfdcd5;border-radius:8px;background:#f6f9f7;"></div>
+        <figcaption>The optical layer with the lid off: LED, UVette, light trap and sensor.</figcaption>
+      </figure>
+    </div>
 
     <dl class="hw-spec">
       <div><dt>Excitation</dt><dd>Cree C503B blue LED, 470&nbsp;nm, driven from GPIO25 through 220&nbsp;&Omega;</dd></div>
@@ -161,12 +174,12 @@
       555&nbsp;nm divided by the blue channel at 480&nbsp;nm. Dividing by the
       blue channel cancels changes in how much light reaches the sensor, for
       example from where the cuvette sits. Net signal is the F5/F3 of a tube
-      minus that of a tube with no GFP cells, measured the same day.
+      minus that of a tube with no sfGFP cells, measured the same day.
     </p>
 
     <h3>Why F5, and not F4</h3>
     <p>
-      GFP emits most strongly near 510&nbsp;nm, and the closest channel is F4
+      sfGFP emits most strongly near 510&nbsp;nm, and the closest channel is F4
       at 515&nbsp;nm. F5 was the channel this build was set up to read from
       the start: the firmware's live signal, below, is built on it. To check
       that choice we recomputed every result with F4/F3 alongside, using the
@@ -177,14 +190,14 @@
       <table class="hw-table">
         <caption>
           Both ratios from the same readings. 2026-09-22 uses the seven tubes
-          with GFP cells; 2026-09-20 the twelve-tube grid. Background is the
-          ratio for tubes with no GFP cells.
+          with sfGFP cells; 2026-09-20 the twelve-tube grid. Background is the
+          ratio for tubes with no sfGFP cells.
         </caption>
         <thead>
           <tr><th scope="col">Measure</th><th scope="col">F5/F3</th><th scope="col">F4/F3</th></tr>
         </thead>
         <tbody>
-          <tr><td>Detection limit, fraction of GFP cells (3&sigma;), 09-22</td><td>&asymp; 0.03</td><td>&asymp; 0.06</td></tr>
+          <tr><td>Detection limit, fraction of sfGFP cells (3&sigma;), 09-22</td><td>&asymp; 0.03</td><td>&asymp; 0.06</td></tr>
           <tr><td>Linearity r&sup2;, 09-22</td><td>0.97</td><td>0.96</td></tr>
           <tr><td>Dose response r&sup2;, 09-20</td><td>0.95</td><td>0.89</td></tr>
           <tr><td>Background, relative to F3</td><td>0.055</td><td>0.163</td></tr>
@@ -195,7 +208,7 @@
     </figure>
 
     <p>
-      F4 does collect more GFP light, about 2.2 times as much as F5. But it
+      F4 does collect more sfGFP light, about 2.2 times as much as F5. But it
       sits next to the 470&nbsp;nm excitation and also collects its long-wave
       tail: its background is three times that of F5 and varies more from
       batch to batch. The noise grows about fourfold, so the detection limit
@@ -203,7 +216,7 @@
       with an intercept indistinguishable from zero, only with more noise. Its
       one advantage is that it shifts less when the cuvette is moved, because
       F4 and F3 are close in wavelength. On this build, F5/F3 is the better
-      measure of GFP.
+      measure of sfGFP.
     </p>
 
     <details class="hw-fold">
@@ -222,7 +235,7 @@
           SIG5&nbsp;=&nbsp;F5&nbsp;&minus;&nbsp;k5&nbsp;&times;&nbsp;F3. Part of
           what F5 sees is the blue LED's long-wave tail rather than
           fluorescence; k5 is that tail as a fraction of F3. It is set by
-          placing a tube with no GFP cells, sending the <code>k</code>
+          placing a tube with no sfGFP cells, sending the <code>k</code>
           command, and storing k5&nbsp;=&nbsp;F5&nbsp;&divide;&nbsp;F3 in the
           ESP32's flash.
         </p>
@@ -282,31 +295,31 @@
       was fixed the reading was stable enough for quantitative work.
     </p>
 
-    <h3>2026-09-20: the signal is GFP fluorescence</h3>
+    <h3>2026-09-20: the signal is sfGFP fluorescence</h3>
     <p>
-      <em>Aim.</em> Show that the signal comes from GFP fluorescence and
-      scales with the amount of GFP.
+      <em>Aim.</em> Show that the signal comes from sfGFP fluorescence and
+      scales with the amount of sfGFP.
       <em>Method.</em> A grid of samples varying both the culture density
-      <em>d</em> and the fraction <em>f</em> of cells carrying GFP, read
+      <em>d</em> and the fraction <em>f</em> of cells carrying sfGFP, read
       tube by tube: 57 batches, 285 readings.
     </p>
     <p>
-      <em>Result.</em> Net F5/F3 rose in proportion to the amount of GFP,
+      <em>Result.</em> Net F5/F3 rose in proportion to the amount of sfGFP,
       d&nbsp;&times;&nbsp;f (r&sup2;&nbsp;&asymp;&nbsp;0.95 over twelve tubes).
       Lifting the cuvette out and putting it back changed the raw reading by
       about 14%; F5/F3 changed by only 2.9%, so the ratio cancels placement.
     </p>
     <p>
-      A signal that rises with the amount of GFP does not on its own prove
+      A signal that rises with the amount of sfGFP does not on its own prove
       fluorescence, because turbidity and scattering can rise too. The
       spectral shape can tell them apart, and it is shown under
       <a href="#hardware-laser-channels">What ten channels add</a>: the
-      difference between tubes with and without GFP is a fluorescence
+      difference between tubes with and without sfGFP is a fluorescence
       spectrum.
     </p>
     <p>
-      <em>Conclusion.</em> The reader's signal comes from GFP fluorescence
-      and is proportional to the amount of GFP. It has not been compared with
+      <em>Conclusion.</em> The reader's signal comes from sfGFP fluorescence
+      and is proportional to the amount of sfGFP. It has not been compared with
       a plate reader or other reference instrument, so we do not claim
       absolute accuracy.
     </p>
@@ -314,30 +327,30 @@
     <h3>2026-09-22: linearity and detection limit</h3>
     <p>
       <em>Aim.</em> Hold the total culture density fixed, vary only the
-      fraction of GFP cells, and measure the detection limit.
+      fraction of sfGFP cells, and measure the detection limit.
       <em>Method.</em> Tubes of equal turbidity (OD<sub>600</sub> 0.85
-      without GFP, 0.84 with) mixed to different GFP fractions: 33 batches,
+      without sfGFP, 0.84 with) mixed to different sfGFP fractions: 33 batches,
       165 readings.
     </p>
     <figure class="hw-figure">
       <div data-lc-chart="dose"></div>
       <figcaption>
-        Net signal (F5/F3 of each tube minus that of the tube without GFP
-        cells) against the fraction of GFP cells. The fit uses the seven
-        tubes with GFP cells; the tube without them is the zero that is
+        Net signal (F5/F3 of each tube minus that of the tube without sfGFP
+        cells) against the fraction of sfGFP cells. The fit uses the seven
+        tubes with sfGFP cells; the tube without them is the zero that is
         subtracted, so it is not part of the fit. The two lowest tubes,
         f&nbsp;=&nbsp;0.10 and 0.15, are furthest from the line.
       </figcaption>
     </figure>
     <p>
-      <em>Result.</em> Signal and GFP fraction are linear. Without forcing the
+      <em>Result.</em> Signal and sfGFP fraction are linear. Without forcing the
       line through the origin, the intercept is 1.2&nbsp;&plusmn;&nbsp;2.6
       (standard error), not different from zero, with r&sup2;&nbsp;&asymp;&nbsp;0.97;
       a line through the origin has slope 68.1 and r&sup2;&nbsp;&asymp;&nbsp;0.97.
-      The detection limit is about 3% GFP cells (3&sigma;, from F5/F3).
+      The detection limit is about 3% sfGFP cells (3&sigma;, from F5/F3).
     </p>
     <p>
-      <em>The low end.</em> The tubes with the least GFP are off the line. The
+      <em>The low end.</em> The tubes with the least sfGFP are off the line. The
       most likely cause is error in pipetting the very small volumes they
       needed, 10 to 30&nbsp;&micro;L. Repeated reads of the same tube agree,
       the zero is stable, and the three green channels F4, F5 and F6 are off
@@ -362,9 +375,9 @@
     <h3>The added signal has the shape of fluorescence</h3>
     <p>
       For each culture density on 09-20 we took the tube with all cells
-      carrying GFP and the tube with none, divided each by its own F3 to
+      carrying sfGFP and the tube with none, divided each by its own F3 to
       remove brightness differences, and subtracted. What is left is the
-      spectrum that GFP adds.
+      spectrum that sfGFP adds.
     </p>
     <figure class="hw-figure">
       <div data-lc-chart="spectrum"></div>
@@ -436,7 +449,7 @@
       </li>
       <li>
         <strong>Low fractions need serial dilution.</strong> Below about 10%
-        GFP cells, the error in pipetting very small volumes swamps the
+        sfGFP cells, the error in pipetting very small volumes swamps the
         signal.
       </li>
       <li>
