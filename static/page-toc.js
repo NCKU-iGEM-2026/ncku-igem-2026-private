@@ -92,6 +92,13 @@
     aside.textContent = "";
     var nav = document.createElement("nav");
     nav.className = "page-toc-inner";
+    // This is the element that scrolls when the list is longer than the
+    // viewport (max-height + overflow-y in page-toc.css). Lenis takes the
+    // wheel over for the whole page and calls preventDefault on it unless the
+    // pointer is inside something carrying this attribute, so without it a
+    // long contents list -- the Lab Book's, for one -- cannot be scrolled at
+    // all: the page scrolls instead and the tail of the list is unreachable.
+    nav.setAttribute("data-lenis-prevent", "");
     var p = document.createElement("p");
     p.className = "page-toc-title";
     p.textContent = "On this page";
