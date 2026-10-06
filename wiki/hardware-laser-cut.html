@@ -1,0 +1,152 @@
+{#
+  === 雷切機（laser-cut build）的內容：這個檔案請做這一台的組員自己排 ===
+
+  這個檔案由 wiki/pages/hardware.html 用 include 放進 Hardware 頁的 <div id="laser-cut"> 裡。
+  讀者在 The two builds 點「Laser-cut build」那張卡片時，看到的就是這裡的內容；
+  網址是 /hardware#laser-cut，不是獨立的網頁。你改這個檔案不會動到 3D 列印機那一台
+  （wiki/hardware-printed.html），兩個人可以各改各的。
+
+  現在裡面只有 Hardware 頁上原本就寫過的東西，原樣搬過來：
+    What it is      原本「Which build is which」第三張卡的文字與五列規格
+    What it costs   原本在 Building one 裡的成本表（$53.54）與它下面的兩段
+
+  ⚠ 請你確認或改掉的地方：
+    - What it costs 最後那段 aside 列的是 3D 列印機電路上的零件（電阻、2N7000、Cree 470 nm LED、
+      Eppendorf UVette）。這一台實際用的 LED、開關、比色管如果不一樣，請改成這一台的。
+    - 頁面上方共同的部分（How it measures、Ten channels）寫兩台原理相同：藍光橫過樣品、
+      偵測器在 90° 看、用 AS7341 讀光譜。那裡的平面圖、剖視圖和感測器設定都是 3D 列印機的。
+      這一台如果有不同的地方（有沒有 light trap、用什麼比色管、光路尺寸、感測器設定），請在這裡寫清楚。
+    - "Data: None on this page"：放上這一台量到的數據之後請改掉，並告訴硬體負責人，
+      hardware.html 兩張卡片上的 Data 那一列要一起改。
+    - 這一台有沒有自己的名字？頁面目前用 "laser-cut build" 稱呼它。
+
+  評審看 Hardware 的四題（2026 Judge Handbook 第 57 頁），這一台各自可以寫什麼：
+    1 解決什麼需求   2 使用者測試、從回饋學到什麼   3 功能有沒有被驗證   4 文件夠不夠讓別隊重做
+  建議至少要有：實機照片、怎麼做（切割檔、材料、組裝步驟）、怎麼操作、量到什麼。
+  只寫這一台實際量到、有紀錄可查的東西；還沒做的就寫還沒做。
+
+  可以直接用這一頁現成的樣式（寫法照 wiki/hardware-printed.html 裡的抄）：
+    <section id="hardware-laser-..."><h2>…</h2> … </section>   一節。id 請用 hardware-laser- 開頭，
+                                                               免得跟另一台的 id 重複
+    <p class="hw-aside">…</p>                                  補充說明（字較小、較淡）
+    <div class="hw-caution"><p>…</p></div>                     需要讀者注意的限制
+    <dl class="hw-spec"><div><dt>…</dt><dd>…</dd></div></dl>   規格列
+    <figure class="hw-figure"> … <figcaption>…</figcaption></figure>   圖或表
+    <details class="hw-fold"> … </details>                     可收合的細節（整段結構請從另一個檔複製）
+  標題下面可以加一排捷徑，寫法看 hardware-printed.html 最上面的 <nav class="hw-jump">。
+
+  照片：用 iGEM uploads tool 上傳，網址是 https://static.igem.wiki/teams/6379/wiki/hardware/<檔名>
+        （請轉成 .webp 或 .avif）。卡片上的縮圖在 hardware.html，請跟硬體負責人一起拍：
+        兩台同一個角度、同一個背景、橫式 4:3。
+  影片：上傳到 https://video.igem.org ，寫法照 home.html 的 promotion video。
+  圖檔、影片、切割檔都不可以 commit 進這個 repo，也不能連到 YouTube、Google Drive 或外部圖床。
+  uploads tool 試過不收 .stl 和 .zip，收 .glb；切割檔（.dxf、.svg）收不收要試了才知道。
+
+  這一塊一開始是隱藏的，讀者點了卡片才顯示。如果你加了會量版面尺寸的 JavaScript，
+  請在顯示之後再量：切換時 static/hardware-builds.js 會對 window 發一次 resize 事件。
+#}
+  <header class="hw-build-head">
+    <h2 class="hw-build-title" id="hw-build-laser-cut">The laser-cut build</h2>
+  </header>
+
+  <!-- ========================= what it is ========================= -->
+  {# 來源：Software 頁（ESP32 + AS7341、OLED、Live button、Wi-Fi、ATIME 59／ASTEP 999）
+     加上 2026-10-03 的說明（另一台機器、全雷切、外殼已實裝）。 #}
+  <section id="hardware-laser">
+    <h2>What it is</h2>
+
+    <p>
+      A second reader on the same principle, made from laser-cut parts in
+      its own enclosure. Same kind of controller and detector as the
+      3D-printed build: an ESP32 and an AS7341.
+    </p>
+    {# PHOTO: 雷切那一台的外觀照（外殼、OLED 看得到），上傳後插在這裡 #}
+    <dl class="hw-spec">
+      <div><dt>Interface</dt><dd>OLED display and a button</dd></div>
+      <div><dt>Link</dt><dd>Wi-Fi, to the LasReader web tools</dd></div>
+      <div><dt>Firmware</dt><dd>Its own, with its own sensor settings</dd></div>
+      <div><dt>Run from</dt><dd>A browser; see <a href="{{ url_for('pages', page='software') }}">Software</a></dd></div>
+      <div><dt>Data</dt><dd>None on this page</dd></div>
+    </dl>
+  </section>
+
+  <!-- ========================= what it costs ========================= -->
+  <section id="hardware-cost">
+    <h2>What it costs</h2>
+
+    <p>
+      The costing below is for the laser-cut build, whose enclosure, display
+      and button are in it. Figures are converted from New Taiwan dollars at
+      <strong>NT$31.68 to US$1</strong> (2026-09-22).
+    </p>
+
+    {#
+      === 給團隊 ===
+      成本只以美元呈現，原始台幣數字已拿掉，所以頁面上留著匯率與日期——
+      沒有匯率的美金數字別人無法驗算，也無法用自己的匯率重算。
+      小計是「上面那幾列四捨五入後相加」的結果，不是原始台幣總額再換算：
+      電子零件那欄逐列相加是 $42.18，1336 元直接換算是 $42.17，差一分錢。
+      台幣欄還在時看不出來，現在讀者會自己加那一欄，所以取能加得起來的那個。
+
+      下面「not in this costing」列的是電路上有、但試算表沒有計價的零件
+      （電阻、MOSFET、LED、UVette）。我沒有替它們估價——估錯對要照著重建的
+      隊伍來說比沒有數字更糟。有價格之後補進上表即可。
+    #}
+    <details class="hw-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Cost of one laser-cut build</span>
+        <span class="hw-fold-meta">$53.54 as costed</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
+      <div class="hw-figure hw-figure-table">
+        <table class="hw-table hw-cost">
+          <caption class="visually-hidden">Cost of one laser-cut build</caption>
+          <thead>
+            <tr>
+              <th scope="col">Item</th><th scope="col">Qty</th>
+              <th scope="col">Cost (US$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="hw-cost-head"><th scope="rowgroup" colspan="3">Electronics</th></tr>
+            <tr><td>ESP32 development board</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$6.79</td></tr>
+            <tr><td>AS7341 spectral sensor board</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$27.15</td></tr>
+            <tr><td>Button module</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$0.51</td></tr>
+            <tr><td>OLED display</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$4.73</td></tr>
+            <tr><td>Breadboard</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$1.42</td></tr>
+            <tr><td>Jumper wires</td><td class="hw-cost-n">several</td><td class="hw-cost-n">$1.58</td></tr>
+            <tr class="hw-cost-sub"><td>Electronics subtotal</td><td></td><td class="hw-cost-n">$42.18</td></tr>
+            <tr class="hw-cost-head"><th scope="rowgroup" colspan="3">Enclosure, laser-cut</th></tr>
+            <tr><td>Wood board</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$1.89</td></tr>
+            <tr><td>Laser cutting</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$9.47</td></tr>
+            <tr class="hw-cost-sub"><td>Enclosure subtotal</td><td></td><td class="hw-cost-n">$11.36</td></tr>
+            <tr class="is-total"><td>Total, as costed</td><td></td><td class="hw-cost-n">$53.54</td></tr>
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </details>
+
+    <p>
+      Printing that enclosure instead of laser-cutting it costs
+      <strong>$36.30</strong> for the step and brings the build to
+      <strong>$78.48</strong>.
+    </p>
+
+    <p class="hw-aside">
+      Not in the costing, because the sheet never priced them: the
+      <strong>resistors</strong>, the <strong>2N7000</strong> switch, the
+      <strong>Cree 470&nbsp;nm LED</strong> and the <strong>Eppendorf
+      UVette</strong>. We have not guessed at them.
+    </p>
+  </section>
+
+  <p class="hw-build-end">
+    <a href="#printed">See the 3D-printed build</a>
+    <a href="#hardware-builds">Back to the two builds</a>
+  </p>

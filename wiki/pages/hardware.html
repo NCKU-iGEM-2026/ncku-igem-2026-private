@@ -25,11 +25,58 @@
 
   這一頁是 Best Hardware 的 Required link。評審的四道題與本頁的對應：
 
-    1 是否回應 synthetic biology 的需求      -> 頁首兩段 + Why build a reader
+    1 是否回應 synthetic biology 的需求      -> 頁首兩段 + Why build a reader（共同的部分）
     2 有無 user testing、有無從回饋學到東西   -> What using it taught us（⚠ 只有操作回饋，見下）
-    3 proof of concept 的效用與功能           -> 頁首三個數字 + What it has measured（含 Across three sessions）；
+    3 proof of concept 的效用與功能           -> 3D 列印機標題下的摘要與三個數字 + What it has measured
+                                                （Across three sessions 與第二版 10-05 那一場）；
                                                 模型與擬合在 Model 頁，本頁有連過去
     4 文件是否足以讓別隊重現                  -> Building one（零件、列印、裝配、成本、操作步驟、file manifest）
+
+  ── 2026-10-06 改版：兩台機器分開呈現，在同一頁切換 ──
+
+  這一頁現在由三個檔案組成：
+
+    wiki/pages/hardware.html      這個檔。共同的部分：為什麼做、對應的實驗、怎麼量、十個波段、
+                                  兩張卡片、References
+    wiki/hardware-printed.html    3D 列印機那一台的全部內容（硬體負責人維護）
+    wiki/hardware-laser-cut.html  雷切機那一台的全部內容（做那一台的組員自己排，檔案開頭有說明）
+
+  後兩個檔是用 include 放進這一頁的，不是獨立的網頁，網址仍然只有 /hardware 一個。
+  為什麼不拆成不同網頁：2026 Judge Handbook 第 29 頁寫明評審是從評分表直接連到 /hardware，
+  隊伍應該把說服評審需要的內容放在這一頁；另開的頁面只算補充資料，評審沒有義務點進去。
+  2025 Best Hardware 的得獎與入圍隊伍裡，讀得到頁面的 11 隊都把硬體寫在同一頁。
+
+  怎麼切換：The two builds 的兩張卡片。點卡片，下面就換成那一台的內容，網址變成
+  /hardware#printed 或 /hardware#laser-cut，可以直接分享。連到某一台裡面某一節的連結
+  （例如 Model 頁連到 #hardware-v2）會自動切到那一台。程式是 static/hardware-builds.js；
+  沒有 JavaScript 時兩台的內容上下排在一起，卡片最下面的連結就是一般的頁內連結。列印時兩台都會印出來。
+
+  哪些搬了位置（除了下面列的幾句，內容沒有改寫）：
+    共同的部分   Why build a reader、The assay it is built for（原本在後面）、
+                 How it measures（新的一節：原本 The instrument 開頭的光路說明與平面圖，
+                 加上原本收在 CAD 組裝圖下方的示意剖視圖）、Ten channels instead of one filter
+    3D 列印機    The instrument（兩張版本卡 + CAD 組裝圖）、What it has measured
+                 （It has to be shielded 從 Ten channels 搬到這一節最後）、The circuit、
+                 How it got here、What using it taught us、Building one
+    雷切機       原本第三張卡的內容，以及原本在 Building one 裡的成本表
+
+  頁首現在只放兩台共通的事（這是什麼、怎麼量、有兩台）。原本頁首講結果的那一段與三個數字是
+  3D 列印機的，搬到 wiki/hardware-printed.html 的標題下面。
+  為了說清楚「是哪一台」而改的句子：頁首兩段（重寫成只講共通的事）；
+  How it measures 的兩段（原本是一段）；剖視圖下方的說明；Ten channels 第一段的 "at first light"
+  與面板下方的 Working settings；兩張卡片下方那段 aside；Building one 裡原本介紹成本表的那一段。
+
+  ⚠ 共同的部分只寫了「兩台原理相同」：藍光橫過樣品、偵測器在 90° 看、用 AS7341 讀光譜。
+     平面圖、剖視圖、Working settings 都標明是 3D 列印機的。雷切機的光路如果有不一樣的地方
+     （有沒有 light trap、用什麼比色管、LED 是哪一顆），請寫在雷切機自己的檔案裡。
+  ⚠ 卡片上還沒有縮圖：兩台請用同一個角度、同一個背景拍，橫式 4:3，上傳後換掉卡片裡的 PHOTO 註解。
+  ⚠ 3D 列印機那張卡片的 Data 與雷切機那張的 "None on this page"：雷切機放上數據之後兩張都要改。
+
+  同一天加進 3D 列印機的：第二版 2026-10-05 第一場菌液量測（What it has measured 最後一塊、
+  標題下的摘要、版本卡、Development log 第九站、Version 2 so far）。來源與不能說的話寫在
+  wiki/hardware-printed.html 那一塊上方的註解。Model 頁沒有動，它講的仍然是第一版的三場。
+
+  下面較早的說明寫於拆檔之前。提到的節名都還在；3D 列印機的那些節現在在 wiki/hardware-printed.html。
 
   ── 2026-10-04 精簡：預設可見字數從約 5,250 降到約 3,350 ──
 
@@ -172,41 +219,32 @@
 
 <div class="container my-4 hw">
 
-  {# 開頭這兩段回答評審最先想知道的三件事：這是什麼、量什麼、結果如何。
-     數字出自本頁 "Across three sessions" 那張表（三場；27 個不含 GFP 的讀值；38 管含 GFP）。
-     有實機照片或示範影片之後，放在這一段的正上方最有效。 #}
+  {# 開頭只放兩台共通的事：這是什麼、怎麼量、有兩台。講結果的那一段與三個數字是 3D 列印機的，
+     2026-10-06 搬到 wiki/hardware-printed.html 的標題下面。
+     有兩台放在一起的實機照片或示範影片之後，放在這一段的正上方最有效。 #}
   <div class="hw-lead hw-lead-tight">
     <p>
-      CAPTURE-Screen is a single-cuvette fluorescence reader: a 3D-printed
-      optical core, one blue LED, a multi-channel spectral sensor and a
-      microcontroller. It is built to read the green fluorescence of our
-      biosensor culture at the bench, without a plate reader.
+      CAPTURE-Screen is a single-cuvette fluorescence reader. It is built to
+      read the green fluorescence of our biosensor culture at the bench,
+      without a plate reader: one blue LED lights the sample, and a
+      multi-channel spectral sensor reads what it gives off at 90&deg;.
     </p>
     <p>
-      Across three sessions it read zero on its emission channel for every
-      sample without GFP, and above zero for 35 of the 38 tubes that held
-      GFP culture. Within a session the reading rose in proportion to the
-      GFP culture. It has not yet read an AHL-induced culture, and it has
-      not been calibrated against a fluorescence standard.
+      There are two readers on this principle, a 3D-printed build and a
+      laser-cut build in its own enclosure. This page sets out what the two
+      share, then each build in turn.
     </p>
   </div>
 
-  <dl class="hw-keys">
-    <div><dt>27 of 27</dt><dd>readings without GFP at zero on the emission channel</dd></div>
-    <div><dt>35 of 38</dt><dd>tubes with GFP culture above zero</dd></div>
-    <div><dt>3 sessions</dt><dd>2026-09-16, 09-21 and 09-29, on version 1 of the reader</dd></div>
-  </dl>
-
-  {# 本頁很長，這一排是各節的捷徑。每個連結對應一節的 id，改了 id 要一起改。 #}
+  {# 這一排是捷徑。前三個是共同的部分；後兩個會切到那一台，每一台自己的各節捷徑在它的標題下面。
+     每個連結對應一個 id，改了 id 要一起改。 #}
   <nav class="hw-jump" aria-label="On this page">
     <ul class="sw-links">
-      <li><a href="#hardware-instrument">The instrument</a></li>
-      <li><a href="#hardware-builds">The builds</a></li>
-      <li><a href="#hardware-bench">What it measured</a></li>
-      <li><a href="#hardware-circuit">The circuit</a></li>
-      <li><a href="#hardware-history">How it got here</a></li>
-      <li><a href="#hardware-v2">Version 2</a></li>
-      <li><a href="#hardware-reproduce">Building one</a></li>
+      <li><a href="#hardware-background">Why build a reader</a></li>
+      <li><a href="#hardware-principle">How it measures</a></li>
+      <li><a href="#hardware-builds">The two builds</a></li>
+      <li><a href="#printed">3D-printed build</a></li>
+      <li><a href="#laser-cut">Laser-cut build</a></li>
     </ul>
   </nav>
 
@@ -259,17 +297,55 @@
     </p>
   </section>
 
-  <!-- ========================= the instrument ========================= -->
-  <section id="hardware-instrument">
-    <h2>The instrument</h2>
+  <!-- ========================= interface ========================= -->
+  <section>
+    <h2>The assay it is built for</h2>
 
     <p>
-      Blue excitation crosses the sample along one axis, and the detector
-      looks at it from 90&deg; to that axis. Excitation that passes through
-      the sample ends in a light trap on the far side, so it does not reach
-      the detector. The sample sits in a UVette, a disposable cuvette with a
-      10&nbsp;mm and a 2&nbsp;mm light path<sup class="hw-ref"><a href="#hardware-ref-4">4</a></sup>; the reporter is
-      superfolder GFP<sup class="hw-ref"><a href="#hardware-ref-2">2</a></sup>.
+      The reader has to fit an assay the wet lab defines: our biosensor makes
+      GFP in response to AHL, the quorum-sensing signal. This is what we are
+      designing against.
+    </p>
+
+    <dl class="hw-spec">
+      <div><dt>Reporter</dt><dd>sfGFP. Construct and strain not yet specified.</dd></div>
+      <div><dt>AHL series</dt><dd>10&nbsp;&micro;M, 1&nbsp;&micro;M, 100&nbsp;nM, 10&nbsp;nM, 1&nbsp;nM, as planned.</dd></div>
+      <div><dt>Volume</dt><dd>200&nbsp;&micro;L per reaction.</dd></div>
+      <div><dt>Incubation</dt><dd>37&nbsp;&deg;C, read every hour for six hours.</dd></div>
+      <div><dt>Benchmark</dt><dd>Plate reader at excitation 485&nbsp;nm, emission 510&nbsp;nm, 200&nbsp;&micro;L.</dd></div>
+    </dl>
+
+    <div class="hw-caution">
+      <p>
+        <em>No reading on this page comes from an AHL-induced culture.</em>
+        AHL induction has not been run yet, and there is no plate-reader
+        dataset to compare against; our 470&nbsp;nm excitation also differs
+        from the plate reader's 485&nbsp;nm. What the reader has shown is that
+        it tells a culture reported to carry the sfGFP plasmid from one
+        without it, and from medium.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========================= how it measures ========================= -->
+  {# 兩台共同的原理。2026-10-06 拆檔時新增的一節：這兩段是原本 The instrument 開頭那一段拆開的
+     （加了第一句，並說明圖畫的是 3D 列印機）；平面圖原樣搬來；下面的摺疊是原本收在 CAD 組裝圖
+     下方的示意剖視圖。圖上的尺寸與座標都是 3D 列印機的。 #}
+  <section id="hardware-principle">
+    <h2>How it measures</h2>
+
+    <p>
+      Both readers measure the same way. Blue excitation crosses the sample
+      along one axis, and the detector looks at it from 90&deg; to that
+      axis; the reporter is superfolder GFP<sup class="hw-ref"><a href="#hardware-ref-2">2</a></sup>.
+    </p>
+
+    <p>
+      The drawing shows this layout to scale, as it is built in the
+      3D-printed build. There, excitation that passes through the sample
+      ends in a light trap on the far side, so it does not reach the
+      detector, and the sample sits in a UVette, a disposable cuvette with a
+      10&nbsp;mm and a 2&nbsp;mm light path<sup class="hw-ref"><a href="#hardware-ref-4">4</a></sup>.
     </p>
 
     <figure class="hw-figure">
@@ -379,545 +455,6 @@
       The dashed outlines in the baffle are slots for aperture disks. No
       disk has been fitted.
     </p>
-
-    <!-- ========================= which build ========================= -->
-    {# 來源：version 1／2 是 PROJECT_STATE/CURRENT_STATE.md 與 RELEASES.md 的 P1-PROTO-01／02；
-       雷切那一台是 Software 頁（ESP32 + AS7341、OLED、Live button、Wi-Fi、ATIME 59／ASTEP 999）
-       加上 2026-10-03 的說明（另一台機器、全雷切、外殼已實裝）。
-       三張卡各留了一個照片位置，照片上傳到 static.igem.wiki 之後把註解換成 <img>。 #}
-    <h3 id="hardware-builds">Which build is which</h3>
-
-    <p>
-      There are two readers on this principle, and the first has been rebuilt
-      once.
-    </p>
-
-    <div class="hw-modules hw-builds">
-      <div class="hw-module">
-        <span class="hw-module-tag">Version 1 &middot; measured</span>
-        <h4>3D-printed build</h4>
-        <p class="hw-module-what">
-          A 3D-printed optical core on a base plate, with the electronics on
-          a breadboard beside it. <code>P1-PROTO-01</code> in our records.
-        </p>
-        {# PHOTO: version 1 整機照（如果拆機前有拍），上傳到 static.igem.wiki 後插在這裡 #}
-        <dl class="hw-spec">
-          <div><dt>In use</dt><dd>2026-08-25 to 2026-10-03</dd></div>
-          <div><dt>Parts</dt><dd>57 of 59 pieces received; two more broke and were taped</dd></div>
-          <div><dt>LED</dt><dd>5.55&nbsp;mA</dd></div>
-          <div><dt>Run from</dt><dd>Serial commands</dd></div>
-          <div><dt>Data</dt><dd>Every reading on this page apart from the version 2 first reads, and all of the <a href="{{ url_for('pages', page='model') }}">Model</a> page</dd></div>
-        </dl>
-      </div>
-
-      <div class="hw-module">
-        <span class="hw-module-tag">Version 2 &middot; rebuilt</span>
-        <h4>3D-printed build, rebuilt</h4>
-        <p class="hw-module-what">
-          The same reader with its cuvette seat and its excitation end
-          redrawn and reprinted. <code>P1-PROTO-02</code> in our records.
-        </p>
-        {# PHOTO: version 2 整機照（新的 UVette 座與 LED 端看得到），上傳後插在這裡 #}
-        <dl class="hw-spec">
-          <div><dt>In use</dt><dd>From 2026-10-03</dd></div>
-          <div><dt>Parts</dt><dd>Five replacement parts designed and printed; see <a href="#hardware-v2">what version 2 changes</a></dd></div>
-          <div><dt>LED</dt><dd>About 10&nbsp;mA</dd></div>
-          <div><dt>Run from</dt><dd>Serial commands</dd></div>
-          <div><dt>Data</dt><dd>First reads of an empty cuvette. No culture yet</dd></div>
-        </dl>
-      </div>
-
-      <div class="hw-module">
-        <span class="hw-module-tag">Second reader &middot; enclosed</span>
-        <h4>Laser-cut build</h4>
-        <p class="hw-module-what">
-          A second reader on the same principle, made from laser-cut parts in
-          its own enclosure. Same kind of controller and detector: an ESP32
-          and an AS7341.
-        </p>
-        {# PHOTO: 雷切那一台的外觀照（外殼、OLED 看得到），上傳後插在這裡 #}
-        <dl class="hw-spec">
-          <div><dt>Interface</dt><dd>OLED display and a button</dd></div>
-          <div><dt>Link</dt><dd>Wi-Fi, to the LasReader web tools</dd></div>
-          <div><dt>Firmware</dt><dd>Its own, with its own sensor settings</dd></div>
-          <div><dt>Run from</dt><dd>A browser; see <a href="{{ url_for('pages', page='software') }}">Software</a></dd></div>
-          <div><dt>Data</dt><dd>None on this page</dd></div>
-        </dl>
-      </div>
-    </div>
-
-    <p class="hw-aside">
-      Counts from the two readers are not interchangeable: they run different
-      firmware and integrate for different times. Every sensor setting on
-      this page is the 3D-printed build's.
-    </p>
-
-    {# VIDEO: 示範影片上傳到 video.igem.org 之後放在這裡（寫法照 home.html 的 promotion video），
-       圖說要寫清楚拍的是哪一台、哪一版。10-03 錄的那幾段沒有罩紙箱，畫面上的讀值不能當數據。 #}
-
-    {#
-      === 給團隊：真正的 CAD（2026-10-04 新增，取代剖視圖成為主要的 3D 圖）===
-      下面摺疊起來的剖視圖是用光路座標畫的示意圖，不是 CAD。這一塊畫的是真正拿去列印的 STL，
-      而且每一件都放在 CAD 組裝檔指定的位置上。畫圖的是 static/hardware-parts.js
-      （WebGL，沒有外部函式庫）。三種看法：
-
-        Assembled      組裝起來的樣子（預設，第二版）
-        Pulled apart   拉開：照 CAD 自己的爆炸組裝檔移動
-        Laid out       把一個模組的檔案並排攤在 10 mm 格線上（沒進組裝的零件只在這裡看得到）
-
-      位置從哪裡來：STL 各自在自己的座標裡（多半是躺在列印床上的方向），檔案本身沒有位置資訊。
-      位置是從硬體資料夾的 STEP 組裝檔讀出來的，再逐點核對：組裝檔裡每個實體的所有頂點，
-      都要落在移動後的 STL 頂點上；外框誤差最大 0.05 mm。結果就是下面那段 JSON（id="hwPartsPlan"），
-      程式只照著擺，不自己算位置。
-        第一版    output/capture_screen_optical_core_base_plate_v0_7/optical_core_full_assembly_v0_7_angled_wedge.step
-        拉開      同資料夾 optical_core_exploded_assembly_v0_7.step（設計者自己的爆炸圖）
-        第二版    _AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/exports/v0_8_round2_reference_assembly.step
-                  （五件新零件的位置；其餘沿用第一版組裝檔。新零件在「拉開」時跟著它取代的舊件移動）
-
-      組裝圖裡有、但這裡沒畫的：8 支 M3 螺絲、LED 的兩支接腳、偵測器的 optional aperture mask
-      （有 STL，但列印包明寫不含）。UVette、LED、感測器板是買的，沒有 STL，照 CAD 給的外框
-      畫成一個方塊或圓柱（藍色）。
-      第一版用「只畫外框」標出五件當時不在機器上的零件：沒到貨的 LED-holder cap 和 retainer clip、
-      只做了一片所以缺的那片 leaf（+X 那一側；裝上的是 +Y 那片）、設計圖裡有但從沒裝過的兩片光闌片。
-      第二版畫的是「設計上的樣子」：紀錄裡沒有回報五件新零件哪幾件實際裝上，頁面上照實寫了。
-
-      沒有出現在組裝圖裡的零件（只在 Laid out 看得到）：1.5／6 mm 光闌片、gate B、collar gauge、
-      三片 shim、圓形與方形濾片 insert、fit coupons。
-
-      檔案放在哪裡：iGEM 的 uploads tool 不收 .stl（422 Unable to determine file type）、不收 .zip
-      （mime-type not allowed），把 STL 改名成 .json 也會被擋（會檢查內容是不是 JSON）。.glb 收。
-      所以 53 個 STL 被包成一個 glTF 模型（.glb），傳到
-        https://static.igem.wiki/teams/6379/wiki/hardware-cad/
-      網址寫在下面 <div id="hwParts"> 的 data-model，還有 "Every file" 裡那個下載連結，共兩處。
-      這個 .glb 不是簡化過的版本：每個 STL 是一個 mesh，名字就是 STL 檔名，頂點是原檔的 32 位元
-      浮點數，三角形順序也一樣。打包時讀回來逐個三角形比對過，全部相同。
-      所以頁面上的下載按鈕可以在瀏覽器裡把零件還原成 STL（單一零件，或全部包成一個 ZIP）。
-      repo 裡沒有任何 STL 或 .glb，build 不依賴它們。
-      ⚠ static.igem.wiki 的快取是兩年。模型要更新時不要覆蓋同名檔，請換檔名（檔名裡有日期），
-        再把上面兩處網址一起改掉。
-
-      下面的清單是文字資料的來源：名稱、件數、尺寸、說明都寫在這裡，程式只負責畫。
-      沒有 JavaScript 或 WebGL 的時候，這份清單和那個模型的下載連結照樣能用。
-      檔案來源（原檔名沒有改）：
-        第一版 59 件／46 檔  output/CAPTURE_Screen_P1_PRINT_ONLY_v0_6（紀錄裡指定 59 件的那個列印包）
-                             其中底板那一組用 output/capture_screen_optical_core_base_plate_v0_7 的 v0.7 檔
-                             （只有 detector_locator_frame 跟 v0.6 不同，其餘逐位元相同）
-        第二版 5 件          _AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/exports
-        第二版試配件 2 件    _AI_REFACTOR_WORK/P1_MECH_V08_ROUND1_HANDOFF_2026-09-25/vendor_package
-      尺寸是每個檔案在自己的 X、Y、Z 上的範圍，由檔案算出來，取到 0.05 mm。
-
-      ⚠ 英文零件名稱多半是從檔名寫的，請硬體負責人看一遍。
-      ⚠ 授權還沒決定。頁面上沒有另外寫授權聲明；要標硬體授權請告訴我。
-      ⚠ CAD 是用 AI 工具協助寫出來的（CadQuery 原始碼），Attributions 要寫。
-    #}
-    <p>
-      Below is the 3D-printed optical core itself. Every printed part is
-      drawn with the mesh of the STL file that was prepared for printing,
-      and stands where the CAD assembly puts it. Pull it apart, switch
-      between the two versions, or lay one module's parts side by side.
-    </p>
-
-    <div class="hwx-rig hwp" id="hwParts"
-         data-model="https://static.igem.wiki/teams/6379/wiki/hardware-cad/capture-screen-printed-parts-20261004.glb">
-      <div class="hwx-rig-head">
-        <h3>The optical core, from its CAD files</h3>
-        <p class="hwx-rig-sub">Every printed part, with the mesh of its STL file &middot; grid 10&nbsp;mm</p>
-      </div>
-
-      <div class="hwx-ctrls hwp-ctrls" hidden></div>
-
-      <div class="hwx-rig-figure hwp-stage" hidden>
-        <canvas class="hwp-view" tabindex="0" role="img"
-          aria-label="Three-dimensional view of the 3D-printed optical core, drawn from its STL files. A base plate carries, along the excitation axis, the LED holder, the aperture baffle, the cuvette holder and the light trap; the detector holder stands at right angles to that axis. Drag to rotate, or use the arrow keys. The list under the view gives every part, its size and its file."></canvas>
-        <ul class="hwp-legend">
-          <li class="hwp-k-both" data-in="v1 v2 laid">in both versions</li>
-          <li class="hwp-k-v1" data-in="v1 laid">version 1 only</li>
-          <li class="hwp-k-v2" data-in="v2 laid">version 2</li>
-          <li class="hwp-k-proxy" data-in="v1 v2">bought, not printed</li>
-          <li class="hwp-k-absent" data-in="v1">specified, not on the instrument</li>
-        </ul>
-        <div class="hwp-hud" aria-hidden="true"></div>
-        <div class="hwp-hint" aria-hidden="true">drag to rotate &middot; click a part &middot; ctrl + scroll to zoom</div>
-        <div class="hwp-status" role="status"></div>
-      </div>
-
-      <div class="hwx-rig-body hwp-readout" hidden aria-live="polite"></div>
-
-      {# 每種看法底下那一句話。程式從這裡拿字，改這裡就會改到畫面上。 #}
-      <div class="hwp-says" hidden>
-        <p data-for="v2">Version 2 as designed: 38 printed pieces. The five replacement parts are in green; which of them are fitted on the real instrument is not yet on record. Pick a part for its size and its file.</p>
-        <p data-for="v1">Version 1 as designed: 45 printed pieces. The five in outline were specified but not on the instrument: a cap and a clip that never arrived, a second leaf that was never made, and two aperture disks that were never fitted. Pick a part for its size and its file.</p>
-        <p data-for="laid">Every file of the module, side by side as it was exported. Pick a part for its size and its file.</p>
-      </div>
-
-      {# 每一件的位置（由 STEP 組裝檔讀出、逐點核對過）。f 檔名、t 位移、r 旋轉（沒有就是不轉）、
-         x 拉開時移動多少、a 表示當時不在機器上。p1／p2 是買來的零件，只有外框。 #}
-      <script type="application/json" id="hwPartsPlan">{% raw %}{"v1":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"uvette_datum_riser_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_LED_holder_v0_7.stl","t":[-37.5,0.0,8.5],"x":[0.0,0.0,28.8],"a":1},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"capture_screen_led_holder_v0_1_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"capture_screen_led_holder_v0_1_retainer_clip.stl","t":[-44.0,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,38.4],"a":1},{"f":"capture_screen_aperture_baffle_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-11.2,0.0,16.0]},{"f":"aperture_disk_2p5mm.stl","t":[-30.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"aperture_disk_4mm.stl","t":[-22.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"uvette_holder_common_body.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_orientation_gate_A.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,48.0]},{"f":"uvette_preload_leaf.stl","t":[6.45,0.0,13.0],"x":[0.0,0.0,40.0],"a":1},{"f":"uvette_preload_leaf.stl","t":[0.0,6.45,13.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,40.0]},{"f":"uvette_index_collar.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,58.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]}],"v2":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]},{"f":"uvette_holder_body_v0_3.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_seat_riser_v0_2.stl","t":[0.0,0.0,-11.5]},{"f":"led_holder_body_v0_3.stl","t":[-52.8,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"aperture_baffle_body_v0_2.stl","t":[-33.25,0.0,13.5],"r":[1,0,0,0,-1,0,0,0,-1],"x":[-11.2,0.0,16.0]},{"f":"excitation_cap_LED_holder_v0_7_roof_down.stl","t":[-37.5,0.0,20.95],"r":[1,0,0,0,-1,0,0,0,-1],"x":[0.0,0.0,28.8]}],"p1":[{"id":"led","shape":"cyl","lo":[-42.55,-2.9,5.6],"hi":[-33.75,2.9,11.4],"x":[-50.8,-11.2,22.4]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]}],"p2":[{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"led","shape":"cyl","lo":[-42.5,-2.9,5.6],"hi":[-33.7,2.9,11.4],"x":[-50.8,-11.2,22.4]}]}{% endraw %}</script>
-
-      <details class="hwp-files">
-        <summary class="hwp-files-head">
-          <span class="hwp-files-title">Every file</span>
-          <span class="hwp-files-meta">53 STL files, 66 pieces</span>
-          <span class="hwp-files-state" aria-hidden="true">
-            <span data-open="false">Show</span>
-            <span data-open="true">Hide</span>
-          </span>
-        </summary>
-        <div class="hwp-files-body">
-          {# 沒有 JavaScript 時只有這個連結；有的話程式會在後面加一顆「全部存成 STL」的按鈕，
-             清單裡每個檔名也會變成下載該零件 STL 的按鈕。 #}
-          <p class="hwp-get">
-            iGEM's file server takes neither STL nor ZIP files, so the 53 STL
-            files are kept as one glTF model, triangle for triangle:
-            <a href="https://static.igem.wiki/teams/6379/wiki/hardware-cad/capture-screen-printed-parts-20261004.glb">capture-screen-printed-parts-20261004.glb</a>
-            <span>(1.7&nbsp;MB)</span>. With JavaScript on, each file name
-            below saves that part as an STL again.
-          </p>
-          <section class="hwp-group" data-group="excitation">
-            <h4>Excitation end <span>14 files, 15 pieces</span></h4>
-            <ul>
-              <li data-file="excitation_cradle_v0_7.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Excitation cradle</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">36.5 &times; 38 &times; 20&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-note">Carries the LED holder and the baffle on the base plate.</span>
-                <span class="hwp-dl" data-stl="excitation_cradle_v0_7.stl"><code>excitation_cradle_v0_7.stl</code> <span>195&nbsp;KB</span></span>
-              </li>
-              <li data-file="capture_screen_led_holder_v0_1_body.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">LED holder body</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">20.4 &times; 20.4 &times; 21.3&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-note">Split in two at its clip slot when the supports were removed, and was taped back together.</span>
-                <span class="hwp-dl" data-stl="capture_screen_led_holder_v0_1_body.stl"><code>capture_screen_led_holder_v0_1_body.stl</code> <span>259&nbsp;KB</span></span>
-              </li>
-              <li data-file="led_holder_body_v0_3.stl" data-qty="1" data-state="v2">
-                <span class="hwp-name">LED holder body, version 2</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">21.6 &times; 21.6 &times; 21.3&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
-                <span class="hwp-note">Replaces the old body and its clip. It has no clip slot.</span>
-                <span class="hwp-dl" data-stl="led_holder_body_v0_3.stl"><code>led_holder_body_v0_3.stl</code> <span>292&nbsp;KB</span></span>
-              </li>
-              <li data-file="capture_screen_led_holder_v0_1_retainer_clip.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">LED retainer clip</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">14.5 &times; 11.5 &times; 1&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-note">Specified, but it never arrived.</span>
-                <span class="hwp-dl" data-stl="capture_screen_led_holder_v0_1_retainer_clip.stl"><code>capture_screen_led_holder_v0_1_retainer_clip.stl</code> <span>35&nbsp;KB</span></span>
-              </li>
-              <li data-file="capture_screen_aperture_baffle_body.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">Aperture baffle body</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">16 &times; 16 &times; 15&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-note">Broke at both disk slots when the supports were removed, and was taped back together in three pieces.</span>
-                <span class="hwp-dl" data-stl="capture_screen_aperture_baffle_body.stl"><code>capture_screen_aperture_baffle_body.stl</code> <span>247&nbsp;KB</span></span>
-              </li>
-              <li data-file="aperture_baffle_body_v0_2.stl" data-qty="1" data-state="v2">
-                <span class="hwp-name">Aperture baffle body, version 2</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">15 &times; 16 &times; 13&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
-                <span class="hwp-note">Drawn to print on its side.</span>
-                <span class="hwp-dl" data-stl="aperture_baffle_body_v0_2.stl"><code>aperture_baffle_body_v0_2.stl</code> <span>146&nbsp;KB</span></span>
-              </li>
-              <li data-file="excitation_cap_LED_holder_v0_7.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">LED-holder cap</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">6 &times; 30.6 &times; 12.45&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-note">Specified, but it never arrived.</span>
-                <span class="hwp-dl" data-stl="excitation_cap_LED_holder_v0_7.stl"><code>excitation_cap_LED_holder_v0_7.stl</code> <span>79&nbsp;KB</span></span>
-              </li>
-              <li data-file="excitation_cap_LED_holder_v0_7_roof_down.stl" data-qty="1" data-state="v2">
-                <span class="hwp-name">LED-holder cap, version 2</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">6 &times; 30.6 &times; 12.45&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
-                <span class="hwp-note">The same shape, turned over so it prints flat face down.</span>
-                <span class="hwp-dl" data-stl="excitation_cap_LED_holder_v0_7_roof_down.stl"><code>excitation_cap_LED_holder_v0_7_roof_down.stl</code> <span>93&nbsp;KB</span></span>
-              </li>
-              <li data-file="excitation_cap_baffle_v0_7.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Baffle cap</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">6 &times; 26.4 &times; 10.25&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="excitation_cap_baffle_v0_7.stl"><code>excitation_cap_baffle_v0_7.stl</code> <span>80&nbsp;KB</span></span>
-              </li>
-              <li data-file="excitation_locator_key_print_two_v0_7.stl" data-qty="2" data-state="both">
-                <span class="hwp-name">Excitation locator key</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">8 &times; 4.8 &times; 4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="excitation_locator_key_print_two_v0_7.stl"><code>excitation_locator_key_print_two_v0_7.stl</code> <span>0.7&nbsp;KB</span></span>
-              </li>
-              <li data-file="aperture_disk_1p5mm.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Aperture disk, 1.5 mm</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12 &times; 12 &times; 1&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-note">No disk was fitted for any measurement.</span>
-                <span class="hwp-dl" data-stl="aperture_disk_1p5mm.stl"><code>aperture_disk_1p5mm.stl</code> <span>111&nbsp;KB</span></span>
-              </li>
-              <li data-file="aperture_disk_2p5mm.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Aperture disk, 2.5 mm</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12 &times; 12 &times; 1&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-note">No disk was fitted for any measurement.</span>
-                <span class="hwp-dl" data-stl="aperture_disk_2p5mm.stl"><code>aperture_disk_2p5mm.stl</code> <span>111&nbsp;KB</span></span>
-              </li>
-              <li data-file="aperture_disk_4mm.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Aperture disk, 4 mm</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12 &times; 12 &times; 1&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-note">No disk was fitted for any measurement.</span>
-                <span class="hwp-dl" data-stl="aperture_disk_4mm.stl"><code>aperture_disk_4mm.stl</code> <span>99&nbsp;KB</span></span>
-              </li>
-              <li data-file="aperture_disk_6mm.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Aperture disk, 6 mm</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12 &times; 12 &times; 1&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-note">No disk was fitted for any measurement.</span>
-                <span class="hwp-dl" data-stl="aperture_disk_6mm.stl"><code>aperture_disk_6mm.stl</code> <span>99&nbsp;KB</span></span>
-              </li>
-            </ul>
-          </section>
-          <section class="hwp-group" data-group="cuvette">
-            <h4>Cuvette seat <span>11 files, 13 pieces</span></h4>
-            <ul>
-              <li data-file="uvette_holder_common_body.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">UVette holder body</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">36 &times; 36 &times; 25.5&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-dl" data-stl="uvette_holder_common_body.stl"><code>uvette_holder_common_body.stl</code> <span>308&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_holder_body_v0_3.stl" data-qty="1" data-state="v2">
-                <span class="hwp-name">UVette holder body, version 2</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">36 &times; 36 &times; 25.5&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
-                <span class="hwp-note">One piece in place of the old body, both gates, the collar, the gauge and the leaf. Eight ribs locate the cuvette.</span>
-                <span class="hwp-dl" data-stl="uvette_holder_body_v0_3.stl"><code>uvette_holder_body_v0_3.stl</code> <span>215&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_datum_riser_v0_7.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">UVette riser</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">43 &times; 42.5 &times; 13&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-dl" data-stl="uvette_datum_riser_v0_7.stl"><code>uvette_datum_riser_v0_7.stl</code> <span>172&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_seat_riser_v0_2.stl" data-qty="1" data-state="v2">
-                <span class="hwp-name">UVette seat riser, version 2</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">43 &times; 42.5 &times; 13&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
-                <span class="hwp-dl" data-stl="uvette_seat_riser_v0_2.stl"><code>uvette_seat_riser_v0_2.stl</code> <span>207&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_orientation_gate_A.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">Orientation gate A</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">32 &times; 32 &times; 2&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-dl" data-stl="uvette_orientation_gate_A.stl"><code>uvette_orientation_gate_A.stl</code> <span>101&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_orientation_gate_B.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">Orientation gate B</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">32 &times; 32 &times; 2&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-dl" data-stl="uvette_orientation_gate_B.stl"><code>uvette_orientation_gate_B.stl</code> <span>101&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_index_collar.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">Index collar</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">24 &times; 20 &times; 5&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-dl" data-stl="uvette_index_collar.stl"><code>uvette_index_collar.stl</code> <span>5.0&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_collar_setting_gauge.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">Collar setting gauge</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">7 &times; 3 &times; 8.5&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-dl" data-stl="uvette_collar_setting_gauge.stl"><code>uvette_collar_setting_gauge.stl</code> <span>1.4&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_preload_leaf.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">Preload leaf</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">1.7 &times; 10 &times; 12&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-note">One was specified and received. The holder design called for two.</span>
-                <span class="hwp-dl" data-stl="uvette_preload_leaf.stl"><code>uvette_preload_leaf.stl</code> <span>2.2&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_x_hold_down_clip_print_two_v0_7.stl" data-qty="2" data-state="both">
-                <span class="hwp-name">Hold-down clip, X side</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">6.4 &times; 8.6 &times; 4.9&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="uvette_x_hold_down_clip_print_two_v0_7.stl"><code>uvette_x_hold_down_clip_print_two_v0_7.stl</code> <span>2.6&nbsp;KB</span></span>
-              </li>
-              <li data-file="uvette_y_hold_down_clip_print_two_v0_7.stl" data-qty="2" data-state="both">
-                <span class="hwp-name">Hold-down clip, Y side</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">6.4 &times; 7.6 &times; 4.9&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="uvette_y_hold_down_clip_print_two_v0_7.stl"><code>uvette_y_hold_down_clip_print_two_v0_7.stl</code> <span>2.6&nbsp;KB</span></span>
-              </li>
-            </ul>
-          </section>
-          <section class="hwp-group" data-group="detection">
-            <h4>Detection side <span>17 files, 20 pieces</span></h4>
-            <ul>
-              <li data-file="as7341_detector_body.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Detector holder body</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">40 &times; 30 &times; 40&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="as7341_detector_body.stl"><code>as7341_detector_body.stl</code> <span>399&nbsp;KB</span></span>
-              </li>
-              <li data-file="as7341_pcb_carrier.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Sensor board carrier</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">32 &times; 3.2 &times; 32&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="as7341_pcb_carrier.stl"><code>as7341_pcb_carrier.stl</code> <span>151&nbsp;KB</span></span>
-              </li>
-              <li data-file="as7341_pcb_retainer.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Sensor board retainer</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">25.4 &times; 1.5 &times; 16.8&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="as7341_pcb_retainer.stl"><code>as7341_pcb_retainer.stl</code> <span>86&nbsp;KB</span></span>
-              </li>
-              <li data-file="detector_locator_frame_v0_7.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Detector locator frame</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">55 &times; 34.15 &times; 6&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-note">The one part redrawn for v0.7, after the print shop&#x27;s slicer showed thin walls at the pin sockets.</span>
-                <span class="hwp-dl" data-stl="detector_locator_frame_v0_7.stl"><code>detector_locator_frame_v0_7.stl</code> <span>83&nbsp;KB</span></span>
-              </li>
-              <li data-file="detector_locator_pin_print_two_v0_7.stl" data-qty="2" data-state="both">
-                <span class="hwp-name">Detector locator pin</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">3.2 &times; 3.2 &times; 4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="detector_locator_pin_print_two_v0_7.stl"><code>detector_locator_pin_print_two_v0_7.stl</code> <span>20&nbsp;KB</span></span>
-              </li>
-              <li data-file="detector_side_clamp_print_two_v0_7.stl" data-qty="2" data-state="both">
-                <span class="hwp-name">Detector side clamp</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">10 &times; 10 &times; 6&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="detector_side_clamp_print_two_v0_7.stl"><code>detector_side_clamp_print_two_v0_7.stl</code> <span>22&nbsp;KB</span></span>
-              </li>
-              <li data-file="common_cassette_body.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Filter cassette body</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">22 &times; 22 &times; 8&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="common_cassette_body.stl"><code>common_cassette_body.stl</code> <span>72&nbsp;KB</span></span>
-              </li>
-              <li data-file="blank_open_control_insert.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Cassette insert, open</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">24.25 &times; 20.5 &times; 5.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="blank_open_control_insert.stl"><code>blank_open_control_insert.stl</code> <span>53&nbsp;KB</span></span>
-              </li>
-              <li data-file="round_12p5_insert_base.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Cassette insert, round 12.5 mm: base</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">24.25 &times; 20.5 &times; 5.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="round_12p5_insert_base.stl"><code>round_12p5_insert_base.stl</code> <span>126&nbsp;KB</span></span>
-              </li>
-              <li data-file="round_12p5_insert_cap.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Cassette insert, round 12.5 mm: cap</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">15 &times; 15 &times; 1.3&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="round_12p5_insert_cap.stl"><code>round_12p5_insert_cap.stl</code> <span>49&nbsp;KB</span></span>
-              </li>
-              <li data-file="round_12p5_2mm_spacer.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Cassette insert, round 12.5 mm: 1.5 mm spacer for a 2 mm filter</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12.5 &times; 12.5 &times; 1.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="round_12p5_2mm_spacer.stl"><code>round_12p5_2mm_spacer.stl</code> <span>49&nbsp;KB</span></span>
-              </li>
-              <li data-file="square_6x6_insert_base.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Cassette insert, square 6 mm: base</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">24.25 &times; 20.5 &times; 5.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="square_6x6_insert_base.stl"><code>square_6x6_insert_base.stl</code> <span>55&nbsp;KB</span></span>
-              </li>
-              <li data-file="square_6x6_insert_cap.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Cassette insert, square 6 mm: cap</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">10 &times; 10 &times; 1.3&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="square_6x6_insert_cap.stl"><code>square_6x6_insert_cap.stl</code> <span>1.6&nbsp;KB</span></span>
-              </li>
-              <li data-file="replacement_filter_cassette_clamp_bar_print_two_v0_7.stl" data-qty="2" data-state="both">
-                <span class="hwp-name">Cassette clamp bar</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">36.4 &times; 2.5 &times; 6.4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="replacement_filter_cassette_clamp_bar_print_two_v0_7.stl"><code>replacement_filter_cassette_clamp_bar_print_two_v0_7.stl</code> <span>42&nbsp;KB</span></span>
-              </li>
-              <li data-file="alignment_shim_1p5mm.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Alignment shim, 1.5 mm</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">20 &times; 2.5 &times; 1.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="alignment_shim_1p5mm.stl"><code>alignment_shim_1p5mm.stl</code> <span>0.7&nbsp;KB</span></span>
-              </li>
-              <li data-file="alignment_shim_2p0mm.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Alignment shim, 2.0 mm</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">20 &times; 2.5 &times; 2&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="alignment_shim_2p0mm.stl"><code>alignment_shim_2p0mm.stl</code> <span>0.7&nbsp;KB</span></span>
-              </li>
-              <li data-file="alignment_shim_2p5mm.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Alignment shim, 2.5 mm</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">20 &times; 2.5 &times; 2.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="alignment_shim_2p5mm.stl"><code>alignment_shim_2p5mm.stl</code> <span>0.7&nbsp;KB</span></span>
-              </li>
-            </ul>
-          </section>
-          <section class="hwp-group" data-group="trap">
-            <h4>Light trap <span>3 files, 4 pieces</span></h4>
-            <ul>
-              <li data-file="optical_light_trap_angled_wedge_v0_1.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Light trap, angled wedge</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">27 &times; 40 &times; 18&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="optical_light_trap_angled_wedge_v0_1.stl"><code>optical_light_trap_angled_wedge_v0_1.stl</code> <span>133&nbsp;KB</span></span>
-              </li>
-              <li data-file="light_trap_adapter_riser_v0_7.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Light-trap riser</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">29 &times; 42 &times; 13&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="light_trap_adapter_riser_v0_7.stl"><code>light_trap_adapter_riser_v0_7.stl</code> <span>126&nbsp;KB</span></span>
-              </li>
-              <li data-file="light_trap_clamp_plate_print_two_v0_7.stl" data-qty="2" data-state="both">
-                <span class="hwp-name">Light-trap clamp plate</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;2</span> <span class="hwp-dims">10 &times; 8.7 &times; 2&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="light_trap_clamp_plate_print_two_v0_7.stl"><code>light_trap_clamp_plate_print_two_v0_7.stl</code> <span>37&nbsp;KB</span></span>
-              </li>
-            </ul>
-          </section>
-          <section class="hwp-group" data-group="base">
-            <h4>Base plate <span>3 files, 9 pieces</span></h4>
-            <ul>
-              <li data-file="optical_core_base_plate_v0_7.stl" data-qty="1" data-state="both">
-                <span class="hwp-name">Base plate</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">120 &times; 110 &times; 4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="optical_core_base_plate_v0_7.stl"><code>optical_core_base_plate_v0_7.stl</code> <span>563&nbsp;KB</span></span>
-              </li>
-              <li data-file="bench_foot_print_four_v0_7.stl" data-qty="4" data-state="both">
-                <span class="hwp-name">Bench foot</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;4</span> <span class="hwp-dims">10 &times; 10 &times; 4.5&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="bench_foot_print_four_v0_7.stl"><code>bench_foot_print_four_v0_7.stl</code> <span>42&nbsp;KB</span></span>
-              </li>
-              <li data-file="locator_pin_print_four_v0_7.stl" data-qty="4" data-state="both">
-                <span class="hwp-name">Locator pin</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;4</span> <span class="hwp-dims">4.8 &times; 4.8 &times; 4&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-dl" data-stl="locator_pin_print_four_v0_7.stl"><code>locator_pin_print_four_v0_7.stl</code> <span>20&nbsp;KB</span></span>
-              </li>
-            </ul>
-          </section>
-          <section class="hwp-group" data-group="coupons">
-            <h4>Fit coupons <span>5 files, 5 pieces</span></h4>
-            <ul>
-              <li data-file="uvette_fit_coupon_v0_2.stl" data-qty="1" data-state="v2">
-                <span class="hwp-name">UVette fit coupon</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">70 &times; 21.9 &times; 26.7&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
-                <span class="hwp-note">Four cuvette pockets, 0.05 to 0.20 mm clear on each side. Print it before the holder body.</span>
-                <span class="hwp-dl" data-stl="uvette_fit_coupon_v0_2.stl"><code>uvette_fit_coupon_v0_2.stl</code> <span>293&nbsp;KB</span></span>
-              </li>
-              <li data-file="led_fit_coupon_v0_2.stl" data-qty="1" data-state="v2">
-                <span class="hwp-name">LED fit coupon</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">44 &times; 12 &times; 11.6&nbsp;mm</span> <span class="hwp-state">version 2</span></span>
-                <span class="hwp-note">Four LED sockets, 0 to 0.30 mm tight. Print it before the LED holder body.</span>
-                <span class="hwp-dl" data-stl="led_fit_coupon_v0_2.stl"><code>led_fit_coupon_v0_2.stl</code> <span>692&nbsp;KB</span></span>
-              </li>
-              <li data-file="fit_coupon_interface_base_v0_7.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">Interface coupon, base</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">110 &times; 60 &times; 10&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-note">Specified for printing first, to check holes, pins and sliding fits.</span>
-                <span class="hwp-dl" data-stl="fit_coupon_interface_base_v0_7.stl"><code>fit_coupon_interface_base_v0_7.stl</code> <span>583&nbsp;KB</span></span>
-              </li>
-              <li data-file="fit_coupon_planar_clearance_base_v0_7.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">Planar clearance coupon, base</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">82 &times; 30 &times; 8&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-note">Specified for printing first, to check holes, pins and sliding fits.</span>
-                <span class="hwp-dl" data-stl="fit_coupon_planar_clearance_base_v0_7.stl"><code>fit_coupon_planar_clearance_base_v0_7.stl</code> <span>212&nbsp;KB</span></span>
-              </li>
-              <li data-file="fit_coupon_slider_v0_7.stl" data-qty="1" data-state="v1">
-                <span class="hwp-name">Coupon slider</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">10 &times; 18 &times; 9&nbsp;mm</span> <span class="hwp-state">version 1</span></span>
-                <span class="hwp-note">Specified for printing first, to check holes, pins and sliding fits.</span>
-                <span class="hwp-dl" data-stl="fit_coupon_slider_v0_7.stl"><code>fit_coupon_slider_v0_7.stl</code> <span>1.4&nbsp;KB</span></span>
-              </li>
-            </ul>
-          </section>
-          {# 買來的零件沒有 STL，但畫面上點得到，所以在清單裡也有一行（程式用 data-standin 對應）。
-             尺寸是 CAD 組裝檔裡那個替身的外框。 #}
-          <section class="hwp-group hwp-bought">
-            <h4>Bought, not printed <span>3 parts, drawn as plain shapes in the assembly</span></h4>
-            <ul>
-              <li data-standin="uvette">
-                <span class="hwp-name">Eppendorf UVette</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">12.5 &times; 12.5 &times; 36&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-note">The sample cuvette. Drawn as a plain block of the size the CAD gives it.</span>
-              </li>
-              <li data-standin="led">
-                <span class="hwp-name">Cree 5 mm LED</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">8.8 &times; 5.8 &times; 5.8&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-note">The excitation LED. Drawn as a plain cylinder of the size the CAD gives it.</span>
-              </li>
-              <li data-standin="board">
-                <span class="hwp-name">AS7341 sensor board</span>
-                <span class="hwp-meta"><span class="hwp-qty">&times;1</span> <span class="hwp-dims">18 &times; 2.4 &times; 14&nbsp;mm</span> <span class="hwp-state">both versions</span></span>
-                <span class="hwp-note">The detector board. Drawn as a plain block of the size the CAD gives it.</span>
-              </li>
-            </ul>
-          </section>
-        </div>
-      </details>
-
-      <div class="hwx-rig-foot">
-        <span>Placed as in the CAD assemblies. Screws, the LED's leads and the optional detector mask are left out.</span>
-        <span>Specified in matte black PLA; drawn in grey so the shapes can be read.</span>
-      </div>
-    </div>
 
     <details class="hw-fold hw-fold-wide">
       <summary class="hw-fold-head">
@@ -1051,257 +588,15 @@
     </figure>
 
     <p class="hw-aside">
-      This view places the optical core in the two-layer laser-cut enclosure
-      as it was drawn, optics above and electronics below. No reading on this
-      page was taken inside it. It is a schematic built from the optical
-      coordinates, not from the CAD files: the printed parts themselves are
-      in the view above.
+      This view places the 3D-printed build's optical core in the two-layer
+      laser-cut enclosure as it was drawn, optics above and electronics
+      below. No reading on this page was taken inside it. It is a schematic
+      built from the optical coordinates, not from the CAD files: the
+      printed parts themselves are under
+      <a href="#hwParts">the 3D-printed build</a>.
     </p>
       </div>
     </details>
-
-    {# PHOTO: 量測時的樣子（3D 列印機構與遮光紙箱），上傳到 static.igem.wiki 後插在這裡 #}
-
-  </section>
-
-  <!-- =====================================================================
-       Everything below this line was rebuilt in September 2026.
-
-       The shape of it: the instrument is documented by what it was measured
-       doing, not by what it is made of. So it opens on the bench, then the
-       detector, and every number carries the session that produced it.
-
-       Nine sections have been removed on the team's instruction because they
-       are written elsewhere: the build history, the potential-risk list, the
-       limitations list, the future-work list, the claim boundary, the bench
-       electronics, the test register, the wet-dry interface and the parts
-       list. (The previous count in this comment said six over a list of
-       seven. It was wrong; this one is counted.)
-
-       That leaves the bench carrying the scope on its own, which it does and
-       which must not be weakened: it refuses to show a number for a state
-       nobody measured, and the reading for the culture states the batch, the
-       configuration, the withdrawn induction framing and the fact that twelve
-       cycles are not twelve samples. Those sentences are the reason a number
-       like 19.58 counts can be on a public page at all.
-
-       Dark panels are the interactive instruments; the rest of the page keeps
-       the site's own styling. Behaviour lives in static/hardware-bench.js and
-       the content does not: the light path, every figure caption and both
-       faces of every card are in this file, so the page still says what it
-       has to say if the script never loads.
-
-       The closing provenance note sits under the decision cards rather than
-       in a section of its own. It is about every number on the page, not
-       about the section that used to contain it.
-       ===================================================================== -->
-
-  <!-- ========================= the bench ========================= -->
-  <section id="hardware-bench">
-    <h2>What it has measured</h2>
-
-    <p>
-      The bench below is the record of three tests: whether the reader tells a
-      GFP culture from one without, whether the excitation arrives and stays
-      out of the emission channel, and whether room light gets in. Choose a
-      test and throw its switches. Only states that were measured are on
-      offer, and every reading is from version 1.
-    </p>
-
-    <div class="hwx-rig" id="hwxBench">
-      <div class="hwx-rig-head">
-        <h3>Light-path bench</h3>
-        <p class="hwx-rig-sub">Top view, schematic &middot; readings recorded on version 1</p>
-      </div>
-
-      {#
-        三個測試的分頁與各自的按鈕都由 static/hardware-bench.js 產生（TESTS），
-        所以這兩個容器在這裡是空的；程式沒載入時不會留下按不動的按鈕。
-
-        為什麼分成三個測試：這些量測本來就不是一張可以任意組合的表，而是三個
-        各自只改動一兩件事的測試。分開之後每個選項都有數據，不會按到「沒有紀錄」。
-        每場只放三筆具名的參考讀值（未稀釋 GFP 原液、未稀釋非 GFP 原液、培養基空白），
-        其餘各管在 Model 頁。
-
-        要加新場次：在 hardware-bench.js 的 REC 加紀錄、SESSION 加日期、
-        TESTS 裡 Fluorescence 的 session 選項加一顆。
-      #}
-      <div class="hwx-tabs" id="hwxTabs" role="group" aria-label="Which test to show"></div>
-      <div class="hwx-ctrls" id="hwxCtrls"></div>
-
-      <div class="hwx-rig-figure">
-        <svg class="hwx-lab" viewBox="0 0 820 400" role="img"
-             aria-label="Schematic top view of the optical path. Blue excitation runs left to right along the plus X axis from the LED holder, through the aperture baffle, across the UVette at the centre, and into the angled-wedge light trap on the right. Green emission leaves the UVette upwards along the plus Y axis through the filter cassette to the AS7341 detector holder. The controls above the diagram change which recorded state is shown.">
-          <defs>
-            <linearGradient id="hwxEx" x1="0" x2="1">
-              <stop offset="0" stop-color="#5BAEFF" stop-opacity=".16"></stop>
-              <stop offset="1" stop-color="#5BAEFF" stop-opacity=".95"></stop>
-            </linearGradient>
-            <linearGradient id="hwxEm" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0" stop-color="#64DE9A" stop-opacity=".95"></stop>
-              <stop offset="1" stop-color="#64DE9A" stop-opacity=".10"></stop>
-            </linearGradient>
-            <linearGradient id="hwxTh" x1="0" x2="1">
-              <stop offset="0" stop-color="#5BAEFF" stop-opacity=".8"></stop>
-              <stop offset="1" stop-color="#5BAEFF" stop-opacity="0"></stop>
-            </linearGradient>
-            <filter id="hwxGlow" x="-60%" y="-160%" width="220%" height="420%">
-              <feGaussianBlur stdDeviation="7" result="b"></feGaussianBlur>
-              <feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
-            </filter>
-            <marker id="hwxArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M0,1 L9,5 L0,9 z" fill="#E6A94B"></path>
-            </marker>
-          </defs>
-
-          <g stroke="#16232a" stroke-width="1">
-            <line x1="0" y1="300" x2="820" y2="300"></line>
-            <line x1="400" y1="20" x2="400" y2="390"></line>
-          </g>
-          <g class="hwx-lab-tick">
-            <text x="10" y="294">Y = 0</text>
-            <text x="406" y="386">X = 0</text>
-            <text x="676" y="372">+X excitation axis</text>
-            <text x="406" y="34">+Y detection axis</text>
-          </g>
-
-          <g class="hwx-lab-solid">
-            <rect x="125" y="272" width="92" height="56" rx="7"></rect>
-            <rect x="217" y="278" width="83" height="44" rx="5"></rect>
-            <rect x="332" y="232" width="136" height="136" rx="8"></rect>
-            <rect x="356" y="196" width="88" height="28" rx="4"></rect>
-            <rect x="344" y="88" width="112" height="108" rx="6"></rect>
-          </g>
-          <circle class="hwx-lab-bore" cx="160" cy="300" r="13"></circle>
-          <g class="hwx-lab-stop">
-            <line x1="240" y1="281" x2="240" y2="319"></line>
-            <line x1="277" y1="281" x2="277" y2="319"></line>
-          </g>
-          <rect class="hwx-lab-cell" x="366" y="266" width="68" height="68" rx="3"></rect>
-          <rect id="hwxFill" x="369" y="269" width="62" height="62" rx="2" fill="none"></rect>
-          <rect class="hwx-lab-bore" x="386" y="178" width="28" height="12" rx="2"></rect>
-          <path class="hwx-lab-trap" d="M500 278 L649 258 L649 342 L500 322 Z"></path>
-          <path class="hwx-lab-trap-in" d="M500 278 L620 300 L500 322 Z"></path>
-
-          <g>
-            <rect id="hwxBeamEx" x="140" y="295" width="260" height="10" fill="url(#hwxEx)" filter="url(#hwxGlow)" opacity="0"></rect>
-            <rect id="hwxBeamTh" x="400" y="296" width="110" height="8" fill="url(#hwxTh)" filter="url(#hwxGlow)" opacity="0"></rect>
-            <rect id="hwxBeamEm" x="395" y="196" width="10" height="104" fill="url(#hwxEm)" filter="url(#hwxGlow)" opacity="0"></rect>
-            <circle id="hwxScatter" cx="400" cy="300" r="0" fill="#BFE8FF" opacity="0" filter="url(#hwxGlow)"></circle>
-          </g>
-
-          <g id="hwxAmbient" opacity="0">
-            <line x1="400" y1="30" x2="400" y2="258" stroke="#E6A94B" stroke-width="2"
-                  stroke-dasharray="5 5" marker-end="url(#hwxArrow)"></line>
-            <text class="hwx-lab-warn" x="412" y="52">room light down the open +Z slot</text>
-          </g>
-
-          <g class="hwx-lab-label">
-            <text x="128" y="262">LED holder</text>
-            <text x="219" y="268">aperture baffle</text>
-            <text x="324" y="240" text-anchor="end">UVette holder</text>
-            <text x="348" y="214" text-anchor="end">filter cassette</text>
-            <text x="346" y="78">AS7341 holder</text>
-            <text x="512" y="248">angled-wedge light trap</text>
-          </g>
-        </svg>
-      </div>
-
-      <div class="hwx-rig-body">
-        <div class="hwx-readout" id="hwxReadout">
-          <p class="hwx-fallback">
-            The channel readout needs the page script. Without it, the light
-            path above is still drawn, and the sessions the readings come from
-            are named in the text below.
-          </p>
-        </div>
-        <div class="hwx-readout-note" id="hwxReadoutNote"></div>
-        <div class="hwx-verdict" id="hwxVerdict" role="status" aria-live="polite"></div>
-      </div>
-    </div>
-
-    <p class="hw-aside">
-      Counts are raw sensor values. F4, outlined in green, is the emission
-      channel: the sensor's 515&nbsp;nm band, where GFP emits.
-    </p>
-
-    {# 來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.2（偵測與散射通道）、§4.4（重複性）。
-       三場結果是探索性證據，沒有同步進 canonical 的 TEST_STATUS.md。 #}
-    <h3>Across three sessions</h3>
-
-    <p>
-      Three sessions, 2026-09-16, 09-21 and 09-29, mixed a GFP stock, a
-      non-GFP stock and medium at set fractions into 200&nbsp;&micro;L tubes.
-    </p>
-
-    <figure class="hw-figure">
-      <table class="hw-table hw-keep">
-        <caption>Does the emission channel separate GFP from no GFP?</caption>
-        <thead>
-          <tr>
-            <th scope="col">Session</th>
-            <th scope="col" class="hw-num">Readings without GFP</th>
-            <th scope="col" class="hw-num">F4 above zero</th>
-            <th scope="col" class="hw-num">Tubes with GFP</th>
-            <th scope="col" class="hw-num">F4 above zero</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>2026-09-16</td><td class="hw-num">16</td><td class="hw-num">0</td><td class="hw-num">10</td><td class="hw-num">10</td></tr>
-          <tr><td>2026-09-21</td><td class="hw-num">8</td><td class="hw-num">0</td><td class="hw-num">12</td><td class="hw-num">9</td></tr>
-          <tr><td>2026-09-29</td><td class="hw-num">3</td><td class="hw-num">0</td><td class="hw-num">16</td><td class="hw-num">16</td></tr>
-          <tr class="is-total"><td>All three</td><td class="hw-num">27</td><td class="hw-num">0</td><td class="hw-num">38</td><td class="hw-num">35</td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        The three GFP tubes that read zero are all from 2026-09-21, whose
-        stock was thin, and they are the tubes with the least GFP culture in
-        them. This describes three sessions. It is not a limit of detection.
-      </figcaption>
-    </figure>
-
-    <p>
-      Samples without GFP read zero on the emission channel every time,
-      including undiluted non-GFP culture at a displayed OD of up to 1.42.
-      The channels beside the excitation band do see those cells, but too
-      variably between cuvettes and sessions to build a turbidity flag on.
-    </p>
-
-    <figure class="hw-figure">
-      <table class="hw-table">
-        <caption>How far repeated readings scatter</caption>
-        <thead>
-          <tr>
-            <th scope="col">What was repeated</th>
-            <th scope="col" class="hw-num"><var>n</var></th>
-            <th scope="col" class="hw-num">Mean F4</th>
-            <th scope="col" class="hw-num">SD</th>
-            <th scope="col" class="hw-num">CV</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>One liquid, re-inserted (09-16)</td><td class="hw-num">3</td><td class="hw-num">6.00</td><td class="hw-num">0.33</td><td class="hw-num">5.6&nbsp;%</td></tr>
-          <tr><td>One recipe, prepared three times (09-16)</td><td class="hw-num">3</td><td class="hw-num">6.89</td><td class="hw-num">0.51</td><td class="hw-num">7.4&nbsp;%</td></tr>
-          <tr><td>One recipe, six tubes (09-29)</td><td class="hw-num">6</td><td class="hw-num">9.33</td><td class="hw-num">1.10</td><td class="hw-num">11.7&nbsp;%</td></tr>
-          <tr><td>One culture, four insertions, one a fresh draw (09-09)</td><td class="hw-num">4</td><td class="hw-num">40.50</td><td class="hw-num">1.23</td><td class="hw-num">3.0&nbsp;%</td></tr>
-          <tr><td>One culture, four insertions, one a fresh draw (09-14)</td><td class="hw-num">4</td><td class="hw-num">32.67</td><td class="hw-num">1.83</td><td class="hw-num">5.6&nbsp;%</td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        Observed scatter, not a specification. Each figure mixes sampling,
-        insertion, cuvette and time, and none of it carries over to low
-        signal. Between 09-09 and 09-14 the same sample read 19.3&nbsp;% lower;
-        the instrument had been moved and the state of the culture is not
-        known, so the cause is not separated.
-      </figcaption>
-    </figure>
-
-    <p>
-      How the reading scales with the amount of GFP culture, why the three
-      sessions have such different slopes, and what the other channels add are
-      worked through on the
-      <a href="{{ url_for('pages', page='model') }}">Model</a> page.
-    </p>
   </section>
 
   <!-- ========================= detection ========================= -->
@@ -1313,9 +608,9 @@
       photodiode. The AS7341<sup class="hw-ref"><a href="#hardware-ref-1">1</a></sup> has eight filtered channels across the
       visible range plus a clear and a near-infrared channel, so one read
       returns the <em>shape</em> of the light and not a single number. That
-      makes a reading checkable: at first light the excitation showed up
-      concentrated in F2 and F3, the two channels either side of
-      470&nbsp;nm.
+      makes a reading checkable: at the 3D-printed build's first light the
+      excitation showed up concentrated in F2 and F3, the two channels
+      either side of 470&nbsp;nm.
     </p>
 
     <div class="hwx-rig">
@@ -1332,1036 +627,82 @@
         </p>
       </div>
       <div class="hwx-rig-foot">
-        <span>Working settings: gain 512&times;, ATIME 255, ASTEP 280, about 200&nbsp;ms per integration.</span>
+        <span>Working settings on the 3D-printed build: gain 512&times;, ATIME 255, ASTEP 280, about 200&nbsp;ms per integration.</span>
         <span>Centre wavelengths are the sensor's nominal channel centres.</span>
       </div>
     </div>
-
-    <h3>It has to be shielded</h3>
-
-    <p>
-      In a darkened room, or under an opaque box, every channel reads zero
-      with the LED off, out to 25&times; the working integration time. In
-      ordinary room light it does not: an empty UVette reads
-      F4&nbsp;=&nbsp;11. Four of those counts come in through the mechanism
-      and seven down the cuvette itself, which is transparent and stands in an
-      open slot. The leak does not grow in proportion to integration time, so
-      a dark read cannot simply be subtracted.
-    </p>
-
-    <div class="hw-caution">
-      <p>
-        <em>The operating rule.</em> Measure in a darkened room or under an
-        opaque shield. Because a shielded dark read is exactly zero, a dark
-        read that is not zero marks that cycle as invalid: it is dropped and
-        its raw row kept. The firmware has flagged one such cycle on its own.
-      </p>
-    </div>
   </section>
 
-  <!-- ========================= electronics ========================= -->
-  <section id="hardware-circuit">
-    <h2>The circuit</h2>
+  <!-- ========================= the two builds ========================= -->
+  {# 兩張卡片就是兩台機器的切換。data-build 是下面那一台內容的 id（printed／laser-cut），
+     卡片最下面的連結連到同一個 id；程式（static/hardware-builds.js）只認這些。
+     卡片上的字都是原本「Which build is which」三張卡裡已經有的，沒有新的說法。
+     來源：雷切那一台是 Software 頁（ESP32 + AS7341、OLED、Live button、Wi-Fi）加上 2026-10-03 的說明
+     （另一台機器、全雷切、外殼已實裝）；3D 列印機見 wiki/hardware-printed.html。
+     縮圖：兩台用同一個角度、同一個背景拍，橫式 4:3。上傳到 static.igem.wiki 之後，把卡片裡的
+     PHOTO 註解換成
+       <figure class="hw-pick-photo"><img src="https://static.igem.wiki/teams/6379/wiki/hardware/檔名.webp" alt="照片裡看得到什麼"></figure> #}
+  <section id="hardware-builds">
+    <h2>The two builds</h2>
 
     <p>
-      The excitation branch turns one LED<sup class="hw-ref"><a href="#hardware-ref-3">3</a></sup> on and off at a current
-      that cannot damage it: a resistor-limited LED with an N-channel MOSFET
-      on the low side, switched from one pin of the controller. It is a
-      breadboard circuit that was measured, not a product design. The gate
-      pulldown, <strong>R3</strong>, is the part that is not optional: without
-      it the LED can emit while the controller boots, during what the firmware
-      takes for a dark baseline.
-    </p>
-
-    {#
-      電路只有 R1 在 2026-10-03 換過（GOV-011）。圖上方的開關切換兩種狀態：
-      一開始顯示 434 Ω，因為本頁的數據都是在那個狀態量的。
-      兩種狀態的文字都寫在這裡——有 data-v2 的元素換文字，有 data-tip-v2 的節點換提示——
-      static/hardware-bench.js 只負責切換。程式沒載入時開關不會出現，圖停在 434 Ω，
-      下面「The LED current, before and after」的對照表照樣在。
-    #}
-    <div class="hwx-rig" id="hwxCircuit">
-      <div class="hwx-rig-head">
-        <h3>Excitation branch and sensor bus</h3>
-        <p class="hwx-rig-sub">Hover or focus a labelled node for its measured value</p>
-      </div>
-
-      <div class="hwx-ctrls" id="hwxCircCtrls" hidden>
-        <div class="hwx-cgroup">
-          <p class="hwx-clabel">Current-limit resistor R1</p>
-          <div class="hwx-seg" role="group" aria-label="Which state of the circuit to show">
-            <button type="button" data-circ="v1" aria-pressed="true">434&nbsp;&#8486; &middot; until 2026-10-03</button>
-            <button type="button" data-circ="v2" class="hwx-hot" aria-pressed="false">217&nbsp;&#8486; &middot; since 2026-10-03</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="hwx-rig-figure">
-        <svg class="hwx-sch" viewBox="0 0 820 300" role="img"
-             aria-label="Schematic of the excitation branch. An ESP32 drives a 2N7000 low-side switch through a 217 ohm gate resistor with a 9.9 kilohm pulldown to ground; the 470 nanometre LED sits in series with a current-limit resistor, 434 ohms until 2026-10-03 and 217 ohms since. The AS7341 board is on the same 3.3 volt rail and on the I2C bus at address 0x39. All returns meet at one named ground junction.">
-          <g fill="none" stroke="#3E5862" stroke-width="2">
-            <rect x="40" y="70" width="150" height="160" rx="8"></rect>
-            <rect x="620" y="60" width="160" height="96" rx="8"></rect>
-          </g>
-          <g class="hwx-sch-name">
-            <text x="58" y="96">ESP32-WROOM-32</text>
-            <text x="58" y="114" class="hwx-sch-sub">DOIT DevKit V1, 30-pin</text>
-            <text x="638" y="86">SEN0365</text>
-            <text x="638" y="104" class="hwx-sch-sub">AS7341 detector</text>
-          </g>
-
-          <g stroke="#5BAEFF" stroke-width="2.5" fill="none">
-            <path d="M190 150 H250"></path><path d="M290 150 H340"></path>
-            <path d="M380 150 H430"></path><path d="M470 150 V205 H300"></path>
-          </g>
-
-          <g class="hwx-node" tabindex="0" role="button"
-             data-tip-t="R1 &mdash; current limit"
-             data-tip="Two resistors in series, measured 218 &#8486; + 216 &#8486; = 434 &#8486;, replacing an unavailable 390 &#8486; part. In parallel they would give 108.5 &#8486; and roughly 48 mA, above the LED maximum, so the series arrangement is not optional."
-             data-tip-v2="One 220 &#8486; resistor, measured 217 &#8486; with the power off on 2026-10-03; a jumper stands in for the second of the pair. A shorted LED would now draw about 24 mA, so the resistor alone no longer holds a fault under our 15 mA ceiling. Paralleling is still ruled out.">
-            <rect x="250" y="138" width="40" height="24" rx="3" fill="#16242B" stroke="#5BAEFF" stroke-width="2"></rect>
-            <text class="hwx-sch-val" x="248" y="130" data-v2="R1 217 &#8486;">R1 434 &#8486;</text>
-          </g>
-
-          <g class="hwx-node" tabindex="0" role="button"
-             data-tip-t="Excitation LED"
-             data-tip="Cree C503B-BCN-CV0Z0461, nominal 470 nm. Measured forward voltage 2.65 V at 5.553 mA, giving 14.7 mW against a 120 mW package maximum. Irradiance at the sample has not been measured."
-             data-tip-v2="Cree C503B-BCN-CV0Z0461, nominal 470 nm. Driven at about 10 mA: 9.2 to 9.9 mA from meter readings across R1 during the pulses, at most 11.3 mA by calculation. The forward voltage was not measured again at this current, and irradiance at the sample has not been measured.">
-            <path d="M340 136 L340 164 L368 150 Z" fill="#5BAEFF"></path>
-            <path d="M368 134 V166" stroke="#5BAEFF" stroke-width="2.5"></path>
-            <path d="M350 126 l10 -10 M360 128 l10 -10" stroke="#5BAEFF" stroke-width="1.6"></path>
-            <text class="hwx-sch-val" x="326" y="182">470 nm LED</text>
-          </g>
-
-          <g class="hwx-node" tabindex="0" role="button"
-             data-tip-t="2N7000 low-side switch"
-             data-tip="Pinout established by body-diode measurement rather than assumed. Measured VGS 3.22 V, VDS 0.01 V, on-resistance 1.80 &#8486;, 20 of 20 reliable off. Manufacturer unknown: the part is marked and lot-coded but carries no logo. Conditional bench acceptance for this single unit only."
-             data-tip-v2="Pinout established by body-diode measurement rather than assumed. VGS 3.22 V, VDS 0.01 V and on-resistance 1.80 &#8486; were measured on 2026-08-25 at the lower current and were not measured again after the resistor change. Manufacturer unknown. Conditional bench acceptance for this single unit only.">
-            <path d="M430 128 V172" stroke="#C4D6DD" stroke-width="2.5"></path>
-            <path d="M442 128 V146 M442 154 V172" stroke="#C4D6DD" stroke-width="2.5"></path>
-            <path d="M442 150 H470 M442 136 H470 V150" stroke="#C4D6DD" stroke-width="2.5"></path>
-            <path d="M430 150 H400" stroke="#C4D6DD" stroke-width="2.5"></path>
-            <text class="hwx-sch-val" x="450" y="190">2N7000</text>
-          </g>
-
-          <g class="hwx-node" tabindex="0" role="button"
-             data-tip-t="R2 &mdash; gate series"
-             data-tip="Nominal 220 &#8486;, measured 217 &#8486;. Protects the GPIO pin and damps the switching edge. Not electrically mandatory at this switching duty, but required for this build revision.">
-            <path d="M190 190 H220" stroke="#C4D6DD" stroke-width="2" fill="none"></path>
-            <rect x="220" y="178" width="40" height="24" rx="3" fill="#16242B" stroke="#C4D6DD" stroke-width="2"></rect>
-            <path d="M260 190 H400 V150" stroke="#C4D6DD" stroke-width="2" fill="none"></path>
-            <text class="hwx-sch-val" x="218" y="172">R2 217 &#8486;</text>
-          </g>
-
-          <g class="hwx-node" tabindex="0" role="button"
-             data-tip-t="R3 &mdash; gate pulldown"
-             data-tip="Nominal 10 k&#8486;, measured 9.9 k&#8486;. Holds the gate at ground during boot, during reset and with the controller unpowered. Safety and data integrity both: a floating gate can let the LED emit during a dark baseline.">
-            <rect x="386" y="226" width="28" height="40" rx="3" fill="#16242B" stroke="#C4D6DD" stroke-width="2"></rect>
-            <path d="M400 202 V226 M400 266 V280" stroke="#C4D6DD" stroke-width="2" fill="none"></path>
-            <text class="hwx-sch-val" x="420" y="252">R3 9.9 k&#8486;</text>
-          </g>
-
-          <g class="hwx-node" tabindex="0" role="button"
-             data-tip-t="J0 &mdash; single ground junction"
-             data-tip="One named junction for the LED return, the MOSFET source, the gate pulldown and the sensor ground. A single point avoids a return-current loop that would put the detector ground at a different potential while the LED is on.">
-            <path d="M300 280 H700" stroke="#7E959F" stroke-width="2"></path>
-            <path d="M486 280 V292 M470 292 H502 M476 298 H496 M482 304 H490" stroke="#7E959F" stroke-width="2"></path>
-            <text class="hwx-sch-val" x="508" y="300">J0</text>
-          </g>
-
-          <g class="hwx-node" tabindex="0" role="button"
-             data-tip-t="I&sup2;C bus"
-             data-tip="SEN0365 powered from the ESP32 3V3 rail. GPIO21 SDA, GPIO22 SCL. Responds at address 0x39, 20 of 20 stable scans; ATIME, ASTEP and AGAIN written and read back matching.">
-            <path d="M190 100 H620 M190 120 H620" stroke="#64DE9A" stroke-width="2" fill="none"></path>
-            <text class="hwx-sch-val hwx-sch-i2c" x="326" y="94">GPIO21 SDA &middot; 0x39</text>
-            <text class="hwx-sch-val hwx-sch-i2c" x="500" y="114">GPIO22 SCL</text>
-          </g>
-          <path d="M660 156 V280" stroke="#7E959F" stroke-width="2" fill="none"></path>
-          <text class="hwx-sch-val" x="196" y="216">GPIO25</text>
-          <text class="hwx-sch-val" x="196" y="144">VIN</text>
-        </svg>
-      </div>
-      <div class="hwx-rig-foot">
-        <span data-v2="R1 measured again 2026-10-03, power off. Rail, LED and switch voltages not measured again.">Measured 2026-08-25 on breadboard. Total draw &asymp; 77&nbsp;mA.</span>
-        <span>I<sub>LED</sub> <span data-v2="&asymp; 10 mA: 9.2 to 9.9 mA by meter, at most 11.3 mA by calculation.">= 5.553&nbsp;mA, measured 2026-08-25: every version 1 reading.</span></span>
-      </div>
-    </div>
-
-    {# 來源：PROJECT_STATE/DECISION_LOG.md GOV-011；
-       _AI_REFACTOR_WORK/P1_LED_CURRENT_STAGE6_2026-10-03/SUMMARY_stdout.txt、OWNER_READINGS_2026-10-03.md；
-       firmware/README.md（434 Ω 時短路電流上限 11.89 mA）。
-       空杯那一列的「前」是改版後的機構配 434 Ω，所以欄位用電阻值標示，不是用 version 標示。 #}
-    <h3>The LED current, before and after</h3>
-
-    <p>
-      Version 1 ran the LED at 5.553&nbsp;mA, under the 8 to 12&nbsp;mA the
-      design aims for. On 2026-10-03 one 220&nbsp;&#8486; resistor replaced
-      the series pair, which brings it to about 10&nbsp;mA. With an empty
-      cuvette, the two channels beside the source then read about twice what
-      they had, and the emission channel still read zero.
-    </p>
-
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The branch at 434&nbsp;&#8486; and at 217&nbsp;&#8486;</span>
-        <span class="hw-fold-meta">5 rows</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-    <figure class="hw-figure hw-figure-table">
-      <table class="hw-table">
-        <caption class="visually-hidden">The excitation branch at the two values of R1</caption>
-        <thead>
-          <tr><th scope="col"><span class="visually-hidden">Quantity</span></th><th scope="col">R1 = 434&nbsp;&#8486;</th><th scope="col">R1 = 217&nbsp;&#8486;</th></tr>
-        </thead>
-        <tbody>
-          <tr><th scope="row">In use</th><td>2026-08-25 to 2026-10-03: every version 1 reading</td><td>Since 2026-10-03</td></tr>
-          <tr><th scope="row">Made of</th><td>218&nbsp;&#8486; + 216&nbsp;&#8486; in series</td><td>One 220&nbsp;&#8486; resistor, 217&nbsp;&#8486; measured</td></tr>
-          <tr><th scope="row">LED current</th><td>5.553&nbsp;mA, measured 2026-08-25</td><td>9.2 to 9.9&nbsp;mA by meter; at most 11.3&nbsp;mA by calculation</td></tr>
-          <tr><th scope="row">If the LED shorted</th><td>11.89&nbsp;mA. The resistor alone holds it under our 15&nbsp;mA ceiling</td><td>About 24&nbsp;mA. It no longer does</td></tr>
-          <tr><th scope="row">Empty cuvette, F2 / F3 / F4</th><td>7.89 / 6.89 / 0</td><td>18.33 / 13.33 / 0</td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        The last row is nine consecutive cycles on each side of the change,
-        on version 2, with the same empty cuvette left in its seat in the
-        dark. It is excitation scattered by an empty cuvette, not
-        fluorescence.
-      </figcaption>
-    </figure>
-      </div>
-    </details>
-
-    <div class="hw-caution">
-      <p>
-        <em>What that shows, and what it does not.</em> It is scattered
-        excitation on an empty cuvette, not a fluorescence result, and it does
-        not show that 10&nbsp;mA is the right current. Readings at the two
-        resistances cannot be pooled: the empty-cuvette ratio is not a
-        conversion for fluorescence. The meter readings were taken during
-        0.55&nbsp;s pulses, so they are a lower estimate.
-      </p>
-    </div>
-
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Acquisition timing</span>
-        <span class="hw-fold-meta">551&ndash;552&nbsp;ms of a 1.0&nbsp;s ceiling</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <p>
-      One reading is not instantaneous. The LED turns on, the optics and the
-      sensor are given time to settle, the sensor integrates twice to cover
-      all its channels, and the LED turns off again. The firmware holds a hard
-      1.0&nbsp;s ceiling on that window.
-    </p>
-
-    <div class="hwx-rig hwx-rig-plain">
-      <div class="hwx-rig-head">
-        <h3>One acquisition, against the 1.0&nbsp;s ceiling</h3>
-        <p class="hwx-rig-sub">Measured 2026-08-25, diagnostic sketch, one integration per SMUX configuration</p>
-      </div>
-      <div class="hwx-rig-figure">
-        <!-- Widths are percentages of the 1.0 s ceiling, so the bar is drawn
-             by the numbers rather than by eye. No script needed. -->
-        <div class="hwx-timing">
-          <div class="hwx-tseg hwx-t-settle" style="left:0;width:10%">settle 100&nbsp;ms</div>
-          <div class="hwx-tseg hwx-t-read" style="left:10%;width:45.16%">all-channel read 451.6&nbsp;ms</div>
-          <div class="hwx-tseg hwx-t-margin" style="left:55.16%;width:44.84%">remaining margin 448&nbsp;ms</div>
-          <div class="hwx-tmark hwx-tmark-left" style="left:50%"><span>0.5&nbsp;s target</span></div>
-          <div class="hwx-tmark hwx-tmark-led" style="left:55.16%"><span>LED off &middot; 551&ndash;552&nbsp;ms</span></div>
-          <div class="hwx-tscale">
-            <span style="left:0">0</span><span style="left:25%">250&nbsp;ms</span>
-            <span style="left:50%">500&nbsp;ms</span><span style="left:75%">750&nbsp;ms</span>
-            <span class="hwx-tscale-end">1.0&nbsp;s hard timeout</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <p class="hw-aside">
-      The window fits the 1.0&nbsp;s hard timeout with 448&nbsp;ms of margin
-      and misses our own 0.5&nbsp;s target by about 52&nbsp;ms, which we have
-      recorded as a missed target. That was measured with a diagnostic sketch.
-      The project firmware has since reported 550 to 552&nbsp;ms in every
-      session, by its own timer and not by an edge measured on the pin, and
-      the 1.0&nbsp;s cut-off itself has never been exercised.
-    </p>
-      </div>
-    </details>
-  </section>
-
-  <!-- ========================= how it got here ========================= -->
-  {# 來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §3；缺件與斷裂的細節在
-     PROJECT_STATE/CURRENT_STATE.md「Physical Prototype State」；v0.8 在
-     _AI_REFACTOR_WORK/P1_MECH_V08_*（斷裂指標是截面比，不是強度計算）；
-     最後一站（10-03）在 P1_V08_FIRST_READ_LOGS_2026-10-03 與 P1_LED_CURRENT_STAGE6_2026-10-03。
-     九月改版時 build history 曾依指示從本頁拿掉；這一節是 2026-10-01 放回來的精簡版。 #}
-  <section id="hardware-history">
-    <h2>How it got here</h2>
-
-    <p>
-      Each step in the log below was a test whose result changed what we did
-      next.
-    </p>
-
-    <!--
-      An instrument panel like the bench, so it is dark like the bench. Every
-      step is written out here in full; static/hardware-bench.js builds the row
-      of stops from the data-when and data-name of each step and then shows one
-      at a time. Without the script the steps are simply a list.
-    -->
-    <div class="hwx-rig hwx-log" id="hwxLog">
-      <div class="hwx-rig-head">
-        <h3>Development log</h3>
-        <p class="hwx-rig-sub">Eight steps, 2026-08-14 to 2026-10-03</p>
-      </div>
-
-      <div class="hwx-log-track" id="hwxLogTrack" role="group"
-           aria-label="Steps in the development of the instrument"></div>
-
-      <ol class="hwx-log-list">
-        <li class="hwx-log-item" data-when="08-17" data-name="Printed parts">
-          <div class="hwx-log-date">2026-08-14 to 08-17</div>
-          <h4>The printed parts arrive</h4>
-          <p>
-            The printer flagged walls too thin to print on one part, which was
-            redrawn first. Of 59 pieces, 57 arrived; two were missing, and two
-            broke as their supports were removed.
-          </p>
-          <p class="hwx-log-change"><span>What it changed</span>
-            We built with what we had, taped the two breaks, and wrote down
-            where they broke for the next revision.</p>
-        </li>
-
-        <li class="hwx-log-item" data-when="08-25" data-name="First light">
-          <div class="hwx-log-date">2026-08-25</div>
-          <h4>First light</h4>
-          <p>
-            With the LED at 5.553&nbsp;mA, a paper scatterer at the sample
-            position read F2&nbsp;=&nbsp;87 and F3&nbsp;=&nbsp;81 against dark
-            reads of zero. With nothing in the beam, stray excitation stayed
-            under one count.
-          </p>
-          <p class="hwx-log-change"><span>What it changed</span>
-            The light path works, taped joints included. The UVette's
-            orientation was fixed from here on.</p>
-        </li>
-
-        <li class="hwx-log-item" data-when="08-27" data-name="Room light">
-          <div class="hwx-log-date">2026-08-27</div>
-          <h4>Room light gets in</h4>
-          <p>
-            An empty UVette under ordinary room lighting read F4&nbsp;=&nbsp;11
-            with the LED off. In a darkened room, or under an opaque box, every
-            channel read zero.
-          </p>
-          <p class="hwx-log-change"><span>What it changed</span>
-            A shield became mandatory, and &ldquo;the dark read must be
-            zero&rdquo; became the rule that voids a cycle.</p>
-        </li>
-
-        <li class="hwx-log-item" data-when="09-04" data-name="First fluorescence">
-          <div class="hwx-log-date">2026-09-02 to 09-04</div>
-          <h4>First fluorescence</h4>
-          <p>
-            Running the project firmware, a culture reported to carry sfGFP
-            read F4&nbsp;=&nbsp;19.58&nbsp;&plusmn;&nbsp;0.79 and its control
-            read 0, over twelve cycles each. Twelve cycles are not twelve
-            samples.
-          </p>
-          <p class="hwx-log-change"><span>What it changed</span>
-            The emission channel is usable. We had called that culture
-            &ldquo;induced&rdquo;; no AHL had been added, and the word was
-            withdrawn.</p>
-        </li>
-
-        <li class="hwx-log-item" data-when="09-14" data-name="Day to day">
-          <div class="hwx-log-date">2026-09-09 and 09-14</div>
-          <h4>Five days apart</h4>
-          <p>
-            A GFP culture read 40.50&nbsp;&plusmn;&nbsp;1.23 over four
-            insertions, with its control at zero. Five days later the
-            corresponding culture read 32.67&nbsp;&plusmn;&nbsp;1.83, lower by
-            19.3&nbsp;%. The instrument had been moved in between and the
-            state of the culture was not known.
-          </p>
-          <p class="hwx-log-change"><span>What it changed</span>
-            A difference across days cannot be explained afterwards, so every
-            comparison now carries its reference in the same session.</p>
-        </li>
-
-        <li class="hwx-log-item" data-when="09-29" data-name="Mixing sessions">
-          <div class="hwx-log-date">2026-09-16, 09-21 and 09-29</div>
-          <h4>Three mixing sessions</h4>
-          <p>
-            GFP stock, non-GFP stock and medium, mixed at set fractions.
-            Samples without GFP read zero every time, and within a session the
-            reading rose in proportion to the GFP culture. A thin stock on
-            09-21 left three tubes at zero.
-          </p>
-          <p class="hwx-log-change"><span>What it changed</span>
-            The stock has to be dense enough to clear the floor, and one
-            session's slope cannot be carried to another as it stands. The
-            <a href="{{ url_for('pages', page='model') }}">Model</a> page
-            takes it from there.</p>
-        </li>
-
-        <li class="hwx-log-item" data-when="10-02" data-name="Redrawn">
-          <div class="hwx-log-date">2026-09-23 to 10-02</div>
-          <h4>The weak parts, redrawn</h4>
-          <p>
-            The cuvette seat and the excitation end were redrawn: a pocket
-            the cuvette drops into and lands in, an LED holder that grips the
-            LED without a clip, and a baffle that prints on its side. With the
-            cap that never arrived, that makes five parts to print. Two fit
-            coupons were printed first, and the pocket and the socket that
-            fitted by hand set the two dimensions a drawing cannot settle.
-          </p>
-          <p class="hwx-log-change"><span>What it changed</span>
-            The fractures became a check: each printed layer's cross-section
-            against the fullest section within 3&nbsp;mm of it. Where the
-            parts broke that ratio was 0.63 and 0.32; the five new parts keep
-            at least 0.82, against a threshold of 0.75. It is a geometric
-            screen tuned on those two breaks, not a strength calculation.</p>
-        </li>
-
-        <li class="hwx-log-item" data-when="10-03" data-name="Version 2">
-          <div class="hwx-log-date">2026-10-03</div>
-          <h4>Version 2 on the bench</h4>
-          <p>
-            New printed parts were fitted, and one resistor was changed to
-            take the LED from 5.55&nbsp;mA to about 10&nbsp;mA. With the same empty
-            cuvette the rebuilt reader read F2&nbsp;=&nbsp;7.75 and
-            F3&nbsp;=&nbsp;6.71 after an adjustment, inside the range version
-            1 had read, and about twice that once the current was raised. The
-            emission channel stayed at zero throughout.
-          </p>
-          <p class="hwx-log-change"><span>What it changed</span>
-            The reader is no longer the instrument that produced the bench
-            and culture readings on this page. Its fit, its alignment and its
-            response to a culture have to be measured again before the two can
-            be put side by side.</p>
-        </li>
-      </ol>
-
-      <div class="hwx-rig-foot">
-        <span class="hwx-log-nav">
-          <button type="button" data-log-step="-1" hidden>Earlier</button>
-          <span id="hwxLogCount"></span>
-          <button type="button" data-log-step="1" hidden>Later</button>
-        </span>
-        <span>The week-by-week record is in the
-          <a href="{{ url_for('pages', page='notebook') }}">Notebook</a>.</span>
-      </div>
-    </div>
-
-    {# 原本是獨立的一節 "Decisions that shaped P1"，2026-10-04 收進這個摺疊：
-       它講的是專案過程，不直接回答四道評審題。五張翻面卡原封不動。 #}
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Decisions that narrowed the first prototype</span>
-        <span class="hw-fold-meta">5 decisions</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <p>
-      Recorded project decisions from 2026-08-09. The marked ones removed
-      capability from the prototype on purpose.
-    </p>
-
-    <dl class="hw-terms hw-decs hw-flip">
-      <div class="hw-flip-card is-narrow" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v13a2 2 0 0 0 4 0V3"/><path d="M10 11.4c1.3.8 2.7.8 4 0"/><path d="M4.2 19.8 19.8 4.2"/></svg></span>Turbidity QC is out of P1 acceptance
-            <span class="hw-dec-flag">narrows the scope</span></span>
-        </dt>
-        <dd class="hw-flip-back">
-          Red-light transmission and turbidity QC are removed. The far side of
-          the excitation axis is occupied by the light trap, so there is no
-          transmission path and the measurement is not physically
-          implementable in this geometry.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 3.4v2.3M12 18.3v2.3M3.4 12h2.3M18.3 12h2.3M5.9 5.9 7.5 7.5M16.5 16.5l1.6 1.6M18.1 5.9 16.5 7.5M7.5 16.5l-1.6 1.6"/></svg></span>470&nbsp;nm excitation for the first round</span>
-        </dt>
-        <dd class="hw-flip-back">
-          Three independent design documents agree on the nominal 470&nbsp;nm
-          Cree LED, and the LED holder was dimensioned from that part's
-          datasheet.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 3h7.6v15.6a2.4 2.4 0 0 1-2.4 2.4h-2.8a2.4 2.4 0 0 1-2.4-2.4z"/><path d="M8.2 11.6h7.6"/></svg></span>The UVette is a benchmark, not the product vessel</span>
-        </dt>
-        <dd class="hw-flip-back">
-          The reaction cartridge is a joint wet&ndash;dry decision that has not
-          been made. Future containers will be handled with adapters rather
-          than by modifying approved optical modules.
-        </dd>
-      </div>
-      <div class="hw-flip-card is-narrow" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="5.2"/><path d="M4.2 19.8 19.8 4.2"/></svg></span>PlateDock is out of P1 scope
-            <span class="hw-dec-flag">narrows the scope</span></span>
-        </dt>
-        <dd class="hw-flip-back">
-          Petri-dish imaging and swarming analysis are held as separate future
-          work. No CAD for it exists in any revision, and P1's resources
-          belong on validating one reader properly.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4.6v14.8L10.6 12z"/><path d="M2.6 12h6.6"/><path d="M7.1 9.6 9.5 12l-2.4 2.4"/></svg></span>Angled-wedge light trap selected for manufacture</span>
-        </dt>
-        <dd class="hw-flip-back">
-          The stepped-baffle variant is deferred, not rejected. Both validate
-          digitally and no bench evidence separates them, so the selection is
-          a manufacturing choice and explicitly not a claim that the
-          alternative is worse.
-        </dd>
-      </div>
-    </dl>
-      </div>
-    </details>
-  </section>
-
-  <!-- ========================= what using it taught us ========================= -->
-  {# 來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.6；10-03 的兩次拒絕執行與偵測器接觸不良
-     在 PROJECT_STATE/CURRENT_STATE.md「Electronics State」。這不是 user testing，頁面上照實寫了。
-     正式的使用者測試做完之後，把結果加在這一節前面，並改掉第一段。 #}
-  <section id="hardware-use">
-    <h2>What using it taught us</h2>
-
-    <p>
-      We have not run a formal user test: every measurement here was taken by
-      one member of the team. What we have is a record of what went wrong in
-      use and what changed because of it.
-    </p>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption class="visually-hidden">Problems found in use and what changed</caption>
-        <thead>
-          <tr><th scope="col">What went wrong</th><th scope="col">Session</th><th scope="col">What changed</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>An empty cuvette read F4&nbsp;=&nbsp;11 under room light.</td><td>2026-08-27</td><td>Added the shield box. A dark read that is not zero voids the cycle.</td></tr>
-          <tr><td>A cuvette's number did not match what was in it, and one record had to be voided.</td><td>2026-09-21</td><td>Confirm what is in the cuvette before starting a run.</td></tr>
-          <tr><td>The stock's displayed OD did not scale with dilution.</td><td>2026-09-16 and 09-29</td><td>Recommended: read the OD at one fixed dilution, 1:4. Not yet in the operating card.</td></tr>
-          <tr><td>Washed and reused cuvettes tied &ldquo;which use of this cuvette&rdquo; to the order of reading.</td><td>2026-09-29</td><td>Recommended: one cuvette per tube. Not yet in the operating card.</td></tr>
-          <tr><td>The firmware refused a run because the detector had lost its settings. A reset cleared it each time.</td><td>2026-09-29, and twice on 10-03</td><td>Recommended: the card should say what to do after a refusal. Not yet written.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p class="hw-aside">
-      The last row is the firmware doing its job: when its state is not known
-      it declines to measure. Three refusals point at a loose connection to
-      the detector board. The cause has not been found.
-    </p>
-
-    {# 來源：_AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/README.md（五件零件、R3–R8）、
-       validation_v0_8_round2.json（截面比）、P1_MECH_V08_ROUND1_HANDOFF_2026-09-25/records/
-       ROUND1_FIT_RESULT_2026-10-02.md（試配件）、PROJECT_STATE/CURRENT_STATE.md（沿用了什麼）。
-       右欄寫的是設計：哪幾件實際裝上、LED 蓋有沒有鎖，紀錄裡沒有逐件回報。確認後可以改成肯定句。 #}
-    <h3 id="hardware-v2">What version 2 changes</h3>
-
-    <p>
-      The other half of what use taught us was about the parts. Version 2,
-      fitted on 2026-10-03, is the answer.
-    </p>
-
-    <figure class="hw-figure">
-      <table class="hw-table hw-vs">
-        <caption class="visually-hidden">What was wrong in version 1 and what version 2 does about it</caption>
-        <thead>
-          <tr><th scope="col">In version 1</th><th scope="col">In version 2</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>The LED holder split along its clip slot and the baffle broke at both disk slots as the print supports came off. Both were taped.</td>
-            <td>No clip slot, and a baffle that prints on its side, so no layer loses most of its area. The weakest layer keeps 0.82 of the fullest section within 3&nbsp;mm of it; version 1 broke at 0.63 and 0.32.</td>
-          </tr>
-          <tr>
-            <td>The clip that retains the LED never arrived. Friction and its own leads held it.</td>
-            <td>Three ribs in the holder grip the LED, 0.10&nbsp;mm tight. No clip.</td>
-          </tr>
-          <tr>
-            <td>The cap that clamps the LED holder never arrived. The holder lay in its saddle.</td>
-            <td>The cap is printed, turned over so that it needs no support.</td>
-          </tr>
-          <tr>
-            <td>One preload leaf instead of two left the cuvette free on one axis, by up to about 0.6&nbsp;mm.</td>
-            <td>One body with eight ribs, 0.05&nbsp;mm clear on each side, replaces six pieces. The cuvette lands on four corner tabs, 8.5&nbsp;mm below the beam.</td>
-          </tr>
-          <tr>
-            <td>The LED ran at 5.55&nbsp;mA, under the 8 to 12&nbsp;mA the design aims for.</td>
-            <td>About 10&nbsp;mA, with one resistor in place of two. See <a href="#hardware-circuit">the circuit</a>.</td>
-          </tr>
-        </tbody>
-      </table>
-      <figcaption>
-        The right-hand column is the design, except the last row, which is
-        measured; which of the five parts are fitted on our own reader is not
-        yet on record. The two fits were chosen with printed coupons, described
-        under <a href="#hardware-reproduce">Building one</a>. Unchanged: the
-        base plate, the detector side, the light trap and the firmware. Still
-        absent: aperture disks, an emission filter and an enclosure.
-      </figcaption>
-    </figure>
-
-    {# 來源：_AI_REFACTOR_WORK/P1_V08_FIRST_READ_LOGS_2026-10-03/COMPARE_own_cup_stdout.txt 與 SESSION_NOTE.md。
-       全部是空杯、R1 = 434 Ω。version 1 那一列是 09-02 到 09-29 七場的範圍（同一支杯子）。
-       「調整了什麼」紀錄裡沒有寫；你補上之後請改掉圖說最後一句。 #}
-    <h3>Version 2 so far</h3>
-
-    <div class="hw-caution">
-      <p>
-        <em>Switched on, not validated.</em> Version 2 has read an empty
-        cuvette, and once no cuvette at all. It has not read a culture, and no
-        check of its fit or alignment has been recorded. With the same empty
-        cuvette it read low as first fitted and, after an adjustment, inside
-        the range version 1 had covered; the emission channel read zero. Until
-        it reads a culture, every result on this page apart from these first
-        reads belongs to version 1.
-      </p>
-    </div>
-
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The empty-cuvette reads</span>
-        <span class="hw-fold-meta">3 rows</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <figure class="hw-figure hw-figure-table">
-      <table class="hw-table">
-        <caption class="visually-hidden">The same empty cuvette, LED on, at the version 1 current</caption>
-        <thead>
-          <tr>
-            <th scope="col">Reader</th>
-            <th scope="col">Read</th>
-            <th scope="col" class="hw-num">F2</th>
-            <th scope="col" class="hw-num">F3</th>
-            <th scope="col" class="hw-num">F4</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Version 1</td><td>Seven sessions, 2026-09-02 to 09-29</td><td class="hw-num">7.33 to 11.89</td><td class="hw-num">6.33 to 10.22</td><td class="hw-num">0</td></tr>
-          <tr><td>Version 2, as first fitted</td><td>Four insertions</td><td class="hw-num">6.58</td><td class="hw-num">5.42</td><td class="hw-num">0</td></tr>
-          <tr><td>Version 2, after an adjustment</td><td>Four insertions</td><td class="hw-num">7.75</td><td class="hw-num">6.71</td><td class="hw-num">0</td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        The same empty cuvette throughout, LED on, 434&nbsp;&#8486; resistor.
-        Each version 2 figure is the mean of four insertion means, and the
-        version 1 range runs over seven session means, counting only cycles
-        the firmware flagged valid, which requires a zero dark read before the
-        flash. F2 and F3 are
-        the two channels either side of the 470&nbsp;nm source, so they
-        measure how much excitation an empty cuvette scatters toward the
-        detector; F4 is the emission channel. As first fitted the rebuilt
-        reader read low, and after an adjustment it read inside the range
-        version 1 had covered. The adjustment itself was not written down.
-      </figcaption>
-      </figure>
-      </div>
-    </details>
-  </section>
-
-  <!-- ========================= interface ========================= -->
-  <section>
-    <h2>The assay it is built for</h2>
-
-    <p>
-      The reader has to fit an assay the wet lab defines: our biosensor makes
-      GFP in response to AHL, the quorum-sensing signal. This is what we are
-      designing against.
-    </p>
-
-    <dl class="hw-spec">
-      <div><dt>Reporter</dt><dd>sfGFP. Construct and strain not yet specified.</dd></div>
-      <div><dt>AHL series</dt><dd>10&nbsp;&micro;M, 1&nbsp;&micro;M, 100&nbsp;nM, 10&nbsp;nM, 1&nbsp;nM, as planned.</dd></div>
-      <div><dt>Volume</dt><dd>200&nbsp;&micro;L per reaction.</dd></div>
-      <div><dt>Incubation</dt><dd>37&nbsp;&deg;C, read every hour for six hours.</dd></div>
-      <div><dt>Benchmark</dt><dd>Plate reader at excitation 485&nbsp;nm, emission 510&nbsp;nm, 200&nbsp;&micro;L.</dd></div>
-    </dl>
-
-    <div class="hw-caution">
-      <p>
-        <em>No reading on this page comes from an AHL-induced culture.</em>
-        AHL induction has not been run yet, and there is no plate-reader
-        dataset to compare against; our 470&nbsp;nm excitation also differs
-        from the plate reader's 485&nbsp;nm. What the reader has shown is that
-        it tells a culture reported to carry the sfGFP plasmid from one
-        without it, and from medium.
-      </p>
-    </div>
-  </section>
-
-  <!-- ========================= reproducing ========================= -->
-  <section id="hardware-reproduce">
-    <h2>Building one</h2>
-
-    <p>
-      What a second team needs: the parts to buy, the pieces to print, how to
-      run it, and the files.
-    </p>
-
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Core parts</span>
-        <span class="hw-fold-meta">8 items</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <div class="hw-figure hw-figure-table">
-        <table class="hw-table">
-          <caption class="visually-hidden">Core parts</caption>
-          <thead>
-            <tr><th scope="col">Function</th><th scope="col">Part</th><th scope="col">State</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Excitation LED</td><td>Cree <code>C503B-BCN-CV0Z0461</code></td><td>Received; bench characterised</td></tr>
-            <tr><td>Detector</td><td>DFRobot <code>SEN0365</code> (AS7341)</td><td>Received; bench bring-up passed</td></tr>
-            <tr><td>Controller</td><td>ESP32-WROOM-32, DOIT DevKit V1 30-pin</td><td>In bench use</td></tr>
-            <tr><td>LED switch</td><td>2N7000 N-channel MOSFET</td><td>Conditional bench acceptance, single unit</td></tr>
-            <tr><td>Current limit / gate network</td><td>217&nbsp;&#8486; current limit (434&nbsp;&#8486; for every version 1 reading), 217&nbsp;&#8486; gate, 9.9&nbsp;k&#8486; pulldown</td><td>Measured in place</td></tr>
-            <tr><td>Sample vessel</td><td>Eppendorf UVette</td><td>Engineering benchmark, not the final vessel</td></tr>
-            <tr><td>Optical core</td><td>Printed PLA: v0.7 geometry, and five v0.8 replacement parts</td><td>Rebuilt 2026-10-03 as version 2. Which of the five are fitted, and how they fit, is not yet on record</td></tr>
-            <tr><td>Shield</td><td>Opaque cardboard box</td><td>Interim; every measurement needs it or a darkened room</td></tr>
-          </tbody>
-        </table>
-      </div>
-      </div>
-    </details>
-
-    {# 來源：PROJECT_STATE/CURRENT_STATE.md「Physical Prototype State」。 #}
-    <p class="hw-aside">
-      Build version 2. Version 1 was never a complete set, for the reasons
-      under <a href="#hardware-v2">what version 2 changes</a>, and its
-      alignment was shown to work but never quantified.
-    </p>
-
-    <p>
-      The printed parts are in the 3D view under
-      <a href="#hwParts">The instrument</a>. Each part there carries its
-      size and can be saved as an STL file.
-    </p>
-
-    {# 來源：_AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/README.md「這 5 件是什麼」與
-       vendor_package/PRINT_INSTRUCTIONS_ROUND2_zh-TW.txt（擺放方向、列印規格）。
-       誰印的、實際用的切片設定，紀錄裡是 UNKNOWN，所以這裡寫的是「指定的規格」。 #}
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The five version 2 parts</span>
-        <span class="hw-fold-meta">5 files</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <figure class="hw-figure hw-figure-table">
-        <table class="hw-table">
-          <caption class="visually-hidden">The five version 2 parts</caption>
-          <thead>
-            <tr><th scope="col">Part</th><th scope="col">Replaces</th><th scope="col">Size (mm)</th><th scope="col">On the print bed</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>UVette holder body</td><td>The old holder body, two gates, collar, gauge and preload leaf</td><td class="hw-nb">36 &times; 36 &times; 25.5</td><td>Square base down</td></tr>
-            <tr><td>UVette seat riser</td><td>The v0.7 riser</td><td class="hw-nb">43 &times; 42.5 &times; 13</td><td>Large face down</td></tr>
-            <tr><td>LED holder body</td><td>The old holder body and its retainer clip</td><td class="hw-nb">21.6 &times; 21.6 &times; 21.3</td><td>Flanged end down, cylinder upright</td></tr>
-            <tr><td>Aperture baffle body</td><td>The old baffle body</td><td class="hw-nb">15 &times; 16 &times; 13</td><td>Flattened face down, bore horizontal</td></tr>
-            <tr><td>LED-holder cap</td><td>The cap version 1 never received</td><td class="hw-nb">6 &times; 30.6 &times; 12.45</td><td>Flat face down, arch opening up</td></tr>
-          </tbody>
-        </table>
-        <figcaption>
-          Two dimensions cannot be taken from a drawing, because they depend
-          on the printer: how far the ribs stand off the cuvette, and how
-          tightly the LED is gripped. Two fit coupons were printed first, a
-          block of four cuvette pockets from 0.05 to 0.20&nbsp;mm clear on
-          each side and a block of four LED sockets from 0 to 0.30&nbsp;mm
-          tight. The 0.05&nbsp;mm pocket fitted and the three looser ones were
-          too loose; the 0.10&nbsp;mm socket held the LED and the next was
-          slightly too tight. Those two values went into the parts, on a
-          judgement by hand, one try per position, with no caliper.
-        </figcaption>
-      </figure>
-      </div>
-    </details>
-
-    <p>
-      All five print without supports in the orientation given. The print
-      was specified as matte black PLA, which has to be opaque, on a
-      0.4&nbsp;mm nozzle with 0.20&nbsp;mm layers and 100&nbsp;% infill, and
-      nothing scaled or drilled afterwards. The two fit values came from
-      coupons printed on one machine. On another printer, print the coupons
-      first.
-    </p>
-
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Fitting the version 2 parts</span>
-        <span class="hw-fold-meta">5 steps</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <p>
-      These are the notes that went with the parts. They were written at
-      design time and are not yet a record of an assembly that was checked
-      step by step.
-    </p>
-
-    <ol class="hw-steps">
-      <li><strong>Cuvette.</strong> Line up the arrow marking the UVette's
-        10&nbsp;mm path with the double-headed arrow on the holder's top face,
-        which runs along the detector axis. Lower it in vertically and push it
-        to the bottom. Keep one orientation through a series.</li>
-      <li><strong>If the cuvette is tight.</strong> Sand the ribs in the
-        pocket lightly, eight of them and each 1.6&nbsp;mm wide. Do not sand
-        the cuvette. A tight pocket can be eased; a loose one cannot.</li>
-      <li><strong>LED holder.</strong> The straight groove on its outer wall
-        faces up, on the centre line of the baffle's flat top, and the wire
-        notch at the back faces down. Push the LED in from behind until its
-        flange meets the shoulder.</li>
-      <li><strong>Wires.</strong> Out through the notch, tied between the two
-        flanges with a cable tie no wider than 2.5&nbsp;mm.</li>
-      <li><strong>Cap.</strong> Two M3 screws into the cradle, holding the LED
-        holder down.</li>
-    </ol>
-      </div>
-    </details>
-
-    {# PHOTO: 裝配的逐步照（UVette 座、LED 座與蓋子），上傳到 static.igem.wiki 後放在這裡 #}
-
-    <p>
-      The costing below is for the laser-cut build, whose enclosure, display
-      and button are in it. The 3D-printed build has no total of its own: what
-      its printed parts cost was not recorded. Figures are converted from New
-      Taiwan dollars at <strong>NT$31.68 to US$1</strong> (2026-09-22).
-    </p>
-
-    {#
-      === 給團隊 ===
-      成本只以美元呈現，原始台幣數字已拿掉，所以頁面上留著匯率與日期——
-      沒有匯率的美金數字別人無法驗算，也無法用自己的匯率重算。
-      小計是「上面那幾列四捨五入後相加」的結果，不是原始台幣總額再換算：
-      電子零件那欄逐列相加是 $42.18，1336 元直接換算是 $42.17，差一分錢。
-      台幣欄還在時看不出來，現在讀者會自己加那一欄，所以取能加得起來的那個。
-
-      下面「not in this costing」列的是電路上有、但試算表沒有計價的零件
-      （電阻、MOSFET、LED、UVette）。我沒有替它們估價——估錯對要照著重建的
-      隊伍來說比沒有數字更糟。有價格之後補進上表即可。
-    #}
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Cost of one laser-cut build</span>
-        <span class="hw-fold-meta">$53.54 as costed</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <div class="hw-figure hw-figure-table">
-        <table class="hw-table hw-cost">
-          <caption class="visually-hidden">Cost of one laser-cut build</caption>
-          <thead>
-            <tr>
-              <th scope="col">Item</th><th scope="col">Qty</th>
-              <th scope="col">Cost (US$)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="hw-cost-head"><th scope="rowgroup" colspan="3">Electronics</th></tr>
-            <tr><td>ESP32 development board</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$6.79</td></tr>
-            <tr><td>AS7341 spectral sensor board</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$27.15</td></tr>
-            <tr><td>Button module</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$0.51</td></tr>
-            <tr><td>OLED display</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$4.73</td></tr>
-            <tr><td>Breadboard</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$1.42</td></tr>
-            <tr><td>Jumper wires</td><td class="hw-cost-n">several</td><td class="hw-cost-n">$1.58</td></tr>
-            <tr class="hw-cost-sub"><td>Electronics subtotal</td><td></td><td class="hw-cost-n">$42.18</td></tr>
-            <tr class="hw-cost-head"><th scope="rowgroup" colspan="3">Enclosure, laser-cut</th></tr>
-            <tr><td>Wood board</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$1.89</td></tr>
-            <tr><td>Laser cutting</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$9.47</td></tr>
-            <tr class="hw-cost-sub"><td>Enclosure subtotal</td><td></td><td class="hw-cost-n">$11.36</td></tr>
-            <tr class="is-total"><td>Total, as costed</td><td></td><td class="hw-cost-n">$53.54</td></tr>
-          </tbody>
-        </table>
-      </div>
-      </div>
-    </details>
-
-    <p>
-      Printing that enclosure instead of laser-cutting it costs
-      <strong>$36.30</strong> for the step and brings the build to
-      <strong>$78.48</strong>.
+      We built two readers on this principle. They share the light path and
+      the spectral sensing described above; the modelling, the mechanism and
+      the way each was developed are its own. Choose a build to see it.
     </p>
 
     <p class="hw-aside">
-      Not in the costing, because the sheet never priced them: the
-      <strong>resistors</strong>, the <strong>2N7000</strong> switch, the
-      <strong>Cree 470&nbsp;nm LED</strong> and the <strong>Eppendorf
-      UVette</strong>. We have not guessed at them.
+      Counts from the two readers are not interchangeable: they run different
+      firmware and integrate for different times. The sensor settings under
+      the channel map above are the 3D-printed build's.
     </p>
 
-    {# 來源：_AI_REFACTOR_WORK/P1_BENCH_OPERATING_CARD_2026-09-15.md（操作卡）。
-       收尾報告建議的兩條（一管一杯、原液 OD 固定在 1:4 下讀）還沒寫進操作卡，
-       所以這裡沒有列為步驟，而是放在 What using it taught us。 #}
-    <h3>Running a measurement</h3>
+    {# VIDEO: 示範影片上傳到 video.igem.org 之後放在這裡（寫法照 home.html 的 promotion video），
+       圖說要寫清楚拍的是哪一台、哪一版。10-03 錄的那幾段沒有罩紙箱，畫面上的讀值不能當數據。 #}
 
-    <p>
-      The 3D-printed build is driven over the serial port, one command per
-      line, under its shield. One run reads three cycles of dark, lit, dark.
-    </p>
+    <div class="hw-modules hw-pick" data-hw-pick>
+      <div class="hw-module hw-pick-card" data-build="printed">
+        <span class="hw-module-tag">Measured</span>
+        {# PHOTO: 3D 列印機的整機照（縮圖），上傳後照上面的寫法插在這裡 #}
+        <h3>3D-printed build</h3>
+        <p class="hw-module-what">
+          A 3D-printed optical core on a base plate, with the electronics on
+          a breadboard beside it.
+        </p>
+        <dl class="hw-spec">
+          <div><dt>Run from</dt><dd>Serial commands</dd></div>
+          <div><dt>Versions</dt><dd>Two. Version 2 in use from 2026-10-03</dd></div>
+          <div><dt>Data</dt><dd>Four dilution-series sessions with GFP culture. The <a href="{{ url_for('pages', page='model') }}">Model</a> page works through the first three</dd></div>
+        </dl>
+        <a class="hw-pick-go" href="#printed"><span class="hw-pick-see">See the 3D-printed build</span><span class="hw-pick-now">Showing below</span></a>
+      </div>
 
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Operating protocol</span>
-        <span class="hw-fold-meta">7 steps</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <ol class="hw-steps">
-      <li>Connect, power up, and put the opaque box over the instrument.</li>
-      <li><code>id</code>: go on only if the sensor reports ready and its
-        settings read back as written.</li>
-      <li>Empty cuvette, LED not armed, <code>run</code>: all twelve channels
-        must read zero in all three phases. This is the check that the shield
-        is on.</li>
-      <li>Empty cuvette again, <code>arm</code> and <code>run</code>: the
-        day's empty-cuvette reading. It is not used as a reference across
-        days.</li>
-      <li>A medium blank, 200&nbsp;&micro;L.</li>
-      <li>Each sample: check the cuvette against the light for bubbles, the
-        beam passing 8.5&nbsp;mm above its floor; name it with
-        <code>sample</code>; then <code>run</code>, which reads three cycles
-        of dark, lit, dark.</li>
-      <li><code>disarm</code> when done. A successful run does not disarm by
-        itself.</li>
-    </ol>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption>How to read one row of data</caption>
-        <thead><tr><th scope="col">The row says</th><th scope="col">It means</th><th scope="col">Do</th></tr></thead>
-        <tbody>
-          <tr><td><code>flag=OK</code>, <code>fault=NONE</code></td><td>A valid reading, including when F4 is 0.</td><td>Keep it.</td></tr>
-          <tr><td><code>AMBIENT_PRESENT</code></td><td>The dark read before the flash was not zero.</td><td>Void the cycle, fix the shield, read again. Do not subtract.</td></tr>
-          <tr><td><code>SATURATED</code></td><td>A channel reached full scale, 65&nbsp;535.</td><td>Dilute the sample.</td></tr>
-          <tr><td><code>NOT_ARMED</code></td><td>The LED was not armed, so there is no signal.</td><td>Arm and run again.</td></tr>
-        </tbody>
-      </table>
+      <div class="hw-module hw-pick-card" data-build="laser-cut">
+        <span class="hw-module-tag">Enclosed</span>
+        {# PHOTO: 雷切機的外觀照（縮圖；外殼、OLED 看得到），上傳後照上面的寫法插在這裡 #}
+        <h3>Laser-cut build</h3>
+        <p class="hw-module-what">
+          A second reader on the same principle, made from laser-cut parts in
+          its own enclosure.
+        </p>
+        <dl class="hw-spec">
+          <div><dt>Run from</dt><dd>A browser; see <a href="{{ url_for('pages', page='software') }}">Software</a></dd></div>
+          <div><dt>Interface</dt><dd>OLED display and a button</dd></div>
+          <div><dt>Data</dt><dd>None on this page</dd></div>
+        </dl>
+        <a class="hw-pick-go" href="#laser-cut"><span class="hw-pick-see">See the laser-cut build</span><span class="hw-pick-now">Showing below</span></a>
+      </div>
     </div>
-
-    <p class="hw-aside">
-      Two rules sit above the steps. The controller is reset once, at the
-      start, and not again: a sensor initialisation fault has followed a
-      reset, for a reason we have not found, and in that state the firmware
-      refuses to run. And a voided row stays in the file. It is left out of
-      the statistics, not deleted.
-    </p>
-      </div>
-    </details>
-
-    <h3>The file manifest</h3>
-
-    <p>
-      The mechanical source is parametric CadQuery Python with STEP and STL
-      exports; the firmware is an ESP32 sketch using the Adafruit AS7341
-      library.
-    </p>
-
-    {#
-      === 給團隊 ===
-      "Where it is" 那一欄已按要求拿掉。連帶做了一件事：原本有一列是
-      "Assembly procedure / Written build order / Not written"——沒有狀態欄之後，
-      把它留著等於宣稱有一份組裝步驟文件存在，但並沒有。所以那一列也拿掉了，
-      改在表格下方用一句話說明哪些已在本頁、哪些還在你們手上。
-      檔案放上 iGEM GitLab 或 uploads tool 之後，那句話就可以換成連結。
-    #}
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">What you need to build one</span>
-        <span class="hw-fold-meta">9 artefacts</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <div class="hw-figure hw-figure-table">
-        <table class="hw-table">
-          <caption class="visually-hidden">What you need to build one</caption>
-          <thead>
-            <tr><th scope="col">Artefact</th><th scope="col">Format</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Optical core geometry</td><td>Parametric CadQuery Python: v0.7, and the five v0.8 parts</td></tr>
-            <tr><td>Printable parts</td><td>STL: 46 files for the 59 pieces of version 1, five for version 2, two version 2 fit coupons</td></tr>
-            <tr><td>Assembly geometry</td><td>STEP</td></tr>
-            <tr><td>Acquisition firmware</td><td>ESP32 sketch, Adafruit AS7341 library, <code>P1-ACQ-1.0.0</code></td></tr>
-            <tr><td>Bill of materials</td><td>CSV</td></tr>
-            <tr><td>Bench circuit</td><td>Schematic with measured values</td></tr>
-            <tr><td>Optical coordinates</td><td>Every part and its X extent</td></tr>
-            <tr><td>Working sensor settings</td><td>AGAIN 512&times;, ATIME 255, ASTEP 280</td></tr>
-            <tr><td>Operating rule</td><td>Darkened room or opaque shield</td></tr>
-          </tbody>
-        </table>
-      </div>
-      </div>
-    </details>
-
-    <p class="hw-aside">
-      The circuit, the coordinates, the sensor settings and the operating
-      rule are on this page, and every printed part can be saved as an STL
-      file from the 3D view under <a href="#hwParts">The instrument</a>. The CadQuery source,
-      the STEP files, the firmware and the bill of materials are not
-      published yet, and there is no complete written assembly procedure:
-      version 2 has only the fitting notes above.
-    </p>
-
-    {# PHOTO: UVette 座與 ORIENT-A 安裝方向照，上傳後插在這裡 #}
-
   </section>
+
+  {# 兩台各自的內容。id 就是卡片的 data-build，也是網址 # 後面的字，不要改。 #}
+  <div class="hw-build" id="printed" role="region" aria-labelledby="hw-build-printed">
+{% include "hardware-printed.html" %}
+  </div>
+
+  <div class="hw-build" id="laser-cut" role="region" aria-labelledby="hw-build-laser-cut">
+{% include "hardware-laser-cut.html" %}
+  </div>
 
   <!-- ========================= references ========================= -->
   {# 2026-10-04 新增。四個元件的規格書與 sfGFP 的原始論文，每一條都實際查過存在。
@@ -2390,4 +731,6 @@
 <script src="{{ url_for('static', filename = 'hardware-cutaway.js') }}"></script>
 <script src="{{ url_for('static', filename = 'hardware-parts.js') }}"></script>
 <script src="{{ url_for('static', filename = 'hardware-bench.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-gains.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-builds.js') }}"></script>
 {% endblock %}
