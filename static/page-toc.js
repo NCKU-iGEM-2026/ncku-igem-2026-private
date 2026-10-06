@@ -127,9 +127,12 @@
       /* on a short page a click on an early entry can only scroll as far as the bottom: keep the one that was clicked */
       if (pinned && pinned.el.getBoundingClientRect().top < window.innerHeight - 40) current = pinned;
     }
-    items.forEach(function (f) {
+    var at = items.indexOf(current);
+    items.forEach(function (f, i) {
       var on = f === current;
       f.link.classList.toggle("is-active", on);
+      /* scrolled past already, as on the Human Practices sidebar */
+      f.link.classList.toggle("is-passed", i < at);
       if (on) f.link.setAttribute("aria-current", "location");
       else f.link.removeAttribute("aria-current");
     });

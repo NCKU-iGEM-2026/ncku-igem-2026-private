@@ -1,7 +1,14 @@
 /* "On this page": the list static/page-toc.js builds down the left side.
    Wide screens only; below 1200px the page is already narrow and the list is
    not shown. The page gets room for it by padding, so nothing on the page has
-   to know it is there. */
+   to know it is there.
+
+   Drawn the way the Human Practices sidebar (.edu-sidebar) is drawn, so every
+   page's contents read alike: Changa, a small arrow before each entry that
+   turns green once its section has been scrolled past, a tinted pill for the
+   section being read, and a nudge to the right under the pointer. The rules
+   are repeated here rather than shared, because the .edu-sidebar ones come
+   with a collapsing list and a scroll script of their own. */
 .page-toc { display: none; }
 
 @media (min-width: 1200px) {
@@ -12,91 +19,145 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 12px;
-    width: 216px;
+    left: 0;
+    width: 212px;
   }
 
   .page-toc-inner {
     position: sticky;
-    top: 104px;
-    max-height: calc(100vh - 128px);
-    display: flex;
-    flex-direction: column;
-    padding: 0.2rem 0 0.2rem 0.9rem;
-    border-left: 2px solid #cfdcd5;
-    font-family: "Changa", sans-serif;
+    top: 84px;
+    max-height: calc(100vh - 104px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
+  .page-toc-inner::-webkit-scrollbar { display: none; }
 
+  /* the heading of the list, like an .edu-sidebar-group-title */
   .page-toc-title {
-    margin: 0 0 0.6rem;
-    font-size: 0.74rem;
-    font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: #5c6b62;
+    position: relative;
+    margin: 0 0 0.5rem;
+    padding-left: 1.15rem;
+    font-family: "Changa", sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #075a3e;
+  }
+  .page-toc-title::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid #075a3e;
+    transform: translateY(-50%);
   }
 
   .page-toc-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    overflow-y: auto;
-    position: relative;
-    scrollbar-width: thin;
   }
-
   .page-toc-list li { margin: 0; }
 
+  /* each entry, like an .edu-sidebar-link */
   .page-toc-list a {
+    position: relative;
     display: block;
-    padding: 0.28rem 0.4rem 0.28rem 0.7rem;
-    margin-left: -0.9rem;
-    border-left: 2px solid transparent;
-    font-size: 0.9rem;
+    padding: 0.35rem 0.6rem 0.35rem 1.15rem;
+    border-radius: 8px;
+    font-family: "Changa", sans-serif;
+    font-size: 0.95rem;
     line-height: 1.3;
-    color: #3d4d44;
+    color: #6b6055;
     text-decoration: none;
-    transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+  }
+  .page-toc-list a::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid #c9bfa8;
+    transform: translateY(-50%);
+    transition: border-left-color 0.2s ease;
   }
 
   .page-toc-list a:hover,
-  .page-toc-list a:focus-visible { color: #075a3e; background: rgba(7, 90, 62, 0.07); }
+  .page-toc-list a:focus-visible {
+    color: #075a3e;
+    transform: translateX(8px);
+  }
+  .page-toc-list a:hover::before,
+  .page-toc-list a:focus-visible::before { border-left-color: #075a3e; transform: translate(-8px, -50%); }
 
+  /* scrolled past already: the arrow goes green, nothing else changes */
+  .page-toc-list a.is-passed::before,
+  .page-toc-list a.is-active::before { border-left-color: #075a3e; }
+
+  /* the one being read */
   .page-toc-list a.is-active {
+    background: rgba(7, 90, 62, 0.12);
     color: #075a3e;
     font-weight: 700;
-    border-left-color: #075a3e;
-    background: rgba(7, 90, 62, 0.08);
   }
 
   .page-toc-list a:focus-visible { outline: 2px solid #075a3e; outline-offset: 1px; }
 
-  /* The deep-teal pages */
-  body.hw-nexus .page-toc-inner,
-  body.edu-nexus .page-toc-inner,
-  body.bg-nexus .page-toc-inner { border-left-color: var(--nx-line); }
+  /* The deep-teal pages: the same swaps body.edu-nexus makes to the sidebar on
+     Education and SDGs. */
   body.hw-nexus .page-toc-title,
   body.edu-nexus .page-toc-title,
-  body.bg-nexus .page-toc-title { color: var(--nx-muted); }
+  body.bg-nexus .page-toc-title { color: var(--nx-mint); }
+  body.hw-nexus .page-toc-title::before,
+  body.edu-nexus .page-toc-title::before,
+  body.bg-nexus .page-toc-title::before { border-left-color: var(--nx-mint); }
   body.hw-nexus .page-toc-list a,
   body.edu-nexus .page-toc-list a,
-  body.bg-nexus .page-toc-list a { color: var(--nx-text); }
+  body.bg-nexus .page-toc-list a { color: var(--nx-muted); }
+  body.hw-nexus .page-toc-list a::before,
+  body.edu-nexus .page-toc-list a::before,
+  body.bg-nexus .page-toc-list a::before { border-left-color: var(--nx-line); }
   body.hw-nexus .page-toc-list a:hover,
   body.hw-nexus .page-toc-list a:focus-visible,
+  body.hw-nexus .page-toc-list a.is-active,
   body.edu-nexus .page-toc-list a:hover,
   body.edu-nexus .page-toc-list a:focus-visible,
-  body.bg-nexus .page-toc-list a:hover,
-  body.bg-nexus .page-toc-list a:focus-visible { color: var(--nx-lime); background: var(--nx-raised); }
-  body.hw-nexus .page-toc-list a.is-active,
   body.edu-nexus .page-toc-list a.is-active,
-  body.bg-nexus .page-toc-list a.is-active {
-    color: var(--nx-lime);
-    border-left-color: var(--nx-lime);
-    background: var(--nx-raised);
-  }
+  body.bg-nexus .page-toc-list a:hover,
+  body.bg-nexus .page-toc-list a:focus-visible,
+  body.bg-nexus .page-toc-list a.is-active { color: var(--nx-lime); }
+  body.hw-nexus .page-toc-list a:hover::before,
+  body.hw-nexus .page-toc-list a:focus-visible::before,
+  body.hw-nexus .page-toc-list a.is-passed::before,
+  body.hw-nexus .page-toc-list a.is-active::before,
+  body.edu-nexus .page-toc-list a:hover::before,
+  body.edu-nexus .page-toc-list a:focus-visible::before,
+  body.edu-nexus .page-toc-list a.is-passed::before,
+  body.edu-nexus .page-toc-list a.is-active::before,
+  body.bg-nexus .page-toc-list a:hover::before,
+  body.bg-nexus .page-toc-list a:focus-visible::before,
+  body.bg-nexus .page-toc-list a.is-passed::before,
+  body.bg-nexus .page-toc-list a.is-active::before { border-left-color: var(--nx-lime); }
   body.hw-nexus .page-toc-list a:focus-visible,
   body.edu-nexus .page-toc-list a:focus-visible,
   body.bg-nexus .page-toc-list a:focus-visible { outline-color: var(--nx-mint); }
+}
+
+@media (min-width: 1200px) and (prefers-reduced-motion: reduce) {
+  .page-toc-list a,
+  .page-toc-list a::before { transition: none; }
+  .page-toc-list a:hover,
+  .page-toc-list a:focus-visible { transform: none; }
+  .page-toc-list a:hover::before,
+  .page-toc-list a:focus-visible::before { transform: translateY(-50%); }
 }
 
 @media print { .page-toc { display: none !important; } }
