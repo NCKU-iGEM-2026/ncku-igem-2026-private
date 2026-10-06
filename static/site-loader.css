@@ -6,20 +6,21 @@
    What "loading" means here (site-loader.js): from the moment the page starts
    to draw until the browser's load event -- the HTML, the stylesheets, the
    scripts, the fonts and every image that is not lazy-loaded have all
-   arrived. Two limits on that:
-     - at most 3 seconds from the start of the page, so one slow photo or
-       video embed can never keep the page hidden. Measured on a first visit
-       (nothing cached), most pages load in 0.2 to 1.5s; Lab Book, Team and
-       Promotion take 2 to 3.5s for their photos, Home 4.7s for the video
-       embed, and Education and Collaboration over 5s. The text of every page
-       is ready within 0.5s, so past 3s the screen would only be hiding a page
-       that can already be read while its last pictures arrive;
-     - the bacterium and the ring fade in only after 0.2s, so a page that
-       loads at once (a page already in the cache) shows a short fade and not
-       a flash of the animation.
+   arrived. There is no time limit: the team chose to keep the screen up until
+   the page has fully finished. Measured on a first visit (nothing cached),
+   most pages load in 0.2 to 1.5s; Lab Book, Team and Promotion take 2 to 3.5s
+   for their photos, Home 4.7s for the video embed, and Education and
+   Collaboration over 5s. A resource that hangs (a video host that does not
+   answer) holds the screen up until the browser gives up on it.
+
+   The bacterium and the ring fade in only after 0.2s, so a page that loads
+   at once (a page already in the cache) shows a short fade and not a flash of
+   the animation.
+
    Without JavaScript the screen is never drawn (the <noscript> rule in
-   layout.html), and if the script fails the animation below takes the
-   screen away by itself after 4 seconds.
+   layout.html). If site-loader.js itself never arrives, the animation below
+   takes the screen away by itself after 4 seconds; the script switches that
+   off (is-watching) as soon as it is running, so it cannot cut a page short.
 
    It sits under the menu bar rather than over it, so the menu stays usable
    and stays still while one page hands over to the next (the bar is carried
@@ -37,6 +38,9 @@
   background: #ffffff;
   animation: site-loader-giveup 0.35s ease 4s forwards;
 }
+
+/* site-loader.js is running and will take the screen away at load itself */
+.site-loader.is-watching { animation: none; }
 
 /* the deep-teal pages load onto their own ground, not onto white */
 body.hw-nexus .site-loader,

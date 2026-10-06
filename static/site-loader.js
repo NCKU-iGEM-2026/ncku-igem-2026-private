@@ -11,8 +11,11 @@
   var screen = document.getElementById("siteLoader");
   if (!screen) return;
 
-  var CAP = 3000;            /* ms from the start of the page: never longer than this */
   var done = false;
+
+  /* the stylesheet's own 4-second fallback is for when this script never
+     arrives; now that it has, the screen stays until the page has loaded */
+  screen.classList.add("is-watching");
 
   function finish() {
     if (done) return;
@@ -28,9 +31,6 @@
 
   if (document.readyState === "complete") finish();
   else window.addEventListener("load", finish);
-
-  var since = (window.performance && performance.now) ? performance.now() : 0;
-  window.setTimeout(finish, Math.max(0, CAP - since));
 
   /* coming back with the Back button can restore the page as it was left,
      without a load event */
