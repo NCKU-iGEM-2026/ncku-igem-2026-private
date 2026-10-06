@@ -145,72 +145,72 @@
       "off-none-dark": {
         zero: true, tone: "ok",
         text: "Dark reference. Every channel reads zero, and holds at zero out to 25× integration with a monitor left on in the room.",
-        src: "Ambient light rejection, segment A, 2026-08-27 · darkened room, LED de-energised, 200 ms at 512×"
+        src: "Room-light test, segment A · darkened room, LED de-energised, 200 ms at 512×"
       },
       "off-uvette-dark": {
         zero: true, tone: "ok",
         text: "Shielded with an opaque box, the transparent cuvette stops piping light. All channels return to zero.",
-        src: "Ambient light rejection, segment C, 2026-08-27"
+        src: "Room-light test, segment C"
       },
       "off-paper-dark": {
         zero: true, tone: "ok",
         text: "Dark reads before and after the first-light sequence were zero on every channel.",
-        src: "First-light evidence §3, 2026-08-25"
+        src: "First light, evidence §3"
       },
       "off-water-dark": {
         zero: true, tone: "ok",
         text: "Dark reads were zero on every channel in the stray-light decomposition.",
-        src: "First-light evidence §6.6–6.7, 2026-08-25"
+        src: "First light, evidence §6.6–6.7"
       },
       "off-gfp@0904-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark and post-dark reads were zero on all twelve channels in every cycle of this session.",
-        src: "Fluorescence session, 2026-09-04"
+        src: "First fluorescence"
       },
       "off-ctrl@0904-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark and post-dark reads were zero on all twelve channels in every cycle of this session.",
-        src: "Fluorescence session, 2026-09-04"
+        src: "First fluorescence"
       },
       "off-none-room": {
         vals: { F4: 4 }, tone: "warn",
         text: "The mechanism by itself leaks. Four counts appear on the emission channel with the lamp off and nothing at the sample — enough to matter against signals of this size.",
-        src: "Ambient light rejection, segments A and B, 2026-08-27 · other channels not separately reported"
+        src: "Room-light test, segments A and B · other channels not separately reported"
       },
       "off-uvette-room": {
         vals: { F4: 11, Clear: 53 }, tone: "warn",
         text: "Fails the operating requirement. The transparent UVette adds 7 counts on top of the mechanism's 4 by piping room light down the open +Z sample slot. The leak is not a stable offset: it scales non-proportionally with integration time, consistent with lamp flicker, so dark-frame subtraction does not remove it.",
-        src: "Ambient light rejection, segment B, 2026-08-27"
+        src: "Room-light test, segment B"
       },
       "on-none-dark": {
         zero: true, tone: "ok",
         text: "Bare-path stray light is below one count. With the LED energised and nothing at the sample position, every channel reads zero — the baffle and the light trap absorb the excitation essentially completely, bonded joints included.",
-        src: "Excitation stray light §6.6, 2026-08-25"
+        src: "First light, excitation stray light §6.6"
       },
       "on-uvette-dark": {
         vals: { F3: 7, F4: 0 }, tone: "ok",
         text: "An empty cuvette in the beam scatters a little excitation into the blue channel. The emission channel stays at zero.",
-        src: "Excitation stray light §6.6, 2026-08-25"
+        src: "First light, excitation stray light §6.6"
       },
       "on-paper-dark": {
         vals: { F2: 87, F3: 81, F4: 2, Clear: 116 }, tone: "ok",
         text: "First light. A paper scatterer at the sample position sends excitation into the detector, and the channel shape brackets the nominal 470 nm source. This establishes that excitation reaches the sample, that the detection path is open, and that 90° collection works. Alignment is demonstrated functional, not quantified.",
-        src: "Optical coupling, PASS · first-light evidence §3, 2026-08-25"
+        src: "First light, optical coupling, PASS · evidence §3"
       },
       "on-water-dark": {
         vals: { F3: 1, F4: 0 }, tone: "ok",
         text: "Water blank. Excitation leakage into the emission channel sits below the quantisation floor: F4/F3 < 1.35%, i.e. under 0.0135 counts at working settings. That is an upper bound, not a measured leakage value — and it is 1600 µL of pure water, not the 200 µL assay volume.",
-        src: "Excitation stray light §6.7, 2026-08-25"
+        src: "First light, excitation stray light §6.7"
       },
       "on-gfp@0904-dark": {
         vals: { F4: 19.58 }, changed: ["F3", "F5", "Clear"], tone: "ok",
         text: "A measured, reporter-associated green signal: 19.5833 ± 0.7930 raw counts over twelve consecutive cycles across four timepoints — not twelve independent samples. Neighbouring channels changed concurrently; their magnitudes are not reported. Conditional pass for this configuration and this batch only. It does not establish sfGFP specificity, and no induction was performed.",
-        src: "Fluorescence signal, reporter-associated observation, 2026-09-04 · CONDITIONAL"
+        src: "First fluorescence, reporter-associated observation · CONDITIONAL"
       },
       "on-ctrl@0904-dark": {
         vals: { F4: 0 }, tone: "ok",
-        text: "The control tube read zero on the emission channel under the same settings in the same session. What distinguished the two tubes on this date is not established — the earlier induced and uninduced description was withdrawn on 2026-09-13.",
-        src: "Fluorescence session, 2026-09-04, with its 2026-09-05 correction appendix"
+        text: "The control tube read zero on the emission channel under the same settings in the same session. What distinguished the two tubes in this session is not established — the earlier induced and uninduced description was withdrawn on 2026-09-13.",
+        src: "First fluorescence, with its correction appendix"
       },
 
       /* The three mixing sessions, all at the 200 uL the assay uses.
@@ -230,94 +230,94 @@
       "off-gfp@0916-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
-        src: "Mixing session, CAL_B12_d100_f100, 2026-09-16"
+        src: "Mixing session 1, CAL_B12_d100_f100"
       },
       "off-ctrl@0916-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
-        src: "Mixing session, CAL_A10_d100, 2026-09-16"
+        src: "Mixing session 1, CAL_A10_d100"
       },
       "off-med@0916-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
-        src: "Mixing session, CAL_MEDIUM_BLANK, 2026-09-16"
+        src: "Mixing session 1, CAL_MEDIUM_BLANK"
       },
       "on-gfp@0916-dark": {
         vals: { F2: 6.00, F3: 12.00, F4: 29.67, Clear: 37.67 }, tone: "ok",
         text: "Undiluted GFP culture stock, displayed OD 1.56. At half this GFP fraction the emission channel read about 16 to 20 counts in the same session, and with no GFP present it read zero.",
-        src: "Mixing session, CAL_B12_d100_f100, three cycles, 2026-09-16 · session evidence, not a change of project status"
+        src: "Mixing session 1, CAL_B12_d100_f100, three cycles · session evidence, not a change of project status"
       },
       "on-ctrl@0916-dark": {
         vals: { F2: 5.67, F3: 4.67, F4: 0, Clear: 8.00 }, tone: "ok",
         text: "Undiluted non-GFP culture, displayed OD 1.01. The emission channel reads exactly zero while the scattering channels clearly see the cells — which is the behaviour the 90° geometry is supposed to produce. Every non-GFP sample in the session read F4 = 0.",
-        src: "Mixing session, CAL_A10_d100, three cycles, 2026-09-16"
+        src: "Mixing session 1, CAL_A10_d100, three cycles"
       },
       "on-med@0916-dark": {
         vals: { F2: 0, F3: 0, F4: 0, Clear: 0 }, tone: "ok",
         text: "Dilution medium alone, with the LED energised. All four reported channels read zero. This is the 200 µL blank the earlier water blank could not provide — though it is a medium blank in a lab cuvette, not a full blank characterisation.",
-        src: "Mixing session, CAL_MEDIUM_BLANK, three cycles, 2026-09-16"
+        src: "Mixing session 1, CAL_MEDIUM_BLANK, three cycles"
       },
 
       "off-gfp@0921-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on all twelve channels in every cycle of this session.",
-        src: "Mixing session, CAL_C09r1_d100_f100, 2026-09-21"
+        src: "Mixing session 2, CAL_C09r1_d100_f100"
       },
       "off-ctrl@0921-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on all twelve channels in every cycle of this session.",
-        src: "Mixing session, CAL_C07r1_d100_f000, 2026-09-21"
+        src: "Mixing session 2, CAL_C07r1_d100_f000"
       },
       "off-med@0921-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on all twelve channels in every cycle of this session.",
-        src: "Mixing session, BLANK_MEDIUM_OPEN, 2026-09-21"
+        src: "Mixing session 2, BLANK_MEDIUM_OPEN"
       },
       "on-gfp@0921-dark": {
         vals: { F2: 5.33, F3: 7.33, F4: 7.00, Clear: 19.33 }, tone: "ok",
         text: "Undiluted GFP stock again, and the same detector settings, but this stock was thin: a displayed OD of 0.49, against 1.56 five days earlier. It reads 7 where that one read 29.67, and its replicate tube read 5.33. How far the density of the stock accounts for the difference is worked through on the Model page.",
-        src: "Mixing session, CAL_C09r1_d100_f100, three cycles, 2026-09-21 · replicate CAL_C09r2 · session evidence, not a change of project status"
+        src: "Mixing session 2, CAL_C09r1_d100_f100, three cycles · replicate CAL_C09r2 · session evidence, not a change of project status"
       },
       "on-ctrl@0921-dark": {
         vals: { F2: 0, F3: 0, F4: 0, Clear: 1.33 }, tone: "ok",
         text: "Undiluted non-GFP culture, displayed OD 0.54. The emission channel reads zero. In this cuvette the scatter channels read zero too, while the replicate in another cuvette read F2 = 9.00 and F3 = 8.00. Scatter readings differ this much between cuvettes and sessions, and no turbidity rule has been built on them.",
-        src: "Mixing session, CAL_C07r1_d100_f000, three cycles, 2026-09-21 · replicate CAL_C07r2"
+        src: "Mixing session 2, CAL_C07r1_d100_f000, three cycles · replicate CAL_C07r2"
       },
       "on-med@0921-dark": {
         vals: { F2: 0, F3: 0, F4: 0, Clear: 0.33 }, tone: "ok",
         text: "Medium alone at the start of the session. The blank read again at the end gave Clear = 0.67 and zero on the other three.",
-        src: "Mixing session, BLANK_MEDIUM_OPEN, three cycles, 2026-09-21 · closing blank BLANK_MEDIUM_CLOSE"
+        src: "Mixing session 2, BLANK_MEDIUM_OPEN, three cycles · closing blank BLANK_MEDIUM_CLOSE"
       },
 
       "off-gfp@0929-dark": {
         zero: true, tone: "ok",
         text: "No cycle of this session had a non-zero pre-dark read.",
-        src: "Mixing session, ATN_D_1, 2026-09-29"
+        src: "Mixing session 3, ATN_D_1"
       },
       "off-ctrl@0929-dark": {
         zero: true, tone: "ok",
         text: "No cycle of this session had a non-zero pre-dark read.",
-        src: "Mixing session, ATN_F_1, 2026-09-29"
+        src: "Mixing session 3, ATN_F_1"
       },
       "off-med@0929-dark": {
         zero: true, tone: "ok",
         text: "No cycle of this session had a non-zero pre-dark read.",
-        src: "Mixing session, BLANK_MEDIUM_OPEN, 2026-09-29"
+        src: "Mixing session 3, BLANK_MEDIUM_OPEN"
       },
       "on-gfp@0929-dark": {
         vals: { F2: 0.33, F3: 5.33, F4: 18.00, Clear: 21.67 }, tone: "ok",
         text: "Undiluted GFP stock, displayed OD 1.10. Its replicate tube read 20.00. At half this GFP fraction six tubes averaged 9.33, so doubling the GFP culture multiplied the reading by 2.04.",
-        src: "Mixing session, ATN_D_1, three cycles, 2026-09-29 · replicate ATN_D_2 · session evidence, not a change of project status"
+        src: "Mixing session 3, ATN_D_1, three cycles · replicate ATN_D_2 · session evidence, not a change of project status"
       },
       "on-ctrl@0929-dark": {
         vals: { F2: 6.00, F3: 5.33, F4: 0, Clear: 10.00 }, tone: "ok",
         text: "Undiluted non-GFP culture at a displayed OD of 1.42, the densest sample without GFP the instrument has read. The emission channel still reads zero. Its replicate read F2 = 14.00, F3 = 12.00 and Clear = 20.33, with F4 at zero as well.",
-        src: "Mixing session, ATN_F_1, three cycles, 2026-09-29 · replicate ATN_F_2"
+        src: "Mixing session 3, ATN_F_1, three cycles · replicate ATN_F_2"
       },
       "on-med@0929-dark": {
         vals: { F2: 0, F3: 0, F4: 0, Clear: 0 }, tone: "ok",
         text: "Medium alone at the start of the session: all four reported channels zero. The blank read again at the end gave Clear = 0.33 and zero on the other three.",
-        src: "Mixing session, BLANK_MEDIUM_OPEN, 2026-09-29 · closing blank BLANK_MEDIUM_CLOSE"
+        src: "Mixing session 3, BLANK_MEDIUM_OPEN · closing blank BLANK_MEDIUM_CLOSE"
       }
     };
 
@@ -326,8 +326,8 @@
     var CULTURE = { gfp: true, ctrl: true, med: true };
 
     var SESSION = {
-      "0904": "2026-09-04", "0916": "2026-09-16",
-      "0921": "2026-09-21", "0929": "2026-09-29"
+      "0904": "first fluorescence", "0916": "mixing session 1",
+      "0921": "mixing session 2", "0929": "mixing session 3"
     };
 
     var LABEL = {
@@ -385,7 +385,7 @@
         groups: [
           LED,
           ["sample", "In the cuvette", [["gfp", "GFP culture", "hwx-lit"], ["ctrl", "Control culture"], ["med", "Medium blank"]]],
-          ["session", "Session", [["0904", "09-04"], ["0916", "09-16"], ["0921", "09-21"], ["0929", "09-29"]]]
+          ["session", "Session", [["0904", "First fluorescence"], ["0916", "Mixing 1"], ["0921", "Mixing 2"], ["0929", "Mixing 3"]]]
         ],
         state: { led: "on", sample: "gfp", session: "0929" }
       },
@@ -611,7 +611,7 @@
       [445, "F2", "Brackets the 470 nm source from below. At first light this channel read 87 counts off a paper scatterer."],
       [480, "F3", "Brackets the 470 nm source from above. This is the channel excitation shows up in, and the denominator of the leakage bound."],
       [515, "F4", "The emission channel. sfGFP emission falls here, and this is the number the assay depends on. It is also the channel room light leaks into."],
-      [555, "F5", "The shoulder above the emission peak. It changed concurrently with F4 in the 2026-09-04 session."],
+      [555, "F5", "The shoulder above the emission peak. It changed concurrently with F4 in the first fluorescence session."],
       [590, "F6", "Long-wavelength diagnostic. Not expected to carry assay signal."],
       [630, "F7", "Long-wavelength diagnostic. Useful for spotting warm ambient light."],
       [680, "F8", "Long-wavelength diagnostic. Useful for spotting warm ambient light."]
