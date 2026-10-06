@@ -1540,11 +1540,10 @@ body.team-bio-locked { overflow: hidden; }
 }
 
 .edu-map-county {
-  /* DEFAULT_COUNTY_COLOR is 'none' (see taiwan-map.js) -- counties are drawn
-     as outlines only, so the stroke itself needs to read as the map rather
-     than just separate a fill from its neighbours. */
-  stroke: #075a3e;
-  stroke-width: 1.25;
+  /* 整島不透明深綠填色（DEFAULT_COUNTY_COLOR 在 taiwan-map.js），島外透明；
+     縣市細線壓淡，輪廓靠整島邊界自然成形 */
+  stroke: rgba(7, 90, 62, 0.35);
+  stroke-width: 0.8;
   transition: fill 0.15s ease, opacity 0.15s ease;
 }
 
@@ -2562,22 +2561,14 @@ body.edu-cosmos-page::after {
 body.edu-cosmos-page::before {
   background-image:
     linear-gradient(to bottom,
-      rgba(73, 197, 182, 0.05) 0%,
-      rgba(73, 197, 182, 0.015) 42%,
-      rgba(73, 197, 182, 0) 100%);
+      rgba(20, 179, 145, 0.06) 0%,
+      rgba(20, 179, 145, 0.02) 42%,
+      rgba(20, 179, 145, 0) 100%);
 }
 
 body.edu-cosmos-page::after {
-  background-image:
-    linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
-  background-size: 88px 88px;
-  -webkit-mask-image:
-    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
-                    transparent 100%);
-  mask-image:
-    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
-                    transparent 100%);
+  /* 橫豎網格依使用者要求取消：Education 底圖只留純色，不畫線 */
+  background-image: none;
 }
 
 @media print {
@@ -3520,6 +3511,146 @@ body.edu-cosmos-page .hero-sub {
   .promo-key-name { transition: none; }
 }
 
+/* ===== Promotion: the Tainan Girls' Q&A sticky wall =======================
+   A question on a card's front, flipped on hover/tap/focus to the answer on
+   its back -- the same .hw-flip mechanism as the Hardware page and the
+   Description methods list (style.css, ~line 5671), with its own skin.
+
+   Square notes, three to a row, each its own colour (consistent front to
+   back, the way a real sticky note is the same colour on both sides -- the
+   Q/A badge carries the distinction instead), and each tilted a little
+   differently so it reads as a wall someone actually stuck notes on rather
+   than a form. No panel behind them: they sit straight on the page.
+
+   .hw-flip-card is given aspect-ratio:1/1 to be square, which means its
+   faces need the same fix as the team photo squares elsewhere in this file
+   (search "a percentage height only resolves against a parent"): sized by
+   content, a grid "face" won't reliably inherit a square from an
+   aspect-ratio ancestor, so the faces are pinned with position:absolute;
+   inset:0 instead, with the extra .tngs-qa ancestor on that rule only to
+   outweigh the generic mechanism's own position:relative at equal
+   specificity otherwise. The rotation lives on .hw-flip-card, a level above
+   the mechanism's own rotateY, so a tilted note stays tilted through the
+   flip instead of snapping upright. */
+.tngs-qa {
+  display: grid;
+  /* Fixed rather than 1fr: a third of the full text column stretched these
+     notes much bigger than an actual sticky note. Centred since three fixed
+     220px columns no longer fill the row on their own. */
+  grid-template-columns: repeat(3, 290px);
+  justify-content: center;
+  gap: 2rem 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 1.5rem;
+}
+
+.tngs-qa .hw-flip-card {
+  aspect-ratio: 1 / 1;
+  position: relative;
+  transition: transform 0.25s ease;
+}
+
+/* .tngs-qa.hw-flip (both classes, matching the dl itself) rather than plain
+   .tngs-qa: the extra class is only there to outweigh the generic
+   mechanism's own position:relative on these same elements, declared later
+   in this file at equal specificity otherwise -- without it, file order
+   decides and the generic rule wins, same as it did the first two times
+   this exact mistake got made on this page (search this file for "a
+   percentage height only resolves against a parent"). */
+.tngs-qa.hw-flip .hw-flip-front,
+.tngs-qa.hw-flip .hw-flip-back {
+  position: absolute;
+  inset: 0;
+}
+
+/* Six-value cycle so no two neighbouring notes lean the same way. */
+.tngs-qa .hw-flip-card:nth-child(6n+1) { transform: rotate(-5deg); margin-top: 0.8rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+2) { transform: rotate(4deg); margin-top: -0.6rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+3) { transform: rotate(-3deg); margin-top: 1.1rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+4) { transform: rotate(5deg); margin-top: -0.4rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+5) { transform: rotate(-4deg); margin-top: 0.9rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+6) { transform: rotate(3deg); margin-top: -0.7rem; }
+
+/* Straightens and lifts toward the reader on the same hover/focus that
+   flips it, rather than staying tilted while it turns over. */
+.tngs-qa .hw-flip-card:hover,
+.tngs-qa .hw-flip-card:focus-within {
+  transform: rotate(0deg) scale(1.06);
+  z-index: 2;
+}
+
+.tngs-qa .hw-flip-front,
+.tngs-qa .hw-flip-back {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6rem;
+  overflow: hidden;
+  border-radius: 2px 2px 14px 2px;
+  padding: 1.1rem 1rem 2.6rem;
+  box-shadow: 3px 6px 14px rgba(55, 40, 10, 0.28);
+}
+
+/* One colour per note, front and back alike -- six notes, six colours, no
+   cycling needed. The tag keeps Q vs. A legible regardless of the colour
+   underneath, so the palette doesn't have to mean anything. */
+.tngs-qa .hw-flip-card:nth-child(6n+1) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+1) .hw-flip-back { background: #fff4b8; border: 1px solid #e8d87a; }
+.tngs-qa .hw-flip-card:nth-child(6n+2) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+2) .hw-flip-back { background: #ffe0c2; border: 1px solid #edbf8d; }
+.tngs-qa .hw-flip-card:nth-child(6n+3) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+3) .hw-flip-back { background: #d9ecff; border: 1px solid #a9cdec; }
+.tngs-qa .hw-flip-card:nth-child(6n+4) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+4) .hw-flip-back { background: #e0f3e0; border: 1px solid #b3d9b3; }
+.tngs-qa .hw-flip-card:nth-child(6n+5) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+5) .hw-flip-back { background: #ffd9e8; border: 1px solid #edb0c9; }
+.tngs-qa .hw-flip-card:nth-child(6n+6) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+6) .hw-flip-back { background: #fdf8ec; border: 1px solid #e3dabd; }
+
+.tngs-qa-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  border-radius: 999px;
+  background: #075a3e;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #fffdf7;
+}
+
+.tngs-qa p {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #4a3f35;
+  overflow-y: auto;
+}
+
+@media (max-width: 860px) {
+  .tngs-qa { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 575.98px) {
+  /* Six competing tilts in one narrow column reads as clutter rather than a
+     wall -- halved rather than removed, so it still looks hand-placed. */
+  .tngs-qa { grid-template-columns: 1fr; gap: 1.75rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+1) { transform: rotate(-2deg); margin-top: 0.3rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+2) { transform: rotate(1.5deg); margin-top: -0.25rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+3) { transform: rotate(-1deg); margin-top: 0.5rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+4) { transform: rotate(2deg); margin-top: -0.15rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+5) { transform: rotate(-1.5deg); margin-top: 0.4rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+6) { transform: rotate(1deg); margin-top: -0.3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tngs-qa .hw-flip-card { transition: none; }
+}
+
 @media print {
   /* Nothing here is clickable on paper, and the three sessions it points at
      are the three headings directly below it. */
@@ -3950,6 +4081,94 @@ body.edu-lightbox-locked {
   margin-top: 0.75rem;
   text-align: center;
 }
+
+/* ===== Education: the Tainan Girls' Q&A, as a chat log ===================
+   Audience questions on the left, Hank's answers on the right, each bubble
+   fading and sliding in as it scrolls into view (tngs-chat.js adds
+   .is-visible via IntersectionObserver) rather than all at once -- closer
+   to reading the conversation as it actually happened than a wall of text
+   would be. The opacity:0 default is only safe because tngs-chat.js also
+   covers browsers without IntersectionObserver support, and the page
+   carries a <noscript> rule forcing every bubble visible if JS never runs
+   at all -- without one of those two, a bubble with .is-visible never
+   applied would stay invisible forever instead of just losing the fade. */
+.tngs-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 1.5rem 0;
+}
+
+.tngs-chat-msg {
+  max-width: min(32rem, 82%);
+  padding: 0.7rem 1rem;
+  border-radius: 16px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.tngs-chat-msg.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tngs-chat-q {
+  align-self: flex-start;
+  background: #eef1ec;
+  border-bottom-left-radius: 4px;
+}
+
+.tngs-chat-a {
+  align-self: flex-end;
+  background: #075a3e;
+  border-bottom-right-radius: 4px;
+}
+
+.tngs-chat-name {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.tngs-chat-q .tngs-chat-name { color: #6b7a72; }
+.tngs-chat-a .tngs-chat-name { color: #a8d9c3; }
+
+.tngs-chat-msg p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.tngs-chat-q p { color: #333; }
+.tngs-chat-a p { color: #fffdf7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tngs-chat-msg { transition: none; }
+}
+
+/* 深夜外觀：Education 是 edu-nexus 深綠底，全站文字被調成霧白，原本的淺灰
+   問題泡泡會變成淺字淺底。問題改深綠面板、回答加薄荷描邊，跟頁面其他卡片同色系。 */
+body.edu-nexus .tngs-chat-q,
+html[data-theme="dark"] .tngs-chat-q {
+  background: #1c4352;
+  border: 1px solid rgba(160, 232, 96, 0.18);
+}
+body.edu-nexus .tngs-chat-a,
+html[data-theme="dark"] .tngs-chat-a {
+  background: #0d6a4a;
+  border: 1px solid rgba(73, 197, 182, 0.35);
+}
+body.edu-nexus .tngs-chat-q .tngs-chat-name,
+html[data-theme="dark"] .tngs-chat-q .tngs-chat-name { color: #93b0bb; }
+body.edu-nexus .tngs-chat-a .tngs-chat-name,
+html[data-theme="dark"] .tngs-chat-a .tngs-chat-name { color: #b8f57e; }
+body.edu-nexus .tngs-chat-msg p,
+html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 
 .edu-consent-note {
   margin-top: 1.25rem;
@@ -9731,12 +9950,13 @@ body.quiz-active { overflow: hidden; }
    block further down.
 
    The palette is sampled from the reference the team chose (Nexus, Awwwards
-   SOTD 2022-12-09): a deep petrol ground, mint and lime picking out what
-   matters. Contrast was checked against the ground and against both panel
-   tints before anything was written -- every text token below clears WCAG AA
-   on all three. The one colour that does not is the reference's own blue
-   (#2779a7, 3.3:1), so it is used for fills and borders only and a lifted
-   #5fb3e0 carries any blue that has to be read.
+   SOTD 2022-12-09), then re-tuned onto the home hero's deep-green family:
+   a deep forest ground (#0e242e), mint and lime picking out what matters.
+   Contrast was checked against the ground and against both panel tints
+   before anything was written -- every text token below clears WCAG AA on
+   all three. The teal that used to be the reference's blue is now
+   #2779a7 (fills and borders only) with a lifted
+   #5fb3e0 carrying anything that has to be read.
    ========================================================================== */
 body.hw-nexus,
 body.nb-nexus,
@@ -9779,13 +9999,21 @@ body.bg-nexus::before,
 body.hw-nexus::after,
 body.nb-nexus::after,
 body.bg-nexus::after,
-body.edu-nexus::before,
+body.edu-nexus::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+/* Education 的橫豎網格依使用者要求取消：::after 不再掛網格 */
 body.edu-nexus::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  background-image: none;
 }
 
 body.hw-nexus::before,
@@ -9799,15 +10027,18 @@ body.edu-nexus::before {
      at all. */
   background-image:
     linear-gradient(to bottom,
-      rgba(73, 197, 182, 0.05) 0%,
-      rgba(73, 197, 182, 0.015) 42%,
-      rgba(73, 197, 182, 0) 100%);
+      rgba(20, 179, 145, 0.06) 0%,
+      rgba(20, 179, 145, 0.02) 42%,
+      rgba(20, 179, 145, 0) 100%);
 }
 
 body.hw-nexus::after,
 body.nb-nexus::after,
-body.bg-nexus::after,
-body.edu-nexus::after {
+body.bg-nexus::after {
+  /* Education／Collaboration／Promotion 的橫豎網格已依使用者要求取消
+     （Education 從這組共用選擇器拆出來；Collaboration／Promotion 的
+     body.hp-nexus::after 在 hp-nexus.css 改為 none）。Hardware 與
+     Board game（bg-nexus）、Notebook（nb-nexus）保留。 */
   background-image:
     linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
     linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
@@ -9885,10 +10116,10 @@ body.edu-nexus::after {
     radial-gradient(closest-side circle at 44% 40%,
       rgba(160, 232, 96, 0.1148) 0%,
       rgba(160, 232, 96, 0.0459) 44%,
-      rgba(73, 197, 182, 0) 72%),
+      rgba(20, 179, 145, 0) 72%),
     radial-gradient(closest-side circle at 62% 61%,
-      rgba(73, 197, 182, 0.0536) 0%,
-      rgba(73, 197, 182, 0) 56%);
+      rgba(20, 179, 145, 0.05) 0%,
+      rgba(20, 179, 145, 0) 56%);
 }
 
 .hw-orb-b > span {
@@ -9896,10 +10127,10 @@ body.edu-nexus::after {
     radial-gradient(closest-side circle at 58% 37%,
       rgba(160, 232, 96, 0.1186) 0%,
       rgba(160, 232, 96, 0.0420) 40%,
-      rgba(73, 197, 182, 0) 70%),
+      rgba(20, 179, 145, 0) 70%),
     radial-gradient(closest-side circle at 38% 64%,
-      rgba(73, 197, 182, 0.0459) 0%,
-      rgba(73, 197, 182, 0) 52%);
+      rgba(20, 179, 145, 0.04) 0%,
+      rgba(20, 179, 145, 0) 52%);
 }
 
 .hw-orb-c > span {
@@ -9907,10 +10138,10 @@ body.edu-nexus::after {
     radial-gradient(closest-side circle at 49% 55%,
       rgba(160, 232, 96, 0.0994) 0%,
       rgba(160, 232, 96, 0.0383) 46%,
-      rgba(73, 197, 182, 0) 74%),
+      rgba(20, 179, 145, 0) 74%),
     radial-gradient(closest-side circle at 63% 36%,
       rgba(160, 232, 96, 0.0459) 0%,
-      rgba(73, 197, 182, 0) 50%);
+      rgba(20, 179, 145, 0) 50%);
 }
 
 .hw-orb-a { --d: 26rem; --tx: 71s; --ty: 47s; --dx: 0s; --dy: -13s; }
@@ -9982,7 +10213,7 @@ body.hw-nexus .navbar,
 body.nb-nexus .navbar,
 body.bg-nexus .navbar,
 body.edu-nexus .navbar {
-  background: rgba(14, 36, 46, 0.82) !important;
+  background: rgba(14, 36, 46, 0.86) !important;
   border: 1px solid var(--nx-line);
 }
 body.hw-nexus .navbar-nav .nav-link,
@@ -10031,8 +10262,8 @@ body.hw-nexus .hw a { color: var(--nx-lime); }
 body.hw-nexus .hw strong { color: #fff; }
 body.hw-nexus .hw code {
   color: var(--nx-mint);
-  background: rgba(73, 197, 182, 0.10);
-  border: 1px solid rgba(73, 197, 182, 0.22);
+  background: rgba(20, 179, 145, 0.12);
+  border: 1px solid rgba(20, 179, 145, 0.24);
 }
 body.hw-nexus .hw-lead { border-left-color: var(--nx-mint); }
 body.hw-nexus .hw-lead p { font-size: 1.14rem; }
@@ -10194,7 +10425,7 @@ body.hw-nexus .hw3d input[type="range"] { accent-color: var(--nx-mint); }
 /* The total row read as a pale green band; on this ground it is a tint of
    the accent instead. */
 body.hw-nexus .hw-table tr.is-total {
-  background: rgba(73, 197, 182, 0.12);
+  background: rgba(20, 179, 145, 0.14);
   color: var(--nx-text);
 }
 
@@ -10526,11 +10757,11 @@ body.hw-nexus .sw .sw-lab-msg.is-error { color: var(--nx-warm); }
   border: 1px solid var(--nx-line);
   border-radius: 10px;
 }
-.sw-plot-grid { stroke: rgba(36, 89, 107, 0.6); stroke-width: 1; }
+.sw-plot-grid { stroke: rgba(20, 179, 145, 0.45); stroke-width: 1; }
 .sw-plot-axis { stroke: var(--nx-muted); stroke-width: 1.2; fill: none; }
 .sw-plot-tick { font-size: 12px; fill: var(--nx-muted); }
 .sw-plot-title { font-size: 13px; fill: var(--nx-text); }
-.sw-plot-range { fill: rgba(73, 197, 182, 0.1); }
+.sw-plot-range { fill: rgba(20, 179, 145, 0.12); }
 .sw-plot-lod { stroke: var(--nx-warm); stroke-width: 1.3; stroke-dasharray: 6 5; }
 .sw-plot-curve { fill: none; stroke: var(--nx-mint); stroke-width: 2.5; }
 .sw-plot-pt { fill: var(--nx-lime); fill-opacity: 0.85; stroke: #0a1c24; stroke-width: 1; }
@@ -10755,21 +10986,39 @@ body.edu-nexus .edu-sidebar-link::before { border-left-color: var(--nx-line); }
 body.edu-nexus .edu-sidebar-link:hover::before,
 body.edu-nexus .edu-sidebar-link.active::before { border-left-color: var(--nx-lime); }
 body.edu-nexus .edu-sidebar-track { background: var(--nx-line); }
-body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(73, 197, 182, 0.45); }
+body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(20, 179, 145, 0.5); }
 
 /* ---- the map ---- */
-body.edu-nexus .edu-map-viewport { background: var(--nx-panel); }
+body.edu-nexus .edu-map-viewport { background: transparent; }   /* 島外全透明：只剩台灣島本身 */
 body.edu-nexus .edu-map-county,
-body.edu-nexus .edu-map-county-interactive { stroke: var(--nx-mint); }
+body.edu-nexus .edu-map-county-interactive { stroke: var(--nx-mint); stroke-width: 0.8; }
 body.edu-nexus .edu-map-leader-line { stroke: var(--nx-mint); }
+
+/* ---- 台灣全島輪廓 hover 呼吸光暈（taiwan-map.js 以 SVG filter 生成）----
+   光暈由 feMorphology＋blur 直接從島的填色剪影生成（绝無橫穿直線）；
+   這裡只管亮度呼吸：亮起 3.6s 一吸一吐，離開淡滅。 */
+.tw-coast-glow-group { opacity: 0; transition: opacity 0.5s ease; }
+.tw-coast-glow-group.is-lit { animation: tw-breathe 3.6s ease-in-out infinite; }
+@keyframes tw-breathe {
+  0%   { opacity: 0.45; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tw-coast-glow-group.is-lit { opacity: 0.85; animation: none; }
+}
 
 /* The orbiting chips are liquid glass in the light theme: translucent white
    over blur, with dark ink on top. Over petrol that white settles to a mid
    grey and the ink goes with it, so the chip becomes a panel and the ink
-   becomes the body token. The blur stays -- it is what keeps the map legible
-   underneath a chip passing over it. */
+   becomes the body token.
+   效能：深色底的卡片幾乎不透明（0.9／啟用中完全不透明），backdrop-filter
+   模糊幾乎看不出來，卻要對 15 張每幀移動的卡片、壓在每幀重畫的背景
+   canvas 上重算，是這頁卡頓的主因之一，所以在這裡關掉。 */
 body.edu-nexus .edu-map-orbit-item {
-  background: rgba(22, 50, 63, 0.82);
+  background: rgba(7, 60, 41, 0.9);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   border-color: var(--nx-line);
   color: var(--nx-text);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);

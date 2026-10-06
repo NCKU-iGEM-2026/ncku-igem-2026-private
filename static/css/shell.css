@@ -1,0 +1,182 @@
+/* ============================================================
+   SHELL — 全站外殼翻新（導覽列 / hero；footer 維持 dev 原樣）
+   原則：DOM 結構不動（menu-germ.js / navbar-scroll.js 依賴它），
+   只覆蓋顏色、質感與微互動。特定頁（engineering / nexus 系）
+   自己的規則優先，這裏一律用低特異性或 body scope 讓路。
+   ============================================================ */
+
+/* ---- 導覽列：深墨綠玻璃 + 螢光底線 ---- */
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar.bg-dark {
+  background: linear-gradient(180deg, rgba(255,253,247,0.78), rgba(255,253,247,0.62)) !important;
+  border: 1px solid rgba(6, 64, 46, 0.10);
+  box-shadow: 0 10px 34px -18px rgba(6, 64, 46, 0.35);
+}
+html[data-theme="dark"] body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar.bg-dark {
+  background: linear-gradient(180deg, rgba(14, 36, 46, 0.86), rgba(14, 36, 46, 0.72)) !important;
+  border: 1px solid rgba(160, 232, 96, 0.14);
+  box-shadow: 0 12px 40px -18px rgba(0, 0, 0, 0.75);
+}
+/* 懸浮玻璃下緣的一絲螢光 */
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar::after {
+  content: ""; position: absolute; left: 8%; right: 8%; bottom: 0; height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--c-teal), var(--c-glow), var(--c-teal), transparent);
+  opacity: 0; transition: opacity var(--t-med) ease;
+  pointer-events: none;
+}
+body.navbar-scrolled:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar::after { opacity: 0.85; }
+
+/* nav 連結：-grow underline ---- */
+.navbar .nav-link { position: relative; letter-spacing: 0.02em; transition: color var(--t-fast) ease; }
+.navbar .nav-link::after {
+  content: ""; position: absolute; left: 50%; bottom: 2px; width: 0; height: 2px;
+  border-radius: 2px; background: linear-gradient(90deg, var(--c-teal), var(--c-glow));
+  transition: width var(--t-fast) var(--ease-out), left var(--t-fast) var(--ease-out);
+}
+.navbar .nav-link:hover::after,
+.navbar .nav-link:focus-visible::after,
+.navbar .nav-link.active::after { width: 70%; left: 15%; }
+body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link { color: #075a3e; }
+body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link:hover,
+body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link:focus-visible { color: var(--c-teal-deep); }
+
+/* ---- mega menu：寬版雙欄下拉（保持 Bootstrap 置中機制不動）---- */
+@media (min-width: 992px) {
+  body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-menu {
+    padding: 0.9rem;
+    border-radius: var(--r-lg);
+    border: 1px solid rgba(6,64,46,0.08);
+    box-shadow: 0 24px 60px -24px rgba(6,64,46,0.45);
+  }
+  .navbar .dropdown-menu > li { border-radius: var(--r-sm); }
+  .navbar .dropdown-item {
+    border-radius: var(--r-sm);
+    padding: 0.55rem 1.1rem;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .dropdown-menu.dropdown-menu-center { min-width: 320px; }
+  .navbar .dropdown-item::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--c-teal); position: absolute; left: 0.9rem;
+    opacity: 0; transform: scale(0.4);
+    transition: opacity var(--t-fast) ease, transform var(--t-fast) var(--ease-spring);
+  }
+  .navbar .dropdown-item:hover::before,
+  .navbar .dropdown-item:focus-visible::before { opacity: 1; transform: scale(1); }
+  /* hover 時背景改用 glow tint（僅淺色模式；深夜模式有自己的 tint，見下）*/
+  html:not([data-theme="dark"]) body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:hover,
+  html:not([data-theme="dark"]) body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:focus {
+    background: color-mix(in srgb, var(--c-glow) 35%, #ffffff) !important;
+    color: var(--c-ink) !important;
+  }
+  /* 深夜下拉：同等 :not 特異性鏈，必勝上條（淺底混色在深夜一律禁用） */
+  html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-menu { background: #16323f; border-color: rgba(160,232,96,0.14); }
+  html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item { color: #d7f5b8; }
+  html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:hover,
+  html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:focus { background: rgba(160,232,96,0.16) !important; color: #fff6b7 !important; }
+}
+
+/* ---- 行動版：全螢幕選單（純 CSS，不改 Bootstrap 行為）---- */
+@media (max-width: 991.98px) {
+  /* 根治：桌面版 navbar 用 left:50%＋translateX(-50%) 置中——這個 transform
+     會把子層 position:fixed 的全螢幕選單面板劫持成「以 navbar 為基準」，
+     面板被壓進 navbar 的狹窄盒子裡，選單項目溢出裁切＝看起來縮起來看不見。
+     小螢幕 navbar 本来就接近全幅，改 left/right 直接定位、transform 拿掉。 */
+  .navbar {
+    left: 1.5rem;
+    right: 1.5rem;
+    width: auto;
+    max-width: none;
+    transform: none !important;
+    transition: top 0.3s ease, opacity 0.3s ease;
+  }
+  /* 遮罩（style.css .navbar.bg-dark blur(24px) 帶 !important）同樣會劫持 fixed 子層 */
+  .navbar.bg-dark {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: rgba(14, 36, 46, 0.96) !important;
+  }
+  body.navbar-hidden .navbar { top: -110px; }
+  .navbar-collapse {
+    position: fixed; inset: 0; z-index: 1030;
+    background:
+      radial-gradient(90% 70% at 80% -10%, rgba(20,179,145,0.28), transparent 60%),
+      radial-gradient(70% 60% at 10% 110%, rgba(216,178,106,0.22), transparent 60%),
+      linear-gradient(160deg, #0f2832 0%, #0e242e 55%, #000000 100%);
+    display: flex; flex-direction: column;
+    padding: 4.5rem 2rem 2rem;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+    opacity: 0; visibility: hidden; transform: translateY(-12px);
+    transition: opacity 0.35s var(--ease-out), transform 0.35s var(--ease-out), visibility 0.35s;
+  }
+  /* 選單從頂部排起，緊貼在 navbar（logo＋burger 那條，底緣約 96px）下方。
+     menu.html 的 justify-content-end / mb-2 都是 Bootstrap !important 工具類，
+     不壓掉會把整串選單推到面板最底——所以這裡要 !important。
+     style.css 舊版下拉面板留下 max-height: calc(100vh - 64px)，底部會露出一截頁面。 */
+  .navbar-collapse {
+    justify-content: flex-start !important; height: 100vh; height: 100dvh; max-height: none !important;
+    padding-top: 7rem !important;
+  }
+  .navbar-collapse .navbar-nav { margin-top: 0 !important; margin-bottom: 0 !important; }
+  .navbar-collapse.show, .navbar-collapse.collapsing.show {
+    opacity: 1; visibility: visible; transform: none;
+  }
+  /* Bootstrap 的 height 摺疊動畫在 fixed 面板上沒有意義，放掉高度動作 */
+  .navbar-collapse.collapsing { height: 100vh !important; transition: none; }
+  .navbar-collapse .navbar-nav { gap: 0.4rem; margin-left: 0 !important; width: 100%; }
+  .navbar-collapse .nav-item { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0.35rem 0; }
+  .navbar-collapse .nav-link {
+    color: #fff !important; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em;
+    display: flex; align-items: center; justify-content: space-between;
+    text-align: left !important; padding: 0.5rem 0.25rem;
+  }
+  /* 下拉三角形放在同一行最右邊（原本被設成 block，掉到文字下面） */
+  .navbar-collapse .dropdown-toggle::after {
+    display: inline-block !important; position: static !important;
+    margin: 0 0 0 0.75rem !important; flex: none;
+  }
+  .navbar-collapse .dropdown-toggle[aria-expanded="true"]::after { transform: rotate(180deg); }
+  /* dropdown 在行動板內展開成內嵌小連結
+     （position 用 !important：蓋掉 Bootstrap Popper 寫進來的 inline 絕對定位，
+       否則子選單會被定位到面板外的亂位置，看起來像「縮起來看不見」） */
+  .navbar-collapse .dropdown-menu {
+    background: transparent !important; border: none; box-shadow: none;
+    position: static !important; transform: none !important;
+    min-width: 0; width: 100%; padding: 0 0 0.4rem 1rem;
+    margin: 0 !important; opacity: 1 !important;
+    display: none; max-height: 0; overflow: visible;
+    transition: none;
+  }
+  .navbar-collapse .dropdown-menu.show { display: block; max-height: none; }
+  .navbar-collapse .dropdown-item { color: rgba(255,255,255,0.72) !important; justify-content: flex-start; text-align: left !important; font-size: 1.05rem; padding-left: 1rem; }
+  .navbar-collapse .dropdown-item:hover { background: rgba(160,232,96,0.12) !important; color: #b8f57e !important; }
+  /* burger 鈕轉 X 由 Bootstrap 處理，這裡只讓它更清晰 */
+  .navbar-toggler { border-color: rgba(6,64,46,0.25); }
+  html[data-theme="dark"] .navbar-toggler { border-color: rgba(160,232,96,0.35); }
+}
+/* 選單開啟時把 burger 抬到全螢幕之上 */
+body:has(.navbar-collapse.show) .navbar-toggler,
+body:has(.navbar-collapse.show) .navbar-brand,
+body:has(.navbar-collapse.show) .rx-theme-toggle { position: relative; z-index: 1040; }
+
+/* ---- 內頁 hero：墨綠浸潤 + 熒光點綴（stage 版式）----
+   nexus 系（hardware/model/software/education）自持深青主題、
+   engineering 自持白綠主題——都不準覆蓋它們的 hero 顏色。 */
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.edu-cosmos-page) .page-hero.bg-hero {
+  background-color: #0b4d36 !important;
+}
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.edu-cosmos-page) .page-hero .hero-title { color: #eafff3; text-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.edu-cosmos-page) .page-hero .hero-sub { color: #d7f5b8; }
+
+/* footer 維持 dev 原樣（Jason 已定稿），深夜外觀不改 footer。 */
+
+/* ---- back-to-top：微升級 ---- */
+.back-to-top { transition: transform var(--t-fast) var(--ease-spring), box-shadow var(--t-fast) ease; }
+.back-to-top:hover { transform: translateY(-3px) scale(1.06); box-shadow: var(--sh-glow); }
+
+/* ---- print：保持黑白，不貢獻漸層 ---- */
+@media print {
+  body:not(.engineering-page) .page-hero.bg-hero { background: none !important; background-color: #fff !important; color: #000 !important; }
+  #rxProgress, .rx-theme-toggle, #rxCursor { display: none !important; }
+}

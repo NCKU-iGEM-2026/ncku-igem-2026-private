@@ -1,144 +1,92 @@
 {% extends "layout.html" %}
 
 {% block title %}Collaboration{% endblock %}
+{% block body_class %}hp-nexus{% endblock %}
 {% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/collaboration.avif{% endblock %}
 {% block lead %}{% endblock %}
 
-{# The same deep-teal treatment Hardware uses. Everything it switches on
-   lives under body.edu-nexus (and the shared body.hw-nexus rules it joins)
-   in style.css, and overrides the light theme rather than replacing it --
-   deleting this one line puts the page back as it was. #}
-{% block body_class %}edu-nexus{% endblock %}
+{% block page_css %}
+<link href="{{ url_for('static', filename = 'css/pages/hp-nexus.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename = 'css/pages/collaboration.css') }}" rel="stylesheet">
+{% endblock %}
 
 {% block page_content %}
 
-<!-- Same background treatment as the Hardware page: a wash + grid behind
-     everything, and the same three drifting green glows, reusing hw-nexus's
-     own .hw-orbs/.hw-orb classes directly since they are not scoped to that
-     page. Decoration only: aria-hidden, no text, and the page reads the same
-     without it. -->
+<!-- 與 Hardware／Education 同一套 nexus 底色：三顆螢光光球（重用 .hw-orbs） -->
 <div class="hw-orbs" aria-hidden="true">
   <span class="hw-orb hw-orb-a"><span></span></span>
   <span class="hw-orb hw-orb-b"><span></span></span>
   <span class="hw-orb hw-orb-c"><span></span></span>
 </div>
 
-<!--
-  The wall. One badge per school -- seven, and the real links, in the tab order
-  with the school's name -- spread through the thirteen letters of the word
-  COLLABORATION, left to right. The badges sit at fixed places rather than at
-  random so they cannot clump and the word still reads.
+<nav class="rx-dish" aria-label="Teams we collaborated with">
+  <div class="rx-dish-stage">
+    <span class="rx-dish-orbs" aria-hidden="true"><span><span></span></span><span><span></span></span><span><span></span></span></span>
+    <canvas class="rx-dish-canvas" aria-hidden="true"></canvas>
 
-  Badge order follows the order the sessions happened in, which is also the
-  order they appear down the page: Mingdao, then the three teams from the
-  meetup, then WiST, CCU and HIA. WiST sits between the T and the I, keeping
-  one letter either side of it so no two badges end up shoulder to shoulder.
+    <div class="rx-dish-hexes" aria-hidden="true">
+      <span class="rx-dish-hex rx-dish-hex-a"></span>
+      <span class="rx-dish-hex rx-dish-hex-b"></span>
+    </div>
 
-  The letters are decoration, and plain spans rather than links: a letter is
-  not a school, so clicking an O has nowhere sensible to go. They are
-  aria-hidden, so a screen reader working through this page hears seven schools
-  once each.
+    <div class="rx-node rx-node-mingdao" style="--nx:50%;--ny:13%;--pd:0s">
+      <a class="rx-node-link" href="#session-mingdao" draggable="false">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">Mingdao High School</span>
+      </a>
+    </div>
 
-  Size and drop are a seeded shuffle written into each disc, not a pattern,
-  and every disc carries two sizes: a phone is not this wall scaled down, so
-  the spread is squeezed toward the middle first and shrunk second.
+    <div class="rx-node rx-node-nycu" style="--nx:23%;--ny:27%;--pd:0.4s">
+      <a class="rx-node-link" href="#session-meetup" draggable="false">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">NYCU</span>
+      </a>
+    </div>
 
-  Each disc is let down from the top of the row by its own distance (--dy,
-  a margin), so the row is as tall as its lowest disc and the wall is as tall
-  as the row. The whole range from 0 to 290px is used, in an order a hand
-  might have drawn, so the word bounces up and down its one line. The grow-and-squeeze on hover is a transform, not width: a
-  transform moves nothing, so the layout is fixed and only the paint changes.
--->
-<nav class="collab-wall" aria-label="Teams we collaborated with">
-  <div class="collab-wall-inner">
-    <span class="collab-bubble is-letter" style="--dbase:102px;--dnarrow:67px;--dy:274px;--mx:3px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">C</span></span>
-    </span>
-    <span class="collab-bubble is-letter" style="--dbase:108px;--dnarrow:69px;--dy:161px;--mx:7px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">O</span></span>
-    </span>
-    <a class="collab-bubble is-lead" href="#session-mingdao"
-       style="--dbase:170px;--dnarrow:85px;--dy:193px;--mx:8px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Mingdao High School</span>
-    </a>
-    <span class="collab-bubble is-letter" style="--dbase:100px;--dnarrow:67px;--dy:290px;--mx:5px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">L</span></span>
-    </span>
-    <span class="collab-bubble is-letter" style="--dbase:109px;--dnarrow:69px;--dy:129px;--mx:5px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">L</span></span>
-    </span>
-    <span class="collab-bubble is-letter" style="--dbase:99px;--dnarrow:67px;--dy:242px;--mx:7px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">A</span></span>
-    </span>
-    <a class="collab-bubble is-lead is-nycu" href="#session-meetup"
-       style="--dbase:168px;--dnarrow:84px;--dy:258px;--mx:7px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">NYCU</span>
-    </a>
-    <span class="collab-bubble is-letter" style="--dbase:94px;--dnarrow:65px;--dy:177px;--mx:8px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">B</span></span>
-    </span>
-    <span class="collab-bubble is-letter" style="--dbase:110px;--dnarrow:69px;--dy:0px;--mx:6px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">O</span></span>
-    </span>
-    <a class="collab-bubble is-lead" href="#session-meetup"
-       style="--dbase:175px;--dnarrow:86px;--dy:32px;--mx:0px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Okinawa</span>
-    </a>
-    <span class="collab-bubble is-letter" style="--dbase:122px;--dnarrow:73px;--dy:226px;--mx:3px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">R</span></span>
-    </span>
-    <span class="collab-bubble is-letter" style="--dbase:108px;--dnarrow:69px;--dy:113px;--mx:2px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">A</span></span>
-    </span>
-    <a class="collab-bubble is-lead" href="#session-meetup"
-       style="--dbase:152px;--dnarrow:80px;--dy:209px;--mx:2px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">VIS</span>
-    </a>
-    <span class="collab-bubble is-letter" style="--dbase:126px;--dnarrow:74px;--dy:97px;--mx:1px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">T</span></span>
-    </span>
-    <a class="collab-bubble is-lead" href="#session-wist"
-       style="--dbase:158px;--dnarrow:82px;--dy:234px;--mx:5px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/wist-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">Washington International School</span>
-    </a>
-    <span class="collab-bubble is-letter" style="--dbase:113px;--dnarrow:70px;--dy:48px;--mx:3px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">I</span></span>
-    </span>
-    <a class="collab-bubble is-lead is-ccu" href="#session-ccu"
-       style="--dbase:140px;--dnarrow:77px;--dy:81px;--mx:2px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">CCU-Taiwan</span>
-    </a>
-    <span class="collab-bubble is-letter" style="--dbase:104px;--dnarrow:68px;--dy:16px;--mx:7px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">O</span></span>
-    </span>
-    <a class="collab-bubble is-lead" href="#session-hia"
-       style="--dbase:142px;--dnarrow:78px;--dy:145px;--mx:8px">
-      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
-      <span class="collab-bubble-name">HIA-Taiwan</span>
-    </a>
-    <span class="collab-bubble is-letter" style="--dbase:100px;--dnarrow:67px;--dy:64px;--mx:1px"
-          aria-hidden="true">
-      <span class="collab-bubble-disc"><span class="collab-letter">N</span></span>
-    </span>
+    <div class="rx-node rx-node-vis" style="--nx:77%;--ny:27%;--pd:0.8s">
+      <a class="rx-node-link" href="#session-meetup" draggable="false">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">VIS</span>
+      </a>
+    </div>
+
+    <div class="rx-node rx-node-okinawa" style="--nx:16%;--ny:58%;--pd:1.2s">
+      <a class="rx-node-link" href="#session-meetup" draggable="false">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">Okinawa</span>
+      </a>
+    </div>
+
+    <div class="rx-node rx-node-wist" style="--nx:84%;--ny:58%;--pd:2.4s">
+      <a class="rx-node-link" href="#session-wist" draggable="false">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/wist-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">WiST</span>
+      </a>
+    </div>
+
+    <div class="rx-node rx-node-ccu" style="--nx:65%;--ny:83%;--pd:1.6s">
+      <a class="rx-node-link" href="#session-ccu" draggable="false">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">CCU-Taiwan</span>
+      </a>
+    </div>
+
+    <div class="rx-node rx-node-hia" style="--nx:35%;--ny:83%;--pd:2s">
+      <a class="rx-node-link" href="#session-hia" draggable="false">
+        <span class="rx-node-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async" loading="lazy"></span>
+        <span class="rx-node-name">HIA-Taiwan</span>
+      </a>
+    </div>
+
+    <div class="rx-dish-core" aria-hidden="true">
+      <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13 8c10 5 8 11 0 14s-8 9 0 14"/>
+        <path d="M31 8c-10 5-8 11 0 14s8 9 0 14"/>
+        <path d="M15.5 11h13M15.5 33h13M18 15h8M18 29h8M13.5 22h17"/>
+      </svg>
+    </div>
   </div>
+
 </nav>
 
 <div class="edu-detail-layout">
@@ -282,4 +230,7 @@
 <script src="{{ url_for('static', filename = 'education-sidebar.js') }}"></script>
 <script src="{{ url_for('static', filename = 'education-gallery.js') }}"></script>
 <script src="{{ url_for('static', filename = 'edu-lightbox.js') }}"></script>
+<script src="{{ url_for('static', filename = 'js/pages/hp-reveal.js') }}" defer></script>
+<script src="{{ url_for('static', filename = 'js/pages/hp-mesh.js') }}" defer></script>
+<script src="{{ url_for('static', filename = 'js/pages/collaboration.js') }}" defer></script>
 {% endblock %}

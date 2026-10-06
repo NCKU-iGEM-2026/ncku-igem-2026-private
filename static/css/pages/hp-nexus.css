@@ -1,0 +1,207 @@
+/* ============================================================
+   HP-NEXUS — HP 三頁（Education / Collaboration / Promotion）共用色系
+   完全沿用 Hardware 的 nexus 配方（style.css 8778+ 那一套）：
+   deep petrol 底、::before 光 wash、::after 淡網格、.hw-orbs 三顆螢光
+   光球（HTML 掛 hw-orbs，未改動）、hero 人物圖層綠罩、文字對比全部
+   沿用已核過 WCAG 的 --nx-* tokens。
+   本檔只新增 body.hp-nexus 作用域，不碰 hw-nexus / edu-nexus 規則。
+   ============================================================ */
+
+body.hp-nexus {
+  --nx-ground:  #0e242e;
+  --nx-panel:   #16323f;
+  --nx-raised:  #1c4352;
+  --nx-line:    #24596b;
+  --nx-mint:    #49c5b6;
+  --nx-lime:    #a0e860;
+  --nx-blue:    #2779a7;
+  --nx-blue-up: #5fb3e0;
+  --nx-text:    #e7f2ea;
+  --nx-muted:   #93b0bb;
+  --nx-warm:    #e6b060;
+  background: var(--nx-ground);
+}
+
+/* ---- 底色不再平坦：一層由上而下的洗光 ---- */
+body.hp-nexus::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: linear-gradient(to bottom,
+    rgba(20, 179, 145, 0.06) 0%,
+    rgba(20, 179, 145, 0.02) 42%,
+    rgba(20, 179, 145, 0) 100%);
+}
+
+/* ---- 淡網格：依使用者要求取消（三頁只留純色底＋光暈，不畫橫豎線）---- */
+body.hp-nexus::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: none;
+}
+
+/* ---- hero：人物照片壓暗＋綠罩（Hardware 同款配方）---- */
+body.hp-nexus .bg-hero { background-color: var(--nx-ground); }
+body.hp-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.42); }
+body.hp-nexus .page-hero-tint {
+  background: linear-gradient(165deg,
+    rgba(14, 36, 46, 0.55), rgba(14, 36, 46, 0.97));
+}
+body.hp-nexus .hero-title { color: var(--nx-mint); }
+body.hp-nexus .hero-sub { color: var(--nx-muted); }
+
+/* ---- 導覽列／下拉選單轉深（適配首頁 hero 深綠家族）---- */
+body.hp-nexus .navbar { background-color: rgba(14, 36, 46, 0.88) !important; }
+body.hp-nexus .navbar-nav .nav-link { color: var(--nx-text); }
+body.hp-nexus .navbar-nav .nav-link:hover,
+body.hp-nexus .navbar-nav .nav-link:focus { color: var(--nx-lime); }
+body.hp-nexus .navbar .dropdown-menu {
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+}
+body.hp-nexus .dropdown-item { color: var(--nx-text); }
+body.hp-nexus .dropdown-item:hover,
+body.hp-nexus .dropdown-item:focus {
+  background: var(--nx-raised);
+  color: var(--nx-lime);
+}
+
+/* ---- 正文內容：對比重新調整（沿用 edu-nexus 已核算值）---- */
+body.hp-nexus .edu-session-block h2,
+body.hp-nexus .edu-section-header h2 { color: var(--nx-mint); }
+body.hp-nexus .edu-session-block h3,
+body.hp-nexus .edu-section-header h3 { color: var(--nx-text); }
+body.hp-nexus .edu-session-block p,
+body.hp-nexus .edu-session-block li { color: var(--nx-text); }
+body.hp-nexus .edu-session-block strong { color: #fff; }
+body.hp-nexus .edu-session-block a { color: var(--nx-lime); }
+body.hp-nexus .edu-session-block { border-bottom-color: var(--nx-line); }
+body.hp-nexus .edu-consent-note {
+  color: var(--nx-muted);
+  border-inline-start-color: var(--nx-line);
+}
+body.hp-nexus .edu-quote {
+  color: var(--nx-text);
+  border-left-color: var(--nx-mint);
+}
+body.hp-nexus .edu-logo,
+body.hp-nexus .edu-podcast-logo,
+body.hp-nexus .edu-podcast-cover {
+  background: #fffdf7;
+  border-color: var(--nx-line);
+}
+
+/* ---- 側欄目錄 ---- */
+body.hp-nexus .edu-sidebar { background: transparent; }
+body.hp-nexus .edu-sidebar-link,
+body.hp-nexus .edu-sidebar-link.edu-sidebar-top-link { color: var(--nx-muted); }
+body.hp-nexus .edu-sidebar-link:hover,
+body.hp-nexus .edu-sidebar-link.active { color: var(--nx-lime); }
+body.hp-nexus .edu-sidebar-link::before { border-left-color: var(--nx-line); }
+body.hp-nexus .edu-sidebar-link:hover::before,
+body.hp-nexus .edu-sidebar-link.active::before { border-left-color: var(--nx-lime); }
+body.hp-nexus .edu-sidebar-track { background: var(--nx-line); }
+
+/* ---- 相簿 / PDF 連結 ---- */
+body.hp-nexus .edu-gallery img { border-color: var(--nx-line); }
+body.hp-nexus .edu-pdf-link a {
+  color: var(--nx-text);
+  border: 1px solid var(--nx-line);
+}
+body.hp-nexus .edu-pdf-link a:hover,
+body.hp-nexus .edu-pdf-link a:focus-visible {
+  color: var(--nx-lime);
+  border-color: var(--nx-lime);
+}
+
+/* ---- collaboration 團隊名單 ---- */
+body.hp-nexus .collab-teams li { color: var(--nx-text); }
+body.hp-nexus .collab-teams img {
+  background: #fffdf7;
+  border-color: var(--nx-line);
+}
+
+/* ---- Promotion 麥克風舞台：白面板轉深青 ---- */
+body.hp-nexus .promo-stage {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+/* 麥克風線稿（stroke 是 presentation attribute，CSS 蓋得過） */
+body.hp-nexus .promo-mic g[stroke] { stroke: var(--nx-mint); }
+body.hp-nexus .promo-mic g[stroke="#d8b26a"],
+body.hp-nexus .promo-mic [stroke="#d8b26a"] { stroke: var(--nx-warm); }
+/* 麥克風本體的白填色轉深青（collar／handle／cap） */
+body.hp-nexus .promo-mic [fill="#fffdf7"] { fill: var(--nx-panel); }
+body.hp-nexus .promo-mic [fill="#eef6f1"] { fill: var(--nx-raised); }
+body.hp-nexus .promo-key {
+  border-color: var(--nx-mint);
+  background: var(--nx-raised);
+  color: var(--nx-mint);
+}
+body.hp-nexus .promo-key:hover,
+body.hp-nexus .promo-key:focus-visible {
+  background: var(--nx-lime);
+  border-color: var(--nx-lime);
+  color: #0e242e;
+}
+body.hp-nexus .promo-key:focus-visible { outline-color: var(--nx-lime); }
+body.hp-nexus .promo-key-name {
+  color: var(--nx-text);
+  background: var(--nx-raised);
+  border-color: var(--nx-line);
+}
+
+/* ---- 動態網格背景（hp-mesh.js 注入）：固定在一切之下 ---- */
+.hp-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---- 印表機友善 ---- */
+@media print {
+  body.hp-nexus::before,
+  body.hp-nexus::after { display: none; }
+  .hp-mesh { display: none; }
+  body.hp-nexus { background: #fff; color: #111; }
+}
+
+/* Promotion 的 Tainan Girls 便利貼牆：便利貼本身是淺色紙，維持原本深褐墨水色，
+   不吃上面 .edu-session-block p 的霧白（否則淺字淺底看不見）。 */
+body.hp-nexus .edu-session-block .tngs-qa p {
+  color: #4a3f35;
+}
+
+/* SDGs 頁（sustainability.html）在深夜 nexus 底上：
+   非本隊目標的白格改深綠面板＋該目標色描邊，字改霧綠；統計卡同理；
+   SDG 原色在深底上太暗的（如 17 號深藍），標題混白提亮。is-ours 彩色格維持官方配色。 */
+body.hp-nexus .sdgp-tile:not(.is-ours) {
+  background: #16323f;
+  border-color: color-mix(in srgb, var(--sdg) 55%, #16323f);
+}
+body.hp-nexus .sdgp-tile:not(.is-ours) .sdgp-name { color: #93b0bb; }
+body.hp-nexus .sdgp-tile:not(.is-ours) .sdgp-num,
+body.hp-nexus .sdgp-tile:not(.is-ours) .sdgp-icon {
+  color: color-mix(in srgb, var(--sdg) 65%, #fff);
+}
+body.hp-nexus .sdgp-tile.is-ours .sdgp-name { color: #fff; }
+body.hp-nexus .sdgp-legend,
+body.hp-nexus .sdgp-target { color: #93b0bb; }
+body.hp-nexus .edu-session-block .sdgp-goal h3,
+body.hp-nexus .sdgp-goal h3,
+body.hp-nexus .sdgp-stat-num {
+  color: color-mix(in srgb, var(--sdg) 60%, #fff);
+}
+body.hp-nexus .sdgp-stat {
+  background: color-mix(in srgb, var(--sdg) 14%, #16323f);
+}
+body.hp-nexus .edu-session-block .sdgp-stat-label,
+body.hp-nexus .sdgp-stat-label { color: #dbe9ee; }
