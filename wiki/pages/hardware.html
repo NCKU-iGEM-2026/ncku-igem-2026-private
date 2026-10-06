@@ -2,32 +2,295 @@
 
 {% block title %}Hardware{% endblock %}
 
+{# The deep-teal treatment, scoped to this page. Every rule it turns on
+   lives under body.hw-nexus in style.css and overrides the light theme
+   rather than replacing it, so deleting this one line puts the page
+   back exactly as it was. #}
+{% block body_class %}hw-nexus{% endblock %}
+
+{% block hero_image %}https://static.igem.wiki/teams/6379/wiki/hardware/hardware.avif{% endblock %}
+{# The whole photo, fitted to the banner's height, rather than cropped to its middle. #}
+{% block hero_class %}is-fit-height hero-hardware{% endblock %}
+
 {% block page_content %}
+
+{# Three green glows drifting over the background. Decoration only -- it is
+   aria-hidden and carries no text, and the page reads the same without it.
+   Each orb runs its two axes on separate elements so they can have their own
+   durations; see .hw-orb in style.css. #}
+<div class="hw-orbs" aria-hidden="true">
+  <span class="hw-orb hw-orb-a"><span></span></span>
+  <span class="hw-orb hw-orb-b"><span></span></span>
+  <span class="hw-orb hw-orb-c"><span></span></span>
+</div>
 
 {#
   === 給團隊的說明，發布前請讀 ===
 
-  3. 需要你們補的：
-     - 實體照片：P1-PROTO-01 組裝外觀。
-       圖片一定要用 iGEM uploads tool 上傳到 static.igem.wiki，不可連外部網址或本機路徑。
-       建議插入位置我用 <!-- PHOTO: ... --> 標了一處。
-     - 成本與零件表：已經不在這一頁了。BOM.csv 目前所有 unit_price 都是 UNKNOWN，
-       等 Mouser 訂單對帳完再補，不要先估一個數字上去。
-     - sfGFP 的確切 construct 與 strain（SYS-U013）目前是 UNKNOWN。這一頁現在
-       只寫「reported to carry the sfGFP reporter」，沒有宣稱更多。
+  這一頁是 Best Hardware 的 Required link。評審的四道題與本頁的對應：
+
+    1 是否回應 synthetic biology 的需求      -> 頁首兩段 + Why build a reader（共同的部分）
+    2 有無 user testing、有無從回饋學到東西   -> What its users told us（wet lab 對兩版的回饋 + 操作紀錄）
+    3 proof of concept 的效用與功能           -> 3D 列印機標題下的摘要與三個數字 + What it has measured
+                                                （Across three sessions 與第二版 10-05 那一場）；
+                                                模型與擬合在 Model 頁，本頁有連過去
+    4 文件是否足以讓別隊重現                  -> Building one（零件、列印、裝配、成本、操作步驟、file manifest）
+
+  ── 2026-10-06 改版：兩台機器分開呈現，在同一頁切換 ──
+
+  這一頁現在由三個檔案組成：
+
+    wiki/pages/hardware.html      這個檔。共同的部分：為什麼做、對應的實驗、怎麼量、十個波段、
+                                  兩張卡片、References
+    wiki/hardware-printed.html    3D 列印機那一台的全部內容（硬體負責人維護）
+    wiki/hardware-laser-cut.html  雷切機那一台的全部內容（做那一台的組員自己排，檔案開頭有說明）
+
+  後兩個檔是用 include 放進這一頁的，不是獨立的網頁，網址仍然只有 /hardware 一個。
+  為什麼不拆成不同網頁：2026 Judge Handbook 第 29 頁寫明評審是從評分表直接連到 /hardware，
+  隊伍應該把說服評審需要的內容放在這一頁；另開的頁面只算補充資料，評審沒有義務點進去。
+  2025 Best Hardware 的得獎與入圍隊伍裡，讀得到頁面的 11 隊都把硬體寫在同一頁。
+
+  怎麼切換：The two builds 的兩張卡片。點卡片，下面就換成那一台的內容，網址變成
+  /hardware#printed 或 /hardware#laser-cut，可以直接分享。連到某一台裡面某一節的連結
+  （例如 Model 頁連到 #hardware-v2）會自動切到那一台。程式是 static/hardware-builds.js；
+  沒有 JavaScript 時兩台的內容上下排在一起，卡片最下面的連結就是一般的頁內連結。列印時兩台都會印出來。
+
+  哪些搬了位置（除了下面列的幾句，內容沒有改寫）：
+    共同的部分   Why build a reader、The assay it is built for（原本在後面）、
+                 How it measures（新的一節：原本 The instrument 開頭的光路說明與平面圖，
+                 加上原本收在 CAD 組裝圖下方的示意剖視圖）、Ten channels instead of one filter
+    3D 列印機    The instrument（兩張版本卡 + CAD 組裝圖）、What it has measured
+                 （It has to be shielded 從 Ten channels 搬到這一節最後）、The circuit、
+                 How it got here、What using it taught us、Building one
+    雷切機       原本第三張卡的內容，以及原本在 Building one 裡的成本表
+
+  頁首現在只放兩台共通的事（這是什麼、怎麼量、有兩台）。原本頁首講結果的那一段與三個數字是
+  3D 列印機的，搬到 wiki/hardware-printed.html 的標題下面。
+  為了說清楚「是哪一台」而改的句子：頁首兩段（重寫成只講共通的事）；
+  How it measures 的兩段（原本是一段）；剖視圖下方的說明；Ten channels 第一段的 "at first light"
+  與面板下方的 Working settings；兩張卡片下方那段 aside；Building one 裡原本介紹成本表的那一段。
+
+  ⚠ 共同的部分只寫了「兩台原理相同」：藍光橫過樣品、偵測器在 90° 看、用 AS7341 讀光譜。
+     平面圖、剖視圖、Working settings 都標明是 3D 列印機的。雷切機的光路如果有不一樣的地方
+     （有沒有 light trap、用什麼比色管、LED 是哪一顆），請寫在雷切機自己的檔案裡。
+  ⚠ 卡片上還沒有縮圖：兩台請用同一個角度、同一個背景拍，橫式 4:3，上傳後換掉卡片裡的 PHOTO 註解。
+  ⚠ 3D 列印機那張卡片的 Data 與雷切機那張的 "None on this page"：雷切機放上數據之後兩張都要改。
+
+  同一天加進 3D 列印機的：第二版 2026-10-05 第一場菌液量測（What it has measured 最後一塊、
+  標題下的摘要、版本卡、Development log 第九站、Version 2 so far）。來源與不能說的話寫在
+  wiki/hardware-printed.html 那一塊上方的註解。Model 頁沒有動，它講的仍然是第一版的三場。
+
+  下面較早的說明寫於拆檔之前。提到的節名都還在；3D 列印機的那些節現在在 wiki/hardware-printed.html。
+
+  ── 2026-10-04 精簡：預設可見字數從約 5,250 降到約 3,350 ──
+
+  對照了 2023–2025 的 Best Hardware 得主與 Best Wiki 得主之後做的。得獎頁面的共同點是開頭先講
+  結論、頁面當故事讀、每個限制只講一次、細節放進摺疊或可下載的文件。這次照這個方向改：
+
+    新增   頁首兩段（這是什麼、量什麼、結果如何）與三個數字；最後的 References（四條，都查過存在）。
+    改名   Background -> Why build a reader；What the detector actually saw -> What it has measured；
+           A bench circuit, deliberately boring -> The circuit；The wet–dry interface -> The assay it is
+           built for；Reproducing it -> Building one。各節的 id 沒有變。
+    收合   Acquisition timing、Operating protocol（原本的七個步驟與 row flag 表）、
+           Decisions（原本獨立一節，現在在 How it got here 最下面的摺疊裡，五張卡原封不動）。
+    合併   「哪一版量的」「要遮光／暗讀值為零」「沒做 AHL 誘導」「第二版還沒驗證」原本各講了五到十一次，
+           現在各留一處完整說明。遮光那一節從五段縮成一段加一個 caution。
+    拿掉   匯率為什麼要標日期、為什麼不替四樣零件估價、釋出檔案的理念、最後一段關於措辭謹慎的聲明、
+           plan view 上的 ORIENT-A 標籤、內文裡的 P1／safe-start／SMUX 這類內部用語。
+    沒動   3D 剖視圖、bench、channel map、Development log、兩張三場結果的表、What version 2 changes 那張表。
+
+  ── 2026-10-04 之後又加了一塊：真正的 CAD 組裝圖（The instrument 裡，id="hwParts"）──
+
+  對照過去的得獎隊伍：多數有放可下載的 CAD（TU Darmstadt 2025 放 ZIP、Aachen 2024 放 GitLab、
+  Brno 2025 放 GitHub），頁面上則是靜態的 CAD 圖；唯一試著做可旋轉檢視器的 Rochester 2025
+  線上沒有顯示出來。本頁現在是直接讀 STL 畫出組裝起來的樣子（可拉開、可切換第一／二版、
+  可逐件看），每個檔都能下載。原本的 3D 剖視圖是示意圖，收進它下面的摺疊裡，內容沒有動。
+  詳細說明寫在那一塊上方的註解。
+
+  精簡前的版本留在硬體負責人手上；第二版更新前的版本就是 PR #122 合併進 dev 的那一版，可從 git 歷史還原。
+  開頭仍然缺一張實機照片或影片：得獎頁面幾乎都以實機畫面開場，本頁目前零張圖。
+
+  ── 2026-10-03 更新：第二版，以及「其實有兩台機器」 ──
+
+  本頁現在分清楚三樣東西（The instrument > Which build is which 的三張卡）：
+
+    Version 1   3D 列印機構，紀錄裡叫 P1-PROTO-01，2026-08-25 到 10-03。
+                本頁與 Model 頁所有的數據都是它量的（LED 5.553 mA、沒有裝光闌片）。
+    Version 2   同一台，10-03 換上 v0.8 重畫的零件，R1 換成一顆 220 Ω（約 10 mA），紀錄裡叫 P1-PROTO-02。
+                只有空杯的首次讀值，還沒量過菌液。
+    Laser-cut   另一台機器：全雷切、有外殼、OLED、按鈕、Wi-Fi，就是 Software 頁在講的那一台。
+
+  第二版的內容全部來自硬體資料夾 C:\IGEM\prototype_1，本頁沒有加入這些文件以外的數據：
+
+    PROJECT_STATE/CURRENT_STATE.md                             P1-PROTO-02、沿用與更換的零件、沒裝光闌片、偵測器接觸不良
+    PROJECT_STATE/DECISION_LOG.md 的 GOV-011                   R1 換成一顆 220 Ω 的決定，以及它不代表什麼
+    _AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/README.md  五件零件、尺寸依據、截面比、裝配提示
+      同資料夾 vendor_package/PRINT_INSTRUCTIONS_ROUND2_zh-TW.txt   列印規格與擺放方向
+      同資料夾 validation_v0_8_round2.json                      截面比 0.82／0.98／0.86／0.84／1.00，舊件 0.63、0.32
+    _AI_REFACTOR_WORK/P1_MECH_V08_ROUND1_HANDOFF_2026-09-25/records/ROUND1_FIT_RESULT_2026-10-02.md   試配件
+    _AI_REFACTOR_WORK/P1_LED_CURRENT_STAGE6_2026-10-03/SUMMARY_stdout.txt            R1 前後的電流與空杯讀值
+    _AI_REFACTOR_WORK/P1_V08_FIRST_READ_LOGS_2026-10-03/COMPARE_own_cup_stdout.txt   新機構的空杯讀值
+
+  ⚠ 第二版的寫法刻意保守，請確認後再放寬。
+     硬體資料夾自己的檢查（P1_V08_BUILD_SYNC_2026-10-03/VERIFY_DISPOSITION.md 的 M1、M3）指出：
+     誰印的、五件是否都裝上、LED 蓋有沒有鎖、10-03 那兩次調整了什麼，紀錄裡都是「未回報」。
+     所以本頁寫的是「重畫並印出五件」「新零件已裝上」，零件的特徵寫成設計（drawn／the design），
+     沒有寫「五件都裝上」「蓋子已鎖上」，也沒有寫第二版比第一版好。
+     你確認之後可以改成肯定句的地方：Version 2 卡片、What version 2 changes 那張表與它的圖說、
+     First reads 的圖說（「The adjustment itself was not written down」）、Development log 最後一站、
+     Core parts 的 Optical core 列（現在寫「哪幾件裝上還沒有紀錄」）、它下面那段 aside 的最後兩句。
+     首次讀值是探索性的（CURRENT_STATE 明寫 "They are not test results"），頁面上也這樣標。
+
+  ⚠ 雷切那一台：本頁只寫了已經公開、或你 2026-10-03 說明過的事：ESP32 + AS7341、OLED、按鈕、
+     Wi-Fi、感測器設定（以上在 Software 頁）、全雷切、有外殼。還缺：
+       - 照片
+       - 它的光路是不是跟 3D 列印機構同一套尺寸；它量過什麼
+       - 3D 剖視圖畫的是「09-12 外殼圖面 + 本頁的光路座標」。剖視圖下方那段話目前只說
+         "as it was drawn"，沒有說這個外殼就是雷切那一台。確認後請改成肯定句。
+       - 兩台都叫 CAPTURE-Screen 嗎？本頁用 "3D-printed build"／"laser-cut build" 區分，沒有另外取名。
+
+  ⚠ 成本表：改標成雷切那一台的成本（表裡是 OLED、按鈕、木板、雷切；數字來自團隊的成本試算表）。
+     3D 列印機構的列印費在硬體紀錄裡是 UNKNOWN，所以本頁沒有它的成本。請確認這樣標是對的。
+
+  2026-10-06：第 2 題已補上 wet lab 對兩版的回饋（硬體負責人的轉述；10-05 的五次重插是 wet lab 的人做的），
+  寫在 wiki/hardware-printed.html 的 What its users told us。沒有計時、沒有記人數，頁面照實寫了；
+  補得上人數會更強。下面這一段寫於補上之前，留作紀錄。
+
+  2026-10-06（晚）：3D 列印機那一塊（wiki/hardware-printed.html）重新排過，只動呈現、沒有動數據：
+  每一節一句重點加一張圖；原本散在各節的 16 個收合表格集中到它最後一節 Data and documentation
+  （#hardware-data，13 列，分 Measurements and use／Building and running／History 三組）。
+  上面那張「四題各在哪一節」的對照因此要這樣讀：第 3 題在 Version 1 on the bench 與 Version 2；
+  第 4 題在 Building one 的三張卡片，零件表、電路、操作步驟、開發日誌都在 Data and documentation。
+  做法與理由寫在 wiki/hardware-printed.html 開頭的註解。樣式在 static/style.css 最後一段，
+  連結點下去自動展開那一列的程式是 static/hardware-docs.js。共同的部分與雷切機那一塊沒有動。
+
+  2026-10-06（夜）：3D 列印機那一塊的實驗改用名字稱呼（mixing session 1 到 3、dilution series、
+  re-insertion test、room-light test…），不再用日期；名字與日期的對照在它的 Data and documentation
+  第一列，也寫在 wiki/hardware-printed.html 開頭的註解。Model 頁一起改了。
+
+  2026-10-06（夜）標題改回較正式的寫法（組員的要求：左側「On this page」目錄是用各節的 h2 自動產生的，
+  標題就是目錄上的字，Why build a reader 這類句子式的標題放在目錄上不夠正式）。各節的 id 都沒有變。
+    共同的部分   Why build a reader -> Background；The assay it is built for -> Design requirements；
+                 How it measures -> Measurement principle；Ten channels instead of one filter -> Spectral detection
+    3D 列印機    Version 1 on the bench -> Version 1: bench tests；What its users told us -> User feedback；
+                 Version 2: what got better -> Version 2: improvements；Building one -> Construction and operation；
+                 小標 It has to be shielded -> Light shielding；Try the three tests -> Interactive bench；
+                 Where version 2 stands -> Status of version 2
+    沒有動的     The two builds、The instrument、Data and documentation、References；雷切機那一塊的標題是
+                 做那一台的組員自己的，沒有動。
+  這是把 2026-10-04 那次「改名」改回去（見下方那一段）：當時照得獎頁面的做法把標題寫成句子。現在每一節標題
+  下面都有一句重點（class="hw-point"），所以標題可以正式，重點還是看得到。
+  共同的五節是同一晚補上的：四節是把原本的第一段標成重點，字沒有改；Spectral detection 那一句
+  （Ten channels instead of one filter…）是從它的第一段裡拿出來的，也就是原本標題講的那件事。
+  上面與下面的註解裡提到的舊標題沒有逐一改，請對照這一段。
+
+  ⚠ 第 2 題：仍然沒有正式的 user testing。
+     「What using it taught us」第一句就明說沒有做過、所有量測由一位隊員操作。
+     建議請 2–3 位 wet lab 成員照操作卡量一個 blank 和一個 GFP 樣品，記錄時間、出錯處與回饋。
+     做完之後把結果加在那一節前面，並改掉它的第一段。
+
+  ── 照片與影片怎麼放 ──
+
+     照片：用 iGEM uploads tool 上傳（連結在這個 repo 的 README.md），網址會是
+           https://static.igem.wiki/teams/6379/wiki/hardware/<檔名>
+           其他頁的圖都轉成 .avif 或 .webp，請照做。拿到網址後換掉本頁的 PHOTO 註解。
+     影片：上傳到 https://video.igem.org ，用它給的 embed 網址；寫法照 home.html 的 promotion video
+           （Bootstrap 的 .ratio 包一個 iframe，下面附一個直接觀看的連結）。
+     圖檔與影片檔不可以 commit 進這個 repo，也不能連 YouTube 或外部圖床。
+     插入位置（搜尋 "PHOTO:" 與 "VIDEO:"）：三張 build 卡各一張、剖視圖下方一張量測時的照片、
+     裝配提示下方的逐步照、UVette 座與安裝方向一張；示範影片在三張卡的下面。
+
+  ── 其他還需要補的，依對分數的影響排序 ──
+
+  A. USER TESTING（第 2 題，目前最弱）見上。
+
+  B. 釋出設計檔（第 4 題）
+     2026-10-04：可列印的 STL（53 檔）已經做成 The instrument 裡的 CAD 組裝圖，可以在頁面上
+     轉著看、逐件存成 STL。檔案是一個 .glb，放在 static.igem.wiki（uploads tool 不收 STL 和 ZIP），
+     不在 repo 裡；說明寫在那一塊上方的註解。
+     還沒放的：CadQuery 原始碼、STEP、韌體、BOM。建議放到 iGEM GitLab（跟 LasReader 同一個群組），
+     並決定授權；"The file manifest" 下方那段話照實寫了哪些已經在頁面上、哪些還沒有。沒有先填任何網址。
+
+  C. 組裝步驟與照片（第 4 題）
+     "Fitting the version 2 parts" 是 round-2 README 的「組裝提示」改寫的：那是設計時寫的提示，
+     不是實際裝過之後的紀錄，頁面上照實說了。有逐步照片之後請補上，並改掉那一段的第一句。
+     file manifest 下方原本寫 version 1 "was put together once, at the manufacturer"。硬體紀錄寫的是
+     收貨時 not assembled、之後才部分組裝，沒有寫在廠商那裡組，所以這次把 "at the manufacturer" 拿掉了
+     （HP 頁 9/10 在工作室組裝的那一段，看起來是雷切那一台）。如果 3D 列印這台真的是在廠商那裡組的，請加回來。
+
+  D. 成本表沒計價的：電阻、2N7000、Cree 470 nm LED、Eppendorf UVette，以及 3D 列印費。
+     匯率 NT$31.68 = US$1（2026-09-22）標在頁面上。
+
+  E. sfGFP 的確切 construct 與 strain 目前是 UNKNOWN。
+     本頁只寫「reported to carry the sfGFP reporter／plasmid」，沒有宣稱更多。
+
+  F. Software 頁的 "Sensor settings at boot" 寫 LED current 5.553 mA (bench-measured 2026-08-25)。
+     那是 3D 列印機構 8/25 量到的值，10-03 之後這台也不是這個數字了；雷切那台的電流請 Software 那邊確認。
+
+  G. Model 頁 "A prediction on the record" 的預測是針對 P1-PROTO-01 寫的。機器已經改版，Model 頁已加註
+     「不能照原樣測了」。如果 10-03 改版前其實測過，請告訴我結果。
+
+  H. AI 工具：v0.8 的設計審查與各份分析報告都用到 AI 工具，請寫進 Attributions。
+     本頁沒有再把那次審查寫成 "A design review returned ..."，因為讀起來像是人做的同儕審查。
+     2026-10-04：這批第二版的改動另外請 Codex 以唯讀方式對照硬體資料夾審過一次，提出的十項意見
+     （兩項是說法超出紀錄、其餘是用詞精確度）都已改掉。這也是 AI 工具的使用，請一併寫進 Attributions。
+
+  其他說明：
+  - 三場校正（09-16、09-21、09-29）是探索性證據，沒有同步進 canonical 的 TEST_STATUS.md。
+  - Light-path bench 是三個測試的分頁（Fluorescence／Light path／Room light），每個選項都有數據；
+    分頁、按鈕與數據在 static/hardware-bench.js。要加新場次：REC 加紀錄、SESSION 加日期、
+    TESTS 裡 Fluorescence 的 session 選項加一顆。bench 上的讀值全部是 version 1 的。
+  - Development log：在 <ol class="hwx-log-list"> 裡增減 <li class="hwx-log-item">，
+    data-when 與 data-name 是站點上顯示的字，程式會自己數。逐週的完整紀錄在 Notebook 頁。
+  - 電路圖上方的 434 Ω／217 Ω 開關：兩種狀態的文字寫在標籤的 data-v2 與 data-tip-v2 裡，
+    程式（hardware-bench.js「THE CIRCUIT, BEFORE AND AFTER」）只負責切換；程式沒載入時顯示 434 Ω 那一版，
+    下面摺疊起來的對照表（The branch at 434 Ω and at 217 Ω）照樣在。
+  - 第二版的細節都收在摺疊裡：電阻前後對照表、空杯首次讀值、五件零件（試配件的說明在這張表下方）、
+    裝配提示。預設看得到的只有三張 build 卡、What version 2 changes 那張對照表，和
+    "Version 2 so far" 那一段 caution。
+  - 頁首的 "On this page" 是連到各節 id 的連結；改了節的 id 要一起改。
+  - 特殊獎是在 Judging Form 上自己提名的，最多三個，每個要填 Required link 加最多 150 字的說明。
+    Wiki、Judging Form、Attributions Form 都在 2026-10-21 23:00（台灣時間）凍結。
 #}
 
 <div class="container my-4 hw">
 
+  {# 開頭只放兩台共通的事：這是什麼、怎麼量、有兩台。講結果的那一段與三個數字是 3D 列印機的，
+     2026-10-06 搬到 wiki/hardware-printed.html 的標題下面。
+     有兩台放在一起的實機照片或示範影片之後，放在這一段的正上方最有效。 #}
+  <div class="hw-lead hw-lead-tight">
+    <p>
+      CAPTURE-Screen is a single-cuvette fluorescence reader. It is built to
+      read the green fluorescence of our biosensor culture at the bench,
+      without a plate reader: one blue LED lights the sample, and a
+      multi-channel spectral sensor reads what it gives off at 90&deg;.
+    </p>
+    <p>
+      There are two readers on this principle, a 3D-printed build and a
+      laser-cut build in its own enclosure. This page sets out what the two
+      share, then each build in turn.
+    </p>
+  </div>
+
+  {# 這一排是捷徑。前三個是共同的部分；後兩個會切到那一台，每一台自己的各節捷徑在它的標題下面。
+     每個連結對應一個 id，改了 id 要一起改。 #}
+  <nav class="hw-jump" aria-label="On this page">
+    <ul class="sw-links">
+      <li><a href="#hardware-background">Background</a></li>
+      <li><a href="#hardware-principle">Measurement principle</a></li>
+      <li><a href="#hardware-builds">The two builds</a></li>
+      <li><a href="#printed">3D-printed build</a></li>
+      <li><a href="#laser-cut">Laser-cut build</a></li>
+    </ul>
+  </nav>
+
   <!-- ========================= why build one ========================= -->
-  <section>
+  <section id="hardware-background">
     <h2>Background</h2>
 
-    <p>
-      A plate reader answers the question we are asking, so the argument for
-      building our own instrument is not that the measurement is impossible
-      without it. The argument is about who can make the measurement, where,
-      and at what cost.
+    <p class="hw-point">
+      A plate reader can already make this measurement. The case for building
+      a reader is about who can make it, where, and at what cost.
     </p>
 
     <!--
@@ -65,29 +328,66 @@
     </dl>
 
     <p>
-      The plate reader has not been discarded. It remains our benchmark: the
-      wet lab's reference condition is excitation 485&nbsp;nm, emission
-      510&nbsp;nm at 200&nbsp;&micro;L, and CAPTURE-Screen's job is to be
-      comparable against it, not to replace it before it has earned the right.
+      The plate reader stays our benchmark: excitation 485&nbsp;nm, emission
+      510&nbsp;nm, 200&nbsp;&micro;L.
     </p>
   </section>
 
-  <!-- ========================= the instrument ========================= -->
+  <!-- ========================= interface ========================= -->
   <section>
-    <h2>The instrument</h2>
+    <h2>Design requirements</h2>
+
+    <p class="hw-point">
+      The reader has to fit an assay the wet lab defines: our biosensor makes
+      GFP in response to AHL, the quorum-sensing signal. This is what we are
+      designing against.
+    </p>
+
+    <dl class="hw-spec">
+      <div><dt>Reporter</dt><dd>sfGFP. Construct and strain not yet specified.</dd></div>
+      <div><dt>AHL series</dt><dd>10&nbsp;&micro;M, 1&nbsp;&micro;M, 100&nbsp;nM, 10&nbsp;nM, 1&nbsp;nM, as planned.</dd></div>
+      <div><dt>Volume</dt><dd>200&nbsp;&micro;L per reaction.</dd></div>
+      <div><dt>Incubation</dt><dd>37&nbsp;&deg;C, read every hour for six hours.</dd></div>
+      <div><dt>Benchmark</dt><dd>Plate reader at excitation 485&nbsp;nm, emission 510&nbsp;nm, 200&nbsp;&micro;L.</dd></div>
+    </dl>
+
+    <div class="hw-caution">
+      <p>
+        <em>No reading on this page comes from an AHL-induced culture.</em>
+        AHL induction has not been run yet, and there is no plate-reader
+        dataset to compare against; our 470&nbsp;nm excitation also differs
+        from the plate reader's 485&nbsp;nm. What the reader has shown is that
+        it tells a culture reported to carry the sfGFP plasmid from one
+        without it, and from medium.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========================= how it measures ========================= -->
+  {# 兩台共同的原理。2026-10-06 拆檔時新增的一節：這兩段是原本 The instrument 開頭那一段拆開的
+     （加了第一句，並說明圖畫的是 3D 列印機）；平面圖原樣搬來；下面的摺疊是原本收在 CAD 組裝圖
+     下方的示意剖視圖。圖上的尺寸與座標都是 3D 列印機的。 #}
+  <section id="hardware-principle">
+    <h2>Measurement principle</h2>
+
+    <p class="hw-point">
+      Both readers measure the same way. Blue excitation crosses the sample
+      along one axis, and the detector looks at it from 90&deg; to that
+      axis; the reporter is superfolder GFP<sup class="hw-ref"><a href="#hardware-ref-2">2</a></sup>.
+    </p>
 
     <p>
-      CAPTURE-Screen P1 is a single-cuvette reader with a fixed optical core.
-      Excitation enters along one axis; emission is collected at 90&deg; to it.
-      Everything the excitation does not deposit in the sample is absorbed by a
-      light trap on the far side rather than allowed to find its way to the
-      detector.
+      The drawing shows this layout to scale, as it is built in the
+      3D-printed build. There, excitation that passes through the sample
+      ends in a light trap on the far side, so it does not reach the
+      detector, and the sample sits in a UVette, a disposable cuvette with a
+      10&nbsp;mm and a 2&nbsp;mm light path<sup class="hw-ref"><a href="#hardware-ref-4">4</a></sup>.
     </p>
 
     <figure class="hw-figure">
       <div class="hw-diagram">
         <svg class="hw-svg" viewBox="0 0 780 510" role="img"
-             aria-label="Scaled plan view of the CAPTURE-Screen optical core. A Cree 470 nanometre LED in its holder sends blue excitation along the plus X axis through an aperture baffle carrying two stops, then across the 2 millimetre path of a UVette holding the sample. Excitation that leaves the sample enters an angled-wedge light trap 8 millimetres across and 27 millimetres deep, whose slanted end face deflects rather than returns it. Green sfGFP emission leaves the UVette along the plus Y axis, at 90 degrees to the excitation, through a reserved but as yet unspecified emission filter position, and reaches the AS7341 detector. An enlarged inset shows the UVette chamber, 2 millimetres across the excitation path and 10 millimetres along the detection path. A scale bar gives device X coordinates from minus 33.25 to plus 45.25 millimetres.">
+             aria-label="Scaled plan view of the CAPTURE-Screen optical core. A Cree 470 nanometre LED in its holder sends blue excitation along the plus X axis through an aperture baffle with two slots for aperture disks, both drawn empty because no disk was fitted, then across the 2 millimetre path of a UVette holding the sample. Excitation that leaves the sample enters an angled-wedge light trap 8 millimetres across and 27 millimetres deep, whose slanted end face deflects rather than returns it. Green sfGFP emission leaves the UVette along the plus Y axis, at 90 degrees to the excitation, through a reserved but as yet unspecified emission filter position, and reaches the AS7341 detector. An enlarged inset shows the UVette chamber, 2 millimetres across the excitation path and 10 millimetres along the detection path. A scale bar gives device X coordinates from minus 33.25 to plus 45.25 millimetres.">
 
           <!-- ---------- axes, drawn first so everything sits on top ---------- -->
           <path class="hw-svg-axis" d="M126 230 H664"/>
@@ -111,7 +411,6 @@
           <text class="hw-svg-note" x="597" y="54" text-anchor="middle">2 mm</text>
           <path class="hw-svg-dim" d="M603 74 H648 M603 134 H648 M644 74 V134 M640 74 H648 M640 134 H648"/>
           <text class="hw-svg-note" x="654" y="108">10 mm</text>
-          <text class="hw-svg-note" x="514" y="162">ORIENT-A</text>
 
           <!-- ---------- excitation train ---------- -->
           <rect class="hw-svg-body" x="140" y="189" width="74" height="82" rx="3"/>
@@ -119,10 +418,9 @@
           <rect class="hw-svg-body" x="206" y="213" width="24" height="34" rx="2"/>
 
           <rect class="hw-svg-body" x="214" y="192" width="75" height="76" rx="3"/>
-          <rect class="hw-svg-stop" x="228" y="192" width="14" height="30"/>
-          <rect class="hw-svg-stop" x="228" y="238" width="14" height="30"/>
-          <rect class="hw-svg-stop" x="261" y="192" width="14" height="30"/>
-          <rect class="hw-svg-stop" x="261" y="238" width="14" height="30"/>
+          <!-- The two slots for aperture disks, as outlines: no disk has been fitted. -->
+          <rect class="hw-svg-slot" x="228" y="192" width="14" height="76"/>
+          <rect class="hw-svg-slot" x="261" y="192" width="14" height="76"/>
 
           <!-- ---------- sample ---------- -->
           <rect class="hw-svg-body" x="349" y="199" width="62" height="62" rx="3"/>
@@ -154,7 +452,7 @@
           <text class="hw-svg-sub" x="177" y="289" text-anchor="middle">Cree, 470 nm</text>
 
           <text class="hw-svg-label" x="251" y="176" text-anchor="middle">baffle</text>
-          <text class="hw-svg-sub" x="251" y="311" text-anchor="middle">two aperture stops</text>
+          <text class="hw-svg-sub" x="251" y="311" text-anchor="middle">two disk slots, empty</text>
 
           <text class="hw-svg-label" x="380" y="176" text-anchor="middle">sample</text>
           <text class="hw-svg-sub" x="322" y="289" text-anchor="end">UVette, 200 &#181;L</text>
@@ -187,10 +485,30 @@
       </ul>
     </figure>
 
+    {# 來源：PROJECT_STATE/CURRENT_STATE.md「Physical Prototype State」— 10-03 owner 說明
+       P1 從頭到尾都沒裝過光闌片，新機構也沒有裝。圖上的兩個槽因此畫成虛線。 #}
+    <p class="hw-aside">
+      The dashed outlines in the baffle are slots for aperture disks. No
+      disk has been fitted.
+    </p>
+
+    <details class="hw-fold hw-fold-wide">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">The light path inside the planned enclosure</span>
+        <span class="hw-fold-meta">schematic</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
     <!--
       The 3D cutaway. The plan view above is the drawing; this is the same
-      optical core placed inside the enclosure that was built around it, so a
-      reader can see which layer each part sits in.
+      optical core placed inside the two-layer enclosure drawn for it, so a
+      reader can see which layer each part sits in. The enclosure is the one
+      on the 09-12 drawing, and the note under the figure says what actually
+      shielded the measurements.
 
       The two figures do not have the same standing -- the X coordinates are
       dimensioned, the Y and Z placements are not -- so every part still
@@ -207,7 +525,7 @@
         <div class="hw3d-stage">
           <div class="hw3d-viewport">
             <canvas id="hw3d-view" tabindex="0" role="img"
-              aria-label="Three-dimensional cutaway of the CAPTURE-Screen enclosure. A 127.4 by 99.4 by 80 millimetre box is divided into two layers. The upper layer carries the optical core: along the excitation axis, the LED holder, the aperture baffle with its two stops, the UVette, and the angled-wedge light trap on the far side; the AS7341 detector sits at 90 degrees to that axis. The UVette stands on the deck and passes through an opening in the top plate. The lower layer carries the breadboard with the ESP32 directly above it. Drag to rotate, or use the arrow keys."></canvas>
+              aria-label="Three-dimensional cutaway of the enclosure designed for CAPTURE-Screen. A 127.4 by 99.4 by 80 millimetre box is divided into two layers. The upper layer carries the optical core: along the excitation axis, the LED holder, the aperture baffle with its two disk slots, the UVette, and the angled-wedge light trap on the far side; the AS7341 detector sits at 90 degrees to that axis. The UVette stands on the deck and passes through an opening in the top plate. The lower layer carries the breadboard with the ESP32 directly above it. Drag to rotate, or use the arrow keys."></canvas>
             <div class="hw3d-hud" id="hw3d-hud"></div>
             <div class="hw3d-hint">drag to rotate &middot; scroll to zoom &middot; shift-drag to pan</div>
           </div>
@@ -305,216 +623,34 @@
       </div>
     </figure>
 
-    <!-- PHOTO: 組裝後的 P1-PROTO-01 外觀照，上傳到 static.igem.wiki 後插在這裡 -->
-
-  </section>
-
-  <!-- =====================================================================
-       Everything below this line was rebuilt in September 2026.
-
-       The shape of it: the instrument is documented by what it was measured
-       doing, not by what it is made of. So it opens on the bench, then the
-       detector, and every number carries the session that produced it.
-
-       Nine sections have been removed on the team's instruction because they
-       are written elsewhere: the build history, the potential-risk list, the
-       limitations list, the future-work list, the claim boundary, the bench
-       electronics, the test register, the wet-dry interface and the parts
-       list. (The previous count in this comment said six over a list of
-       seven. It was wrong; this one is counted.)
-
-       That leaves the bench carrying the scope on its own, which it does and
-       which must not be weakened: it refuses to show a number for a state
-       nobody measured, and the reading for the culture states the batch, the
-       configuration, the withdrawn induction framing and the fact that twelve
-       cycles are not twelve samples. Those sentences are the reason a number
-       like 19.58 counts can be on a public page at all.
-
-       Dark panels are the interactive instruments; the rest of the page keeps
-       the site's own styling. Behaviour lives in static/hardware-bench.js and
-       the content does not: the light path, every figure caption and both
-       faces of every card are in this file, so the page still says what it
-       has to say if the script never loads.
-
-       The closing provenance note sits under the decision cards rather than
-       in a section of its own. It is about every number on the page, not
-       about the section that used to contain it.
-       ===================================================================== -->
-
-  <!-- ========================= the bench ========================= -->
-  <section>
-    <h2>What the detector actually saw</h2>
-
-    <p>
-      The optical core can be described from the drawing, but the only thing
-      that settles whether it works is what the detector reported with the
-      instrument in a known state. The bench below is that record, made
-      steerable: pick a state of the lamp, of the sample position and of the
-      room, and it shows the channel counts from the session that measured it.
-    </p>
-
-    <p>
-      It is a record and not a model. Where a combination was never measured,
-      it says so rather than interpolating a plausible-looking number.
-    </p>
-
-    <div class="hwx-rig" id="hwxBench">
-      <div class="hwx-rig-head">
-        <h3>Light-path bench</h3>
-        <p class="hwx-rig-sub">Top view, schematic &middot; readings are recorded measurements</p>
-      </div>
-
-      <div class="hwx-rig-figure">
-        <svg class="hwx-lab" viewBox="0 0 820 400" role="img"
-             aria-label="Schematic top view of the optical path. Blue excitation runs left to right along the plus X axis from the LED holder, through the aperture baffle, across the UVette at the centre, and into the angled-wedge light trap on the right. Green emission leaves the UVette upwards along the plus Y axis through the filter cassette to the AS7341 detector holder. The controls below change which recorded state is shown.">
-          <defs>
-            <linearGradient id="hwxEx" x1="0" x2="1">
-              <stop offset="0" stop-color="#5BAEFF" stop-opacity=".16"></stop>
-              <stop offset="1" stop-color="#5BAEFF" stop-opacity=".95"></stop>
-            </linearGradient>
-            <linearGradient id="hwxEm" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0" stop-color="#64DE9A" stop-opacity=".95"></stop>
-              <stop offset="1" stop-color="#64DE9A" stop-opacity=".10"></stop>
-            </linearGradient>
-            <linearGradient id="hwxTh" x1="0" x2="1">
-              <stop offset="0" stop-color="#5BAEFF" stop-opacity=".8"></stop>
-              <stop offset="1" stop-color="#5BAEFF" stop-opacity="0"></stop>
-            </linearGradient>
-            <filter id="hwxGlow" x="-60%" y="-160%" width="220%" height="420%">
-              <feGaussianBlur stdDeviation="7" result="b"></feGaussianBlur>
-              <feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
-            </filter>
-            <marker id="hwxArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M0,1 L9,5 L0,9 z" fill="#E6A94B"></path>
-            </marker>
-          </defs>
-
-          <g stroke="#16232a" stroke-width="1">
-            <line x1="0" y1="300" x2="820" y2="300"></line>
-            <line x1="400" y1="20" x2="400" y2="390"></line>
-          </g>
-          <g class="hwx-lab-tick">
-            <text x="10" y="294">Y = 0</text>
-            <text x="406" y="386">X = 0</text>
-            <text x="676" y="372">+X excitation axis</text>
-            <text x="406" y="34">+Y detection axis</text>
-          </g>
-
-          <g class="hwx-lab-solid">
-            <rect x="125" y="272" width="92" height="56" rx="7"></rect>
-            <rect x="217" y="278" width="83" height="44" rx="5"></rect>
-            <rect x="332" y="232" width="136" height="136" rx="8"></rect>
-            <rect x="356" y="196" width="88" height="28" rx="4"></rect>
-            <rect x="344" y="88" width="112" height="108" rx="6"></rect>
-          </g>
-          <circle class="hwx-lab-bore" cx="160" cy="300" r="13"></circle>
-          <g class="hwx-lab-stop">
-            <line x1="240" y1="281" x2="240" y2="319"></line>
-            <line x1="277" y1="281" x2="277" y2="319"></line>
-          </g>
-          <rect class="hwx-lab-cell" x="366" y="266" width="68" height="68" rx="3"></rect>
-          <rect id="hwxFill" x="369" y="269" width="62" height="62" rx="2" fill="none"></rect>
-          <rect class="hwx-lab-bore" x="386" y="178" width="28" height="12" rx="2"></rect>
-          <path class="hwx-lab-trap" d="M500 278 L649 258 L649 342 L500 322 Z"></path>
-          <path class="hwx-lab-trap-in" d="M500 278 L620 300 L500 322 Z"></path>
-
-          <g>
-            <rect id="hwxBeamEx" x="140" y="295" width="260" height="10" fill="url(#hwxEx)" filter="url(#hwxGlow)" opacity="0"></rect>
-            <rect id="hwxBeamTh" x="400" y="296" width="110" height="8" fill="url(#hwxTh)" filter="url(#hwxGlow)" opacity="0"></rect>
-            <rect id="hwxBeamEm" x="395" y="196" width="10" height="104" fill="url(#hwxEm)" filter="url(#hwxGlow)" opacity="0"></rect>
-            <circle id="hwxScatter" cx="400" cy="300" r="0" fill="#BFE8FF" opacity="0" filter="url(#hwxGlow)"></circle>
-          </g>
-
-          <g id="hwxAmbient" opacity="0">
-            <line x1="400" y1="30" x2="400" y2="258" stroke="#E6A94B" stroke-width="2"
-                  stroke-dasharray="5 5" marker-end="url(#hwxArrow)"></line>
-            <text class="hwx-lab-warn" x="412" y="52">room light down the open +Z slot</text>
-          </g>
-
-          <g class="hwx-lab-label">
-            <text x="128" y="262">LED holder</text>
-            <text x="219" y="268">aperture baffle</text>
-            <text x="324" y="240" text-anchor="end">UVette holder</text>
-            <text x="348" y="214" text-anchor="end">filter cassette</text>
-            <text x="346" y="78">AS7341 holder</text>
-            <text x="512" y="248">angled-wedge light trap</text>
-          </g>
-        </svg>
-      </div>
-
-      <div class="hwx-ctrls">
-        <div class="hwx-cgroup">
-          <p class="hwx-clabel" id="hwxLedLabel">Excitation LED</p>
-          <div class="hwx-seg" data-bench-key="led" role="group" aria-labelledby="hwxLedLabel">
-            <button type="button" data-v="off" aria-pressed="true">De-energised</button>
-            <button type="button" data-v="on" class="hwx-hot" aria-pressed="false">Energised</button>
-          </div>
-        </div>
-        <div class="hwx-cgroup">
-          <p class="hwx-clabel" id="hwxSampleLabel">At the sample position</p>
-          <div class="hwx-seg" data-bench-key="sample" role="group" aria-labelledby="hwxSampleLabel">
-            <button type="button" data-v="none" aria-pressed="true">Empty holder</button>
-            <button type="button" data-v="uvette" aria-pressed="false">Empty UVette</button>
-            <button type="button" data-v="paper" aria-pressed="false">Paper scatterer</button>
-            <button type="button" data-v="water" aria-pressed="false">Water, 1600&nbsp;&micro;L</button>
-            <button type="button" data-v="cultA" class="hwx-lit" aria-pressed="false">GFP culture &middot; 09-04</button>
-            <button type="button" data-v="cultB" aria-pressed="false">Control &middot; 09-04</button>
-            <button type="button" data-v="gfp200" class="hwx-lit" aria-pressed="false">GFP culture, 200&nbsp;&micro;L &middot; 09-16</button>
-            <button type="button" data-v="nogfp200" aria-pressed="false">Non-GFP, 200&nbsp;&micro;L &middot; 09-16</button>
-            <button type="button" data-v="med200" aria-pressed="false">Medium blank, 200&nbsp;&micro;L &middot; 09-16</button>
-          </div>
-        </div>
-        <div class="hwx-cgroup">
-          <p class="hwx-clabel" id="hwxLightLabel">Lighting</p>
-          <div class="hwx-seg" data-bench-key="light" role="group" aria-labelledby="hwxLightLabel">
-            <button type="button" data-v="dark" aria-pressed="true">Darkened or shielded</button>
-            <button type="button" data-v="room" aria-pressed="false">Room light, no shield</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="hwx-rig-body">
-        <div class="hwx-readout" id="hwxReadout">
-          <p class="hwx-fallback">
-            The channel readout needs the page script. Without it, the light
-            path above is still drawn, and the sessions the readings come from
-            are named in the text below.
-          </p>
-        </div>
-        <div class="hwx-verdict" id="hwxVerdict" role="status" aria-live="polite"></div>
-      </div>
-    </div>
-
     <p class="hw-aside">
-      Counts are raw AS7341 values at the working settings of that session.
-      Ten named channels are shown; an all-channel read returns twelve values.
-      A number here is the figure recorded in the session named under it, not a
-      re-derivation.
+      This view places the 3D-printed build's optical core in the two-layer
+      laser-cut enclosure as it was drawn, optics above and electronics
+      below. No reading on this page was taken inside it. It is a schematic
+      built from the optical coordinates, not from the CAD files: the
+      printed parts themselves are under
+      <a href="#hwParts">the 3D-printed build</a>.
     </p>
+      </div>
+    </details>
   </section>
 
   <!-- ========================= detection ========================= -->
   <section>
-    <h2>Ten channels instead of one filter</h2>
+    <h2>Spectral detection</h2>
 
-    <p>
-      A conventional fluorimeter puts a narrow emission filter in front of a
-      single photodiode, and everything outside the emission band is thrown
-      away in glass. The AS7341 does something else. It carries eight
-      interference-filtered channels spread across the visible range plus a
-      clear and a near-infrared channel, so one read returns the
-      <em>shape</em> of the light arriving at the detector rather than a single
-      number.
+    <p class="hw-point">
+      Ten channels instead of one filter, so one read returns the
+      <em>shape</em> of the light and not a single number.
     </p>
 
     <p>
-      That shape is what makes the measurements on this page checkable. When
-      excitation reached the sample for the first time, the detector did not
-      merely register light &mdash; it registered light concentrated in F2 and
-      F3, the two channels that bracket a 470&nbsp;nm source. A blue source
-      producing a green-looking spectrum would have meant something was wrong
-      with the optics or the sensor, and the channel shape would have said so
-      at once.
+      A conventional fluorimeter puts one narrow filter in front of one
+      photodiode. The AS7341<sup class="hw-ref"><a href="#hardware-ref-1">1</a></sup> has eight filtered channels across the
+      visible range plus a clear and a near-infrared channel. That
+      makes a reading checkable: at the 3D-printed build's first light the
+      excitation showed up concentrated in F2 and F3, the two channels
+      either side of 470&nbsp;nm.
     </p>
 
     <div class="hwx-rig">
@@ -531,145 +667,105 @@
         </p>
       </div>
       <div class="hwx-rig-foot">
-        <span>Working settings in the fluorescence sessions: AGAIN 512&times;, ATIME 255, ASTEP 280.</span>
+        <span>Working settings on the 3D-printed build: gain 512&times;, ATIME 255, ASTEP 280, about 200&nbsp;ms per integration.</span>
         <span>Centre wavelengths are the sensor's nominal channel centres.</span>
       </div>
     </div>
+  </section>
 
-    <h3>The instrument has to be shielded</h3>
+  <!-- ========================= the two builds ========================= -->
+  {# 兩張卡片就是兩台機器的切換。data-build 是下面那一台內容的 id（printed／laser-cut），
+     卡片最下面的連結連到同一個 id；程式（static/hardware-builds.js）只認這些。
+     卡片上的字都是原本「Which build is which」三張卡裡已經有的，沒有新的說法。
+     來源：雷切那一台是 Software 頁（ESP32 + AS7341、OLED、Live button、Wi-Fi）加上 2026-10-03 的說明
+     （另一台機器、全雷切、外殼已實裝）；3D 列印機見 wiki/hardware-printed.html。
+     縮圖：兩台用同一個角度、同一個背景拍，橫式 4:3。上傳到 static.igem.wiki 之後，把卡片裡的
+     PHOTO 註解換成
+       <figure class="hw-pick-photo"><img src="https://static.igem.wiki/teams/6379/wiki/hardware/檔名.webp" alt="照片裡看得到什麼"></figure> #}
+  <section id="hardware-builds">
+    <h2>The two builds</h2>
 
-    <p>
-      Ambient rejection is the sharpest operating constraint on the build. With
-      the LED de-energised in a darkened room, every channel reads zero, and
-      holds at zero all the way out to 25&times; integration. Under normal room
-      lighting with no shield it does not: an empty UVette in the holder gives
-      F4&nbsp;=&nbsp;11 counts with the lamp off.
+    <p class="hw-point">
+      We built two readers on this principle. They share the light path and
+      the spectral sensing described above; the modelling, the mechanism and
+      the way each was developed are its own.
     </p>
 
     <p>
-      Two leak paths were separated by measuring with and without the cuvette
-      under identical lighting. The mechanism itself contributes 4 counts. The
-      remaining 7 come from the UVette acting as a light pipe: it is
-      transparent, it sits in an open +Z slot, and it carries room light down
-      into the measurement region. Putting an opaque box over the instrument
-      returns every channel to zero.
+      Choose a build to see it.
     </p>
 
-    <p>
-      The leak is also not a constant that can be subtracted away. It scales
-      non-proportionally with integration time, which is what lamp flicker
-      aliasing against the integration window looks like, so a dark-frame
-      subtraction does not remove it. Hence the operating rule:
-      <strong>measure in a darkened room or under an opaque shield</strong>,
-      never in open room light.
+    <p class="hw-aside">
+      Counts from the two readers are not interchangeable: they run different
+      firmware and integrate for different times. The sensor settings under
+      the channel map above are the 3D-printed build's.
     </p>
 
-    <div class="hw-caution">
-      <p>
-        <em>A free quality check falls out of this.</em> Because a correctly
-        shielded dark read returns exactly zero, any non-zero pre-dark reading
-        is direct evidence that shielding was not restored for that
-        measurement. We treat such a record as invalid rather than correcting
-        it &mdash; the instrument tells you when you have made a mistake,
-        without needing a separate calibration step.
-      </p>
-      <p>
-        It is not theoretical. During the September calibration session the
-        firmware flagged one acquisition cycle on its own: the pre-dark
-        near-infrared channel read 1 where every other channel read 0, almost
-        certainly light entering while the cuvette was being re-seated. That
-        cycle was dropped and the raw row kept. The other two cycles of the
-        same insertion agreed with the two insertions either side of it.
-      </p>
+    {# VIDEO: 示範影片上傳到 video.igem.org 之後放在這裡（寫法照 home.html 的 promotion video），
+       圖說要寫清楚拍的是哪一台、哪一版。10-03 錄的那幾段沒有罩紙箱，畫面上的讀值不能當數據。 #}
+
+    <div class="hw-modules hw-pick" data-hw-pick>
+      <div class="hw-module hw-pick-card" data-build="printed">
+        <span class="hw-module-tag">Measured</span>
+        {# PHOTO: 3D 列印機的整機照（縮圖），上傳後照上面的寫法插在這裡 #}
+        <h3>3D-printed build</h3>
+        <p class="hw-module-what">
+          A 3D-printed optical core on a base plate, with the electronics on
+          a breadboard beside it.
+        </p>
+        <dl class="hw-spec">
+          <div><dt>Run from</dt><dd>Serial commands</dd></div>
+          <div><dt>Versions</dt><dd>Two. Version 2 in use from 2026-10-03</dd></div>
+          <div><dt>Data</dt><dd>Three mixing sessions and one dilution series with GFP culture. The <a href="{{ url_for('pages', page='model') }}">Model</a> page works through the mixing sessions</dd></div>
+        </dl>
+        <a class="hw-pick-go" href="#printed"><span class="hw-pick-see">See the 3D-printed build</span><span class="hw-pick-now">Showing below</span></a>
+      </div>
+
+      <div class="hw-module hw-pick-card" data-build="laser-cut">
+        <span class="hw-module-tag">Enclosed</span>
+        {# PHOTO: 雷切機的外觀照（縮圖；外殼、OLED 看得到），上傳後照上面的寫法插在這裡 #}
+        <h3>Laser-cut build</h3>
+        <p class="hw-module-what">
+          A second reader on the same principle, made from laser-cut parts in
+          its own enclosure.
+        </p>
+        <dl class="hw-spec">
+          <div><dt>Run from</dt><dd>A browser; see <a href="{{ url_for('pages', page='software') }}">Software</a></dd></div>
+          <div><dt>Interface</dt><dd>OLED display and a button</dd></div>
+          <div><dt>Data</dt><dd>None on this page</dd></div>
+        </dl>
+        <a class="hw-pick-go" href="#laser-cut"><span class="hw-pick-see">See the laser-cut build</span><span class="hw-pick-now">Showing below</span></a>
+      </div>
     </div>
   </section>
 
-  <!-- ========================= decisions ========================= -->
-  <section>
-    <h2>Decisions that shaped P1</h2>
+  {# 兩台各自的內容。id 就是卡片的 data-build，也是網址 # 後面的字，不要改。 #}
+  <div class="hw-build" id="printed" role="region" aria-labelledby="hw-build-printed">
+{% include "hardware-printed.html" %}
+  </div>
 
-    <p>
-      Each of these is a recorded, binding project decision from the
-      2026-08-09 batch. Several of them <em>removed</em> capability from the
-      prototype, and a reader who only saw the final scope would not know that
-      the narrowing was deliberate. The ones that did are marked.
-    </p>
+  <div class="hw-build" id="laser-cut" role="region" aria-labelledby="hw-build-laser-cut">
+{% include "hardware-laser-cut.html" %}
+  </div>
 
-    <!--
-      The same turn-over card as the Background list at the top of the page:
-      the decision is on the front, the reasoning that produced it on the back.
+  <!-- ========================= references ========================= -->
+  {# 2026-10-04 新增。四個元件的規格書與 sfGFP 的原始論文，每一條都實際查過存在。
+     Best Wiki 的第五題問的是引用；本頁原本沒有任何外部連結。 #}
+  <section id="hardware-references">
+    <h2>References</h2>
 
-      The claim is wrapped in a span rather than left as bare text because
-      .hw-flip-front is a flex container. A run of text sitting beside an
-      element child becomes an anonymous flex item of its own, so the badge
-      would line up in a column next to the words instead of under them.
-    -->
-    <dl class="hw-terms hw-decs hw-flip">
-      <div class="hw-flip-card is-narrow" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v13a2 2 0 0 0 4 0V3"/><path d="M10 11.4c1.3.8 2.7.8 4 0"/><path d="M4.2 19.8 19.8 4.2"/></svg></span>Turbidity QC is out of P1 acceptance
-            <span class="hw-dec-flag">narrows P1</span></span>
-        </dt>
-        <dd class="hw-flip-back">
-          Red-light transmission and turbidity QC are removed. The far side of
-          the excitation axis is occupied by the light trap, so there is no
-          transmission path and the measurement is not physically
-          implementable in this geometry.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 3.4v2.3M12 18.3v2.3M3.4 12h2.3M18.3 12h2.3M5.9 5.9 7.5 7.5M16.5 16.5l1.6 1.6M18.1 5.9 16.5 7.5M7.5 16.5l-1.6 1.6"/></svg></span>470&nbsp;nm excitation for the first round</span>
-        </dt>
-        <dd class="hw-flip-back">
-          Three independent design documents agree on the nominal 470&nbsp;nm
-          Cree LED, and the LED holder was dimensioned from that part's
-          datasheet.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 3h7.6v15.6a2.4 2.4 0 0 1-2.4 2.4h-2.8a2.4 2.4 0 0 1-2.4-2.4z"/><path d="M8.2 11.6h7.6"/></svg></span>The UVette is a benchmark, not the product vessel</span>
-        </dt>
-        <dd class="hw-flip-back">
-          The reaction cartridge is a joint wet&ndash;dry decision that has not
-          been made. Future containers will be handled with adapters rather
-          than by modifying approved optical modules.
-        </dd>
-      </div>
-      <div class="hw-flip-card is-narrow" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><circle cx="12" cy="12" r="5.2"/><path d="M4.2 19.8 19.8 4.2"/></svg></span>PlateDock is out of P1 scope
-            <span class="hw-dec-flag">narrows P1</span></span>
-        </dt>
-        <dd class="hw-flip-back">
-          Petri-dish imaging and swarming analysis are held as separate future
-          work. No CAD for it exists in any revision, and P1's resources
-          belong on validating one reader properly.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front">
-          <span class="hw-dec-claim"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4.6v14.8L10.6 12z"/><path d="M2.6 12h6.6"/><path d="M7.1 9.6 9.5 12l-2.4 2.4"/></svg></span>Angled-wedge light trap selected for manufacture</span>
-        </dt>
-        <dd class="hw-flip-back">
-          The stepped-baffle variant is deferred, not rejected. Both validate
-          digitally and no bench evidence separates them, so the selection is
-          a manufacturing choice and explicitly not a claim that the
-          alternative is worse.
-        </dd>
-      </div>
-    </dl>
+    <ol class="hw-refs">
+      <li id="hardware-ref-1">ams OSRAM. <cite>AS7341 11-Channel Multi-Spectral Digital Sensor</cite>, datasheet DS000504, v3-00, 2020. <a href="https://ams-osram.com/products/sensor-solutions/ambient-light-color-spectral-proximity-sensors/ams-as7341-11-channel-spectral-color-sensor" rel="noopener">ams-osram.com</a>. The board used is the DFRobot SEN0365: <a href="https://wiki.dfrobot.com/sen0365/" rel="noopener">wiki.dfrobot.com/sen0365</a>.</li>
+      <li id="hardware-ref-2">P&eacute;delacq J-D, Cabantous S, Tran T, Terwilliger TC, Waldo GS. Engineering and characterization of a superfolder green fluorescent protein. <cite>Nature Biotechnology</cite> 24, 79&ndash;88 (2006). <a href="https://doi.org/10.1038/nbt1172" rel="noopener">doi:10.1038/nbt1172</a></li>
+      <li id="hardware-ref-3">Cree LED. <cite>Cree 5-mm Blue and Green Round LED, C503B-BAS/BAN/BCS/BCN/GAS/GAN/GCS/GCN</cite>, product family data sheet CLD-CT1094. <a href="https://www.farnell.com/datasheets/1975638.pdf" rel="noopener">PDF, hosted by Farnell</a></li>
+      <li id="hardware-ref-4">Eppendorf. <cite>Eppendorf UVette</cite>, product page. <a href="https://www.eppendorf.com/us-en/Products/Lab-Consumables/Cuvettes/Eppendorf-UVette-p-PF-9817" rel="noopener">eppendorf.com</a></li>
+    </ol>
 
     <p class="hw-refs-note">
-      Every measurement quoted on this page is drawn from our own dated
-      engineering records, each of which names the session and the evidence
-      file that produced it. Where a value is an upper bound, a safe-start
-      setting, or a scoped pass, we have said so rather than rounding it into a
-      capability.
+      Every measurement on this page comes from our own dated engineering
+      records.
     </p>
   </section>
-
 
 </div>
 
@@ -677,5 +773,9 @@
 
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename = 'hardware-cutaway.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-parts.js') }}"></script>
 <script src="{{ url_for('static', filename = 'hardware-bench.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-gains.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-builds.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-docs.js') }}"></script>
 {% endblock %}

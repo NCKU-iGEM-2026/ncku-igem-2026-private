@@ -1,8 +1,14 @@
 (function () {
-  // Click any photo in an .edu-gallery to open it full-size, with arrow
-  // keys / on-screen arrows to step through the rest of that gallery.
+  // Click any photo in an .edu-gallery -- or an .hp-figure-grid, the survey
+  // figure layout on Human Practices, or an .edu-album-item, one school's
+  // pair in the Education contact sheet -- to open it full-size, with arrow
+  // keys / on-screen arrows to step through the rest of that group.
   // The markup is untouched -- this only adds a click handler per <img>
   // and one shared overlay appended to <body>.
+  //
+  // Grouping is per element matched below, which is why the album names each
+  // school's figure rather than the whole sheet: arrowing from a photo then
+  // stays within that school instead of running through all twenty.
 
   function buildOverlay() {
     var overlay = document.createElement('div');
@@ -21,7 +27,8 @@
   }
 
   function init() {
-    var galleries = Array.prototype.slice.call(document.querySelectorAll('.edu-gallery'));
+    var galleries = Array.prototype.slice.call(
+      document.querySelectorAll('.edu-gallery, .hp-figure-grid, .edu-album-item'));
     if (!galleries.length) return;
 
     var overlay = buildOverlay();

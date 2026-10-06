@@ -18,18 +18,45 @@
 
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename = 'style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'page-toc.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'site-loader.css') }}" rel="stylesheet">
+    <!-- The loading screen's bacterium is asked for first, so it is there when
+         the screen is. Without JavaScript the screen is not drawn at all. -->
+    <link rel="preload" as="image" href="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria.avif" fetchpriority="high">
+    <noscript><style>.site-loader { display: none !important; }</style></noscript>
 
     <title>{% block title %}{% endblock %} | NCKU-Tainan - iGEM 2026</title>
 
 </head>
 <body class="{% block body_class %}{% endblock %}">
+  <!-- Loading screen: a large P. aeruginosa with a ring of AHL under it, the
+       large disc stepping clockwise. Shown until the page has fully loaded;
+       see static/site-loader.css. -->
+  <div class="site-loader" id="siteLoader" role="status" aria-busy="true">
+    <div class="site-loader-stage">
+      <img class="site-loader-germ" src="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria.avif" alt="" width="218" height="295" decoding="async" fetchpriority="high">
+      <div class="site-loader-ring" aria-hidden="true">
+        <span class="site-loader-slot" style="--i:0"><span class="cap-ahl"></span></span>
+        <span class="site-loader-slot" style="--i:1"><span class="cap-ahl"></span></span>
+        <span class="site-loader-slot" style="--i:2"><span class="cap-ahl"></span></span>
+        <span class="site-loader-slot" style="--i:3"><span class="cap-ahl"></span></span>
+        <span class="site-loader-slot" style="--i:4"><span class="cap-ahl"></span></span>
+        <span class="site-loader-slot" style="--i:5"><span class="cap-ahl"></span></span>
+        <span class="site-loader-slot" style="--i:6"><span class="cap-ahl"></span></span>
+        <span class="site-loader-slot" style="--i:7"><span class="cap-ahl"></span></span>
+      </div>
+      <span class="visually-hidden">Loading the page</span>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename = 'site-loader.js') }}"></script>
+
   <!-- Navigation -->
   {% include 'menu.html' %}
 
   <!-- Header -->
   {% block header %}
   <header class="bg-hero page-hero py-5 mb-5">
-    <div class="page-hero-bg" style="background-image: url('{% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/education.avif{% endblock %}');"></div>
+    <div class="page-hero-bg {% block hero_class %}{% endblock %}" style="--hero-img: url('{% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/education.avif{% endblock %}');"></div>
     <div class="page-hero-tint"></div>
     <div class="container h-100">
       <div class="row h-100 align-items-center">
@@ -62,6 +89,7 @@
   <!-- Bootstrap Bundle with Popper -->
   <script src="{{ url_for('static', filename = 'bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename = 'navbar-scroll.js') }}"></script>
+  <script src="{{ url_for('static', filename = 'page-toc.js') }}"></script>
   {% block extra_scripts %}{% endblock %}
 </body>
 </html>

@@ -1,214 +1,179 @@
 {% extends "layout.html" %}
-
+{% from "engineering-lab-icons.html" import lab_icon %}
 {% block title %}Engineering{% endblock %}
+{% block body_class %}engineering-page{% endblock %}
 
-{% block page_content %}
+{% macro dbtl_cycle() %}
+<div class="engineering-cycle" id="engineering-cycle">
+  <svg class="engineering-ring" viewBox="0 0 400 400" role="group" aria-label="DBTL stage navigation">
+    <circle class="engineering-ring-track" cx="200" cy="200" r="156" aria-hidden="true"/>
+    {% for stage, bearing in [('design', 0), ('build', 90), ('test', 180), ('learn', 270)] %}
+    <path class="engineering-arc{% if loop.first %} is-current{% endif %}" data-stage="{{ stage }}" transform="rotate({{ bearing }} 200 200)"
+          role="button" tabindex="0" aria-label="Go to {{ stage|capitalize }} section" aria-controls="engineering-record-{{ stage }}"
+          d="M 75.691 64.341 A 184 184 0 0 1 286.383 37.538 L 290.139 30.474 L 313.158 92.617 L 256.337 94.046 L 260.092 86.983 A 128 128 0 0 0 113.524 105.629 Z"/>
+    {% endfor %}
+  </svg>
+  <!-- The arrow paths are the controls; the labels only identify each segment
+       visually and do not create a second keyboard stop. -->
+  <div class="engineering-stage-tabs" aria-hidden="true">
+    {% for stage in ['design', 'build', 'test', 'learn'] %}
+    <button type="button" disabled class="engineering-stage-tab{% if loop.first %} is-current{% endif %}"
+            id="stage-{{ stage }}" data-stage="{{ stage }}"><span>{{ stage|capitalize }}</span></button>
+    {% endfor %}
+  </div>
+  <div class="engineering-cycle-center">
+    <h2 id="engineering-module-title">Retron aptamer production</h2>
+    <div class="engineering-iteration-pager" aria-label="Choose iteration">
+      <button id="engineering-previous" type="button" aria-label="Previous iteration" disabled>&lt;</button>
+      <span id="engineering-iteration-title">Iteration 1</span>
+      <button id="engineering-next" type="button" aria-label="Next iteration">&gt;</button>
+    </div>
+    <span class="engineering-iteration-count" id="engineering-iteration-count">01 / 02</span>
+  </div>
+</div>
+{% endmacro %}
 
-<div class="container my-4">
-
-  <section class="dbtl-intro">
-    <h2>Engineering Success</h2>
-    <p>
-      We are building a cell-free biosensor that detects the bacteria behind
-      ventilator-associated pneumonia (VAP). Our work follows the engineering
-      design cycle; select a piece to read that stage.
-    </p>
-  </section>
-
-  <!-- ============================ the puzzle ============================ -->
-  <div class="dbtl" id="dbtl">
-
-    <div class="dbtl-puzzle" id="dbtlPuzzle">
-      <svg viewBox="-12 -12 224 224" class="dbtl-svg" role="group"
-           aria-label="Design, Build, Test, Learn — choose a stage">
-        <g class="dbtl-piece" data-stage="design" role="button" tabindex="0"
-           aria-label="Design">
-          <path d="M0,0 H100 v38 c10,0 10,24 0,24 v38 h-38 c0,10 -24,10 -24,0 h-38 V0 Z"/>
-          <text x="46" y="46">Design</text>
+{% block header %}
+<header class="engineering-hero">
+  <div class="container">
+    <h1 id="engineering-hero-stage">Design</h1>
+    <p id="engineering-hero-position">Module 1 · Iteration 1</p>
+    <!-- Every iteration of every module, one tap away. The hero is sticky, so
+         this row is on screen wherever the reader is in the sheet -- turning
+         to another iteration no longer means scrolling to the foot of the
+         page first. Filled in by engineering-dbtl.js from the same data the
+         sheet is drawn from, and hidden until then. -->
+    <nav class="engineering-pages" id="engineering-pages" aria-label="Turn to an iteration" hidden>
+      <button class="engineering-pages-step" id="engineering-pages-prev" type="button" aria-label="Previous iteration"><span aria-hidden="true">&lsaquo;</span></button>
+      <ol class="engineering-pages-list" id="engineering-pages-list"></ol>
+      <button class="engineering-pages-step" id="engineering-pages-next" type="button" aria-label="Next iteration"><span aria-hidden="true">&rsaquo;</span></button>
+    </nav>
+    <span class="engineering-stage-mark" aria-hidden="true">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+        <g data-stage-mark="design">
+          <rect class="engineering-stage-mark-tint" x="12" y="9" width="30" height="46" rx="3"/>
+          <path d="M19 18h15M19 25h9M19 34h5M19 45h5"/>
+          <path class="engineering-stage-mark-paper" d="m31 47 2-11 17-17a3.5 3.5 0 0 1 5 5L39 41l-8 6Z"/>
+          <path d="m33 36 6 5M47 22l5 5"/>
         </g>
-        <g class="dbtl-piece" data-stage="build" role="button" tabindex="0"
-           aria-label="Build">
-          <path d="M100,0 H200 V100 h-38 c0,10 -24,10 -24,0 h-38 v-38 c10,0 10,-24 0,-24 v-38 Z"/>
-          <text x="154" y="46">Build</text>
+        <g data-stage-mark="build">
+          <path class="engineering-stage-mark-tint" d="m32 7 12 7-12 7-12-7 12-7ZM20 29l12 7-12 7-12-7 12-7Zm24 0 12 7-12 7-12-7 12-7Z"/>
+          <path d="M20 14v14l12 7 12-7V14M32 21v14M8 36v14l12 7 12-7 12 7 12-7V36M20 43v14M32 36v14M44 43v14"/>
         </g>
-        <g class="dbtl-piece" data-stage="test" role="button" tabindex="0"
-           aria-label="Test">
-          <path d="M0,100 h38 c0,10 24,10 24,0 h38 v38 c10,0 10,24 0,24 v38 H0 V100 Z"/>
-          <text x="46" y="154">Test</text>
+        <g data-stage-mark="test">
+          <path class="engineering-stage-mark-tint" d="M17 29q7-3 14 0v11a7 7 0 0 1-14 0V29Z"/>
+          <path d="M15 12h18M17 12v28a7 7 0 0 0 14 0V12M17 20h6M17 25h4"/>
+          <circle class="engineering-stage-mark-paper" cx="45" cy="41" r="11"/>
+          <path d="m39 41 4 4 7-8"/>
+          <circle cx="24" cy="37" r="1" fill="currentColor" stroke="none"/>
         </g>
-        <g class="dbtl-piece" data-stage="learn" role="button" tabindex="0"
-           aria-label="Learn">
-          <path d="M100,100 h38 c0,10 24,10 24,0 h38 V200 H100 v-38 c10,0 10,-24 0,-24 v-38 Z"/>
-          <text x="154" y="154">Learn</text>
+        <g data-stage-mark="learn">
+          <path class="engineering-stage-mark-tint" d="M9 25q12-5 23 2 11-7 23-2v25q-13-5-23 2-11-7-23-2V25Z"/>
+          <path d="M32 27v25M15 33q6-2 11 1M15 40q6-2 11 1M38 34q6-3 11-1M38 41q6-3 11-1M32 8v8M21 12l4 5M43 12l-4 5"/>
         </g>
       </svg>
-      <p class="dbtl-hint">Select a piece to open that stage.</p>
-    </div>
-
-    <!-- ============================ the panels ============================ -->
-    <div class="dbtl-panels" id="dbtlPanels" hidden>
-
-      <div class="dbtl-bar">
-        <button type="button" class="dbtl-back" id="dbtlBack">&larr; Back to the cycle</button>
-        <div class="dbtl-switch" role="tablist" aria-label="Engineering stages">
-          <button type="button" data-goto="design" role="tab">Design</button>
-          <button type="button" data-goto="build"  role="tab">Build</button>
-          <button type="button" data-goto="test"   role="tab">Test</button>
-          <button type="button" data-goto="learn"  role="tab">Learn</button>
-        </div>
-      </div>
-
-      <!-- ---------------------------- DESIGN ---------------------------- -->
-      <article class="dbtl-panel" data-stage="design" tabindex="-1" hidden>
-        <header class="dbtl-panel-head">
-          <span class="dbtl-step">Stage 1</span>
-          <h3>Design</h3>
-        </header>
-
-        <h4>The problem we are designing for</h4>
-        <p>
-          Ventilator-associated pneumonia (VAP) is one of the common
-          hospital-acquired infections in intensive care units, and usually
-          appears in patients who have been on a ventilator for more than 48
-          hours. It raises mortality, lengthens hospital stays, and places a
-          burden on medical resources.
-        </p>
-        <p>
-          Diagnosis currently relies on sputum culture and imaging, which leaves
-          three gaps we set out to close:
-        </p>
-        <ul>
-          <li>Culture is slow, taking roughly 48&ndash;72 hours.</li>
-          <li>It cannot reflect the state of the infection in real time.</li>
-          <li>Antibiotic treatment can produce false negatives.</li>
-        </ul>
-
-        <h4>Why we chose a cell-free system</h4>
-        <p>
-          A cell-free system takes the transcription and translation machinery
-          out of the cell &mdash; ribosomes, enzymes and the rest &mdash; and
-          expresses protein <em>in vitro</em>. Compared with a living-cell
-          system, that gives us four properties we need for a bedside test:
-        </p>
-        <ul>
-          <li>The reaction is fast, giving a result within hours.</li>
-          <li>Nothing has to be kept alive, so handling is simpler.</li>
-          <li>It can be made into a test strip or a portable point-of-care device.</li>
-          <li>It is safer: no live engineered bacteria are released.</li>
-        </ul>
-
-        <h4>What we are detecting</h4>
-        <p>We selected two bacteria commonly associated with VAP:</p>
-        <ul>
-          <li><em>Pseudomonas aeruginosa</em></li>
-          <li><em>Staphylococcus aureus</em></li>
-        </ul>
-        <p>and three candidate classes of signal to detect them by:</p>
-        <ul>
-          <li>quorum sensing molecules</li>
-          <li>specific RNA sequences</li>
-          <li>bacterial secreted metabolites</li>
-        </ul>
-
-        <h4>The gene circuit</h4>
-        <p>
-          The circuit is designed to run inside the cell-free system in three
-          parts:
-        </p>
-        <ol class="dbtl-circuit">
-          <li><strong>Input</strong> &mdash; a bacterial signal molecule</li>
-          <li><strong>Sensor module</strong> &mdash; the sensing element, a
-            transcription factor or a riboswitch</li>
-          <li><strong>Output</strong> &mdash; a reporter protein: GFP, or a
-            colorimetric enzyme</li>
-        </ol>
-
-        <h4>What we need this design to achieve</h4>
-        <ul>
-          <li>A cell-free biosensor that recognises signals from VAP bacteria.</li>
-          <li>A gene circuit with high specificity.</li>
-          <li>A visible output &mdash; a colour change or a fluorescent signal.</li>
-          <li>Sensitivity and response time we can measure.</li>
-          <li>A prototype with a route to clinical use.</li>
-        </ul>
-      </article>
-
-      <!-- ---------------------------- BUILD ----------------------------- -->
-      <article class="dbtl-panel" data-stage="build" data-stage-status="planned"
-               tabindex="-1" hidden>
-        <header class="dbtl-panel-head">
-          <span class="dbtl-step">Stage 2</span>
-          <h3>Build</h3>
-          <span class="dbtl-flag">Planned &mdash; not yet carried out</span>
-        </header>
-
-        <h4>How we will build it</h4>
-        <ol>
-          <li>Prepare the transcription&ndash;translation system from
-            <em>E.&nbsp;coli</em> lysate.</li>
-          <li>Add the DNA template carrying the circuit we designed.</li>
-          <li>Run the reaction against a range of signal-molecule concentrations.</li>
-        </ol>
-
-        <p class="dbtl-todo">
-          Our build record goes here: what we assembled, which constructs
-          worked, which did not, and what we had to change along the way.
-        </p>
-      </article>
-
-      <!-- ----------------------------- TEST ----------------------------- -->
-      <article class="dbtl-panel" data-stage="test" data-stage-status="planned"
-               tabindex="-1" hidden>
-        <header class="dbtl-panel-head">
-          <span class="dbtl-step">Stage 3</span>
-          <h3>Test</h3>
-          <span class="dbtl-flag">Planned &mdash; not yet carried out</span>
-        </header>
-
-        <h4>How we will read the result</h4>
-        <ul>
-          <li>A fluorescent signal, for testing in the lab.</li>
-          <li>A colour change, for use outside it.</li>
-          <li>Developed onto a paper-based diagnostic platform.</li>
-        </ul>
-
-        <h4>What we will measure</h4>
-        <ul>
-          <li><strong>Sensitivity</strong> &mdash; the detection limit.</li>
-          <li><strong>Response time</strong>.</li>
-          <li><strong>Specificity</strong> &mdash; whether other bacteria
-            interfere with the reading.</li>
-        </ul>
-
-        <p class="dbtl-todo">
-          Our measurements go here, with the controls we ran and the conditions
-          they were taken under.
-        </p>
-      </article>
-
-      <!-- ---------------------------- LEARN ----------------------------- -->
-      <article class="dbtl-panel" data-stage="learn" data-stage-status="planned"
-               tabindex="-1" hidden>
-        <header class="dbtl-panel-head">
-          <span class="dbtl-step">Stage 4</span>
-          <h3>Learn</h3>
-          <span class="dbtl-flag">Awaiting the first iteration</span>
-        </header>
-
-        <p class="dbtl-todo">
-          What the results told us, what we got wrong, and what we would change
-          in the next design goes here &mdash; once we have been round the cycle
-          at least once.
-        </p>
-      </article>
-
-    </div>
+    </span>
   </div>
+</header>
+{% endblock %}
 
+{% block page_content %}
+<div class="engineering" id="engineering">
+  <aside class="engineering-sidebar">
+    <nav class="engineering-rail" aria-label="Modules and iterations">
+      <p class="engineering-eyebrow">THE MODULES</p>
+      <ol class="engineering-modules">
+        {% for letter, count in [('1', 1), ('2', 5)] %}
+        <li class="engineering-module{% if loop.first %} is-current{% endif %}" data-module="{{ loop.index0 }}">
+          <button class="engineering-module-button" type="button" aria-expanded="{{ 'true' if loop.first else 'false' }}"
+                  aria-controls="module-{{ letter }}-iterations"{% if loop.first %} aria-current="true" hidden{% endif %}>
+            <span class="engineering-rail-node" aria-hidden="true"></span>
+            <span class="engineering-module-text">
+              <span class="engineering-module-label">Module {{ letter }}</span>
+              <span class="engineering-module-title"></span>
+            </span><span class="engineering-expand" aria-hidden="true">+</span>
+          </button>
+          <div class="engineering-cycle-slot">{% if loop.first %}{{ dbtl_cycle() }}{% endif %}</div>
+          <ol class="engineering-iterations" id="module-{{ letter }}-iterations"{% if not loop.first %} hidden{% endif %}>
+            {% for iteration in range(count) %}
+            <li>
+              <button type="button" class="engineering-iteration-button" data-iteration="{{ iteration }}">
+                <span class="engineering-iteration-label">Iteration {{ iteration + 1 }}</span><span class="engineering-iteration-note"></span>
+              </button>
+            </li>
+            {% endfor %}
+          </ol>
+        </li>
+        {% endfor %}
+      </ol>
+    </nav>
+  </aside>
+
+  <main class="engineering-workspace" aria-label="Module content">
+    <!-- One sheet per iteration: all four DBTL stages in order. Reaching the end
+         turns the page to the next iteration (or the next module). -->
+    <div class="engineering-sheet" id="engineering-sheet">
+      <p class="engineering-context" id="engineering-context" tabindex="-1">Retron aptamer production</p>
+      <p class="engineering-question" id="engineering-question">Can the Ec67 retron construct be assembled and verified before testing aptamer production and function?</p>
+      <p class="engineering-iteration-line">
+        <span id="engineering-iteration-name">Iteration 1 · Construct assembly and initial screening</span>
+        <span class="engineering-status" id="engineering-iteration-status" hidden></span>
+      </p>
+      <p class="engineering-approach" id="engineering-approach" hidden></p>
+      {% for stage in ['design', 'build', 'test', 'learn'] %}
+      <article class="engineering-record" id="engineering-record-{{ stage }}" data-stage="{{ stage }}" aria-labelledby="engineering-record-{{ stage }}-title">
+        <div class="engineering-record-title-row">
+          <h3 id="engineering-record-{{ stage }}-title">{{ stage|capitalize }}</h3>
+          {% if stage in ['design', 'test'] %}
+          <span class="engineering-lab-slot" data-lab-stage="{{ stage }}" data-lab-kind="{{ 'petri' if stage == 'design' else 'ecoli' }}" aria-hidden="true">{{ lab_icon('petri' if stage == 'design' else 'ecoli') }}</span>
+          {% endif %}
+        </div>
+        <h4 data-field="title">{% if loop.first %}Establish a retron-based aptamer source{% endif %}</h4>
+        {% if stage == 'test' %}
+        <figure class="engineering-figure" data-field="figure" hidden></figure>
+        {% endif %}
+        <p data-field="description">{% if loop.first %}The team proposed using an Ec67 retron in <em>E. coli</em> to generate aptamer-containing single-stranded DNA. The initial objective named ALS5-1; the master design later identifies Cb-2 as the aptamer in its component list.{% endif %}</p>
+        <div class="engineering-record-detail">
+          <span class="engineering-eyebrow" data-field="detail-label">{% if loop.first %}DETAILS{% endif %}</span>
+          <p data-field="detail">{% if loop.first %}The master design lists TOP10 and BL21(DE3) as hosts and pTwist as backbone, while its protocol pages describe pET28a-Ec67 and BL21(AI). The identity and roles of the final constructs and strains require reconciliation.{% endif %}</p>
+        </div>
+        {% if stage != 'test' %}
+        <figure class="engineering-figure" data-field="figure" hidden></figure>
+        {% endif %}
+        {% if stage in ['build', 'test'] %}
+        <section class="engineering-attachment-gallery" data-field="gallery" aria-label="{{ stage|capitalize }} attachments" hidden></section>
+        {% endif %}
+        <div class="engineering-takeaway">
+          <span class="engineering-eyebrow" data-field="outcome-label">{% if loop.first %}CONCLUSION{% endif %}</span>
+          <p data-field="outcome">{% if loop.first %}This iteration first asks whether candidate retron-containing colonies can be obtained and screened. The change from ALS5-1 to Cb-2 is documented, but its date and rationale are 待補.{% endif %}</p>
+        </div>
+      </article>
+      {% endfor %}
+      <section class="engineering-requests" id="engineering-requests" aria-labelledby="engineering-requests-title" hidden>
+        <div class="engineering-requests-heading">
+          <span class="engineering-eyebrow">EDITORIAL CHECKLIST</span>
+          <h3 id="engineering-requests-title">Page completion requests</h3>
+          <p>Evidence and labels to confirm with the experiment team before treating these materials as verified results.</p>
+        </div>
+        <ul id="engineering-requests-list"></ul>
+      </section>
+    </div>
+    <nav class="engineering-page-nav" aria-label="Module and iteration navigation">
+      <button class="engineering-page-nav-edge" id="engineering-previous-module" type="button"><span aria-hidden="true">‹</span> Previous module</button>
+      <button class="engineering-page-nav-main" id="engineering-last-iteration" type="button"><span aria-hidden="true">‹</span> Last iteration</button>
+      <button class="engineering-page-nav-main" id="engineering-next-iteration" type="button">Next iteration <span aria-hidden="true">›</span></button>
+      <button class="engineering-page-nav-edge" id="engineering-next-module" type="button">Next module <span aria-hidden="true">›</span></button>
+    </nav>
+    {% for kind in ['dna', 'ecoli', 'petri', 'flask'] %}
+    <template id="engineering-lab-icon-{{ kind }}">{{ lab_icon(kind) }}</template>
+    {% endfor %}
+    <p class="engineering-sr-only" id="engineering-announcement" role="status" aria-live="polite" aria-atomic="true"></p>
+    <noscript><p class="engineering-noscript">Enable JavaScript to explore all modules, iterations, and DBTL stages. The first Design example is shown above.</p></noscript>
+  </main>
 </div>
-
 {% endblock %}
 
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename = 'engineering-dbtl.js') }}"></script>
+<script src="{{ url_for('static', filename = 'engineering-gallery.js') }}"></script>
 {% endblock %}

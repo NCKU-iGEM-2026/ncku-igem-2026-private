@@ -2,15 +2,426 @@
 
 {% block title %}Board Game{% endblock %}
 
+{# The deep-teal treatment, the same one Hardware and Education use.
+   Every rule it turns on lives under body.bg-nexus in style.css and
+   overrides the light theme rather than replacing it, so deleting this
+   one line puts the page back exactly as it was. #}
+{% block body_class %}bg-nexus{% endblock %}
+
 {% block page_content %}
+
+<!--
+  How the game was made, as an S that snakes down past eight stops.
+
+  The S is not one drawn curve. Each stop draws its own half-arc, bulging to
+  whichever side that stop's text is on, and the arcs stack into a continuous
+  serpentine. That is what lets the curve follow the text: one fixed path
+  would need every stop to be the same height, and these run from two
+  sentences to five paragraphs. Each arc leaves the top of its row at the
+  centre and returns to the centre at the bottom, so the joins hold however
+  tall a row turns out to be. They stretch with preserveAspectRatio="none"
+  and keep their weight with vector-effect="non-scaling-stroke".
+
+  Each arc is drawn twice from the same d: a pale track that is always
+  there, and a copy over it that sgd-progress.js draws in as the reader
+  scrolls past. The circle rides the outside of its bend and the text sits
+  in the hollow on the other side.
+
+  Below 768px there is no room for two columns, so the arcs go and the stops
+  become an ordinary list with the icon above each heading.
+
+  The text is the team's own write-up, verbatim. Nothing is summarised and no
+  figure is touched. The playtest numbers are the team's own measurements
+  from their 2-3 August 2026 workshop.
+-->
+<section class="sgd" aria-labelledby="sgd-title">
+  <div class="sgd-inner">
+    <p class="sgd-kicker">Behind the game</p>
+    <h2 class="sgd-title" id="sgd-title">How The Green Cabinet was made</h2>
+
+    <ol class="sgd-stops">
+      <li class="sgd-stop is-right">
+        <div class="sgd-spine">
+          <svg class="sgd-arc sgd-arc-track"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C118 26, 118 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <svg class="sgd-arc sgd-arc-fill"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C118 26, 118 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <span class="sgd-node">
+            <img class="sgd-icon" src="https://static.igem.wiki/teams/6379/wiki/boardgame-photo/board-game-introduction.avif" alt=""
+                 loading="lazy" decoding="async">
+          </span>
+        </div>
+        <div class="sgd-text">
+          <h3 class="sgd-heading">Board Game Introduction</h3>
+          <p><em>The Green Cabinet</em> is an educational board game about the UN
+            Sustainable Development Goals. Players lead rival factions in a shared
+            &ldquo;international council,&rdquo; each advancing 3 assigned SDG targets
+            through action cards, events and special actions, racing to bring them to
+            the finish line (GOAL) first.</p>
+          <p>The point it makes: sustainable development has no single path. Every
+            policy helps something and costs something, and the play is a constant
+            trade between resources and political position.</p>
+        </div>
+      </li>
+      <li class="sgd-stop is-left">
+        <div class="sgd-spine">
+          <svg class="sgd-arc sgd-arc-track"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C2 26, 2 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <svg class="sgd-arc sgd-arc-fill"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C2 26, 2 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <span class="sgd-node">
+            <img class="sgd-icon" src="https://static.igem.wiki/teams/6379/wiki/boardgame-photo/sources-of-inspiration.avif" alt=""
+                 loading="lazy" decoding="async">
+          </span>
+        </div>
+        <div class="sgd-text">
+          <h3 class="sgd-heading">Sources of Inspiration</h3>
+          <p>We wanted people to understand what the SDGs actually contain, not memorise
+            seventeen names. Play makes each goal familiar; the event cards carry real
+            global issues, so players also meet what countries have actually done
+            &mdash; and the game points outwards, past itself, at international
+            affairs.</p>
+        </div>
+      </li>
+      <li class="sgd-stop is-right">
+        <div class="sgd-spine">
+          <svg class="sgd-arc sgd-arc-track"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C118 26, 118 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <svg class="sgd-arc sgd-arc-fill"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C118 26, 118 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <span class="sgd-node">
+            <img class="sgd-icon" src="https://static.igem.wiki/teams/6379/wiki/boardgame-photo/theme-development.avif" alt=""
+                 loading="lazy" decoding="async">
+          </span>
+        </div>
+        <div class="sgd-text">
+          <h3 class="sgd-heading">Theme Development</h3>
+          <p>Policy really does come out of a tug-of-war, so the cabinet framing was the
+            honest one. Leading a faction gives players the manoeuvring, which is where
+            the strategy lives, and it makes the other point by itself: a decision
+            rarely stays in one place.</p>
+        </div>
+      </li>
+      <li class="sgd-stop is-left">
+        <div class="sgd-spine">
+          <svg class="sgd-arc sgd-arc-track"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C2 26, 2 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <svg class="sgd-arc sgd-arc-fill"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C2 26, 2 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <span class="sgd-node">
+            <img class="sgd-icon" src="https://static.igem.wiki/teams/6379/wiki/boardgame-photo/rules-into-design.avif" alt=""
+                 loading="lazy" decoding="async">
+          </span>
+        </div>
+        <div class="sgd-text">
+          <h3 class="sgd-heading">Translating the Rules into Design</h3>
+          <p>The loop is three phases:</p>
+          <ul class="sgd-list">
+            <li><strong>Action</strong> &mdash; play up to 2 cards: help yourself,
+              disrupt an opponent, hit everyone, or change how two SDGs relate.</li>
+            <li><strong>Draw-and-resolve</strong> &mdash; the top card is flipped and
+              resolved at once; a special action card is discarded and replaced.</li>
+            <li><strong>Refill</strong> &mdash; back up to a hand of 5.</li>
+          </ul>
+          <p>Targets move both ways on the personal track, but once one reaches GOAL it
+            locks and nothing touches it again: there is no absolutely safe endpoint in
+            sustainable development, but progress already made does not simply vanish.
+            Special actions &mdash; Veto, Policy Exemption, International Sanctions
+            &mdash; make it a test of timing and resources rather than a straight
+            race.</p>
+        </div>
+      </li>
+      <li class="sgd-stop is-right">
+        <div class="sgd-spine">
+          <svg class="sgd-arc sgd-arc-track"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C118 26, 118 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <svg class="sgd-arc sgd-arc-fill"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C118 26, 118 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <span class="sgd-node">
+            <img class="sgd-icon" src="https://static.igem.wiki/teams/6379/wiki/boardgame-photo/challenges.avif" alt=""
+                 loading="lazy" decoding="async">
+          </span>
+        </div>
+        <div class="sgd-text">
+          <h3 class="sgd-heading">Challenges</h3>
+          <ul class="sgd-list">
+            <li><strong>Balancing forward and backward movement.</strong> Early on each
+              player tracked 2 targets while the cards spanned all 17 SDGs, so players
+              kept refilling without drawing anything relevant and the pace sagged.
+              Flipping and resolving the top card at the end of the Action Phase
+              &mdash; which is where the draw-and-resolve phase came from &mdash; fixed
+              the pace and added variation.</li>
+            <li><strong>Card design.</strong> Some SDGs have fewer real-world events to
+              draw on, so those categories ended up with fewer cards. We balanced
+              forward against backward cards by rough calculation, but have not
+              statistically verified that the distribution is fair. That is still
+              open.</li>
+            <li><strong>One event, many goals.</strong> A real event touches far more
+              SDGs than a card has room for, so each event card shows at most 3. That
+              is not fully precise, and when we teach the rules we ask players to think
+              past what is printed.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="sgd-stop is-left">
+        <div class="sgd-spine">
+          <svg class="sgd-arc sgd-arc-track"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C2 26, 2 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <svg class="sgd-arc sgd-arc-fill"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C2 26, 2 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <span class="sgd-node">
+            <img class="sgd-icon" src="https://static.igem.wiki/teams/6379/wiki/boardgame-photo/playtest-feedback.avif" alt=""
+                 loading="lazy" decoding="async">
+          </span>
+        </div>
+        <div class="sgd-text">
+          <h3 class="sgd-heading">Playtest Feedback</h3>
+          <p>We ran a playtest at a workshop on 2&ndash;3 August 2026, with
+            high-school students aged 15&ndash;18 (n&nbsp;=&nbsp;33).</p>
+          <p>What they wrote: &ldquo;I hope more people get to play this game
+            and learn what the SDGs are,&rdquo; &ldquo;I learned about some
+            events that had a real impact on the world,&rdquo; &ldquo;you can
+            tell a lot of care went into making this.&rdquo;</p>
+
+          <!--
+            Two figures in place of the two tables that stood here. Inline SVG
+            with every value directly labelled, so nothing hides behind a
+            hover and the numbers survive a printout and a screen reader.
+
+            Mark colours #279a8c and #b8853a were checked against the #16323f
+            panel rather than picked by eye: dark-mode lightness band, chroma
+            floor, colour-vision separation and contrast all pass.
+          -->
+          <figure class="sgd-fig">
+            <figcaption class="sgd-fig-cap">Self-assessed understanding of the
+              SDGs, before and after the session</figcaption>
+            <svg class="sgd-chart" viewBox="0 0 420 150" role="img"
+                 aria-label="Mean self-assessed understanding rose from 3.36 before the session to 4.33 after it, on a 1 to 5 scale. Standard deviation was 0.93 before and 0.69 after.">
+              <g class="sgd-chart-grid">
+                <line x1="60" y1="26" x2="60" y2="100"/>
+                <line x1="142" y1="26" x2="142" y2="100"/>
+                <line x1="225" y1="26" x2="225" y2="100"/>
+                <line x1="307" y1="26" x2="307" y2="100"/>
+                <line x1="390" y1="26" x2="390" y2="100"/>
+              </g>
+              <g class="sgd-chart-tick">
+                <text x="60" y="118" text-anchor="middle">1</text>
+                <text x="142" y="118" text-anchor="middle">2</text>
+                <text x="225" y="118" text-anchor="middle">3</text>
+                <text x="307" y="118" text-anchor="middle">4</text>
+                <text x="390" y="118" text-anchor="middle">5</text>
+                <text x="225" y="138" text-anchor="middle"
+                      class="sgd-chart-axis">self-rated understanding (1&ndash;5)</text>
+              </g>
+
+              <!-- After sits on the upper row so the gain reads as a rise.
+                   Only the rows swapped; x still carries the value.
+                   One standard deviation either side of each mean, and after
+                   the session the upper whisker reaches the scale ceiling. -->
+              <line class="sgd-sd" x1="278" y1="46" x2="390" y2="46"/>
+              <line class="sgd-sd-end" x1="278" y1="40" x2="278" y2="52"/>
+              <line class="sgd-sd-end" x1="390" y1="40" x2="390" y2="52"/>
+              <line class="sgd-sd" x1="178" y1="84" x2="331" y2="84"/>
+              <line class="sgd-sd-end" x1="178" y1="78" x2="178" y2="90"/>
+              <line class="sgd-sd-end" x1="331" y1="78" x2="331" y2="90"/>
+
+              <line class="sgd-dumb" x1="255" y1="84" x2="335" y2="46"/>
+              <circle class="sgd-dot sgd-dot-before" cx="255" cy="84" r="7"/>
+              <circle class="sgd-dot sgd-dot-after" cx="335" cy="46" r="7"/>
+
+              <text class="sgd-chart-val" x="347" y="38">after 4.33</text>
+              <text class="sgd-chart-lab" x="243" y="72" text-anchor="end">before 3.36</text>
+            </svg>
+            <p class="sgd-fig-note">
+              Up 0.97 points. 24 of 33 improved (72.7%), 9 unchanged, none
+              lower. Paired <em>t</em>(32)&nbsp;=&nbsp;6.31,
+              <em>p</em>&nbsp;&lt;&nbsp;.001, 95% CI 0.66&ndash;1.28,
+              Cohen&rsquo;s <em>d</em>&nbsp;=&nbsp;1.10; Wilcoxon
+              <em>W</em>&nbsp;=&nbsp;0, <em>p</em>&nbsp;&lt;&nbsp;.001.
+            </p>
+          </figure>
+
+          <figure class="sgd-fig">
+            <figcaption class="sgd-fig-cap">Overall reception, mean rating per
+              item</figcaption>
+            <svg class="sgd-chart" viewBox="0 0 420 230" role="img"
+                 aria-label="Mean ratings out of 5: novel gameplay 4.24, comfortable art and layout 4.21, learned a lot 4.03, would play again 4.03, fun and engaging 3.91. The reverse-scored item, not appealing, scored 2.21, where a lower score is the better result.">
+              <g class="sgd-chart-grid">
+                <line x1="165" y1="10" x2="165" y2="190"/>
+                <line x1="214" y1="10" x2="214" y2="190"/>
+                <line x1="264" y1="10" x2="264" y2="190"/>
+                <line x1="313" y1="10" x2="313" y2="190"/>
+                <line x1="363" y1="10" x2="363" y2="190"/>
+                <line x1="412" y1="10" x2="412" y2="190"/>
+              </g>
+
+              <g class="sgd-chart-lab">
+                <text x="157" y="29" text-anchor="end">Novel gameplay</text>
+                <text x="157" y="57" text-anchor="end">Comfortable art / layout</text>
+                <text x="157" y="85" text-anchor="end">Learned a lot</text>
+                <text x="157" y="113" text-anchor="end">Would play again</text>
+                <text x="157" y="141" text-anchor="end">Fun / engaging</text>
+                <text x="157" y="181" text-anchor="end">&ldquo;Not appealing&rdquo;</text>
+              </g>
+
+              <g class="sgd-bar">
+                <rect x="165" y="15" width="209" height="18" rx="4"/>
+                <rect x="165" y="43" width="208" height="18" rx="4"/>
+                <rect x="165" y="71" width="199" height="18" rx="4"/>
+                <rect x="165" y="99" width="199" height="18" rx="4"/>
+                <rect x="165" y="127" width="193" height="18" rx="4"/>
+              </g>
+              <rect class="sgd-bar-rev" x="165" y="167" width="109" height="18" rx="4"/>
+
+              <g class="sgd-chart-val">
+                <text x="379" y="29">4.24</text>
+                <text x="378" y="57">4.21</text>
+                <text x="369" y="85">4.03</text>
+                <text x="369" y="113">4.03</text>
+                <text x="363" y="141">3.91</text>
+                <text x="279" y="181">2.21</text>
+              </g>
+
+              <g class="sgd-chart-tick">
+                <text x="165" y="206" text-anchor="middle">0</text>
+                <text x="214" y="206" text-anchor="middle">1</text>
+                <text x="264" y="206" text-anchor="middle">2</text>
+                <text x="313" y="206" text-anchor="middle">3</text>
+                <text x="363" y="206" text-anchor="middle">4</text>
+                <text x="412" y="206" text-anchor="middle">5</text>
+                <text x="288" y="224" text-anchor="middle"
+                      class="sgd-chart-axis">mean rating (scale 1&ndash;5)</text>
+              </g>
+            </svg>
+            <p class="sgd-fig-note">
+              The last item is worded negatively and reverse-scored, so there a
+              <em>lower</em> bar is the better result. It is set apart and in a
+              different colour for that reason.
+            </p>
+          </figure>
+        </div>
+      </li>
+      <li class="sgd-stop is-right">
+        <div class="sgd-spine">
+          <svg class="sgd-arc sgd-arc-track"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C118 26, 118 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <svg class="sgd-arc sgd-arc-fill"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C118 26, 118 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <span class="sgd-node">
+            <img class="sgd-icon" src="https://static.igem.wiki/teams/6379/wiki/boardgame-photo/directions-for-improvement.avif" alt=""
+                 loading="lazy" decoding="async">
+          </span>
+        </div>
+        <div class="sgd-text">
+          <h3 class="sgd-heading">Directions for Improvement</h3>
+          <p>What the playtest changed:</p>
+          <ul class="sgd-list">
+            <li>Players wanted to understand the events better, so the web version now
+              carries event descriptions, Wikipedia links and annotations &mdash; why
+              this event moves that SDG.</li>
+            <li>They asked for reversals, flip effects and more drama. We added two
+              special action cards: <strong>Stance Reversal</strong> (formerly Step
+              Reversal) and <strong>Back to Square One</strong> (formerly Step
+              Reset).</li>
+          </ul>
+        </div>
+      </li>
+      <li class="sgd-stop is-left">
+        <div class="sgd-spine">
+          <svg class="sgd-arc sgd-arc-track"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C2 26, 2 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <svg class="sgd-arc sgd-arc-fill"
+               viewBox="0 0 120 100" preserveAspectRatio="none"
+               aria-hidden="true" focusable="false">
+            <path d="M60 0 C2 26, 2 74, 60 100" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <span class="sgd-node">
+            <img class="sgd-icon" src="https://static.igem.wiki/teams/6379/wiki/boardgame-photo/looking-ahead.avif" alt=""
+                 loading="lazy" decoding="async">
+          </span>
+        </div>
+        <div class="sgd-text">
+          <h3 class="sgd-heading">Looking Ahead</h3>
+          <p>We want both versions in classrooms, from primary through high school, and
+            the online version on Board Game Arena. For the physical game we hope to
+            sell it through NCKU&rsquo;s Liwen Bookstore, or to find a publisher.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!--
+  The hand-off. The write-up above ends on what the team wants to do next,
+  and the game used to begin one line later with nothing between them: a
+  cream slab, a second <h1> repeating the page title, and a language menu
+  with no explanation. This says what the thing below is, who it is for and
+  what it costs to try, so the game arrives as the point of the page rather
+  than as an attachment to it.
+-->
+<section class="bg-handoff" aria-labelledby="bg-handoff-title">
+  <p class="bg-handoff-kicker">The game itself</p>
+  <h2 class="bg-handoff-title" id="bg-handoff-title">Play The Green Cabinet</h2>
+  <p class="bg-handoff-lead">
+    Everything above is how it was made. This is the thing itself, running
+    here in the page &mdash; no download, no account. Play against the
+    computer on your own, or pass one device around a table.
+  </p>
+  <p class="bg-handoff-cue" aria-hidden="true">&darr;</p>
+</section>
 
 <div class="board-game-page">
 
 <div class="lang-bar">
   <label for="langSelect" class="visually-hidden" data-i18n="langLabel">Language</label>
   <span aria-hidden="true">🌐</span> <select id="langSelect">
-    <option value="zh">繁體中文</option>
     <option value="en">English</option>
+    <option value="zh">繁體中文</option>
   </select>
 </div>
 
@@ -189,5 +600,6 @@
 
 <script src="{{ url_for('static', filename = 'board-game-net.js') }}"></script>
 <script src="{{ url_for('static', filename = 'board-game.js') }}"></script>
+<script src="{{ url_for('static', filename = 'sgd-progress.js') }}"></script>
 
 {% endblock %}

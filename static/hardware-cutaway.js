@@ -23,7 +23,7 @@
      src: "drawn"   -> read off the plan view on this page (5 px = 1 mm on X),
                        quoted in that page's text, or dimensioned on the 09-12
                        enclosure DWG.
-          "spec"    -> stated by the team for the built enclosure: 80 mm tall,
+          "spec"    -> stated by the team for the enclosure as designed: 80 mm tall,
                        two layers, UVette through the top plate, ESP32 above the
                        breadboard, no emission filter.
           "derived" -> arithmetic on two known numbers, or read off a vendor
@@ -59,7 +59,7 @@
       id: "ledholder", name: "LED holder", kind: "box", layer: "core",
       x: [-48, -33.25], y: [-8, 8], z: [-8, 8],
       color: "frame", src: "drawn", explode: [-1, 0, 0],
-      note: "X from the plan view. Bonded after fracture; the C-clip slot straddles the joint",
+      note: "X from the plan view. Version 1's holder split at its clip slot and was bonded; the version 2 design has no clip slot",
       label: { text: "LED holder", dir: [-1, 0, 1] }
     },
     {
@@ -80,20 +80,20 @@
       id: "baffle", name: "Aperture baffle", kind: "box", layer: "core",
       x: [-33.25, -18.25], y: [-8, 8], z: [-8, 8],
       color: "frame", src: "drawn", explode: [-0.6, 0, 0.4],
-      note: "15.00 mm. The body fractured at both aperture-disk pocket planes, leaving three pieces",
+      note: "15.00 mm. Version 1's body broke at both disk slots and was bonded in three pieces; the version 2 design prints on its side",
       label: { text: "baffle", dir: [0, 0, 1] }
     },
     {
-      id: "stop1", name: "Aperture stop 1", kind: "ring", axis: "x",
+      id: "stop1", name: "Aperture-disk slot 1, empty", kind: "ring", axis: "x",
       x: [-30.4, -27.6], c: [0, 0], r: 7.5, ri: 1.6, layer: "core",
-      color: "ink", src: "drawn", explode: [-0.6, 0, 0.4],
-      note: "X from the plan view; the aperture diameter is a placeholder"
+      color: "ghost", src: "drawn", explode: [-0.6, 0, 0.4],
+      note: "X from the plan view. Where a disk would sit: none has been fitted for any measurement, and the opening drawn is a placeholder"
     },
     {
-      id: "stop2", name: "Aperture stop 2", kind: "ring", axis: "x",
+      id: "stop2", name: "Aperture-disk slot 2, empty", kind: "ring", axis: "x",
       x: [-23.8, -21], c: [0, 0], r: 7.5, ri: 1.6, layer: "core",
-      color: "ink", src: "drawn", explode: [-0.6, 0, 0.4],
-      note: "X from the plan view; the aperture diameter is a placeholder"
+      color: "ghost", src: "drawn", explode: [-0.6, 0, 0.4],
+      note: "X from the plan view. Where a disk would sit: none has been fitted for any measurement, and the opening drawn is a placeholder"
     },
     {
       id: "uvette", name: "UVette", kind: "box", layer: "core",

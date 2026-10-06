@@ -4,12 +4,145 @@
 {% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/collaboration.avif{% endblock %}
 {% block lead %}{% endblock %}
 
+{# The same deep-teal treatment Hardware uses. Everything it switches on
+   lives under body.edu-nexus (and the shared body.hw-nexus rules it joins)
+   in style.css, and overrides the light theme rather than replacing it --
+   deleting this one line puts the page back as it was. #}
+{% block body_class %}edu-nexus{% endblock %}
+
 {% block page_content %}
+
+<!-- Same background treatment as the Hardware page: a wash + grid behind
+     everything, and the same three drifting green glows, reusing hw-nexus's
+     own .hw-orbs/.hw-orb classes directly since they are not scoped to that
+     page. Decoration only: aria-hidden, no text, and the page reads the same
+     without it. -->
+<div class="hw-orbs" aria-hidden="true">
+  <span class="hw-orb hw-orb-a"><span></span></span>
+  <span class="hw-orb hw-orb-b"><span></span></span>
+  <span class="hw-orb hw-orb-c"><span></span></span>
+</div>
+
+<!--
+  The wall. One badge per school -- seven, and the real links, in the tab order
+  with the school's name -- spread through the thirteen letters of the word
+  COLLABORATION, left to right. The badges sit at fixed places rather than at
+  random so they cannot clump and the word still reads.
+
+  Badge order follows the order the sessions happened in, which is also the
+  order they appear down the page: Mingdao, then the three teams from the
+  meetup, then WiST, CCU and HIA. WiST sits between the T and the I, keeping
+  one letter either side of it so no two badges end up shoulder to shoulder.
+
+  The letters are decoration, and plain spans rather than links: a letter is
+  not a school, so clicking an O has nowhere sensible to go. They are
+  aria-hidden, so a screen reader working through this page hears seven schools
+  once each.
+
+  Size and drop are a seeded shuffle written into each disc, not a pattern,
+  and every disc carries two sizes: a phone is not this wall scaled down, so
+  the spread is squeezed toward the middle first and shrunk second.
+
+  Each disc is let down from the top of the row by its own distance (--dy,
+  a margin), so the row is as tall as its lowest disc and the wall is as tall
+  as the row. The whole range from 0 to 290px is used, in an order a hand
+  might have drawn, so the word bounces up and down its one line. The grow-and-squeeze on hover is a transform, not width: a
+  transform moves nothing, so the layout is fixed and only the paint changes.
+-->
+<nav class="collab-wall" aria-label="Teams we collaborated with">
+  <div class="collab-wall-inner">
+    <span class="collab-bubble is-letter" style="--dbase:102px;--dnarrow:67px;--dy:274px;--mx:3px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">C</span></span>
+    </span>
+    <span class="collab-bubble is-letter" style="--dbase:108px;--dnarrow:69px;--dy:161px;--mx:7px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">O</span></span>
+    </span>
+    <a class="collab-bubble is-lead" href="#session-mingdao"
+       style="--dbase:170px;--dnarrow:85px;--dy:193px;--mx:8px">
+      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="" decoding="async"></span>
+      <span class="collab-bubble-name">Mingdao High School</span>
+    </a>
+    <span class="collab-bubble is-letter" style="--dbase:100px;--dnarrow:67px;--dy:290px;--mx:5px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">L</span></span>
+    </span>
+    <span class="collab-bubble is-letter" style="--dbase:109px;--dnarrow:69px;--dy:129px;--mx:5px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">L</span></span>
+    </span>
+    <span class="collab-bubble is-letter" style="--dbase:99px;--dnarrow:67px;--dy:242px;--mx:7px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">A</span></span>
+    </span>
+    <a class="collab-bubble is-lead is-nycu" href="#session-meetup"
+       style="--dbase:168px;--dnarrow:84px;--dy:258px;--mx:7px">
+      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" decoding="async"></span>
+      <span class="collab-bubble-name">NYCU</span>
+    </a>
+    <span class="collab-bubble is-letter" style="--dbase:94px;--dnarrow:65px;--dy:177px;--mx:8px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">B</span></span>
+    </span>
+    <span class="collab-bubble is-letter" style="--dbase:110px;--dnarrow:69px;--dy:0px;--mx:6px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">O</span></span>
+    </span>
+    <a class="collab-bubble is-lead" href="#session-meetup"
+       style="--dbase:175px;--dnarrow:86px;--dy:32px;--mx:0px">
+      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" decoding="async"></span>
+      <span class="collab-bubble-name">Okinawa</span>
+    </a>
+    <span class="collab-bubble is-letter" style="--dbase:122px;--dnarrow:73px;--dy:226px;--mx:3px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">R</span></span>
+    </span>
+    <span class="collab-bubble is-letter" style="--dbase:108px;--dnarrow:69px;--dy:113px;--mx:2px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">A</span></span>
+    </span>
+    <a class="collab-bubble is-lead" href="#session-meetup"
+       style="--dbase:152px;--dnarrow:80px;--dy:209px;--mx:2px">
+      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" decoding="async"></span>
+      <span class="collab-bubble-name">VIS</span>
+    </a>
+    <span class="collab-bubble is-letter" style="--dbase:126px;--dnarrow:74px;--dy:97px;--mx:1px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">T</span></span>
+    </span>
+    <a class="collab-bubble is-lead" href="#session-wist"
+       style="--dbase:158px;--dnarrow:82px;--dy:234px;--mx:5px">
+      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/wist-logo.avif" alt="" decoding="async"></span>
+      <span class="collab-bubble-name">Washington International School</span>
+    </a>
+    <span class="collab-bubble is-letter" style="--dbase:113px;--dnarrow:70px;--dy:48px;--mx:3px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">I</span></span>
+    </span>
+    <a class="collab-bubble is-lead is-ccu" href="#session-ccu"
+       style="--dbase:140px;--dnarrow:77px;--dy:81px;--mx:2px">
+      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="" decoding="async"></span>
+      <span class="collab-bubble-name">CCU-Taiwan</span>
+    </a>
+    <span class="collab-bubble is-letter" style="--dbase:104px;--dnarrow:68px;--dy:16px;--mx:7px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">O</span></span>
+    </span>
+    <a class="collab-bubble is-lead" href="#session-hia"
+       style="--dbase:142px;--dnarrow:78px;--dy:145px;--mx:8px">
+      <span class="collab-bubble-disc"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" decoding="async"></span>
+      <span class="collab-bubble-name">HIA-Taiwan</span>
+    </a>
+    <span class="collab-bubble is-letter" style="--dbase:100px;--dnarrow:67px;--dy:64px;--mx:1px"
+          aria-hidden="true">
+      <span class="collab-bubble-disc"><span class="collab-letter">N</span></span>
+    </span>
+  </div>
+</nav>
 
 <div class="edu-detail-layout">
   <aside class="edu-sidebar">
-    <div class="edu-sidebar-track"></div>
-    <div class="edu-sidebar-indicator"></div>
 
     <div class="edu-sidebar-group" data-group="mingdao">
       <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-mingdao" data-target="session-mingdao">Mingdao High School</a>
@@ -22,6 +155,14 @@
     <div class="edu-sidebar-group" data-group="wist">
       <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-wist" data-target="session-wist">Washington International School</a>
     </div>
+
+    <div class="edu-sidebar-group" data-group="ccu">
+      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-ccu" data-target="session-ccu">CCU-Taiwan</a>
+    </div>
+
+    <div class="edu-sidebar-group" data-group="hia">
+      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-hia" data-target="session-hia">HIA-Taiwan</a>
+    </div>
   </aside>
 
   <div class="edu-sessions">
@@ -29,7 +170,7 @@
   <section id="session-mingdao" class="edu-session-block">
     <div class="edu-section-header">
       <h2 class="h3">Mingdao High School communication</h2>
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/mingdao-logo.avif" alt="Mingdao High School logo" class="edu-logo">
+      <img src="https://static.igem.wiki/teams/6379/wiki/collaboration/mingdao-logo.avif" alt="Mingdao High School logo" class="edu-logo">
     </div>
     <p><strong>Date:</strong> March 7, 2026</p>
     <p>For collaboration in Human Practices, our goal was to look beyond the boundaries of our own project, taking the initiative to foster meaningful exchanges and empower high school iGEMers with our team's experience. As our very first stop, we organized an in-depth mentorship and knowledge-sharing session with the Mingdao High School iGEM team.</p>
@@ -48,6 +189,13 @@
 
   <section id="session-meetup" class="edu-session-block">
     <h2 class="h3">Taiwan 2026 iGEMers Meetup</h2>
+    <ul class="collab-teams">
+      <li><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/nycu-team-logo.avif" alt="" loading="lazy" decoding="async"><span>NYCU</span></li>
+      <li><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/okinawa-team-logo.avif" alt="" loading="lazy" decoding="async"><span>Okinawa</span></li>
+      <li><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/vis-team-logo.avif" alt="" loading="lazy" decoding="async"><span>VIS</span></li>
+      <li><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="" loading="lazy" decoding="async"><span>HIA-Taiwan</span></li>
+      <li><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/wist-logo.avif" alt="" loading="lazy" decoding="async"><span>WiST</span></li>
+    </ul>
     <p><strong>Date:</strong> July 27, 2026</p>
     <p>The purpose in participating in iGEMers&rsquo; exchange was to broaden our perspectives on project development, team management, and research through interaction with other iGEM teams. By sharing our experiences and learning from one another, we hoped to discover more effective ways to develop and manage our project. For us, this was an important opportunity to step back, reassess our own work, embrace different perspectives, and strengthen our team as a whole.</p>
     <p>During the exchange, we first took part in the Roundtable Discussions, where we shared challenges in team management with teams from different universities, including task allocation, scheduling, and communication among members. These discussions allowed us to step beyond the perspective of our own team and understand how others approach challenges throughout the development of their projects. At the same time, sharing our research progress gave us the opportunity to compare different approaches and learn how other teams transformed their initial ideas into concrete projects.</p>
@@ -70,7 +218,10 @@
   </section>
 
   <section id="session-wist" class="edu-session-block">
-    <h2 class="h3">Washington International School communication</h2>
+    <div class="edu-section-header">
+      <h2 class="h3">Washington International School communication</h2>
+      <img src="https://static.igem.wiki/teams/6379/wiki/collaboration/wist-logo.avif" alt="Washington International School logo" class="edu-logo">
+    </div>
     <blockquote class="edu-quote">"True collaboration extends beyond single events; it is a continuous dialogue that transforms shared challenges into mutual growth."</blockquote>
     <p><strong>Date:</strong> September 17, 2026</p>
     <p>Following our initial connection during the Taiwan iGEMers Meetup in July 2026, our team maintained close communication with Team WiST, culminating in an in-depth online collaboration session on September 17, 2026, to further solidify our partnership and elevate our respective projects. With the Grand Jamboree in Paris fast approaching this November, this virtual gathering served as an invaluable high-stakes rehearsal, allowing both teams to hone our English presentation delivery, refine our storytelling logic, and build confidence before stepping onto the international stage.</p>
@@ -83,6 +234,43 @@
       <img src="https://static.igem.wiki/teams/6379/wiki/education/wist1.avif" alt="Washington International School communication photo 1" loading="lazy">
       <img src="https://static.igem.wiki/teams/6379/wiki/education/wist2.avif" alt="Washington International School communication photo 2" loading="lazy">
       <img src="https://static.igem.wiki/teams/6379/wiki/education/wist3.avif" alt="Washington International School communication photo 3" loading="lazy">
+    </div>
+
+    <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
+  </section>
+
+  <section id="session-ccu" class="edu-session-block">
+    <div class="edu-section-header">
+      <h2 class="h3">CCU-Taiwan meetup</h2>
+      <img src="https://static.igem.wiki/teams/6379/wiki/collaboration/ccu-logo.avif" alt="CCU-Taiwan logo" class="edu-logo">
+    </div>
+    <p><strong>Date:</strong> September 19, 2026</p>
+    <p>During our meetup with the CCU-Taiwan team, we each gave a 15-minute presentation to share our respective project topics and research directions for this year. Although our projects focus on vastly different fields&mdash;with NCKU-Tainan focusing on therapeutics and CCU-Taiwan on agriculture&mdash;we discovered that we faced similar challenges regarding gene circuit design and bacterial cultivation.</p>
+    <p>Through our in-depth discussions, we exchanged valuable experimental techniques and identified potential areas for optimization within our own lab protocols. Furthermore, we shared our experience with the CCU-Taiwan team on how to apply quantitative scientific methods to analyze pre- and post-test data for their Education initiatives, helping them more effectively evaluate their educational impact.</p>
+    <p>Overall, this collaborative exchange not only equipped us with new experimental design strategies but also highlighted specific areas where our project could be further refined.</p>
+
+    <div class="edu-gallery">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/ccu1.avif" alt="CCU-Taiwan meetup photo 1" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/ccu2.avif" alt="CCU-Taiwan meetup photo 2" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/ccu3.avif" alt="CCU-Taiwan meetup photo 3" loading="lazy">
+    </div>
+
+    <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
+  </section>
+
+  <section id="session-hia" class="edu-session-block">
+    <div class="edu-section-header">
+      <h2 class="h3">HIA-Taiwan meetup</h2>
+      <img src="https://static.igem.wiki/teams/6379/wiki/collaboration/hia-team-logo.avif" alt="HIA-Taiwan logo" class="edu-logo">
+    </div>
+    <p><strong>Date:</strong> September 20, 2026</p>
+    <p>During our meetup with the HIA-Taiwan team, we each delivered a 15-minute presentation to share our respective project topics and research directions for the year. Beyond gaining a deeper understanding of each other's projects and current progress, we engaged in a highly productive technical exchange. The HIA-Taiwan team consulted us regarding our software development process, specifically asking for advice on the programming structures and function adjustments we utilized.</p>
+    <p>Furthermore, we drew upon our own experiences to guide them in their Education initiatives. We offered practical advice on how to effectively reach a broader audience and how to tailor their teaching approaches and materials to suit different student demographics.</p>
+    <p>In conclusion, this collaborative exchange provided us with much more than just a platform to share and discuss our own project. It also gave us the rewarding opportunity to step into a mentorship role, assisting and empowering a high school iGEM team to further refine and improve their project.</p>
+
+    <div class="edu-gallery">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/hia-1.avif" alt="HIA-Taiwan meetup photo 1" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/hia-2.avif" alt="HIA-Taiwan meetup photo 2" loading="lazy">
     </div>
 
     <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>

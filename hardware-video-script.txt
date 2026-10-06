@@ -8,10 +8,10 @@ SHOTS      12，剪接點全部是 0.47 秒交叉淡入淡出
 SUBJECT    P1-PROTO-01
 SOURCE     wiki/pages/hardware.html (state as of 2026-08-25)
 PROJECT    C:\Users\user\capture-screen-video  (Remotion, composition id "Film")
-OUTPUT     out/capture-screen-av.mp4 · out/capture-screen.srt
+OUTPUT     out/capture-screen-av.mp4 · out/capture-screen.vtt · out/capture-screen.srt
 SOUND      音樂一軌。無旁白、無音效。出處見 SOUND-CREDITS.md
 
-校對狀態 2026-09-14，逐行對照 src/shots/*.jsx 與 src/components/*.jsx。
+校對狀態 2026-09-25，逐行對照 src/shots/*.jsx 與 src/components/*.jsx。
 每個秒數都是從程式碼的 s(...) 常數抽出來的，不是憑印象寫的。
 影片改了就要回來改這裡。
 
@@ -36,6 +36,8 @@ SOUND      音樂一軌。無旁白、無音效。出處見 SOUND-CREDITS.md
 
 音效做過一輪，但依團隊決定沒有留在成品裡（見下面「聲音」一節）。
 
+字幕也從燒進畫面改成旁掛 .vtt，依團隊決定。畫面上現在一個字也沒有。
+
 
 --------------------------------------------------------------------------------
 範圍與現況
@@ -48,8 +50,11 @@ SOUND      音樂一軌。無旁白、無音效。出處見 SOUND-CREDITS.md
 全片無實拍。沒有照片、沒有錄影、沒有任何鏡頭前的東西。
 四種畫面材料：線稿光路圖、讀值面板、時序／長條圖、文字。
 
-字幕：燒進畫面，同時輸出 out/capture-screen.srt（53 個 cue）。
-畫面底部 950 px 以下是字幕帶，鏡頭裡的說明文字都避開了。
+字幕：**不燒進畫面**，改成旁掛。畫面本體沒有任何字幕，
+字幕走 out/capture-screen.vtt（WebVTT，53 個 cue），另外也出一份
+.srt。上 video.igem.org 時當字幕軌掛上去，觀眾可以自己開關。
+畫面底部 950 px 以下仍然是字幕帶，鏡頭裡的說明文字都避開了。
+**即使現在不燒字幕，那一帶還是要空著**，否則旁掛字幕會蓋到說明文字。
 
 
 --------------------------------------------------------------------------------
@@ -58,7 +63,7 @@ SOUND      音樂一軌。無旁白、無音效。出處見 SOUND-CREDITS.md
 
 **旁白關閉**（src/Soundtrack.jsx 的 USE_VOICEOVER = false）。
 **音效也關閉**（src/components/Sfx.jsx 的 USE_SFX = false）。
-成品是「有字幕、有音樂、沒有人聲、沒有音效」。
+成品是「有音樂、沒有人聲、沒有音效」，字幕旁掛不燒。
 
 音樂：自己合成的 ambient bed（tools/make_music.py），全片只有這一軌。
 
@@ -649,11 +654,11 @@ LINES THE FILM MUST NEVER SAY
 
   npm run studio          Remotion Studio，拉時間軸即時看
   npx remotion render src/index.jsx Film out/capture-screen-av.mp4 --codec=h264
-                          出成品（畫面 + 字幕 + 音樂）
+                          出成品（畫面 + 音樂；字幕走旁掛）
 
   python tools/audit.py           六段總檢查
   python tools/check_film.py      字幕時間、重疊、閱讀速度、覆蓋率
-  python tools/make_captions.py   重產字幕（改過旁白稿或鏡頭長度之後要跑）
+  python tools/make_captions.py   重產字幕 .vtt / .srt（改過旁白稿或鏡頭長度後要跑）
   python tools/measure_vo.py      重量配音長度（換過音檔之後要跑）
   python tools/make_music.py      重產音樂
   python tools/make_sfx.py        重產音效
@@ -672,17 +677,24 @@ shots.json 的鏡頭長度夠不夠，不夠就加長再跑一次 make_captions.
 DELIVERY
   Host          video.igem.org（必要）。照 wiki/pages/home.html 既有的
                 embed 寫法，兩個 URL 都從 uploads 頁拿。
-  Captions      已燒進畫面，另有 out/capture-screen.srt（53 個 cue）。
+  Captions      旁掛，不在畫面上。上傳 out/capture-screen.vtt（WebVTT，
+                53 個 cue）當字幕軌；out/capture-screen.srt 是同一批 cue 的
+                備用格式。**字幕必須跟影片一起上傳**。鏡頭裡的標題、
+                標籤、圖表不受影響，但沒旁白又沒字幕的話，敘事那條線
+                就沒了。
   Aspect / rate 16:9 · 1920×1080 · 30 fps
   Thumbnail     1:19 那一格 —— 兩道光束加 90° 弧線。
   Sound         音樂一軌，自製，無授權問題。詳見 SOUND-CREDITS.md。
 
 
 ================================================================================
-最後一次驗證：python tools/audit.py → no failures
+最後一次驗證（2026-09-25）：python tools/audit.py → no failures
   12 個鏡頭首尾相接、無空隙、總長 6090 格 = 203.00 秒
   JS 與 Python 算出的時間一致
   每個 beat 都在各自鏡頭的長度內
   53 個字幕 cue 無重疊、無超界、最長 5.6 秒
-  out/capture-screen-av.mp4 = 3:23.05、1920×1080、H.264 + AAC
+  .vtt / .srt / captions.json 三份 cue 數量一致（53）
+  out/capture-screen-av.mp4 = 3:23.05、1920×1080、H.264 + AAC、22.8 MB
+  畫面上沒有字幕（已抽幀確認）。拿掉燒字幕之後母帶從 23.8 MB
+  降到 22.8 MB，720p 預覽從 11.9 MB 降到 4.5 MB。
 ================================================================================
