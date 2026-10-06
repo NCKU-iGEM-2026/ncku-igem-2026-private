@@ -370,11 +370,31 @@ footer.bg-dark { background-color: #075a3e !important; }
 .page-hero-bg {
   position: absolute;
   inset: -6px;
+  /* The photo comes in as --hero-img from the page's hero_image block
+     (layout.html), so a page can also lay it out differently, below. */
+  background-image: var(--hero-img);
   background-size: cover;
   background-position: center;
   filter: blur(2px);
   transform: scale(1.03);
 }
+
+/* The whole photo, top to bottom, instead of a band across its middle. For a
+   photo much less wide than the banner, which "cover" would crop to its
+   centre. The photo is fitted to the banner's height and the space either
+   side is filled with a gradient between --hero-fill-from and --hero-fill-to,
+   colours taken from the photo's own left and right edges so the join does
+   not show. A page asks for it with {% block hero_class %}. */
+.page-hero-bg.is-fit-height {
+  background-image: var(--hero-img),
+    linear-gradient(90deg, var(--hero-fill-from, #333), var(--hero-fill-to, #222));
+  background-size: auto 100%, cover;
+  background-repeat: no-repeat;
+}
+
+/* Hardware: the bench photo (4000 x 1821). Its left edge is the lit grey of
+   the bench, its right edge the bench in shadow. */
+.page-hero-bg.hero-hardware { --hero-fill-from: #5b5855; --hero-fill-to: #21201d; }
 
 .page-hero-tint {
   position: absolute;
