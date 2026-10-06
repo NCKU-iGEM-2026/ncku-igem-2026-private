@@ -6695,6 +6695,291 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
   border-radius: 8px;
 }
 
+/* ---- the two builds, one at a time ----
+   Two readers share this page. A card stands for each and says what it is;
+   the build it names is the block that follows the cards, and the card's last
+   line is a link to it. Without static/hardware-builds.js both blocks follow,
+   one after the other. With it only one shows, and the card that is showing
+   points down at it. */
+.hw-pick {
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  margin-bottom: 0;
+}
+.hw-pick-card { display: flex; flex-direction: column; }
+.hw-pick-card h3 { margin: 0.35rem 0 0.5rem; font-size: 1.2rem; }
+.hw-pick-card .hw-spec { margin-bottom: 1rem; }
+.hw-pick-card .hw-spec > div { grid-template-columns: 5.6rem 1fr; gap: 0.5rem; }
+/* A photograph of the build, once there is one. Both are cropped to the same
+   shape so the two cards stay a pair whatever the camera gave. */
+.hw-pick-photo {
+  margin: 0 0 1rem;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.hw-pick-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hw-pick-go {
+  margin-top: auto;
+  align-self: flex-start;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.hw-pick-go::after { content: " \2193"; }
+.hw-pick-go:hover .hw-pick-see,
+.hw-pick-go:focus-visible .hw-pick-see { text-decoration: underline; }
+.hw-pick-now { display: none; }
+
+.hw-pick.is-live .hw-pick-card { cursor: pointer; transition: border-color 0.15s ease; }
+.hw-pick.is-live .hw-pick-card:hover { border-color: #75b299; }
+.hw-pick.is-live .hw-pick-card.is-on { border-color: #075a3e; cursor: default; }
+.hw-pick.is-live .is-on .hw-pick-see { display: none; }
+.hw-pick.is-live .is-on .hw-pick-now { display: inline; }
+.hw-pick.is-live .is-on .hw-pick-go { color: inherit; }
+/* The notch: a corner of the card, turned to point at the build below. */
+.hw-pick.is-live .hw-pick-card.is-on::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(-0.55rem - 1px);
+  width: 1.1rem;
+  height: 1.1rem;
+  transform: translateX(-50%) rotate(45deg);
+  background: inherit;
+  border: solid #075a3e;
+  border-width: 0 2px 2px 0;
+}
+/* One column: the first card would point at the second, not at its build. */
+@media (max-width: 640px) {
+  .hw-pick.is-live .hw-pick-card.is-on::after { content: none; }
+}
+
+.hw-build { scroll-margin-top: 90px; }
+.hw-build-head {
+  margin: 0 0 2.4rem;
+  padding-top: 1.2rem;
+  border-top: 2px solid #075a3e;
+}
+.hw .hw-build-title { font-size: 1.9rem; margin: 0 0 0.9rem; }
+.hw-build-head .sw-links { margin: 0; }
+.hw-build-end {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.6rem;
+  margin: 0 0 3rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid #cfdcd5;
+  font-family: "Changa", sans-serif;
+}
+/* On paper there is nothing to click: print both builds. */
+@media print {
+  .hw-build[hidden] { display: block !important; }
+}
+
+body.hw-nexus .hw-pick.is-live .hw-pick-card:hover { border-color: var(--nx-mint); }
+body.hw-nexus .hw-pick.is-live .hw-pick-card.is-on,
+body.hw-nexus .hw-pick.is-live .hw-pick-card.is-on::after { border-color: var(--nx-lime); }
+body.hw-nexus .hw .hw-pick.is-live .is-on .hw-pick-go { color: var(--nx-muted); }
+body.hw-nexus .hw-build-head { border-top-color: var(--nx-mint); }
+body.hw-nexus .hw-build-end { border-top-color: var(--nx-line); }
+
+/* ---- what version 2 does better ----
+   Four cards, each a before and an after. The before is set quieter than the
+   after, and the last line of every card says what the claim rests on: a
+   property of the design, a measurement, or two sessions set side by side. */
+.hw-gains {
+  display: grid;
+  /* Two by two: three and a straggler reads as three claims and an afterthought. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.4rem 0 1.1rem;
+  padding: 0;
+  list-style: none;
+}
+.hw-gain {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.15rem 0.95rem;
+  border: 1px solid #cfdcd5;
+  border-radius: 12px;
+  background: #fffdf7;
+}
+.hw-gain-what {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1f4a38;
+}
+.hw-gain-fig {
+  margin: 0.3rem 0 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: #075a3e;
+  font-variant-numeric: tabular-nums;
+}
+.hw-gain-from { font-weight: 500; color: #6b7a72; }
+.hw-gain-arrow { margin: 0 0.4rem; color: #6b7a72; }
+.hw .hw-gain p { margin: 0 0 0.75rem; font-size: 0.95rem; line-height: 1.6; }
+.hw-gain-basis {
+  margin-top: auto;
+  padding-top: 0.55rem;
+  border-top: 1px dashed #cfdcd5;
+  font-size: 0.82rem;
+  color: #5f6e66;
+}
+@media (max-width: 640px) {
+  .hw-gains { grid-template-columns: minmax(0, 1fr); }
+}
+body.hw-nexus .hw-gain { background: var(--nx-panel); border-color: var(--nx-line); }
+body.hw-nexus .hw-gain-what { color: var(--nx-mint); }
+body.hw-nexus .hw-gain-fig { color: var(--nx-lime); }
+body.hw-nexus .hw-gain-from,
+body.hw-nexus .hw-gain-arrow,
+body.hw-nexus .hw-gain-basis { color: var(--nx-muted); }
+body.hw-nexus .hw-gain-basis { border-top-color: var(--nx-line); }
+
+/* ---- the drawings inside those cards, and the session chart ----
+   One picture to a claim, so the sentence under it can be short. Version 1 is
+   the quiet colour and version 2 the loud one throughout; every mark also has
+   its row or its label, so nothing is told by colour alone. The marks sit in
+   their final places in the markup. static/hardware-gains.js only holds a
+   drawing back until it is on screen (.is-armed) and then lets it play
+   (.is-seen); without the script, or with reduced motion, it is simply drawn. */
+.hw-vis {
+  --hw-v1: #6b7a72;
+  --hw-v2: #075a3e;
+  --hw-accent: #1f7a5c;
+  --hw-ink: #33413a;
+  --hw-ink2: #5f6e66;
+  --hw-rule: #cfdcd5;
+  --hw-surf: #fffdf7;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.2rem 0 0.5rem;
+  overflow: visible;
+}
+body.hw-nexus .hw-vis {
+  --hw-v1: var(--nx-muted);
+  --hw-v2: var(--nx-lime);
+  --hw-accent: var(--nx-mint);
+  --hw-ink: var(--nx-text);
+  --hw-ink2: var(--nx-muted);
+  --hw-rule: var(--nx-line);
+  --hw-surf: var(--nx-panel);
+}
+.hw-vis text { font-family: inherit; font-size: 10.5px; fill: var(--hw-ink2); }
+.hw-vis .hw-vis-strong { fill: var(--hw-ink); font-weight: 600; }
+.hw-vis .hw-vis-rule { stroke: var(--hw-rule); stroke-width: 1; fill: none; }
+.hw-vis .hw-vis-band { fill: var(--hw-v1); opacity: 0.16; }
+.hw-vis .hw-vis-line { stroke: var(--hw-v1); stroke-width: 1.5; stroke-linecap: round; fill: none; }
+/* A fitted curve, and marks that are neither version: one accent, with a
+   hollow twin for a reading of zero so the two differ by shape as well. */
+.hw-vis .hw-curve { stroke: var(--hw-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.hw-vis .hw-on { fill: var(--hw-accent); }
+.hw-vis .hw-on-soft { opacity: 0.55; }
+.hw-vis .hw-hollow { fill: none; stroke: var(--hw-v1); stroke-width: 1.5; }
+.hw-vis .hw-v1 { fill: var(--hw-v1); }
+.hw-vis .hw-v2 { fill: var(--hw-v2); }
+.hw-vis .hw-dot { stroke: var(--hw-surf); stroke-width: 2; }
+.hw-vis .hw-dot:hover, .hw-vis .hw-bar:hover { filter: brightness(1.2); }
+/* The session chart is wider than a phone: it scrolls inside its figure. */
+.hw-chart { margin: 1.2rem 0 1rem; }
+.hw-chart .hw-vis { min-width: 520px; }
+body.hw-nexus .hw-chart .hw-vis { --hw-surf: var(--nx-ground, #0d2630); }
+
+/* Steps and readings, as rows of chips. */
+.hw-steps2 { display: grid; gap: 0.45rem; margin: 0.35rem 0 0.75rem; }
+.hw-steps2-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.45rem; }
+.hw-steps2-who { flex: 0 0 4.4rem; font-size: 0.8rem; color: #5f6e66; }
+.hw .hw-steps2 ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: hw-step;
+}
+.hw .hw-steps2 li,
+.hw-steps2 .hw-read {
+  margin: 0;
+  padding: 0.26rem 0.6rem;
+  border: 1px solid #cfdcd5;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.hw .hw-steps2 li { counter-increment: hw-step; }
+.hw .hw-steps2 li::before { content: counter(hw-step) "\00a0"; font-weight: 700; color: #075a3e; }
+.hw-steps2 .hw-read { font-variant-numeric: tabular-nums; font-weight: 600; }
+/* The steps: the build's name on a line of its own, then the steps two
+   abreast, so four of them read as a list and not as a wrapped sentence. */
+.hw-steps2-loop .hw-steps2-who { flex-basis: 100%; }
+.hw .hw-steps2-loop ol { display: grid; grid-template-columns: repeat(2, max-content); }
+.hw-steps2-done { font-size: 0.8rem; font-weight: 600; color: #075a3e; }
+.hw-steps2-done::before { content: "\2713\00a0"; }
+.hw-steps2-row.is-v2 li,
+.hw-steps2-row.is-v2 .hw-read { border-color: #075a3e; }
+body.hw-nexus .hw-steps2-who { color: var(--nx-muted); }
+body.hw-nexus .hw .hw-steps2 li,
+body.hw-nexus .hw-steps2 .hw-read { border-color: var(--nx-line); color: var(--nx-text); }
+body.hw-nexus .hw .hw-steps2 li::before { color: var(--nx-mint); }
+body.hw-nexus .hw-steps2-done { color: var(--nx-lime); }
+body.hw-nexus .hw-steps2-row.is-v2 li,
+body.hw-nexus .hw-steps2-row.is-v2 .hw-read { border-color: var(--nx-lime); }
+
+/* ---- motion ---- */
+@keyframes hw-drop { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+@keyframes hw-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes hw-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes hw-fade { from { opacity: 0; } to { opacity: 1; } }
+/* A row of steps plays as a loop of seven seconds: one step a second, a pause
+   on the finished row, and round again. Version 2 is done at the first beat. */
+@keyframes hw-step-1 { 0%, 3% { opacity: 0.28; } 7%, 94% { opacity: 1; } 100% { opacity: 0.28; } }
+@keyframes hw-step-2 { 0%, 17% { opacity: 0.28; } 21%, 94% { opacity: 1; } 100% { opacity: 0.28; } }
+@keyframes hw-step-3 { 0%, 31% { opacity: 0.28; } 35%, 94% { opacity: 1; } 100% { opacity: 0.28; } }
+@keyframes hw-step-4 { 0%, 45% { opacity: 0.28; } 49%, 94% { opacity: 1; } 100% { opacity: 0.28; } }
+@keyframes hw-step-5 { 0%, 59% { opacity: 0; } 63%, 94% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes hw-step-0 { 0%, 17% { opacity: 0; } 21%, 94% { opacity: 1; } 100% { opacity: 0; } }
+
+.is-armed:not(.is-seen) .hw-dot,
+.is-armed:not(.is-seen) .hw-bar,
+.is-armed:not(.is-seen) .hw-late,
+.is-armed:not(.is-seen) .hw-pop { opacity: 0; }
+.is-seen .hw-pop {
+  animation: hw-fade 0.25s ease both;
+  animation-delay: calc(var(--i, 0) * 28ms + 0.1s);
+}
+.is-seen .hw-dot {
+  transform-box: fill-box;
+  animation: hw-drop 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 0.32s + 0.15s);
+}
+.is-seen .hw-bar {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: hw-grow 0.7s ease-out both;
+  animation-delay: calc(var(--i, 0) * 0.25s + 0.15s);
+}
+.is-seen rect.hw-bar { transform-origin: 0 50%; animation-name: hw-grow-x; }
+.is-seen .hw-late {
+  animation: hw-fade 0.45s ease both;
+  animation-delay: calc(var(--i, 0) * 0.3s + 0.6s);
+}
+.is-seen .hw-steps2-loop li:nth-child(1) { animation: hw-step-1 7s linear infinite; }
+.is-seen .hw-steps2-loop li:nth-child(2) { animation: hw-step-2 7s linear infinite; }
+.is-seen .hw-steps2-loop li:nth-child(3) { animation: hw-step-3 7s linear infinite; }
+.is-seen .hw-steps2-loop li:nth-child(4) { animation: hw-step-4 7s linear infinite; }
+.is-seen .hw-steps2-loop .hw-steps2-done { animation: hw-step-5 7s linear infinite; }
+.is-seen .hw-steps2-loop.is-v2 .hw-steps2-done { animation-name: hw-step-0; }
+
 /* A slot in the plan view where a part could go and none has been fitted:
    an outline, the same way the reserved filter position is drawn. */
 .hw-svg-slot { fill: none; stroke: #6b7a72; stroke-width: 1.2; stroke-dasharray: 3 3; }
