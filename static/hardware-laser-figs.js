@@ -46,26 +46,24 @@
 
   var charts = {
 
-    /* 0917_漂移測試.csv: F3 of one sample left in place, relative to the first batch.
-       "after" = after the light path was adjusted; "before" = before. Minutes since the first batch. */
+    /* 0917_逐筆.csv: one sample left untouched for an hour. Each point is the mean F3 of readings
+       2–5 of a batch (the first reading of each batch is discarded, as in every other result),
+       relative to the first batch. Minutes since the first batch. */
     drift: function (host) {
-      var after = [[0,1],[2.86,.990114],[5.72,.988773],[8.57,.990114],[11.46,.988606],[14.32,.991538],[17.28,.990952],[20.46,.991287],[23.32,.993968],[26.18,.994052],[29.03,.994638],[31.89,.995476],[34.75,.995392],[37.61,.996314],[40.46,.993214],[43.32,.995141],[46.18,.992962],[49.04,.991622],[51.89,.991119],[54.75,.990784],[57.61,.989276]];
-      var before = [[0,1],[2.91,1.025332],[7.09,1.023958],[9.5,1.051045],[12.41,.878529],[15.34,.951091],[17.88,.891653],[20.8,.672135],[23.24,.611781],[26.52,.590111],[28.56,.58767],[31.13,.594079],[33.64,.643522],[36.65,.610255],[40.61,.573325],[43.51,.56539],[45.64,.539066],[48.22,.64398],[51.07,.585686],[53.98,.59324],[56.55,.608576],[59.22,.638639]];
-      var beforeLate = [[73.78,.583092],[76.04,.530978],[79.68,.471616],[81.72,.450175],[84.21,.450023]];
-      legend(host, [[C.green, 'After adjusting the light path'], [C.red, 'Before']]);
-      var W = 680, H = 290, L = 52, R = 16, T = 14, B = 46, pw = W - L - R, ph = H - T - B;
-      function X(v) { return L + v / 86 * pw; }
-      function Y(v) { return T + ph - (v - 0.4) / 0.7 * ph; }
-      var s = svg(host, W, H, 'Reading of one undisturbed sample over time. Before the adjustment it falls to about half; after it stays within about one percent for an hour.');
-      [0.4, 0.6, 0.8, 1.0].forEach(function (v) {
+      var pts = [[0,1.00000],[2.86,0.99576],[5.72,0.99597],[8.57,0.99653],[11.46,0.99387],[14.32,0.99803],[17.28,0.99762],[20.46,0.99905],[23.32,1.00171],[26.18,1.00199],[29.03,1.00262],[31.89,1.00308],[34.75,1.00357],[37.61,1.00373],[40.46,1.00067],[43.32,1.00078],[46.18,0.99931],[49.04,0.99846],[51.89,0.99822],[54.75,0.99708],[57.61,0.99528]];
+      legend(host, [[C.green, 'One untouched sample, mean of readings 2–5 of each batch']]);
+      var W = 680, H = 270, L = 52, R = 16, T = 14, B = 46, pw = W - L - R, ph = H - T - B;
+      function X(v) { return L + v / 60 * pw; }
+      function Y(v) { return T + ph - (v - 0.97) / 0.06 * ph; }
+      var s = svg(host, W, H, 'Blue channel of one untouched sample over an hour. All 21 batches lie within a one percent band.');
+      el('rect', { x: L, y: Y(1.0037), width: pw, height: Y(0.9939) - Y(1.0037), fill: C.green, opacity: 0.08 }, s);
+      [0.97, 0.98, 0.99, 1.0, 1.01, 1.02, 1.03].forEach(function (v) {
         el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 1 ? '' : '3 4' }, s);
         text(s, Math.round(v * 100) + '%', L - 8, Y(v) + 4, { anchor: 'end', size: 10 });
       });
-      [0, 20, 40, 60, 80].forEach(function (v) { text(s, v, X(v), T + ph + 17, { size: 10 }); });
+      [0, 15, 30, 45, 60].forEach(function (v) { text(s, v, X(v), T + ph + 17, { size: 10 }); });
       text(s, 'Minutes', L + pw / 2, H - 6, { size: 10 });
-      path(s, before, X, Y, C.red, 1.8); dots(s, before, X, Y, C.red, 2.6);
-      path(s, beforeLate, X, Y, C.red, 1.8); dots(s, beforeLate, X, Y, C.red, 2.6);
-      path(s, after, X, Y, C.green, 2.2); dots(s, after, X, Y, C.green, 2.6);
+      path(s, pts, X, Y, C.green, 2.2); dots(s, pts, X, Y, C.green, 2.8);
     },
 
     /* 0922_批次.csv: net signal = (F5/F3 of the tube − F5/F3 of the N tube) × 1000, averaged per tube.
@@ -133,7 +131,7 @@
       var led = [0.12,0.30,0.30,0.19,0.17,0.12,0.17,0.23,0.30];
       function norm(a) { var m = a.reduce(function (s, v) { return s + v; }, 0) / a.length; return a.map(function (v) { return v / m; }); }
       var A = norm(cuvPct.map(function (p) { return 1 + p / 100; })), Bv = norm(led);
-      legend(host, [[C.green, 'Cuvette lifted out and put back (2026-09-20)'], [C.amber, 'LED lead knocked, board rebooted (2026-09-22)']]);
+      legend(host, [[C.green, 'Cuvette lifted out and put back (the grid)'], [C.amber, 'LED lead knocked, board rebooted (the linearity series)']]);
       var W = 680, H = 290, L = 48, R = 16, T = 14, B = 52, pw = W - L - R, ph = H - T - B;
       function X(i) { return L + pw * (i + 0.5) / 9; }
       function Y(v) { return T + ph - (v - 0.4) / 1.2 * ph; }
