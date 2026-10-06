@@ -2011,10 +2011,6 @@ body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
   .eng-dbtl-empty { min-height: 38vh; }
 }
 
-/* Attributions: the team photo in the banner sits a little lower than the
-   default centre, so the faces clear the menu bar. */
-body.attr-page .page-hero-bg { background-position: center 35%; }
-
 /* Attributions: the thank-you that opens the page. A step above body size,
    because it is addressed to people rather than describing the project. No
    measure cap: it runs the full width of the container, as the 2019 page's
@@ -12622,19 +12618,27 @@ body.hw-nexus.attr-page .attr-todo { color: var(--nx-muted); }
    gets a deeper shadow to stand clear of a light photo. Hardware's bench
    photo is treated the same way (its brightness is set with its other
    banner rules, near the top of this file). */
-body.hw-nexus.attr-page .page-hero-bg { filter: blur(2px) saturate(1) brightness(0.8); }
+/* (Attributions has since moved to the Team treatment below.) */
 
-/* ---- the Team banner, taller and sharp ----
-   This one banner is the group photo, and the point of it is that the faces
+/* ---- the Team and Attributions banners, taller and sharp ----
+   These two banners are group photos from the same shoot, and the point of
+   them is that the faces
    can be made out, so it gets three things the other banners do not. It is
    tall enough for the photo to be read as a photo rather than as a band
    across the middle of one; the 2px blur every other banner carries is off,
    since it is the one thing that would stop a face resolving; and the title
    is anchored to the bottom, where the tint is already near-opaque, so it
-   has something dark to sit on without being laid over anybody's face. */
-body.team-page .page-hero-bg { filter: saturate(1) brightness(0.8); }
+   has something dark to sit on without being laid over anybody's face.
+   At 70% brightness. */
+/* body.hw-nexus.team-page rather than body.team-page: the site-wide dark
+   mode (css/editorial.css, html[data-theme="dark"] .page-hero-bg) sets every
+   banner to 0.42 at the same specificity and loads later, so the shorter
+   selector lost to it. */
+body.hw-nexus.team-page .page-hero-bg,
+body.hw-nexus.attr-page .page-hero-bg { filter: saturate(1) brightness(0.7); }
 
-body.team-page .page-hero {
+body.team-page .page-hero,
+body.hw-nexus.attr-page .page-hero {
   min-height: clamp(520px, 82vh, 900px);
   display: flex;
   align-items: center;
@@ -12649,7 +12653,8 @@ body.team-page .page-hero {
 }
 
 /* .container is a flex item here, and would otherwise shrink to its text. */
-body.team-page .page-hero > .container { width: 100%; }
+body.team-page .page-hero > .container,
+body.hw-nexus.attr-page .page-hero > .container { width: 100%; }
 
 /* This page sets no subtitle, so layout.html's <p class="lead mb-5 hero-sub">
    renders empty -- but an empty <p> still holds a line box and its 3rem
@@ -12658,9 +12663,11 @@ body.team-page .page-hero > .container { width: 100%; }
    the title the only thing in the banner, all three go, so what is centred is
    the title itself. Scoped here because every other banner relies on that
    spacing for its height. */
-body.team-page .page-hero .hero-sub:empty { display: none; }
-body.team-page .page-hero .hero-title { margin: 0 !important; }
-body.team-page .page-hero-tint,
+body.team-page .page-hero .hero-sub:empty,
+body.hw-nexus.attr-page .page-hero .hero-sub:empty { display: none; }
+body.team-page .page-hero .hero-title,
+body.hw-nexus.attr-page .page-hero .hero-title { margin: 0 !important; }
+body.hw-nexus.team-page .page-hero-tint,
 body.hw-nexus.attr-page .page-hero-tint,
 body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
   background: linear-gradient(to bottom,
