@@ -26,6 +26,24 @@
   id 都沒有變：#hardware-v2 現在是第二版那一節，#hardware-circuit 在 Building one 裡，
   #hardware-history 是 Timeline。
   標題下面的摘要與三個數字原本在頁首；它們講的是這一台，所以搬到這裡，並補上第二版 10-05 那一場。
+
+  2026-10-06（晚）第三次整理。這次只動「怎麼呈現」，沒有新增任何數據或宣稱。
+  起因：組員覺得版面雜亂；硬體負責人覺得字太多、收合的表格太多，重點出不來。
+  參考科技公司的產品頁（Apple 的產品頁：每一節一句大標加一兩個數字；Raspberry Pi 5 的產品頁：
+  前面講重點，Specification 與 Documents 放在同一頁的最後）。做法：
+    - 每一節開頭是一句重點（class="hw-point"），接著一張圖，最多兩三句話。
+      不能說的話用一行小字標出來（class="hw-limit"），不再各自一個框。
+    - 原本散在各節的 16 個收合表格，全部集中到最後一節 Data and documentation（#hardware-data），
+      併成 13 列、分三組。表格與說明一個字都沒有刪，只有搬動。前面各節用 class="hw-more" 的連結
+      指過去，點了會自動展開那一列（static/hardware-docs.js）。
+    - Timeline 不再是獨立的一節：開發日誌與五個決定在最後一節的 History 底下。
+      #hardware-history 現在是那個小標，#hardware-circuit 是電路那一列，其餘 id 沒有變。
+    - wet lab 的回饋從表格改成兩張卡片，句子照舊（仍是轉述，沒有引號）。
+    - 兩個黃色警語（One session, one batch／In use, not validated）併成 Where version 2 stands 一個；
+      「空杯先偏低、調整後回到範圍」那一句在 The LED current 那一列的圖說裡本來就有。
+    - Building one 改成 Print／Wire／Run 三張卡片，零件表、電路、操作步驟都在最後一節。
+    - 標題下面原本那一長段拿掉了：它的每一句都在三個數字、Version 1 與 Version 2 兩節裡。
+      三個數字多了一格「4 → 1」（放 UVette 的步驟數，依據見 Version 2 那一節上方的註解）。
 #}
   <header class="hw-build-head">
     <h2 class="hw-build-title" id="hw-build-printed">The 3D-printed build</h2>
@@ -33,36 +51,33 @@
     {# 這一台量到什麼。前三個數字出自 "Across three sessions" 那張表（第一版三場；27 個不含 GFP 的讀值；
        38 管含 GFP）。第二版那一句出自 P1_CAL_LOWEND_ANALYSIS_2026-10-05/EVIDENCE.md 的 §0：
        無 GFP 的 12 列全為 0；12.5 µL 三管 27 個 cycle 全部讀到。 #}
-    <div class="hw-lead hw-lead-tight">
-      <p>
-        Across three sessions version 1 of this build read zero on its
-        emission channel for every sample without GFP, and above zero for 35
-        of the 38 tubes that held GFP culture. In the two sessions with
-        enough signal, the reading rose in proportion to the GFP culture.
-        Rebuilt as version 2, it read one batch of culture on 2026-10-05:
-        zero again for every sample
-        without GFP, and a signal on every cycle from 12.5&nbsp;&micro;L of
-        GFP culture in a 200&nbsp;&micro;L sample upward. It has not yet read
-        an AHL-induced culture, and it has not been calibrated against a
-        fluorescence standard.
-      </p>
-    </div>
+    <p class="hw-point">
+      Built twice and read over four sessions: zero every time without GFP,
+      a signal from GFP culture, and a second version that takes the cuvette
+      in one step.
+    </p>
 
     <dl class="hw-keys">
       <div><dt>27 of 27</dt><dd>readings without GFP at zero on the emission channel, version 1</dd></div>
       <div><dt>35 of 38</dt><dd>tubes with GFP culture above zero, version 1</dd></div>
+      <div><dt>4 <span aria-hidden="true">&rarr;</span><span class="visually-hidden">to</span> 1</dt><dd>steps to place the cuvette, version 1 to version 2</dd></div>
       <div><dt>4 sessions</dt><dd>2026-09-16, 09-21 and 09-29 on version 1; 2026-10-05 on version 2</dd></div>
     </dl>
+
+    <p class="hw-limit">
+      <b>Not yet</b> It has not read an AHL-induced culture, and it has not
+      been calibrated against a fluorescence standard.
+    </p>
 
     {# 這一台各節的捷徑。每個連結對應一節的 id，改了 id 要一起改。 #}
     <nav class="hw-jump" aria-label="In the 3D-printed build">
       <ul class="sw-links">
         <li><a href="#hardware-instrument">The instrument</a></li>
-        <li><a href="#hardware-bench">Version 1 on the bench</a></li>
-        <li><a href="#hardware-use">What users told us</a></li>
+        <li><a href="#hardware-bench">Version 1</a></li>
+        <li><a href="#hardware-use">Its users</a></li>
         <li><a href="#hardware-v2">Version 2</a></li>
         <li><a href="#hardware-reproduce">Building one</a></li>
-        <li><a href="#hardware-history">Timeline</a></li>
+        <li><a href="#hardware-data">Data and documentation</a></li>
       </ul>
     </nav>
   </header>
@@ -71,11 +86,17 @@
   <section id="hardware-instrument">
     <h2>The instrument</h2>
 
-    <p>
+    <p class="hw-point">
       A 3D-printed optical core on a base plate, with the electronics on a
-      breadboard beside it. It has been built twice. Version 1 took the
-      September readings; version 2, in use since 2026-10-03, is the one the
-      view opens on.
+      breadboard beside it.
+    </p>
+
+    <p>
+      It has been built twice: version 1 took the September readings, and
+      version 2, in use since 2026-10-03, is the one the view opens on.
+      Every printed part is drawn with the mesh of the STL file that was
+      prepared for printing, where the CAD assembly puts it. Pull it apart,
+      switch versions, or lay one module's parts side by side.
     </p>
 
     {#
@@ -133,13 +154,6 @@
       ⚠ 授權還沒決定。頁面上沒有另外寫授權聲明；要標硬體授權請告訴我。
       ⚠ CAD 是用 AI 工具協助寫出來的（CadQuery 原始碼），Attributions 要寫。
     #}
-    <p>
-      Below is the 3D-printed optical core itself. Every printed part is
-      drawn with the mesh of the STL file that was prepared for printing,
-      and stands where the CAD assembly puts it. Pull it apart, switch
-      between the two versions, or lay one module's parts side by side.
-    </p>
-
     <div class="hwx-rig hwp" id="hwParts"
          data-model="https://static.igem.wiki/teams/6379/wiki/hardware-cad/capture-screen-printed-parts-20261004.glb">
       <div class="hwx-rig-head">
@@ -583,11 +597,166 @@
   <section id="hardware-bench">
     <h2>Version 1 on the bench</h2>
 
+    <p class="hw-point">
+      It tells a GFP culture from one without: zero on the emission channel
+      for all 27 readings without GFP, above zero for 35 of the 38 tubes
+      with it.
+    </p>
+
+    {# 來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.2（偵測與散射通道）、§4.4（重複性）。
+       三場結果是探索性證據，沒有同步進 canonical 的 TEST_STATUS.md。 #}
     <p>
-      Three tests on version 1: does it tell a GFP culture from one without,
-      does the excitation stay out of the emission channel, and does room
-      light get in. Choose a test and throw its switches; only states that
-      were measured are on offer.
+      Three sessions, 2026-09-16, 09-21 and 09-29, mixed a GFP stock, a
+      non-GFP stock and medium at set fractions into 200&nbsp;&micro;L tubes.
+    </p>
+
+    {# 2026-10-06：原本這裡是一張表，現在畫成「一格一筆」的圖，表收在下面的摺疊裡，數字相同。
+       空心是 F4 為 0、實心是 F4 大於 0；09-21 那三管讀到 0 的 GFP 管畫在該列最前面。 #}
+    <figure class="hw-figure hw-chart" data-hw-anim>
+      <svg class="hw-vis" viewBox="0 0 640 158" role="img" aria-label="One mark for each reading in the three sessions. Without GFP: 16, 8 and 3 readings, none above zero. With GFP: 10 of 10 tubes above zero on 2026-09-16, 9 of 12 on 2026-09-21 and 16 of 16 on 2026-09-29.">
+        <text class="hw-vis-strong" x="84" y="16">Without GFP: 27 readings, none above zero</text>
+        <text class="hw-vis-strong" x="366" y="16">With GFP: 35 of 38 tubes above zero</text>
+        <text x="4" y="50">09-16</text>
+        <g data-tip-t="2026-09-16, without GFP" data-tip="16 readings, none above zero">
+          <circle class="hw-pop hw-hollow" style="--i:0" cx="90" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:1" cx="105" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:2" cx="120" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:3" cx="135" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:4" cx="150" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:5" cx="165" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:6" cx="180" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:7" cx="195" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:8" cx="210" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:9" cx="225" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:10" cx="240" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:11" cx="255" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:12" cx="270" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:13" cx="285" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:14" cx="300" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:15" cx="315" cy="46" r="5"></circle>
+        </g>
+        <g data-tip-t="2026-09-16, with GFP" data-tip="10 of 10 tubes above zero">
+          <circle class="hw-pop hw-on" style="--i:16" cx="372" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:17" cx="387" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:18" cx="402" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:19" cx="417" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:20" cx="432" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:21" cx="447" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:22" cx="462" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:23" cx="477" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:24" cx="492" cy="46" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:25" cx="507" cy="46" r="5"></circle>
+        </g>
+        <text x="4" y="82">09-21</text>
+        <g data-tip-t="2026-09-21, without GFP" data-tip="8 readings, none above zero">
+          <circle class="hw-pop hw-hollow" style="--i:26" cx="90" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:27" cx="105" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:28" cx="120" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:29" cx="135" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:30" cx="150" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:31" cx="165" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:32" cx="180" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:33" cx="195" cy="78" r="5"></circle>
+        </g>
+        <g data-tip-t="2026-09-21, with GFP" data-tip="9 of 12 tubes above zero">
+          <circle class="hw-pop hw-hollow" style="--i:34" cx="372" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:35" cx="387" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:36" cx="402" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:37" cx="417" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:38" cx="432" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:39" cx="447" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:40" cx="462" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:41" cx="477" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:42" cx="492" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:43" cx="507" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:44" cx="522" cy="78" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:45" cx="537" cy="78" r="5"></circle>
+        </g>
+        <text x="4" y="114">09-29</text>
+        <g data-tip-t="2026-09-29, without GFP" data-tip="3 readings, none above zero">
+          <circle class="hw-pop hw-hollow" style="--i:46" cx="90" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:47" cx="105" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-hollow" style="--i:48" cx="120" cy="110" r="5"></circle>
+        </g>
+        <g data-tip-t="2026-09-29, with GFP" data-tip="16 of 16 tubes above zero">
+          <circle class="hw-pop hw-on" style="--i:49" cx="372" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:50" cx="387" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:51" cx="402" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:52" cx="417" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:53" cx="432" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:54" cx="447" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:55" cx="462" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:56" cx="477" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:57" cx="492" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:58" cx="507" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:59" cx="522" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:60" cx="537" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:61" cx="552" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:62" cx="567" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:63" cx="582" cy="110" r="5"></circle>
+          <circle class="hw-pop hw-on" style="--i:64" cx="597" cy="110" r="5"></circle>
+        </g>
+        <circle class="hw-on" cx="90" cy="146" r="5"></circle>
+        <text x="102" y="150">above zero on the emission channel</text>
+        <circle class="hw-hollow" cx="322" cy="146" r="5"></circle>
+        <text x="334" y="150">zero</text>
+      </svg>
+      <figcaption>
+        One mark to a reading. The three GFP tubes that read zero are all from
+        2026-09-21, whose stock was thin, and they are the tubes with the
+        least GFP culture in them. This describes three sessions. It is not a
+        limit of detection.
+      </figcaption>
+    </figure>
+
+    <p>
+      In the two sessions with enough signal, the reading rose in proportion
+      to the GFP culture. How it scales, and why the three sessions differ,
+      is worked through on the
+      <a href="{{ url_for('pages', page='model') }}">Model</a> page.
+    </p>
+
+    <p class="hw-more"><a href="#hw-doc-v1">The three sessions in numbers</a></p>
+
+    <h3>It has to be shielded</h3>
+
+    <figure class="hw-figure hw-chart" data-hw-anim>
+      <svg class="hw-vis" viewBox="0 0 640 104" role="img" aria-label="F4 with the LED off and an empty cuvette. Shielded: 0 counts. In room light: 11 counts, 4 through the mechanism and 7 down the open cuvette.">
+        <text x="4" y="12">F4 with the LED off, empty cuvette, counts</text>
+        <text class="hw-vis-strong" x="4" y="38">Shielded</text>
+        <rect class="hw-on" x="118" y="25" width="2" height="18"></rect>
+        <text class="hw-vis-strong" x="128" y="38">0</text>
+        <text class="hw-vis-strong" x="4" y="72">Room light</text>
+        <rect class="hw-bar hw-on hw-on-soft" style="--i:0" x="118" y="59" width="136" height="18" data-tip-t="Through the mechanism" data-tip="4 of the 11 counts"></rect>
+        <rect class="hw-bar hw-on" style="--i:1" x="256" y="59" width="236" height="18" rx="0" data-tip-t="Down the open cuvette" data-tip="7 of the 11 counts"></rect>
+        <text class="hw-vis-strong hw-late" style="--i:1" x="502" y="72">11</text>
+        <text x="118" y="94">4 through the mechanism</text>
+        <text x="256" y="94">7 down the open cuvette</text>
+      </svg>
+    </figure>
+
+    <p>
+      Shielded, every channel reads zero with the LED off, out to 25&times;
+      the working integration time. In room light the leak does not grow in
+      proportion to integration time, so a dark read cannot simply be
+      subtracted.
+    </p>
+
+    <div class="hw-caution">
+      <p>
+        <em>The operating rule.</em> Measure in a darkened room or under an
+        opaque shield. Because a shielded dark read is exactly zero, a dark
+        read that is not zero marks that cycle as invalid: it is dropped and
+        its raw row kept. The firmware has flagged one such cycle on its own.
+      </p>
+    </div>
+
+    <h3 id="hardware-bench-try">Try the three tests</h3>
+
+    <p>
+      Does it tell a GFP culture from one without, does the excitation stay
+      out of the emission channel, and does room light get in? Choose a test
+      and throw its switches; only states that were measured are on offer.
     </p>
 
     <div class="hwx-rig" id="hwxBench">
@@ -694,7 +863,7 @@
           <p class="hwx-fallback">
             The channel readout needs the page script. Without it, the light
             path above is still drawn, and the sessions the readings come from
-            are named in the text below.
+            are named earlier in this section.
           </p>
         </div>
         <div class="hwx-readout-note" id="hwxReadoutNote"></div>
@@ -706,239 +875,9 @@
       Counts are raw sensor values. F4, outlined in green, is the emission
       channel: the sensor's 515&nbsp;nm band, where GFP emits.
     </p>
-
-    {# 來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.2（偵測與散射通道）、§4.4（重複性）。
-       三場結果是探索性證據，沒有同步進 canonical 的 TEST_STATUS.md。 #}
-    <h3>Across three sessions</h3>
-
-    <p>
-      Three sessions, 2026-09-16, 09-21 and 09-29, mixed a GFP stock, a
-      non-GFP stock and medium at set fractions into 200&nbsp;&micro;L tubes.
-    </p>
-
-    {# 2026-10-06：原本這裡是一張表，現在畫成「一格一筆」的圖，表收在下面的摺疊裡，數字相同。
-       空心是 F4 為 0、實心是 F4 大於 0；09-21 那三管讀到 0 的 GFP 管畫在該列最前面。 #}
-    <figure class="hw-figure hw-chart" data-hw-anim>
-      <svg class="hw-vis" viewBox="0 0 640 158" role="img" aria-label="One mark for each reading in the three sessions. Without GFP: 16, 8 and 3 readings, none above zero. With GFP: 10 of 10 tubes above zero on 2026-09-16, 9 of 12 on 2026-09-21 and 16 of 16 on 2026-09-29.">
-        <text class="hw-vis-strong" x="84" y="16">Without GFP: 27 readings, none above zero</text>
-        <text class="hw-vis-strong" x="366" y="16">With GFP: 35 of 38 tubes above zero</text>
-        <text x="4" y="50">09-16</text>
-        <g data-tip-t="2026-09-16, without GFP" data-tip="16 readings, none above zero">
-          <circle class="hw-pop hw-hollow" style="--i:0" cx="90" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:1" cx="105" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:2" cx="120" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:3" cx="135" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:4" cx="150" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:5" cx="165" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:6" cx="180" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:7" cx="195" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:8" cx="210" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:9" cx="225" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:10" cx="240" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:11" cx="255" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:12" cx="270" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:13" cx="285" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:14" cx="300" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:15" cx="315" cy="46" r="5"></circle>
-        </g>
-        <g data-tip-t="2026-09-16, with GFP" data-tip="10 of 10 tubes above zero">
-          <circle class="hw-pop hw-on" style="--i:16" cx="372" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:17" cx="387" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:18" cx="402" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:19" cx="417" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:20" cx="432" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:21" cx="447" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:22" cx="462" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:23" cx="477" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:24" cx="492" cy="46" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:25" cx="507" cy="46" r="5"></circle>
-        </g>
-        <text x="4" y="82">09-21</text>
-        <g data-tip-t="2026-09-21, without GFP" data-tip="8 readings, none above zero">
-          <circle class="hw-pop hw-hollow" style="--i:26" cx="90" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:27" cx="105" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:28" cx="120" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:29" cx="135" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:30" cx="150" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:31" cx="165" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:32" cx="180" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:33" cx="195" cy="78" r="5"></circle>
-        </g>
-        <g data-tip-t="2026-09-21, with GFP" data-tip="9 of 12 tubes above zero">
-          <circle class="hw-pop hw-hollow" style="--i:34" cx="372" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:35" cx="387" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:36" cx="402" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:37" cx="417" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:38" cx="432" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:39" cx="447" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:40" cx="462" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:41" cx="477" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:42" cx="492" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:43" cx="507" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:44" cx="522" cy="78" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:45" cx="537" cy="78" r="5"></circle>
-        </g>
-        <text x="4" y="114">09-29</text>
-        <g data-tip-t="2026-09-29, without GFP" data-tip="3 readings, none above zero">
-          <circle class="hw-pop hw-hollow" style="--i:46" cx="90" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:47" cx="105" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-hollow" style="--i:48" cx="120" cy="110" r="5"></circle>
-        </g>
-        <g data-tip-t="2026-09-29, with GFP" data-tip="16 of 16 tubes above zero">
-          <circle class="hw-pop hw-on" style="--i:49" cx="372" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:50" cx="387" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:51" cx="402" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:52" cx="417" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:53" cx="432" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:54" cx="447" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:55" cx="462" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:56" cx="477" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:57" cx="492" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:58" cx="507" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:59" cx="522" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:60" cx="537" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:61" cx="552" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:62" cx="567" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:63" cx="582" cy="110" r="5"></circle>
-          <circle class="hw-pop hw-on" style="--i:64" cx="597" cy="110" r="5"></circle>
-        </g>
-        <circle class="hw-on" cx="90" cy="146" r="5"></circle>
-        <text x="102" y="150">above zero on the emission channel</text>
-        <circle class="hw-hollow" cx="322" cy="146" r="5"></circle>
-        <text x="334" y="150">zero</text>
-      </svg>
-      <figcaption>
-        One mark to a reading. The three GFP tubes that read zero are all from
-        2026-09-21, whose stock was thin, and they are the tubes with the
-        least GFP culture in them. This describes three sessions. It is not a
-        limit of detection.
-      </figcaption>
-    </figure>
-
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The three sessions in numbers</span>
-        <span class="hw-fold-meta">4 rows</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <figure class="hw-figure hw-figure-table">
-      <table class="hw-table hw-keep">
-        <caption class="visually-hidden">Does the emission channel separate GFP from no GFP?</caption>
-        <thead>
-          <tr>
-            <th scope="col">Session</th>
-            <th scope="col" class="hw-num">Readings without GFP</th>
-            <th scope="col" class="hw-num">F4 above zero</th>
-            <th scope="col" class="hw-num">Tubes with GFP</th>
-            <th scope="col" class="hw-num">F4 above zero</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>2026-09-16</td><td class="hw-num">16</td><td class="hw-num">0</td><td class="hw-num">10</td><td class="hw-num">10</td></tr>
-          <tr><td>2026-09-21</td><td class="hw-num">8</td><td class="hw-num">0</td><td class="hw-num">12</td><td class="hw-num">9</td></tr>
-          <tr><td>2026-09-29</td><td class="hw-num">3</td><td class="hw-num">0</td><td class="hw-num">16</td><td class="hw-num">16</td></tr>
-          <tr class="is-total"><td>All three</td><td class="hw-num">27</td><td class="hw-num">0</td><td class="hw-num">38</td><td class="hw-num">35</td></tr>
-        </tbody>
-      </table>
-    </figure>
-
-    <p>
-      Samples without GFP read zero on the emission channel every time,
-      including undiluted non-GFP culture at a displayed OD of up to 1.42.
-      The channels beside the excitation band do see those cells, but too
-      variably between cuvettes and sessions to build a turbidity flag on.
-    </p>
-      </div>
-    </details>
-
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">How far repeated readings scatter on version 1</span>
-        <span class="hw-fold-meta">5 rows</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-    <figure class="hw-figure hw-figure-table">
-      <table class="hw-table">
-        <caption class="visually-hidden">How far repeated readings scatter on version 1</caption>
-        <thead>
-          <tr>
-            <th scope="col">What was repeated</th>
-            <th scope="col" class="hw-num"><var>n</var></th>
-            <th scope="col" class="hw-num">Mean F4</th>
-            <th scope="col" class="hw-num">SD</th>
-            <th scope="col" class="hw-num">CV</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>One liquid, re-inserted (09-16)</td><td class="hw-num">3</td><td class="hw-num">6.00</td><td class="hw-num">0.33</td><td class="hw-num">5.6&nbsp;%</td></tr>
-          <tr><td>One recipe, prepared three times (09-16)</td><td class="hw-num">3</td><td class="hw-num">6.89</td><td class="hw-num">0.51</td><td class="hw-num">7.4&nbsp;%</td></tr>
-          <tr><td>One recipe, six tubes (09-29)</td><td class="hw-num">6</td><td class="hw-num">9.33</td><td class="hw-num">1.10</td><td class="hw-num">11.7&nbsp;%</td></tr>
-          <tr><td>One culture, four insertions, one a fresh draw (09-09)</td><td class="hw-num">4</td><td class="hw-num">40.50</td><td class="hw-num">1.23</td><td class="hw-num">3.0&nbsp;%</td></tr>
-          <tr><td>One culture, four insertions, one a fresh draw (09-14)</td><td class="hw-num">4</td><td class="hw-num">32.67</td><td class="hw-num">1.83</td><td class="hw-num">5.6&nbsp;%</td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        Observed scatter, not a specification. Each figure mixes sampling,
-        insertion, cuvette and time, and none of it carries over to low
-        signal. Between 09-09 and 09-14 the same sample read 19.3&nbsp;% lower;
-        the instrument had been moved and the state of the culture is not
-        known, so the cause is not separated.
-      </figcaption>
-    </figure>
-      </div>
-    </details>
-
-    <p>
-      How the reading scales with the amount of culture, and why the three
-      sessions differ, is worked through on the
-      <a href="{{ url_for('pages', page='model') }}">Model</a> page.
-    </p>
-
-    <h3>It has to be shielded</h3>
-
-    <figure class="hw-figure hw-chart" data-hw-anim>
-      <svg class="hw-vis" viewBox="0 0 640 104" role="img" aria-label="F4 with the LED off and an empty cuvette. Shielded: 0 counts. In room light: 11 counts, 4 through the mechanism and 7 down the open cuvette.">
-        <text x="4" y="12">F4 with the LED off, empty cuvette, counts</text>
-        <text class="hw-vis-strong" x="4" y="38">Shielded</text>
-        <rect class="hw-on" x="118" y="25" width="2" height="18"></rect>
-        <text class="hw-vis-strong" x="128" y="38">0</text>
-        <text class="hw-vis-strong" x="4" y="72">Room light</text>
-        <rect class="hw-bar hw-on hw-on-soft" style="--i:0" x="118" y="59" width="136" height="18" data-tip-t="Through the mechanism" data-tip="4 of the 11 counts"></rect>
-        <rect class="hw-bar hw-on" style="--i:1" x="256" y="59" width="236" height="18" rx="0" data-tip-t="Down the open cuvette" data-tip="7 of the 11 counts"></rect>
-        <text class="hw-vis-strong hw-late" style="--i:1" x="502" y="72">11</text>
-        <text x="118" y="94">4 through the mechanism</text>
-        <text x="256" y="94">7 down the open cuvette</text>
-      </svg>
-    </figure>
-
-    <p>
-      Shielded, every channel reads zero with the LED off, out to 25&times;
-      the working integration time. In room light the leak does not grow in
-      proportion to integration time, so a dark read cannot simply be
-      subtracted.
-    </p>
-
-    <div class="hw-caution">
-      <p>
-        <em>The operating rule.</em> Measure in a darkened room or under an
-        opaque shield. Because a shielded dark read is exactly zero, a dark
-        read that is not zero marks that cycle as invalid: it is dropped and
-        its raw row kept. The firmware has flagged one such cycle on its own.
-      </p>
-    </div>
   </section>
 
-  <!-- ========================= what using it taught us ========================= -->
+  <!-- ========================= what its users told us ========================= -->
   {# 這一節回答評審第二題（使用者測試、從回饋學到什麼）。
      第一張表是 wet lab 隊員對兩版的回饋，出自硬體負責人 2026-10-06 的說明：
        - wet lab 用過第一版，當時就對「放 cuvette 要這麼多步、而且有誤差」存疑，也覺得操作很久；
@@ -955,68 +894,37 @@
   <section id="hardware-use">
     <h2>What its users told us</h2>
 
-    <p>
-      The reader's users are our own wet lab. They ran samples on version 1,
-      and what they said about it set the brief for version 2.
+    <p class="hw-point">
+      Our wet lab ran samples on version 1. What they said about it set the
+      brief for version 2.
     </p>
 
-    <div class="hw-figure">
-      <table class="hw-table hw-keep">
-        <caption class="visually-hidden">What the wet lab said about each version, and what followed</caption>
-        <thead>
-          <tr><th scope="col">Who, on what</th><th scope="col">What they told us</th><th scope="col">What followed</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Wet-lab members, on version 1</td>
-            <td>Placing the cuvette took too many steps, each one a chance to seat it differently, and a measurement took a long time.</td>
-            <td>Version 2's seat takes the cuvette in one step and sets its height and position itself.</td>
-          </tr>
-          <tr>
-            <td>Wet-lab members, on version 2, 2026-10-05</td>
-            <td>Convenient and quick: the cuvette only has to be put in, which leaves little room for operator error. Seeing the taped repairs replaced by new parts, they trusted the reader more.</td>
-            <td>They made that session's five re-insertions themselves. Their readings ran from 49.33 to 50.33 counts; the member who built the reader had read the same tube at 50.33, 40 minutes earlier.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    {# 2026-10-06（晚）：原本是一張三欄的表，改成兩張卡片；每一句都是表格裡原來的句子。
+       這是轉述，不是引言，所以沒有引號，卡片上的小標寫的是 They told us。 #}
+    <ul class="hw-said">
+      <li>
+        <span class="hw-said-who">Wet-lab members, on version 1</span>
+        <p class="hw-said-what"><b>They told us</b> Placing the cuvette took too many steps, each one a chance to seat it differently, and a measurement took a long time.</p>
+        <p class="hw-said-then"><b>What followed</b> Version 2's seat takes the cuvette in one step and sets its height and position itself.</p>
+      </li>
+      <li>
+        <span class="hw-said-who">Wet-lab members, on version 2, 2026-10-05</span>
+        <p class="hw-said-what"><b>They told us</b> Convenient and quick: the cuvette only has to be put in, which leaves little room for operator error. Seeing the taped repairs replaced by new parts, they trusted the reader more.</p>
+        <p class="hw-said-then"><b>What followed</b> They made that session's five re-insertions themselves. Their readings ran from 49.33 to 50.33 counts; the member who built the reader had read the same tube at 50.33, 40 minutes earlier.</p>
+      </li>
+    </ul>
 
-    <p class="hw-aside">
-      This is feedback from use, not a timed trial: we did not record how
-      many people took part or how long each one took.
-    </p>
-
-    <h3>What the operating log added</h3>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption class="visually-hidden">Problems found in use and what changed</caption>
-        <thead>
-          <tr><th scope="col">What went wrong</th><th scope="col">Session</th><th scope="col">What changed</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>An empty cuvette read F4&nbsp;=&nbsp;11 under room light.</td><td>2026-08-27</td><td>Added the shield box. A dark read that is not zero voids the cycle.</td></tr>
-          <tr><td>A cuvette's number did not match what was in it, and one record had to be voided.</td><td>2026-09-21</td><td>Confirm what is in the cuvette before starting a run.</td></tr>
-          <tr><td>The stock's displayed OD did not scale with dilution.</td><td>2026-09-16 and 09-29</td><td>Recommended: read the OD at one fixed dilution, 1:4. Not yet in the operating card.</td></tr>
-          <tr><td>Washed and reused cuvettes tied &ldquo;which use of this cuvette&rdquo; to the order of reading.</td><td>2026-09-29</td><td>Recommended: one cuvette per tube. Not yet in the operating card.</td></tr>
-          <tr><td>The firmware refused a run because the detector had lost its settings. A reset cleared it each time.</td><td>2026-09-29, and twice on 10-03</td><td>Recommended: the card should say what to do after a refusal. Not yet written.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p class="hw-aside">
-      The last row is the firmware doing its job: when its state is not known
-      it declines to measure. Three refusals point at a loose connection to
-      the detector board. The cause has not been found. In the 28 captures
-      of 2026-10-05 there was no such refusal; the firmware's only stop was
-      an opening check left unarmed on purpose. That is an observation, not
-      a fix.
+    <p class="hw-limit">
+      <b>Limits</b> This is feedback from use, not a timed trial: we did not
+      record how many people took part or how long each one took.
     </p>
 
     <p>
-      Version 2 answers the wet lab's first point, and the parts that broke
-      or never arrived.
+      Use turned up five more problems, from room light getting in to a
+      detector that lost its settings.
     </p>
+
+    <p class="hw-more"><a href="#hw-doc-oplog">What the operating log added</a></p>
   </section>
 
   <!-- ========================= version 2 ========================= -->
@@ -1061,11 +969,16 @@
   <section id="hardware-v2">
     <h2>Version 2: what got better</h2>
 
+    <p class="hw-point">
+      Five printed parts redrawn, one resistor changed, and four things are
+      better for it.
+    </p>
+
     <p>
-      Version 2 was fitted on 2026-10-03. Five printed parts were redrawn
-      around what the wet lab had found slow and what had broken, gone
-      missing or sat loose in version 1, and one resistor was changed to
-      bring the LED up to its design current. Four things are better for it.
+      Version 2 was fitted on 2026-10-03. The parts were redrawn around what
+      the wet lab had found slow and what had broken, gone missing or sat
+      loose in version 1; the resistor brings the LED up to its design
+      current.
     </p>
 
     {# 2026-10-06：硬體負責人覺得字太多，問能不能用動畫。每張卡片現在是一張會動的小圖加一句話，
@@ -1176,202 +1089,18 @@
     {# VIDEO: 第一版放 UVette 的影片（demo_video/IMG_0551.MOV）。上傳到 video.igem.org 後放在這裡，
        寫法照 home.html 的 promotion video；圖說寫明這是第一版，第二版只要對齊箭頭放進去。 #}
 
-    <p class="hw-aside">
-      The second and fourth cards set sessions side by side that also differ
-      in culture batch, cuvette and how the samples were kept: they show the
-      direction of the change, not its size. Version 2's fit and alignment
-      have not been checked on their own.
+    <p class="hw-limit">
+      <b>Limits</b> The second and fourth cards set sessions side by side
+      that also differ in culture batch, cuvette and how the samples were
+      kept: they show the direction of the change, not its size. Version 2's
+      fit and alignment have not been checked on their own.
     </p>
 
-    {# 來源：_AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/README.md（五件零件、R3–R8）、
-       validation_v0_8_round2.json（截面比）、P1_MECH_V08_ROUND1_HANDOFF_2026-09-25/records/
-       ROUND1_FIT_RESULT_2026-10-02.md（試配件）、PROJECT_STATE/CURRENT_STATE.md（沿用了什麼）。
-       右欄寫的是設計：哪幾件實際裝上、LED 蓋有沒有鎖，紀錄裡沒有逐件回報。確認後可以改成肯定句。 #}
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Part by part: what was wrong, and what version 2 does about it</span>
-        <span class="hw-fold-meta">6 rows</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <figure class="hw-figure">
-      <table class="hw-table hw-vs">
-        <caption class="visually-hidden">What was wrong in version 1 and what version 2 does about it</caption>
-        <thead>
-          <tr><th scope="col">In version 1</th><th scope="col">In version 2</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>In use from 2026-08-25 to 2026-10-03. 57 of its 59 printed pieces arrived, and two of those broke.</td>
-            <td>In use since 2026-10-03. Five replacement parts were designed; the printed parts arrived and the new mechanism was fitted.</td>
-          </tr>
-          <tr>
-            <td>The LED holder split along its clip slot and the baffle broke at both disk slots as the print supports came off. Both were taped.</td>
-            <td>No clip slot, and a baffle that prints on its side, so no layer loses most of its area. The weakest layer keeps 0.82 of the fullest section within 3&nbsp;mm of it; version 1 broke at 0.63 and 0.32.</td>
-          </tr>
-          <tr>
-            <td>The clip that retains the LED never arrived. Friction and its own leads held it.</td>
-            <td>Three ribs in the holder grip the LED, 0.10&nbsp;mm tight. No clip.</td>
-          </tr>
-          <tr>
-            <td>The cap that clamps the LED holder never arrived. The holder lay in its saddle.</td>
-            <td>The cap is printed, turned over so that it needs no support.</td>
-          </tr>
-          <tr>
-            <td>One preload leaf instead of two left the cuvette free on one axis, by up to about 0.6&nbsp;mm.</td>
-            <td>One body with eight ribs, 0.05&nbsp;mm clear on each side, replaces six pieces. The cuvette lands on four corner tabs, 8.5&nbsp;mm below the beam.</td>
-          </tr>
-          <tr>
-            <td>The LED ran at 5.55&nbsp;mA, under the 8 to 12&nbsp;mA the design aims for.</td>
-            <td>About 10&nbsp;mA, with one resistor in place of two. See <a href="#hardware-circuit">the circuit</a>.</td>
-          </tr>
-        </tbody>
-      </table>
-      <figcaption>
-        Between its first and last rows the right-hand column is the design:
-        which of the five parts are fitted on our own reader is not yet on
-        record. The last row is measured. The two fits were chosen with printed coupons, described
-        under <a href="#hardware-reproduce">Building one</a>. Unchanged: the
-        base plate, the detector side, the light trap and the firmware. Still
-        absent: aperture disks, an emission filter and an enclosure.
-      </figcaption>
-    </figure>
-      </div>
-    </details>
-
-    {# 來源：P1_CAL_LOWEND_ANALYSIS_2026-10-05/BUILD_COMPARISON.json（S_left_alone_vs_reinserted）與
-       REINSERTION_COMPARISON.json。只算真正「抽出再插回」的那幾次；09-09、09-14 另外讀的新鮮分裝不算。
-       上升趨勢：09-09 每分鐘 +1.43 %、09-14 +2.15 %、10-05 +0.64 %。 #}
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The re-insertion numbers</span>
-        <span class="hw-fold-meta">4 series</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <p>
-      Version 1 held the cuvette against one spring leaf where the design
-      called for two, which left it free across about 0.6&nbsp;mm on one
-      axis. Version 2's eight ribs leave 0.05&nbsp;mm a side, as drawn. Taking
-      one tube out and putting it back is the test of that. On version 2
-      the five insertions were made by wet-lab members, not by the member
-      who built the reader.
+    <p class="hw-more">
+      <a href="#hw-doc-parts">Part by part</a>
+      <a href="#hw-doc-reinsert">The re-insertion numbers</a>
+      <a href="#hw-doc-led">The LED current</a>
     </p>
-
-    <figure class="hw-figure">
-      <table class="hw-table hw-keep">
-        <caption>How far one tube's reading moves</caption>
-        <thead>
-          <tr>
-            <th scope="col">What was done</th>
-            <th scope="col">Reader</th>
-            <th scope="col" class="hw-num"><var>n</var></th>
-            <th scope="col" class="hw-num">Mean F4</th>
-            <th scope="col" class="hw-num">Spread (SD)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Left in its seat, read 20 times over 5 minutes (09-03)</td><td>Version 1</td><td class="hw-num">20</td><td class="hw-num">21.95</td><td class="hw-num">0.29</td></tr>
-          <tr><td>Taken out and put back (09-09)</td><td>Version 1</td><td class="hw-num">3</td><td class="hw-num">40.33</td><td class="hw-num">1.45</td></tr>
-          <tr><td>Taken out and put back (09-14)</td><td>Version 1</td><td class="hw-num">3</td><td class="hw-num">33.00</td><td class="hw-num">2.08</td></tr>
-          <tr class="is-total"><td>Taken out and put back (10-05)</td><td>Version 2</td><td class="hw-num">5</td><td class="hw-num">49.87</td><td class="hw-num">0.38</td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        Spread is the standard deviation between insertions, each one the
-        mean of three cycles; for the tube left alone it is the standard
-        deviation of its 20 reads. Fresh draws of the same culture are left
-        out. On version 1 the reading also climbed with each insertion, by
-        1.4 and 2.1&nbsp;% a minute, against 0.6&nbsp;% on version 2. The days
-        differ in more than the seat: the culture batch, the cuvette, the LED
-        current and how long the tube had stood. On 2026-10-05 the wet lab
-        also used ice, which it had not before; what was chilled, and for
-        how long, was not recorded, and cooling could slow that climb. This
-        is what was
-        observed, not a controlled test of the seat, and the printed rib
-        spacing was not measured.
-      </figcaption>
-    </figure>
-
-    <p>
-      On version 1, putting a tube back moved the reading five to seven times
-      as much as leaving it alone. On version 2 it moved it little more than
-      leaving it alone had.
-    </p>
-      </div>
-    </details>
-
-    {# 來源：PROJECT_STATE/DECISION_LOG.md GOV-011；
-       _AI_REFACTOR_WORK/P1_LED_CURRENT_STAGE6_2026-10-03/SUMMARY_stdout.txt、OWNER_READINGS_2026-10-03.md；
-       firmware/README.md（434 Ω 時短路電流上限 11.89 mA）。
-       空杯那一列的「前」是改版後的機構配 434 Ω，所以欄位用電阻值標示，不是用 version 標示。 #}
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The LED current, before and after</span>
-        <span class="hw-fold-meta">5 rows</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <p>
-      Version 1 ran the LED at 5.553&nbsp;mA, under the 8 to 12&nbsp;mA the
-      design aims for. On 2026-10-03 one 220&nbsp;&#8486; resistor replaced
-      the series pair, which brings it to about 10&nbsp;mA. With an empty
-      cuvette, the two channels beside the source then read about twice what
-      they had, and the emission channel still read zero. Two days later the
-      same held with samples in the beam: medium, a non-GFP culture and the
-      empty seat all read zero on the emission channel, while that culture
-      scattered up to 40 counts into the channel next to the source. The
-      scatter off an empty cuvette roughly doubled and the emission channel
-      stayed at zero in every one of these reads, which is what the
-      90&deg; layout and the light trap are for.
-    </p>
-
-    <figure class="hw-figure hw-figure-table">
-      <table class="hw-table">
-        <caption class="visually-hidden">The excitation branch at the two values of R1</caption>
-        <thead>
-          <tr><th scope="col"><span class="visually-hidden">Quantity</span></th><th scope="col">R1 = 434&nbsp;&#8486;</th><th scope="col">R1 = 217&nbsp;&#8486;</th></tr>
-        </thead>
-        <tbody>
-          <tr><th scope="row">In use</th><td>2026-08-25 to 2026-10-03: every version 1 reading</td><td>Since 2026-10-03</td></tr>
-          <tr><th scope="row">Made of</th><td>218&nbsp;&#8486; + 216&nbsp;&#8486; in series</td><td>One 220&nbsp;&#8486; resistor, 217&nbsp;&#8486; measured</td></tr>
-          <tr><th scope="row">LED current</th><td>5.553&nbsp;mA, measured 2026-08-25</td><td>9.2 to 9.9&nbsp;mA by meter; at most 11.3&nbsp;mA by calculation</td></tr>
-          <tr><th scope="row">If the LED shorted</th><td>11.89&nbsp;mA. The resistor alone holds it under our 15&nbsp;mA ceiling</td><td>About 24&nbsp;mA. It no longer does</td></tr>
-          <tr><th scope="row">Empty cuvette, F2 / F3 / F4</th><td>7.89 / 6.89 / 0</td><td>18.33 / 13.33 / 0</td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        The last row is nine consecutive cycles on each side of the change,
-        on version 2, with the same empty cuvette left in its seat in the
-        dark. It is excitation scattered by an empty cuvette, not
-        fluorescence.
-      </figcaption>
-    </figure>
-
-    <div class="hw-caution">
-      <p>
-        <em>What that shows, and what it does not.</em> It is scattered
-        excitation on an empty cuvette, not a fluorescence result, and it does
-        not show that 10&nbsp;mA is the right current. Readings at the two
-        resistances cannot be pooled: the empty-cuvette ratio is not a
-        conversion for fluorescence. The meter readings were taken during
-        0.55&nbsp;s pulses, so they are a lower estimate.
-      </p>
-    </div>
-      </div>
-    </details>
 
     {# 來源：_AI_REFACTOR_WORK/P1_CAL_LOWEND_ANALYSIS_2026-10-05/EVIDENCE.md（revision 4）：§1 條件、
        §2 擷取清單、§3 偏離（D2、D3、事後追加）、§5.2 無 GFP、§6.1 各濃度、§6.2 正比區、§6.3 重插、
@@ -1391,13 +1120,18 @@
        What using version 1 taught us 第一段的 "every measurement here was taken by one member of the team" 仍然成立。 #}
     <h3 id="hardware-v2-session">Its first session with culture</h3>
 
+    <p class="hw-point hw-point-sub">
+      Every tube without GFP read zero. From 25&nbsp;&micro;L up the reading
+      keeps to one straight line; below that it falls short of it.
+    </p>
+
     <p>
       On 2026-10-05 version 2 read one batch of GFP culture at six dilutions,
       with medium and a non-GFP culture as controls.
     </p>
 
     <figure class="hw-figure hw-chart" data-hw-anim>
-      <svg class="hw-vis" viewBox="0 0 640 320" role="img" aria-label="F4 against the amount of GFP culture in the tube, both on logarithmic axes, for the twelve tubes read on version 2 on 2026-10-05. From 25 to 200 microlitres the tubes lie along a proportional line. At 12.5 microlitres the three tubes read about half of what that line gives, and at 6.25 the two tubes read about a tenth. A curve fitted afterwards follows the tubes down. The numbers are in the table that follows.">
+      <svg class="hw-vis" viewBox="0 0 640 320" role="img" aria-label="F4 against the amount of GFP culture in the tube, both on logarithmic axes, for the twelve tubes read on version 2 on 2026-10-05. From 25 to 200 microlitres the tubes lie along a proportional line. At 12.5 microlitres the three tubes read about half of what that line gives, and at 6.25 the two tubes read about a tenth. A curve fitted afterwards follows the tubes down. The numbers are in the table under Data and documentation.">
         <path class="hw-vis-rule" d="M58 241.4H622"></path>
         <text x="50" y="244.9" text-anchor="end">0.1</text>
         <path class="hw-vis-rule" d="M58 172.8H622"></path>
@@ -1443,22 +1177,219 @@
       </figcaption>
     </figure>
 
-    <p>
-      Every tube without GFP read zero. From 25&nbsp;&micro;L up the reading
-      keeps to one straight line; below that it falls short of it.
+    <p class="hw-more"><a href="#hw-doc-session">The session, tube by tube</a></p>
+
+    <h3>Where version 2 stands</h3>
+
+    {# 2026-10-06（晚）：原本這裡有兩個警語（One session, one batch 與 In use, not validated），併成一個。
+       每一項不能說的話都還在：不是偵測極限、線性範圍、重複性；不能說比第一版靈敏幾倍；配合度與組裝沒有紀錄。 #}
+    <div class="hw-caution">
+      <p>
+        <em>In use, not validated.</em> Version 2 has read an empty cuvette,
+        an empty seat and one session with one batch of culture. Those
+        readings are exploratory. They are not a limit of detection, a linear
+        range or a repeatability figure, and they do not measure how much
+        more sensitive version 2 is than version 1, because the culture batch
+        changed along with the reader. Its fit and assembly are still not on
+        record, and no check of its alignment has been recorded. Every other
+        result on this page belongs to version 1.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========================= reproducing ========================= -->
+  <section id="hardware-reproduce">
+    <h2>Building one</h2>
+
+    <p class="hw-point">
+      Print it, wire it, and run it under a shield. Build version 2.
     </p>
 
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The session, tube by tube</span>
-        <span class="hw-fold-meta">12 tubes, 4 controls</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
+    {# 2026-10-06（晚）：三張卡片只是下面 Data and documentation 的入口，每一句都出自那裡的表格與說明。
+       38 件：CAD 圖下方那句 Version 2 as designed: 38 printed pieces。 #}
+    <ol class="hw-do">
+      <li>
+        <h3>Print</h3>
+        <p>
+          Version 2 is 38 printed pieces, specified in matte black PLA. Each
+          can be saved as an STL file from <a href="#hwParts">the 3D view</a>.
+          The five new parts print without supports; on another printer,
+          print the two fit coupons first.
+        </p>
+        <p class="hw-more">
+          <a href="#hw-doc-bom">Parts and files</a>
+          <a href="#hw-doc-fitting">Fitting them</a>
+        </p>
+      </li>
+      <li>
+        <h3>Wire</h3>
+        <p>
+          One 470&nbsp;nm LED on a 217&nbsp;&#8486; resistor, switched by a
+          2N7000 MOSFET at about 10&nbsp;mA, and an AS7341 detector on the
+          ESP32's I&sup2;C bus. The gate pulldown is the part that is not
+          optional.
+        </p>
+        <p class="hw-more">
+          <a href="#hardware-circuit">The circuit</a>
+          <a href="#hw-doc-timing">Timing</a>
+        </p>
+      </li>
+      <li>
+        <h3>Run</h3>
+        <p>
+          Over the serial port, one command per line, under an opaque shield.
+          One run reads three cycles of dark, lit, dark, and a dark read that
+          is not zero voids its cycle.
+        </p>
+        <p class="hw-more">
+          <a href="#hw-doc-protocol">Operating protocol</a>
+        </p>
+      </li>
+    </ol>
+
+    <p class="hw-limit">
+      <b>Not yet</b> The CadQuery source, the STEP files, the firmware and
+      the bill of materials are not published, and there is no complete
+      written assembly procedure: version 2 has only its fitting notes.
+    </p>
+
+    {# PHOTO: 裝配的逐步照（UVette 座、LED 座與蓋子），上傳到 static.igem.wiki 後放在這裡 #}
+    {# PHOTO: UVette 座與 ORIENT-A 安裝方向照，上傳後插在這裡 #}
+  </section>
+
+  <!-- ========================= data and documentation ========================= -->
+  {# 2026-10-06（晚）新增的一節：原本散在各節的收合表格都搬到這裡，分三組。
+     每一列的內容是原封不動搬來的；合併的地方只加了小標（h4）。各列的 id 給前面各節的連結用，
+     改了要一起改。來源註解跟著各自的表格走。 #}
+  <section id="hardware-data" class="hw-docs">
+    <h2>Data and documentation</h2>
+
+    <p class="hw-point">
+      Every table behind the sections above, and what a second team needs to
+      build and run the reader.
+    </p>
+
+    <h3 id="hardware-data-measured">Measurements and use</h3>
+    <div class="hw-docs-list">
+      <details class="hw-fold hw-fold-wide" id="hw-doc-v1">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Version 1: the three sessions in numbers</span>
+          <span class="hw-fold-meta">2 tables</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    <figure class="hw-figure hw-figure-table">
+      <table class="hw-table hw-keep">
+        <caption class="visually-hidden">Does the emission channel separate GFP from no GFP?</caption>
+        <thead>
+          <tr>
+            <th scope="col">Session</th>
+            <th scope="col" class="hw-num">Readings without GFP</th>
+            <th scope="col" class="hw-num">F4 above zero</th>
+            <th scope="col" class="hw-num">Tubes with GFP</th>
+            <th scope="col" class="hw-num">F4 above zero</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>2026-09-16</td><td class="hw-num">16</td><td class="hw-num">0</td><td class="hw-num">10</td><td class="hw-num">10</td></tr>
+          <tr><td>2026-09-21</td><td class="hw-num">8</td><td class="hw-num">0</td><td class="hw-num">12</td><td class="hw-num">9</td></tr>
+          <tr><td>2026-09-29</td><td class="hw-num">3</td><td class="hw-num">0</td><td class="hw-num">16</td><td class="hw-num">16</td></tr>
+          <tr class="is-total"><td>All three</td><td class="hw-num">27</td><td class="hw-num">0</td><td class="hw-num">38</td><td class="hw-num">35</td></tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <p>
+      Samples without GFP read zero on the emission channel every time,
+      including undiluted non-GFP culture at a displayed OD of up to 1.42.
+      The channels beside the excitation band do see those cells, but too
+      variably between cuvettes and sessions to build a turbidity flag on.
+    </p>
+
+    <h4>How far repeated readings scatter on version 1</h4>
+
+    <figure class="hw-figure hw-figure-table">
+      <table class="hw-table">
+        <caption class="visually-hidden">How far repeated readings scatter on version 1</caption>
+        <thead>
+          <tr>
+            <th scope="col">What was repeated</th>
+            <th scope="col" class="hw-num"><var>n</var></th>
+            <th scope="col" class="hw-num">Mean F4</th>
+            <th scope="col" class="hw-num">SD</th>
+            <th scope="col" class="hw-num">CV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>One liquid, re-inserted (09-16)</td><td class="hw-num">3</td><td class="hw-num">6.00</td><td class="hw-num">0.33</td><td class="hw-num">5.6&nbsp;%</td></tr>
+          <tr><td>One recipe, prepared three times (09-16)</td><td class="hw-num">3</td><td class="hw-num">6.89</td><td class="hw-num">0.51</td><td class="hw-num">7.4&nbsp;%</td></tr>
+          <tr><td>One recipe, six tubes (09-29)</td><td class="hw-num">6</td><td class="hw-num">9.33</td><td class="hw-num">1.10</td><td class="hw-num">11.7&nbsp;%</td></tr>
+          <tr><td>One culture, four insertions, one a fresh draw (09-09)</td><td class="hw-num">4</td><td class="hw-num">40.50</td><td class="hw-num">1.23</td><td class="hw-num">3.0&nbsp;%</td></tr>
+          <tr><td>One culture, four insertions, one a fresh draw (09-14)</td><td class="hw-num">4</td><td class="hw-num">32.67</td><td class="hw-num">1.83</td><td class="hw-num">5.6&nbsp;%</td></tr>
+        </tbody>
+      </table>
+      <figcaption>
+        Observed scatter, not a specification. Each figure mixes sampling,
+        insertion, cuvette and time, and none of it carries over to low
+        signal. Between 09-09 and 09-14 the same sample read 19.3&nbsp;% lower;
+        the instrument had been moved and the state of the culture is not
+        known, so the cause is not separated.
+      </figcaption>
+    </figure>
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-oplog">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Version 1: what the operating log added</span>
+          <span class="hw-fold-meta">5 problems</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption class="visually-hidden">Problems found in use and what changed</caption>
+        <thead>
+          <tr><th scope="col">What went wrong</th><th scope="col">Session</th><th scope="col">What changed</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>An empty cuvette read F4&nbsp;=&nbsp;11 under room light.</td><td>2026-08-27</td><td>Added the shield box. A dark read that is not zero voids the cycle.</td></tr>
+          <tr><td>A cuvette's number did not match what was in it, and one record had to be voided.</td><td>2026-09-21</td><td>Confirm what is in the cuvette before starting a run.</td></tr>
+          <tr><td>The stock's displayed OD did not scale with dilution.</td><td>2026-09-16 and 09-29</td><td>Recommended: read the OD at one fixed dilution, 1:4. Not yet in the operating card.</td></tr>
+          <tr><td>Washed and reused cuvettes tied &ldquo;which use of this cuvette&rdquo; to the order of reading.</td><td>2026-09-29</td><td>Recommended: one cuvette per tube. Not yet in the operating card.</td></tr>
+          <tr><td>The firmware refused a run because the detector had lost its settings. A reset cleared it each time.</td><td>2026-09-29, and twice on 10-03</td><td>Recommended: the card should say what to do after a refusal. Not yet written.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      The last row is the firmware doing its job: when its state is not known
+      it declines to measure. Three refusals point at a loose connection to
+      the detector board. The cause has not been found. In the 28 captures
+      of 2026-10-05 there was no such refusal; the firmware's only stop was
+      an opening check left unarmed on purpose. That is an observation, not
+      a fix.
+    </p>
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-session">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Version 2: the 2026-10-05 session, tube by tube</span>
+          <span class="hw-fold-meta">12 tubes, 4 controls</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
     <p>
       200&nbsp;&micro;L to a tube. The sensor settings were version 1's. The
       LED ran through the new resistor, and its current was not measured that
@@ -1531,47 +1462,140 @@
       three-cycle mean can resolve. With the seat empty, every channel read
       zero.
     </p>
-      </div>
-    </details>
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-reinsert">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Version 1 against version 2: putting one tube back</span>
+          <span class="hw-fold-meta">4 series</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    {# 來源：P1_CAL_LOWEND_ANALYSIS_2026-10-05/BUILD_COMPARISON.json（S_left_alone_vs_reinserted）與
+       REINSERTION_COMPARISON.json。只算真正「抽出再插回」的那幾次；09-09、09-14 另外讀的新鮮分裝不算。
+       上升趨勢：09-09 每分鐘 +1.43 %、09-14 +2.15 %、10-05 +0.64 %。 #}
+    <p>
+      Version 1 held the cuvette against one spring leaf where the design
+      called for two, which left it free across about 0.6&nbsp;mm on one
+      axis. Version 2's eight ribs leave 0.05&nbsp;mm a side, as drawn. Taking
+      one tube out and putting it back is the test of that. On version 2
+      the five insertions were made by wet-lab members, not by the member
+      who built the reader.
+    </p>
+
+    <figure class="hw-figure">
+      <table class="hw-table hw-keep">
+        <caption>How far one tube's reading moves</caption>
+        <thead>
+          <tr>
+            <th scope="col">What was done</th>
+            <th scope="col">Reader</th>
+            <th scope="col" class="hw-num"><var>n</var></th>
+            <th scope="col" class="hw-num">Mean F4</th>
+            <th scope="col" class="hw-num">Spread (SD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Left in its seat, read 20 times over 5 minutes (09-03)</td><td>Version 1</td><td class="hw-num">20</td><td class="hw-num">21.95</td><td class="hw-num">0.29</td></tr>
+          <tr><td>Taken out and put back (09-09)</td><td>Version 1</td><td class="hw-num">3</td><td class="hw-num">40.33</td><td class="hw-num">1.45</td></tr>
+          <tr><td>Taken out and put back (09-14)</td><td>Version 1</td><td class="hw-num">3</td><td class="hw-num">33.00</td><td class="hw-num">2.08</td></tr>
+          <tr class="is-total"><td>Taken out and put back (10-05)</td><td>Version 2</td><td class="hw-num">5</td><td class="hw-num">49.87</td><td class="hw-num">0.38</td></tr>
+        </tbody>
+      </table>
+      <figcaption>
+        Spread is the standard deviation between insertions, each one the
+        mean of three cycles; for the tube left alone it is the standard
+        deviation of its 20 reads. Fresh draws of the same culture are left
+        out. On version 1 the reading also climbed with each insertion, by
+        1.4 and 2.1&nbsp;% a minute, against 0.6&nbsp;% on version 2. The days
+        differ in more than the seat: the culture batch, the cuvette, the LED
+        current and how long the tube had stood. On 2026-10-05 the wet lab
+        also used ice, which it had not before; what was chilled, and for
+        how long, was not recorded, and cooling could slow that climb. This
+        is what was
+        observed, not a controlled test of the seat, and the printed rib
+        spacing was not measured.
+      </figcaption>
+    </figure>
+
+    <p>
+      On version 1, putting a tube back moved the reading five to seven times
+      as much as leaving it alone. On version 2 it moved it little more than
+      leaving it alone had.
+    </p>
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-led">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Version 1 against version 2: the LED current</span>
+          <span class="hw-fold-meta">2 tables</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    {# 來源：PROJECT_STATE/DECISION_LOG.md GOV-011；
+       _AI_REFACTOR_WORK/P1_LED_CURRENT_STAGE6_2026-10-03/SUMMARY_stdout.txt、OWNER_READINGS_2026-10-03.md；
+       firmware/README.md（434 Ω 時短路電流上限 11.89 mA）。
+       空杯那一列的「前」是改版後的機構配 434 Ω，所以欄位用電阻值標示，不是用 version 標示。 #}
+    <p>
+      Version 1 ran the LED at 5.553&nbsp;mA, under the 8 to 12&nbsp;mA the
+      design aims for. On 2026-10-03 one 220&nbsp;&#8486; resistor replaced
+      the series pair, which brings it to about 10&nbsp;mA. With an empty
+      cuvette, the two channels beside the source then read about twice what
+      they had, and the emission channel still read zero. Two days later the
+      same held with samples in the beam: medium, a non-GFP culture and the
+      empty seat all read zero on the emission channel, while that culture
+      scattered up to 40 counts into the channel next to the source. The
+      scatter off an empty cuvette roughly doubled and the emission channel
+      stayed at zero in every one of these reads, which is what the
+      90&deg; layout and the light trap are for.
+    </p>
+
+    <figure class="hw-figure hw-figure-table">
+      <table class="hw-table">
+        <caption class="visually-hidden">The excitation branch at the two values of R1</caption>
+        <thead>
+          <tr><th scope="col"><span class="visually-hidden">Quantity</span></th><th scope="col">R1 = 434&nbsp;&#8486;</th><th scope="col">R1 = 217&nbsp;&#8486;</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">In use</th><td>2026-08-25 to 2026-10-03: every version 1 reading</td><td>Since 2026-10-03</td></tr>
+          <tr><th scope="row">Made of</th><td>218&nbsp;&#8486; + 216&nbsp;&#8486; in series</td><td>One 220&nbsp;&#8486; resistor, 217&nbsp;&#8486; measured</td></tr>
+          <tr><th scope="row">LED current</th><td>5.553&nbsp;mA, measured 2026-08-25</td><td>9.2 to 9.9&nbsp;mA by meter; at most 11.3&nbsp;mA by calculation</td></tr>
+          <tr><th scope="row">If the LED shorted</th><td>11.89&nbsp;mA. The resistor alone holds it under our 15&nbsp;mA ceiling</td><td>About 24&nbsp;mA. It no longer does</td></tr>
+          <tr><th scope="row">Empty cuvette, F2 / F3 / F4</th><td>7.89 / 6.89 / 0</td><td>18.33 / 13.33 / 0</td></tr>
+        </tbody>
+      </table>
+      <figcaption>
+        The last row is nine consecutive cycles on each side of the change,
+        on version 2, with the same empty cuvette left in its seat in the
+        dark. It is excitation scattered by an empty cuvette, not
+        fluorescence.
+      </figcaption>
+    </figure>
 
     <div class="hw-caution">
       <p>
-        <em>One session, one batch.</em> These are exploratory readings. They
-        are not a limit of detection, a linear range or a repeatability
-        figure, and they do not measure how much more sensitive version 2 is
-        than version 1, because the culture batch changed along with the
-        reader. Version 2's fit and assembly are still not on record.
+        <em>What that shows, and what it does not.</em> It is scattered
+        excitation on an empty cuvette, not a fluorescence result, and it does
+        not show that 10&nbsp;mA is the right current. Readings at the two
+        resistances cannot be pooled: the empty-cuvette ratio is not a
+        conversion for fluorescence. The meter readings were taken during
+        0.55&nbsp;s pulses, so they are a lower estimate.
       </p>
     </div>
+
+    <h4>The same empty cuvette on version 2, as first fitted</h4>
 
     {# 來源：_AI_REFACTOR_WORK/P1_V08_FIRST_READ_LOGS_2026-10-03/COMPARE_own_cup_stdout.txt 與 SESSION_NOTE.md。
        全部是空杯、R1 = 434 Ω。version 1 那一列是 09-02 到 09-29 七場的範圍（同一支杯子）。
        「調整了什麼」紀錄裡沒有寫；你補上之後請改掉圖說最後一句。 #}
-    <h3>Where version 2 stands</h3>
-
-    <div class="hw-caution">
-      <p>
-        <em>In use, not validated.</em> Version 2 has read an empty cuvette,
-        an empty seat and, on 2026-10-05,
-        <a href="#hardware-v2-session">one session with culture</a>. No check
-        of its fit or alignment has been recorded. With the same empty
-        cuvette it read low as first fitted and, after an adjustment, inside
-        the range version 1 had covered; the emission channel read zero.
-        Every other result on this page belongs to version 1.
-      </p>
-    </div>
-
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The empty-cuvette reads</span>
-        <span class="hw-fold-meta">3 rows</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
       <figure class="hw-figure hw-figure-table">
       <table class="hw-table">
         <caption class="visually-hidden">The same empty cuvette, LED on, at the version 1 current</caption>
@@ -1603,30 +1627,84 @@
         version 1 had covered. The adjustment itself was not written down.
       </figcaption>
       </figure>
-      </div>
-    </details>
-  </section>
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-parts">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Version 1 against version 2: part by part</span>
+          <span class="hw-fold-meta">6 rows</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    {# 來源：_AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/README.md（五件零件、R3–R8）、
+       validation_v0_8_round2.json（截面比）、P1_MECH_V08_ROUND1_HANDOFF_2026-09-25/records/
+       ROUND1_FIT_RESULT_2026-10-02.md（試配件）、PROJECT_STATE/CURRENT_STATE.md（沿用了什麼）。
+       右欄寫的是設計：哪幾件實際裝上、LED 蓋有沒有鎖，紀錄裡沒有逐件回報。確認後可以改成肯定句。 #}
+    <figure class="hw-figure">
+      <table class="hw-table hw-vs">
+        <caption class="visually-hidden">What was wrong in version 1 and what version 2 does about it</caption>
+        <thead>
+          <tr><th scope="col">In version 1</th><th scope="col">In version 2</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>In use from 2026-08-25 to 2026-10-03. 57 of its 59 printed pieces arrived, and two of those broke.</td>
+            <td>In use since 2026-10-03. Five replacement parts were designed; the printed parts arrived and the new mechanism was fitted.</td>
+          </tr>
+          <tr>
+            <td>The LED holder split along its clip slot and the baffle broke at both disk slots as the print supports came off. Both were taped.</td>
+            <td>No clip slot, and a baffle that prints on its side, so no layer loses most of its area. The weakest layer keeps 0.82 of the fullest section within 3&nbsp;mm of it; version 1 broke at 0.63 and 0.32.</td>
+          </tr>
+          <tr>
+            <td>The clip that retains the LED never arrived. Friction and its own leads held it.</td>
+            <td>Three ribs in the holder grip the LED, 0.10&nbsp;mm tight. No clip.</td>
+          </tr>
+          <tr>
+            <td>The cap that clamps the LED holder never arrived. The holder lay in its saddle.</td>
+            <td>The cap is printed, turned over so that it needs no support.</td>
+          </tr>
+          <tr>
+            <td>One preload leaf instead of two left the cuvette free on one axis, by up to about 0.6&nbsp;mm.</td>
+            <td>One body with eight ribs, 0.05&nbsp;mm clear on each side, replaces six pieces. The cuvette lands on four corner tabs, 8.5&nbsp;mm below the beam.</td>
+          </tr>
+          <tr>
+            <td>The LED ran at 5.55&nbsp;mA, under the 8 to 12&nbsp;mA the design aims for.</td>
+            <td>About 10&nbsp;mA, with one resistor in place of two. See <a href="#hardware-circuit">the circuit</a>.</td>
+          </tr>
+        </tbody>
+      </table>
+      <figcaption>
+        Between its first and last rows the right-hand column is the design:
+        which of the five parts are fitted on our own reader is not yet on
+        record. The last row is measured. The two fits were chosen with printed coupons, described
+        under <a href="#hw-doc-bom">Parts and files</a>. Unchanged: the
+        base plate, the detector side, the light trap and the firmware. Still
+        absent: aperture disks, an emission filter and an enclosure.
+      </figcaption>
+    </figure>
+        </div>
+      </details>
+    </div>
 
-  <!-- ========================= reproducing ========================= -->
-  <section id="hardware-reproduce">
-    <h2>Building one</h2>
+    <h3 id="hardware-data-build">Building and running</h3>
+    <div class="hw-docs-list">
+      <details class="hw-fold hw-fold-wide" id="hw-doc-bom">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Parts and files: what to buy, what to print</span>
+          <span class="hw-fold-meta">3 tables</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    <h4>To buy</h4>
 
-    <p>
-      What a second team needs: the parts to buy, the pieces to print, how to
-      run it, and the files.
-    </p>
-
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Core parts</span>
-        <span class="hw-fold-meta">8 items</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
       <div class="hw-figure hw-figure-table">
         <table class="hw-table">
           <caption class="visually-hidden">Core parts</caption>
@@ -1645,8 +1723,6 @@
           </tbody>
         </table>
       </div>
-      </div>
-    </details>
 
     {# 來源：PROJECT_STATE/CURRENT_STATE.md「Physical Prototype State」。 #}
     <p class="hw-aside">
@@ -1654,6 +1730,8 @@
       under <a href="#hardware-v2">Version 2</a>, and its
       alignment was shown to work but never quantified.
     </p>
+
+    <h4>To print</h4>
 
     <p>
       The printed parts are in the 3D view under
@@ -1664,17 +1742,6 @@
     {# 來源：_AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/README.md「這 5 件是什麼」與
        vendor_package/PRINT_INSTRUCTIONS_ROUND2_zh-TW.txt（擺放方向、列印規格）。
        誰印的、實際用的切片設定，紀錄裡是 UNKNOWN，所以這裡寫的是「指定的規格」。 #}
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The five version 2 parts</span>
-        <span class="hw-fold-meta">5 files</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
       <figure class="hw-figure hw-figure-table">
         <table class="hw-table">
           <caption class="visually-hidden">The five version 2 parts</caption>
@@ -1701,8 +1768,6 @@
           judgement by hand, one try per position, with no caliper.
         </figcaption>
       </figure>
-      </div>
-    </details>
 
     <p>
       All five print without supports in the orientation given. The print
@@ -1713,17 +1778,69 @@
       first.
     </p>
 
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Fitting the version 2 parts</span>
-        <span class="hw-fold-meta">5 steps</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
+    <p>
+      The 3D-printed build has no cost total of its own: what its printed
+      parts cost was not recorded. The laser-cut build is costed
+      <a href="#hardware-cost">in its own section</a>.
+    </p>
+
+    <h4>The files</h4>
+
+    <p>
+      The mechanical source is parametric CadQuery Python with STEP and STL
+      exports; the firmware is an ESP32 sketch using the Adafruit AS7341
+      library.
+    </p>
+
+    {#
+      === 給團隊 ===
+      "Where it is" 那一欄已按要求拿掉。連帶做了一件事：原本有一列是
+      "Assembly procedure / Written build order / Not written"——沒有狀態欄之後，
+      把它留著等於宣稱有一份組裝步驟文件存在，但並沒有。所以那一列也拿掉了，
+      改在表格下方用一句話說明哪些已在本頁、哪些還在你們手上。
+      檔案放上 iGEM GitLab 或 uploads tool 之後，那句話就可以換成連結。
+    #}
+      <div class="hw-figure hw-figure-table">
+        <table class="hw-table">
+          <caption class="visually-hidden">What you need to build one</caption>
+          <thead>
+            <tr><th scope="col">Artefact</th><th scope="col">Format</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Optical core geometry</td><td>Parametric CadQuery Python: v0.7, and the five v0.8 parts</td></tr>
+            <tr><td>Printable parts</td><td>STL: 46 files for the 59 pieces of version 1, five for version 2, two version 2 fit coupons</td></tr>
+            <tr><td>Assembly geometry</td><td>STEP</td></tr>
+            <tr><td>Acquisition firmware</td><td>ESP32 sketch, Adafruit AS7341 library, <code>P1-ACQ-1.0.0</code></td></tr>
+            <tr><td>Bill of materials</td><td>CSV</td></tr>
+            <tr><td>Bench circuit</td><td>Schematic with measured values</td></tr>
+            <tr><td>Optical coordinates</td><td>Every part and its X extent</td></tr>
+            <tr><td>Working sensor settings</td><td>AGAIN 512&times;, ATIME 255, ASTEP 280</td></tr>
+            <tr><td>Operating rule</td><td>Darkened room or opaque shield</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    <p class="hw-aside">
+      The circuit, the coordinates, the sensor settings and the operating
+      rule are on this page, and every printed part can be saved as an STL
+      file from the 3D view under <a href="#hwParts">The instrument</a>. The CadQuery source,
+      the STEP files, the firmware and the bill of materials are not
+      published yet, and there is no complete written assembly procedure:
+      version 2 has only its fitting notes.
+    </p>
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-fitting">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Fitting the version 2 parts</span>
+          <span class="hw-fold-meta">5 steps</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
     <p>
       These are the notes that went with the parts. They were written at
       design time and are not yet a record of an assembly that was checked
@@ -1747,19 +1864,19 @@
       <li><strong>Cap.</strong> Two M3 screws into the cradle, holding the LED
         holder down.</li>
     </ol>
-      </div>
-    </details>
-
-    {# PHOTO: 裝配的逐步照（UVette 座、LED 座與蓋子），上傳到 static.igem.wiki 後放在這裡 #}
-
-    <p>
-      The 3D-printed build has no cost total of its own: what its printed
-      parts cost was not recorded. The laser-cut build is costed
-      <a href="#hardware-cost">in its own section</a>.
-    </p>
-
-    <h3 id="hardware-circuit">The circuit</h3>
-
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hardware-circuit">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">The circuit, with its measured values</span>
+          <span class="hw-fold-meta">434&nbsp;&#8486; and 217&nbsp;&#8486;</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
     <p>
       The excitation branch turns one LED<sup class="hw-ref"><a href="#hardware-ref-3">3</a></sup> on and off at a current
       that cannot damage it: a resistor-limited LED with an N-channel MOSFET
@@ -1770,17 +1887,6 @@
       takes for a dark baseline.
     </p>
 
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The schematic, with its measured values</span>
-        <span class="hw-fold-meta">434&nbsp;&#8486; and 217&nbsp;&#8486;</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
     {#
       電路只有 R1 在 2026-10-03 換過（GOV-011）。圖上方的開關切換兩種狀態：
       一開始顯示 434 Ω，因為本頁的數據都是在那個狀態量的。
@@ -1894,20 +2000,19 @@
         <span>I<sub>LED</sub> <span data-v2="&asymp; 10 mA: 9.2 to 9.9 mA by meter, at most 11.3 mA by calculation.">= 5.553&nbsp;mA, measured 2026-08-25: every version 1 reading.</span></span>
       </div>
     </div>
-      </div>
-    </details>
-
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Acquisition timing</span>
-        <span class="hw-fold-meta">551&ndash;552&nbsp;ms of a 1.0&nbsp;s ceiling</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-timing">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Acquisition timing</span>
+          <span class="hw-fold-meta">551&ndash;552&nbsp;ms of a 1.0&nbsp;s ceiling</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
     <p>
       One reading is not instantaneous. The LED turns on, the optics and the
       sensor are given time to settle, the sensor integrates twice to cover
@@ -1946,30 +2051,27 @@
       session, by its own timer and not by an edge measured on the pin, and
       the 1.0&nbsp;s cut-off itself has never been exercised.
     </p>
-      </div>
-    </details>
-
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-protocol">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Operating protocol</span>
+          <span class="hw-fold-meta">7 steps</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
     {# 來源：_AI_REFACTOR_WORK/P1_BENCH_OPERATING_CARD_2026-09-15.md（操作卡）。
        收尾報告建議的兩條（一管一杯、原液 OD 固定在 1:4 下讀）還沒寫進操作卡，
        所以這裡沒有列為步驟，而是放在 What using it taught us。 #}
-    <h3>Running a measurement</h3>
-
     <p>
       The 3D-printed build is driven over the serial port, one command per
       line, under its shield. One run reads three cycles of dark, lit, dark.
     </p>
 
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Operating protocol</span>
-        <span class="hw-fold-meta">7 steps</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
     <ol class="hw-steps">
       <li>Connect, power up, and put the opaque box over the instrument.</li>
       <li><code>id</code>: go on only if the sensor reports ready and its
@@ -2009,96 +2111,33 @@
       refuses to run. And a voided row stays in the file. It is left out of
       the statistics, not deleted.
     </p>
-      </div>
-    </details>
+        </div>
+      </details>
+    </div>
 
-    <h3>The file manifest</h3>
-
-    <p>
-      The mechanical source is parametric CadQuery Python with STEP and STL
-      exports; the firmware is an ESP32 sketch using the Adafruit AS7341
-      library.
-    </p>
-
-    {#
-      === 給團隊 ===
-      "Where it is" 那一欄已按要求拿掉。連帶做了一件事：原本有一列是
-      "Assembly procedure / Written build order / Not written"——沒有狀態欄之後，
-      把它留著等於宣稱有一份組裝步驟文件存在，但並沒有。所以那一列也拿掉了，
-      改在表格下方用一句話說明哪些已在本頁、哪些還在你們手上。
-      檔案放上 iGEM GitLab 或 uploads tool 之後，那句話就可以換成連結。
-    #}
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">What you need to build one</span>
-        <span class="hw-fold-meta">9 artefacts</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <div class="hw-figure hw-figure-table">
-        <table class="hw-table">
-          <caption class="visually-hidden">What you need to build one</caption>
-          <thead>
-            <tr><th scope="col">Artefact</th><th scope="col">Format</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Optical core geometry</td><td>Parametric CadQuery Python: v0.7, and the five v0.8 parts</td></tr>
-            <tr><td>Printable parts</td><td>STL: 46 files for the 59 pieces of version 1, five for version 2, two version 2 fit coupons</td></tr>
-            <tr><td>Assembly geometry</td><td>STEP</td></tr>
-            <tr><td>Acquisition firmware</td><td>ESP32 sketch, Adafruit AS7341 library, <code>P1-ACQ-1.0.0</code></td></tr>
-            <tr><td>Bill of materials</td><td>CSV</td></tr>
-            <tr><td>Bench circuit</td><td>Schematic with measured values</td></tr>
-            <tr><td>Optical coordinates</td><td>Every part and its X extent</td></tr>
-            <tr><td>Working sensor settings</td><td>AGAIN 512&times;, ATIME 255, ASTEP 280</td></tr>
-            <tr><td>Operating rule</td><td>Darkened room or opaque shield</td></tr>
-          </tbody>
-        </table>
-      </div>
-      </div>
-    </details>
-
-    <p class="hw-aside">
-      The circuit, the coordinates, the sensor settings and the operating
-      rule are on this page, and every printed part can be saved as an STL
-      file from the 3D view under <a href="#hwParts">The instrument</a>. The CadQuery source,
-      the STEP files, the firmware and the bill of materials are not
-      published yet, and there is no complete written assembly procedure:
-      version 2 has only the fitting notes above.
-    </p>
-
-    {# PHOTO: UVette 座與 ORIENT-A 安裝方向照，上傳後插在這裡 #}
-
-  </section>
-
-  <!-- ========================= how it got here ========================= -->
+    <h3 id="hardware-history">History</h3>
+    <div class="hw-docs-list">
+      <details class="hw-fold hw-fold-wide" id="hw-doc-log">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">The development log</span>
+          <span class="hw-fold-meta">9 steps, 2026-08-14 to 10-05</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
   {# 來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §3；缺件與斷裂的細節在
      PROJECT_STATE/CURRENT_STATE.md「Physical Prototype State」；v0.8 在
      _AI_REFACTOR_WORK/P1_MECH_V08_*（斷裂指標是截面比，不是強度計算）；
      最後一站（10-03）在 P1_V08_FIRST_READ_LOGS_2026-10-03 與 P1_LED_CURRENT_STAGE6_2026-10-03。
      九月改版時 build history 曾依指示從本頁拿掉；這一節是 2026-10-01 放回來的精簡版。 #}
-  <section id="hardware-history">
-    <h2>Timeline</h2>
-
     <p>
       The same story, step by step. Each step in the log was a test whose
       result changed what we did next.
     </p>
 
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The development log</span>
-        <span class="hw-fold-meta">9 steps, 2026-08-14 to 10-05</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
     <!--
       An instrument panel like the bench, so it is dark like the bench. Every
       step is written out here in full; static/hardware-bench.js builds the row
@@ -2265,22 +2304,21 @@
           <a href="{{ url_for('pages', page='notebook') }}">Notebook</a>.</span>
       </div>
     </div>
-      </div>
-    </details>
-
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-decisions">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Decisions that narrowed the first prototype</span>
+          <span class="hw-fold-meta">5 decisions</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
     {# 原本是獨立的一節 "Decisions that shaped P1"，2026-10-04 收進這個摺疊：
        它講的是專案過程，不直接回答四道評審題。五張翻面卡原封不動。 #}
-    <details class="hw-fold hw-fold-wide">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Decisions that narrowed the first prototype</span>
-        <span class="hw-fold-meta">5 decisions</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
     <p>
       Recorded project decisions from 2026-08-09. The marked ones removed
       capability from the prototype on purpose.
@@ -2342,8 +2380,9 @@
         </dd>
       </div>
     </dl>
-      </div>
-    </details>
+        </div>
+      </details>
+    </div>
   </section>
 
   <p class="hw-build-end">
