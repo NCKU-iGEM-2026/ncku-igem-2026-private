@@ -77,13 +77,13 @@
       var W = 680, H = 300, L = 52, R = 18, T = 14, B = 48, pw = W - L - R, ph = H - T - B;
       function X(v) { return L + v / 1.05 * pw; }
       function Y(v) { return T + ph - v / 78 * ph; }
-      var s = svg(host, W, H, 'Net F5/F3 signal against the fraction of GFP cells. The seven tubes rise along a straight line, r squared about 0.97.');
+      var s = svg(host, W, H, 'Net F5/F3 signal against the fraction of sfGFP cells. The seven tubes rise along a straight line, r squared about 0.97.');
       [0, 20, 40, 60].forEach(function (v) {
         el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 0 ? '' : '3 4' }, s);
         text(s, v, L - 8, Y(v) + 4, { anchor: 'end', size: 10 });
       });
       [0, 0.25, 0.5, 0.75, 1].forEach(function (v) { text(s, v.toFixed(2), X(v), T + ph + 17, { size: 10 }); });
-      text(s, 'Fraction of GFP cells, f', L + pw / 2, H - 6, { size: 10 });
+      text(s, 'Fraction of sfGFP cells, f', L + pw / 2, H - 6, { size: 10 });
       text(s, 'Net F5/F3 × 1000', L - 8, T - 2 + 10, { anchor: 'start', size: 10 });
       el('line', { x1: X(0), y1: Y(0), x2: X(1), y2: Y(slope), stroke: C.green, 'stroke-width': 1.6, 'stroke-dasharray': '6 4' }, s);
       dots(s, pts, X, Y, C.blue, 4.2);
@@ -104,7 +104,7 @@
       var W = 680, H = 300, L = 48, R = 18, T = 18, B = 54, pw = W - L - R, ph = H - T - B;
       function X(i) { return L + pw * i / 7; }
       function Y(v) { return T + ph - (v + 0.15) / 1.27 * ph; }
-      var s = svg(host, W, H, 'Difference spectrum, GFP minus no GFP: a single peak at 515 nanometres falling steadily toward the red, near zero at 415 nanometres.');
+      var s = svg(host, W, H, 'Difference spectrum, sfGFP minus no sfGFP: a single peak at 515 nanometres falling steadily toward the red, near zero at 415 nanometres.');
       el('rect', { x: X(1) - 14, y: T, width: 28, height: ph, fill: C.mute, opacity: 0.09 }, s);
       text(s, 'unreliable', X(1), T + 11, { size: 9 });
       [0, 0.25, 0.5, 0.75, 1].forEach(function (v) {
