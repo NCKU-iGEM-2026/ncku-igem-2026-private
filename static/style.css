@@ -398,10 +398,12 @@ footer.bg-dark { background-color: #075a3e !important; }
    the bench, its right edge the bench in shadow. */
 .page-hero-bg.hero-hardware { --hero-fill-from: #5b5855; --hero-fill-to: #21201d; --hero-zoom: 125%; }
 
-/* Brighter than the other deep-teal banners (brightness 0.42, 0.32 on a
-   phone): the bench photo is dark to begin with -- a black base plate on a
-   black bench -- and at that level it all but disappeared. */
-body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(0.75) brightness(0.75); }
+/* At 80% brightness, well above the other deep-teal banners (brightness 0.42,
+   0.32 on a phone): the bench photo is dark to begin with -- a black base
+   plate on a black bench -- and at that level it all but disappeared. The
+   tint over it and the title's shadow are set with the Team and Attributions
+   banners, near the end of this file. */
+body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) brightness(0.8); }
 
 .page-hero-tint {
   position: absolute;
@@ -12242,4 +12244,164 @@ body.hw-nexus .hw .hw-docs-list .hw-fold-body > h4:first-child { margin-top: 0.5
   body.hw-nexus .hw .hw-build-head .hw-keys { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
   body.hw-nexus .hw .hw-build-head .hw-keys > div { padding: 0.8rem 0.85rem; }
   body.hw-nexus .hw .hw-build-head .hw-keys dt { font-size: 1.55rem; }
+}
+
+/* ===== Team and Attributions: the deep-teal treatment ======================
+   Both pages take body.hw-nexus, the switch Hardware uses, which carries the
+   ground, the drifting glows, the hero, the menu and the footer. What follows
+   is each page's own furniture moved onto the same --nx-* tokens: the
+   notebook of tabs, the badge cards, the self-intro card and the photo booth
+   on Team; the heading and the AI disclosure panel on Attributions. Additive:
+   take hw-nexus off either template's body_class and the page is as it was.
+
+   The frosted-glass look of the Team page stays -- the panels are still
+   translucent over the blur -- only their tint goes from white to the
+   page's panel colour, which is what turns white glass into dark glass.
+   ========================================================================== */
+
+/* ---- Team: the notebook ---- */
+body.team-page .notebook-book {
+  background: linear-gradient(180deg, rgba(22, 50, 63, 0.86), rgba(22, 50, 63, 0.62));
+  border: 1px solid var(--nx-line);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* The tabs: muted by colour rather than by fading the whole tab, so the
+   inactive labels still clear AA. The open tab takes the book's own top tint,
+   which is what makes the seam between them disappear. */
+body.team-page .notebook-tab {
+  opacity: 1;
+  color: var(--nx-muted);
+  background: rgba(22, 50, 63, 0.55);
+  border-color: var(--nx-line);
+  border-top-color: var(--nx-line);
+}
+body.team-page .notebook-tab:hover { color: var(--nx-text); }
+body.team-page #page-leader:checked    ~ .notebook-tabs .tab-leader,
+body.team-page #page-wet:checked       ~ .notebook-tabs .tab-wet,
+body.team-page #page-dry:checked       ~ .notebook-tabs .tab-dry,
+body.team-page #page-hp:checked        ~ .notebook-tabs .tab-hp,
+body.team-page #page-professor:checked ~ .notebook-tabs .tab-professor,
+body.team-page #page-advisor:checked   ~ .notebook-tabs .tab-advisor {
+  color: var(--nx-lime);
+  background: rgba(22, 50, 63, 0.86);
+  border-top-color: var(--nx-mint);
+}
+
+/* The Pikachus the glass was given to blur: a little quieter on the dark. */
+body.team-page .drift-item { opacity: 0.6; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45)); }
+
+body.team-page .page-tag {
+  color: var(--nx-mint);
+  background: rgba(28, 67, 82, 0.7);
+  border-color: var(--nx-line);
+  border-left-color: var(--nx-lime);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Team: the badge cards ---- */
+body.team-page .polaroid {
+  background: linear-gradient(180deg, var(--nx-raised), var(--nx-panel));
+  border-color: var(--nx-line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 14px rgba(0, 0, 0, 0.35);
+  opacity: 0.92;
+}
+body.team-page .polaroid:hover {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 26px rgba(0, 0, 0, 0.5),
+              0 0 0 1px var(--nx-mint);
+}
+body.team-page .polaroid::after {
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 60%);
+}
+/* where a photo has not arrived yet, a dark square rather than a light one */
+body.team-page .polaroid-photo,
+body.team-page .polaroid-photo .hw-flip-front,
+body.team-page .polaroid-photo .hw-flip-back { background: #24414d; }
+body.team-page .polaroid-caption { color: var(--nx-text); }
+body.team-page .polaroid-role { color: var(--nx-muted); }
+body.team-page .polaroid-has-bio:focus-visible { outline-color: var(--nx-lime); }
+
+/* ---- Team: the self-intro card ---- */
+body.team-page .team-bio-overlay { background: rgba(4, 14, 19, 0.8); }
+body.team-page .team-bio-card {
+  background: linear-gradient(180deg, var(--nx-raised), var(--nx-panel));
+  border: 1px solid var(--nx-line);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+body.team-page .team-bio-name { color: var(--nx-mint); }
+body.team-page .team-bio-paragraphs p { color: var(--nx-text); }
+body.team-page .team-bio-close {
+  background: rgba(73, 197, 182, 0.14);
+  color: var(--nx-mint);
+}
+body.team-page .team-bio-close:hover { background: rgba(73, 197, 182, 0.26); }
+
+/* ---- Team: the photo booth ---- */
+body.team-page .webcam-layout {
+  background: linear-gradient(180deg, rgba(22, 50, 63, 0.82), rgba(22, 50, 63, 0.6));
+  border-color: var(--nx-line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 16px 32px rgba(0, 0, 0, 0.35);
+}
+body.team-page .webcam-booth-header,
+body.team-page .webcam-controls { background: rgba(14, 36, 46, 0.6); color: var(--nx-text); }
+body.team-page .webcam-booth-close { color: var(--nx-text); }
+body.team-page .webcam-filter-btn {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+body.team-page .webcam-filter-btn.active {
+  background: var(--nx-raised);
+  color: var(--nx-lime);
+  border-color: var(--nx-lime);
+  box-shadow: 0 0 0 3px rgba(160, 232, 96, 0.25), 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+body.team-page .webcam-start {
+  background: var(--nx-raised);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+body.team-page .webcam-start:hover { background: var(--nx-line); color: #fff; }
+
+/* ---- Attributions ---- */
+body.hw-nexus.attr-page .container { color: var(--nx-text); }
+body.hw-nexus.attr-page .container h2 { color: var(--nx-mint); font-family: "Changa", sans-serif; font-weight: 700; }
+/* Bootstrap's .text-secondary is set !important; this is the one place it is
+   matched in kind, and only on this page. */
+body.hw-nexus.attr-page .text-secondary { color: var(--nx-muted) !important; }
+body.hw-nexus.attr-page .attr-ai {
+  background: var(--nx-panel);
+  border-left-color: var(--nx-mint);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+}
+body.hw-nexus.attr-page .attr-ai h3 { color: var(--nx-mint); }
+body.hw-nexus.attr-page .attr-ai h4 { color: var(--nx-muted); }
+body.hw-nexus.attr-page .attr-ai strong { color: #fff; }
+body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
+
+/* ---- the banner photo, at full brightness ----
+   The other deep-teal pages take their banner down to 0.42 (0.32 on a phone)
+   and lay a petrol tint over it that is more than half opaque from the top.
+   These two banners are photographs of the team, so the photo is drawn at its
+   own colour at 80% brightness, and the tint only begins to close in over the
+   lower half, where the banner has to fall into the page's ground. The title
+   gets a deeper shadow to stand clear of a light photo. Hardware's bench
+   photo is treated the same way (its brightness is set with its other
+   banner rules, near the top of this file). */
+body.team-page .page-hero-bg,
+body.hw-nexus.attr-page .page-hero-bg { filter: blur(2px) saturate(1) brightness(0.8); }
+body.team-page .page-hero-tint,
+body.hw-nexus.attr-page .page-hero-tint,
+body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
+  background: linear-gradient(to bottom,
+    rgba(14, 36, 46, 0) 0%,
+    rgba(14, 36, 46, 0.1) 45%,
+    rgba(14, 36, 46, 0.97) 100%);
+}
+body.team-page .hero-title,
+body.hw-nexus.attr-page .hero-title,
+body.hw-nexus .page-hero:has(.hero-hardware) .hero-title {
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75), 0 2px 22px rgba(0, 0, 0, 0.6);
 }
