@@ -236,6 +236,45 @@ body.show-back-to-top .back-to-top {
   font-display: swap;
 }
 
+/* ===== the site's one typeface =========================================
+   Changa everywhere, set once here so no rule has to ask for it by name.
+   Three things are needed to actually cover every page: <body> carries it,
+   Bootstrap's own --bs-body-font-family is repointed at it (that variable
+   is what its components resolve to rather than the body rule), and form
+   controls come along through reboot's font-family:inherit.
+
+   Changa draws no CJK, so Noto Sans TC follows it in the stack instead of
+   Changa standing alone: Latin renders in Changa and the Chinese on the
+   page -- workshop names, notebook entries, the whole board game -- falls
+   through to a face that can draw it rather than to whatever the browser
+   picks on its own.
+
+   All seven weights are on the server, so they are used as a scale rather
+   than as just regular and bold: 200/300 for display numerals and large
+   intro copy, 400 for body, 500 for labels, 600 for sub-headings and table
+   headers, 700 for headings, 800 for page titles. Everything below is a
+   default -- any component setting its own weight still wins, since a type
+   selector loses to every class. */
+:root { --bs-body-font-family: "Changa", "Noto Sans TC", sans-serif; }
+
+body {
+  font-family: "Changa", "Noto Sans TC", sans-serif;
+  font-weight: 400;
+}
+
+h1, .h1 { font-weight: 800; }
+h2, .h2,
+h3, .h3 { font-weight: 700; }
+h4, .h4,
+h5, .h5,
+h6, .h6 { font-weight: 600; }
+
+/* Intro copy is set large, and large copy reads better light than regular. */
+.lead { font-weight: 300; }
+
+th { font-weight: 600; }
+strong, b { font-weight: 700; }
+
 /* Ink for the bright green bar. The site's usual #075a3e reads at only
    3.57:1 against it, so the resting colour moves darker instead. */
 .navbar-nav .nav-link { font-family: "Changa", sans-serif; font-size: 1.3rem; color: #05442e; transition: color 0.15s ease; }
@@ -405,6 +444,11 @@ footer.bg-dark { background-color: #075a3e !important; }
    banners, near the end of this file. */
 body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) brightness(0.8); }
 
+/* Software: the LasReader banner graphic, at 75% brightness and its own
+   colour, on phones as well. The petrol tint over it is the shared one, which
+   is what keeps the graphic's own lettering behind the page title. */
+body.hw-nexus .page-hero-bg.hero-software { filter: blur(2px) saturate(1) brightness(0.75); }
+
 .page-hero-tint {
   position: absolute;
   inset: 0;
@@ -532,14 +576,6 @@ footer a:hover { color: white; text-decoration: underline; }
   .footer-mark { transition: none; }
   .footer a.footer-mark:hover,
   .footer a.footer-mark:focus-visible { transform: none; }
-}
-
-@font-face {
-  font-family: "Chango";
-  src: url("https://static.igem.wiki/teams/6379/wiki/fonts/chango-regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
 }
 
 .hero-title {
@@ -1818,20 +1854,22 @@ body.engineering-page {
 body.engineering-page[data-engineering-stage="build"] { --eng-accent: var(--eng-accent-build); --eng-hero: var(--eng-hero-build); }
 body.engineering-page[data-engineering-stage="test"] { --eng-accent: var(--eng-accent-test); --eng-hero: var(--eng-hero-test); }
 body.engineering-page[data-engineering-stage="learn"] { --eng-accent: var(--eng-accent-learn); --eng-hero: var(--eng-hero-learn); }
-/* Engineering navigation is one top-layer group: white bar, logo, controls,
-   mobile panel and dropdowns enter and leave together above the hero. */
+/* Engineering navigation is one top-layer group: bar, logo, controls, mobile
+   panel and dropdowns enter and leave together above the hero. Only the
+   layering is engineering's own. The bar itself is the same frosted glass
+   every other light page has -- it used to be painted solid white here,
+   which made this the one page whose menu did not match the rest. */
 body.engineering-page .navbar {
   z-index: 1100;
   isolation: isolate;
-  background: #fff !important;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-color: #e4e9e5;
-  box-shadow: 0 8px 24px rgba(25, 62, 52, .12);
 }
 body.engineering-page .navbar .container-fluid { position: relative; z-index: 1; }
 body.engineering-page .navbar-brand { z-index: 10; transform: translateY(4px); }
-body.engineering-page .navbar-collapse { z-index: 2; background-color: #fff; }
+/* No background of its own: on a desktop this is the row of menu items and
+   sits on the glass; on a phone it is the drop-down panel, which takes the
+   site's own panel colour like every other page. Painting it white here
+   left a white slab inside the glass on desktop. */
+body.engineering-page .navbar-collapse { z-index: 2; }
 body.engineering-page .navbar-toggler { z-index: 3; }
 body.engineering-page .navbar .dropdown-menu { z-index: 4; }
 body.engineering-page .navbar-nav .nav-link:hover,
@@ -1974,7 +2012,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   background: var(--eng-accent); opacity: 0; transition: opacity .25s ease;
 }
 .engineering-iteration-button.is-current {
-  color: var(--eng-accent); font-weight: 750;
+  color: var(--eng-accent); font-weight: 800;
   background: color-mix(in srgb, var(--eng-accent) 9%, #fff); padding-left: .55rem;
 }
 .engineering-iteration-button.is-current::before { opacity: 1; }
@@ -2016,7 +2054,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-stage-tab {
   --bearing: 0deg; position: absolute; left: 50%; top: 50%; width: 28%; height: 18%;
   border: 0; border-radius: 999px; padding: 0; background: transparent; color: #123b31;
-  font-size: calc(var(--eng-cycle-size) * .0367); font-weight: 650; pointer-events: none; opacity: 1;
+  font-size: calc(var(--eng-cycle-size) * .0367); font-weight: 700; pointer-events: none; opacity: 1;
   transform: translate(-50%, -50%) rotate(calc(var(--bearing) + var(--rotation))) translateY(-216.6667%) rotate(calc(-1 * (var(--bearing) + var(--rotation))));
   transition: transform .5s cubic-bezier(.3,.05,.2,1);
 }
@@ -2035,10 +2073,10 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   margin: 0; line-height: 1.1;
 }
 #engineering-module-title {
-  color: var(--eng-ink); font-size: calc(var(--eng-cycle-size) * .0696); font-weight: 750; letter-spacing: -.04em; line-height: 1.12;
+  color: var(--eng-ink); font-size: calc(var(--eng-cycle-size) * .0696); font-weight: 800; letter-spacing: -.04em; line-height: 1.12;
   text-wrap: balance; overflow-wrap: break-word; transition: color .4s ease;
 }
-.engineering-iteration-pager { position: absolute; top: calc(100% + .48rem); left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0503); font-weight: 650; color: color-mix(in srgb, var(--eng-accent) 72%, #fff); }
+.engineering-iteration-pager { position: absolute; top: calc(100% + .48rem); left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0503); font-weight: 700; color: color-mix(in srgb, var(--eng-accent) 72%, #fff); }
 .engineering-iteration-pager button { display: grid; place-items: center; flex: 0 0 18px; width: 18px; height: 22px; padding: 0; border: 0; background: transparent; color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .037); border-radius: 50%; cursor: pointer; }
 .engineering-iteration-pager button:hover:not(:disabled) { background: var(--eng-surface); }
 .engineering-iteration-pager button:disabled { color: #a5afa8; cursor: default; }
@@ -2049,7 +2087,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-toc-cycle .engineering-cycle-center h2 { top: 50%; left: 0; width: 100%; margin: 0; padding-bottom: 0; }
 .engineering-toc-cycle .engineering-iteration-pager { position: static; transform: none; }
 .engineering-toc-module-title {
-  color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .0613); font-weight: 750;
+  color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .0613); font-weight: 800;
   letter-spacing: -.04em; line-height: 1.12; text-wrap: balance; overflow-wrap: break-word;
 }
 .engineering-iteration-count { position: absolute; top: calc(100% + 1.86rem); left: 50%; transform: translateX(-50%); display: block; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0413); line-height: 1.5; letter-spacing: .08em; color: #6b7b70; }
@@ -2062,7 +2100,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   position: relative; min-width: 0; padding-top: .1rem;
 }
 .engineering-workspace .engineering-eyebrow { white-space: nowrap; }
-.engineering-context { font-size: clamp(1.65rem, 2.6vw, 2.6rem); font-weight: 550; letter-spacing: -.045em; margin: .45rem 0 .5rem; line-height: 1.12; text-wrap: balance; }
+.engineering-context { font-size: clamp(1.65rem, 2.6vw, 2.6rem); font-weight: 600; letter-spacing: -.045em; margin: .45rem 0 .5rem; line-height: 1.12; text-wrap: balance; }
 /* The module's question, then which iteration is on the page. */
 .engineering-question { max-width: 60ch; margin: 0 0 .6rem; font-size: 1.02rem; line-height: 1.5; color: #4a5a50; text-wrap: pretty; }
 .engineering-iteration-line { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.35rem; font-size: .84rem; font-weight: 600; color: #5d6c62; }
@@ -2091,7 +2129,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 @media (max-width: 767px) { .engineering-record--wrapped-figure > .engineering-figure:not([hidden]) { float: none; width: min(100%, 340px); margin: .25rem 0 1rem; } }
 .engineering-figure-label { font-weight: 800; color: var(--eng-accent); letter-spacing: .04em; }
 .engineering-attachment-gallery[hidden] { display: none; }
-.engineering-gallery-title { margin: 1.4rem 0 .65rem; color: #4a5a50; font-size: 1rem; font-weight: 650; }
+.engineering-gallery-title { margin: 1.4rem 0 .65rem; color: #4a5a50; font-size: 1rem; font-weight: 700; }
 .engineering-gallery-note { margin: 0 0 .9rem; color: #5d6c62; font-size: .84rem; line-height: 1.5; }
 .engineering-figure-gallery-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .engineering-figure-gallery-grid.is-single { grid-template-columns: minmax(0, 1fr); }
@@ -2126,7 +2164,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-carousel-card.is-current .engineering-carousel-paper { box-shadow: 0 18px 36px rgba(22, 42, 32, .2); }
 .engineering-carousel-paper img { display: block; width: 100%; flex: 1 1 auto; min-height: 0; object-fit: contain; }
 .engineering-carousel-card-caption { display: flex; flex-direction: column; flex: 0 0 auto; gap: .2rem; min-height: 5.5rem; padding: .75rem .75rem .35rem; border-top: 1px solid var(--eng-line); text-align: left; }
-.engineering-carousel-card-label { color: var(--eng-accent); font-size: .88rem; font-weight: 750; line-height: 1.35; }
+.engineering-carousel-card-label { color: var(--eng-accent); font-size: .88rem; font-weight: 800; line-height: 1.35; }
 .engineering-carousel-card-description { color: #4a5a50; font-size: .81rem; font-weight: 400; line-height: 1.42; }
 .engineering-carousel-arrow {
   position: absolute; top: 50%; z-index: 4; display: grid; place-items: center; width: 2.3rem; height: 2.3rem;
@@ -2137,7 +2175,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-carousel-arrow.is-next { right: .15rem; }
 .engineering-carousel-arrow:focus-visible,
 .engineering-gallery-viewer button:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-carousel-count { margin: .15rem 0 .3rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 750; letter-spacing: .16em; }
+.engineering-carousel-count { margin: .15rem 0 .3rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 800; letter-spacing: .16em; }
 .engineering-gallery-viewer {
   width: min(1080px, calc(100vw - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; padding: 1rem;
   border: 1px solid var(--eng-line); border-radius: 18px; background: #fff; color: var(--eng-ink);
@@ -2148,7 +2186,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-gallery-viewer-body { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem; align-items: center; gap: .4rem; touch-action: pan-y; }
 .engineering-gallery-viewer-body img { display: block; width: 100%; height: min(70dvh, 700px); object-fit: contain; }
 .engineering-gallery-viewer-arrow { width: 2.4rem; height: 2.4rem; padding: 0; border: 1px solid var(--eng-line); border-radius: 50%; background: #fff; color: var(--eng-accent); font-size: 1.7rem; line-height: 1; cursor: pointer; }
-.engineering-gallery-viewer-count { display: block; margin: .35rem 0 .25rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 750; letter-spacing: .14em; }
+.engineering-gallery-viewer-count { display: block; margin: .35rem 0 .25rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 800; letter-spacing: .14em; }
 .engineering-gallery-viewer-caption { margin: 0; text-align: center; font-size: .9rem; line-height: 1.5; }
 @media (max-width: 575.98px) {
   .engineering-carousel-stage { height: 365px; }
@@ -2166,7 +2204,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   .engineering-carousel-card { transition: none; }
 }
 .engineering-record { position: relative; z-index: 1; min-width: 0; background: #fff; padding: .75rem 0 0; }
-.engineering-record h3 { color: var(--eng-accent); font-size: 2.8rem; font-weight: 550; letter-spacing: -.055em; margin: .25rem 0 .7rem; line-height: 1.05; text-wrap: balance; transition: color .6s ease; }
+.engineering-record h3 { color: var(--eng-accent); font-size: 2.8rem; font-weight: 600; letter-spacing: -.055em; margin: .25rem 0 .7rem; line-height: 1.05; text-wrap: balance; transition: color .6s ease; }
 .engineering-record-title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; margin: .2rem 0 .8rem; }
 .engineering-record-title-row h3 { display: flex; align-items: center; gap: .65rem; margin: 0; }
 .engineering-record-title-row h3::before {
@@ -2186,7 +2224,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 }
 .engineering-record.is-current .engineering-science-sketch { color: color-mix(in srgb, var(--eng-live-accent) 80%, var(--eng-paper)); }
 .engineering-sketch-detail { stroke-width: 1.55; }
-.engineering-record h4 { font-size: 1.1rem; font-weight: 650; line-height: 1.3; margin: 0 0 .5rem; color: var(--eng-ink); text-wrap: balance; }
+.engineering-record h4 { font-size: 1.1rem; font-weight: 700; line-height: 1.3; margin: 0 0 .5rem; color: var(--eng-ink); text-wrap: balance; }
 .engineering-record > p[data-field="description"],
 .engineering-record-detail p,
 .engineering-takeaway p { font-size: .96rem; line-height: 1.62; margin: 0; color: #46594d; text-wrap: pretty; orphans: 2; widows: 2; }
@@ -2231,7 +2269,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
 .engineering-takeaway { padding-left: .9rem; border-left: 3px solid var(--eng-accent); margin-top: 1.3rem; }
 .engineering-requests { margin-top: 2.5rem; padding: 1.35rem 1.5rem; border: 1px solid var(--eng-line); border-radius: 14px; background: #f6f8f6; color: #4a5a50; }
 .engineering-requests-heading .engineering-eyebrow { color: #6b7b70; }
-.engineering-requests h3 { margin: .35rem 0 .35rem; font-size: 1.3rem; font-weight: 650; color: var(--eng-ink); }
+.engineering-requests h3 { margin: .35rem 0 .35rem; font-size: 1.3rem; font-weight: 700; color: var(--eng-ink); }
 .engineering-requests-heading p { margin: 0; font-size: .85rem; line-height: 1.5; }
 .engineering-requests ul { display: grid; gap: .85rem; margin: 1.15rem 0 0; padding: 0; list-style: none; }
 .engineering-requests li { display: grid; grid-template-columns: 1rem minmax(0, 1fr); align-items: start; column-gap: .7rem; font-size: .84rem; line-height: 1.55; }
@@ -2246,7 +2284,7 @@ body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [d
   display: flex; align-items: center; justify-content: center; gap: .35rem; width: 100%;
   border: 1px solid color-mix(in srgb, var(--eng-accent) 42%, #fff); border-radius: 999px;
   background: color-mix(in srgb, var(--eng-hero) 18%, #fff); color: var(--eng-accent);
-  font-size: clamp(.56rem, .72vw, .72rem); font-weight: 650; line-height: 1.15; text-align: center;
+  font-size: clamp(.56rem, .72vw, .72rem); font-weight: 700; line-height: 1.15; text-align: center;
   transition: transform .2s ease, color .2s ease, background-color .2s ease, border-color .2s ease;
 }
 .engineering-page-nav-edge { min-height: 38px; padding: .5rem .55rem; }
@@ -2345,45 +2383,76 @@ body.engineering-toc-open .engineering-toc-scrim { opacity: 1; visibility: visib
   .engineering-sidebar .engineering-rail { width: 100%; }
   .engineering-toc-button { display: grid; }
 }
-/* Engineering only: a footer half the usual height. Logo, sponsors and
-   contact share one line; on narrower screens the logo and contact pair up
-   above the sponsor ticker instead of stacking into three tall rows. The
-   licence and repository lines are kept, just set tighter. */
-/* Hidden while another iteration of the same module follows; it shows
-   on each module's last iteration (the licence notice stays on the page). */
-body.engineering-footer-hidden footer.footer { display: none; }
-/* The footer starts right where the page nav ends. */
-body.engineering-page footer.footer { margin-top: 0 !important; padding-top: .75rem !important; padding-bottom: 1.5rem !important; }
-body.engineering-page footer .row:first-child {
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 1.5rem;
-  margin: 0 0 .6rem !important;
+/* Engineering: the footer is the site's own, at its usual size, on every
+   page. It used to be cut to half height and hidden on all but a module's
+   last iteration, so that reading on at the foot of the page would turn
+   straight to the next one. That made the licence notice and the repository
+   link -- required on every page -- come and go, and the page strip in the
+   hero (below) now turns pages from anywhere, so neither is needed. */
+
+/* ---- the page strip, in the sticky hero ----
+   One numbered button per iteration, grouped under its module, with a step
+   either side. The hero is sticky, so this row is always on screen. */
+.engineering-pages {
+  display: flex; align-items: center; gap: .4rem;
+  margin-top: .6rem;
 }
-body.engineering-page footer .row:first-child > * { width: auto; max-width: none; padding: 0; margin: 0 !important; }
-/* Logo, sponsors and contact keep their places; in the middle column the
-   sponsor ticker rides at the very top of the footer with its "Sponsors &
-   Partners" label just under it. (CSS only, so the shared footer.html is
-   untouched on other pages.) */
-body.engineering-page footer .row:first-child > :nth-child(2) { align-self: start; display: flex; flex-direction: column; }
-/* Contact Us rides at the top edge too, level with the ticker. */
-body.engineering-page footer .row:first-child > :last-child { align-self: start; }
-body.engineering-page footer .row:first-child > :nth-child(2) > p { order: 1; margin: .35rem 0 0 !important; }
-/* The three marks, smaller, to fit the compact footer. */
-body.engineering-page footer .footer-mark img { height: 40px; }
-body.engineering-page footer .footer-marks { gap: 0.6rem; flex-wrap: nowrap; }
-body.engineering-page footer .row:first-child > :nth-child(2) p { margin-bottom: .3rem !important; font-size: .75rem; }
-body.engineering-page footer .sponsor-logo { height: 52px; padding: 4px 8px; border-radius: 6px; }
-body.engineering-page footer .sponsor-marquee-track { gap: 1.5rem; }
-body.engineering-page footer .footer-social { font-size: 1.1rem; gap: .25rem; }
-body.engineering-page footer .footer-main { min-height: 0; }
-body.engineering-page footer .footer-social .hover-icon { min-width: 36px; min-height: 36px; }
-body.engineering-page footer hr { margin: .6rem 0 !important; }
-body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: .72rem; }
-@media (max-width: 991.98px) {
-  body.engineering-page footer.footer { padding-bottom: 64px !important; }
-  body.engineering-page footer .row:first-child { grid-template-columns: auto 1fr; gap: .6rem 1rem; }
-  body.engineering-page footer .row:first-child > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
-  body.engineering-page footer .row:first-child > :last-child { text-align: right; }
-  body.engineering-page footer .footer-social { justify-content: flex-end; }
+.engineering-pages[hidden] { display: none; }
+.engineering-pages-list {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .3rem 1rem;
+  margin: 0; padding: 0; list-style: none;
+}
+.engineering-pages-group { display: flex; align-items: center; gap: .3rem; }
+.engineering-pages-label {
+  margin-right: .15rem;
+  font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--eng-ink) 62%, transparent);
+}
+.engineering-pages-chip,
+.engineering-pages-step {
+  display: inline-grid; place-items: center;
+  min-width: 30px; height: 30px; padding: 0 .3rem;
+  border: 1px solid color-mix(in srgb, var(--eng-ink) 22%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--eng-paper) 82%, transparent);
+  color: var(--eng-ink);
+  font-size: .85rem; font-weight: 600; line-height: 1;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .15s ease;
+}
+.engineering-pages-step { font-size: 1.15rem; }
+.engineering-pages-chip:hover,
+.engineering-pages-step:hover:not(:disabled) { border-color: var(--eng-accent); color: var(--eng-accent); transform: translateY(-1px); }
+.engineering-pages-chip:focus-visible,
+.engineering-pages-step:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 2px; }
+/* The page being read. */
+.engineering-pages-chip.is-current {
+  background: var(--eng-accent); border-color: var(--eng-accent); color: #fff; cursor: default; transform: none;
+}
+.engineering-pages-step:disabled { opacity: .35; cursor: default; }
+
+/* ---- phone ----
+   The hero text keeps clear of the stage mark in the top-right corner (the
+   subtitle ran underneath it), and the module labels shorten to M1 / M2 so
+   all six pages and both steps fit one line at 390px. The chips carry the
+   full name for a screen reader, so the shorter label loses nothing. */
+@media (max-width: 575.98px) {
+  .engineering-hero h1,
+  .engineering-hero #engineering-hero-position { padding-right: 60px; }
+  .engineering-pages { gap: .3rem; }
+  .engineering-pages-list { gap: .25rem .6rem; }
+  .engineering-pages-label { font-size: 0; margin-right: .1rem; }
+  .engineering-pages-label::before { content: attr(data-short); font-size: .68rem; }
+  .engineering-pages-chip,
+  .engineering-pages-step { min-width: 28px; height: 28px; }
+}
+
+/* The Cycle button on a phone is pinned bottom-left, where the footer's
+   licence line arrives. While the footer is on screen it steps aside; it
+   stays put if its card is open, so an open card never loses its button. */
+.engineering-toc-button { transition: opacity .2s ease, transform .2s ease; }
+body.engineering-footer-in-view:not(.engineering-toc-open) .engineering-toc-button {
+  opacity: 0; transform: translateY(24px) scale(.9); pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) {
   body.engineering-page, .engineering-page *, .engineering-page *::before, .engineering-page *::after { transition: none !important; }
@@ -4535,7 +4604,7 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   --neutral: #4a3f35; --neutral-edge: #3a312a; --neutral-drop: #2a231e;
   --red: #c44536; --gold: #c9a227; --muted: #8a7a6a;
   --sticky-y: #fff3a3; --sticky-p: #ffcce0; --sticky-g: #c8f0d4;
-  font-family: "Segoe UI", "Noto Sans TC", system-ui, sans-serif;
+  font-family: "Changa", "Noto Sans TC", sans-serif;
   background: linear-gradient(160deg, var(--wood-light), var(--wood-mid), var(--wood-dark));
   color: var(--ink); line-height: 1.5; position: relative;
   border-radius: 16px; padding: 18px; margin-bottom: 2rem;
@@ -12639,8 +12708,44 @@ body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
    gets a deeper shadow to stand clear of a light photo. Hardware's bench
    photo is treated the same way (its brightness is set with its other
    banner rules, near the top of this file). */
-body.team-page .page-hero-bg,
 body.hw-nexus.attr-page .page-hero-bg { filter: blur(2px) saturate(1) brightness(0.8); }
+
+/* ---- the Team banner, taller and sharp ----
+   This one banner is the group photo, and the point of it is that the faces
+   can be made out, so it gets three things the other banners do not. It is
+   tall enough for the photo to be read as a photo rather than as a band
+   across the middle of one; the 2px blur every other banner carries is off,
+   since it is the one thing that would stop a face resolving; and the title
+   is anchored to the bottom, where the tint is already near-opaque, so it
+   has something dark to sit on without being laid over anybody's face. */
+body.team-page .page-hero-bg { filter: saturate(1) brightness(0.8); }
+
+body.team-page .page-hero {
+  min-height: clamp(520px, 82vh, 900px);
+  display: flex;
+  align-items: center;
+  /* Centred, then pushed about 100px below centre: dead centre laid the
+     title across the face of the person on the left of the group. The
+     padding is what does the pushing -- centring happens inside the content
+     box, so a heavier top padding lowers where "centre" lands, by half the
+     difference between the two. Change that difference to move the title up
+     or down the photo. */
+  padding-top: 204px !important;
+  padding-bottom: 104px;
+}
+
+/* .container is a flex item here, and would otherwise shrink to its text. */
+body.team-page .page-hero > .container { width: 100%; }
+
+/* This page sets no subtitle, so layout.html's <p class="lead mb-5 hero-sub">
+   renders empty -- but an empty <p> still holds a line box and its 3rem
+   bottom margin. Left in, that weight sits below the title and pushes it off
+   centre; the title's own margins do the same thing on a smaller scale. With
+   the title the only thing in the banner, all three go, so what is centred is
+   the title itself. Scoped here because every other banner relies on that
+   spacing for its height. */
+body.team-page .page-hero .hero-sub:empty { display: none; }
+body.team-page .page-hero .hero-title { margin: 0 !important; }
 body.team-page .page-hero-tint,
 body.hw-nexus.attr-page .page-hero-tint,
 body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
