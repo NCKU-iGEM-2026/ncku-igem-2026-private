@@ -279,6 +279,65 @@
   var lastIteration = document.getElementById('engineering-last-iteration');
   var nextIteration = document.getElementById('engineering-next-iteration');
   var nextModule = document.getElementById('engineering-next-module');
+  // The page strip in the sticky hero: one numbered button per iteration,
+  // grouped by module, with a step either side. Built here, before the first
+  // render, so render() can mark the current page on the very first pass.
+  var pagesNav = document.getElementById('engineering-pages');
+  var pagesPrev = document.getElementById('engineering-pages-prev');
+  var pagesNext = document.getElementById('engineering-pages-next');
+  var pageChips = [];
+  if (pagesNav) {
+    var pagesList = document.getElementById('engineering-pages-list');
+    modules.forEach(function (module, moduleIndex) {
+      var group = document.createElement('li');
+      group.className = 'engineering-pages-group';
+      var label = document.createElement('span');
+      label.className = 'engineering-pages-label';
+      label.textContent = module.name;
+      // Shown in place of the full name on a phone (style.css). Every chip
+      // already names its module, so the label is only for the eye.
+      label.dataset.short = 'M' + (moduleIndex + 1);
+      label.setAttribute('aria-hidden', 'true');
+      group.appendChild(label);
+      module.iterations.forEach(function (iteration, iterationIndex) {
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'engineering-pages-chip';
+        chip.textContent = String(iterationIndex + 1);
+        // The number alone is not a name; say which page it is.
+        chip.setAttribute('aria-label', module.name + ', Iteration ' + (iterationIndex + 1) + ': ' + iteration.name);
+        chip.title = 'Iteration ' + (iterationIndex + 1) + ' · ' + iteration.name;
+        chip.addEventListener('click', function () {
+          if (state.module === moduleIndex && state.iteration === iterationIndex) goToStage(0);
+          else flipTo({ module: moduleIndex, iteration: iterationIndex, chosen: true });
+        });
+        pageChips.push({ element: chip, module: moduleIndex, iteration: iterationIndex });
+        group.appendChild(chip);
+      });
+      pagesList.appendChild(group);
+    });
+    // The steps cross module boundaries, as reading on at the foot of the page does.
+    pagesPrev.addEventListener('click', function () {
+      var target = precedingIteration();
+      if (target) { target.chosen = true; flipTo(target); }
+    });
+    pagesNext.addEventListener('click', function () {
+      var target = followingIteration();
+      if (target) { target.chosen = true; flipTo(target); }
+    });
+    pagesNav.hidden = false;
+  }
+  function syncPages() {
+    if (!pagesNav) return;
+    pageChips.forEach(function (chip) {
+      var current = chip.module === state.module && chip.iteration === state.iteration;
+      chip.element.classList.toggle('is-current', current);
+      if (current) chip.element.setAttribute('aria-current', 'page');
+      else chip.element.removeAttribute('aria-current');
+    });
+    pagesPrev.disabled = !precedingIteration();
+    pagesNext.disabled = !followingIteration();
+  }
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   var lastModule = 0;
   var transitionAnimations = [];
@@ -541,9 +600,12 @@
     var stage = stages[state.stage];
     document.body.dataset.engineeringStage = stage;
     panels.forEach(function (panel, index) { panel.classList.toggle('is-current', index === state.stage); });
-    // Turning pages within one module should feel continuous, so the
-    // footer only shows on an module's last iteration.
-    document.body.classList.toggle('engineering-footer-hidden', state.iteration + 1 < module.iterations.length);
+    // The footer shows on every page. It used to be hidden on all but a
+    // module's last iteration, so reading on at the foot of the page would
+    // turn straight to the next one -- but it carries the licence notice and
+    // the repository link the competition requires on every page, and the
+    // page strip in the hero now turns pages without scrolling down at all.
+    syncPages();
     cycle.style.setProperty('--rotation', state.rotation + 'deg');
     setText('engineering-hero-stage', module.title);
     setText('engineering-hero-position', module.iterations[state.iteration].name + '・' + title(stage));
@@ -777,8 +839,17 @@
   sheet.parentNode.insertBefore(cueUp, sheet);
   var cueUpText = cueUp.querySelector('.engineering-flip-cue-text');
   var footer = document.querySelector('footer');
-  // Forward tension starts once a quarter of the footer is in view; on pages
-  // where the footer is hidden, at the very foot of the page.
+  // On a phone the Cycle button is pinned to the bottom-left corner, which is
+  // exactly where the footer's licence line arrives. While any of the footer
+  // is on screen the button steps aside (style.css), so the notice is never
+  // printed underneath it.
+  if (footer && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      document.body.classList.toggle('engineering-footer-in-view', entries[0].isIntersecting);
+    }).observe(footer);
+  }
+  // Forward tension starts once a quarter of the footer is in view; if the
+  // footer has no height (it never should now), at the very foot of the page.
   function atPageFoot() {
     if (footer && footer.offsetHeight) {
       var box = footer.getBoundingClientRect();
