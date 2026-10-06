@@ -46,16 +46,16 @@
 
   var charts = {
 
-    /* 0917_逐筆.csv: one sample left untouched for an hour. Each point is the mean F3 of readings
+    /* 0917_逐筆.csv: the stability test, chamber empty, sensor still in its original low position, nothing moved for an hour. Each point is the mean F3 of readings
        2–5 of a batch (the first reading of each batch is discarded, as in every other result),
        relative to the first batch. Minutes since the first batch. */
     drift: function (host) {
       var pts = [[0,1.00000],[2.86,0.99576],[5.72,0.99597],[8.57,0.99653],[11.46,0.99387],[14.32,0.99803],[17.28,0.99762],[20.46,0.99905],[23.32,1.00171],[26.18,1.00199],[29.03,1.00262],[31.89,1.00308],[34.75,1.00357],[37.61,1.00373],[40.46,1.00067],[43.32,1.00078],[46.18,0.99931],[49.04,0.99846],[51.89,0.99822],[54.75,0.99708],[57.61,0.99528]];
-      legend(host, [[C.green, 'One untouched sample, mean of readings 2–5 of each batch']]);
+      legend(host, [[C.green, 'Empty chamber, nothing moved: mean of readings 2–5 of each batch']]);
       var W = 680, H = 270, L = 52, R = 16, T = 14, B = 46, pw = W - L - R, ph = H - T - B;
       function X(v) { return L + v / 60 * pw; }
       function Y(v) { return T + ph - (v - 0.97) / 0.06 * ph; }
-      var s = svg(host, W, H, 'Blue channel of one untouched sample over an hour. All 21 batches lie within a one percent band.');
+      var s = svg(host, W, H, 'Blue channel with the chamber empty and nothing moved, over an hour. All 21 batches lie within a one percent band.');
       el('rect', { x: L, y: Y(1.0037), width: pw, height: Y(0.9939) - Y(1.0037), fill: C.green, opacity: 0.08 }, s);
       [0.97, 0.98, 0.99, 1.0, 1.01, 1.02, 1.03].forEach(function (v) {
         el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 1 ? '' : '3 4' }, s);
@@ -64,6 +64,30 @@
       [0, 15, 30, 45, 60].forEach(function (v) { text(s, v, X(v), T + ph + 17, { size: 10 }); });
       text(s, 'Minutes', L + pw / 2, H - 6, { size: 10 });
       path(s, pts, X, Y, C.green, 2.2); dots(s, pts, X, Y, C.green, 2.8);
+    },
+
+    /* 0916_菌液初測.csv, the 28 batches with an OD600 record, in the order measured.
+       Fit: ln F3 = a + b·OD600 + s·[batch ≥ 8]  (b = 0.066, s = −0.517, R² 0.88).
+       Each point is F3 corrected to the mean OD600 (divided by exp(b·(OD600 − mean))),
+       relative to the fitted level before the step. After the step the fit is exp(s) = 0.596. */
+    step: function (host) {
+      var pts = [[1,1.037],[2,1.055],[3,0.975],[4,1.059],[6,0.959],[7,0.923],[8,0.691],[9,0.626],[10,0.621],[11,0.620],[12,0.586],[13,0.643],[14,0.589],[15,0.571],[16,0.584],[17,0.556],[18,0.653],[19,0.592],[20,0.571],[21,0.634],[22,0.626],[23,0.617],[24,0.644],[25,0.612],[26,0.564],[27,0.449],[28,0.578],[29,0.542]];
+      var post = 0.596;
+      legend(host, [[C.blue, 'Each batch, corrected for culture density'], [C.green, 'Best single-step fit']]);
+      var W = 680, H = 280, L = 52, R = 16, T = 14, B = 46, pw = W - L - R, ph = H - T - B;
+      function X(v) { return L + (v - 0.5) / 29 * pw; }
+      function Y(v) { return T + ph - (v - 0.4) / 0.75 * ph; }
+      var s = svg(host, W, H, 'Density-corrected blue channel in the first culture test. It sits near 100% for the first seven batches, then drops by about 40% to near 60% and stays there.');
+      [0.4, 0.6, 0.8, 1.0].forEach(function (v) {
+        el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 1 ? '' : '3 4' }, s);
+        text(s, Math.round(v * 100) + '%', L - 8, Y(v) + 4, { anchor: 'end', size: 10 });
+      });
+      el('line', { x1: X(7.5), x2: X(7.5), y1: T, y2: T + ph, stroke: C.mute, 'stroke-dasharray': '4 4' }, s);
+      text(s, '−40%', X(7.5) + 6, Y(0.8), { anchor: 'start', size: 11, fill: C.green, weight: 600 });
+      path(s, [[0.6, 1], [7.5, 1], [7.5, post], [29.4, post]], X, Y, C.green, 2);
+      dots(s, pts, X, Y, C.blue, 3.4);
+      [1, 5, 10, 15, 20, 25, 29].forEach(function (v) { text(s, v, X(v), T + ph + 17, { size: 10 }); });
+      text(s, 'Batch, in the order measured', L + pw / 2, H - 6, { size: 10 });
     },
 
     /* 0922_批次.csv: net signal = (F5/F3 of the tube − F5/F3 of the N tube) × 1000, averaged per tube.
