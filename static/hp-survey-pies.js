@@ -78,11 +78,6 @@
     var v = document.createElement("span");
     v.textContent = row.share + " · " + row.countText + " of " + row.total + " responses";
     t.appendChild(v);
-    if (row.est) {
-      var n = document.createElement("em");
-      n.textContent = "Measured from the original chart, which left this slice unlabelled";
-      t.appendChild(n);
-    }
     t.hidden = false;
     var w = t.offsetWidth, hgt = t.offsetHeight;
     var left = Math.min(window.innerWidth - w - 8, Math.max(8, x + 14));
@@ -108,7 +103,6 @@
         count: parseFloat(countText.replace(/[^\d.]/g, "")),
         countText: countText,
         share: cells[2].textContent.trim(),
-        est: tr.hasAttribute("data-est"),
         colour: colours[i % colours.length]
       };
     });
@@ -124,7 +118,7 @@
     var a = 0;
     rows.forEach(function (r) {
       var a1 = a + 2 * Math.PI * r.count / sum;
-      var g = el("g", { class: "hp-pie-slice" + (r.est ? " is-est" : "") }, svg);
+      var g = el("g", { class: "hp-pie-slice" }, svg);
       r.path = el("path", { d: arc(a, a1), fill: r.colour, stroke: SURFACE, "stroke-width": 2, "stroke-linejoin": "round" }, g);
       if (r.count / sum >= LABEL_MIN) {
         var mid = (a + a1) / 2, rr = (R + R_IN) / 2;
