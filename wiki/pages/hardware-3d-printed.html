@@ -1,8 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}3D-Printed Build{% endblock %}
+
+{# The deep-teal treatment, the same as the Hardware page: every rule it
+   turns on lives under body.hw-nexus in style.css. #}
+{% block body_class %}hw-nexus{% endblock %}
+
+{% block page_content %}
+
+{# Three green glows drifting over the background, as on Hardware. Decoration
+   only: aria-hidden, no text. #}
+<div class="hw-orbs" aria-hidden="true">
+  <span class="hw-orb hw-orb-a"><span></span></span>
+  <span class="hw-orb hw-orb-b"><span></span></span>
+  <span class="hw-orb hw-orb-c"><span></span></span>
+</div>
+
+<div class="container my-4 hw">
+
+  <p class="hw-crumb"><a href="{{ url_for('pages', page='hardware') }}">&larr; Hardware</a></p>
+
 {#
   === 3D 列印機（3D-printed build）的全部內容 ===
 
-  這個檔案由 wiki/pages/hardware.html 用 include 放進 Hardware 頁的 <div id="printed"> 裡，
-  不是獨立的網頁（wiki/pages/ 以外的檔案不會被 build 成頁面）。
+  這一頁是 /hardware-3d-printed，Hardware 頁上「The two builds」的第一張卡片連到這裡。
+  2026-10-06 之前它是 wiki/hardware-printed.html，用 include 放進 Hardware 頁；現在是獨立的網頁。
   共同的部分（為什麼做、怎麼量、十個波段、兩張卡片）在 hardware.html；
   雷切機在 wiki/hardware-laser-cut.html。
   給團隊的完整說明、資料來源與還沒補的東西，都寫在 hardware.html 開頭的註解。
@@ -1715,13 +1737,13 @@
     <p>
       The 3D-printed build has no cost total of its own: what its printed
       parts cost was not recorded. The laser-cut build is costed
-      <a href="#hardware-cost">in its own section</a>.
+      <a href="{{ url_for('pages', page='hardware-laser-cut') }}#hardware-cost">in its own section</a>.
     </p>
 
     <h3 id="hardware-circuit">The circuit</h3>
 
     <p>
-      The excitation branch turns one LED<sup class="hw-ref"><a href="#hardware-ref-3">3</a></sup> on and off at a current
+      The excitation branch turns one LED<sup class="hw-ref"><a href="{{ url_for('pages', page='hardware') }}#hardware-ref-3">3</a></sup> on and off at a current
       that cannot damage it: a resistor-limited LED with an N-channel MOSFET
       on the low side, switched from one pin of the controller. It is a
       breadboard circuit that was measured, not a product design. The gate
@@ -2307,6 +2329,17 @@
   </section>
 
   <p class="hw-build-end">
-    <a href="#laser-cut">See the laser-cut build</a>
-    <a href="#hardware-builds">Back to the two builds</a>
+    <a href="{{ url_for('pages', page='hardware-laser-cut') }}">See the laser-cut build</a>
+    <a href="{{ url_for('pages', page='hardware') }}#hardware-builds">Back to the two builds</a>
   </p>
+
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename = 'hardware-cutaway.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-parts.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-bench.js') }}"></script>
+<script src="{{ url_for('static', filename = 'hardware-gains.js') }}"></script>
+{% endblock %}
