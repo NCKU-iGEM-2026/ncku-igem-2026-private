@@ -1855,20 +1855,22 @@ body.engineering-page {
 body.engineering-page[data-engineering-stage="build"] { --eng-accent: var(--eng-accent-build); --eng-hero: var(--eng-hero-build); }
 body.engineering-page[data-engineering-stage="test"] { --eng-accent: var(--eng-accent-test); --eng-hero: var(--eng-hero-test); }
 body.engineering-page[data-engineering-stage="learn"] { --eng-accent: var(--eng-accent-learn); --eng-hero: var(--eng-hero-learn); }
-/* Engineering navigation is one top-layer group: white bar, logo, controls,
-   mobile panel and dropdowns enter and leave together above the hero. */
+/* Engineering navigation is one top-layer group: bar, logo, controls, mobile
+   panel and dropdowns enter and leave together above the hero. Only the
+   layering is engineering's own. The bar itself is the same frosted glass
+   every other light page has -- it used to be painted solid white here,
+   which made this the one page whose menu did not match the rest. */
 body.engineering-page .navbar {
   z-index: 1100;
   isolation: isolate;
-  background: #fff !important;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-color: #e4e9e5;
-  box-shadow: 0 8px 24px rgba(25, 62, 52, .12);
 }
 body.engineering-page .navbar .container-fluid { position: relative; z-index: 1; }
 body.engineering-page .navbar-brand { z-index: 10; transform: translateY(4px); }
-body.engineering-page .navbar-collapse { z-index: 2; background-color: #fff; }
+/* No background of its own: on a desktop this is the row of menu items and
+   sits on the glass; on a phone it is the drop-down panel, which takes the
+   site's own panel colour like every other page. Painting it white here
+   left a white slab inside the glass on desktop. */
+body.engineering-page .navbar-collapse { z-index: 2; }
 body.engineering-page .navbar-toggler { z-index: 3; }
 body.engineering-page .navbar .dropdown-menu { z-index: 4; }
 body.engineering-page .navbar-nav .nav-link:hover,
@@ -2382,45 +2384,76 @@ body.engineering-toc-open .engineering-toc-scrim { opacity: 1; visibility: visib
   .engineering-sidebar .engineering-rail { width: 100%; }
   .engineering-toc-button { display: grid; }
 }
-/* Engineering only: a footer half the usual height. Logo, sponsors and
-   contact share one line; on narrower screens the logo and contact pair up
-   above the sponsor ticker instead of stacking into three tall rows. The
-   licence and repository lines are kept, just set tighter. */
-/* Hidden while another iteration of the same module follows; it shows
-   on each module's last iteration (the licence notice stays on the page). */
-body.engineering-footer-hidden footer.footer { display: none; }
-/* The footer starts right where the page nav ends. */
-body.engineering-page footer.footer { margin-top: 0 !important; padding-top: .75rem !important; padding-bottom: 1.5rem !important; }
-body.engineering-page footer .row:first-child {
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 1.5rem;
-  margin: 0 0 .6rem !important;
+/* Engineering: the footer is the site's own, at its usual size, on every
+   page. It used to be cut to half height and hidden on all but a module's
+   last iteration, so that reading on at the foot of the page would turn
+   straight to the next one. That made the licence notice and the repository
+   link -- required on every page -- come and go, and the page strip in the
+   hero (below) now turns pages from anywhere, so neither is needed. */
+
+/* ---- the page strip, in the sticky hero ----
+   One numbered button per iteration, grouped under its module, with a step
+   either side. The hero is sticky, so this row is always on screen. */
+.engineering-pages {
+  display: flex; align-items: center; gap: .4rem;
+  margin-top: .6rem;
 }
-body.engineering-page footer .row:first-child > * { width: auto; max-width: none; padding: 0; margin: 0 !important; }
-/* Logo, sponsors and contact keep their places; in the middle column the
-   sponsor ticker rides at the very top of the footer with its "Sponsors &
-   Partners" label just under it. (CSS only, so the shared footer.html is
-   untouched on other pages.) */
-body.engineering-page footer .row:first-child > :nth-child(2) { align-self: start; display: flex; flex-direction: column; }
-/* Contact Us rides at the top edge too, level with the ticker. */
-body.engineering-page footer .row:first-child > :last-child { align-self: start; }
-body.engineering-page footer .row:first-child > :nth-child(2) > p { order: 1; margin: .35rem 0 0 !important; }
-/* The three marks, smaller, to fit the compact footer. */
-body.engineering-page footer .footer-mark img { height: 40px; }
-body.engineering-page footer .footer-marks { gap: 0.6rem; flex-wrap: nowrap; }
-body.engineering-page footer .row:first-child > :nth-child(2) p { margin-bottom: .3rem !important; font-size: .75rem; }
-body.engineering-page footer .sponsor-logo { height: 52px; padding: 4px 8px; border-radius: 6px; }
-body.engineering-page footer .sponsor-marquee-track { gap: 1.5rem; }
-body.engineering-page footer .footer-social { font-size: 1.1rem; gap: .25rem; }
-body.engineering-page footer .footer-main { min-height: 0; }
-body.engineering-page footer .footer-social .hover-icon { min-width: 36px; min-height: 36px; }
-body.engineering-page footer hr { margin: .6rem 0 !important; }
-body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: .72rem; }
-@media (max-width: 991.98px) {
-  body.engineering-page footer.footer { padding-bottom: 64px !important; }
-  body.engineering-page footer .row:first-child { grid-template-columns: auto 1fr; gap: .6rem 1rem; }
-  body.engineering-page footer .row:first-child > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
-  body.engineering-page footer .row:first-child > :last-child { text-align: right; }
-  body.engineering-page footer .footer-social { justify-content: flex-end; }
+.engineering-pages[hidden] { display: none; }
+.engineering-pages-list {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .3rem 1rem;
+  margin: 0; padding: 0; list-style: none;
+}
+.engineering-pages-group { display: flex; align-items: center; gap: .3rem; }
+.engineering-pages-label {
+  margin-right: .15rem;
+  font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--eng-ink) 62%, transparent);
+}
+.engineering-pages-chip,
+.engineering-pages-step {
+  display: inline-grid; place-items: center;
+  min-width: 30px; height: 30px; padding: 0 .3rem;
+  border: 1px solid color-mix(in srgb, var(--eng-ink) 22%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--eng-paper) 82%, transparent);
+  color: var(--eng-ink);
+  font-size: .85rem; font-weight: 600; line-height: 1;
+  cursor: pointer;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .15s ease;
+}
+.engineering-pages-step { font-size: 1.15rem; }
+.engineering-pages-chip:hover,
+.engineering-pages-step:hover:not(:disabled) { border-color: var(--eng-accent); color: var(--eng-accent); transform: translateY(-1px); }
+.engineering-pages-chip:focus-visible,
+.engineering-pages-step:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 2px; }
+/* The page being read. */
+.engineering-pages-chip.is-current {
+  background: var(--eng-accent); border-color: var(--eng-accent); color: #fff; cursor: default; transform: none;
+}
+.engineering-pages-step:disabled { opacity: .35; cursor: default; }
+
+/* ---- phone ----
+   The hero text keeps clear of the stage mark in the top-right corner (the
+   subtitle ran underneath it), and the module labels shorten to M1 / M2 so
+   all six pages and both steps fit one line at 390px. The chips carry the
+   full name for a screen reader, so the shorter label loses nothing. */
+@media (max-width: 575.98px) {
+  .engineering-hero h1,
+  .engineering-hero #engineering-hero-position { padding-right: 60px; }
+  .engineering-pages { gap: .3rem; }
+  .engineering-pages-list { gap: .25rem .6rem; }
+  .engineering-pages-label { font-size: 0; margin-right: .1rem; }
+  .engineering-pages-label::before { content: attr(data-short); font-size: .68rem; }
+  .engineering-pages-chip,
+  .engineering-pages-step { min-width: 28px; height: 28px; }
+}
+
+/* The Cycle button on a phone is pinned bottom-left, where the footer's
+   licence line arrives. While the footer is on screen it steps aside; it
+   stays put if its card is open, so an open card never loses its button. */
+.engineering-toc-button { transition: opacity .2s ease, transform .2s ease; }
+body.engineering-footer-in-view:not(.engineering-toc-open) .engineering-toc-button {
+  opacity: 0; transform: translateY(24px) scale(.9); pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) {
   body.engineering-page, .engineering-page *, .engineering-page *::before, .engineering-page *::after { transition: none !important; }
