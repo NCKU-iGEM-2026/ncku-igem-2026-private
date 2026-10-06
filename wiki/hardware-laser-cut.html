@@ -71,7 +71,8 @@
       This build took 600 readings of <em>E.&nbsp;coli</em> cultures with
       and without sfGFP. Its green-to-blue ratio rose in a straight line with
       the fraction of sfGFP cells (r&sup2;&nbsp;&asymp;&nbsp;0.97), resolved
-      down to about 3% sfGFP cells, and drifted by about 1% in an hour.
+      down to about 3% sfGFP cells, and stayed within a 1% range over an
+      hour.
       Across its ten channels the added signal has the spectral shape of
       fluorescence, not of scattering.
     </p>
@@ -79,7 +80,7 @@
   <dl class="hw-keys">
     <div><dt>r&sup2; &asymp; 0.97</dt><dd>signal against the fraction of sfGFP cells, seven tubes</dd></div>
     <div><dt>&asymp; 3%</dt><dd>sfGFP cells, the 3&sigma; detection limit</dd></div>
-    <div><dt>&asymp; 1% / hour</dt><dd>drift of one undisturbed sample</dd></div>
+    <div><dt>&lt; 1%</dt><dd>range of one untouched sample over an hour</dd></div>
   </dl>
 
   <nav class="hw-jump" aria-label="In the laser-cut build">
@@ -159,45 +160,58 @@
     <p>
       For each reading the firmware takes eight samples with the LED off,
       then eight with it on, and subtracts the averages channel by channel,
-      which removes ambient light and the sensor's dark current. One press of
-      the button records a batch of five readings; the first is discarded,
-      because it is taken just after the cuvette goes in, and the other four
-      are averaged.
+      which removes ambient light and the sensor's dark current; averaging
+      eight samples also lowers the sensor's own noise by about &radic;8, or
+      2.8 times. One press of the button records a batch of five readings,
+      about 22 seconds each. The first is discarded for two reasons. The
+      signal is highest at the start of each batch and falls by about 4%
+      over its five readings, even with nothing moved, which is consistent
+      with the LED dimming as it warms; and readings taken right after a
+      cuvette goes in are less stable. The other four are averaged.
     </p>
     <p>
       The figure we report is <strong>F5/F3</strong>: the green channel at
       555&nbsp;nm divided by the blue channel at 480&nbsp;nm. Dividing by the
-      blue channel cancels changes in how much light reaches the sensor, for
-      example from where the cuvette sits. Net signal is the F5/F3 of a tube
+      blue channel cancels changes in how much light reaches the sensor,
+      whether from where the cuvette sits or from the LED dimming within a
+      batch: over readings two to five, F3 and F5 each fall by about 2.7%,
+      while F5/F3 changes by less than 0.1% on average. Net signal is the
+      F5/F3 of a tube
       minus that of a tube with no sfGFP cells, measured the same day.
     </p>
 
     <h3>Why F5, and not F4</h3>
     <p>
-      sfGFP emits most strongly near 510&nbsp;nm, and the closest channel is F4
-      at 515&nbsp;nm. F5 was the channel this build was set up to read from
-      the start: the firmware's live signal, below, is built on it. To check
-      that choice we recomputed every result with F4/F3 alongside, using the
-      same data and the same method.
+      sfGFP emits most strongly near 510&nbsp;nm. F4 and F5 each respond over
+      a band 39&nbsp;nm wide at half maximum (AS7341 datasheet): F4 from about
+      496 to 535&nbsp;nm, F5 from about 536 to 575&nbsp;nm. The band centred
+      closest to the sfGFP peak is F4. This build was set up from the start to read F5
+      (555&nbsp;nm): the on-screen signal of the firmware used for these
+      measurements is built on it. To check that choice we recomputed the
+      main results with F4/F3 alongside, using
+      the same data and the same method.
     </p>
 
     <figure class="hw-figure hw-figure-table">
       <table class="hw-table">
         <caption>
-          Both ratios from the same readings. 2026-09-22 uses the seven tubes
-          with sfGFP cells; 2026-09-20 the twelve-tube grid. Background is the
-          ratio for tubes with no sfGFP cells.
+          Both ratios from the same readings. The linearity series is eight
+          tubes at one culture density: seven with different fractions of
+          sfGFP cells, used for the fit, and one with none, which sets the
+          zero and gives the background row. The grid varies both culture
+          density and sfGFP fraction over twelve tubes. The last row is a
+          culture-medium blank measured on the grid day, lifted out and put
+          back.
         </caption>
         <thead>
           <tr><th scope="col">Measure</th><th scope="col">F5/F3</th><th scope="col">F4/F3</th></tr>
         </thead>
         <tbody>
-          <tr><td>Detection limit, fraction of sfGFP cells (3&sigma;), 09-22</td><td>&asymp; 0.03</td><td>&asymp; 0.06</td></tr>
-          <tr><td>Linearity r&sup2;, 09-22</td><td>0.97</td><td>0.96</td></tr>
-          <tr><td>Dose response r&sup2;, 09-20</td><td>0.95</td><td>0.89</td></tr>
-          <tr><td>Background, relative to F3</td><td>0.055</td><td>0.163</td></tr>
-          <tr><td>Batch-to-batch variation of that background</td><td>2.0%</td><td>2.9%</td></tr>
-          <tr><td>Shift when the cuvette is lifted out and put back</td><td>2.9%</td><td>0.7%</td></tr>
+          <tr><td>Detection limit, fraction of sfGFP cells (3&sigma;), linearity series</td><td>&asymp; 0.03</td><td>&asymp; 0.06</td></tr>
+          <tr><td>Linearity r&sup2;, linearity series</td><td>0.97</td><td>0.96</td></tr>
+          <tr><td>Dose response r&sup2;, grid</td><td>0.95</td><td>0.89</td></tr>
+          <tr><td>Background relative to F3, tube with no sfGFP cells</td><td>0.055</td><td>0.160</td></tr>
+          <tr><td>Shift when a blank is lifted out and put back</td><td>2.9%</td><td>0.7%</td></tr>
         </tbody>
       </table>
     </figure>
@@ -205,13 +219,15 @@
     <p>
       F4 does collect more sfGFP light, about 2.2 times as much as F5. But it
       sits next to the 470&nbsp;nm excitation and also collects its long-wave
-      tail: its background is three times that of F5 and varies more from
-      batch to batch. The noise grows about fourfold, so the detection limit
-      is twice as poor. F4/F3 supports every conclusion below, linear and
-      with an intercept indistinguishable from zero, only with more noise. Its
-      one advantage is that it shifts less when the cuvette is moved, because
-      F4 and F3 are close in wavelength. On this build, F5/F3 is the better
-      measure of sfGFP.
+      tail, so its background is three times that of F5, and the scatter
+      between repeated batches of the same tube is about four times larger in
+      absolute terms. With 2.2 times the signal and four times the noise, the
+      detection limit comes out twice as wide. F4/F3 supports the same
+      conclusions, linear and with an intercept indistinguishable from zero,
+      only with more noise. Where it does better is stability: it shifts less
+      when the cuvette is moved and drifts less over an hour, because F4 and
+      F3 are close in wavelength. On this build, F5/F3 is the better measure
+      of sfGFP.
     </p>
 
     <details class="hw-fold">
@@ -226,19 +242,21 @@
       </summary>
       <div class="hw-fold-body">
         <p>
-          For its live display the firmware also computes
+          For its on-screen reading the firmware also computes
           SIG5&nbsp;=&nbsp;F5&nbsp;&minus;&nbsp;k5&nbsp;&times;&nbsp;F3. Part of
-          what F5 sees is the blue LED's long-wave tail rather than
-          fluorescence; k5 is that tail as a fraction of F3. It is set by
-          placing a tube with no sfGFP cells, sending the <code>k</code>
-          command, and storing k5&nbsp;=&nbsp;F5&nbsp;&divide;&nbsp;F3 in the
-          ESP32's flash.
+          what F5 sees is not sfGFP fluorescence, such as the blue LED's
+          long-wave tail scattered into the sensor; k5 is that part as a
+          fraction of F3, measured on a tube with no sfGFP cells. It is set by
+          sending the <code>k</code> command with such a tube in place, and
+          stored in the ESP32's flash.
         </p>
         <p>
-          k5 was 0.05358 (the default) on 09-16 and 09-17, was reset twice on
-          09-20 (0.05085, then 0.07772), and was 0.05756 on 09-22. Because it
-          changes between days and even within one, SIG5 cannot be compared
-          across batches. Every result on this page uses F5/F3, which does not
+          k5 was 0.05358, the firmware default, in the first culture test and
+          the stability test. At the start of the grid session it was reset
+          twice, to 0.05085 and then 0.07772, before any grid tube was
+          measured; it was 0.05756 in the linearity series. Because it
+          changes between experiments and even within one, SIG5 cannot be
+          compared across batches. Every result on this page uses F5/F3, which does not
           depend on k5.
         </p>
       </div>
@@ -249,7 +267,7 @@
   <section id="hardware-laser-sessions">
     <h2>Four sessions</h2>
 
-    <h3>2026-09-16: the first culture test finds a problem</h3>
+    <h3>The first culture test: a problem found</h3>
     <p>
       <em>Aim.</em> Put cultures of different density in and see whether the
       reader can tell them apart.
@@ -267,30 +285,28 @@
       the light path.
     </p>
 
-    <h3>2026-09-17: the reading holds steady</h3>
+    <h3>The stability test: the reading holds steady</h3>
     <p>
       <em>Aim.</em> After the light path was rebuilt, check whether the
       reading drifts on its own; a reader that drifts cannot be used
       quantitatively.
       <em>Method.</em> One sample left untouched, one batch about every three
-      minutes for an hour, compared with the same test before the change.
+      minutes for an hour.
     </p>
     <figure class="hw-figure">
       <div data-lc-chart="drift"></div>
       <figcaption>
-        F3 of one undisturbed sample, relative to its first batch. Before the
-        adjustment (red) the reading fell to about 54% within the hour and
-        to about 45% by 84&nbsp;minutes; after it (green) it stayed within
-        about 1% for the whole hour.
+        F3 of one untouched sample, the mean of readings two to five of each
+        batch, relative to the first batch. All 21 batches lie within a 1%
+        range (shaded); the last batch is 0.5% below the first.
       </figcaption>
     </figure>
     <p>
-      <em>Result and conclusion.</em> The earlier decline came from how the
-      light path was mounted, not from the LED ageing or failing. Once that
-      was fixed the reading was stable enough for quantitative work.
+      <em>Result and conclusion.</em> Over an hour the reading stayed within
+      a 1% range, stable enough for quantitative work.
     </p>
 
-    <h3>2026-09-20: the signal is sfGFP fluorescence</h3>
+    <h3>The grid: the signal is sfGFP fluorescence</h3>
     <p>
       <em>Aim.</em> Show that the signal comes from sfGFP fluorescence and
       scales with the amount of sfGFP.
@@ -319,7 +335,7 @@
       absolute accuracy.
     </p>
 
-    <h3>2026-09-22: linearity and detection limit</h3>
+    <h3>The linearity series: a straight line and a detection limit</h3>
     <p>
       <em>Aim.</em> Hold the total culture density fixed, vary only the
       fraction of sfGFP cells, and measure the detection limit.
@@ -369,7 +385,7 @@
 
     <h3>The added signal has the shape of fluorescence</h3>
     <p>
-      For each culture density on 09-20 we took the tube with all cells
+      For each culture density in the grid we took the tube with all cells
       carrying sfGFP and the tube with none, divided each by its own F3 to
       remove brightness differences, and subtracted. What is left is the
       spectrum that sfGFP adds.
@@ -377,7 +393,7 @@
     <figure class="hw-figure">
       <div data-lc-chart="spectrum"></div>
       <figcaption>
-        2026-09-20. Difference spectra, each normalised to its peak. Across
+        The grid. Difference spectra, each normalised to its peak. Across
         the four densities F4 to F8 agree to a standard deviation of 0.04 to
         0.07. F2 (445&nbsp;nm) sits next to the excitation and is very
         sensitive to turbidity (standard deviation 0.39), so it is not read.
@@ -397,7 +413,7 @@
       change in proportion and the ratio is unaffected. If the light source
       itself changes position or angle, the channels change by different
       amounts and the ratio moves with them. The figure compares two real
-      events: on 09-20 the same blank was lifted out and put back; on 09-22
+      events: during the grid the same blank was lifted out and put back; during the linearity series
       someone knocked the LED's jumper lead and the board rebooted.
     </p>
     <figure class="hw-figure">
