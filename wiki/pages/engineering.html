@@ -1,179 +1,145 @@
 {% extends "layout.html" %}
-{% from "engineering-lab-icons.html" import lab_icon %}
+
 {% block title %}Engineering{% endblock %}
-{% block body_class %}engineering-page{% endblock %}
 
-{% macro dbtl_cycle() %}
-<div class="engineering-cycle" id="engineering-cycle">
-  <svg class="engineering-ring" viewBox="0 0 400 400" role="group" aria-label="DBTL stage navigation">
-    <circle class="engineering-ring-track" cx="200" cy="200" r="156" aria-hidden="true"/>
-    {% for stage, bearing in [('design', 0), ('build', 90), ('test', 180), ('learn', 270)] %}
-    <path class="engineering-arc{% if loop.first %} is-current{% endif %}" data-stage="{{ stage }}" transform="rotate({{ bearing }} 200 200)"
-          role="button" tabindex="0" aria-label="Go to {{ stage|capitalize }} section" aria-controls="engineering-record-{{ stage }}"
-          d="M 75.691 64.341 A 184 184 0 0 1 286.383 37.538 L 290.139 30.474 L 313.158 92.617 L 256.337 94.046 L 260.092 86.983 A 128 128 0 0 0 113.524 105.629 Z"/>
-    {% endfor %}
-  </svg>
-  <!-- The arrow paths are the controls; the labels only identify each segment
-       visually and do not create a second keyboard stop. -->
-  <div class="engineering-stage-tabs" aria-hidden="true">
-    {% for stage in ['design', 'build', 'test', 'learn'] %}
-    <button type="button" disabled class="engineering-stage-tab{% if loop.first %} is-current{% endif %}"
-            id="stage-{{ stage }}" data-stage="{{ stage }}"><span>{{ stage|capitalize }}</span></button>
-    {% endfor %}
-  </div>
-  <div class="engineering-cycle-center">
-    <h2 id="engineering-module-title">Retron aptamer production</h2>
-    <div class="engineering-iteration-pager" aria-label="Choose iteration">
-      <button id="engineering-previous" type="button" aria-label="Previous iteration" disabled>&lt;</button>
-      <span id="engineering-iteration-title">Iteration 1</span>
-      <button id="engineering-next" type="button" aria-label="Next iteration">&gt;</button>
-    </div>
-    <span class="engineering-iteration-count" id="engineering-iteration-count">01 / 02</span>
-  </div>
-</div>
-{% endmacro %}
+{# The same deep-teal treatment as Hardware, Software and Model, so the four
+   technical pages read as one set. Every rule it turns on lives under
+   body.hw-nexus in style.css. #}
+{% block body_class %}hw-nexus{% endblock %}
 
-{% block header %}
-<header class="engineering-hero">
-  <div class="container">
-    <h1 id="engineering-hero-stage">Design</h1>
-    <p id="engineering-hero-position">Module 1 · Iteration 1</p>
-    <!-- Every iteration of every module, one tap away. The hero is sticky, so
-         this row is on screen wherever the reader is in the sheet -- turning
-         to another iteration no longer means scrolling to the foot of the
-         page first. Filled in by engineering-dbtl.js from the same data the
-         sheet is drawn from, and hidden until then. -->
-    <nav class="engineering-pages" id="engineering-pages" aria-label="Turn to an iteration" hidden>
-      <button class="engineering-pages-step" id="engineering-pages-prev" type="button" aria-label="Previous iteration"><span aria-hidden="true">&lsaquo;</span></button>
-      <ol class="engineering-pages-list" id="engineering-pages-list"></ol>
-      <button class="engineering-pages-step" id="engineering-pages-next" type="button" aria-label="Next iteration"><span aria-hidden="true">&rsaquo;</span></button>
-    </nav>
-    <span class="engineering-stage-mark" aria-hidden="true">
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-        <g data-stage-mark="design">
-          <rect class="engineering-stage-mark-tint" x="12" y="9" width="30" height="46" rx="3"/>
-          <path d="M19 18h15M19 25h9M19 34h5M19 45h5"/>
-          <path class="engineering-stage-mark-paper" d="m31 47 2-11 17-17a3.5 3.5 0 0 1 5 5L39 41l-8 6Z"/>
-          <path d="m33 36 6 5M47 22l5 5"/>
-        </g>
-        <g data-stage-mark="build">
-          <path class="engineering-stage-mark-tint" d="m32 7 12 7-12 7-12-7 12-7ZM20 29l12 7-12 7-12-7 12-7Zm24 0 12 7-12 7-12-7 12-7Z"/>
-          <path d="M20 14v14l12 7 12-7V14M32 21v14M8 36v14l12 7 12-7 12 7 12-7V36M20 43v14M32 36v14M44 43v14"/>
-        </g>
-        <g data-stage-mark="test">
-          <path class="engineering-stage-mark-tint" d="M17 29q7-3 14 0v11a7 7 0 0 1-14 0V29Z"/>
-          <path d="M15 12h18M17 12v28a7 7 0 0 0 14 0V12M17 20h6M17 25h4"/>
-          <circle class="engineering-stage-mark-paper" cx="45" cy="41" r="11"/>
-          <path d="m39 41 4 4 7-8"/>
-          <circle cx="24" cy="37" r="1" fill="currentColor" stroke="none"/>
-        </g>
-        <g data-stage-mark="learn">
-          <path class="engineering-stage-mark-tint" d="M9 25q12-5 23 2 11-7 23-2v25q-13-5-23 2-11-7-23-2V25Z"/>
-          <path d="M32 27v25M15 33q6-2 11 1M15 40q6-2 11 1M38 34q6-3 11-1M38 41q6-3 11-1M32 8v8M21 12l4 5M43 12l-4 5"/>
-        </g>
-      </svg>
-    </span>
-  </div>
-</header>
-{% endblock %}
+{% block lead %}{% endblock %}
 
 {% block page_content %}
-<div class="engineering" id="engineering">
-  <aside class="engineering-sidebar">
-    <nav class="engineering-rail" aria-label="Modules and iterations">
-      <p class="engineering-eyebrow">THE MODULES</p>
-      <ol class="engineering-modules">
-        {% for letter, count in [('1', 1), ('2', 5)] %}
-        <li class="engineering-module{% if loop.first %} is-current{% endif %}" data-module="{{ loop.index0 }}">
-          <button class="engineering-module-button" type="button" aria-expanded="{{ 'true' if loop.first else 'false' }}"
-                  aria-controls="module-{{ letter }}-iterations"{% if loop.first %} aria-current="true" hidden{% endif %}>
-            <span class="engineering-rail-node" aria-hidden="true"></span>
-            <span class="engineering-module-text">
-              <span class="engineering-module-label">Module {{ letter }}</span>
-              <span class="engineering-module-title"></span>
-            </span><span class="engineering-expand" aria-hidden="true">+</span>
-          </button>
-          <div class="engineering-cycle-slot">{% if loop.first %}{{ dbtl_cycle() }}{% endif %}</div>
-          <ol class="engineering-iterations" id="module-{{ letter }}-iterations"{% if not loop.first %} hidden{% endif %}>
-            {% for iteration in range(count) %}
-            <li>
-              <button type="button" class="engineering-iteration-button" data-iteration="{{ iteration }}">
-                <span class="engineering-iteration-label">Iteration {{ iteration + 1 }}</span><span class="engineering-iteration-note"></span>
-              </button>
-            </li>
-            {% endfor %}
-          </ol>
-        </li>
-        {% endfor %}
-      </ol>
-    </nav>
-  </aside>
 
-  <main class="engineering-workspace" aria-label="Module content">
-    <!-- One sheet per iteration: all four DBTL stages in order. Reaching the end
-         turns the page to the next iteration (or the next module). -->
-    <div class="engineering-sheet" id="engineering-sheet">
-      <p class="engineering-context" id="engineering-context" tabindex="-1">Retron aptamer production</p>
-      <p class="engineering-question" id="engineering-question">Can the Ec67 retron construct be assembled and verified before testing aptamer production and function?</p>
-      <p class="engineering-iteration-line">
-        <span id="engineering-iteration-name">Iteration 1 · Construct assembly and initial screening</span>
-        <span class="engineering-status" id="engineering-iteration-status" hidden></span>
-      </p>
-      <p class="engineering-approach" id="engineering-approach" hidden></p>
-      {% for stage in ['design', 'build', 'test', 'learn'] %}
-      <article class="engineering-record" id="engineering-record-{{ stage }}" data-stage="{{ stage }}" aria-labelledby="engineering-record-{{ stage }}-title">
-        <div class="engineering-record-title-row">
-          <h3 id="engineering-record-{{ stage }}-title">{{ stage|capitalize }}</h3>
-          {% if stage in ['design', 'test'] %}
-          <span class="engineering-lab-slot" data-lab-stage="{{ stage }}" data-lab-kind="{{ 'petri' if stage == 'design' else 'ecoli' }}" aria-hidden="true">{{ lab_icon('petri' if stage == 'design' else 'ecoli') }}</span>
-          {% endif %}
-        </div>
-        <h4 data-field="title">{% if loop.first %}Establish a retron-based aptamer source{% endif %}</h4>
-        {% if stage == 'test' %}
-        <figure class="engineering-figure" data-field="figure" hidden></figure>
-        {% endif %}
-        <p data-field="description">{% if loop.first %}The team proposed using an Ec67 retron in <em>E. coli</em> to generate aptamer-containing single-stranded DNA. The initial objective named ALS5-1; the master design later identifies Cb-2 as the aptamer in its component list.{% endif %}</p>
-        <div class="engineering-record-detail">
-          <span class="engineering-eyebrow" data-field="detail-label">{% if loop.first %}DETAILS{% endif %}</span>
-          <p data-field="detail">{% if loop.first %}The master design lists TOP10 and BL21(DE3) as hosts and pTwist as backbone, while its protocol pages describe pET28a-Ec67 and BL21(AI). The identity and roles of the final constructs and strains require reconciliation.{% endif %}</p>
-        </div>
-        {% if stage != 'test' %}
-        <figure class="engineering-figure" data-field="figure" hidden></figure>
-        {% endif %}
-        {% if stage in ['build', 'test'] %}
-        <section class="engineering-attachment-gallery" data-field="gallery" aria-label="{{ stage|capitalize }} attachments" hidden></section>
-        {% endif %}
-        <div class="engineering-takeaway">
-          <span class="engineering-eyebrow" data-field="outcome-label">{% if loop.first %}CONCLUSION{% endif %}</span>
-          <p data-field="outcome">{% if loop.first %}This iteration first asks whether candidate retron-containing colonies can be obtained and screened. The change from ALS5-1 to Cb-2 is documented, but its date and rationale are 待補.{% endif %}</p>
-        </div>
-      </article>
-      {% endfor %}
-      <section class="engineering-requests" id="engineering-requests" aria-labelledby="engineering-requests-title" hidden>
-        <div class="engineering-requests-heading">
-          <span class="engineering-eyebrow">EDITORIAL CHECKLIST</span>
-          <h3 id="engineering-requests-title">Page completion requests</h3>
-          <p>Evidence and labels to confirm with the experiment team before treating these materials as verified results.</p>
-        </div>
-        <ul id="engineering-requests-list"></ul>
-      </section>
-    </div>
-    <nav class="engineering-page-nav" aria-label="Module and iteration navigation">
-      <button class="engineering-page-nav-edge" id="engineering-previous-module" type="button"><span aria-hidden="true">‹</span> Previous module</button>
-      <button class="engineering-page-nav-main" id="engineering-last-iteration" type="button"><span aria-hidden="true">‹</span> Last iteration</button>
-      <button class="engineering-page-nav-main" id="engineering-next-iteration" type="button">Next iteration <span aria-hidden="true">›</span></button>
-      <button class="engineering-page-nav-edge" id="engineering-next-module" type="button">Next module <span aria-hidden="true">›</span></button>
-    </nav>
-    {% for kind in ['dna', 'ecoli', 'petri', 'flask'] %}
-    <template id="engineering-lab-icon-{{ kind }}">{{ lab_icon(kind) }}</template>
-    {% endfor %}
-    <p class="engineering-sr-only" id="engineering-announcement" role="status" aria-live="polite" aria-atomic="true"></p>
-    <noscript><p class="engineering-noscript">Enable JavaScript to explore all modules, iterations, and DBTL stages. The first Design example is shown above.</p></noscript>
-  </main>
+{#
+  === 給團隊的說明，發布前請讀 ===
+
+  2026-10-06：wet lab 回報先前的內文與實驗資料有誤，已全部移除，等 wet lab
+  提供確認過的紀錄後再重寫。這一頁目前只有版型：左邊的 DBTL 圈圈，右邊
+  Design／Build／Test／Learn 四個區塊。
+
+  內容寫在每個 <section class="eng-dbtl-stage"> 的 eng-dbtl-body 裡，把裡面的
+  eng-dbtl-empty 佔位框換成段落、圖片即可。讀者往下捲時，圈圈會順時針一路亮起來，
+  內容變長也會自動跟上，不需要另外設定（static/engineering-cycle.js）。
+  每一段都必須來自我們自己的實驗紀錄，不要補上推測的數字或結論。
+  區塊標題下那一行小字（What we set out to make 等）只是說明區塊用途，可以改。
+#}
+
+{# The same three drifting glows as Hardware, Software and Model. Decoration
+   only; see .hw-orb in style.css. #}
+<div class="hw-orbs" aria-hidden="true">
+  <span class="hw-orb hw-orb-a"><span></span></span>
+  <span class="hw-orb hw-orb-b"><span></span></span>
+  <span class="hw-orb hw-orb-c"><span></span></span>
 </div>
+
+{# stage, its arrow's bearing on the ring, where its label sits, and the line
+   under its heading. #}
+{% set stages = [
+  ('design', 45,  306.07, 93.93,  'What we set out to make, and why'),
+  ('build',  135, 306.07, 306.07, 'What we made, and how'),
+  ('test',   225, 93.93,  306.07, 'What we measured'),
+  ('learn',  315, 93.93,  93.93,  'What it told us, and what changed next'),
+] %}
+
+<div class="container my-4 hw eng">
+  <div class="eng-dbtl">
+
+    {# The design-build-test-learn cycle, drawn here rather than uploaded. The
+       four arrows share one shape, rotated a quarter turn each: a chevron head
+       that nests into a notch in the tail of the next arrow, brightening from
+       tail to head so the direction reads at a glance. Each arrow is a link to
+       its section.
+
+       The ring itself never turns. It is drawn twice: dimmed underneath, and
+       lit on top, each arrow through a mask of its own -- a sweep that
+       engineering-cycle.js lengthens clockwise, the way the arrows point, as
+       the reader moves down that stage -- with a bright point at the leading
+       edge. Separate masks keep one arrow's light off the head of the arrow
+       that nests into it. Without JavaScript the
+       sweep is a full circle, so every arrow shows lit, and the links still
+       work. #}
+    {% set arrow = "M 63.97 73.15 A 186 186 0 0 1 290.17 37.32 L 295.02 28.57 L 309.70 97.70 L 250.42 109.04 L 255.27 100.29 A 114 114 0 0 0 116.63 122.25 L 127.28 68.81 Z" %}
+    <nav class="eng-dbtl-rail" aria-label="Engineering cycle">
+      <figure class="eng-cycle" id="eng-cycle">
+        <svg viewBox="0 0 400 400">
+          <defs>
+            {% for stage, bearing, x, y, note in stages %}
+            <linearGradient id="eng-cycle-fill-{{ stage }}" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" class="eng-cycle-tail-{{ stage }}"/>
+              <stop offset="1" class="eng-cycle-head-{{ stage }}"/>
+            </linearGradient>
+            {% endfor %}
+            <radialGradient id="eng-cycle-core">
+              <stop offset="0" class="eng-cycle-core-in"/>
+              <stop offset="1" class="eng-cycle-core-out"/>
+            </radialGradient>
+            {# The sweeps: for each arrow, a wide ring of stroke over its band.
+               A mask is laid out in the space of the element it is on, so it
+               turns with the arrow; in that space every arrow sits at twelve
+               o'clock, and one turn serves all four: -137 starts the sweep at
+               the tail, 47deg before twelve (the circle's own start is three
+               o'clock, hence the further -90). pathLength 360 makes the dash
+               length read in degrees. #}
+            {% for stage, bearing, x, y, note in stages %}
+            <mask id="eng-cycle-progress-{{ stage }}" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="400">
+              <circle class="eng-cycle-sweep" data-stage="{{ stage }}" cx="200" cy="200" r="150" fill="none" stroke="#fff" stroke-width="104"
+                      pathLength="360" stroke-dasharray="360 0" transform="rotate(-137 200 200)"/>
+            </mask>
+            {% endfor %}
+          </defs>
+          <circle class="eng-cycle-track" cx="200" cy="200" r="198"/>
+          <circle class="eng-cycle-core" cx="200" cy="200" r="96" fill="url(#eng-cycle-core)"/>
+          <g class="eng-cycle-base">
+            {% for stage, bearing, x, y, note in stages %}
+            <a href="#eng-{{ stage }}" class="eng-cycle-link" data-stage="{{ stage }}" aria-label="{{ stage|capitalize }}">
+              <path class="eng-cycle-arrow" transform="rotate({{ bearing }} 200 200)" fill="url(#eng-cycle-fill-{{ stage }})" stroke="url(#eng-cycle-fill-{{ stage }})" d="{{ arrow }}"/>
+            </a>
+            {% endfor %}
+          </g>
+          <g class="eng-cycle-lit" aria-hidden="true">
+            {% for stage, bearing, x, y, note in stages %}
+            <path class="eng-cycle-arrow" mask="url(#eng-cycle-progress-{{ stage }})" transform="rotate({{ bearing }} 200 200)" fill="url(#eng-cycle-fill-{{ stage }})" stroke="url(#eng-cycle-fill-{{ stage }})" d="{{ arrow }}"/>
+            {% endfor %}
+          </g>
+          {# The bright point rides the dotted outer track, level with the light's
+             leading edge, where it shows against the ground rather than
+             vanishing into a lit arrow. #}
+          <circle class="eng-cycle-spark" id="eng-cycle-spark" cx="200" cy="2" r="5.5" transform="rotate(-2 200 200)" aria-hidden="true"/>
+          <g class="eng-cycle-labels" aria-hidden="true">
+            {% for stage, bearing, x, y, note in stages %}
+            <text class="eng-cycle-label" data-stage="{{ stage }}" x="{{ x }}" y="{{ y }}" text-anchor="middle" dominant-baseline="central">{{ stage|upper }}</text>
+            {% endfor %}
+          </g>
+          <g aria-hidden="true">
+            <text class="eng-cycle-centre" x="200" y="198" text-anchor="middle">Engineering</text>
+            <text class="eng-cycle-kicker" x="200" y="226" text-anchor="middle">CYCLE</text>
+          </g>
+        </svg>
+      </figure>
+    </nav>
+
+    <div class="eng-dbtl-stages">
+      {% for stage, bearing, x, y, note in stages %}
+      <section class="eng-dbtl-stage" id="eng-{{ stage }}" data-stage="{{ stage }}">
+        <header class="eng-dbtl-head">
+          <span class="eng-dbtl-num" aria-hidden="true">0{{ loop.index }}</span>
+          <h2>{{ stage|capitalize }}</h2>
+          <p class="eng-dbtl-note">{{ note }}</p>
+        </header>
+        <div class="eng-dbtl-body">
+          {# 內容待 wet lab 確認後寫在這裡，寫好後刪掉下面這個佔位框。 #}
+          <div class="eng-dbtl-empty" aria-hidden="true"></div>
+        </div>
+      </section>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{{ url_for('static', filename = 'engineering-dbtl.js') }}"></script>
-<script src="{{ url_for('static', filename = 'engineering-gallery.js') }}"></script>
+<script src="{{ url_for('static', filename = 'engineering-cycle.js') }}"></script>
 {% endblock %}
