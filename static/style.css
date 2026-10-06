@@ -442,13 +442,16 @@ footer a:hover { color: white; text-decoration: underline; }
 /* The footer's left column: three marks in a row, each a link -- our wiki,
    LasReader, NCKU. White line art, so they sit straight on the footer's
    colour. One height for all three, which is what makes them read as a set
-   whatever their shapes; sized with the window so the three fit the column
-   from 992px up. Centred when the columns stack. */
+   whatever their shapes; as large as the column allows. The column's width
+   steps with Bootstrap's container (306, 356, 416px at 992, 1200 and 1400
+   up), so the height steps with it: 69, 84 and 100px, each the largest at
+   which the three still fit on one line. Centred, at 80px, when the columns
+   stack. */
 .footer-marks {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.8rem clamp(0.7rem, 1.1vw, 1rem);
+  gap: 0.8rem 1rem;
 }
 .footer-mark {
   display: inline-flex;
@@ -459,14 +462,23 @@ footer a:hover { color: white; text-decoration: underline; }
 .footer-mark img {
   display: block;
   width: auto;
-  height: clamp(46px, 4.8vw, 70px);
+  height: 69px;              /* 992-1199: the column is 306px */
 }
+@media (min-width: 1200px) { .footer-mark img { height: 84px; } }   /* 356px */
+@media (min-width: 1400px) { .footer-mark img { height: 100px; } }  /* 416px */
 .footer a.footer-mark:hover,
 .footer a.footer-mark:focus-visible { transform: translateY(-2px); opacity: 0.85; text-decoration: none; }
 .footer-mark:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
 @media (max-width: 991.98px) {
   .footer-marks { justify-content: center; }
-  .footer-mark img { height: 64px; }
+  .footer-mark img { height: 80px; }
+}
+
+/* The footer's main row, 1.5 times the height it had (104px at 1440, with
+   the sponsor ticker the tallest thing in it). Desktop only: stacked on a
+   phone, each column already has its own height. */
+@media (min-width: 992px) {
+  .footer-main { min-height: 156px; }
 }
 
 /* The contact and social links, on their own now (no "Contact Us" heading
@@ -480,6 +492,12 @@ footer a:hover { color: white; text-decoration: underline; }
   font-size: 2.4rem;
 }
 .footer .footer-social .hover-icon { min-width: 56px; min-height: 56px; }
+/* Between 992 and 1399 the column is too narrow for four 56px targets on one
+   line; a little smaller, so they stay on one line rather than two. */
+@media (min-width: 992px) and (max-width: 1399.98px) {
+  .footer-social { gap: 0.5rem; }
+  .footer .footer-social .hover-icon { min-width: 48px; min-height: 48px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .footer-mark { transition: none; }
@@ -2332,6 +2350,7 @@ body.engineering-page footer .row:first-child > :nth-child(2) p { margin-bottom:
 body.engineering-page footer .sponsor-logo { height: 52px; padding: 4px 8px; border-radius: 6px; }
 body.engineering-page footer .sponsor-marquee-track { gap: 1.5rem; }
 body.engineering-page footer .footer-social { font-size: 1.1rem; gap: .25rem; }
+body.engineering-page footer .footer-main { min-height: 0; }
 body.engineering-page footer .footer-social .hover-icon { min-width: 36px; min-height: 36px; }
 body.engineering-page footer hr { margin: .6rem 0 !important; }
 body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: .72rem; }
