@@ -1,0 +1,132 @@
+/* The loading screen: while a page is loading, a large Pseudomonas aeruginosa
+   in the middle of the screen with a ring of AHL under it. One disc in the
+   ring is large, and the large one moves clockwise round the ring, disc by
+   disc.
+
+   What "loading" means here (site-loader.js): from the moment the page starts
+   to draw until the browser's load event -- the HTML, the stylesheets, the
+   scripts, the fonts and every image that is not lazy-loaded have all
+   arrived. Two limits on that:
+     - at most 3 seconds from the start of the page, so one slow photo or
+       video embed can never keep the page hidden. Measured on a first visit
+       (nothing cached), most pages load in 0.2 to 1.5s; Lab Book, Team and
+       Promotion take 2 to 3.5s for their photos, Home 4.7s for the video
+       embed, and Education and Collaboration over 5s. The text of every page
+       is ready within 0.5s, so past 3s the screen would only be hiding a page
+       that can already be read while its last pictures arrive;
+     - the bacterium and the ring fade in only after 0.2s, so a page that
+       loads at once (a page already in the cache) shows a short fade and not
+       a flash of the animation.
+   Without JavaScript the screen is never drawn (the <noscript> rule in
+   layout.html), and if the script fails the animation below takes the
+   screen away by itself after 4 seconds.
+
+   It sits under the menu bar rather than over it, so the menu stays usable
+   and stays still while one page hands over to the next (the bar is carried
+   across the page change on its own; see view-transition in style.css).
+
+   Same bacterium and same AHL disc (.cap-ahl) as the online game. */
+
+.site-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1020;              /* under the fixed menu bar (1030) */
+  display: grid;
+  place-items: center;
+  padding-top: 96px;          /* centre it in what the menu bar leaves free */
+  background: #ffffff;
+  animation: site-loader-giveup 0.35s ease 4s forwards;
+}
+
+/* the deep-teal pages load onto their own ground, not onto white */
+body.hw-nexus .site-loader,
+body.edu-nexus .site-loader,
+body.bg-nexus .site-loader { background: #0e242e; }
+
+.site-loader.is-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+
+@keyframes site-loader-giveup {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+.site-loader-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.4rem, 5vh, 2.6rem);
+  opacity: 0;
+  animation: site-loader-in 0.3s ease-out 0.2s forwards;
+}
+
+@keyframes site-loader-in { to { opacity: 1; } }
+
+.site-loader-germ {
+  display: block;
+  height: clamp(150px, 36vh, 280px);
+  width: auto;
+  aspect-ratio: 218 / 295;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 22px rgba(7, 90, 62, 0.28));
+  animation: site-loader-bob 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes site-loader-bob {
+  from { transform: translateY(0) rotate(-4deg); }
+  to { transform: translateY(8px) rotate(4deg); }
+}
+
+/* The ring. Eight discs at 45 degrees apart, the first at twelve o'clock and
+   the rest clockwise from it. Each slot is placed with transform; the disc
+   inside it is what grows, with the separate scale property, so the two
+   never fight over one transform. */
+.site-loader-ring {
+  position: relative;
+  width: 104px;
+  height: 104px;
+}
+
+.site-loader-slot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  transform: rotate(calc(var(--i) * 45deg)) translateY(-40px);
+}
+
+/* Two classes: .cap-ahl, further down style.css, sets its own border and
+   lettering size for the game. */
+.site-loader-slot .cap-ahl {
+  border-width: 2px;
+  font-size: 0;
+  /* Every disc runs the same 1.2s cycle, each started one eighth of it later
+     than the disc before. A disc is at its largest at the start of its own
+     cycle, so the largest one steps clockwise round the ring, one disc every
+     0.15s, and is back at twelve o'clock every 1.2s. */
+  animation: site-loader-turn 1.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.15s - 1.2s);
+}
+
+@keyframes site-loader-turn {
+  0%     { scale: 1.9; }
+  12.5%  { scale: 1; }
+  87.5%  { scale: 1; }
+  100%   { scale: 1.9; }
+}
+
+/* Still, for anyone who has asked for less motion: the bacterium does not
+   drift and the ring does not turn; the large disc sits at twelve o'clock. */
+@media (prefers-reduced-motion: reduce) {
+  .site-loader-germ,
+  .site-loader-slot .cap-ahl { animation: none; }
+  .site-loader-slot:first-child .cap-ahl { scale: 1.7; }
+  .site-loader-stage { animation-duration: 0s; }
+}
+
+@media print { .site-loader { display: none !important; } }
