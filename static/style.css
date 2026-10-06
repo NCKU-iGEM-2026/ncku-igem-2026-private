@@ -6750,7 +6750,56 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
 .hw-crumb a:hover, .hw-crumb a:focus-visible { text-decoration: underline; }
 
 /* A page under Hardware, listed beneath it in the Dry menu. */
-.dropdown-item.dropdown-sub { font-size: 0.86em; opacity: 0.85; }
+/* The two build pages under Hardware in the Dry menu: a flyout beside the
+   Hardware entry on a desktop, shown while the pointer is on Hardware or the
+   focus is inside it. It is not a .dropdown-menu on purpose: the rule that
+   opens the Dry menu on hover opens every .dropdown-menu inside it too. */
+.dropdown-has-flyout { position: relative; }
+.dropdown-flyout { list-style: none; margin: 0; padding: 0; }
+.dropdown-flyout .dropdown-item::before { content: "\21B3\00a0"; }
+.flyout-caret { display: none; }
+
+@media (min-width: 992px) {
+  .dropdown-flyout {
+    position: absolute;
+    top: -0.5rem;
+    left: 100%;
+    z-index: 2;
+    min-width: 12rem;
+    padding: 0.5rem 0;
+    visibility: hidden;
+    pointer-events: none;
+    background: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(5, 68, 46, 0.1);
+  }
+  .dropdown-has-flyout:hover > .dropdown-flyout,
+  .dropdown-has-flyout:focus-within > .dropdown-flyout {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .dropdown-flyout .dropdown-item::before { content: none; }
+  .dropdown-has-flyout > .dropdown-item { position: relative; }
+  .flyout-caret {
+    display: inline;
+    position: absolute;
+    right: 0.9rem;
+    top: 50%;
+    transform: translateY(-52%);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .dropdown-flyout .dropdown-item { font-size: 0.86em; opacity: 0.85; }
+}
+
+body.hw-nexus .navbar .dropdown-flyout,
+body.bg-nexus .navbar .dropdown-flyout,
+body.edu-nexus .navbar .dropdown-flyout {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
 
 .hw-build-head {
   margin: 0 0 2.4rem;
