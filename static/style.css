@@ -12140,6 +12140,136 @@ body.hw-nexus .hw .hw-shot figcaption b {
   body.hw-nexus .hw .hw-shots { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* Placing the cuvette, in photographs: one deck to a version. As written,
+   each deck is a row of small pictures. static/hardware-steps.js adds
+   .is-live, and then the pictures of a deck share one cell and one shows at
+   a time; the cell is as tall as the tallest caption, so nothing jumps. */
+body.hw-nexus .hw .hw-place {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.3rem 0 1.4rem;
+}
+body.hw-nexus .hw .hw-place-deck {
+  margin: 0;
+  padding: 0.95rem 0.95rem 1rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 12px;
+  background: var(--nx-panel);
+}
+body.hw-nexus .hw .hw-place-who {
+  margin-bottom: 0.7rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-place-deck[data-deck="v2"] .hw-place-who { color: var(--nx-lime); }
+body.hw-nexus .hw .hw-place-who span { margin-left: 0.5rem; font-weight: 500; color: var(--nx-muted); }
+body.hw-nexus .hw .hw-place-slides {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+body.hw-nexus .hw .hw-place-slides img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--nx-ground);
+}
+body.hw-nexus .hw .hw-place-slides p {
+  margin: 0.6rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-place-slides b {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+body.hw-nexus .hw .hw-place-deck[data-deck="v2"] .hw-place-slides b { color: var(--nx-lime); }
+
+body.hw-nexus .hw .hw-place.is-live .hw-place-slides { grid-template-columns: minmax(0, 1fr); }
+body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li.is-on {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease, visibility 0s;
+}
+
+body.hw-nexus .hw .hw-place-ctrl {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem 0.5rem;
+}
+/* One mark to a step: the one showing is bright, the ones passed stay lit. */
+body.hw-nexus .hw .hw-place-marks {
+  flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+}
+body.hw-nexus .hw .hw-place-marks i {
+  width: 1.7rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--nx-line);
+  transition: background-color 0.25s ease;
+}
+body.hw-nexus .hw .hw-place-marks i.is-done { background: var(--nx-mint); }
+body.hw-nexus .hw .hw-place-marks i.is-on { background: var(--nx-lime); }
+body.hw-nexus .hw .hw-place-btn {
+  min-width: 2.3rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 999px;
+  background: var(--nx-panel);
+  font-family: "Changa", sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--nx-lime);
+  cursor: pointer;
+}
+body.hw-nexus .hw .hw-place-btn:hover { border-color: var(--nx-mint); }
+body.hw-nexus .hw .hw-place-btn:focus-visible { outline: 2px solid var(--nx-lime); outline-offset: 2px; }
+body.hw-nexus .hw .hw-place-prev,
+body.hw-nexus .hw .hw-place-next { font-size: 1.1rem; line-height: 1.1; }
+body.hw-nexus .hw .hw-place-toggle { margin-left: 0.6rem; min-width: 4.4rem; }
+body.hw-nexus .hw .hw-place-at {
+  min-width: 6.6rem;
+  text-align: center;
+  font-family: "Changa", sans-serif;
+  font-size: 0.86rem;
+  color: var(--nx-muted);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  body.hw-nexus .hw .hw-place { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li,
+  body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li.is-on { transition: none; }
+}
+
 /* Building one: three steps, each a way into its own tables. */
 body.hw-nexus .hw .hw-do > li { counter-increment: hw-do; }
 body.hw-nexus .hw .hw-do > li::before { content: "Step " counter(hw-do); }
