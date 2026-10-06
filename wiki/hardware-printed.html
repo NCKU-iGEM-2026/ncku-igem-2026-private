@@ -1,30 +1,8 @@
-{% extends "layout.html" %}
-
-{% block title %}3D-Printed Build{% endblock %}
-
-{# The deep-teal treatment, the same as the Hardware page: every rule it
-   turns on lives under body.hw-nexus in style.css. #}
-{% block body_class %}hw-nexus{% endblock %}
-
-{% block page_content %}
-
-{# Three green glows drifting over the background, as on Hardware. Decoration
-   only: aria-hidden, no text. #}
-<div class="hw-orbs" aria-hidden="true">
-  <span class="hw-orb hw-orb-a"><span></span></span>
-  <span class="hw-orb hw-orb-b"><span></span></span>
-  <span class="hw-orb hw-orb-c"><span></span></span>
-</div>
-
-<div class="container my-4 hw">
-
-  <p class="hw-crumb"><a href="{{ url_for('pages', page='hardware') }}">&larr; Hardware</a></p>
-
 {#
   === 3D 列印機（3D-printed build）的全部內容 ===
 
-  這一頁是 /hardware-3d-printed，Hardware 頁上「The two builds」的第一張卡片連到這裡。
-  2026-10-06 之前它是 wiki/hardware-printed.html，用 include 放進 Hardware 頁；現在是獨立的網頁。
+  這個檔案由 wiki/pages/hardware.html 用 include 放進 Hardware 頁的 <div id="printed"> 裡，
+  不是獨立的網頁（wiki/pages/ 以外的檔案不會被 build 成頁面）。
   共同的部分（為什麼做、怎麼量、十個波段、兩張卡片）在 hardware.html；
   雷切機在 wiki/hardware-laser-cut.html。
   給團隊的完整說明、資料來源與還沒補的東西，都寫在 hardware.html 開頭的註解。
@@ -81,7 +59,7 @@
       <ul class="sw-links">
         <li><a href="#hardware-instrument">The instrument</a></li>
         <li><a href="#hardware-bench">Version 1 on the bench</a></li>
-        <li><a href="#hardware-use">What it taught us</a></li>
+        <li><a href="#hardware-use">What users told us</a></li>
         <li><a href="#hardware-v2">Version 2</a></li>
         <li><a href="#hardware-reproduce">Building one</a></li>
         <li><a href="#hardware-history">Timeline</a></li>
@@ -961,17 +939,54 @@
   </section>
 
   <!-- ========================= what using it taught us ========================= -->
-  {# 來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.6；10-03 的兩次拒絕執行與偵測器接觸不良
-     在 PROJECT_STATE/CURRENT_STATE.md「Electronics State」。這不是 user testing，頁面上照實寫了。
-     正式的使用者測試做完之後，把結果加在這一節前面，並改掉第一段。 #}
+  {# 這一節回答評審第二題（使用者測試、從回饋學到什麼）。
+     第一張表是 wet lab 隊員對兩版的回饋，出自硬體負責人 2026-10-06 的說明：
+       - wet lab 用過第一版，當時就對「放 cuvette 要這麼多步、而且有誤差」存疑，也覺得操作很久；
+         這是第二版改成直接放入的原因之一。
+       - 10-05 那一場最後的五次重插是 wet lab 的人做的。他們覺得只要放入就好、很快、幾乎沒有人為誤差的空間；
+         看到原本用電工膠帶修補的地方換成新件，也更相信這台儀器。
+     這是負責人的轉述，沒有逐字紀錄，所以頁面寫成轉述（they told us），沒有用引號，也沒有編造任何一句話。
+     硬體資料夾的紀錄沒有寫那一場由誰操作。讀值是有紀錄的：五次重插 49.33–50.33；同一管 39.6 分鐘前
+     由負責人量到 50.33（P08_LOW_D_2.log；REINSERTION_COMPARISON.json 的 earlier_read_of_new_series_tube）。
+     ⚠ 幾個人用過、每個人花多久，沒有紀錄，頁面照實寫了。有人數的話請補上：得獎頁面的寫法是
+        「誰、說了什麼、我們改了什麼」，通常只有 3 到 7 個人。
+     第二張表（操作紀錄）的來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.6；10-03 的兩次拒絕執行與
+     偵測器接觸不良在 PROJECT_STATE/CURRENT_STATE.md「Electronics State」。 #}
   <section id="hardware-use">
-    <h2>What using version 1 taught us</h2>
+    <h2>What its users told us</h2>
 
     <p>
-      We have not run a formal user test: every measurement here was taken by
-      one member of the team. What we have is a record of what went wrong in
-      use and what changed because of it.
+      The reader's users are our own wet lab. They ran samples on version 1,
+      and what they said about it set the brief for version 2.
     </p>
+
+    <div class="hw-figure">
+      <table class="hw-table hw-keep">
+        <caption class="visually-hidden">What the wet lab said about each version, and what followed</caption>
+        <thead>
+          <tr><th scope="col">Who, on what</th><th scope="col">What they told us</th><th scope="col">What followed</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Wet-lab members, on version 1</td>
+            <td>Placing the cuvette took too many steps, each one a chance to seat it differently, and a measurement took a long time.</td>
+            <td>Version 2's seat takes the cuvette in one step and sets its height and position itself.</td>
+          </tr>
+          <tr>
+            <td>Wet-lab members, on version 2, 2026-10-05</td>
+            <td>Convenient and quick: the cuvette only has to be put in, which leaves little room for operator error. Seeing the taped repairs replaced by new parts, they trusted the reader more.</td>
+            <td>They made that session's five re-insertions themselves. Their readings ran from 49.33 to 50.33 counts; the member who built the reader had read the same tube at 50.33, 40 minutes earlier.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      This is feedback from use, not a timed trial: we did not record how
+      many people took part or how long each one took.
+    </p>
+
+    <h3>What the operating log added</h3>
 
     <div class="hw-figure">
       <table class="hw-table">
@@ -999,8 +1014,8 @@
     </p>
 
     <p>
-      The other half of what use taught us was about the parts. Version 2 is
-      the answer to that.
+      Version 2 answers the wet lab's first point, and the parts that broke
+      or never arrived.
     </p>
   </section>
 
@@ -1048,9 +1063,9 @@
 
     <p>
       Version 2 was fitted on 2026-10-03. Five printed parts were redrawn
-      around what had broken, gone missing or sat loose in version 1, and one
-      resistor was changed to bring the LED up to its design current. Four
-      things are better for it.
+      around what the wet lab had found slow and what had broken, gone
+      missing or sat loose in version 1, and one resistor was changed to
+      bring the LED up to its design current. Four things are better for it.
     </p>
 
     {# 2026-10-06：硬體負責人覺得字太多，問能不能用動畫。每張卡片現在是一張會動的小圖加一句話，
@@ -1112,7 +1127,7 @@
           <text x="172" y="146" text-anchor="middle">0</text>
           <text x="256" y="146" text-anchor="middle">+2</text>
         </svg>
-        <p>Each dot is one insertion, set against that tube's own mean, in counts.</p>
+        <p>Each dot is one insertion, set against that tube's own mean, in counts. Version 2's were made by wet-lab members.</p>
         <span class="hw-gain-basis">Observed, in different sessions</span>
       </li>
       <li class="hw-gain" data-hw-anim>
@@ -1246,7 +1261,9 @@
       Version 1 held the cuvette against one spring leaf where the design
       called for two, which left it free across about 0.6&nbsp;mm on one
       axis. Version 2's eight ribs leave 0.05&nbsp;mm a side, as drawn. Taking
-      one tube out and putting it back is the test of that.
+      one tube out and putting it back is the test of that. On version 2
+      the five insertions were made by wet-lab members, not by the member
+      who built the reader.
     </p>
 
     <figure class="hw-figure">
@@ -1507,7 +1524,8 @@
     </p>
 
     <p>
-      One 100&nbsp;&micro;L tube was taken out and put back five times. The
+      One 100&nbsp;&micro;L tube was taken out and put back five times, by
+      wet-lab members. The
       five means ran from 49.33 to 50.33 counts, with a standard deviation
       of 0.38 counts between them: about the third of a count that a
       three-cycle mean can resolve. With the seat empty, every channel read
@@ -1737,13 +1755,13 @@
     <p>
       The 3D-printed build has no cost total of its own: what its printed
       parts cost was not recorded. The laser-cut build is costed
-      <a href="{{ url_for('pages', page='hardware-laser-cut') }}#hardware-cost">in its own section</a>.
+      <a href="#hardware-cost">in its own section</a>.
     </p>
 
     <h3 id="hardware-circuit">The circuit</h3>
 
     <p>
-      The excitation branch turns one LED<sup class="hw-ref"><a href="{{ url_for('pages', page='hardware') }}#hardware-ref-3">3</a></sup> on and off at a current
+      The excitation branch turns one LED<sup class="hw-ref"><a href="#hardware-ref-3">3</a></sup> on and off at a current
       that cannot damage it: a resistor-limited LED with an N-channel MOSFET
       on the low side, switched from one pin of the controller. It is a
       breadboard circuit that was measured, not a product design. The gate
@@ -2329,17 +2347,6 @@
   </section>
 
   <p class="hw-build-end">
-    <a href="{{ url_for('pages', page='hardware-laser-cut') }}">See the laser-cut build</a>
-    <a href="{{ url_for('pages', page='hardware') }}#hardware-builds">Back to the two builds</a>
+    <a href="#laser-cut">See the laser-cut build</a>
+    <a href="#hardware-builds">Back to the two builds</a>
   </p>
-
-</div>
-
-{% endblock %}
-
-{% block extra_scripts %}
-<script src="{{ url_for('static', filename = 'hardware-cutaway.js') }}"></script>
-<script src="{{ url_for('static', filename = 'hardware-parts.js') }}"></script>
-<script src="{{ url_for('static', filename = 'hardware-bench.js') }}"></script>
-<script src="{{ url_for('static', filename = 'hardware-gains.js') }}"></script>
-{% endblock %}

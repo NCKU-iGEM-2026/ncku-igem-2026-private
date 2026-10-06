@@ -6695,11 +6695,12 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
   border-radius: 8px;
 }
 
-/* ---- the two builds: a card for each, and the card is the link ----
-   Two readers, two pages. Each card says what its build is and the whole card
-   opens that build's page: the link on the last line is stretched over the
-   card with ::before, and the links inside the card (Model, Software) are
-   lifted above it so they still go where they say. */
+/* ---- the two builds, one at a time ----
+   Two readers share this page. A card stands for each and says what it is;
+   the build it names is the block that follows the cards, and the card's last
+   line is a link to it. Without static/hardware-builds.js both blocks follow,
+   one after the other. With it only one shows, and the card that is showing
+   points down at it. */
 .hw-pick {
   grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   margin-bottom: 0;
@@ -6717,13 +6718,6 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
   overflow: hidden;
 }
 .hw-pick-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.hw-pick-card {
-  position: relative;
-  transition: border-color 0.15s ease, transform 0.15s ease;
-}
-.hw-pick-card:hover,
-.hw-pick-card:focus-within { border-color: #75b299; transform: translateY(-2px); }
-.hw-pick-card .hw-spec a { position: relative; z-index: 1; }
 .hw-pick-go {
   margin-top: auto;
   align-self: flex-start;
@@ -6732,75 +6726,36 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
   font-weight: 600;
   text-decoration: none;
 }
-.hw-pick-go::before { content: ""; position: absolute; inset: 0; border-radius: inherit; }
-.hw-pick-go::after { content: " \2192"; }
+.hw-pick-go::after { content: " \2193"; }
 .hw-pick-go:hover .hw-pick-see,
 .hw-pick-go:focus-visible .hw-pick-see { text-decoration: underline; }
-.hw-pick-go:focus-visible { outline: none; }
-.hw-pick-card:has(.hw-pick-go:focus-visible) { outline: 3px solid #075a3e; outline-offset: 3px; }
-@media (prefers-reduced-motion: reduce) {
-  .hw-pick-card { transition: none; }
-  .hw-pick-card:hover,
-  .hw-pick-card:focus-within { transform: none; }
+.hw-pick-now { display: none; }
+
+.hw-pick.is-live .hw-pick-card { cursor: pointer; transition: border-color 0.15s ease; }
+.hw-pick.is-live .hw-pick-card:hover { border-color: #75b299; }
+.hw-pick.is-live .hw-pick-card.is-on { border-color: #075a3e; cursor: default; }
+.hw-pick.is-live .is-on .hw-pick-see { display: none; }
+.hw-pick.is-live .is-on .hw-pick-now { display: inline; }
+.hw-pick.is-live .is-on .hw-pick-go { color: inherit; }
+/* The notch: a corner of the card, turned to point at the build below. */
+.hw-pick.is-live .hw-pick-card.is-on::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(-0.55rem - 1px);
+  width: 1.1rem;
+  height: 1.1rem;
+  transform: translateX(-50%) rotate(45deg);
+  background: inherit;
+  border: solid #075a3e;
+  border-width: 0 2px 2px 0;
+}
+/* One column: the first card would point at the second, not at its build. */
+@media (max-width: 640px) {
+  .hw-pick.is-live .hw-pick-card.is-on::after { content: none; }
 }
 
-/* The way back, at the top of each build's page. */
-.hw-crumb { margin: 0 0 1.4rem; font-family: "Changa", sans-serif; font-weight: 600; }
-.hw-crumb a { text-decoration: none; }
-.hw-crumb a:hover, .hw-crumb a:focus-visible { text-decoration: underline; }
-
-/* A page under Hardware, listed beneath it in the Dry menu. */
-/* The two build pages under Hardware in the Dry menu: a flyout beside the
-   Hardware entry on a desktop, shown while the pointer is on Hardware or the
-   focus is inside it. It is not a .dropdown-menu on purpose: the rule that
-   opens the Dry menu on hover opens every .dropdown-menu inside it too. */
-.dropdown-has-flyout { position: relative; }
-.dropdown-flyout { list-style: none; margin: 0; padding: 0; }
-.dropdown-flyout .dropdown-item::before { content: "\21B3\00a0"; }
-.flyout-caret { display: none; }
-
-@media (min-width: 992px) {
-  .dropdown-flyout {
-    position: absolute;
-    top: -0.5rem;
-    left: 100%;
-    z-index: 2;
-    min-width: 12rem;
-    padding: 0.5rem 0;
-    visibility: hidden;
-    pointer-events: none;
-    background: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(5, 68, 46, 0.1);
-  }
-  .dropdown-has-flyout:hover > .dropdown-flyout,
-  .dropdown-has-flyout:focus-within > .dropdown-flyout {
-    visibility: visible;
-    pointer-events: auto;
-  }
-  .dropdown-flyout .dropdown-item::before { content: none; }
-  .dropdown-has-flyout > .dropdown-item { position: relative; }
-  .flyout-caret {
-    display: inline;
-    position: absolute;
-    right: 0.9rem;
-    top: 50%;
-    transform: translateY(-52%);
-  }
-}
-
-@media (max-width: 991.98px) {
-  .dropdown-flyout .dropdown-item { font-size: 0.86em; opacity: 0.85; }
-}
-
-body.hw-nexus .navbar .dropdown-flyout,
-body.bg-nexus .navbar .dropdown-flyout,
-body.edu-nexus .navbar .dropdown-flyout {
-  background: var(--nx-panel);
-  border-color: var(--nx-line);
-}
-
+.hw-build { scroll-margin-top: 90px; }
 .hw-build-head {
   margin: 0 0 2.4rem;
   padding-top: 1.2rem;
@@ -6817,8 +6772,15 @@ body.edu-nexus .navbar .dropdown-flyout {
   border-top: 1px solid #cfdcd5;
   font-family: "Changa", sans-serif;
 }
-body.hw-nexus .hw-pick-card:hover,
-body.hw-nexus .hw-pick-card:focus-within { border-color: var(--nx-mint); }
+/* On paper there is nothing to click: print both builds. */
+@media print {
+  .hw-build[hidden] { display: block !important; }
+}
+
+body.hw-nexus .hw-pick.is-live .hw-pick-card:hover { border-color: var(--nx-mint); }
+body.hw-nexus .hw-pick.is-live .hw-pick-card.is-on,
+body.hw-nexus .hw-pick.is-live .hw-pick-card.is-on::after { border-color: var(--nx-lime); }
+body.hw-nexus .hw .hw-pick.is-live .is-on .hw-pick-go { color: var(--nx-muted); }
 body.hw-nexus .hw-build-head { border-top-color: var(--nx-mint); }
 body.hw-nexus .hw-build-end { border-top-color: var(--nx-line); }
 
@@ -11874,3 +11836,63 @@ body.bg-nexus .board-game-page { --muted: #c6dde4; --ink2: #c6dde4; }
   .sdgp-tile.is-ours:hover,
   .sdgp-tile.is-ours:focus-within { transform: none; }
 }
+
+/* ===== SDGs: the deep-teal treatment ========================================
+   Turned on by body.edu-nexus from sustainability.html; the palette is the
+   --nx-* tokens Hardware and Education already use, and the prose, sidebar
+   and section rules come from the Education block. What is left is this
+   page's own furniture: the tiles, the goal badges and the figure cards.
+
+   A goal's own colour stays the goal's: it fills a tile we work on and edges
+   one we do not. Where it has to carry TEXT -- a number, an icon, a heading --
+   it is lifted toward white first, because the UN's darker colours (#19486a,
+   #00689d, #a21942) are well under 3:1 on petrol.
+   ========================================================================== */
+body.edu-nexus .sdgp-tile {
+  background: var(--nx-panel);
+  color: var(--nx-text);
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--sdg) 70%, transparent);
+}
+
+body.edu-nexus .sdgp-tile:not(.is-ours) .sdgp-num,
+body.edu-nexus .sdgp-tile:not(.is-ours) .sdgp-icon {
+  color: color-mix(in srgb, var(--sdg) 45%, #fff);
+}
+
+/* Not one of ours: present, and recognisable, but plainly not claimed. */
+body.edu-nexus .sdgp-tile:not(.is-ours) .sdgp-name { color: var(--nx-muted); }
+body.edu-nexus .sdgp-tile:not(.is-ours) { background: transparent; }
+
+body.edu-nexus .sdgp-tile.is-ours {
+  background: var(--sdg);
+  border-color: color-mix(in srgb, var(--sdg) 60%, #fff);
+  color: #fff;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--sdg) 55%, transparent);
+}
+
+body.edu-nexus .sdgp-tile.is-ours:hover,
+body.edu-nexus .sdgp-tile.is-ours:focus-within {
+  box-shadow: 0 0 26px color-mix(in srgb, var(--sdg) 80%, transparent),
+              0 8px 18px rgba(0, 0, 0, 0.45);
+}
+
+body.edu-nexus .sdgp-tile.is-ours a { color: #fff; }
+body.edu-nexus .sdgp-tile.is-ours a:focus-visible { outline-color: var(--nx-lime); }
+
+body.edu-nexus .sdgp-goal h3 { color: color-mix(in srgb, var(--sdg) 40%, #fff); }
+body.edu-nexus .sdgp-target {
+  color: var(--nx-muted);
+  border-left-color: color-mix(in srgb, var(--sdg) 70%, #fff);
+}
+body.edu-nexus .sdgp-badge { box-shadow: 0 0 16px color-mix(in srgb, var(--sdg) 50%, transparent); }
+
+body.edu-nexus .sdgp-stat {
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-top: 4px solid var(--sdg);
+}
+body.edu-nexus .sdgp-stat-num { color: var(--nx-lime); }
+body.edu-nexus .sdgp-stat-label { color: var(--nx-muted); }
+
+body.edu-nexus .hp-todo { color: var(--nx-muted); }
