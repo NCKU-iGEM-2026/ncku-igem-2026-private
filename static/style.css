@@ -9989,6 +9989,127 @@ body.quiz-active { overflow: hidden; }
   .hp-figure-grid > .hp-figure { max-width: none; }
 }
 
+/* ---- the survey charts ----
+   Each figure carries its numbers as a table; static/hp-survey-pies.js draws
+   them as a donut with a legend beside it and adds .is-drawn. The table then
+   stays for screen readers only, and the drawing is hidden from them, so the
+   numbers are read once. Without the script the table is what shows. */
+.hp-pie-source {
+  font-size: 0.85rem;
+  color: #6b6055;
+}
+
+.hp-pie-chart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem 1.4rem;
+  padding: 0.4rem 0.2rem 0.2rem;
+}
+
+.hp-pie-svg {
+  flex: none;
+  width: clamp(150px, 40%, 200px);
+  height: auto;
+  overflow: visible;
+}
+
+.hp-pie-slice path { transition: opacity 0.15s ease; }
+.hp-pie.is-focusing .hp-pie-slice:not(.is-on) path { opacity: 0.35; }
+.hp-pie.is-focusing .hp-pie-slice:not(.is-on) .hp-pie-pct { opacity: 0.35; }
+
+.hp-pie-pct {
+  font-family: "Changa", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.hp-pie-total {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  text-anchor: middle;
+  fill: #2b2b2b;
+}
+.hp-pie-total-sub {
+  font-family: "Changa", sans-serif;
+  font-size: 12px;
+  text-anchor: middle;
+  fill: #6b6055;
+}
+
+.hp-pie-legend {
+  flex: 1 1 170px;
+  max-width: 260px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.25;
+}
+.hp-pie-legend li {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.22rem 0.4rem;
+  border-radius: 6px;
+  color: #2b2b2b;
+  transition: background-color 0.15s ease;
+}
+.hp-pie-legend li.is-on { background: rgba(0, 0, 0, 0.06); }
+.hp-pie-swatch { width: 12px; height: 12px; border-radius: 3px; }
+.hp-pie-val { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+
+/* the data, as a table: what shows without the script, and what a screen
+   reader reads with it */
+.hp-pie-table table {
+  width: 100%;
+  font-size: 0.88rem;
+  border-collapse: collapse;
+}
+.hp-pie-table caption { caption-side: top; font-weight: 600; padding-bottom: 0.3rem; }
+.hp-pie-table th,
+.hp-pie-table td { padding: 0.2rem 0.4rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+.hp-pie-table td { text-align: right; font-variant-numeric: tabular-nums; }
+.hp-pie.is-drawn .hp-pie-table {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.hp-pie { position: relative; }
+
+.hp-pie-tip {
+  position: fixed;
+  z-index: 1090;
+  max-width: 260px;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2b2b2b;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  pointer-events: none;
+}
+.hp-pie-tip strong { display: block; }
+.hp-pie-tip em { display: block; margin-top: 0.2rem; font-size: 0.78rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-pie-slice path,
+  .hp-pie-legend li { transition: none; }
+}
+
 /* ===== The deep-teal treatment ==============================================
    A page-scoped theme, switched on by body.hw-nexus from hardware.html and
    body.edu-nexus from education.html, and nothing else. Purely additive:
@@ -12299,6 +12420,21 @@ body.edu-nexus .hp-figure {
   border-color: var(--nx-line);
 }
 body.edu-nexus .hp-figure figcaption { color: var(--nx-muted); }
+body.edu-nexus .hp-pie-source { color: var(--nx-muted); }
+body.edu-nexus .hp-pie-total { fill: var(--nx-text); }
+body.edu-nexus .hp-pie-total-sub { fill: var(--nx-muted); }
+body.edu-nexus .hp-pie-legend li { color: var(--nx-text); }
+body.edu-nexus .hp-pie-legend li.is-on { background: var(--nx-raised); }
+body.edu-nexus .hp-pie-table th,
+body.edu-nexus .hp-pie-table td { color: var(--nx-text); border-bottom-color: var(--nx-line); }
+body.edu-nexus .hp-pie-table caption { color: var(--nx-muted); }
+body.edu-nexus .hp-pie-tip {
+  background: var(--nx-raised);
+  color: var(--nx-text);
+  border: 1px solid var(--nx-line);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+body.edu-nexus .hp-pie-tip em { color: var(--nx-muted); }
 
 /* ---- the Collaboration wall ---- */
 
