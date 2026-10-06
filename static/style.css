@@ -1562,19 +1562,32 @@ body.team-bio-locked { overflow: hidden; }
    list -- are set apart from the prose rather than buried in it. */
 .desc { max-width: 52rem; }
 .desc section { margin-bottom: 3rem; }
+/* Colours come from tokens.css rather than being written out, so they follow
+   the theme: these were fixed light-mode greens, and once the page ground
+   went dark they were near-black text on a near-black field. The light-mode
+   values are unchanged -- --c-ink-2 is the same #075a3e this used to name. */
 .desc h2 {
   font-family: "Changa", sans-serif;
-  color: #075a3e;
+  color: var(--c-ink-2);
   margin-bottom: 1rem;
 }
-.desc p { line-height: 1.8; color: #33413a; }
-.desc sup { color: #075a3e; font-weight: 700; font-size: 0.72em; }
+.desc p { line-height: 1.8; color: var(--c-text); }
+.desc sup { color: var(--c-ink-2); font-weight: 700; font-size: 0.72em; }
 
 .desc-lead p {
   font-size: 1.12rem;
   line-height: 1.85;
 }
-.desc-lead p:first-child { color: #24352c; }
+.desc-lead p:first-child { color: var(--c-text); }
+
+/* The organism the whole page is about, named in its first three words: set
+   larger than the sentence around it so the opening has something to land
+   on. Scoped to that one <em> -- it is the only one in the lead, and the
+   species italic elsewhere on the page stays at its running size. */
+.desc-lead p:first-child > em:first-child {
+  font-size: 1.45em;
+  letter-spacing: -0.01em;
+}
 .desc-lead {
   border-left: 4px solid #075a3e;
   padding-left: 1.5rem;
@@ -1583,10 +1596,27 @@ body.team-bio-locked { overflow: hidden; }
 
 /* ---- the three approaches that fall short ---- */
 .desc-methods {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  position: relative;
+  margin-top: 1.75rem;
+  padding-left: 2.6rem;
+  counter-reset: desc-method;
+}
+
+/* The rail the nodes hang off: one line down the whole run, fading out at
+   the tail so it reads as a trace rather than as a table border. */
+.desc-methods::before {
+  content: "";
+  position: absolute;
+  top: 0.55rem;
+  bottom: 2.2rem;
+  left: 0.42rem;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom,
+    var(--c-teal-deep) 0%,
+    var(--c-teal-deep) 62%,
+    transparent 100%);
+  opacity: 0.55;
 }
 
 .desc-method {
@@ -1626,69 +1656,98 @@ body.team-bio-locked { overflow: hidden; }
    -- the method, and a line saying what it does -- so the name is set
    smaller than there and the pair is stacked and centred rather than a
    single centred line. */
-.desc-methods .hw-flip-front,
-.desc-methods .hw-flip-back {
-  border: 1px solid #dfe8e2;
-  border-radius: 12px;
-  padding: 1.1rem 1.2rem;
+/* ---- the three current methods, as a trace down a rail ----
+   Not three boxes: one line with a node per method, each carrying what it
+   reads and then what it cannot tell you. Every colour is a token, so this
+   follows the theme instead of being a light-mode card with dark-mode text
+   laid over it -- which is what the flip card it replaces had become (its
+   back face measured 1.7:1). */
+.desc-method-step {
+  position: relative;
+  padding-bottom: 1.9rem;
 }
 
-.desc-methods .hw-flip-front {
+.desc-method-step:last-child { padding-bottom: 0; }
+
+/* The node. Sits on the rail, and carries a soft halo so it reads as lit
+   rather than as a bullet. */
+.desc-method-step::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  left: -2.6rem;
+  width: 11px;
+  height: 11px;
+  margin-left: 0.42rem;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--c-teal-deep);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-teal-deep) 22%, transparent);
+}
+
+.desc-method-step dt {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  background: #fffdf7;
-  /* Clear of the fold in the top-right corner and the "hover to read" cue in
-     the bottom-left, so neither ever lands on the words. */
-  padding-right: 2rem;
-  padding-bottom: 2.9rem;
+  gap: 0.25rem;
 }
 
-/* The fold is drawn by the shared mechanism at the Hardware cards' 10px;
-   these corners are 12px, and a fold that is not the corner it sits in reads
-   as a misprint. */
-.desc-methods .hw-flip-front::after { border-top-right-radius: 12px; }
+/* The channel number, in the typeface's lightest weight so it reads as a
+   plate marking rather than as a heading competing with the method name. */
+.desc-methods .desc-method-name::before {
+  content: counter(desc-method, decimal-leading-zero);
+  margin-right: 0.6rem;
+  font-weight: 200;
+  color: var(--c-teal-deep);
+  opacity: 0.85;
+}
 
 .desc-methods .desc-method-name {
+  counter-increment: desc-method;
   font-family: "Changa", sans-serif;
-  font-size: 1.18rem;
-  line-height: 1.35;
-  color: #1f4a38;
-  margin-bottom: 0.5rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: var(--c-ink-2);
 }
 
-/* Overrides the open-card version of this class, which carried a bottom
-   margin it no longer needs now that it is the last thing on the face. */
-.desc-methods .hw-flip-front .desc-method-what {
+.desc-methods .desc-method-what {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--c-text-2);
+}
+
+/* The limitation, set off by a marker rather than by a box. */
+.desc-method-step dd {
+  position: relative;
+  margin: 0.55rem 0 0;
+  padding-left: 1.15rem;
+}
+
+.desc-method-step dd::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid var(--c-amber);
+}
+
+.desc-method-step dd p {
+  margin: 0;
   font-size: 0.92rem;
   line-height: 1.7;
-  color: #4a5a51;
-  margin: 0;
+  color: var(--c-text-2);
 }
 
-/* Back: the gap the method leaves. It keeps the amber that marked the gap
-   when these were open cards, but as the whole face rather than a panel
-   inside one -- a cream card holding an amber box reads as two cards, and
-   turning one over to find another is a card too many. */
-.desc-methods .hw-flip-back {
-  display: flex;
-  align-items: center;
-  background: #fff6e2;
-  border-color: #e8d3a4;
-  margin: 0;
+@media (max-width: 575.98px) {
+  .desc-methods { padding-left: 2rem; }
+  .desc-method-step::before { left: -2rem; }
 }
 
-/* The text is wrapped in a block of its own rather than left bare on the
-   face. A flex container makes an anonymous item out of every run of text
-   between its element children, so a sentence with two <sup> citations in it
-   comes out as five boxes side by side instead of one paragraph. One child,
-   one column. */
-.desc-methods .hw-flip-back > p {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: #6b4a1f;
-}
 
 /* ---- the selectivity table ---- */
 .desc-figure { margin: 1.75rem 0; }
@@ -1703,7 +1762,7 @@ body.team-bio-locked { overflow: hidden; }
   caption-side: bottom;
   padding-top: 0.75rem;
   font-size: 0.82rem;
-  color: #5f6e66;
+  color: var(--c-text-3);
   text-align: left;
   line-height: 1.6;
 }
@@ -1717,7 +1776,7 @@ body.team-bio-locked { overflow: hidden; }
 
 .desc-table thead th {
   font-family: "Changa", sans-serif;
-  color: #075a3e;
+  color: var(--c-ink-2);
   border-bottom: 2px solid #075a3e;
 }
 
@@ -1727,9 +1786,13 @@ body.team-bio-locked { overflow: hidden; }
 }
 
 /* ---- the two candidate routes ---- */
+/* Stacked, not side by side: the two systems are read one after the other
+   rather than compared column against column, and each gets the full measure
+   instead of a half-width column that was breaking its prose into very short
+   lines. */
 .desc-routes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  grid-template-columns: 1fr;
   gap: 1.25rem;
   margin-top: 1.5rem;
 }
@@ -1760,10 +1823,12 @@ body.team-bio-locked { overflow: hidden; }
   padding: 0.2rem 0.7rem;
 }
 
+/* Was a fixed dark green, which the dark-mode card repaint left at 1.3:1 --
+   invisible on its own panel. The token follows the theme. */
 .desc-route h3 {
   font-family: "Changa", sans-serif;
   font-size: 1.1rem;
-  color: #1f4a38;
+  color: var(--c-ink-2);
   margin: 0.35rem 0 0.75rem;
 }
 
@@ -1774,9 +1839,9 @@ body.team-bio-locked { overflow: hidden; }
 .desc-route-note {
   margin: 1rem 0 0;
   padding-top: 0.85rem;
-  border-top: 1px dashed #b9cdc3;
+  border-top: 1px dashed var(--c-line-2);
   font-size: 0.86rem;
-  color: #5d6d64;
+  color: var(--c-text-3);
 }
 
 /* ---- the hypothesis, marked as one ---- */
@@ -1796,7 +1861,7 @@ body.team-bio-locked { overflow: hidden; }
   margin-bottom: 0.85rem;
   line-height: 1.65;
   font-size: 0.92rem;
-  color: #3f4d45;
+  color: var(--c-text-2);
 }
 .desc-refs a { word-break: break-word; }
 
@@ -1807,7 +1872,14 @@ body.team-bio-locked { overflow: hidden; }
 .attr-ai a,
 .labbook .protocol-body a { color: #0a58ca; }
 
-.desc-refs-note { font-size: 0.88rem; color: #5f6e66; }
+/* That blue is picked for a light panel. All three of these panels go dark
+   with the theme, where it measures 2.5:1 -- so dark mode takes the system's
+   teal instead, which is 9.1:1 on the same ground. */
+html[data-theme="dark"] .desc a,
+html[data-theme="dark"] .attr-ai a,
+html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
+
+.desc-refs-note { font-size: 0.88rem; color: var(--c-text-3); }
 
 /* Anything still missing its source is flagged in the page itself, so it
    cannot quietly ship looking like a finished citation. */
@@ -3643,11 +3715,15 @@ body.edu-lightbox-locked {
   line-height: 0;
 }
 
+/* One height for every embedded PDF on the site -- the Lab Book protocols
+   and these feedback reports used to be 940px and 1000px tall, which made
+   each one a near-full screen the reader had to scroll past. The document
+   itself still opens full size from the link underneath. */
 .edu-pdf-viewer iframe {
   display: block;
   width: 100%;
-  height: min(85vh, 1000px);
-  min-height: 500px;
+  height: min(62vh, 720px);
+  min-height: 380px;
   border: 0;
   border-radius: 8px;
 }
@@ -4996,11 +5072,13 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   line-height: 0;            /* an iframe is inline: without this it sits on a descender gap */
 }
 
+/* Same height as the other embedded PDFs on the site (see
+   .edu-pdf-viewer iframe). */
 .labbook .protocol-viewer iframe {
   display: block;
   width: 100%;
-  height: min(82vh, 940px);
-  min-height: 460px;
+  height: min(62vh, 720px);
+  min-height: 380px;
   border: 0;
   background: #ece6d8;
 }
@@ -5017,15 +5095,16 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 /* Twenty-one protocols is too many to scroll past looking for one, so the
    page opens on an index grouped by stage of the work, and each group gets a
    heading the index can jump to. */
+/* No panel behind it: the index reads as part of the page, not a card on top
+   of it. The near-white it used to carry was a bright box in the middle of a
+   dark page, and the colours below are tokens for the same reason -- they
+   follow the ground instead of assuming a pale one. */
 .labbook .protocol-index {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 1.25rem 1.75rem;
-  background: #fffdf9;
-  border: 1px solid #e6ddc8;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(43, 30, 23, 0.06);
-  padding: 1.5rem 1.5rem 1.35rem;
+  gap: 1.5rem 1.75rem;
+  padding: 0.25rem 0 1.5rem;
+  border-bottom: 1px solid var(--c-line);
   margin-bottom: 2.75rem;
 }
 
@@ -5035,11 +5114,11 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   font-weight: 700;
   margin: 0 0 0.5rem;
   padding-bottom: 0.35rem;
-  border-bottom: 2px solid #075a3e;
+  border-bottom: 2px solid var(--c-ink-2);
 }
 
 .labbook .protocol-index-title a {
-  color: #075a3e;
+  color: var(--c-ink-2);
   text-decoration: none;
 }
 
@@ -5056,8 +5135,13 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 }
 
 .labbook .protocol-index li a {
-  color: #2b1e17;
+  color: var(--c-text-2);
   text-decoration: none;
+}
+
+.labbook .protocol-index li a:hover,
+.labbook .protocol-index li a:focus-visible {
+  color: var(--c-text);
 }
 
 .labbook .protocol-index a:hover,
@@ -5065,13 +5149,17 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   text-decoration: underline;
 }
 
+/* Tokens, not fixed greens: these headings sit on the page ground, and the
+   fixed #075a3e left them at about 1.9:1 once that ground went dark -- which
+   reads worst of all right above a white PDF. Light mode is unchanged, since
+   --c-ink-2 is that same green. */
 .labbook .protocol-group {
   font-family: "Changa", sans-serif;
   font-size: clamp(1.45rem, 1.1rem + 1.5vw, 2rem);
-  color: #075a3e;
+  color: var(--c-ink-2);
   margin: 3.25rem 0 1.25rem;
   padding-bottom: 0.4rem;
-  border-bottom: 3px solid #075a3e;
+  border-bottom: 3px solid var(--c-ink-2);
   scroll-margin-top: 90px;
 }
 
@@ -5083,11 +5171,26 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 /* Each protocol is its PDF, shown in place: a title, the document itself,
    and a rule before the next one. No card around it -- the PDF already is
    the sheet. */
-.labbook .protocol-embed > h2 {
+/* The title and its download sit on one line: the link is the only control
+   here, so it reads as part of the heading rather than as a full-width bar
+   below a PDF that already fills the width. */
+.labbook .protocol-head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 0.85rem;
+}
+
+.labbook .protocol-head > h2 {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.labbook .protocol-embed h2 {
   font-family: "Changa", sans-serif;
   font-size: clamp(1.2rem, 1rem + 0.9vw, 1.5rem);
   line-height: 1.3;
-  color: #075a3e;
+  color: var(--c-ink-2);
   margin: 0 0 0.85rem;
 }
 
@@ -5097,10 +5200,38 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   overflow: hidden;
 }
 
+/* Icon only: the title beside it already names the document, so the words
+   would just repeat it. They stay in the markup for screen readers and for
+   print, where the frame cannot show anything. */
 .labbook .protocol-embed .protocol-pdf {
   background: none;
   border: none;
-  padding: 0.85rem 0 0;
+  padding: 0;
+  margin: 0;
+  flex: none;
+}
+
+.labbook .protocol-embed .protocol-pdf a {
+  gap: 0;
+  padding: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  justify-content: center;
+  border-color: var(--c-ink-2);
+  background: none;
+}
+
+.labbook .protocol-embed .protocol-pdf svg { font-size: 1.15em; }
+
+.labbook .protocol-pdf-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .labbook .protocol-rule {
@@ -5111,8 +5242,8 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 }
 
 @media (max-width: 575.98px) {
-  .labbook .protocol-index { padding: 1.2rem 1.15rem; }
-  .labbook .protocol-embed .protocol-pdf { padding-top: 0; }
+  /* no side padding to trim any more -- the panel is gone; just a shorter tail */
+  .labbook .protocol-index { padding-bottom: 1.2rem; }
   .labbook .protocol-rule { margin: 1.75rem 0; }
 }
 
@@ -5120,13 +5251,27 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   .labbook .protocol-index { display: none !important; }
   .labbook .protocol-group { margin: 1rem 0 0.5rem; font-size: 14pt; color: #000; border-color: #000; }
   .labbook .protocol-embed { break-inside: avoid; }
-  .labbook .protocol-embed > h2 { color: #000; font-size: 12pt; margin: 0 0 0.2rem; }
+  .labbook .protocol-embed h2 { color: #000; font-size: 12pt; margin: 0 0 0.2rem; }
+  /* On paper the heading and the link stack, and the link says what it is
+     again -- there is no icon and no frame to give it away. */
+  .labbook .protocol-head { display: block; }
+  .labbook .protocol-pdf-label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
   .labbook .protocol-rule { margin: 0.6rem 0; border-color: #999; }
   /* The PDF cannot print from its frame, so on paper each protocol keeps its
      address written out. */
   .labbook .protocol-embed .protocol-pdf { display: block !important; padding: 0; }
   .labbook .protocol-embed .protocol-pdf a {
     display: inline;
+    width: auto;
+    height: auto;
     border: none;
     padding: 0;
     font-weight: 400;
