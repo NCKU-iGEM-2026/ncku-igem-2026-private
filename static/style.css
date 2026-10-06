@@ -1808,10 +1808,6 @@ body.engineering-page .navbar-toggler { z-index: 3; }
 body.engineering-page .navbar .dropdown-menu { z-index: 4; }
 body.engineering-page .navbar-nav .nav-link:hover,
 body.engineering-page .navbar-nav .nav-link:focus { color: #747b77; }
-/* No bacterium under the menu here, nor its AHL trail (menu-germ.js): the
-   left margin belongs to the module rail. */
-body.engineering-page .gm-host,
-body.engineering-page .gm-trail { display: none; }
 /* One block of colour: the hero reaches up behind the navbar (the body's
    104px top padding), so the two can never drift apart and flash white while
    the navbar slides away. The navbar and its logo stay a separate layer above
@@ -8379,122 +8375,6 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
    it has always had; the disc takes a brown one, so the shadow does not read
    as a green halo around a brown thing. */
 .cap-target-ahl { filter: drop-shadow(0 4px 8px rgba(92, 58, 30, 0.32)); }
-
-/* ===== The bacterium under the menu ==================================
-   A Pseudomonas aeruginosa below the left end of the menu, letting AHL go
-   as the page is scrolled. Same bacterium and same signal disc as the
-   online game further down this file, so the two read as one thing.
-
-   menu-germ.js builds all of it and sets --gm-x, --gm-y and --gm-size from
-   the measured gap between the menu's left edge and the page's own content.
-   That gap is 200px at 1920 and nothing at all by 992, so there is no
-   width to hard-code; the script simply leaves it off when what is free is
-   too narrow to hold the cell clear of the text.
-
-   is-on is added by the script. Without it nothing shows, which is the
-   right answer for decoration on a page whose JavaScript did not run.
-   -------------------------------------------------------------------- */
-.gm-host {
-  position: fixed;
-  left: var(--gm-x, 0px);
-  top: var(--gm-y, 96px);
-  width: var(--gm-size, 56px);
-  height: var(--gm-size, 56px);
-  /* Behind the page's own content and deaf to the pointer: it can neither
-     cover anything nor be clicked by accident. */
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  /* top as well as opacity: the menu's logo is large at the top of a page
-     and shrinks once it is scrolled, and the cell sits under whatever the
-     logo's bottom edge currently is. Without this it jumps 123px the
-     instant anyone starts scrolling. */
-  transition: opacity 0.4s ease, top 0.35s ease;
-}
-
-.gm-host.is-on { opacity: 1; }
-
-.gm-cell {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  /* Enough that it reads as part of the page rather than as a sticker on
-     top of it. */
-  opacity: 0.85;
-  animation: gm-bob 6.5s ease-in-out infinite alternate;
-}
-
-@keyframes gm-bob {
-  from { transform: translateY(0) rotate(-3deg); }
-  to { transform: translateY(5px) rotate(3deg); }
-}
-
-/* The trail: a line of dots down the margin below the cell, one added for
-   every stretch of page that goes by, and none of them taken away again.
-
-   Held against the window rather than laid into the document. In the
-   document each dot would sit at the depth it was left at, which is correct
-   and invisible: the cell rides 96px from the top of the window, so anything
-   left behind it is off the top of the screen almost at once.
-
-   z-index 1 and pointer-events: none, the same as the cell. Because the page
-   slides underneath a fixed line, menu-germ.js samples the column on every
-   scroll and takes the whole line off when anything has come under it. */
-.gm-trail {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 0;
-  height: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-
-.gm-trail.is-on { opacity: 1; }
-
-/* On its way out: off the list at once so the count is right, off the page a
-   moment later so it fades rather than blinks. */
-.gm-trail .gm-mark.is-out {
-  opacity: 0;
-  transform: scale(0.35);
-  transition: opacity 0.22s ease, transform 0.22s ease;
-}
-
-/* .cap-ahl carries the colour -- the game's own disc. This sets the size and
-   the way a dot arrives. It has no lettering: at 15px "AHL" is a smudge, and
-   what is being read here is the line. */
-/* Two classes, not one: .cap-ahl sits further down this file and sets
-   width and height to 100%. At equal weight it would win on order alone,
-   and a fixed dot at 100% is the size of the window. */
-.gm-trail .gm-mark {
-  position: fixed;
-  width: 15px;
-  height: 15px;
-  border-width: 2px;
-  opacity: 0.66;
-  transition: top 0.3s ease, left 0.3s ease;
-  animation: gm-settle 0.45s ease-out backwards;
-}
-
-@keyframes gm-settle {
-  from { opacity: 0; transform: scale(0.2); }
-  to { opacity: 0.66; transform: scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* The line is not motion -- it is how much of the page has gone by -- so
-     it stays. What goes is the cell's drift and the dots' arrival. */
-  .gm-cell,
-  .gm-trail .gm-mark { animation: none; }
-  .gm-trail .gm-mark { transition: none; }
-}
-
-@media print {
-  .gm-host { display: none; }
-}
-
 
 .cap-ahl {
   display: flex;
