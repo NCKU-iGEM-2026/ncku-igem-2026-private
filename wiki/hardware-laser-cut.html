@@ -1,33 +1,31 @@
-{% extends "layout.html" %}
-
-{% block title %}Laser-Cut Build{% endblock %}
-
-{# The deep-teal treatment, the same as the Hardware page: every rule it
-   turns on lives under body.hw-nexus in style.css. #}
-{% block body_class %}hw-nexus{% endblock %}
-
-{% block page_content %}
-
-{# Three green glows drifting over the background, as on Hardware. Decoration
-   only: aria-hidden, no text. #}
-<div class="hw-orbs" aria-hidden="true">
-  <span class="hw-orb hw-orb-a"><span></span></span>
-  <span class="hw-orb hw-orb-b"><span></span></span>
-  <span class="hw-orb hw-orb-c"><span></span></span>
-</div>
-
-<div class="container my-4 hw">
-
-  <p class="hw-crumb"><a href="{{ url_for('pages', page='hardware') }}">&larr; Hardware</a></p>
-
 {#
   === 雷切機（laser-cut build）的內容：這個檔案請做這一台的組員自己排 ===
 
-  這一頁是 /hardware-laser-cut，Hardware 頁上「The two builds」的第二張卡片連到這裡。
-  2026-10-06 之前它是 wiki/hardware-laser-cut.html，用 include 放進 Hardware 頁；現在是獨立的網頁。
-  你改這一頁不會動到 3D 列印機那一頁（wiki/pages/hardware-3d-printed.html），兩個人可以各改各的。
+  這個檔案由 wiki/pages/hardware.html 用 include 放進 Hardware 頁的 <div id="laser-cut"> 裡。
+  讀者在 The two builds 點「Laser-cut build」那張卡片時，看到的就是這裡的內容；
+  網址是 /hardware#laser-cut，不是獨立的網頁。你改這個檔案不會動到 3D 列印機那一台
+  （wiki/hardware-printed.html），兩個人可以各改各的。
 
-  可以直接用這一頁現成的樣式（寫法照 wiki/hardware-3d-printed.html 裡的抄）：
+  現在裡面只有 Hardware 頁上原本就寫過的東西，原樣搬過來：
+    What it is      原本「Which build is which」第三張卡的文字與五列規格
+    What it costs   原本在 Building one 裡的成本表（$53.54）與它下面的兩段
+
+  ⚠ 請你確認或改掉的地方：
+    - What it costs 最後那段 aside 列的是 3D 列印機電路上的零件（電阻、2N7000、Cree 470 nm LED、
+      Eppendorf UVette）。這一台實際用的 LED、開關、比色管如果不一樣，請改成這一台的。
+    - 頁面上方共同的部分（How it measures、Ten channels）寫兩台原理相同：藍光橫過樣品、
+      偵測器在 90° 看、用 AS7341 讀光譜。那裡的平面圖、剖視圖和感測器設定都是 3D 列印機的。
+      這一台如果有不同的地方（有沒有 light trap、用什麼比色管、光路尺寸、感測器設定），請在這裡寫清楚。
+    - "Data: None on this page"：放上這一台量到的數據之後請改掉，並告訴硬體負責人，
+      hardware.html 兩張卡片上的 Data 那一列要一起改。
+    - 這一台有沒有自己的名字？頁面目前用 "laser-cut build" 稱呼它。
+
+  評審看 Hardware 的四題（2026 Judge Handbook 第 57 頁），這一台各自可以寫什麼：
+    1 解決什麼需求   2 使用者測試、從回饋學到什麼   3 功能有沒有被驗證   4 文件夠不夠讓別隊重做
+  建議至少要有：實機照片、怎麼做（切割檔、材料、組裝步驟）、怎麼操作、量到什麼。
+  只寫這一台實際量到、有紀錄可查的東西；還沒做的就寫還沒做。
+
+  可以直接用這一頁現成的樣式（寫法照 wiki/hardware-printed.html 裡的抄）：
     <section id="hardware-laser-..."><h2>…</h2> … </section>   一節。id 請用 hardware-laser- 開頭，
                                                                免得跟另一台的 id 重複
     <p class="hw-aside">…</p>                                  補充說明（字較小、較淡）
@@ -35,7 +33,7 @@
     <dl class="hw-spec"><div><dt>…</dt><dd>…</dd></div></dl>   規格列
     <figure class="hw-figure"> … <figcaption>…</figcaption></figure>   圖或表
     <details class="hw-fold"> … </details>                     可收合的細節（整段結構請從另一個檔複製）
-  標題下面可以加一排捷徑，寫法看 hardware-3d-printed.html 最上面的 <nav class="hw-jump">。
+  標題下面可以加一排捷徑，寫法看 hardware-printed.html 最上面的 <nav class="hw-jump">。
 
   照片：用 iGEM uploads tool 上傳，網址是 https://static.igem.wiki/teams/6379/wiki/hardware/<檔名>
         （請轉成 .webp 或 .avif）。卡片上的縮圖在 hardware.html，請跟硬體負責人一起拍：
@@ -44,6 +42,8 @@
   圖檔、影片、切割檔都不可以 commit 進這個 repo，也不能連到 YouTube、Google Drive 或外部圖床。
   uploads tool 試過不收 .stl 和 .zip，收 .glb；切割檔（.dxf、.svg）收不收要試了才知道。
 
+  這一塊一開始是隱藏的，讀者點了卡片才顯示。如果你加了會量版面尺寸的 JavaScript，
+  請在顯示之後再量：切換時 static/hardware-builds.js 會對 window 發一次 resize 事件。
 #}
   <header class="hw-build-head">
     <h2 class="hw-build-title" id="hw-build-laser-cut">The laser-cut build</h2>
@@ -147,10 +147,6 @@
   </section>
 
   <p class="hw-build-end">
-    <a href="{{ url_for('pages', page='hardware-3d-printed') }}">See the 3D-printed build</a>
-    <a href="{{ url_for('pages', page='hardware') }}#hardware-builds">Back to the two builds</a>
+    <a href="#printed">See the 3D-printed build</a>
+    <a href="#hardware-builds">Back to the two builds</a>
   </p>
-
-</div>
-
-{% endblock %}
