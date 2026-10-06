@@ -370,11 +370,40 @@ footer.bg-dark { background-color: #075a3e !important; }
 .page-hero-bg {
   position: absolute;
   inset: -6px;
+  /* The photo comes in as --hero-img from the page's hero_image block
+     (layout.html), so a page can also lay it out differently, below. */
+  background-image: var(--hero-img);
   background-size: cover;
   background-position: center;
   filter: blur(2px);
   transform: scale(1.03);
 }
+
+/* The whole photo, top to bottom, instead of a band across its middle. For a
+   photo much less wide than the banner, which "cover" would crop to its
+   centre. The photo is fitted to the banner's height and the space either
+   side is filled with a gradient between --hero-fill-from and --hero-fill-to,
+   colours taken from the photo's own left and right edges so the join does
+   not show. A page asks for it with {% block hero_class %}. */
+.page-hero-bg.is-fit-height {
+  background-image: var(--hero-img),
+    linear-gradient(90deg, var(--hero-fill-from, #333), var(--hero-fill-to, #222));
+  /* --hero-zoom above 100% lets a page show a little less than the whole
+     photo, cropping evenly off the top and bottom. */
+  background-size: auto var(--hero-zoom, 100%), cover;
+  background-repeat: no-repeat;
+}
+
+/* Hardware: the bench photo (4000 x 1821). Its left edge is the lit grey of
+   the bench, its right edge the bench in shadow. */
+.page-hero-bg.hero-hardware { --hero-fill-from: #5b5855; --hero-fill-to: #21201d; --hero-zoom: 125%; }
+
+/* At 80% brightness, well above the other deep-teal banners (brightness 0.42,
+   0.32 on a phone): the bench photo is dark to begin with -- a black base
+   plate on a black bench -- and at that level it all but disappeared. The
+   tint over it and the title's shadow are set with the Team and Attributions
+   banners, near the end of this file. */
+body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) brightness(0.8); }
 
 .page-hero-tint {
   position: absolute;
@@ -437,6 +466,72 @@ footer a:hover { color: white; text-decoration: underline; }
 .hover-icon:hover {
   color: #1abc9c !important; /* 滑鼠移過去變成漂亮的 Tiffany 綠，點綴一下 */
   transform: scale(1.1);
+}
+
+/* The footer's left column: three marks in a row, each a link -- our wiki,
+   LasReader, NCKU. White line art, so they sit straight on the footer's
+   colour. One height for all three, which is what makes them read as a set
+   whatever their shapes; as large as the column allows. The column's width
+   steps with Bootstrap's container (306, 356, 416px at 992, 1200 and 1400
+   up), so the height steps with it: 69, 84 and 100px, each the largest at
+   which the three still fit on one line. Centred, at 80px, when the columns
+   stack. */
+.footer-marks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1rem;
+}
+.footer-mark {
+  display: inline-flex;
+  line-height: 0;
+  border-radius: 8px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.footer-mark img {
+  display: block;
+  width: auto;
+  height: 69px;              /* 992-1199: the column is 306px */
+}
+@media (min-width: 1200px) { .footer-mark img { height: 84px; } }   /* 356px */
+@media (min-width: 1400px) { .footer-mark img { height: 100px; } }  /* 416px */
+.footer a.footer-mark:hover,
+.footer a.footer-mark:focus-visible { transform: translateY(-2px); opacity: 0.85; text-decoration: none; }
+.footer-mark:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+@media (max-width: 991.98px) {
+  .footer-marks { justify-content: center; }
+  .footer-mark img { height: 80px; }
+}
+
+/* The footer's main row, 1.5 times the height it had (104px at 1440, with
+   the sponsor ticker the tallest thing in it). Desktop only: stacked on a
+   phone, each column already has its own height. */
+@media (min-width: 992px) {
+  .footer-main { min-height: 156px; }
+}
+
+/* The contact and social links, on their own now (no "Contact Us" heading
+   above them): larger, and centred in their column. */
+.footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem 1.2rem;
+  font-size: 2.4rem;
+}
+.footer .footer-social .hover-icon { min-width: 56px; min-height: 56px; }
+/* Between 992 and 1399 the column is too narrow for four 56px targets on one
+   line; a little smaller, so they stay on one line rather than two. */
+@media (min-width: 992px) and (max-width: 1399.98px) {
+  .footer-social { gap: 0.5rem; }
+  .footer .footer-social .hover-icon { min-width: 48px; min-height: 48px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-mark { transition: none; }
+  .footer a.footer-mark:hover,
+  .footer a.footer-mark:focus-visible { transform: none; }
 }
 
 @font-face {
@@ -1741,10 +1836,6 @@ body.engineering-page .navbar-toggler { z-index: 3; }
 body.engineering-page .navbar .dropdown-menu { z-index: 4; }
 body.engineering-page .navbar-nav .nav-link:hover,
 body.engineering-page .navbar-nav .nav-link:focus { color: #747b77; }
-/* No bacterium under the menu here, nor its AHL trail (menu-germ.js): the
-   left margin belongs to the module rail. */
-body.engineering-page .gm-host,
-body.engineering-page .gm-trail { display: none; }
 /* One block of colour: the hero reaches up behind the navbar (the body's
    104px top padding), so the two can never drift apart and flash white while
    the navbar slides away. The navbar and its logo stay a separate layer above
@@ -2276,16 +2367,15 @@ body.engineering-page footer .row:first-child > :nth-child(2) { align-self: star
 /* Contact Us rides at the top edge too, level with the ticker. */
 body.engineering-page footer .row:first-child > :last-child { align-self: start; }
 body.engineering-page footer .row:first-child > :nth-child(2) > p { order: 1; margin: .35rem 0 0 !important; }
-/* The team logo keeps its 200px size; the transparent band above its
-   artwork is pulled up so it does not push the footer's first row down. */
-body.engineering-page footer .row:first-child > :first-child img { margin: -50px 0 0 !important; }
+/* The three marks, smaller, to fit the compact footer. */
+body.engineering-page footer .footer-mark img { height: 40px; }
+body.engineering-page footer .footer-marks { gap: 0.6rem; flex-wrap: nowrap; }
 body.engineering-page footer .row:first-child > :nth-child(2) p { margin-bottom: .3rem !important; font-size: .75rem; }
 body.engineering-page footer .sponsor-logo { height: 52px; padding: 4px 8px; border-radius: 6px; }
 body.engineering-page footer .sponsor-marquee-track { gap: 1.5rem; }
-body.engineering-page footer h2 { font-size: 1.2rem; margin: 0 0 .1rem !important; }
-body.engineering-page footer .row:first-child > :last-child p { margin: 0 !important; font-size: .75rem; }
-body.engineering-page footer .row:first-child > :last-child .d-flex { font-size: 1.1rem !important; gap: .25rem !important; margin-top: .15rem !important; }
-body.engineering-page footer .hover-icon { min-width: 36px; min-height: 36px; }
+body.engineering-page footer .footer-social { font-size: 1.1rem; gap: .25rem; }
+body.engineering-page footer .footer-main { min-height: 0; }
+body.engineering-page footer .footer-social .hover-icon { min-width: 36px; min-height: 36px; }
 body.engineering-page footer hr { margin: .6rem 0 !important; }
 body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: .72rem; }
 @media (max-width: 991.98px) {
@@ -2293,11 +2383,15 @@ body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: 
   body.engineering-page footer .row:first-child { grid-template-columns: auto 1fr; gap: .6rem 1rem; }
   body.engineering-page footer .row:first-child > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
   body.engineering-page footer .row:first-child > :last-child { text-align: right; }
-  body.engineering-page footer .row:first-child > :last-child .d-flex { justify-content: flex-end !important; }
+  body.engineering-page footer .footer-social { justify-content: flex-end; }
 }
 @media (prefers-reduced-motion: reduce) {
   body.engineering-page, .engineering-page *, .engineering-page *::before, .engineering-page *::after { transition: none !important; }
 }
+
+/* Attributions: the team photo in the banner sits a little lower than the
+   default centre, so the faces clear the menu bar. */
+body.attr-page .page-hero-bg { background-position: center 35%; }
 
 /* Attributions: the AI disclosure the Judge Handbook asks for (2026, p.95).
    Set apart from the rest of the page so it reads as a deliberate statement
@@ -6914,6 +7008,291 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
   border-radius: 8px;
 }
 
+/* ---- the two builds, one at a time ----
+   Two readers share this page. A card stands for each and says what it is;
+   the build it names is the block that follows the cards, and the card's last
+   line is a link to it. Without static/hardware-builds.js both blocks follow,
+   one after the other. With it only one shows, and the card that is showing
+   points down at it. */
+.hw-pick {
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  margin-bottom: 0;
+}
+.hw-pick-card { display: flex; flex-direction: column; }
+.hw-pick-card h3 { margin: 0.35rem 0 0.5rem; font-size: 1.2rem; }
+.hw-pick-card .hw-spec { margin-bottom: 1rem; }
+.hw-pick-card .hw-spec > div { grid-template-columns: 5.6rem 1fr; gap: 0.5rem; }
+/* A photograph of the build, once there is one. Both are cropped to the same
+   shape so the two cards stay a pair whatever the camera gave. */
+.hw-pick-photo {
+  margin: 0 0 1rem;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.hw-pick-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hw-pick-go {
+  margin-top: auto;
+  align-self: flex-start;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.hw-pick-go::after { content: " \2193"; }
+.hw-pick-go:hover .hw-pick-see,
+.hw-pick-go:focus-visible .hw-pick-see { text-decoration: underline; }
+.hw-pick-now { display: none; }
+
+.hw-pick.is-live .hw-pick-card { cursor: pointer; transition: border-color 0.15s ease; }
+.hw-pick.is-live .hw-pick-card:hover { border-color: #75b299; }
+.hw-pick.is-live .hw-pick-card.is-on { border-color: #075a3e; cursor: default; }
+.hw-pick.is-live .is-on .hw-pick-see { display: none; }
+.hw-pick.is-live .is-on .hw-pick-now { display: inline; }
+.hw-pick.is-live .is-on .hw-pick-go { color: inherit; }
+/* The notch: a corner of the card, turned to point at the build below. */
+.hw-pick.is-live .hw-pick-card.is-on::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(-0.55rem - 1px);
+  width: 1.1rem;
+  height: 1.1rem;
+  transform: translateX(-50%) rotate(45deg);
+  background: inherit;
+  border: solid #075a3e;
+  border-width: 0 2px 2px 0;
+}
+/* One column: the first card would point at the second, not at its build. */
+@media (max-width: 640px) {
+  .hw-pick.is-live .hw-pick-card.is-on::after { content: none; }
+}
+
+.hw-build { scroll-margin-top: 90px; }
+.hw-build-head {
+  margin: 0 0 2.4rem;
+  padding-top: 1.2rem;
+  border-top: 2px solid #075a3e;
+}
+.hw .hw-build-title { font-size: 1.9rem; margin: 0 0 0.9rem; }
+.hw-build-head .sw-links { margin: 0; }
+.hw-build-end {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.6rem;
+  margin: 0 0 3rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid #cfdcd5;
+  font-family: "Changa", sans-serif;
+}
+/* On paper there is nothing to click: print both builds. */
+@media print {
+  .hw-build[hidden] { display: block !important; }
+}
+
+body.hw-nexus .hw-pick.is-live .hw-pick-card:hover { border-color: var(--nx-mint); }
+body.hw-nexus .hw-pick.is-live .hw-pick-card.is-on,
+body.hw-nexus .hw-pick.is-live .hw-pick-card.is-on::after { border-color: var(--nx-lime); }
+body.hw-nexus .hw .hw-pick.is-live .is-on .hw-pick-go { color: var(--nx-muted); }
+body.hw-nexus .hw-build-head { border-top-color: var(--nx-mint); }
+body.hw-nexus .hw-build-end { border-top-color: var(--nx-line); }
+
+/* ---- what version 2 does better ----
+   Four cards, each a before and an after. The before is set quieter than the
+   after, and the last line of every card says what the claim rests on: a
+   property of the design, a measurement, or two sessions set side by side. */
+.hw-gains {
+  display: grid;
+  /* Two by two: three and a straggler reads as three claims and an afterthought. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.4rem 0 1.1rem;
+  padding: 0;
+  list-style: none;
+}
+.hw-gain {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.15rem 0.95rem;
+  border: 1px solid #cfdcd5;
+  border-radius: 12px;
+  background: #fffdf7;
+}
+.hw-gain-what {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1f4a38;
+}
+.hw-gain-fig {
+  margin: 0.3rem 0 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: #075a3e;
+  font-variant-numeric: tabular-nums;
+}
+.hw-gain-from { font-weight: 500; color: #6b7a72; }
+.hw-gain-arrow { margin: 0 0.4rem; color: #6b7a72; }
+.hw .hw-gain p { margin: 0 0 0.75rem; font-size: 0.95rem; line-height: 1.6; }
+.hw-gain-basis {
+  margin-top: auto;
+  padding-top: 0.55rem;
+  border-top: 1px dashed #cfdcd5;
+  font-size: 0.82rem;
+  color: #5f6e66;
+}
+@media (max-width: 640px) {
+  .hw-gains { grid-template-columns: minmax(0, 1fr); }
+}
+body.hw-nexus .hw-gain { background: var(--nx-panel); border-color: var(--nx-line); }
+body.hw-nexus .hw-gain-what { color: var(--nx-mint); }
+body.hw-nexus .hw-gain-fig { color: var(--nx-lime); }
+body.hw-nexus .hw-gain-from,
+body.hw-nexus .hw-gain-arrow,
+body.hw-nexus .hw-gain-basis { color: var(--nx-muted); }
+body.hw-nexus .hw-gain-basis { border-top-color: var(--nx-line); }
+
+/* ---- the drawings inside those cards, and the session chart ----
+   One picture to a claim, so the sentence under it can be short. Version 1 is
+   the quiet colour and version 2 the loud one throughout; every mark also has
+   its row or its label, so nothing is told by colour alone. The marks sit in
+   their final places in the markup. static/hardware-gains.js only holds a
+   drawing back until it is on screen (.is-armed) and then lets it play
+   (.is-seen); without the script, or with reduced motion, it is simply drawn. */
+.hw-vis {
+  --hw-v1: #6b7a72;
+  --hw-v2: #075a3e;
+  --hw-accent: #1f7a5c;
+  --hw-ink: #33413a;
+  --hw-ink2: #5f6e66;
+  --hw-rule: #cfdcd5;
+  --hw-surf: #fffdf7;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.2rem 0 0.5rem;
+  overflow: visible;
+}
+body.hw-nexus .hw-vis {
+  --hw-v1: var(--nx-muted);
+  --hw-v2: var(--nx-lime);
+  --hw-accent: var(--nx-mint);
+  --hw-ink: var(--nx-text);
+  --hw-ink2: var(--nx-muted);
+  --hw-rule: var(--nx-line);
+  --hw-surf: var(--nx-panel);
+}
+.hw-vis text { font-family: inherit; font-size: 10.5px; fill: var(--hw-ink2); }
+.hw-vis .hw-vis-strong { fill: var(--hw-ink); font-weight: 600; }
+.hw-vis .hw-vis-rule { stroke: var(--hw-rule); stroke-width: 1; fill: none; }
+.hw-vis .hw-vis-band { fill: var(--hw-v1); opacity: 0.16; }
+.hw-vis .hw-vis-line { stroke: var(--hw-v1); stroke-width: 1.5; stroke-linecap: round; fill: none; }
+/* A fitted curve, and marks that are neither version: one accent, with a
+   hollow twin for a reading of zero so the two differ by shape as well. */
+.hw-vis .hw-curve { stroke: var(--hw-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.hw-vis .hw-on { fill: var(--hw-accent); }
+.hw-vis .hw-on-soft { opacity: 0.55; }
+.hw-vis .hw-hollow { fill: none; stroke: var(--hw-v1); stroke-width: 1.5; }
+.hw-vis .hw-v1 { fill: var(--hw-v1); }
+.hw-vis .hw-v2 { fill: var(--hw-v2); }
+.hw-vis .hw-dot { stroke: var(--hw-surf); stroke-width: 2; }
+.hw-vis .hw-dot:hover, .hw-vis .hw-bar:hover { filter: brightness(1.2); }
+/* The session chart is wider than a phone: it scrolls inside its figure. */
+.hw-chart { margin: 1.2rem 0 1rem; }
+.hw-chart .hw-vis { min-width: 520px; }
+body.hw-nexus .hw-chart .hw-vis { --hw-surf: var(--nx-ground, #0d2630); }
+
+/* Steps and readings, as rows of chips. */
+.hw-steps2 { display: grid; gap: 0.45rem; margin: 0.35rem 0 0.75rem; }
+.hw-steps2-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.45rem; }
+.hw-steps2-who { flex: 0 0 4.4rem; font-size: 0.8rem; color: #5f6e66; }
+.hw .hw-steps2 ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: hw-step;
+}
+.hw .hw-steps2 li,
+.hw-steps2 .hw-read {
+  margin: 0;
+  padding: 0.26rem 0.6rem;
+  border: 1px solid #cfdcd5;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.hw .hw-steps2 li { counter-increment: hw-step; }
+.hw .hw-steps2 li::before { content: counter(hw-step) "\00a0"; font-weight: 700; color: #075a3e; }
+.hw-steps2 .hw-read { font-variant-numeric: tabular-nums; font-weight: 600; }
+/* The steps: the build's name on a line of its own, then the steps two
+   abreast, so four of them read as a list and not as a wrapped sentence. */
+.hw-steps2-loop .hw-steps2-who { flex-basis: 100%; }
+.hw .hw-steps2-loop ol { display: grid; grid-template-columns: repeat(2, max-content); }
+.hw-steps2-done { font-size: 0.8rem; font-weight: 600; color: #075a3e; }
+.hw-steps2-done::before { content: "\2713\00a0"; }
+.hw-steps2-row.is-v2 li,
+.hw-steps2-row.is-v2 .hw-read { border-color: #075a3e; }
+body.hw-nexus .hw-steps2-who { color: var(--nx-muted); }
+body.hw-nexus .hw .hw-steps2 li,
+body.hw-nexus .hw-steps2 .hw-read { border-color: var(--nx-line); color: var(--nx-text); }
+body.hw-nexus .hw .hw-steps2 li::before { color: var(--nx-mint); }
+body.hw-nexus .hw-steps2-done { color: var(--nx-lime); }
+body.hw-nexus .hw-steps2-row.is-v2 li,
+body.hw-nexus .hw-steps2-row.is-v2 .hw-read { border-color: var(--nx-lime); }
+
+/* ---- motion ---- */
+@keyframes hw-drop { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+@keyframes hw-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes hw-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes hw-fade { from { opacity: 0; } to { opacity: 1; } }
+/* A row of steps plays as a loop of seven seconds: one step a second, a pause
+   on the finished row, and round again. Version 2 is done at the first beat. */
+@keyframes hw-step-1 { 0%, 3% { opacity: 0.28; } 7%, 94% { opacity: 1; } 100% { opacity: 0.28; } }
+@keyframes hw-step-2 { 0%, 17% { opacity: 0.28; } 21%, 94% { opacity: 1; } 100% { opacity: 0.28; } }
+@keyframes hw-step-3 { 0%, 31% { opacity: 0.28; } 35%, 94% { opacity: 1; } 100% { opacity: 0.28; } }
+@keyframes hw-step-4 { 0%, 45% { opacity: 0.28; } 49%, 94% { opacity: 1; } 100% { opacity: 0.28; } }
+@keyframes hw-step-5 { 0%, 59% { opacity: 0; } 63%, 94% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes hw-step-0 { 0%, 17% { opacity: 0; } 21%, 94% { opacity: 1; } 100% { opacity: 0; } }
+
+.is-armed:not(.is-seen) .hw-dot,
+.is-armed:not(.is-seen) .hw-bar,
+.is-armed:not(.is-seen) .hw-late,
+.is-armed:not(.is-seen) .hw-pop { opacity: 0; }
+.is-seen .hw-pop {
+  animation: hw-fade 0.25s ease both;
+  animation-delay: calc(var(--i, 0) * 28ms + 0.1s);
+}
+.is-seen .hw-dot {
+  transform-box: fill-box;
+  animation: hw-drop 0.45s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 0.32s + 0.15s);
+}
+.is-seen .hw-bar {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: hw-grow 0.7s ease-out both;
+  animation-delay: calc(var(--i, 0) * 0.25s + 0.15s);
+}
+.is-seen rect.hw-bar { transform-origin: 0 50%; animation-name: hw-grow-x; }
+.is-seen .hw-late {
+  animation: hw-fade 0.45s ease both;
+  animation-delay: calc(var(--i, 0) * 0.3s + 0.6s);
+}
+.is-seen .hw-steps2-loop li:nth-child(1) { animation: hw-step-1 7s linear infinite; }
+.is-seen .hw-steps2-loop li:nth-child(2) { animation: hw-step-2 7s linear infinite; }
+.is-seen .hw-steps2-loop li:nth-child(3) { animation: hw-step-3 7s linear infinite; }
+.is-seen .hw-steps2-loop li:nth-child(4) { animation: hw-step-4 7s linear infinite; }
+.is-seen .hw-steps2-loop .hw-steps2-done { animation: hw-step-5 7s linear infinite; }
+.is-seen .hw-steps2-loop.is-v2 .hw-steps2-done { animation-name: hw-step-0; }
+
 /* A slot in the plan view where a part could go and none has been fitted:
    an outline, the same way the reserved filter position is drawn. */
 .hw-svg-slot { fill: none; stroke: #6b7a72; stroke-width: 1.2; stroke-dasharray: 3 3; }
@@ -8249,122 +8628,6 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
    as a green halo around a brown thing. */
 .cap-target-ahl { filter: drop-shadow(0 4px 8px rgba(92, 58, 30, 0.32)); }
 
-/* ===== The bacterium under the menu ==================================
-   A Pseudomonas aeruginosa below the left end of the menu, letting AHL go
-   as the page is scrolled. Same bacterium and same signal disc as the
-   online game further down this file, so the two read as one thing.
-
-   menu-germ.js builds all of it and sets --gm-x, --gm-y and --gm-size from
-   the measured gap between the menu's left edge and the page's own content.
-   That gap is 200px at 1920 and nothing at all by 992, so there is no
-   width to hard-code; the script simply leaves it off when what is free is
-   too narrow to hold the cell clear of the text.
-
-   is-on is added by the script. Without it nothing shows, which is the
-   right answer for decoration on a page whose JavaScript did not run.
-   -------------------------------------------------------------------- */
-.gm-host {
-  position: fixed;
-  left: var(--gm-x, 0px);
-  top: var(--gm-y, 96px);
-  width: var(--gm-size, 56px);
-  height: var(--gm-size, 56px);
-  /* Behind the page's own content and deaf to the pointer: it can neither
-     cover anything nor be clicked by accident. */
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  /* top as well as opacity: the menu's logo is large at the top of a page
-     and shrinks once it is scrolled, and the cell sits under whatever the
-     logo's bottom edge currently is. Without this it jumps 123px the
-     instant anyone starts scrolling. */
-  transition: opacity 0.4s ease, top 0.35s ease;
-}
-
-.gm-host.is-on { opacity: 1; }
-
-.gm-cell {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  /* Enough that it reads as part of the page rather than as a sticker on
-     top of it. */
-  opacity: 0.85;
-  animation: gm-bob 6.5s ease-in-out infinite alternate;
-}
-
-@keyframes gm-bob {
-  from { transform: translateY(0) rotate(-3deg); }
-  to { transform: translateY(5px) rotate(3deg); }
-}
-
-/* The trail: a line of dots down the margin below the cell, one added for
-   every stretch of page that goes by, and none of them taken away again.
-
-   Held against the window rather than laid into the document. In the
-   document each dot would sit at the depth it was left at, which is correct
-   and invisible: the cell rides 96px from the top of the window, so anything
-   left behind it is off the top of the screen almost at once.
-
-   z-index 1 and pointer-events: none, the same as the cell. Because the page
-   slides underneath a fixed line, menu-germ.js samples the column on every
-   scroll and takes the whole line off when anything has come under it. */
-.gm-trail {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 0;
-  height: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-
-.gm-trail.is-on { opacity: 1; }
-
-/* On its way out: off the list at once so the count is right, off the page a
-   moment later so it fades rather than blinks. */
-.gm-trail .gm-mark.is-out {
-  opacity: 0;
-  transform: scale(0.35);
-  transition: opacity 0.22s ease, transform 0.22s ease;
-}
-
-/* .cap-ahl carries the colour -- the game's own disc. This sets the size and
-   the way a dot arrives. It has no lettering: at 15px "AHL" is a smudge, and
-   what is being read here is the line. */
-/* Two classes, not one: .cap-ahl sits further down this file and sets
-   width and height to 100%. At equal weight it would win on order alone,
-   and a fixed dot at 100% is the size of the window. */
-.gm-trail .gm-mark {
-  position: fixed;
-  width: 15px;
-  height: 15px;
-  border-width: 2px;
-  opacity: 0.66;
-  transition: top 0.3s ease, left 0.3s ease;
-  animation: gm-settle 0.45s ease-out backwards;
-}
-
-@keyframes gm-settle {
-  from { opacity: 0; transform: scale(0.2); }
-  to { opacity: 0.66; transform: scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* The line is not motion -- it is how much of the page has gone by -- so
-     it stays. What goes is the cell's drift and the dots' arrival. */
-  .gm-cell,
-  .gm-trail .gm-mark { animation: none; }
-  .gm-trail .gm-mark { transition: none; }
-}
-
-@media print {
-  .gm-host { display: none; }
-}
-
-
 .cap-ahl {
   display: flex;
   align-items: center;
@@ -9627,6 +9890,7 @@ body.quiz-active { overflow: hidden; }
    #2edbb4 carrying anything that has to be read.
    ========================================================================== */
 body.hw-nexus,
+body.nb-nexus,
 body.bg-nexus,
 body.edu-nexus {
   --nx-ground:  #052b1f;   /* page                                    */
@@ -9661,8 +9925,10 @@ body.edu-nexus {
    out of the way of the panels, which carry their own darker backgrounds.
    -------------------------------------------------------------------- */
 body.hw-nexus::before,
+body.nb-nexus::before,
 body.bg-nexus::before,
 body.hw-nexus::after,
+body.nb-nexus::after,
 body.bg-nexus::after,
 body.edu-nexus::before {
   content: "";
@@ -9682,6 +9948,7 @@ body.edu-nexus::after {
 }
 
 body.hw-nexus::before,
+body.nb-nexus::before,
 body.bg-nexus::before,
 body.edu-nexus::before {
   /* One wash, lighter at the top, which is how a lit surface reads. It
@@ -9697,11 +9964,12 @@ body.edu-nexus::before {
 }
 
 body.hw-nexus::after,
+body.nb-nexus::after,
 body.bg-nexus::after {
   /* Education／Collaboration／Promotion 的橫豎網格已依使用者要求取消
      （Education 從這組共用選擇器拆出來；Collaboration／Promotion 的
      body.hp-nexus::after 在 hp-nexus.css 改為 none）。Hardware 與
-     Board game（bg-nexus）保留。 */
+     Board game（bg-nexus）、Notebook（nb-nexus）保留。 */
   background-image:
     linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
     linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
@@ -9843,18 +10111,22 @@ body.bg-nexus::after {
 
 /* ---- the shared chrome, so the page does not look half-converted ---- */
 body.hw-nexus .bg-hero,
+body.nb-nexus .bg-hero,
 body.bg-nexus .bg-hero,
 body.edu-nexus .bg-hero { background-color: var(--nx-ground); }
 body.hw-nexus .page-hero-bg,
+body.nb-nexus .page-hero-bg,
 body.bg-nexus .page-hero-bg,
 body.edu-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.42); }
 body.hw-nexus .page-hero-tint,
+body.nb-nexus .page-hero-tint,
 body.bg-nexus .page-hero-tint,
 body.edu-nexus .page-hero-tint {
   background: linear-gradient(to bottom,
     rgba(5, 43, 31, 0.55), rgba(4, 21, 15, 0.97));
 }
 body.hw-nexus .hero-title,
+body.nb-nexus .hero-title,
 body.bg-nexus .hero-title,
 body.edu-nexus .hero-title {
   color: var(--nx-mint);
@@ -9864,36 +10136,45 @@ body.edu-nexus .hero-title {
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
 }
 body.hw-nexus .hero-sub,
+body.nb-nexus .hero-sub,
 body.bg-nexus .hero-sub,
 body.edu-nexus .hero-sub { color: var(--nx-muted); }
 
 body.hw-nexus .navbar,
+body.nb-nexus .navbar,
 body.bg-nexus .navbar,
 body.edu-nexus .navbar {
   background: rgba(5, 43, 31, 0.86) !important;
   border: 1px solid var(--nx-line);
 }
 body.hw-nexus .navbar-nav .nav-link,
+body.nb-nexus .navbar-nav .nav-link,
 body.bg-nexus .navbar-nav .nav-link,
 body.edu-nexus .navbar-nav .nav-link { color: var(--nx-text); }
 body.hw-nexus .navbar-nav .nav-link:hover,
+body.nb-nexus .navbar-nav .nav-link:hover,
 body.bg-nexus .navbar-nav .nav-link:hover,
 body.hw-nexus .navbar-nav .nav-link:focus,
+body.nb-nexus .navbar-nav .nav-link:focus,
 body.bg-nexus .navbar-nav .nav-link:focus,
 body.edu-nexus .navbar-nav .nav-link:hover,
 body.edu-nexus .navbar-nav .nav-link:focus { color: var(--nx-lime); }
 body.hw-nexus .dropdown-menu,
+body.nb-nexus .dropdown-menu,
 body.bg-nexus .dropdown-menu,
 body.edu-nexus .dropdown-menu {
   background: var(--nx-panel);
   border: 1px solid var(--nx-line);
 }
 body.hw-nexus .dropdown-item,
+body.nb-nexus .dropdown-item,
 body.bg-nexus .dropdown-item,
 body.edu-nexus .dropdown-item { color: var(--nx-text); }
 body.hw-nexus .dropdown-item:hover,
+body.nb-nexus .dropdown-item:hover,
 body.bg-nexus .dropdown-item:hover,
 body.hw-nexus .dropdown-item:focus,
+body.nb-nexus .dropdown-item:focus,
 body.bg-nexus .dropdown-item:focus,
 body.edu-nexus .dropdown-item:hover,
 body.edu-nexus .dropdown-item:focus {
@@ -10081,12 +10362,14 @@ body.hw-nexus .hw-table tr.is-total {
 
 /* Global controls that follow the reader down the page. */
 body.hw-nexus .back-to-top,
+body.nb-nexus .back-to-top,
 body.bg-nexus .back-to-top {
   background: var(--nx-panel);
   border-color: var(--nx-mint);
   color: var(--nx-mint);
 }
 body.hw-nexus .back-to-top:hover,
+body.nb-nexus .back-to-top:hover,
 body.bg-nexus .back-to-top:hover,
 body.hw-nexus .back-to-top:focus-visible {
   background: var(--nx-mint);
@@ -10095,6 +10378,7 @@ body.hw-nexus .back-to-top:focus-visible {
 
 /* ---- footer ---- */
 body.hw-nexus footer.footer,
+body.nb-nexus footer.footer,
 body.bg-nexus footer.footer { background: #071820 !important; }
 
 /* The banner photo carries a lot of light on a page this dark. Reduce it
@@ -10170,13 +10454,16 @@ body.hw-nexus .hw-table tr.is-total th { color: var(--nx-text); }
 /* The navbar's own dropdown rule is more specific than a bare
    .dropdown-menu, so the theme has to match it to be heard. */
 body.hw-nexus .navbar .dropdown-menu,
+body.nb-nexus .navbar .dropdown-menu,
 body.bg-nexus .navbar .dropdown-menu {
   background: var(--nx-panel);
   border: 1px solid var(--nx-line);
 }
 body.hw-nexus .navbar .dropdown-item,
+body.nb-nexus .navbar .dropdown-item,
 body.bg-nexus .navbar .dropdown-item { color: var(--nx-text); }
 body.hw-nexus .navbar .dropdown-item:hover,
+body.nb-nexus .navbar .dropdown-item:hover,
 body.bg-nexus .navbar .dropdown-item:hover,
 body.hw-nexus .navbar .dropdown-item:focus {
   background: var(--nx-raised);
@@ -11799,4 +12086,571 @@ body.bg-nexus .board-game-page { --muted: #c6dde4; --ink2: #c6dde4; }
   .sdgp-tile.is-ours { transition: none; }
   .sdgp-tile.is-ours:hover,
   .sdgp-tile.is-ours:focus-within { transform: none; }
+}
+
+/* ===== SDGs: the deep-teal treatment ========================================
+   Turned on by body.edu-nexus from sustainability.html; the palette is the
+   --nx-* tokens Hardware and Education already use, and the prose, sidebar
+   and section rules come from the Education block. What is left is this
+   page's own furniture: the tiles, the goal badges and the figure cards.
+
+   A goal's own colour stays the goal's: it fills a tile we work on and edges
+   one we do not. Where it has to carry TEXT -- a number, an icon, a heading --
+   it is lifted toward white first, because the UN's darker colours (#19486a,
+   #00689d, #a21942) are well under 3:1 on petrol.
+   ========================================================================== */
+body.edu-nexus .sdgp-tile {
+  background: var(--nx-panel);
+  color: var(--nx-text);
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--sdg) 70%, transparent);
+}
+
+body.edu-nexus .sdgp-tile:not(.is-ours) .sdgp-num,
+body.edu-nexus .sdgp-tile:not(.is-ours) .sdgp-icon {
+  color: color-mix(in srgb, var(--sdg) 45%, #fff);
+}
+
+/* Not one of ours: present, and recognisable, but plainly not claimed. */
+body.edu-nexus .sdgp-tile:not(.is-ours) .sdgp-name { color: var(--nx-muted); }
+body.edu-nexus .sdgp-tile:not(.is-ours) { background: transparent; }
+
+body.edu-nexus .sdgp-tile.is-ours {
+  background: var(--sdg);
+  border-color: color-mix(in srgb, var(--sdg) 60%, #fff);
+  color: #fff;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--sdg) 55%, transparent);
+}
+
+body.edu-nexus .sdgp-tile.is-ours:hover,
+body.edu-nexus .sdgp-tile.is-ours:focus-within {
+  box-shadow: 0 0 26px color-mix(in srgb, var(--sdg) 80%, transparent),
+              0 8px 18px rgba(0, 0, 0, 0.45);
+}
+
+body.edu-nexus .sdgp-tile.is-ours a { color: #fff; }
+body.edu-nexus .sdgp-tile.is-ours a:focus-visible { outline-color: var(--nx-lime); }
+
+body.edu-nexus .sdgp-goal h3 { color: color-mix(in srgb, var(--sdg) 40%, #fff); }
+body.edu-nexus .sdgp-target {
+  color: var(--nx-muted);
+  border-left-color: color-mix(in srgb, var(--sdg) 70%, #fff);
+}
+body.edu-nexus .sdgp-badge { box-shadow: 0 0 16px color-mix(in srgb, var(--sdg) 50%, transparent); }
+
+body.edu-nexus .sdgp-stat {
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-top: 4px solid var(--sdg);
+}
+body.edu-nexus .sdgp-stat-num { color: var(--nx-lime); }
+body.edu-nexus .sdgp-stat-label { color: var(--nx-muted); }
+
+/* ===== Human Practices and Collaboration: the deep-teal treatment ==========
+   Both pages are built on the Education layout, so body.edu-nexus already
+   carries the sidebar, the session blocks, the galleries, the quotes and the
+   logo plates. What is left is each page's own furniture: the three category
+   cards and the survey figures on Human Practices, and the bubble wall on
+   Collaboration. Same rule as everywhere else in this theme -- additive, so
+   removing body_class from either template puts it back as it was.
+   ========================================================================== */
+
+body.edu-nexus .hp-todo { color: var(--nx-muted); }
+
+/* The three marks are drawn with currentColor, so re-pointing the card's
+   colour re-draws the icon and its title together. The light-theme trio was
+   deep green, navy and brown -- all picked against cream, all far too dark
+   here, so each moves to the nearest token that clears AA on petrol. The
+   survey card keeps its warm hue because that is what separates it from the
+   other two at a glance. */
+body.edu-nexus .hp-map-card { color: var(--nx-mint); }
+body.edu-nexus .hp-map-card-enterprise { color: var(--nx-blue-up); }
+body.edu-nexus .hp-map-card-survey { color: var(--nx-warm); }
+
+/* The list links stay quiet until hovered; hover already resolves to the
+   card's own colour through `inherit`, so only the resting state moves. */
+body.edu-nexus .hp-map-list a { color: var(--nx-muted); }
+
+/* The survey charts are flat artwork on white. Framing them on the panel tint
+   rather than on white keeps the figures sitting in the page instead of
+   punching holes in it; the images themselves are untouched. */
+body.edu-nexus .hp-figure {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+body.edu-nexus .hp-figure figcaption { color: var(--nx-muted); }
+
+/* ---- the Collaboration wall ---- */
+
+/* The band runs the full width of the viewport, so leaving it on its pale
+   green would put a lit panel across the top of a dark page. Same radial
+   shape, re-pitched: a lift at the top where the light-theme version is
+   lightest, falling to the page ground by the bottom edge, so the wall still
+   reads as its own zone without becoming a slab. */
+body.edu-nexus .collab-wall {
+  background:
+    radial-gradient(120% 140% at 50% -20%,
+                    var(--nx-raised) 0%,
+                    var(--nx-panel) 45%,
+                    var(--nx-ground) 100%);
+  border-block-color: var(--nx-line);
+}
+
+/* Four of the six logos are dark artwork on transparency, so the disc stays
+   white for the same reason .edu-logo does: a school's mark is drawn the way
+   that school draws it. Only the rim and the drop shadow are re-cut for the
+   darker bed -- a shadow tuned for cream reads as a smudge on petrol. */
+body.edu-nexus .collab-bubble-disc {
+  border-color: var(--nx-line);
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.65);
+}
+
+/* The letters of COLLABORATION are decoration, not links, and should read as
+   the quieter layer: panel tone with the heading accent as ink. */
+body.edu-nexus .collab-bubble.is-letter .collab-bubble-disc {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+body.edu-nexus .collab-letter { color: var(--nx-mint); }
+
+/* The name that rides under a hovered bubble: the cream pill would flare. */
+body.edu-nexus .collab-bubble-name {
+  color: var(--nx-text);
+  background: var(--nx-raised);
+}
+
+/* The meetup roll-call. Same white plate as .edu-logo, and border-box so the
+   plate does not grow the 44px box it sits in. */
+body.edu-nexus .collab-teams img {
+  box-sizing: border-box;
+  background: #fff;
+  border-radius: 6px;
+  padding: 3px;
+}
+body.edu-nexus .collab-teams span { color: var(--nx-muted); }
+
+/* ===== Notebook: the deep-teal treatment ===================================
+   The ledger, on the ground Hardware, Education and the Board Game already
+   use. Switched on by body.nb-nexus from notebook.html and nothing else.
+
+   The three track colours had to be re-picked rather than carried over. On
+   this ground the wet lab's #075a3e reads as grey at 1.9:1, and the old dry
+   and HP pair -- orange against a bright green -- separated by only ΔE 5.5
+   for a deuteranopic reader, which is below the floor whatever the ground.
+
+   The replacements were checked rather than chosen: #279a8c, #b8853a and
+   #7490dd clear the dark-mode lightness band, the chroma floor, colour-vision
+   separation (worst pair ΔE 10.4 protan) and contrast. The first two are the
+   same teal and amber the Board Game's figures use, so the two pages agree.
+   The column headings still name each track, so identity never rests on
+   colour alone -- which is what the original comment here set out to do.
+   ========================================================================== */
+body.nb-nexus .nb {
+  --nb-rule: var(--nx-line);
+  --nb-muted: var(--nx-muted);
+}
+
+body.nb-nexus .nb [data-track="wet"] { --nb-accent: #279a8c; }
+body.nb-nexus .nb [data-track="dry"] { --nb-accent: #b8853a; }
+body.nb-nexus .nb [data-track="hp"]  { --nb-accent: #7490dd; }
+
+/* ---- the counters at the top ---- */
+body.nb-nexus .nb-tally-n { color: var(--nx-text); }
+body.nb-nexus .nb-tally-label { color: var(--nx-muted); }
+body.nb-nexus .nb-status { color: var(--nx-text); }
+body.nb-nexus .nb-status-n { color: var(--nx-mint); }
+body.nb-nexus .nb-intro p { color: var(--nx-text); }
+
+/* ---- the ledger ---- */
+body.nb-nexus .nb-head { border-color: var(--nx-line); }
+body.nb-nexus .nb-head-week,
+body.nb-nexus .nb-head-track { color: var(--nx-muted); }
+body.nb-nexus .nb-week { border-color: var(--nx-line); }
+body.nb-nexus .nb-week-n { color: var(--nx-text); }
+body.nb-nexus .nb-dates { color: var(--nx-muted); }
+body.nb-nexus .nb-col-head { color: var(--nx-muted); }
+body.nb-nexus .nb-entry { color: var(--nx-text); }
+body.nb-nexus .nb-entry a { color: var(--nx-lime); }
+body.nb-nexus .nb-entry em { color: var(--nx-text); }
+body.nb-nexus .nb-empty { color: #5c7d8a; }
+
+/* A week still to come, rather than one that came up empty. */
+body.nb-nexus .nb-week-open {
+  background: rgba(73, 197, 182, 0.06);
+  border-color: var(--nx-line);
+}
+body.nb-nexus .nb-blank { color: var(--nx-muted); }
+
+/* ---- the sort control ---- */
+body.nb-nexus .nb-sort {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+}
+body.nb-nexus .nb-sort:hover:not(:disabled),
+body.nb-nexus .nb-sort:focus-visible {
+  background: var(--nx-raised);
+  color: var(--nx-lime);
+}
+
+/* The picture that follows the pointer along a row. */
+body.nb-nexus .nb-hover-img {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* =====================================================================
+   Hardware, the 3D-printed build: the point of each section first
+   ---------------------------------------------------------------------
+   The build had grown to sixteen folded tables threaded through its text,
+   and every paragraph carried the same weight. Each section now opens on
+   the one sentence it is there to say (.hw-point), shows one drawing, and
+   names what cannot be claimed in a single quiet line (.hw-limit). The
+   tables are gathered into one section at the end (.hw-docs), and the
+   .hw-more links point into it; static/hardware-docs.js opens the row a
+   link lands on. Used by wiki/hardware-printed.html only: every rule that
+   changes spacing or measure is tied to #printed, so the other build and
+   the shared part of the page are as they were.
+   ===================================================================== */
+body.hw-nexus .hw #printed > section { margin-bottom: 4.5rem; }
+body.hw-nexus .hw #printed > section > p,
+body.hw-nexus .hw #printed .hw-build-head > p { max-width: 46rem; }
+body.hw-nexus .hw #printed > section:not(.hw-docs) > h3 {
+  margin-top: 3rem;
+  font-size: 1.3rem;
+}
+
+/* The one sentence a section is there to say. */
+body.hw-nexus .hw .hw-point {
+  max-width: 44rem;
+  margin: 0 0 1.2rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.32rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #fff;
+}
+body.hw-nexus .hw .hw-point.hw-point-sub { font-size: 1.12rem; }
+
+/* What the section does not show. A label and one or two sentences, set
+   quieter than the text: present beside every claim, without a box each. */
+body.hw-nexus .hw .hw-limit {
+  max-width: 46rem;
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-limit > b {
+  margin-right: 0.55rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--nx-warm);
+}
+
+/* Links from a section to its tables at the end of the build. */
+body.hw-nexus .hw .hw-more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.4rem;
+  max-width: none;
+  margin: 1rem 0 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+body.hw-nexus .hw .hw-more a { font-weight: 600; text-decoration: none; }
+body.hw-nexus .hw .hw-more a::after { content: "\00a0\2192"; }
+body.hw-nexus .hw .hw-more a:hover,
+body.hw-nexus .hw .hw-more a:focus-visible { text-decoration: underline; }
+
+/* The first screen of the build: the numbers sit right under its sentence. */
+body.hw-nexus .hw .hw-build-head .hw-keys { margin-bottom: 0.2rem; }
+body.hw-nexus .hw .hw-build-head .hw-limit { margin: 0.9rem 0 1.7rem; }
+body.hw-nexus .hw #printed .hw-limit + p:not(.hw-more) { margin-top: 1.6rem; }
+
+/* What the wet lab said, and what followed: one card to a version. It is
+   reported speech, so there are no quotation marks and none are drawn. */
+body.hw-nexus .hw .hw-said,
+body.hw-nexus .hw .hw-do {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0 1.1rem;
+  padding: 0;
+  list-style: none;
+}
+body.hw-nexus .hw .hw-said { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.hw-nexus .hw .hw-do { grid-template-columns: repeat(3, minmax(0, 1fr)); counter-reset: hw-do; }
+body.hw-nexus .hw .hw-said > li,
+body.hw-nexus .hw .hw-do > li {
+  display: flex;
+  flex-direction: column;
+  padding: 1.1rem 1.25rem 1.05rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 12px;
+  background: var(--nx-panel);
+}
+body.hw-nexus .hw .hw-said-who,
+body.hw-nexus .hw .hw-do > li::before {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nx-mint);
+}
+body.hw-nexus .hw .hw-said p { margin: 0; }
+body.hw-nexus .hw .hw-said .hw-said-what {
+  margin: 0.6rem 0 1rem;
+  font-size: 1.04rem;
+  line-height: 1.6;
+  color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-said .hw-said-then {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--nx-line);
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-said b {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-said .hw-said-then b { color: var(--nx-lime); }
+
+/* Building one: three steps, each a way into its own tables. */
+body.hw-nexus .hw .hw-do > li { counter-increment: hw-do; }
+body.hw-nexus .hw .hw-do > li::before { content: "Step " counter(hw-do); }
+body.hw-nexus .hw .hw-do h3 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.5rem;
+  color: var(--nx-lime);
+}
+body.hw-nexus .hw .hw-do p { margin: 0 0 0.9rem; font-size: 0.95rem; line-height: 1.6; }
+body.hw-nexus .hw .hw-do .hw-more {
+  margin: auto 0 0;
+  padding-top: 0.65rem;
+  border-top: 1px dashed var(--nx-line);
+}
+
+/* Data and documentation: every folded table, in one list. The rows are
+   ruled lines, not boxes, so thirteen of them read as an index. */
+body.hw-nexus .hw .hw-docs > h3 {
+  margin: 2.2rem 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+  scroll-margin-top: 96px;
+}
+body.hw-nexus .hw .hw-docs-list { border-top: 1px solid var(--nx-line); }
+body.hw-nexus .hw .hw-docs-list > .hw-fold {
+  max-width: none;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--nx-line);
+  border-radius: 0;
+  background: transparent;
+  scroll-margin-top: 96px;
+}
+body.hw-nexus .hw .hw-docs-list > .hw-fold > .hw-fold-head { padding: 0.9rem 0.35rem; }
+body.hw-nexus .hw .hw-docs-list > .hw-fold > .hw-fold-head:hover { background: rgba(255, 255, 255, 0.03); }
+body.hw-nexus .hw .hw-docs-list > .hw-fold[open] > .hw-fold-head { border-bottom: 0; }
+body.hw-nexus .hw .hw-docs-list > .hw-fold > .hw-fold-head .hw-fold-title {
+  font-size: 1rem;
+  color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-docs-list > .hw-fold[open] > .hw-fold-head .hw-fold-title { color: var(--nx-mint); }
+body.hw-nexus .hw .hw-docs-list > .hw-fold > .hw-fold-body { padding: 0.2rem 0.35rem 1.7rem; }
+body.hw-nexus .hw .hw-docs-list .hw-fold-body > p { max-width: 46rem; }
+body.hw-nexus .hw .hw-docs-list .hw-figure-table { max-width: none; }
+body.hw-nexus .hw .hw-docs-list h4 {
+  margin: 2rem 0 0.7rem;
+  font-size: 1rem;
+  color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-docs-list .hw-fold-body > h4:first-child { margin-top: 0.5rem; }
+
+@media (max-width: 760px) {
+  body.hw-nexus .hw .hw-said,
+  body.hw-nexus .hw .hw-do { grid-template-columns: minmax(0, 1fr); }
+  body.hw-nexus .hw .hw-point { font-size: 1.16rem; }
+  body.hw-nexus .hw .hw-point.hw-point-sub { font-size: 1.04rem; }
+  body.hw-nexus .hw #printed > section { margin-bottom: 3.4rem; }
+  body.hw-nexus .hw .hw-build-head .hw-keys { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+  body.hw-nexus .hw .hw-build-head .hw-keys > div { padding: 0.8rem 0.85rem; }
+  body.hw-nexus .hw .hw-build-head .hw-keys dt { font-size: 1.55rem; }
+}
+
+/* ===== Team and Attributions: the deep-teal treatment ======================
+   Both pages take body.hw-nexus, the switch Hardware uses, which carries the
+   ground, the drifting glows, the hero, the menu and the footer. What follows
+   is each page's own furniture moved onto the same --nx-* tokens: the
+   notebook of tabs, the badge cards, the self-intro card and the photo booth
+   on Team; the heading and the AI disclosure panel on Attributions. Additive:
+   take hw-nexus off either template's body_class and the page is as it was.
+
+   The frosted-glass look of the Team page stays -- the panels are still
+   translucent over the blur -- only their tint goes from white to the
+   page's panel colour, which is what turns white glass into dark glass.
+   ========================================================================== */
+
+/* ---- Team: the notebook ---- */
+body.team-page .notebook-book {
+  background: linear-gradient(180deg, rgba(22, 50, 63, 0.86), rgba(22, 50, 63, 0.62));
+  border: 1px solid var(--nx-line);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* The tabs: muted by colour rather than by fading the whole tab, so the
+   inactive labels still clear AA. The open tab takes the book's own top tint,
+   which is what makes the seam between them disappear. */
+body.team-page .notebook-tab {
+  opacity: 1;
+  color: var(--nx-muted);
+  background: rgba(22, 50, 63, 0.55);
+  border-color: var(--nx-line);
+  border-top-color: var(--nx-line);
+}
+body.team-page .notebook-tab:hover { color: var(--nx-text); }
+body.team-page #page-leader:checked    ~ .notebook-tabs .tab-leader,
+body.team-page #page-wet:checked       ~ .notebook-tabs .tab-wet,
+body.team-page #page-dry:checked       ~ .notebook-tabs .tab-dry,
+body.team-page #page-hp:checked        ~ .notebook-tabs .tab-hp,
+body.team-page #page-professor:checked ~ .notebook-tabs .tab-professor,
+body.team-page #page-advisor:checked   ~ .notebook-tabs .tab-advisor {
+  color: var(--nx-lime);
+  background: rgba(22, 50, 63, 0.86);
+  border-top-color: var(--nx-mint);
+}
+
+/* The Pikachus the glass was given to blur: a little quieter on the dark. */
+body.team-page .drift-item { opacity: 0.6; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45)); }
+
+body.team-page .page-tag {
+  color: var(--nx-mint);
+  background: rgba(28, 67, 82, 0.7);
+  border-color: var(--nx-line);
+  border-left-color: var(--nx-lime);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- Team: the badge cards ---- */
+body.team-page .polaroid {
+  background: linear-gradient(180deg, var(--nx-raised), var(--nx-panel));
+  border-color: var(--nx-line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 14px rgba(0, 0, 0, 0.35);
+  opacity: 0.92;
+}
+body.team-page .polaroid:hover {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 26px rgba(0, 0, 0, 0.5),
+              0 0 0 1px var(--nx-mint);
+}
+body.team-page .polaroid::after {
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 60%);
+}
+/* where a photo has not arrived yet, a dark square rather than a light one */
+body.team-page .polaroid-photo,
+body.team-page .polaroid-photo .hw-flip-front,
+body.team-page .polaroid-photo .hw-flip-back { background: #24414d; }
+body.team-page .polaroid-caption { color: var(--nx-text); }
+body.team-page .polaroid-role { color: var(--nx-muted); }
+body.team-page .polaroid-has-bio:focus-visible { outline-color: var(--nx-lime); }
+
+/* ---- Team: the self-intro card ---- */
+body.team-page .team-bio-overlay { background: rgba(4, 14, 19, 0.8); }
+body.team-page .team-bio-card {
+  background: linear-gradient(180deg, var(--nx-raised), var(--nx-panel));
+  border: 1px solid var(--nx-line);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+body.team-page .team-bio-name { color: var(--nx-mint); }
+body.team-page .team-bio-paragraphs p { color: var(--nx-text); }
+body.team-page .team-bio-close {
+  background: rgba(73, 197, 182, 0.14);
+  color: var(--nx-mint);
+}
+body.team-page .team-bio-close:hover { background: rgba(73, 197, 182, 0.26); }
+
+/* ---- Team: the photo booth ---- */
+body.team-page .webcam-layout {
+  background: linear-gradient(180deg, rgba(22, 50, 63, 0.82), rgba(22, 50, 63, 0.6));
+  border-color: var(--nx-line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 16px 32px rgba(0, 0, 0, 0.35);
+}
+body.team-page .webcam-booth-header,
+body.team-page .webcam-controls { background: rgba(14, 36, 46, 0.6); color: var(--nx-text); }
+body.team-page .webcam-booth-close { color: var(--nx-text); }
+body.team-page .webcam-filter-btn {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+body.team-page .webcam-filter-btn.active {
+  background: var(--nx-raised);
+  color: var(--nx-lime);
+  border-color: var(--nx-lime);
+  box-shadow: 0 0 0 3px rgba(160, 232, 96, 0.25), 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+body.team-page .webcam-start {
+  background: var(--nx-raised);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+body.team-page .webcam-start:hover { background: var(--nx-line); color: #fff; }
+
+/* ---- Attributions ---- */
+body.hw-nexus.attr-page .container { color: var(--nx-text); }
+body.hw-nexus.attr-page .container h2 { color: var(--nx-mint); font-family: "Changa", sans-serif; font-weight: 700; }
+/* Bootstrap's .text-secondary is set !important; this is the one place it is
+   matched in kind, and only on this page. */
+body.hw-nexus.attr-page .text-secondary { color: var(--nx-muted) !important; }
+body.hw-nexus.attr-page .attr-ai {
+  background: var(--nx-panel);
+  border-left-color: var(--nx-mint);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+}
+body.hw-nexus.attr-page .attr-ai h3 { color: var(--nx-mint); }
+body.hw-nexus.attr-page .attr-ai h4 { color: var(--nx-muted); }
+body.hw-nexus.attr-page .attr-ai strong { color: #fff; }
+body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
+
+/* ---- the banner photo, at full brightness ----
+   The other deep-teal pages take their banner down to 0.42 (0.32 on a phone)
+   and lay a petrol tint over it that is more than half opaque from the top.
+   These two banners are photographs of the team, so the photo is drawn at its
+   own colour at 80% brightness, and the tint only begins to close in over the
+   lower half, where the banner has to fall into the page's ground. The title
+   gets a deeper shadow to stand clear of a light photo. Hardware's bench
+   photo is treated the same way (its brightness is set with its other
+   banner rules, near the top of this file). */
+body.team-page .page-hero-bg,
+body.hw-nexus.attr-page .page-hero-bg { filter: blur(2px) saturate(1) brightness(0.8); }
+body.team-page .page-hero-tint,
+body.hw-nexus.attr-page .page-hero-tint,
+body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
+  background: linear-gradient(to bottom,
+    rgba(14, 36, 46, 0) 0%,
+    rgba(14, 36, 46, 0.1) 45%,
+    rgba(14, 36, 46, 0.97) 100%);
+}
+body.team-page .hero-title,
+body.hw-nexus.attr-page .hero-title,
+body.hw-nexus .page-hero:has(.hero-hardware) .hero-title {
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75), 0 2px 22px rgba(0, 0, 0, 0.6);
 }

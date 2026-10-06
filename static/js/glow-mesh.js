@@ -270,9 +270,10 @@
   }
   function autoScan () {
     if (isPaperWorld()) return;
-    var nodes = document.body.querySelectorAll('section, footer, aside, article, .card, .row, .container-fluid, .container');
+    var nodes = document.body.querySelectorAll('section, aside, article, .card, .row, .container-fluid, .container');
     Array.prototype.forEach.call(nodes, function (el) {
       if (el.hasAttribute('data-glow')) return;              /* 手動標記優先（含 off） */
+      if (el.closest('footer')) return;                       /* footer 維持 dev 原樣，不掛螢網 */
       var st = getComputedStyle(el);
       if (st.display === 'none' || st.visibility === 'hidden' || +st.opacity < 0.05) return;
       if (st.position === 'fixed') return;                    /* navbar／浮層不動 */
