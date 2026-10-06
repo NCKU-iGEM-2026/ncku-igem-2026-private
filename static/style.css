@@ -439,6 +439,54 @@ footer a:hover { color: white; text-decoration: underline; }
   transform: scale(1.1);
 }
 
+/* The footer's left column: three marks in a row, each a link -- our wiki,
+   LasReader, NCKU. White line art, so they sit straight on the footer's
+   colour. One height for all three, which is what makes them read as a set
+   whatever their shapes; sized with the window so the three fit the column
+   from 992px up. Centred when the columns stack. */
+.footer-marks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem clamp(0.7rem, 1.1vw, 1rem);
+}
+.footer-mark {
+  display: inline-flex;
+  line-height: 0;
+  border-radius: 8px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.footer-mark img {
+  display: block;
+  width: auto;
+  height: clamp(46px, 4.8vw, 70px);
+}
+.footer a.footer-mark:hover,
+.footer a.footer-mark:focus-visible { transform: translateY(-2px); opacity: 0.85; text-decoration: none; }
+.footer-mark:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+@media (max-width: 991.98px) {
+  .footer-marks { justify-content: center; }
+  .footer-mark img { height: 64px; }
+}
+
+/* The contact and social links, on their own now (no "Contact Us" heading
+   above them): larger, and centred in their column. */
+.footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem 1.2rem;
+  font-size: 2.4rem;
+}
+.footer .footer-social .hover-icon { min-width: 56px; min-height: 56px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-mark { transition: none; }
+  .footer a.footer-mark:hover,
+  .footer a.footer-mark:focus-visible { transform: none; }
+}
+
 @font-face {
   font-family: "Chango";
   src: url("https://static.igem.wiki/teams/6379/wiki/fonts/chango-regular.ttf") format("truetype");
@@ -2277,16 +2325,14 @@ body.engineering-page footer .row:first-child > :nth-child(2) { align-self: star
 /* Contact Us rides at the top edge too, level with the ticker. */
 body.engineering-page footer .row:first-child > :last-child { align-self: start; }
 body.engineering-page footer .row:first-child > :nth-child(2) > p { order: 1; margin: .35rem 0 0 !important; }
-/* The team logo keeps its 200px size; the transparent band above its
-   artwork is pulled up so it does not push the footer's first row down. */
-body.engineering-page footer .row:first-child > :first-child img { margin: -50px 0 0 !important; }
+/* The three marks, smaller, to fit the compact footer. */
+body.engineering-page footer .footer-mark img { height: 40px; }
+body.engineering-page footer .footer-marks { gap: 0.6rem; flex-wrap: nowrap; }
 body.engineering-page footer .row:first-child > :nth-child(2) p { margin-bottom: .3rem !important; font-size: .75rem; }
 body.engineering-page footer .sponsor-logo { height: 52px; padding: 4px 8px; border-radius: 6px; }
 body.engineering-page footer .sponsor-marquee-track { gap: 1.5rem; }
-body.engineering-page footer h2 { font-size: 1.2rem; margin: 0 0 .1rem !important; }
-body.engineering-page footer .row:first-child > :last-child p { margin: 0 !important; font-size: .75rem; }
-body.engineering-page footer .row:first-child > :last-child .d-flex { font-size: 1.1rem !important; gap: .25rem !important; margin-top: .15rem !important; }
-body.engineering-page footer .hover-icon { min-width: 36px; min-height: 36px; }
+body.engineering-page footer .footer-social { font-size: 1.1rem; gap: .25rem; }
+body.engineering-page footer .footer-social .hover-icon { min-width: 36px; min-height: 36px; }
 body.engineering-page footer hr { margin: .6rem 0 !important; }
 body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: .72rem; }
 @media (max-width: 991.98px) {
@@ -2294,7 +2340,7 @@ body.engineering-page footer .row:last-child p { margin: 0 0 .15rem; font-size: 
   body.engineering-page footer .row:first-child { grid-template-columns: auto 1fr; gap: .6rem 1rem; }
   body.engineering-page footer .row:first-child > :nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
   body.engineering-page footer .row:first-child > :last-child { text-align: right; }
-  body.engineering-page footer .row:first-child > :last-child .d-flex { justify-content: flex-end !important; }
+  body.engineering-page footer .footer-social { justify-content: flex-end; }
 }
 @media (prefers-reduced-motion: reduce) {
   body.engineering-page, .engineering-page *, .engineering-page *::before, .engineering-page *::after { transition: none !important; }
