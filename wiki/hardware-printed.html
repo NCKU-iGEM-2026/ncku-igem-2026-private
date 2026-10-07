@@ -1335,7 +1335,7 @@
         </p>
         <p class="hw-more">
           <a href="#hw-doc-bom">Parts and files</a>
-          <a href="#hw-doc-fitting">Fitting the version 2 parts</a>
+          <a href="#hw-doc-assembly">Assembly, step by step</a>
         </p>
       </li>
       <li>
@@ -1376,8 +1376,8 @@
     </p>
 
     <p class="hw-limit">
-      <b>Not yet</b> There is no complete written assembly procedure:
-      version 2 has only its fitting notes.
+      <b>Not yet</b> The assembly order was checked by the reader's
+      builder. Nobody has yet built a second reader from it.
     </p>
 
     {# 這裡原本留給組裝的逐步照與 UVette 的安裝方向照。硬體負責人 2026-10-06：組裝時沒有拍，機器已經組好，
@@ -2018,9 +2018,131 @@
       in the team's repository on iGEM GitLab,
       <a href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware">capture-screen-hardware</a>,
       under the MIT licence. It holds every part the 3D view draws, for
-      both versions. There is still no complete written assembly procedure:
-      version 2 has only its fitting notes.
+      both versions. The order of assembly is in the next row.
     </p>
+        </div>
+      </details>
+      {# 2026-10-07：完整的組裝步驟。評審第四題問的是「文件夠不夠讓別的隊伍照著做」，這一列之前頁面只有第二版五件零件的
+         安裝筆記。每一步都出自設計紀錄，沒有一步是憑想像寫的：
+           螺絲位置 26 個：geometry_validation_v0_7.json 的 service_checks → M3_driver_access_checks（26/26 clear）。
+           哪一個銷、鍵、夾做什麼：capture_screen_optical_core_base_plate_v0_7.py 各零件的說明字串，
+             以及 module_coordinate_table_v0_7.csv 的 mount_or_datum、service_direction 兩欄。
+           銷與鍵的位置：這一頁 hwPartsPlan 裡的座標（四支圓銷在激發軸上，兩支給一個墊高座）。
+           螺絲長度：腳 M3×8、墊高座與 UVette 壓夾 M3×12（PHYSICAL_TEST_PLAN_zh-TW.md 第 3、5、6 項）。
+             其餘 14 個位置的長度紀錄裡沒有；BOM 寫的是 exact lengths and head styles UNKNOWN。頁面照實寫了。
+           偵測器那一組：capture_screen_as7341_detector_holder_v0_1/README_zh-TW.md 的「組裝順序」A、B、C。
+           不要補平的開口：base plate README 的「列印與判讀」、PRINT_INSTRUCTIONS_ROUND2_zh-TW.txt。
+         硬體負責人 2026-10-07 核對：「順序對，然後螺絲應該可以藉由設計長度去判斷多長是對的，濾光片我放的應該是
+         正方形的?但因為沒有放濾光片所以不太重要」。所以：
+           開頭改成「組裝者核對過順序」。
+           卡匣那一步只寫「放一片 insert，我們的沒有裝濾光片」，沒有寫是哪一片（負責人自己也不確定）。
+           螺絲長度由 CAD 幾何推出，推法是「不頂到孔底、不碰到桌面的長度」，每一列的依據：
+             蓋子：make_excitation_cap 的 height = 半徑 + excitation_cap_roof 2.0（LED 座蓋 12.45、擋板蓋 10.25），
+               整個高度都是 Ø3.4 通孔；托架上的盲孔深 5.0（make_excitation_cradle，"Blind pilots receive
+               removable upper straps"）。M3×16 進 3.55、M3×14 進 3.75；再長一號就頂到底。
+             光陷阱壓板：壓板 2.0（light_trap_clamp_thickness），壓板底面在墊高座頂面上方 4.0（hwPartsPlan 的 z），
+               盲孔深 8.0（light_trap_clamp_pilot_depth）。M3×12 進 6.0；M3×14 會頂到底。
+             托架、偵測器定位框的耳、側夾：零件上是槽或 Ø3.4 通孔（厚 3.0），底板上也是 Ø3.4 通孔（make_base_plate，
+               厚 4.0），兩邊都沒有螺紋，所以要螺帽。腳高 4.5（bench_foot_height），M3×10 在板下露出 3.0，
+               M3×12 會露出 5.0、碰到桌面。紀錄裡沒有任何地方提到螺帽，這是從幾何讀出來的，請負責人確認實際做法。
+             卡匣壓條 M3×16、載板 M3×8–10 加華司、固定框 M3×6–8：偵測器模組 README 的「建議 M3 五金」。
+         腳、墊高座、UVette 壓夾的長度是紀錄裡寫明的；其餘沒有在機器上核對過，圖說寫明了。 #}
+      <details class="hw-fold hw-fold-wide" id="hw-doc-assembly">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Assembly, step by step</span>
+          <span class="hw-fold-meta">12 steps</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    <p>
+      This is the order the design gives, and the reader's builder has
+      checked it against how ours was put together. In it a driver reaches
+      each of the 26 screws on the base, which the CAD record checks one by
+      one. Pull <a href="#hwParts">the 3D view</a> apart to see each part
+      named here.
+    </p>
+
+    <p>
+      Every screw is an M3. Most cut their own thread in a printed pilot
+      hole 2.7&nbsp;mm wide: stop when the screw is snug, because PLA strips.
+      Eight pass through clearance holes in both the part and the plate, and
+      take a nut underneath.
+    </p>
+
+    <figure class="hw-figure hw-figure-table">
+      <table class="hw-table">
+        <caption class="visually-hidden">The screws, by where they go</caption>
+        <thead>
+          <tr><th scope="col">Where</th><th scope="col">Screws</th><th scope="col">What sets the length</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Feet</td><td>4 &times; M3&times;8</td><td>From above, through the 4&nbsp;mm plate into the foot</td></tr>
+          <tr><td>Risers</td><td>4 &times; M3&times;12</td><td>From under the plate, 8&nbsp;mm into a 9.5&nbsp;mm pilot</td></tr>
+          <tr><td>Cuvette holder clips</td><td>4 &times; M3&times;12</td><td>Through the 4.9&nbsp;mm clip into an 8&nbsp;mm pilot</td></tr>
+          <tr><td>Light-trap clamp plates</td><td>2 &times; M3&times;12</td><td>Through the clamp plate and the trap's flange into an 8&nbsp;mm pilot</td></tr>
+          <tr><td>LED-holder cap</td><td>2 &times; M3&times;16</td><td>Through the 12.45&nbsp;mm cap into a 5&nbsp;mm pilot</td></tr>
+          <tr><td>Baffle cap</td><td>2 &times; M3&times;14</td><td>Through the 10.25&nbsp;mm cap into a 5&nbsp;mm pilot</td></tr>
+          <tr><td>Cradle; detector frame ears; detector side clamps</td><td>8 &times; M3&times;10, each with a nut</td><td>3&nbsp;mm of part and 4&nbsp;mm of plate, and it must stop short of the bench, 4.5&nbsp;mm below</td></tr>
+          <tr><td>Inside the detector holder</td><td>4 &times; M3&times;16; 4 &times; M3&times;8 to 10 with washers; 2 &times; M3&times;6 to 8</td><td>The cassette's clamp bars, the board carrier and the board retainer, as the detector's own notes give them</td></tr>
+        </tbody>
+      </table>
+      <figcaption>
+        The lengths for the feet, the risers and the clips are the ones our
+        records name. The others are worked out from the drawings, so that no
+        screw bottoms in its hole, and were not checked on the reader.
+      </figcaption>
+    </figure>
+
+    <ol class="hw-steps">
+      <li><strong>Clean the prints.</strong> Clear strings from the pilot
+        holes, the sockets and the slots. The open-sided sockets on the
+        detector frame, the slots in the baffle and the arrow engraved on the
+        cuvette holder are meant to be there: do not fill them.</li>
+      <li><strong>Feet.</strong> One under each corner of the base plate,
+        held by an M3&times;8 from above through the corner slot.</li>
+      <li><strong>Pins and keys.</strong> Into the plate's blind sockets: four
+        round pins along the excitation axis, two for each riser; two narrow
+        pins for the detector frame; two rectangular keys for the cradle.</li>
+      <li><strong>Risers.</strong> Seat the cuvette seat riser and the
+        light-trap riser on their pins, and fix each with two M3&times;12
+        from under the plate.</li>
+      <li><strong>Excitation cradle.</strong> Onto its two keys, which set it
+        across the beam and let it slide along it. Four screws through its
+        slots, two in front and two behind, with nuts under the plate, only
+        clamp it.</li>
+      <li><strong>Baffle and LED holder.</strong> Lay the baffle body and the
+        LED holder body in the cradle's two saddles, facing as
+        <a href="#hw-doc-fitting">the fitting notes</a> say, with a cap over
+        each and two screws to a cap.</li>
+      <li><strong>Cuvette holder.</strong> Onto the seat riser, against its
+        two edge stops. Four clips hold it down, two on the LED side and two
+        on the side away from the detector, each with an M3&times;12.</li>
+      <li><strong>Detector frame.</strong> Onto its two pins, with a screw
+        and nut through each of its two ears. Its rail and rear stop are
+        what locate the detector holder.</li>
+      <li><strong>Sensor board.</strong> Into the carrier, sensor facing the
+        sample, under the U-shaped retainer: two screws, the open side to the
+        connector, only tight enough to keep the board in. The carrier goes
+        into the back of the detector holder on four screws with large
+        washers through its oversize holes. Leave them loose, slide the
+        carrier to where the reading is highest, then tighten crosswise.</li>
+      <li><strong>Filter cassette.</strong> Against the front of the
+        detector holder, its drawer opening towards the LED end, held by a
+        clamp bar along its top edge and another along its bottom, two
+        screws to a bar. Slide in an insert: ours holds no filter.</li>
+      <li><strong>Detector holder.</strong> Stand it against the frame's
+        rail and rear stop and close the two side clamps on it, a screw and
+        nut to each.</li>
+      <li><strong>Light trap.</strong> Onto its riser, with a D-shaped clamp
+        plate over each of its two keyholes and a screw through each. Then
+        the LED, its wires and the cuvette, as in
+        <a href="#hw-doc-fitting">the fitting notes</a>, and
+        <a href="#hardware-circuit">the circuit</a>.</li>
+    </ol>
         </div>
       </details>
       <details class="hw-fold hw-fold-wide" id="hw-doc-fitting">
