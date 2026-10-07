@@ -114,9 +114,24 @@
       cx = ev.clientX; cy = ev.clientY;
       if (!ticking) { ticking = true; requestAnimationFrame(move); }
     });
+    /* 大圈＝點得下去；小實心點＝點了沒反應。
+       只認真正能點的東西：有 href 的連結、沒停用的按鈕與表單元件、summary、
+       選單項目、帶 role/Bootstrap 開關的元件，以及 CSS 自己標成 cursor:pointer 的
+       元素（拍立得卡、難度格、翻牌卡……）。純展示用的 .rx-card 不算——
+       首頁那兩張文字卡本身點不下去，要點的是卡片裡的按鈕。 */
+    var CLICKABLE = 'a[href],button:not([disabled]),input:not([type="hidden"]):not([disabled]),' +
+                    'select,textarea,summary,label[for],.dropdown-item,' +
+                    '[role="button"],[role="tab"],[role="link"],[data-bs-toggle]';
+    function clickable(t) {
+      for (var el = t; el && el.nodeType === 1 && el !== document.body; el = el.parentElement) {
+        if (el.matches(CLICKABLE)) return true;
+        if (el.tagName === 'LABEL' && el.querySelector('input:not([disabled]),select,textarea')) return true;
+        if (getComputedStyle(el).cursor === 'pointer') return true;
+      }
+      return false;
+    }
     document.addEventListener('pointerover', function (ev) {
-      var hit = ev.target.closest && ev.target.closest('a,button,.rx-card,input,summary,.dropdown-item');
-      cur.classList.toggle('rx-big', !!hit);
+      cur.classList.toggle('rx-big', clickable(ev.target));
     });
     document.addEventListener('pointerdown', function () { cur.style.opacity = '0.4'; });
     document.addEventListener('pointerup', function () { cur.style.opacity = '1'; });
