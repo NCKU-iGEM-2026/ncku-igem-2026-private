@@ -461,6 +461,16 @@ body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) bright
    is what keeps the graphic's own lettering behind the page title. */
 body.hw-nexus .page-hero-bg.hero-software { filter: blur(2px) saturate(1) brightness(0.75); }
 
+/* Lab Book: 55% rather than the shared 42%, because that photo is dark to
+   start with and the usual treatment flattened it. Only the brightness moves
+   -- the blur and the desaturation stay as every other banner has them, so it
+   still reads as the same treatment. This page carries no body class of its
+   own, so the dark-mode default in css/editorial.css is what has to be
+   outranked; the extra .hero-labbook is what does that. */
+html[data-theme="dark"] .page-hero-bg.hero-labbook {
+  filter: blur(2px) brightness(0.55) saturate(0.8);
+}
+
 .page-hero-tint {
   position: absolute;
   inset: 0;
@@ -11355,6 +11365,50 @@ body.bg-nexus .sgd {
   background: transparent;
   border-block-color: var(--nx-line);
 }
+
+/* Closing the gap between the banner and the band, which was mostly inside
+   the banner rather than between the two:
+     - this page sets no subtitle, so layout.html's <p class="lead mb-5
+       hero-sub"> renders empty -- and an empty <p> still holds a line box
+       and its 3rem margin, about 78px of nothing under the title;
+     - the banner's own bottom padding is 2rem plus the --hero-fade the mask
+       needs (css/shell.css), and the fade is the part that cannot simply go;
+     - the band then adds its own top padding on top of all that.
+   The fade is kept, just shorter, so the banner still dissolves into the
+   page instead of ending on an edge. The !important matches shell.css, which
+   sets those two with it. Scoped to this page: .sgd is also the Promotion
+   band and the beats on Home, where the banner sits differently. */
+/* The photo reaches the bottom edge of the banner. The tint the four nexus
+   pages share ends at 0.97, near enough solid, so the last third of this
+   banner was the tint rather than the photo. Only the bottom stop moves --
+   the top one is what holds the title's contrast against a bright picture,
+   and the fade below still dissolves the banner into the page. */
+body.bg-nexus .page-hero-tint {
+  background: linear-gradient(to bottom,
+    rgba(14, 36, 46, 0.55), rgba(14, 36, 46, 0.8));
+}
+
+body.bg-nexus .page-hero .hero-sub:empty { display: none; }
+body.bg-nexus .page-hero {
+  /* Fade off: the photo meets the band on a clean horizontal edge instead of
+     dissolving into it. css/shell.css drives a mask off this variable, so
+     that has to be turned off with it -- a zero-length fade still leaves a
+     mask whose last stop is transparent. */
+  --hero-fade: 0rem;
+  /* Held at what css/editorial.css was giving this page before bg-nexus was
+     added to its exclusion list, so only the bottom of the banner moves. */
+  padding-top: calc(var(--nav-h) + 4rem) !important;
+  padding-bottom: 1rem !important;
+  margin-bottom: 0 !important;
+  /* Height is no longer whatever the title and the padding happen to add up
+     to. Once the subtitle and the fade went, that came to about 300px, which
+     is too little for a photo to read as a banner. The extra lands under the
+     title, where the photo is. */
+  min-height: clamp(400px, 54vh, 600px);
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+body.bg-nexus .sgd { padding-top: 2rem; }
 body.bg-nexus .sgd-kicker { color: var(--nx-mint); }
 body.bg-nexus .sgd-title { color: var(--nx-mint); }
 body.bg-nexus .sgd-heading { color: var(--nx-text); }
