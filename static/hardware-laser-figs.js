@@ -90,22 +90,23 @@
       text(s, 'Batch, in the order measured', L + pw / 2, H - 6, { size: 10 });
     },
 
-    /* 0922_批次.csv: net signal = (F5/F3 of the tube − F5/F3 of the N tube) × 1000, averaged per tube.
-       Fit through the origin over the 7 tubes with f > 0: slope 68.1. */
+    /* 0922_逐筆.csv, rows with 採用 = Y only: net signal = (F5/F3 of the tube − F5/F3 of the
+       no-sfGFP tube) × 1000, averaged per tube. Zero = the no-sfGFP tube's 8 adopted batches
+       (0.0546). Fit through the origin over the 7 tubes with f > 0: slope 68.7. */
     dose: function (host) {
-      var pts = [[0.10,4.88],[0.15,14.86],[0.20,14.38],[0.30,24.46],[0.50,30.85],[0.75,46.29],[1.00,71.33]];
-      var slope = 68.1;
+      var pts = [[0.10,5.30],[0.15,15.28],[0.20,14.80],[0.30,24.88],[0.50,31.27],[0.75,46.71],[1.00,71.76]];
+      var slope = 68.7;
       legend(host, [[C.blue, 'Each tube (mean of its batches)'], [C.green, 'Fit through the origin, 7 tubes']]);
       var W = 680, H = 300, L = 52, R = 18, T = 14, B = 48, pw = W - L - R, ph = H - T - B;
       function X(v) { return L + v / 1.05 * pw; }
       function Y(v) { return T + ph - v / 78 * ph; }
-      var s = svg(host, W, H, 'Net F5/F3 signal against the fraction of sfGFP cells. The seven tubes rise along a straight line, r squared about 0.97.');
+      var s = svg(host, W, H, 'Net F5/F3 signal against the share of sfGFP culture. The seven tubes rise along a straight line, r squared about 0.97.');
       [0, 20, 40, 60].forEach(function (v) {
         el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 0 ? '' : '3 4' }, s);
         text(s, v, L - 8, Y(v) + 4, { anchor: 'end', size: 10 });
       });
       [0, 0.25, 0.5, 0.75, 1].forEach(function (v) { text(s, v.toFixed(2), X(v), T + ph + 17, { size: 10 }); });
-      text(s, 'Fraction of sfGFP cells, f', L + pw / 2, H - 6, { size: 10 });
+      text(s, 'Share of sfGFP culture, f', L + pw / 2, H - 6, { size: 10 });
       text(s, 'Net F5/F3 × 1000', L - 8, T - 2 + 10, { anchor: 'start', size: 10 });
       el('line', { x1: X(0), y1: Y(0), x2: X(1), y2: Y(slope), stroke: C.green, 'stroke-width': 1.6, 'stroke-dasharray': '6 4' }, s);
       dots(s, pts, X, Y, C.blue, 4.2);
