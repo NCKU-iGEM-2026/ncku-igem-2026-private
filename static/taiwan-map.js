@@ -249,12 +249,21 @@
     glowLayer.setAttribute('aria-hidden', 'true');
     glowLayer.appendChild(silhouetteCopy('twHaloWide'));
     glowLayer.appendChild(silhouetteCopy('twHaloRim'));
-    svg.appendChild(glowLayer);
+    // The glow is invisible until the pointer is over the map, but its two
+    // blur filters are rasterised as soon as the layer is in the page -- that
+    // alone froze the page for over a second on arrival. So the layer joins
+    // the SVG on the first hover instead.
 
     container.insertBefore(svg, container.firstChild);
 
     // hover：亮起（呼吸動畫在 CSS），離開淡滅
-    container.addEventListener('mouseenter', function () { glowLayer.classList.add('is-lit'); });
+    container.addEventListener('mouseenter', function () {
+      if (!glowLayer.parentNode) {
+        svg.appendChild(glowLayer);
+        void glowLayer.getBoundingClientRect();   // so the fade-in still plays
+      }
+      glowLayer.classList.add('is-lit');
+    });
     container.addEventListener('mouseleave', function () { glowLayer.classList.remove('is-lit'); });
 
     var pinEls = Array.prototype.slice.call(container.querySelectorAll('.edu-pin'));
