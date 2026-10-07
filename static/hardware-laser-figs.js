@@ -179,18 +179,18 @@
 
     /* Per-channel change in two events, each divided by the mean change across the nine channels.
        Cuvette: 0920_逐筆.csv, the same blank lifted out and put back (batches 22–23 vs 26–27).
-       LED: 0922_逐筆.csv, the first batch after the LED lead was knocked and the board rebooted, vs the next batch. */
+       LED: 0922_逐筆.csv, the first batch after the LED was disturbed and the board restarted, vs the next batch. */
     flatness: function (host) {
       var lbl = ['F1','F2','F3','F4','F5','F6','F7','F8','Clear'], wl = ['415','445','480','515','555','590','630','680',''];
       var cuvPct = [20.38,14.38,14.05,14.82,17.35,18.96,18.16,16.11,15.91];
       var led = [0.12,0.30,0.30,0.19,0.17,0.12,0.17,0.23,0.30];
       function norm(a) { var m = a.reduce(function (s, v) { return s + v; }, 0) / a.length; return a.map(function (v) { return v / m; }); }
       var A = norm(cuvPct.map(function (p) { return 1 + p / 100; })), Bv = norm(led);
-      legend(host, [[C.green, 'Cuvette lifted out and put back (the grid)'], [C.amber, 'LED lead knocked, board rebooted (the linearity series)']]);
+      legend(host, [[C.green, 'Blank taken out and put back (grid session)'], [C.amber, 'LED disturbed, board restarted (linearity series)']]);
       var W = 680, H = 304, L = 52, R = 16, T = 14, B = 66, pw = W - L - R, ph = H - T - B;
       function X(i) { return L + pw * (i + 0.5) / 9; }
       function Y(v) { return T + ph - (v - 0.4) / 1.2 * ph; }
-      var s = svg(host, W, H, 'Change in each channel relative to the nine-channel mean. Putting the cuvette back moves every channel together within five percent; the LED event moves them by different amounts, a factor of 2.5 apart.');
+      var s = svg(host, W, H, 'Change in each channel relative to the nine-channel mean. Putting the blank back moves every channel together within five percent; after the LED was disturbed the channels changed by different amounts, a factor of 2.5 apart.');
       el('rect', { x: L, y: Y(1.05), width: pw, height: Y(0.95) - Y(1.05), fill: C.green, opacity: 0.1 }, s);
       [0.5, 0.75, 1, 1.25, 1.5].forEach(function (v) {
         el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 1 ? '' : '3 4' }, s);

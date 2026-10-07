@@ -472,11 +472,13 @@
     <h3>What the ratio protects against, and what it does not</h3>
     <p>
       If only the amount of light reaching the sensor changes, all channels
-      change in proportion and the ratio is unaffected. If the light source
-      itself changes position or angle, the channels change by different
-      amounts and the ratio moves with them. The figure compares two real
-      events: during the grid the same blank was lifted out and put back; during the linearity series
-      someone knocked the LED's jumper lead and the board rebooted.
+      change in proportion and the ratio is unaffected. If the light path
+      itself changes, for example in where the LED points, the channels can
+      change by different amounts and the ratio moves with them. The figure
+      compares two real events. In the grid session, before the grid tubes,
+      a blank was read, taken out while another tube was read, then put back
+      and read again. During the linearity series, the LED was disturbed and
+      the board restarted.
     </p>
     <figure class="hw-figure">
       <div data-lc-chart="flatness"></div>
@@ -488,24 +490,25 @@
       </figcaption>
     </figure>
     <p>
-      When the cuvette went back in, the nine channels rose together by 14 to
+      When the blank went back in, the nine channels rose together by 14 to
       20%, at most 6% apart, and F5/F3 moved by 2.9%: that jump came from
-      where the cuvette sat, and the ratio cancelled it. The LED event was
-      different: the channels changed by amounts a factor of 2.5 apart, and
-      F5/F3 read 44% low. The most likely cause is that the LED moved; it is
-      the only event of its kind we have recorded, and the data cannot
-      separate a change of position from a change in its connection.
+      where the cuvette sat, and the ratio largely cancelled it. After the LED
+      was disturbed, the channels changed by amounts a factor of 2.5 apart,
+      and F5/F3 read 44% low. This is the only such event we have recorded,
+      and the data cannot tell whether the LED's position or its connection
+      changed.
     </p>
     <div class="hw-caution">
       <p>
-        <em>The ratio's blind spot.</em> F5/F3 cancels where the cuvette
-        sits, but not a change at the light source, and the reader gives no
-        warning when that happens. The check needs no new hardware: the
-        firmware already reports all ten channels, so each batch can test
-        whether they changed in proportion. In proportion means only the
-        sample moved and the data stand; out of proportion means the light
-        path changed and the batch is discarded. This check is not yet in the
-        firmware.
+        <em>The ratio's blind spot.</em> F5/F3 largely cancels where the
+        cuvette sits, but not a change in the light path, and the reader gives
+        no warning when that happens. A check needs no new hardware: the
+        firmware already reports all ten channels, so a fixed reference, such
+        as the same blank tube, can be read at intervals and
+        compared with its previous reading. A change in proportion suggests
+        only the cuvette's position changed and the data stand; a change out
+        of proportion suggests the light path changed, and the samples read
+        since the last check should be read again.
       </p>
     </div>
   </section>
@@ -521,19 +524,25 @@
         with a spectrophotometer.
       </li>
       <li>
-        <strong>Low fractions need serial dilution.</strong> Below about 10%
-        sfGFP cells, the error in pipetting very small volumes swamps the
-        signal.
+        <strong>Low shares scatter more.</strong> Below about 20% sfGFP
+        culture, tubes lie further from the line, by tens of percent, because
+        they are the most sensitive to how they were mixed (see The low end).
+        Mixing them by serial dilution should reduce this; it has not yet been
+        tested.
       </li>
       <li>
-        <strong>A light-source check is still to be written.</strong> The
-        ten-channel proportionality test above should run on every batch in
-        the firmware.
+        <strong>A light-path check is still to be added.</strong> Reading a
+        fixed reference, such as the same blank tube, at intervals, as
+        described above, is not yet part of the firmware or the measuring
+        routine.
       </li>
       <li>
-        <strong>Days are not directly comparable.</strong> Calibration, light
-        path and culture batch differ between days; intensities are compared
-        only within one day.
+        <strong>Experiments are not directly comparable.</strong> The reader
+        was moved between sessions, so absolute counts differ from one
+        experiment to the next (an empty chamber read about 310 in the grid
+        session and 160 to 190 in the linearity series). Each experiment is
+        therefore referenced to its own tube with no sfGFP, measured in the
+        same session.
       </li>
       <li>
         <strong>No reference comparison yet.</strong> The reader has not been
