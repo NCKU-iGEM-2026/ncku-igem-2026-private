@@ -471,16 +471,33 @@
     opt = opt || {};
     var gapX = 20, nS = Math.max(1, lay.sheets.length), P = !!opt.preview;
     var TW = nS * lay.sheetW + (nS - 1) * gapX, TH = lay.sheetH;
-    var o = [];
+    var o = [], F = P && opt.fit, vb = P ? [-2, -12, TW + 4, TH + 14] : [-2, -2, TW + 4, TH + 4];
+    if (F) {
+      // Preview only: crop to the placed parts instead of the whole sheet, at the same scale as the reference width
+      var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      lay.sheets.forEach(function (sh, si) {
+        sh.placed.forEach(function (pl) {
+          var T = xf(pl);
+          pl.piece.outline.forEach(function (q) { var r = T(q), x = r[0] + si * (lay.sheetW + gapX), y = TH - r[1];
+            if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; });
+        });
+      });
+      if (x0 < x1) {
+        vb = [x0 - 4, y0 - 4, x1 - x0 + 8, y1 - y0 + 8];
+        if (opt.refW) opt.fitPct = Math.min(100, 100 * vb[2] / opt.refW);
+      } else F = false;
+    }
     o.push('<svg xmlns="http://www.w3.org/2000/svg" ' + (P ? 'class="cg-svg" role="img" aria-label="Laser-cut layout preview" ' : 'width="' + TW + 'mm" height="' + TH + 'mm" ') +
-      (P ? 'viewBox="-2 -12 ' + (TW + 4) + ' ' + (TH + 14) + '">' : 'viewBox="-2 -2 ' + (TW + 4) + ' ' + (TH + 4) + '">'));
+      'viewBox="' + vb.join(' ') + '">');
     var CUT = P ? 'class="cg-cut"' : 'fill="none" stroke="#ff0000" stroke-width="0.1"';
     var INN = P ? 'class="cg-inner"' : 'fill="none" stroke="#0000ff" stroke-width="0.1"';
     function d(pts) { return 'M' + pts.map(function (q) { return q[0].toFixed(3) + ',' + (TH - q[1]).toFixed(3); }).join('L') + 'Z'; }
     function esc(x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
     lay.sheets.forEach(function (sh, si) {
       var ox = si * (lay.sheetW + gapX);
-      if (P) {
+      if (F) {
+        // cropped preview: no sheet outline or label, the hint above names the sheet
+      } else if (P) {
         o.push('<rect class="cg-sheet" x="' + ox + '" y="0" width="' + lay.sheetW + '" height="' + lay.sheetH + '"/>');
         o.push('<text class="cg-sheet-label" x="' + ox + '" y="-4">Sheet ' + (si + 1 + (opt.sheetOffset || 0)) + ' · ' + lay.sheetW + ' × ' + lay.sheetH + '</text>');
       } else if (opt.sheetFrame) {
@@ -564,10 +581,10 @@
       '   </div>',
       '   <div class="cg-preview cg-preview-fixed" id="cg-fx-preview"></div>',
       '  </div>',
-      '  <div class="cg-lower">',
-      '   <div><h3 class="cg-h">Checks</h3><ul class="cg-checks" id="cg-checks"></ul></div>',
-      '   <div><h3 class="cg-h">Parts list</h3><div class="cg-table-wrap"><table class="cg-table"><thead><tr><th>Part</th><th>Size (mm)</th><th>Qty</th><th>Sheet</th></tr></thead><tbody id="cg-parts"></tbody></table></div></div>',
-      '  </div>',
+      '  <details class="cg-more cg-parts">',
+      '   <summary id="cg-parts-sum">Parts list</summary>',
+      '   <div class="cg-table-wrap"><table class="cg-table"><thead><tr><th>Part</th><th>Size (mm)</th><th>Qty</th><th>Sheet</th></tr></thead><tbody id="cg-parts"></tbody></table></div>',
+      '  </details>',
       ' </section>',
       '</div>'
     ].join('');
@@ -581,12 +598,16 @@
       var n = second.sheets[0].placed.length;
       ['cg-fx-dxf', 'cg-fx-svg', 'cg-fx-copy'].forEach(function (id) { $(id).disabled = n === 0; });
       if (!n) {
+        $('cg-fx-preview').style.width = '';
         $('cg-fx-hint').textContent = 'All parts without joints fit into the gaps on sheet 1. No second sheet is needed.';
         $('cg-fx-preview').innerHTML = '<p class="cg-empty">Sheet 1 already holds every part.</p>';
         return;
       }
       $('cg-fx-hint').textContent = n + (n === 1 ? ' part does' : ' parts do') + ' not fit on sheet 1 and ' + (n === 1 ? 'is' : 'are') + ' laid out on a second ' + second.sheetW + ' × ' + second.sheetH + ' sheet. These parts do not depend on board thickness, so any board works.';
-      $('cg-fx-preview').innerHTML = toSVG(second, { preview: true, sheetOffset: state.lay.sheets.length });
+      // Crop to the parts and shrink the box so they appear at the same scale as sheet 1
+      var fo = { preview: true, fit: true, refW: state.lay.sheets.length * state.lay.sheetW + (state.lay.sheets.length - 1) * 20 + 4, sheetOffset: state.lay.sheets.length };
+      $('cg-fx-preview').innerHTML = toSVG(second, fo);
+      $('cg-fx-preview').style.width = fo.fitPct ? fo.fitPct.toFixed(2) + '%' : '';
     }
     function run() {
       var p = { t: num('cg-t', 3), fit: num('cg-fit', 0.1), boxFit: num('cg-bfit', 0.1), includeOthers: $('cg-others').checked,
@@ -608,14 +629,6 @@
         '<div class="cg-stat"><span class="cg-stat-k">Sheet 2</span><span class="cg-stat-v">' + lay.overflow.length + '<small> parts</small></span></div>' +
 
         '<div class="cg-pill ' + (errs ? 'is-error' : warns ? 'is-warn' : 'is-ok') + '">' + (errs ? errs + (errs === 1 ? ' problem, do not cut yet' : ' problems, do not cut yet') : warns ? warns + (warns === 1 ? ' warning' : ' warnings') : 'All checks passed') + '</div>';
-      var items = r.checks.slice();
-      var nFill = 0; lay.sheets.forEach(function (sh) { sh.placed.forEach(function (pl) { if (pl.fill) nFill++; }); });
-      items.push({ level: 'ok', msg: 'The second plate is on sheet 1. Of the other ' + (nFill + lay.overflow.length) + ' parts without joints, ' + nFill + ' fill gaps on sheet 1 and ' + lay.overflow.length + ' go on sheet 2' });
-      items.push({ level: 'ok', msg: 'Support rails: long ' + fmt(K.BOX_IN.x - K.RAIL_LONG_GAP - K.RAIL_SHORTEN) + ', short ' + fmt(P.shortRail) + ' (= 100 − both long-rail thicknesses − 20)' });
-      if (lay.unplaced.length) items.unshift({ level: 'error', msg: 'Some parts are larger than the sheet: ' + lay.unplaced.map(function (x) { return x.name; }).join(', ') });
-      $('cg-checks').innerHTML = items.map(function (c) {
-        return '<li class="is-' + c.level + '"><span class="cg-dot" aria-hidden="true"></span><span>' + c.msg + '</span></li>';
-      }).join('');
       var rows = {}, order = [];
       function addRow(x, where) {
         var k = x.name + '|' + fmt(x.w) + '|' + fmt(x.h) + '|' + where;
@@ -631,6 +644,8 @@
         if (x.g !== lastG) { head = '<tr class="cg-grp"><td colspan="4">' + x.g + '</td></tr>'; lastG = x.g; }
         return head + '<tr><td>' + x.n.replace(/ \([^)]*\)/g, '') + '</td><td class="cg-num">' + x.s + '</td><td class="cg-num">' + x.q + '</td><td>' + x.w + '</td></tr>';
       }).join('');
+      var nParts = order.reduce(function (n, k) { return n + rows[k].q; }, 0);
+      $('cg-parts-sum').textContent = 'Parts list (' + nParts + ' parts)';
       renderSecond(P.second);
       try { localStorage.setItem('cg-params-v2', JSON.stringify(p)); } catch (e) { /* saving is optional */ }
     }
