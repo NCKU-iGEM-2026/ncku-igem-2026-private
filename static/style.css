@@ -1380,9 +1380,13 @@ body.team-bio-locked { overflow: hidden; }
    row's own flex layout. There's only room for this above the
    .edu-detail-layout stacking breakpoint (860px); below that it's hidden and
    the pins are just plain click targets to jump to a session. */
-@media (min-width: 861px) {
-  .edu-map-row { padding: 0 280px; }
-}
+/* Which layout applies is decided by taiwan-map.js from the row's actual
+   width, and written to the row as one of three classes:
+   .is-orbit (>=1010px), .is-orbit-compact (>=760px), .is-strip (narrower). */
+.edu-map-row.is-orbit { padding: 0 280px; }
+.edu-map-row.is-orbit-compact { padding: 0 190px; }
+.edu-map-row.is-orbit-compact .edu-map-viewport { max-width: 380px; }
+.edu-map-row.is-strip .edu-map-viewport { max-width: min(100%, 360px); }
 
 .edu-map-orbit {
   position: absolute;
@@ -1496,9 +1500,78 @@ body.team-bio-locked { overflow: hidden; }
   transition: opacity 0.3s ease;
 }
 
-@media (min-width: 861px) {
-  .edu-map-orbit { display: block; }
-  .edu-map-leader-svg { display: block; }
+.edu-map-row.is-orbit .edu-map-orbit,
+.edu-map-row.is-orbit-compact .edu-map-orbit,
+.edu-map-row.is-orbit .edu-map-leader-svg,
+.edu-map-row.is-orbit-compact .edu-map-leader-svg { display: block; }
+
+/* Compact: smaller cards so the map keeps its size */
+.edu-map-row.is-orbit-compact .edu-map-orbit-item { width: 110px; }
+.edu-map-row.is-orbit-compact .edu-map-orbit-item.is-active { width: 190px; padding: 0.55rem; }
+.edu-map-row.is-orbit-compact .edu-map-orbit-item.is-active .edu-map-info-photo { height: 105px; }
+
+/* Strip: swipeable photo row under the map (narrow screens) */
+.edu-map-strip {
+  display: none;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1.25rem;
+  padding: 0.25rem 0.25rem 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.edu-map-row.is-strip + .edu-map-strip { display: flex; }
+
+.edu-strip-item {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  color: #2b1e17;
+  text-decoration: none;
+  scroll-snap-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.edu-strip-photo {
+  width: 100%;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 9px;
+  margin-bottom: 0.3rem;
+}
+.edu-strip-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+.edu-strip-meta {
+  font-size: 0.72rem;
+  color: #5a5147;
+}
+.edu-strip-item.is-selected {
+  border-color: #14b391;
+  box-shadow: 0 0 0 2px #14b391, 0 8px 18px rgba(20, 60, 40, 0.22);
+}
+
+/* Selected pin (strip mode): larger, bright, with a ring; plus a bigger
+   invisible hit area -- the dot itself is only 10px. */
+.edu-pin.is-selected {
+  transform: translate(-50%, -50%) scale(1.7);
+  background: #ff7a00;
+  border-color: #6cd82e;
+  box-shadow: 0 0 0 3px rgba(108, 216, 46, 0.45);
+  z-index: 4;
+}
+.edu-map-row.is-strip .edu-pin::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -10930,6 +11003,25 @@ body.edu-nexus .edu-map-orbit-item.is-active {
   background: var(--nx-raised);
   border-color: var(--nx-mint);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* strip cards on the dark theme: same panel language as the orbit cards */
+body.edu-nexus .edu-strip-item {
+  background: rgba(7, 60, 41, 0.9);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+}
+body.edu-nexus .edu-strip-title { color: var(--nx-text); }
+body.edu-nexus .edu-strip-meta { color: var(--nx-text); opacity: 0.75; }
+body.edu-nexus .edu-strip-item.is-selected {
+  background: var(--nx-raised);
+  border-color: var(--nx-mint);
+  box-shadow: 0 0 0 2px var(--nx-mint), 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+html[data-theme="dark"] .edu-pin.is-selected {
+  background: #a0e860;
+  border-color: #a0e860;
+  box-shadow: 0 0 0 3px rgba(160, 232, 96, 0.4);
 }
 
 /* ---- the galleries and their controls ---- */
