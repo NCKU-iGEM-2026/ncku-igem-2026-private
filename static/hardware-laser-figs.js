@@ -5,7 +5,18 @@
 (function () {
   'use strict';
 
-  var C = { ink: '#33413a', mute: '#6b7a72', rule: '#dfe8e2', green: '#075a3e', blue: '#2a5fa8', amber: '#b0610f', red: '#a33a2a' };
+  /* Light palette by default. On the Hardware page's dark ("nexus") theme the colours come
+     from the page's own tokens, the same ones the other build's charts use, and every chart
+     sits on an opaque panel so the drifting background glows never show through the plot. */
+  var C = { ink: '#33413a', mute: '#6b7a72', rule: '#dfe8e2', green: '#075a3e', blue: '#2a5fa8', amber: '#b0610f', red: '#a33a2a', panel: '#ffffff' };
+  try {
+    var cs = getComputedStyle(document.body), tok = function (n) { return cs.getPropertyValue(n).trim(); };
+    if (tok('--nx-panel')) {
+      C = { ink: tok('--nx-text'), mute: tok('--nx-muted'), rule: tok('--nx-line'), green: tok('--nx-mint'),
+            blue: tok('--nx-blue-up'), amber: tok('--nx-warm'), red: '#ef8f7d', panel: tok('--nx-panel') };
+    }
+  } catch (e) { /* no styles available: keep the light palette */ }
+  var FONT = 1.25;   /* all chart text, relative to the sizes written below */
   var NS = 'http://www.w3.org/2000/svg';
 
   function el(tag, attrs, parent) {
@@ -16,7 +27,7 @@
   }
   function text(parent, s, x, y, o) {
     o = o || {};
-    var t = el('text', { x: x, y: y, fill: o.fill || C.mute, 'font-size': o.size || 11,
+    var t = el('text', { x: x, y: y, fill: o.fill || C.mute, 'font-size': (o.size || 11) * FONT,
       'text-anchor': o.anchor || 'middle', 'font-weight': o.weight || 400 }, parent);
     t.textContent = s;
     return t;
@@ -39,7 +50,10 @@
     d.className = 'hw-aside';
     d.style.margin = '0 0 .4rem';
     d.innerHTML = items.map(function (it) {
-      return '<span style="display:inline-block;margin-right:1rem"><span style="display:inline-block;width:.8em;height:.8em;border-radius:2px;margin-right:.35em;vertical-align:-1px;background:' + it[0] + '"></span>' + it[1] + '</span>';
+      var swatch = it[2] === 'open'
+        ? 'border:2px solid ' + it[0] + ';border-radius:50%;box-sizing:border-box'
+        : 'border-radius:2px;background:' + it[0];
+      return '<span style="display:inline-block;margin-right:1rem"><span style="display:inline-block;width:.8em;height:.8em;margin-right:.35em;vertical-align:-1px;' + swatch + '"></span>' + it[1] + '</span>';
     }).join('');
     host.appendChild(d);
   }
@@ -92,11 +106,14 @@
 
     /* 0922_逐筆.csv, rows with 採用 = Y only: net signal = (F5/F3 of the tube − F5/F3 of the
        no-sfGFP tube) × 1000, averaged per tube. Zero = the no-sfGFP tube's 8 adopted batches
-       (0.0546). Fit through the origin over the 7 tubes with f > 0: slope 68.7. */
+       (0.0546). Fit through the origin over the 7 tubes with f > 0: slope 68.7.
+       "extra" = three further low-share tubes with 採用 = N, same zero; plotted open, not fitted
+       (with them the slope would be 68.8, r² 0.95). */
     dose: function (host) {
       var pts = [[0.10,5.30],[0.15,15.28],[0.20,14.80],[0.30,24.88],[0.50,31.27],[0.75,46.71],[1.00,71.76]];
+      var extra = [[0.10,3.16],[0.05,7.53],[0.05,12.92]];
       var slope = 68.7;
-      legend(host, [[C.blue, 'Each tube (mean of its batches)'], [C.green, 'Fit through the origin, 7 tubes']]);
+      legend(host, [[C.blue, 'Each tube (mean of its batches)'], [C.blue, 'Further low-share tubes, not fitted', 'open'], [C.green, 'Fit through the origin, 7 tubes']]);
       var W = 680, H = 300, L = 52, R = 18, T = 14, B = 48, pw = W - L - R, ph = H - T - B;
       function X(v) { return L + v / 1.05 * pw; }
       function Y(v) { return T + ph - v / 78 * ph; }
@@ -110,7 +127,10 @@
       text(s, 'Net F5/F3 × 1000', L - 8, T - 2 + 10, { anchor: 'start', size: 10 });
       el('line', { x1: X(0), y1: Y(0), x2: X(1), y2: Y(slope), stroke: C.green, 'stroke-width': 1.6, 'stroke-dasharray': '6 4' }, s);
       dots(s, pts, X, Y, C.blue, 4.2);
-      text(s, 'r² ≈ 0.97', X(0.08), Y(58), { anchor: 'start', size: 12, fill: C.green, weight: 600 });
+      extra.forEach(function (p) {
+        el('circle', { cx: X(p[0]), cy: Y(p[1]), r: 4.2, fill: C.panel, stroke: C.blue, 'stroke-width': 1.6 }, s);
+      });
+      text(s, 'r² ≈ 0.97', X(0.04), Y(50), { anchor: 'start', size: 12, fill: C.ink, weight: 600 });
     },
 
     /* 0920_逐筆.csv: for each turbidity d, (F/F3 at f = 1) − (F/F3 at f = 0), normalised to its peak. */
@@ -181,7 +201,12 @@
     var hosts = document.querySelectorAll('[data-lc-chart]');
     for (var i = 0; i < hosts.length; i++) {
       var h = hosts[i], fn = charts[h.getAttribute('data-lc-chart')];
-      if (fn && !h.getAttribute('data-lc-done')) { fn(h); h.setAttribute('data-lc-done', '1'); }
+      if (fn && !h.getAttribute('data-lc-done')) {
+        h.style.background = C.panel;
+        h.style.borderRadius = '8px';
+        h.style.padding = '0.8rem 0.9rem 0.6rem';
+        fn(h); h.setAttribute('data-lc-done', '1');
+      }
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
