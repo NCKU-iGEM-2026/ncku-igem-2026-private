@@ -22,6 +22,10 @@
     Part 3  Reader model              #model-reader       讀取器的量測模型（原本整頁的內容）
     Summary                           #model-impact       What modelling changed（三個 Part 的總表）
   Part 3 裡原本的 Model 1/2/3 已改成 3.2/3.3/3.4，其餘各節也編成 3.1–3.8；section 的 id 沒有改。
+  2026-10-08：Part 3 精簡過一次（硬體負責人的決定，因為前面還要放兩個模型）。現在是 3.1–3.7：
+    原本的 3.6 A prediction on the record 併進 3.3（id model-prediction 還在，在那一段上）；
+    原本的 3.7、3.8 改成 3.6、3.7；3.5 後半的兩個小標收進收合列；Part 3 開頭少說一次它做了什麼。
+    沒有刪任何數字、表或圖，離開正文的內容都在收合列裡。
 
   導覽：
     - 頁首三張卡片（md-parts）同時是目錄和「三個模型怎麼串起來」的關係圖，卡片之間有箭頭。
@@ -210,9 +214,8 @@
       <li><a href="#model-across">3.3 Across sessions</a></li>
       <li><a href="#model-design">3.4 Design</a></li>
       <li><a href="#model-inverse">3.5 Inverse</a></li>
-      <li><a href="#model-prediction">3.6 Prediction</a></li>
-      <li><a href="#model-limits">3.7 Limits</a></li>
-      <li><a href="#model-reproduce">3.8 Reproducing</a></li>
+      <li><a href="#model-limits">3.6 Limits</a></li>
+      <li><a href="#model-reproduce">3.7 Reproducing</a></li>
     </ul>
   </nav>
 
@@ -226,10 +229,7 @@
     </p>
     <p>
       The model in this part connects the two. It was built from our own bench
-      data and tested against it, and it did three jobs: it showed how the
-      reading scales with the amount of GFP culture, it explained why the same
-      recipe read six times higher in one session than in another, and it told
-      us when another experiment was not worth running.
+      data and tested against it.
     </p>
   </div>
 
@@ -255,7 +255,7 @@
       <div><dt>Model</dt><dd>A line through the origin within a session, a stock-density conversion across sessions, and a four-channel ridge regression in the other direction. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
       <div><dt>Validation</dt><dd>Every model is scored on tubes it was not fitted to: a left-out recipe, or a whole left-out session. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
       <div><dt>What it changed</dt><dd>How many pairs to make, whether to repeat a comparison, and which pipeline to keep. <a href="#model-design">3.4</a>, <a href="#model-impact">Summary</a></dd></div>
-      <div><dt>Limits</dt><dd>Relative readings only, three sessions, and a cross-session conversion found after the fact. <a href="#model-limits">3.7</a></dd></div>
+      <div><dt>Limits</dt><dd>Relative readings only, three sessions, and a cross-session conversion found after the fact. <a href="#model-limits">3.6</a></dd></div>
     </dl>
   </div>
 
@@ -264,9 +264,8 @@
     <h2 data-toc-title="Three questions">Three questions</h2>
 
     <p>
-      A model earns its place by answering something we could not otherwise
-      answer. The reader model had three questions put to it, and each card
-      turns over to show what came back.
+      The reader model had three questions put to it. Each card turns over
+      to show what came back.
     </p>
 
     <dl class="hw-terms hw-flip">
@@ -634,6 +633,60 @@
       </p>
     </div>
 
+    {# 2026-10-08：這一段原本是獨立的一節（3.6 A prediction on the record）。它是上面那個警語的下一句話
+       （還沒有事前的預測檢驗過），而且預測沒有被檢驗，所以併進 3.3：兩三句話留在正文，公式與五項條件收在
+       下面的收合列，一個字都沒有刪。id 留在這一段上，總表的連結照舊。原本的 3.7、3.8 改成 3.6、3.7。 #}
+    <p id="model-prediction">
+      To turn it into evidence, we wrote a prediction into our closing report
+      on 2026-09-30, with the rule for judging it fixed in advance: a new
+      stock should read within 0.80 to 1.20 of
+      10.85&nbsp;&times;&nbsp;4&nbsp;&times;&nbsp;<var>q</var><sub>G</sub>. It was
+      not tested. On 2026-10-03 the reader was rebuilt, and the number 10.85
+      does not carry over to the rebuilt reader without being measured again.
+    </p>
+
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">The prediction as written</span>
+        <span class="hw-fold-meta">5 terms</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+    <div class="sw-eq sw-eq-key">
+      F4<sub>predicted</sub> = 10.85 &times; 4 &times; <var>q</var><sub>G</sub>
+    </div>
+
+    <dl class="hw-spec">
+      <div><dt>Input</dt><dd><var>q</var><sub>G</sub> is the displayed OD of a new GFP stock diluted 1:4 (50&nbsp;&micro;L of stock, 150&nbsp;&micro;L of medium), read twice and averaged.</dd></div>
+      <div><dt>Output</dt><dd>The F4 of 200&nbsp;&micro;L of that stock, as the mean of at least two tubes. For <var>q</var><sub>G</sub>&nbsp;=&nbsp;0.43 the prediction is about 18.7 counts.</dd></div>
+      <div><dt>Conditions</dt><dd>The same <code>P1-PROTO-01</code>, the same detector settings, shielded, the UVette in the same orientation, and a new batch of GFP culture.</dd></div>
+      <div><dt>Verdict</dt><dd>Measured over predicted between 0.80 and 1.20 supports the model. Anything else does not, and will be reported as such.</dd></div>
+      <div><dt>Scope</dt><dd>The number 10.85 belongs to this instrument's present optics. A revised light path needs its own.</dd></div>
+    </dl>
+
+    {# 2026-10-03：機器已改版（P1-PROTO-02：新的 UVette 座與激發端、LED 電流約 10 mA）。
+       來源：硬體資料夾 PROJECT_STATE/CURRENT_STATE.md、DECISION_LOG.md GOV-011
+       （434 Ω 與 217 Ω 的讀值沒有實測比值不能合併）。
+       如果改版前其實測過這個預測，請把結果寫在這裡，並改掉這一段。 #}
+    <p class="hw-aside">
+      This prediction was not tested, and it can no longer be tested as
+      written. On 2026-10-03 the reader was rebuilt, with a new cuvette seat
+      and excitation end and about twice the LED current, so the instrument
+      named under Conditions no longer exists in that form, and the number
+      10.85 does not carry over to the rebuilt reader without being measured
+      again. The cross-session model stays what it was: a description of
+      three sessions that happens to be consistent. The rebuild is described
+      on the
+      <a href="{{ url_for('pages', page='hardware') }}#hardware-v2">Hardware</a>
+      page.
+    </p>
+      </div>
+    </details>
+
     <details class="hw-fold md-fold">
       <summary class="hw-fold-head">
         <span class="hw-fold-title">How robust the conversion is</span>
@@ -893,8 +946,27 @@
       analyses were made separately and have not been reconciled.
     </p>
 
-    <h3>Where it is wrong</h3>
+    {# 2026-10-08：硬體負責人問這一部分會不會太多（前面還要放另外兩個模型），交給我決定。
+       這一節原本有四個小標；後兩個（Where it is wrong、What more modelling did not buy）是次要的檢查，
+       結論都是「沒有理由換掉原本的做法」，所以收成一句話加兩個收合列。表、圖、段落一個字都沒有刪，只是搬進去。 #}
+    <p>
+      The error sits in the faint tubes and in the session with the thin
+      stock, and more modelling did not lower it: forty configurations from
+      eighteen model families, scored the same way, gave no reason to move
+      off the pipeline that was fixed first.
+    </p>
 
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Where it is wrong</span>
+        <span class="hw-fold-meta">2 tables</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
     <div class="hw-two-tables">
       <div class="hw-figure">
         <table class="hw-table md-keep">
@@ -929,9 +1001,20 @@
       was off by 29.37, so 8.24 is an average over sessions and not a bound on
       any single tube.
     </p>
+      </div>
+    </details>
 
-    <h3>What more modelling did not buy</h3>
-
+    <details class="hw-fold md-fold hw-fold-wide">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">What more modelling did not buy</span>
+        <span class="hw-fold-meta">18 model families &middot; 8 notes</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
     <p>
       Forty configurations from eighteen model families were then run through
       the same held-out scoring. Reporting the best of forty as the result
@@ -976,17 +1059,6 @@
       gave a reason to move off the fixed pipeline.
     </p>
 
-    <details class="hw-fold md-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">What else was tried</span>
-        <span class="hw-fold-meta">8 notes</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
         <dl class="hw-spec">
           <div><dt>Best of 40</dt><dd>The lowest score found was 7.60, from plain least squares. Letting the training data choose the model, which is the fair version of the same search, gives 9.13. Neither replaces 8.24.</dd></div>
           <div><dt>MLP</dt><dd>The neural network's fits raised convergence warnings and were sensitive to how the input was laid out in memory. Its bar is shown for completeness and supports no conclusion.</dd></div>
@@ -1001,51 +1073,9 @@
     </details>
   </section>
 
-  <!-- ========================= prediction ========================= -->
-  <section id="model-prediction">
-    <h2 data-toc-title="3.6 Prediction">3.6 A prediction on the record</h2>
-
-    <p>
-      The cross-session model of 3.3 was found by looking at data, which is
-      the weakest way to find anything. What would turn it into evidence is a
-      prediction written down before the measurement, with the rule for
-      judging it fixed in advance.
-      We wrote one into our closing report on 2026-09-30.
-    </p>
-
-    <div class="sw-eq sw-eq-key">
-      F4<sub>predicted</sub> = 10.85 &times; 4 &times; <var>q</var><sub>G</sub>
-    </div>
-
-    <dl class="hw-spec">
-      <div><dt>Input</dt><dd><var>q</var><sub>G</sub> is the displayed OD of a new GFP stock diluted 1:4 (50&nbsp;&micro;L of stock, 150&nbsp;&micro;L of medium), read twice and averaged.</dd></div>
-      <div><dt>Output</dt><dd>The F4 of 200&nbsp;&micro;L of that stock, as the mean of at least two tubes. For <var>q</var><sub>G</sub>&nbsp;=&nbsp;0.43 the prediction is about 18.7 counts.</dd></div>
-      <div><dt>Conditions</dt><dd>The same <code>P1-PROTO-01</code>, the same detector settings, shielded, the UVette in the same orientation, and a new batch of GFP culture.</dd></div>
-      <div><dt>Verdict</dt><dd>Measured over predicted between 0.80 and 1.20 supports the model. Anything else does not, and will be reported as such.</dd></div>
-      <div><dt>Scope</dt><dd>The number 10.85 belongs to this instrument's present optics. A revised light path needs its own.</dd></div>
-    </dl>
-
-    {# 2026-10-03：機器已改版（P1-PROTO-02：新的 UVette 座與激發端、LED 電流約 10 mA）。
-       來源：硬體資料夾 PROJECT_STATE/CURRENT_STATE.md、DECISION_LOG.md GOV-011
-       （434 Ω 與 217 Ω 的讀值沒有實測比值不能合併）。
-       如果改版前其實測過這個預測，請把結果寫在這裡，並改掉這一段。 #}
-    <p class="hw-aside">
-      This prediction was not tested, and it can no longer be tested as
-      written. On 2026-10-03 the reader was rebuilt, with a new cuvette seat
-      and excitation end and about twice the LED current, so the instrument
-      named under Conditions no longer exists in that form, and the number
-      10.85 does not carry over to the rebuilt reader without being measured
-      again. The cross-session model stays what it was: a description of
-      three sessions that happens to be consistent. The rebuild is described
-      on the
-      <a href="{{ url_for('pages', page='hardware') }}#hardware-v2">Hardware</a>
-      page.
-    </p>
-  </section>
-
   <!-- ========================= limits ========================= -->
   <section id="model-limits">
-    <h2 data-toc-title="3.7 Limits">3.7 Assumptions and limits</h2>
+    <h2 data-toc-title="3.6 Limits">3.6 Assumptions and limits</h2>
 
     <div class="hw-figure">
       <table class="hw-table">
@@ -1088,7 +1118,7 @@
 
   <!-- ========================= reproducing ========================= -->
   <section id="model-reproduce">
-    <h2 data-toc-title="3.8 Reproducing">3.8 How the numbers were produced</h2>
+    <h2 data-toc-title="3.7 Reproducing">3.7 How the numbers were produced</h2>
 
     <p>
       The tables behind sections 3.2 to 3.4 were not typed in by hand. Each is
@@ -1159,7 +1189,7 @@
             <td>The fixed four-channel ridge pipeline was kept: nothing in forty configurations gave a reason to move off it.</td>
           </tr>
           <tr>
-            <td><a href="#model-prediction">Part 3 &middot; 3.6</a></td>
+            <td><a href="#model-prediction">Part 3 &middot; 3.3</a></td>
             <td>How to turn the cross-session model into evidence.</td>
             <td>A prediction for a new stock was written into the closing report, with its verdict rule fixed in advance.</td>
           </tr>
