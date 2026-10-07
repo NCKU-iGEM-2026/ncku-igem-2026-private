@@ -55,7 +55,27 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
     display: flex; align-items: center; justify-content: center;
     position: relative;
   }
-  .dropdown-menu.dropdown-menu-center { min-width: 320px; }
+  /* "Center" was only ever the class's name: the panel reveal here is a pure
+     CSS :hover + visibility toggle (style.css, ~line 309) to dodge a Safari
+     backdrop-filter bug, which means Bootstrap's JS dropdown never runs and
+     Popper never gets a chance to position or flip it -- so without this,
+     every .dropdown-menu-center just sits at the browser default (left
+     edge flush with its toggle's left edge), min-width and all, however far
+     off that pushes it. */
+  .navbar .dropdown { position: relative; }
+  /* 320px centered on "Team" ran past the navbar's edge -- it only has
+     112px of room on either side of that toggle (measured at 1400px
+     viewport) before hitting it. Rather than let just that one menu run a
+     different width from the rest, every .dropdown-menu-center matches it
+     at 200px, so centering behaves the same way -- and looks the same --
+     on every item instead of Team being the odd one out. */
+  .dropdown-menu.dropdown-menu-center {
+    min-width: 0;
+    width: 200px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
   .navbar .dropdown-item::before {
     content: ""; width: 5px; height: 5px; border-radius: 50%;
     background: var(--c-teal); position: absolute; left: 0.9rem;
