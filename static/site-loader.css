@@ -14,9 +14,11 @@
    longer holds the screen up; any other resource that hangs still does, until
    the browser gives up on it.
 
-   The bacterium and the ring fade in only after 0.2s, so a page that loads
-   at once (a page already in the cache) shows a short fade and not a flash of
-   the animation.
+   However fast the page is, the screen stays up for at least one second
+   (site-loader.js, MIN_MS), so the AHL ring always goes round at least once
+   instead of flashing on and off for a page already in the cache. Because of
+   that, the bacterium and the ring now fade in at once rather than after a
+   0.2s wait -- the wait was only there to avoid that flash.
 
    Without JavaScript the screen is never drawn (the <noscript> rule in
    layout.html). If site-loader.js itself never arrives, the animation below
@@ -70,7 +72,7 @@ body.bg-nexus .site-loader { background: #0e242e; }
   align-items: center;
   gap: clamp(1.4rem, 5vh, 2.6rem);
   opacity: 0;
-  animation: site-loader-in 0.3s ease-out 0.2s forwards;
+  animation: site-loader-in 0.25s ease-out forwards;
 }
 
 @keyframes site-loader-in { to { opacity: 1; } }
