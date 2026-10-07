@@ -134,16 +134,30 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
      menu.html 的 justify-content-end / mb-2 都是 Bootstrap !important 工具類，
      不壓掉會把整串選單推到面板最底——所以這裡要 !important。
      style.css 舊版下拉面板留下 max-height: calc(100vh - 64px)，底部會露出一截頁面。 */
+  /* 抽屜高度只跟著內容走（Home～Team 這幾列的高度），不再撐滿整個螢幕蓋住下面的
+     網頁；內容超過螢幕高度（例如展開子選單）時才用 max-height 封頂並可捲動。 */
   .navbar-collapse {
-    justify-content: flex-start !important; height: 100vh; height: 100dvh; max-height: none !important;
+    justify-content: flex-start !important;
+    bottom: auto; height: auto; max-height: 100vh !important; max-height: 100dvh !important;
     padding-top: 7rem !important;
+    border-radius: 0 0 24px 24px;
+    /* 下緣螢光薄邊＋綠色外光暈：不管頁面背景是什麼色，抽屜邊界都看得出來 */
+    border-bottom: 2px solid rgba(160, 232, 96, 0.75);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 6px 22px rgba(160, 232, 96, 0.28);
+  }
+  /* 抽屜開啟時，抽屜以外的頁面蓋一層半透明暗幕（純 CSS，不攔截任何操作邏輯） */
+  body:has(.navbar-collapse.show)::after {
+    content: "";
+    position: fixed; inset: 0; z-index: 1029;
+    background: rgba(0, 0, 0, 0.55);
+    pointer-events: none;
   }
   .navbar-collapse .navbar-nav { margin-top: 0 !important; margin-bottom: 0 !important; }
   .navbar-collapse.show, .navbar-collapse.collapsing.show {
     opacity: 1; visibility: visible; transform: none;
   }
   /* Bootstrap 的 height 摺疊動畫在 fixed 面板上沒有意義，放掉高度動作 */
-  .navbar-collapse.collapsing { height: 100vh !important; transition: none; }
+  .navbar-collapse.collapsing { height: auto !important; transition: none; }
   .navbar-collapse .navbar-nav { gap: 0.4rem; margin-left: 0 !important; width: 100%; }
   .navbar-collapse .nav-item { border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0.35rem 0; }
   .navbar-collapse .nav-link {
