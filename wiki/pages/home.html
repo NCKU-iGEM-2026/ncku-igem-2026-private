@@ -309,7 +309,11 @@
     {# Bootstrap's .ratio holds the 16:9 box, so the iframe needs no width or
        height of its own and cannot letterbox on a narrow screen. #}
     <div class="ratio ratio-16x9 home-video-frame">
-      <iframe src="{{ promo_embed }}"
+      {# data-src, not src: the player is only given its address once the page
+         has loaded (script at the bottom), so a slow video host cannot hold
+         the loading screen up. loading="lazy" then keeps it from being
+         fetched before the reader scrolls near it. #}
+      <iframe data-src="{{ promo_embed }}" loading="lazy"
               title="NCKU-Tainan: Capture &mdash; Striking Back at Pseudomonas aeruginosa with Dual-Action Engineered E. coli (2026), project promotion"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
               allow="fullscreen"
@@ -504,4 +508,13 @@
 <script src="{{ url_for('static', filename = 'capture-game.js') }}"></script>
 <script src="{{ url_for('static', filename = 'count-up.js') }}"></script>
 <script src="{{ url_for('static', filename = 'js/pages/home.js') }}" defer></script>
+<script>
+(function () {
+  var frame = document.querySelector(".home-video-frame iframe[data-src]");
+  if (!frame) return;
+  function give() { frame.src = frame.getAttribute("data-src"); }
+  if (document.readyState === "complete") give();
+  else window.addEventListener("load", give);
+})();
+</script>
 {% endblock %}
