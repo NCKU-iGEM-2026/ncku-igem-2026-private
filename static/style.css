@@ -4709,13 +4709,54 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   border-top: 2px solid #dbe7cb;
 }
 
-/* The recognition-site diagrams are the source PDF's own figures
-   (both strands with the cut marked by a triangle), not a redrawn
-   text approximation -- just size the image to the cell. */
-.labbook .restriction-site-img {
-  display: block;
-  max-width: 100%;
-  height: auto;
+/* The recognition sites, set as text rather than shown as pictures. A grid of
+   three columns by two rows, so the two strands line up base for base and the
+   stagger between the cut marks is the overhang you can read off directly. */
+.labbook .rsite {
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+  gap: 0.2rem 0.55rem;
+  align-items: center;
+  /* Monospace, and only here: equal-width characters are what keeps the two
+     strands aligned. These are all system faces, so nothing extra is loaded. */
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+
+.labbook .rsite-end {
+  font-size: 0.8em;
+  font-weight: 400;
+  color: var(--c-text-3);
+}
+
+.labbook .rsite-bases {
+  letter-spacing: 0.3em;
+  /* letter-spacing also trails the last character; this pulls that back so the
+     bases sit centred between the 5'/3' labels instead of drifting left. */
+  margin-right: -0.3em;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+/* Taller than the bases and standing clear of them on both sides, so it reads
+   as a cut through the strand rather than as a stray stroke in the lettering.
+   The width is fixed rather than zero, but both strands carry exactly one, so
+   they still line up base for base. */
+.labbook .rsite-cut {
+  display: inline-block;
+  width: 3px;
+  height: 1.7em;
+  margin: 0 0.1em;
+  border-radius: 2px;
+  background: var(--c-amber);
+  vertical-align: -0.5em;
+}
+
+@media print {
+  .labbook .rsite-cut { background: #000; }
+  .labbook .rsite-bases { color: #000; }
+  .labbook .rsite-end { color: #444; }
 }
 
 /* A sheet that is only a title and its PDF should look finished, not like a
