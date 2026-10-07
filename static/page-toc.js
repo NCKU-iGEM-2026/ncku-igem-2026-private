@@ -19,8 +19,9 @@
   var host = document.querySelector("body > .container");
   if (!host || document.getElementById("siteTour") || document.querySelector(".edu-sidebar")) return;
   /* A band that runs the full width of the screen (the board game's story, the
-     collaboration wall) would sit under the list, so those pages go without. */
-  if (document.querySelector(".sgd, .story, .collab-wall")) return;
+     collaboration wall) would sit under the list, so those pages go without.
+     Engineering's DBTL cycle stands in the same place and does the same job. */
+  if (document.querySelector(".sgd, .story, .collab-wall, .eng-dbtl")) return;
 
   var MIN = 2;
   var OFFSET = 130;          /* a heading counts as "reached" this far below the top */
@@ -46,18 +47,24 @@
     Array.prototype.forEach.call(host.querySelectorAll("h2"), function (h) {
       /* a heading you cannot see (a closed fold, a build that is not showing) is not one to jump to */
       if (!h.getClientRects().length) return;
-      if (h.closest("aside, nav, header, .modal, .tour, .quiz-pages")) return;
-      var t = titleOf(h);
+      /* A page split into parts (the Model page) marks each part's banner with
+         data-toc-group; its heading is listed as a group title even though it
+         sits in a <header>. */
+      var group = h.closest("[data-toc-group]");
+      if (h.closest("aside, nav, .modal, .tour, .quiz-pages")) return;
+      if (!group && h.closest("header")) return;
+      /* data-toc-title gives a long heading a short name in the list */
+      var t = h.getAttribute("data-toc-title") || titleOf(h);
       if (!t) return;
       var id = h.id;
       if (!id) {
-        var sec = h.closest("section[id]");
+        var sec = group && group.id ? group : h.closest("section[id]");
         id = sec ? sec.id : "";
       }
       if (!id) { id = slug(t, taken); h.id = id; }
       var target = document.getElementById(id) || h;
       target.style.scrollMarginTop = "104px";
-      out.push({ id: id, title: t, el: h });
+      out.push({ id: id, title: t, el: h, group: !!group });
     });
     /* Headings that sit side by side (the team's columns) are not a sequence to
        jump along; a page laid out that way goes without. */
@@ -71,7 +78,7 @@
 
   function build() {
     var found = collect();
-    var sig = found.map(function (f) { return f.id + "|" + f.title; }).join("\n");
+    var sig = found.map(function (f) { return f.id + "|" + f.title + (f.group ? "|g" : ""); }).join("\n");
     if (sig === signature) return;
     signature = sig;
     items = found;
@@ -92,6 +99,13 @@
     aside.textContent = "";
     var nav = document.createElement("nav");
     nav.className = "page-toc-inner";
+    // This is the element that scrolls when the list is longer than the
+    // viewport (max-height + overflow-y in page-toc.css). Lenis takes the
+    // wheel over for the whole page and calls preventDefault on it unless the
+    // pointer is inside something carrying this attribute, so without it a
+    // long contents list -- the Lab Book's, for one -- cannot be scrolled at
+    // all: the page scrolls instead and the tail of the list is unreachable.
+    nav.setAttribute("data-lenis-prevent", "");
     var p = document.createElement("p");
     p.className = "page-toc-title";
     p.textContent = "On this page";
@@ -99,6 +113,7 @@
     list.className = "page-toc-list";
     items.forEach(function (f) {
       var li = document.createElement("li");
+      if (f.group) li.className = "page-toc-group";
       var a = document.createElement("a");
       a.href = "#" + f.id;
       a.textContent = f.title;

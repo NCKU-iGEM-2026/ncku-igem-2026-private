@@ -379,6 +379,18 @@ strong, b { font-weight: 700; }
   box-shadow: 0 4px 12px rgba(5, 68, 46, 0.1);
 }
 footer.bg-dark { background-color: #075a3e !important; }
+/* 深色主題：頁尾和 Hardware／Team 等頁一樣用深夜底色，不再是一條亮綠；淺色主題維持原本的綠 */
+html[data-theme="dark"] footer.bg-dark { background-color: #071820 !important; }
+/* 頁尾上緣漸層淡入：從透明慢慢變成頁尾底色，不再有一條硬邊。
+   --footer-fade 這段高度另外加在上方 padding 上（原本是 Bootstrap pt-5 的 3rem），
+   Logo 和贊助商不會被淡掉；上方的外距縮小，讓整體高度大致不變。 */
+footer.footer {
+  --footer-fade: 4rem;
+  margin-top: 1rem !important;
+  padding-top: calc(3rem + var(--footer-fade)) !important;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--footer-fade));
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--footer-fade));
+}
 
 /* Bootstrap's 50%-white utility sits at 3.3:1 on that deep green, under the
    4.5 small text needs -- and the licence sentence is set in it. Lift it to
@@ -490,7 +502,10 @@ footer a:hover { color: white; text-decoration: underline; }
   gap: 2.5rem;
   width: max-content;
   padding: 0 1.25rem;
-  animation: sponsorMarquee 20s linear infinite;
+  /* One loop is one track's width, so a longer track scrolls faster at the
+     same duration. 24s with fourteen logos keeps the pace the eleven had at
+     20s (about 100px a second); lengthen it again if more are added. */
+  animation: sponsorMarquee 24s linear infinite;
 }
 
 @keyframes sponsorMarquee {
@@ -1380,9 +1395,13 @@ body.team-bio-locked { overflow: hidden; }
    row's own flex layout. There's only room for this above the
    .edu-detail-layout stacking breakpoint (860px); below that it's hidden and
    the pins are just plain click targets to jump to a session. */
-@media (min-width: 861px) {
-  .edu-map-row { padding: 0 280px; }
-}
+/* Which layout applies is decided by taiwan-map.js from the row's actual
+   width, and written to the row as one of three classes:
+   .is-orbit (>=1010px), .is-orbit-compact (>=760px), .is-strip (narrower). */
+.edu-map-row.is-orbit { padding: 0 280px; }
+.edu-map-row.is-orbit-compact { padding: 0 190px; }
+.edu-map-row.is-orbit-compact .edu-map-viewport { max-width: 380px; }
+.edu-map-row.is-strip .edu-map-viewport { max-width: min(100%, 360px); }
 
 .edu-map-orbit {
   position: absolute;
@@ -1496,9 +1515,78 @@ body.team-bio-locked { overflow: hidden; }
   transition: opacity 0.3s ease;
 }
 
-@media (min-width: 861px) {
-  .edu-map-orbit { display: block; }
-  .edu-map-leader-svg { display: block; }
+.edu-map-row.is-orbit .edu-map-orbit,
+.edu-map-row.is-orbit-compact .edu-map-orbit,
+.edu-map-row.is-orbit .edu-map-leader-svg,
+.edu-map-row.is-orbit-compact .edu-map-leader-svg { display: block; }
+
+/* Compact: smaller cards so the map keeps its size */
+.edu-map-row.is-orbit-compact .edu-map-orbit-item { width: 110px; }
+.edu-map-row.is-orbit-compact .edu-map-orbit-item.is-active { width: 190px; padding: 0.55rem; }
+.edu-map-row.is-orbit-compact .edu-map-orbit-item.is-active .edu-map-info-photo { height: 105px; }
+
+/* Strip: swipeable photo row under the map (narrow screens) */
+.edu-map-strip {
+  display: none;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1.25rem;
+  padding: 0.25rem 0.25rem 0.75rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.edu-map-row.is-strip + .edu-map-strip { display: flex; }
+
+.edu-strip-item {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  color: #2b1e17;
+  text-decoration: none;
+  scroll-snap-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.edu-strip-photo {
+  width: 100%;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 9px;
+  margin-bottom: 0.3rem;
+}
+.edu-strip-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+.edu-strip-meta {
+  font-size: 0.72rem;
+  color: #5a5147;
+}
+.edu-strip-item.is-selected {
+  border-color: #14b391;
+  box-shadow: 0 0 0 2px #14b391, 0 8px 18px rgba(20, 60, 40, 0.22);
+}
+
+/* Selected pin (strip mode): larger, bright, with a ring; plus a bigger
+   invisible hit area -- the dot itself is only 10px. */
+.edu-pin.is-selected {
+  transform: translate(-50%, -50%) scale(1.7);
+  background: #ff7a00;
+  border-color: #6cd82e;
+  box-shadow: 0 0 0 3px rgba(108, 216, 46, 0.45);
+  z-index: 4;
+}
+.edu-map-row.is-strip .edu-pin::before {
+  content: "";
+  position: absolute;
+  inset: -9px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1540,11 +1628,10 @@ body.team-bio-locked { overflow: hidden; }
 }
 
 .edu-map-county {
-  /* DEFAULT_COUNTY_COLOR is 'none' (see taiwan-map.js) -- counties are drawn
-     as outlines only, so the stroke itself needs to read as the map rather
-     than just separate a fill from its neighbours. */
-  stroke: #075a3e;
-  stroke-width: 1.25;
+  /* 整島不透明深綠填色（DEFAULT_COUNTY_COLOR 在 taiwan-map.js），島外透明；
+     縣市細線壓淡，輪廓靠整島邊界自然成形 */
+  stroke: rgba(7, 90, 62, 0.35);
+  stroke-width: 0.8;
   transition: fill 0.15s ease, opacity 0.15s ease;
 }
 
@@ -1563,19 +1650,32 @@ body.team-bio-locked { overflow: hidden; }
    list -- are set apart from the prose rather than buried in it. */
 .desc { max-width: 52rem; }
 .desc section { margin-bottom: 3rem; }
+/* Colours come from tokens.css rather than being written out, so they follow
+   the theme: these were fixed light-mode greens, and once the page ground
+   went dark they were near-black text on a near-black field. The light-mode
+   values are unchanged -- --c-ink-2 is the same #075a3e this used to name. */
 .desc h2 {
   font-family: "Changa", sans-serif;
-  color: #075a3e;
+  color: var(--c-ink-2);
   margin-bottom: 1rem;
 }
-.desc p { line-height: 1.8; color: #33413a; }
-.desc sup { color: #075a3e; font-weight: 700; font-size: 0.72em; }
+.desc p { line-height: 1.8; color: var(--c-text); }
+.desc sup { color: var(--c-ink-2); font-weight: 700; font-size: 0.72em; }
 
 .desc-lead p {
   font-size: 1.12rem;
   line-height: 1.85;
 }
-.desc-lead p:first-child { color: #24352c; }
+.desc-lead p:first-child { color: var(--c-text); }
+
+/* The organism the whole page is about, named in its first three words: set
+   larger than the sentence around it so the opening has something to land
+   on. Scoped to that one <em> -- it is the only one in the lead, and the
+   species italic elsewhere on the page stays at its running size. */
+.desc-lead p:first-child > em:first-child {
+  font-size: 1.45em;
+  letter-spacing: -0.01em;
+}
 .desc-lead {
   border-left: 4px solid #075a3e;
   padding-left: 1.5rem;
@@ -1584,38 +1684,30 @@ body.team-bio-locked { overflow: hidden; }
 
 /* ---- the three approaches that fall short ---- */
 .desc-methods {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  position: relative;
+  margin-top: 1.75rem;
+  padding-left: 2.6rem;
+  counter-reset: desc-method;
 }
 
-.desc-method {
-  border: 1px solid #dfe8e2;
-  border-radius: 12px;
-  padding: 1.1rem 1.2rem;
-  background: #fffdf7;
-}
-
-.desc-method h3 {
-  font-family: "Changa", sans-serif;
-  font-size: 1.05rem;
-  color: #1f4a38;
-  margin: 0 0 0.6rem;
+/* The rail the nodes hang off: one line down the whole run, fading out at
+   the tail so it reads as a trace rather than as a table border. */
+.desc-methods::before {
+  content: "";
+  position: absolute;
+  top: 0.55rem;
+  bottom: 2.2rem;
+  left: 0.42rem;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom,
+    var(--c-teal-deep) 0%,
+    var(--c-teal-deep) 62%,
+    transparent 100%);
+  opacity: 0.55;
 }
 
 .desc-method-what { font-size: 0.92rem; margin-bottom: 0.75rem; }
-
-/* The gap is the point of each card, so it is marked, not just written. */
-.desc-method-gap {
-  font-size: 0.9rem;
-  color: #6b4a1f;
-  background: #fff6e2;
-  border-left: 3px solid #d8b26a;
-  border-radius: 0 6px 6px 0;
-  padding: 0.6rem 0.8rem;
-  margin: 0;
-}
 
 /* ---- the three methods, as cards that turn over ----------------------
    The mechanism lives further down this file with the Hardware page's cards
@@ -1627,69 +1719,98 @@ body.team-bio-locked { overflow: hidden; }
    -- the method, and a line saying what it does -- so the name is set
    smaller than there and the pair is stacked and centred rather than a
    single centred line. */
-.desc-methods .hw-flip-front,
-.desc-methods .hw-flip-back {
-  border: 1px solid #dfe8e2;
-  border-radius: 12px;
-  padding: 1.1rem 1.2rem;
+/* ---- the three current methods, as a trace down a rail ----
+   Not three boxes: one line with a node per method, each carrying what it
+   reads and then what it cannot tell you. Every colour is a token, so this
+   follows the theme instead of being a light-mode card with dark-mode text
+   laid over it -- which is what the flip card it replaces had become (its
+   back face measured 1.7:1). */
+.desc-method-step {
+  position: relative;
+  padding-bottom: 1.9rem;
 }
 
-.desc-methods .hw-flip-front {
+.desc-method-step:last-child { padding-bottom: 0; }
+
+/* The node. Sits on the rail, and carries a soft halo so it reads as lit
+   rather than as a bullet. */
+.desc-method-step::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  left: -2.6rem;
+  width: 11px;
+  height: 11px;
+  margin-left: 0.42rem;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--c-teal-deep);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-teal-deep) 22%, transparent);
+}
+
+.desc-method-step dt {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  background: #fffdf7;
-  /* Clear of the fold in the top-right corner and the "hover to read" cue in
-     the bottom-left, so neither ever lands on the words. */
-  padding-right: 2rem;
-  padding-bottom: 2.9rem;
+  gap: 0.25rem;
 }
 
-/* The fold is drawn by the shared mechanism at the Hardware cards' 10px;
-   these corners are 12px, and a fold that is not the corner it sits in reads
-   as a misprint. */
-.desc-methods .hw-flip-front::after { border-top-right-radius: 12px; }
+/* The channel number, in the typeface's lightest weight so it reads as a
+   plate marking rather than as a heading competing with the method name. */
+.desc-methods .desc-method-name::before {
+  content: counter(desc-method, decimal-leading-zero);
+  margin-right: 0.6rem;
+  font-weight: 200;
+  color: var(--c-teal-deep);
+  opacity: 0.85;
+}
 
 .desc-methods .desc-method-name {
+  counter-increment: desc-method;
   font-family: "Changa", sans-serif;
-  font-size: 1.18rem;
-  line-height: 1.35;
-  color: #1f4a38;
-  margin-bottom: 0.5rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: var(--c-ink-2);
 }
 
-/* Overrides the open-card version of this class, which carried a bottom
-   margin it no longer needs now that it is the last thing on the face. */
-.desc-methods .hw-flip-front .desc-method-what {
+.desc-methods .desc-method-what {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--c-text-2);
+}
+
+/* The limitation, set off by a marker rather than by a box. */
+.desc-method-step dd {
+  position: relative;
+  margin: 0.55rem 0 0;
+  padding-left: 1.15rem;
+}
+
+.desc-method-step dd::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid var(--c-amber);
+}
+
+.desc-method-step dd p {
+  margin: 0;
   font-size: 0.92rem;
   line-height: 1.7;
-  color: #4a5a51;
-  margin: 0;
+  color: var(--c-text-2);
 }
 
-/* Back: the gap the method leaves. It keeps the amber that marked the gap
-   when these were open cards, but as the whole face rather than a panel
-   inside one -- a cream card holding an amber box reads as two cards, and
-   turning one over to find another is a card too many. */
-.desc-methods .hw-flip-back {
-  display: flex;
-  align-items: center;
-  background: #fff6e2;
-  border-color: #e8d3a4;
-  margin: 0;
+@media (max-width: 575.98px) {
+  .desc-methods { padding-left: 2rem; }
+  .desc-method-step::before { left: -2rem; }
 }
 
-/* The text is wrapped in a block of its own rather than left bare on the
-   face. A flex container makes an anonymous item out of every run of text
-   between its element children, so a sentence with two <sup> citations in it
-   comes out as five boxes side by side instead of one paragraph. One child,
-   one column. */
-.desc-methods .hw-flip-back > p {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: #6b4a1f;
-}
 
 /* ---- the selectivity table ---- */
 .desc-figure { margin: 1.75rem 0; }
@@ -1704,7 +1825,7 @@ body.team-bio-locked { overflow: hidden; }
   caption-side: bottom;
   padding-top: 0.75rem;
   font-size: 0.82rem;
-  color: #5f6e66;
+  color: var(--c-text-3);
   text-align: left;
   line-height: 1.6;
 }
@@ -1718,7 +1839,7 @@ body.team-bio-locked { overflow: hidden; }
 
 .desc-table thead th {
   font-family: "Changa", sans-serif;
-  color: #075a3e;
+  color: var(--c-ink-2);
   border-bottom: 2px solid #075a3e;
 }
 
@@ -1728,9 +1849,13 @@ body.team-bio-locked { overflow: hidden; }
 }
 
 /* ---- the two candidate routes ---- */
+/* Stacked, not side by side: the two systems are read one after the other
+   rather than compared column against column, and each gets the full measure
+   instead of a half-width column that was breaking its prose into very short
+   lines. */
 .desc-routes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  grid-template-columns: 1fr;
   gap: 1.25rem;
   margin-top: 1.5rem;
 }
@@ -1761,10 +1886,12 @@ body.team-bio-locked { overflow: hidden; }
   padding: 0.2rem 0.7rem;
 }
 
+/* Was a fixed dark green, which the dark-mode card repaint left at 1.3:1 --
+   invisible on its own panel. The token follows the theme. */
 .desc-route h3 {
   font-family: "Changa", sans-serif;
   font-size: 1.1rem;
-  color: #1f4a38;
+  color: var(--c-ink-2);
   margin: 0.35rem 0 0.75rem;
 }
 
@@ -1775,21 +1902,10 @@ body.team-bio-locked { overflow: hidden; }
 .desc-route-note {
   margin: 1rem 0 0;
   padding-top: 0.85rem;
-  border-top: 1px dashed #b9cdc3;
+  border-top: 1px dashed var(--c-line-2);
   font-size: 0.86rem;
-  color: #5d6d64;
+  color: var(--c-text-3);
 }
-
-/* ---- the hypothesis, marked as one ---- */
-.desc-hypothesis {
-  border: 2px dashed #d8b26a;
-  border-radius: 14px;
-  padding: 1.6rem 1.75rem;
-  background: #fffaf0;
-}
-
-.desc-hypothesis h2 { margin-top: 0; }
-.desc-hypothesis strong { color: #8a5a12; }
 
 /* ---- references ---- */
 .desc-refs ol { padding-left: 1.4rem; }
@@ -1797,7 +1913,7 @@ body.team-bio-locked { overflow: hidden; }
   margin-bottom: 0.85rem;
   line-height: 1.65;
   font-size: 0.92rem;
-  color: #3f4d45;
+  color: var(--c-text-2);
 }
 .desc-refs a { word-break: break-word; }
 
@@ -1808,7 +1924,14 @@ body.team-bio-locked { overflow: hidden; }
 .attr-ai a,
 .labbook .protocol-body a { color: #0a58ca; }
 
-.desc-refs-note { font-size: 0.88rem; color: #5f6e66; }
+/* That blue is picked for a light panel. All three of these panels go dark
+   with the theme, where it measures 2.5:1 -- so dark mode takes the system's
+   teal instead, which is 9.1:1 on the same ground. */
+html[data-theme="dark"] .desc a,
+html[data-theme="dark"] .attr-ai a,
+html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
+
+.desc-refs-note { font-size: 0.88rem; color: var(--c-text-3); }
 
 /* Anything still missing its source is flagged in the page itself, so it
    cannot quietly ship looking like a finished citation. */
@@ -1826,642 +1949,362 @@ body.team-bio-locked { overflow: hidden; }
 
 @media (max-width: 575.98px) {
   .desc-lead { padding-left: 1rem; }
-  .desc-hypothesis { padding: 1.2rem 1.1rem; }
   .desc-table { font-size: 0.86rem; }
   .desc-table th, .desc-table td { padding: 0.5rem 0.4rem; }
 }
 
-/* Engineering: one module rail, with the active DBTL cycle in place. */
-body.engineering-page {
-  --eng-ink: #193e34;
-  /* Accent (text, lines) and header colour for each stage. The page follows
-     the stage in progress; each stage section keeps its own. */
-  --eng-accent-design: #5d7d21; --eng-hero-design: #b4d96d;
-  --eng-accent-build: #307853;  --eng-hero-build: #7ed8a2;
-  --eng-accent-test: #266e6b;   --eng-hero-test: #70d3c8;
-  --eng-accent-learn: #385e6b;  --eng-hero-learn: #79c4df;
-  --eng-accent: var(--eng-accent-design);
-  --eng-paper: #fff;
-  --eng-surface: #f6f8f5;
-  --eng-line: #dce3dc;
-  --eng-hero: var(--eng-hero-design);
-  --eng-design: #a8d943;
-  --eng-build: #43ca85;
-  --eng-test: #32bfb5;
-  --eng-learn: #55afce;
-  background: var(--eng-paper);
-  color: var(--eng-ink);
+/* Engineering: the DBTL cycle on the left, the four stages beside it. */
+/* ---- the cycle ----
+   The four stage colours are the site's own lime-to-blue run (the same lime
+   and mint as the links and headings), so the ring sits in the palette rather
+   than on top of it. Each arrow runs from a deeper tail to a brighter head. */
+.eng-cycle { margin: 0; }
+.eng-cycle svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
-body.engineering-page[data-engineering-stage="build"] { --eng-accent: var(--eng-accent-build); --eng-hero: var(--eng-hero-build); }
-body.engineering-page[data-engineering-stage="test"] { --eng-accent: var(--eng-accent-test); --eng-hero: var(--eng-hero-test); }
-body.engineering-page[data-engineering-stage="learn"] { --eng-accent: var(--eng-accent-learn); --eng-hero: var(--eng-hero-learn); }
-/* Engineering navigation is one top-layer group: bar, logo, controls, mobile
-   panel and dropdowns enter and leave together above the hero. Only the
-   layering is engineering's own. The bar itself is the same frosted glass
-   every other light page has -- it used to be painted solid white here,
-   which made this the one page whose menu did not match the rest. */
-body.engineering-page .navbar {
-  z-index: 1100;
-  isolation: isolate;
+.eng-cycle-tail-design { stop-color: #6fb83a; }
+.eng-cycle-head-design { stop-color: #a0e860; }   /* --nx-lime */
+.eng-cycle-tail-build  { stop-color: #23955e; }
+.eng-cycle-head-build  { stop-color: #4fd48f; }
+.eng-cycle-tail-test   { stop-color: #23928a; }
+.eng-cycle-head-test   { stop-color: #49c5b6; }   /* --nx-mint */
+.eng-cycle-tail-learn  { stop-color: #1f6f9c; }   /* near --nx-blue */
+.eng-cycle-head-learn  { stop-color: #5bb6e6; }
+/* The stroke in the arrow's own paint rounds every corner of the shape. */
+.eng-cycle-arrow { stroke-width: 6; stroke-linejoin: round; }
+.eng-cycle-track {
+  fill: none;
+  stroke: rgba(73, 197, 182, 0.35);
+  stroke-width: 1.2;
+  stroke-dasharray: 1.5 7;
+  stroke-linecap: round;
 }
-body.engineering-page .navbar .container-fluid { position: relative; z-index: 1; }
-body.engineering-page .navbar-brand { z-index: 10; transform: translateY(4px); }
-/* No background of its own: on a desktop this is the row of menu items and
-   sits on the glass; on a phone it is the drop-down panel, which takes the
-   site's own panel colour like every other page. Painting it white here
-   left a white slab inside the glass on desktop. */
-body.engineering-page .navbar-collapse { z-index: 2; }
-body.engineering-page .navbar-toggler { z-index: 3; }
-body.engineering-page .navbar .dropdown-menu { z-index: 4; }
-body.engineering-page .navbar-nav .nav-link:hover,
-body.engineering-page .navbar-nav .nav-link:focus { color: #747b77; }
-/* One block of colour: the hero reaches up behind the navbar (the body's
-   104px top padding), so the two can never drift apart and flash white while
-   the navbar slides away. The navbar and its logo stay a separate layer above
-   it (rules just above). With the navbar out, the hero sticks 104px above the
-   viewport -- the strip that sat behind the navbar leaves with it and the
-   hero itself keeps its height. */
-.engineering-hero {
-  --eng-nav-space: 104px;
-  /* Two blank 16px lines kept above the label while the hero is stuck to the top. */
-  --eng-stuck-reserve: 32px;
-  position: sticky; top: 0; z-index: 1020; isolation: isolate; overflow: hidden;
-  margin-top: calc(-1 * var(--eng-nav-space)); padding: var(--eng-nav-space) 0 calc(.5rem + 16px);
-  background-color: var(--eng-paper);
-  /* Keep the strongest colour high in the header, then soften it over a
-     longer distance into the wide white area around the position line. */
-  background-image:
-    linear-gradient(180deg,
-      transparent calc(100% - 180px),
-      color-mix(in srgb, var(--eng-paper) 10%, transparent) calc(100% - 135px),
-      color-mix(in srgb, var(--eng-paper) 42%, transparent) calc(100% - 91px),
-      var(--eng-paper) calc(100% - 58px)),
-    radial-gradient(ellipse 440px 145px at max(2rem, calc(50% - 420px)) calc(100% - 38px),
-      color-mix(in srgb, var(--eng-paper) 96%, var(--eng-hero)) 0%,
-      color-mix(in srgb, var(--eng-paper) 88%, transparent) 25%,
-      color-mix(in srgb, var(--eng-paper) 42%, transparent) 55%,
-      transparent 100%),
-    radial-gradient(ellipse at 92% 0%,
-      color-mix(in srgb, var(--eng-hero) 72%, var(--eng-accent)) 0%,
-      transparent 72%),
-    linear-gradient(120deg,
-      color-mix(in srgb, var(--eng-hero) 74%, var(--eng-paper)) 0%,
-      var(--eng-hero) 46%,
-      color-mix(in srgb, var(--eng-hero) 84%, var(--eng-accent)) 100%);
-  transition: background-color .8s ease, top .3s ease;
+.eng-cycle-core { stroke: rgba(73, 197, 182, 0.22); stroke-width: 1; }
+.eng-cycle-core-in  { stop-color: #1c4352; stop-opacity: 0.9; }   /* --nx-raised */
+.eng-cycle-core-out { stop-color: #16323f; stop-opacity: 0.6; }   /* --nx-panel */
+/* Type sizes are in the drawing's units: the ring is drawn 400 across and
+   shown about half that, so these read at roughly half size on screen. */
+.eng-cycle-label {
+  font-family: "Changa", sans-serif;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  fill: #0e242e;          /* --nx-ground: dark type on the bright arrows */
 }
-body.engineering-page.navbar-hidden .engineering-hero { top: calc(var(--eng-stuck-reserve) - var(--eng-nav-space)); }
-.engineering-hero .container { position: relative; z-index: 0; }
-.engineering-stage-mark {
-  position: absolute; top: .95rem; right: 0; display: grid; place-items: center;
-  width: 90px; height: 56px; color: var(--eng-accent); pointer-events: none;
-  transition: color .6s ease;
+.eng-cycle-centre {
+  font-family: "Changa", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  fill: #f2f8fa;
 }
-.engineering-stage-mark svg { width: 56px; height: 56px; }
-.engineering-stage-mark-tint { fill: color-mix(in srgb, currentColor 13%, var(--eng-paper)); }
-.engineering-stage-mark-paper { fill: var(--eng-paper); }
-.engineering-stage-mark [data-stage-mark] { opacity: 0; transition: opacity .35s ease; }
-body.engineering-page:not([data-engineering-stage]) .engineering-stage-mark [data-stage-mark="design"],
-body.engineering-page[data-engineering-stage="design"] .engineering-stage-mark [data-stage-mark="design"],
-body.engineering-page[data-engineering-stage="build"] .engineering-stage-mark [data-stage-mark="build"],
-body.engineering-page[data-engineering-stage="test"] .engineering-stage-mark [data-stage-mark="test"],
-body.engineering-page[data-engineering-stage="learn"] .engineering-stage-mark [data-stage-mark="learn"] { opacity: 1; }
-.engineering-eyebrow { font-size: .63rem; font-weight: 700; letter-spacing: .16em; line-height: 1.6; }
-/* Engineering only: the desktop logo has two states, full size or gone with
-   the navbar -- it never shrinks on scroll. It is raised by 7/15 of its
-   artwork's height (the artwork is the middle 41.6% of the square image), so
-   it clears the hero's title instead of hanging over it. */
-@media (min-width: 992px) {
-  body.engineering-page .navbar-brand {
-    top: calc(clamp(-57px, calc(-0.212 * (100vw - 872px) - 1px), -30px) - 0.1941 * clamp(120px, calc(100vw - 872px), 250px));
-  }
-  body.engineering-page .navbar-brand img {
-    width: clamp(120px, calc(100vw - 872px), 250px);
-    height: clamp(120px, calc(100vw - 872px), 250px);
-  }
+.eng-cycle-kicker {
+  font-family: "Changa", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  fill: #49c5b6;
 }
-/* On desktop the full-size navbar logo hangs over the hero's label, so the
-   label shows only while the navbar (and its logo) is away. Its space is kept
-   so the hero does not jump. */
-.engineering-hero .engineering-eyebrow { font-size: .85rem; line-height: 1.2; transition: opacity .3s ease; }
-@media (min-width: 992px) {
-  body.engineering-page:not(.navbar-hidden) .engineering-hero .engineering-eyebrow { opacity: 0; }
+.eng-cycle-label { pointer-events: none; }
+/* Progress: engineering-cycle.js lengthens the mask over the lit copy of the
+   ring clockwise as the reader goes down the stages. Underneath, the arrows
+   wait dimmed; the one being read stands a little clearer, so a reader who
+   jumps to a stage sees where they are before the light reaches it. */
+.eng-cycle-lit { filter: drop-shadow(0 0 12px rgba(160, 232, 96, 0.3)); }
+.eng-cycle-base .eng-cycle-arrow { transition: opacity 0.4s ease; }
+.eng-cycle[data-active] .eng-cycle-base .eng-cycle-arrow { opacity: 0.24; }
+.eng-cycle[data-active] .eng-cycle-base [aria-current] .eng-cycle-arrow { opacity: 0.5; }
+.eng-cycle .eng-cycle-base .eng-cycle-link:hover .eng-cycle-arrow,
+.eng-cycle .eng-cycle-base .eng-cycle-link:focus-visible .eng-cycle-arrow { opacity: 0.75; }
+.eng-cycle-link { cursor: pointer; outline: none; text-decoration: none; }
+.eng-cycle-link:focus-visible .eng-cycle-arrow { stroke: #f2f8fa; }
+/* The bright point at the leading edge of the light. It waits, faint, at the
+   start until the reader sets off, and goes out once the loop is closed. */
+.eng-cycle-spark {
+  fill: #f2f8fa;
+  filter: drop-shadow(0 0 5px #a0e860) drop-shadow(0 0 12px rgba(160, 232, 96, 0.7));
+  opacity: 0.35;
+  transition: opacity 0.4s ease;
 }
-.engineering-hero h1 { max-width: 880px; margin: .2rem 0 .25rem; font-size: calc(clamp(2rem, 4.2vw, 3.6rem) - 4px); line-height: .95; letter-spacing: -.055em; font-weight: 600; color: var(--eng-ink); }
-.engineering-hero p { max-width: 680px; margin: 0; font-size: calc(.9rem + 6px); line-height: 1.25; }
-
-.engineering { --eng-rail-width: 240px; --eng-cycle-size: 240px; display: grid; grid-template-columns: var(--eng-rail-width) minmax(0, 1fr); gap: 48px; align-items: start; padding: 1.4rem 0 2.5rem; }
-.engineering-sidebar { min-width: 0; align-self: stretch; }
-.engineering-rail { position: relative; width: var(--eng-rail-width); background: transparent; transform-origin: top left; }
-.engineering-rail.is-floating { position: fixed; z-index: 1010; left: var(--eng-rail-left); top: var(--eng-rail-top); transform: scale(var(--eng-rail-fit, 1)); }
-.engineering-rail > .engineering-eyebrow { margin: 0 0 1.1rem; padding-left: calc(var(--eng-list-inset) + .1rem); text-align: left; color: #4a5a50; font-size: .7rem; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
-.engineering-modules, .engineering-iterations { list-style: none; padding: 0; margin: 0; }
-.engineering-module { position: relative; padding-bottom: 12px; }
-.engineering-module:last-child { padding-bottom: 0; }
-/* Modules not yet open sit closer together. */
-.engineering-module:not(.is-current) { padding-bottom: 2px; }
-.engineering-module:not(.is-current) .engineering-module-button { min-height: 24px; align-items: flex-start; padding-top: 4px; padding-bottom: 4px; }
-/* A pending module reads as waiting: lighter strokes and paler ink than the one
-   being read, which is named in the ring rather than in this list. Hover and
-   focus bring it back to full strength, so it is still easy to read to use. */
-.engineering-module:not(.is-current) .engineering-module-button { color: #8a948c; font-weight: 400; }
-.engineering-module:not(.is-current) .engineering-module-title { color: #9aa49d; font-weight: 400; }
-.engineering-module:not(.is-current) .engineering-rail-node { background: #c9d1cb; }
-.engineering-module:not(.is-current) .engineering-expand { color: #a7b0a9; }
-.engineering-module-button:focus-visible,
-.engineering-module-button:focus-visible .engineering-module-title { color: #4a5a50; }
-.engineering-module-button {
-  position: relative; display: flex; align-items: center; justify-content: flex-start; gap: .55rem;
-  min-height: 32px; width: 100%; border: 0; padding: 0 .25rem 0 calc(var(--eng-list-inset) + .1rem); background: transparent;
-  color: #737d75; text-align: left; font-size: .9rem; font-weight: 500; cursor: pointer;
-  border-radius: 7px; transition: background-color .25s ease;
-}
-.engineering-module-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1 1 auto; }
-.engineering-module-title {
-  display: block; font-size: .74rem; font-weight: 600; line-height: 1.3; color: #4a5a50;
-  letter-spacing: -.01em; text-wrap: pretty; transition: color .25s ease;
-}
-.engineering-module-title:empty { display: none; }
-/* The current module is named inside the ring, so its row stays a number. */
-.engineering-module.is-current .engineering-module-title { display: none; }
-/* The marker sits on the middle of the whole row, not on its first line. */
-.engineering-module:not(.is-current) .engineering-rail-node { align-self: center; }
-.engineering-module:not(.is-current) .engineering-expand { align-self: center; }
-.engineering-module-button[hidden], .engineering-iterations[hidden] { display: none; }
-.engineering-rail-node { flex: 0 0 5px; height: 5px; border-radius: 50%; background: #9ca89f; }
-.engineering-module-label, .engineering-iteration-label {
-  display: inline-block; transition: transform .25s ease, color .25s ease; transform-origin: center;
-}
-.engineering-expand { flex: 0 0 auto; font-size: .8rem; color: #869187; margin-left: .15rem; }
-.engineering-cycle-slot:empty { display: none; }
-.engineering-module:not(.is-current) .engineering-cycle-slot { display: none; }
-.engineering-cycle-slot:not(:empty) { padding-bottom: 2.8rem; }
-/* The rail reads from the left: the label, iterations and pending
-   modules all start on the page's left content edge (the safe zone). */
-.engineering-rail { --eng-list-inset: 0rem; }
-.engineering-iterations { padding: .15rem 0 .3rem 2ch; }
-.engineering-iteration-button {
-  display: flex; align-items: center; justify-content: flex-start; gap: .75rem;
-  width: 100%; min-height: 25px; padding: .2rem .1rem; border: 0; background: transparent;
-  color: #758077; text-align: left; font-size: calc(.64rem + 4px); cursor: pointer;
-}
-.engineering-iteration-button {
-  position: relative; border-radius: 0 7px 7px 0; transition: background-color .25s ease, color .25s ease;
-}
-.engineering-iteration-button::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 0;
-  background: var(--eng-accent); opacity: 0; transition: opacity .25s ease;
-}
-.engineering-iteration-button.is-current {
-  color: var(--eng-accent); font-weight: 800;
-  background: color-mix(in srgb, var(--eng-accent) 9%, #fff); padding-left: .55rem;
-}
-.engineering-iteration-button.is-current::before { opacity: 1; }
-.engineering-iteration-button.is-current .engineering-iteration-note { color: color-mix(in srgb, var(--eng-accent) 78%, #000); }
-.engineering-iteration-button.is-current .engineering-iteration-label { transform: scale(1.12); transform-origin: left center; }
-.engineering-iteration-button .engineering-iteration-label { flex: 0 0 auto; white-space: nowrap; }
-.engineering-iteration-note { display: block; min-width: 0; margin-top: 1px; font-size: .74rem; font-weight: 500; line-height: 1.3; color: #5d6c62; letter-spacing: .01em; }
-.engineering-iteration-note:empty { display: none; }
-.engineering-cycle { position: relative; width: var(--eng-cycle-size); aspect-ratio: 1; margin: 0 auto; --rotation: 0deg; }
-.engineering-ring { display: block; width: 100%; height: 100%; overflow: visible; transform: rotate(var(--rotation)) scale(.94); transition: transform .5s cubic-bezier(.3,.05,.2,1); }
-.engineering-ring-track { fill: none; stroke: var(--eng-line); stroke-width: 1; }
-.engineering-arc {
-  stroke: none; pointer-events: visiblePainted; cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: filter .35s ease, fill .35s ease;
-}
-.engineering-arc:focus { outline: none; }
-.engineering-arc:focus-visible:not(.is-current) { filter: brightness(1.15); }
-.engineering-toc-cycle .engineering-arc { pointer-events: none; cursor: default; }
-.engineering-arc { fill: var(--arc-colour); }
-.engineering-arc[data-stage="design"] { --arc-colour: var(--eng-design); }
-.engineering-arc[data-stage="build"] { --arc-colour: var(--eng-build); }
-.engineering-arc[data-stage="test"] { --arc-colour: var(--eng-test); }
-.engineering-arc[data-stage="learn"] { --arc-colour: var(--eng-learn); }
-/* Only the stage in progress is lit; the others fade to grey but keep a
-   trace of their own colour so the four stages stay recognisable. */
-.engineering-arc:not(.is-current) { fill: color-mix(in srgb, color-mix(in srgb, var(--arc-colour) 38%, #c9cecb) 78%, #000); }
-/* The arc in progress glows in its own colour: a tight bright halo plus a
-   wide soft one that breathes slowly. */
-.engineering-arc.is-current {
-  --arc-glow: color-mix(in srgb, var(--arc-colour) 85%, #fff);
-  filter: saturate(1.05) brightness(1.08) drop-shadow(0 0 5px var(--arc-glow)) drop-shadow(0 0 16px color-mix(in srgb, var(--arc-glow) 70%, transparent));
-  animation: engineering-arc-glow 2.8s ease-in-out infinite;
-}
-@keyframes engineering-arc-glow {
-  50% { filter: saturate(1.1) brightness(1.1) drop-shadow(0 0 7px var(--arc-glow)) drop-shadow(0 0 26px color-mix(in srgb, var(--arc-glow) 85%, transparent)); }
-}
-@media (prefers-reduced-motion: reduce) { .engineering-arc.is-current { animation: none; } }
-.engineering-stage-tabs { position: absolute; inset: 0; pointer-events: none; user-select: none; transform: scale(.94); }
-.engineering-stage-tab {
-  --bearing: 0deg; position: absolute; left: 50%; top: 50%; width: 28%; height: 18%;
-  border: 0; border-radius: 999px; padding: 0; background: transparent; color: #123b31;
-  font-size: calc(var(--eng-cycle-size) * .0367); font-weight: 700; pointer-events: none; opacity: 1;
-  transform: translate(-50%, -50%) rotate(calc(var(--bearing) + var(--rotation))) translateY(-216.6667%) rotate(calc(-1 * (var(--bearing) + var(--rotation))));
-  transition: transform .5s cubic-bezier(.3,.05,.2,1);
-}
-.engineering-stage-tab[data-stage="build"] { --bearing: 90deg; }
-.engineering-stage-tab[data-stage="test"] { --bearing: 180deg; }
-.engineering-stage-tab[data-stage="learn"] { --bearing: 270deg; }
-.engineering-stage-tab span { display: inline-block; transition: transform .25s ease; }
-.engineering-stage-tab.is-current span { font-weight: 800; font-size: calc(1.45em + 3px); }
-/* Keep the module name centred in the ring. The iteration pager and count
-   keep their order but sit immediately below it, outside the circular arcs. */
-.engineering-cycle-center {
-  position: absolute; inset: 0; display: block; text-align: center; pointer-events: none;
-}
-.engineering-cycle-center h2 {
-  position: absolute; top: 50%; left: 23%; width: 54%; transform: translateY(-50%);
-  margin: 0; line-height: 1.1;
-}
-#engineering-module-title {
-  color: var(--eng-ink); font-size: calc(var(--eng-cycle-size) * .0696); font-weight: 800; letter-spacing: -.04em; line-height: 1.12;
-  text-wrap: balance; overflow-wrap: break-word; transition: color .4s ease;
-}
-.engineering-iteration-pager { position: absolute; top: calc(100% + .48rem); left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; pointer-events: auto; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0503); font-weight: 700; color: color-mix(in srgb, var(--eng-accent) 72%, #fff); }
-.engineering-iteration-pager button { display: grid; place-items: center; flex: 0 0 18px; width: 18px; height: 22px; padding: 0; border: 0; background: transparent; color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .037); border-radius: 50%; cursor: pointer; }
-.engineering-iteration-pager button:hover:not(:disabled) { background: var(--eng-surface); }
-.engineering-iteration-pager button:disabled { color: #a5afa8; cursor: default; }
-#engineering-iteration-title, .engineering-toc-iteration-title { white-space: nowrap; display: inline-block; transition: transform .25s ease; }
-/* The small fixed Cycle button has no room below its clipped circular icon,
-   so its miniature keeps the pager and count inside the ring. */
-.engineering-toc-cycle .engineering-cycle-center { top: 23%; left: 23%; right: auto; bottom: auto; width: 54%; height: 54%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
-.engineering-toc-cycle .engineering-cycle-center h2 { top: 50%; left: 0; width: 100%; margin: 0; padding-bottom: 0; }
-.engineering-toc-cycle .engineering-iteration-pager { position: static; transform: none; }
-.engineering-toc-module-title {
-  color: var(--eng-accent); font-size: calc(var(--eng-cycle-size) * .0613); font-weight: 800;
-  letter-spacing: -.04em; line-height: 1.12; text-wrap: balance; overflow-wrap: break-word;
-}
-.engineering-iteration-count { position: absolute; top: calc(100% + 1.86rem); left: 50%; transform: translateX(-50%); display: block; white-space: nowrap; font-size: calc(var(--eng-cycle-size) * .0413); line-height: 1.5; letter-spacing: .08em; color: #6b7b70; }
-.engineering-toc-cycle .engineering-iteration-count { position: static; transform: none; }
-
-.engineering-workspace {
-  /* Resolve the live colour here, above each record's own stage accent. */
-  --eng-live-accent: var(--eng-accent);
-  --eng-reading-width: 74ch;
-  position: relative; min-width: 0; padding-top: .1rem;
-}
-.engineering-workspace .engineering-eyebrow { white-space: nowrap; }
-.engineering-context { font-size: clamp(1.65rem, 2.6vw, 2.6rem); font-weight: 600; letter-spacing: -.045em; margin: .45rem 0 .5rem; line-height: 1.12; text-wrap: balance; }
-/* The module's question, then which iteration is on the page. */
-.engineering-question { max-width: 60ch; margin: 0 0 .6rem; font-size: 1.02rem; line-height: 1.5; color: #4a5a50; text-wrap: pretty; }
-.engineering-iteration-line { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; margin: 0 0 1.35rem; font-size: .84rem; font-weight: 600; color: #5d6c62; }
-.engineering-status {
-  padding: .12rem .55rem; border-radius: 999px; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-  background: color-mix(in srgb, var(--eng-accent) 14%, #fff); color: var(--eng-accent); border: 1px solid color-mix(in srgb, var(--eng-accent) 34%, #fff);
-}
-.engineering-status[data-status="pending"] { background: #f1f3f1; color: #6b7b70; border-color: #dbe0dc; }
-/* The approach this iteration tried, and what it set out to measure. */
-.engineering-approach { max-width: 62ch; margin: -.85rem 0 1.35rem; font-size: .92rem; line-height: 1.55; color: #4a5a50; text-wrap: pretty; }
-.engineering-approach-name { font-weight: 700; color: var(--eng-accent); }
-.engineering-approach-name::after { content: " — "; color: #97a49b; font-weight: 400; }
-/* A figure carries its own evidence; while the image is still missing the slot
-   says so rather than leaving a gap that could read as a result. */
-.engineering-figure { margin: 1.15rem 0 0; }
-.engineering-record--wrapped-figure > .engineering-figure:not([hidden]) { float: right; width: clamp(220px, 32%, 300px); margin: .1rem 0 1rem 1.5rem; }
-.engineering-record--wrapped-figure::after { content: ""; display: table; clear: both; }
-.engineering-figure a { display: block; }
-.engineering-figure a:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; border-radius: 10px; }
-.engineering-figure img { display: block; width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--eng-line); }
-.engineering-figure-missing {
-  margin: 0; padding: 1.1rem 1rem; border: 1px dashed color-mix(in srgb, var(--eng-accent) 40%, #cfd8d2); border-radius: 10px;
-  background: color-mix(in srgb, var(--eng-accent) 5%, #fff); color: #6b7b70; font-size: .84rem; text-align: center;
-}
-.engineering-figure figcaption { margin-top: .5rem; font-size: .86rem; line-height: 1.55; color: #4a5a50; }
-@media (max-width: 767px) { .engineering-record--wrapped-figure > .engineering-figure:not([hidden]) { float: none; width: min(100%, 340px); margin: .25rem 0 1rem; } }
-.engineering-figure-label { font-weight: 800; color: var(--eng-accent); letter-spacing: .04em; }
-.engineering-attachment-gallery[hidden] { display: none; }
-.engineering-gallery-title { margin: 1.4rem 0 .65rem; color: #4a5a50; font-size: 1rem; font-weight: 700; }
-.engineering-gallery-note { margin: 0 0 .9rem; color: #5d6c62; font-size: .84rem; line-height: 1.5; }
-.engineering-figure-gallery-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.engineering-figure-gallery-grid.is-single { grid-template-columns: minmax(0, 1fr); }
-.engineering-figure-gallery-grid.is-uniform-photos { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; }
-.engineering-gallery-item { min-width: 0; margin: 0; }
-.engineering-gallery-item a { display: block; overflow: hidden; border: 1px solid var(--eng-line); border-radius: 8px; background: #f5f7f6; }
-.engineering-gallery-item a:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-gallery-item img { display: block; width: 100%; height: auto; }
-.engineering-figure-gallery-grid.is-uniform-photos img { aspect-ratio: 4 / 3; height: auto; object-fit: cover; }
-.engineering-figure-gallery-grid.is-streak img { aspect-ratio: 1 / 1; object-fit: contain; background: #080f2a; }
-.engineering-figure-gallery-grid.is-uniform-photos .engineering-gallery-item figcaption { font-size: .78rem; }
-.engineering-figure-gallery-grid.is-uniform-photos .engineering-figure-label { display: block; margin-bottom: .16rem; }
-.engineering-gallery-item figcaption { margin-top: .4rem; color: #4a5a50; font-size: .82rem; line-height: 1.45; }
-@media (max-width: 767px) { .engineering-figure-gallery-grid { grid-template-columns: 1fr; } .engineering-figure-gallery-grid.is-uniform-photos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.engineering-carousel { min-width: 0; outline-offset: 5px; }
-.engineering-carousel:focus-visible { outline: 2px solid var(--eng-accent); }
-.engineering-carousel-stage { position: relative; height: clamp(345px, 43vw, 470px); overflow: hidden; touch-action: pan-y; }
-.engineering-carousel-card {
-  position: absolute; top: 7%; left: 50%; display: block; width: 62%; height: 86%; padding: 0; border: 0;
-  background: transparent; cursor: pointer; transform: translateX(-50%) scale(.82); opacity: 0;
-  transition: left .38s cubic-bezier(.22,.8,.25,1), transform .38s cubic-bezier(.22,.8,.25,1), opacity .38s ease, filter .38s ease;
-}
-.engineering-carousel-card[hidden] { display: none; }
-.engineering-carousel-card.is-previous { left: 23%; z-index: 1; opacity: .72; filter: saturate(.65); }
-.engineering-carousel-card.is-current { left: 50%; z-index: 3; transform: translateX(-50%) scale(1); opacity: 1; }
-.engineering-carousel-card.is-next { left: 77%; z-index: 1; opacity: .72; filter: saturate(.65); }
-.engineering-carousel-card:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-carousel-paper {
-  display: flex; flex-direction: column; width: 100%; height: 100%; padding: .5rem; border: 1px solid var(--eng-line); border-radius: 10px;
-  background: #fff; box-shadow: 0 12px 28px rgba(22, 42, 32, .13); overflow: hidden;
-}
-.engineering-carousel-card.is-current .engineering-carousel-paper { box-shadow: 0 18px 36px rgba(22, 42, 32, .2); }
-.engineering-carousel-paper img { display: block; width: 100%; flex: 1 1 auto; min-height: 0; object-fit: contain; }
-.engineering-carousel-card-caption { display: flex; flex-direction: column; flex: 0 0 auto; gap: .2rem; min-height: 5.5rem; padding: .75rem .75rem .35rem; border-top: 1px solid var(--eng-line); text-align: left; }
-.engineering-carousel-card-label { color: var(--eng-accent); font-size: .88rem; font-weight: 800; line-height: 1.35; }
-.engineering-carousel-card-description { color: #4a5a50; font-size: .81rem; font-weight: 400; line-height: 1.42; }
-.engineering-carousel-arrow {
-  position: absolute; top: 50%; z-index: 4; display: grid; place-items: center; width: 2.3rem; height: 2.3rem;
-  padding: 0; border: 1px solid var(--eng-line); border-radius: 50%; background: #fff; color: var(--eng-accent);
-  box-shadow: 0 4px 12px rgba(22, 42, 32, .14); font-size: 1.7rem; line-height: 1; cursor: pointer; transform: translateY(-50%);
-}
-.engineering-carousel-arrow.is-previous { left: .15rem; }
-.engineering-carousel-arrow.is-next { right: .15rem; }
-.engineering-carousel-arrow:focus-visible,
-.engineering-gallery-viewer button:focus-visible { outline: 3px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-carousel-count { margin: .15rem 0 .3rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 800; letter-spacing: .16em; }
-.engineering-gallery-viewer {
-  width: min(1080px, calc(100vw - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; padding: 1rem;
-  border: 1px solid var(--eng-line); border-radius: 18px; background: #fff; color: var(--eng-ink);
-  box-shadow: 0 24px 70px rgba(13, 30, 20, .35);
-}
-.engineering-gallery-viewer::backdrop { background: rgba(14, 29, 22, .72); }
-.engineering-gallery-viewer-close { display: block; margin: 0 0 .25rem auto; padding: 0 .3rem; border: 0; background: transparent; color: var(--eng-ink); font-size: 1.8rem; line-height: 1; cursor: pointer; }
-.engineering-gallery-viewer-body { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem; align-items: center; gap: .4rem; touch-action: pan-y; }
-.engineering-gallery-viewer-body img { display: block; width: 100%; height: min(70dvh, 700px); object-fit: contain; }
-.engineering-gallery-viewer-arrow { width: 2.4rem; height: 2.4rem; padding: 0; border: 1px solid var(--eng-line); border-radius: 50%; background: #fff; color: var(--eng-accent); font-size: 1.7rem; line-height: 1; cursor: pointer; }
-.engineering-gallery-viewer-count { display: block; margin: .35rem 0 .25rem; text-align: center; color: var(--eng-accent); font-size: .78rem; font-weight: 800; letter-spacing: .14em; }
-.engineering-gallery-viewer-caption { margin: 0; text-align: center; font-size: .9rem; line-height: 1.5; }
-@media (max-width: 575.98px) {
-  .engineering-carousel-stage { height: 365px; }
-  .engineering-carousel-card { width: 77%; }
-  .engineering-carousel-card-caption { min-height: 7.25rem; padding: .55rem .45rem .2rem; }
-  .engineering-carousel-card-label { font-size: .78rem; }
-  .engineering-carousel-card-description { font-size: .72rem; line-height: 1.35; }
-  .engineering-carousel-card.is-previous { left: 18%; }
-  .engineering-carousel-card.is-next { left: 82%; }
-  .engineering-gallery-viewer { padding: .7rem; }
-  .engineering-gallery-viewer-body { grid-template-columns: 1.7rem minmax(0, 1fr) 1.7rem; gap: .2rem; }
-  .engineering-gallery-viewer-arrow { width: 1.7rem; height: 1.7rem; }
-}
+.eng-cycle.is-started .eng-cycle-spark { opacity: 1; }
+.eng-cycle.is-complete .eng-cycle-spark { opacity: 0; }
+/* Dark type reads on a lit arrow; on a dim one it would sink, so it stays
+   light until the sweep has passed under it. */
+.eng-cycle-label { transition: fill 0.4s ease; }
+.eng-cycle[data-active] .eng-cycle-label { fill: #b6ccd4; }
+.eng-cycle[data-active] .eng-cycle-label.is-lit { fill: #0e242e; }
 @media (prefers-reduced-motion: reduce) {
-  .engineering-carousel-card { transition: none; }
+  .eng-cycle .eng-cycle-arrow, .eng-cycle .eng-cycle-label, .eng-cycle .eng-cycle-spark { transition: none; }
 }
-.engineering-record { position: relative; z-index: 1; min-width: 0; background: #fff; padding: .75rem 0 0; }
-.engineering-record h3 { color: var(--eng-accent); font-size: 2.8rem; font-weight: 600; letter-spacing: -.055em; margin: .25rem 0 .7rem; line-height: 1.05; text-wrap: balance; transition: color .6s ease; }
-.engineering-record-title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 3.5rem; margin: .2rem 0 .8rem; }
-.engineering-record-title-row h3 { display: flex; align-items: center; gap: .65rem; margin: 0; }
-.engineering-record-title-row h3::before {
-  content: ""; flex: 0 0 .5rem; width: .5rem; height: .5rem; border-radius: 2px;
-  border: 1px solid color-mix(in srgb, var(--eng-live-accent) 45%, var(--eng-paper));
-  background: color-mix(in srgb, var(--eng-live-accent) 10%, var(--eng-paper));
-  transform: rotate(45deg); transition: border-color .6s ease, background-color .6s ease;
-}
-.engineering-record.is-current .engineering-record-title-row h3::before { border-color: var(--eng-live-accent); background: var(--eng-live-accent); }
-/* The two illustrations belong to the sheet's Design and Test heading rows,
-   so they scroll and turn with the page. */
-.engineering-lab-slot { display: block; flex: 0 0 auto; width: 90px; height: 48px; pointer-events: none; }
-.engineering-science-sketch {
-  display: block; width: 100%; height: 100%;
-  color: color-mix(in srgb, var(--eng-live-accent) 65%, var(--eng-paper));
-  pointer-events: none; user-select: none; transition: color .6s ease;
-}
-.engineering-record.is-current .engineering-science-sketch { color: color-mix(in srgb, var(--eng-live-accent) 80%, var(--eng-paper)); }
-.engineering-sketch-detail { stroke-width: 1.55; }
-.engineering-record h4 { font-size: 1.1rem; font-weight: 700; line-height: 1.3; margin: 0 0 .5rem; color: var(--eng-ink); text-wrap: balance; }
-.engineering-record > p[data-field="description"],
-.engineering-record-detail p,
-.engineering-takeaway p { font-size: .96rem; line-height: 1.62; margin: 0; color: #46594d; text-wrap: pretty; orphans: 2; widows: 2; }
-.engineering-record > p[data-field="description"],
-.engineering-record-detail,
-.engineering-takeaway { max-width: var(--eng-reading-width); }
-.engineering-record--wrapped-figure > p[data-field="description"],
-.engineering-record--wrapped-figure .engineering-record-detail,
-.engineering-record--wrapped-figure .engineering-takeaway { max-width: none; }
-/* Pull-to-turn cue under the page nav: a line of text and a bar that fills
-   as the reader keeps scrolling at the foot of the page. */
-.engineering-flip-cue {
-  display: flex; flex-direction: column; align-items: center; gap: .4rem; margin-top: 1.1rem;
-  font-size: .72rem; letter-spacing: .04em; color: var(--eng-accent);
-  opacity: 0; transform: translateY(6px); transition: opacity .3s ease, transform .3s ease; pointer-events: none;
-}
-.engineering-flip-cue.is-ready { opacity: .75; transform: none; }
-.engineering-flip-cue.is-pulling { opacity: 1; }
-.engineering-flip-cue-bar { width: 160px; height: 3px; border-radius: 3px; background: var(--eng-line); overflow: hidden; }
-.engineering-flip-cue-bar i { display: block; height: 100%; width: calc(var(--flip-progress, 0) * 100%); background: var(--eng-accent); }
-/* The backward cue sits in the gap that opens above the sheet as it is
-   pulled down, and only shows while pulling. */
-.engineering-flip-cue.is-top { position: relative; height: 0; margin: 0; overflow: visible; z-index: 0; }
-.engineering-flip-cue.is-top .engineering-flip-cue-text { position: absolute; top: .9rem; left: 0; right: 0; text-align: center; }
-.engineering-flip-cue.is-top .engineering-flip-cue-bar { position: absolute; top: 2.3rem; left: calc(50% - 80px); }
-.engineering-flip-cue.is-top.is-pulling { opacity: 1; transform: none; }
-/* The page-turn tilts the sheet in 3D, which makes its far edge reach past the
-   column. Clipping sideways keeps that inside the notebook column instead of
-   widening the page; overflow-x: clip leaves vertical overflow alone, so the
-   sticky header and the flip cues still work. */
-.engineering-workspace { overflow-x: clip; }
-.engineering-sheet { will-change: transform; }
-/* While a page turns it reads as a sheet of paper, so its shadow has an edge. */
-.engineering-sheet.is-turning { background: #fff; border-radius: 14px; }
-.engineering-record[data-stage="design"] { --eng-accent: var(--eng-accent-design); }
-.engineering-record[data-stage="build"] { --eng-accent: var(--eng-accent-build); }
-.engineering-record[data-stage="test"] { --eng-accent: var(--eng-accent-test); }
-.engineering-record[data-stage="learn"] { --eng-accent: var(--eng-accent-learn); }
-.engineering-record + .engineering-record { margin-top: clamp(2.25rem, 3vw, 2.75rem); }
-.engineering-record-detail { margin-top: 1.25rem; }
-.engineering-record-detail p, .engineering-takeaway p { margin-top: .4rem; }
-.engineering-takeaway { padding-left: .9rem; border-left: 3px solid var(--eng-accent); margin-top: 1.3rem; }
-.engineering-requests { margin-top: 2.5rem; padding: 1.35rem 1.5rem; border: 1px solid var(--eng-line); border-radius: 14px; background: #f6f8f6; color: #4a5a50; }
-.engineering-requests-heading .engineering-eyebrow { color: #6b7b70; }
-.engineering-requests h3 { margin: .35rem 0 .35rem; font-size: 1.3rem; font-weight: 700; color: var(--eng-ink); }
-.engineering-requests-heading p { margin: 0; font-size: .85rem; line-height: 1.5; }
-.engineering-requests ul { display: grid; gap: .85rem; margin: 1.15rem 0 0; padding: 0; list-style: none; }
-.engineering-requests li { display: grid; grid-template-columns: 1rem minmax(0, 1fr); align-items: start; column-gap: .7rem; font-size: .84rem; line-height: 1.55; }
-.engineering-requests li strong { font-weight: 700; }
-.engineering-request-box { display: block; width: .9rem; height: .9rem; margin-top: .2rem; border: 1.5px solid #8d9d91; border-radius: 3px; background: #fff; }
-.engineering-request-attachment .engineering-request-box { border-color: var(--eng-accent); }
-.engineering-page-nav {
-  display: grid; grid-template-columns: .82fr 1.14fr 1.14fr .82fr; align-items: center; gap: .55rem;
-  margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--eng-line);
-}
-.engineering-page-nav button {
-  display: flex; align-items: center; justify-content: center; gap: .35rem; width: 100%;
-  border: 1px solid color-mix(in srgb, var(--eng-accent) 42%, #fff); border-radius: 999px;
-  background: color-mix(in srgb, var(--eng-hero) 18%, #fff); color: var(--eng-accent);
-  font-size: clamp(.56rem, .72vw, .72rem); font-weight: 700; line-height: 1.15; text-align: center;
-  transition: transform .2s ease, color .2s ease, background-color .2s ease, border-color .2s ease;
-}
-.engineering-page-nav-edge { min-height: 38px; padding: .5rem .55rem; }
-.engineering-page-nav-main { min-height: 50px; padding: .65rem .75rem; font-size: clamp(.62rem, .82vw, .8rem) !important; }
-.engineering-page-nav button:hover:not(:disabled),
-.engineering-page-nav button:focus-visible { transform: translateY(-2px); background: var(--eng-accent); border-color: var(--eng-accent); color: #fff; }
-.engineering-page-nav button:disabled { filter: grayscale(.65); opacity: .38; cursor: default; }
-.engineering-page-nav button span { flex: 0 0 auto; font-size: 1.25em; }
-/* While a page turn builds, the button it will land on fills in step with
-   the cue: forward buttons from the left, back buttons from the right, the
-   way their arrows point. */
-.engineering-page-nav button { position: relative; overflow: hidden; isolation: isolate; }
-.engineering-page-nav button::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: color-mix(in srgb, var(--eng-hero) 62%, #fff);
-  transform: scaleX(var(--pull-progress, 0)); transform-origin: left center;
-}
-#engineering-previous-module::before, #engineering-last-iteration::before { transform-origin: right center; }
-.engineering-page-nav button.is-charging { border-color: var(--eng-accent); }
-.engineering button:focus-visible, .engineering-record:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 4px; }
-.engineering-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.engineering-noscript { margin-top: 2rem; font-size: .85rem; }
 
-/* Hover enlarges only the label under the pointer, never the whole rail. */
-@media (hover: hover) and (pointer: fine) {
-  .engineering-module-button:hover { background: color-mix(in srgb, var(--eng-accent) 7%, #fff); }
-  .engineering-module-button:hover .engineering-module-label { color: var(--eng-accent); }
-  .engineering-module-button:hover .engineering-module-title { color: var(--eng-accent); }
-  .engineering-iteration-button:hover .engineering-iteration-label { transform: scale(1.16); transform-origin: left center; color: var(--eng-accent); }
-  #engineering-iteration-title:hover { transform: scale(1.12); }
+/* ---- the DBTL layout: the cycle on the left, the four stages on the right ----
+   The cycle takes the place of the other .hw pages' "On this page" list,
+   out to the left of the text, so the page is widened by the cycle's column
+   and the text keeps the same 58rem measure as theirs. */
+.hw.eng { max-width: 73.5rem; }
+.eng-dbtl {
+  display: grid;
+  grid-template-columns: minmax(0, 12.5rem) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+  margin-top: 1rem;
 }
-.engineering-module-button:focus-visible .engineering-module-label,
-.engineering-iteration-button:focus-visible .engineering-iteration-label { transform: scale(1.12); color: var(--eng-accent); }
-@media (min-width: 1400px) {
-  .engineering { --eng-cycle-size: 240px; gap: 64px; }
+.eng-dbtl-rail {
+  position: sticky;
+  top: calc(50vh - 6.25rem);
 }
+.eng-dbtl-stage {
+  --stage: #a0e860;
+  scroll-margin-top: 110px;
+  margin-bottom: 4.5rem;
+}
+/* Room enough under the last stage for every stage, the last one included,
+   to scroll up to where the cycle picks it up -- otherwise the page bottoms
+   out with Test still at the top of the screen. */
+.eng-dbtl-stage:last-child { min-height: calc(100vh - 140px); margin-bottom: 0; }
+.eng-dbtl-stage[data-stage="build"] { --stage: #4fd48f; }
+.eng-dbtl-stage[data-stage="test"]  { --stage: #49c5b6; }
+.eng-dbtl-stage[data-stage="learn"] { --stage: #5bb6e6; }
+.eng-dbtl-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  align-items: baseline;
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #24596b;   /* --nx-line */
+}
+.eng-dbtl-num {
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--stage);
+  opacity: 0.8;
+}
+body.hw-nexus .hw .eng-dbtl-head h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--stage);
+}
+.eng-dbtl-note {
+  grid-column: 2;
+  margin: 0.2rem 0 0;
+  font-size: 0.98rem;
+}
+body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
+/* Where the stage's content will go: an empty frame in the stage's colour,
+   so the layout can be judged before the text arrives. */
+.eng-dbtl-empty {
+  min-height: 46vh;
+  border: 1.5px dashed color-mix(in srgb, var(--stage) 38%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--stage) 5%, transparent);
+}
+
+/* Narrow screens: no room for a column beside the text, so a small cycle
+   floats in the bottom-left corner instead (the back-to-top button has the
+   right), turning the same way. engineering-cycle.js shows it only while the
+   stages are on screen; without the script it simply stays. */
 @media (max-width: 991.98px) {
-  .engineering { --eng-rail-width: 204px; --eng-cycle-size: 204px; gap: 30px; }
-}
-@media (max-width: 767.98px) {
-  .engineering-hero { padding: var(--eng-nav-space) 0 calc(1.2rem + 16px); }
-  .engineering-hero h1 { font-size: calc(clamp(1.55rem, 6vw, 2.4rem) - 4px); }
-  .engineering-hero p { font-size: calc(.75rem + 6px); }
-  .engineering { --eng-rail-width: 200px; --eng-cycle-size: 200px; gap: 18px; padding-top: 1rem; }
-  .engineering-workspace { padding-top: 0; }
-  .engineering-context { margin-bottom: .6rem; }
-  .engineering-record h3 { font-size: 2.4rem; }
-  .engineering-record-title-row { min-height: 2.7rem; gap: .75rem; }
-  .engineering-lab-slot { width: 64px; height: 38px; }
-}
-/* Cycle button and scrim: only used when the screen is too narrow for the
-   rail and the notebook side by side (below). The button is a small copy of
-   the DBTL ring, drawn and turned by the same rules as the big one. */
-.engineering-toc-button {
-  --eng-toc-size: 104px; --eng-toc-source: 240px;
-  display: none; position: fixed; left: 12px; bottom: 12px; z-index: 1107;
-  place-items: center; width: var(--eng-toc-size); height: var(--eng-toc-size); padding: 0; border: 0; border-radius: 50%;
-  background: #fff; box-shadow: 0 8px 22px rgba(0, 0, 0, .22); cursor: pointer;
-}
-/* The miniature is the cycle at its full-screen size, scaled as one piece, so
-   every proportion inside it matches the wide-screen ring exactly. */
-.engineering-toc-stage {
-  display: block; width: var(--eng-toc-size); height: var(--eng-toc-size); overflow: hidden;
-}
-.engineering-toc-cycle {
-  --eng-cycle-size: var(--eng-toc-source);
-  transform: scale(calc(var(--eng-toc-size) / var(--eng-toc-source)));
-  transform-origin: top left; pointer-events: none;
-}
-/* A close mark takes over the middle of the miniature while the card is open. */
-.engineering-toc-mark {
-  position: absolute; inset: 0; display: none; place-items: center; border-radius: 50%;
-  background: #fffffff2; color: var(--eng-accent);
-}
-.engineering-toc-mark svg { display: block; width: 26px; height: 26px; }
-body.engineering-toc-open .engineering-toc-mark { display: grid; }
-.engineering-toc-button:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 3px; }
-.engineering-toc-scrim {
-  position: fixed; inset: 0; z-index: 1105;
-  background: linear-gradient(180deg, rgba(44, 48, 46, .42) 0%, rgba(12, 14, 13, .64) 100%);
-  opacity: 0; visibility: hidden; transition: opacity .22s ease, visibility 0s linear .22s;
-}
-body.engineering-toc-open .engineering-toc-scrim { opacity: 1; visibility: visible; transition: opacity .22s ease; }
-@media (max-width: 575.98px) {
-  .engineering { grid-template-columns: minmax(0, 1fr); --eng-cycle-size: 200px; }
-  /* Too narrow for both columns: the rail leaves the page and opens as a
-     card from the bottom-left Cycle button, over the scrim. */
-  .engineering-sidebar {
-    position: fixed; left: 12px; bottom: 126px; z-index: 1106;
-    width: min(300px, calc(100vw - 24px)); max-height: calc(100vh - 208px); overflow-y: auto; overscroll-behavior: contain;
-    padding: 16px 14px; background: #fff; border-radius: 18px; box-shadow: 0 18px 50px rgba(0, 0, 0, .28);
-    opacity: 0; visibility: hidden; transform: translateY(12px) scale(.98); transform-origin: bottom left;
-    transition: opacity .22s ease, transform .22s ease, visibility 0s linear .22s;
+  .eng-dbtl { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .eng-dbtl-rail {
+    position: fixed;
+    top: auto;
+    left: 12px;
+    bottom: 12px;
+    z-index: 1010;
+    width: 104px;
+    padding: 5px;
+    border-radius: 50%;
+    background: rgba(14, 36, 46, 0.86);   /* --nx-ground */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
   }
-  body.engineering-toc-open .engineering-sidebar { opacity: 1; visibility: visible; transform: none; transition: opacity .22s ease, transform .22s ease; }
-  .engineering-sidebar .engineering-rail { width: 100%; }
-  .engineering-toc-button { display: grid; }
+  .eng-dbtl-rail.is-tracked:not(.is-in-view) {
+    opacity: 0;
+    transform: translateY(16px) scale(0.92);
+    pointer-events: none;
+  }
+  .eng-dbtl-stage:last-child { min-height: calc(100vh - 140px); }
+  .eng-dbtl-empty { min-height: 38vh; }
 }
-/* Engineering: the footer is the site's own, at its usual size, on every
-   page. It used to be cut to half height and hidden on all but a module's
-   last iteration, so that reading on at the foot of the page would turn
-   straight to the next one. That made the licence notice and the repository
-   link -- required on every page -- come and go, and the page strip in the
-   hero (below) now turns pages from anywhere, so neither is needed. */
 
-/* ---- the page strip, in the sticky hero ----
-   One numbered button per iteration, grouped under its module, with a step
-   either side. The hero is sticky, so this row is always on screen. */
-.engineering-pages {
-  display: flex; align-items: center; gap: .4rem;
-  margin-top: .6rem;
+/* Attributions: the thank-you that opens the page. A step above body size,
+   because it is addressed to people rather than describing the project. No
+   measure cap: it runs the full width of the container, as the 2019 page's
+   opening paragraph does, rather than turning early. */
+.attr-thanks {
+  font-size: 1.08rem;
+  line-height: 1.75;
+  margin-bottom: 1.5rem;
 }
-.engineering-pages[hidden] { display: none; }
-.engineering-pages-list {
-  display: flex; flex-wrap: wrap; align-items: center; gap: .3rem 1rem;
-  margin: 0; padding: 0; list-style: none;
+
+/* The credit lists, laid out the way the 2019 NCKU_Tainan Attributions page
+   lays them out: one bulleted item per person, the name in bold, then the
+   role and the contributions as running text after it. Advisors and the PIs
+   carry a second level, one bullet per thing that person did.
+
+   Their structure, not their words. */
+.attr-people { margin-bottom: 2.5rem; }
+
+.attr-people h2 {
+  font-family: "Changa", sans-serif;
+  color: #075a3e;
+  margin-bottom: 1rem;
 }
-.engineering-pages-group { display: flex; align-items: center; gap: .3rem; }
-.engineering-pages-label {
-  margin-right: .15rem;
-  font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--eng-ink) 62%, transparent);
+
+.attr-list { padding-left: 1.3rem; margin-bottom: 0; }
+
+.attr-list > li {
+  margin-bottom: 0.55rem;
+  line-height: 1.65;
 }
-.engineering-pages-chip,
-.engineering-pages-step {
-  display: inline-grid; place-items: center;
-  min-width: 30px; height: 30px; padding: 0 .3rem;
-  border: 1px solid color-mix(in srgb, var(--eng-ink) 22%, transparent);
+
+.attr-list > li:last-child { margin-bottom: 0; }
+
+.attr-list b { color: #24352c; }
+
+/* The second level: what that person did, one line each. */
+.attr-list ul {
+  list-style: circle;
+  padding-left: 1.3rem;
+  margin: 0.3rem 0 0.9rem;
+}
+
+.attr-list ul li { margin-bottom: 0.2rem; line-height: 1.55; }
+
+/* Provisional, and reads as provisional: a section still waiting on its names
+   must not look like a finished credit list. */
+.attr-todo {
+  color: #8a978f;
+  font-style: italic;
+}
+
+/* ---- the people, one card each, two to a row ----
+   A round photo with the name beside it, and under them a panel with the
+   role, the contribution categories as tags, and what the person did. Two
+   columns from 768px; one on a phone. */
+.attr-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.attr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 14px;
+  background: #e9eeeb;
+  border: 1px solid #d5ddd8;
+}
+
+.attr-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+/* The photo is the one on the Team page, with its crop: some of those crops
+   place the image absolutely inside a square, so the circle is a positioned
+   square too. */
+.attr-avatar {
+  position: relative;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #c9d6cf;
+}
+.attr-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The Team page photos are full-length portraits, and in a 64px circle a
+   whole person leaves a face a few pixels wide. Zoomed in on the upper part
+   of the frame, where the faces are; a tall photo is also lifted, so its crop
+   starts near the top. Each card can move the zoom onto its own face with
+   --ox/--oy (the point the zoom is centred on) and --az (how far), set on the
+   avatar in attributions.html. The few photos that carry their own crop from
+   the Team page (an inline style) are left as they are. */
+.attr-avatar img:not([style]) {
+  object-position: 50% 12%;
+  transform: scale(var(--az, 2.2));
+  transform-origin: var(--ox, 50%) var(--oy, 24%);
+}
+.attr-avatar.is-initials {
+  display: grid;
+  place-items: center;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #075a3e;
+}
+
+.attr-card-name {
+  flex: 1;
+  margin: 0;
+  padding: 0.5rem 0.8rem;
   border-radius: 8px;
-  background: color-mix(in srgb, var(--eng-paper) 82%, transparent);
-  color: var(--eng-ink);
-  font-size: .85rem; font-weight: 600; line-height: 1;
-  cursor: pointer;
-  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .15s ease;
-}
-.engineering-pages-step { font-size: 1.15rem; }
-.engineering-pages-chip:hover,
-.engineering-pages-step:hover:not(:disabled) { border-color: var(--eng-accent); color: var(--eng-accent); transform: translateY(-1px); }
-.engineering-pages-chip:focus-visible,
-.engineering-pages-step:focus-visible { outline: 2px solid var(--eng-accent); outline-offset: 2px; }
-/* The page being read. */
-.engineering-pages-chip.is-current {
-  background: var(--eng-accent); border-color: var(--eng-accent); color: #fff; cursor: default; transform: none;
-}
-.engineering-pages-step:disabled { opacity: .35; cursor: default; }
-
-/* ---- phone ----
-   The hero text keeps clear of the stage mark in the top-right corner (the
-   subtitle ran underneath it), and the module labels shorten to M1 / M2 so
-   all six pages and both steps fit one line at 390px. The chips carry the
-   full name for a screen reader, so the shorter label loses nothing. */
-@media (max-width: 575.98px) {
-  .engineering-hero h1,
-  .engineering-hero #engineering-hero-position { padding-right: 60px; }
-  .engineering-pages { gap: .3rem; }
-  .engineering-pages-list { gap: .25rem .6rem; }
-  .engineering-pages-label { font-size: 0; margin-right: .1rem; }
-  .engineering-pages-label::before { content: attr(data-short); font-size: .68rem; }
-  .engineering-pages-chip,
-  .engineering-pages-step { min-width: 28px; height: 28px; }
+  background: #ffffff;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  color: #24352c;
 }
 
-/* The Cycle button on a phone is pinned bottom-left, where the footer's
-   licence line arrives. While the footer is on screen it steps aside; it
-   stays put if its card is open, so an open card never loses its button. */
-.engineering-toc-button { transition: opacity .2s ease, transform .2s ease; }
-body.engineering-footer-in-view:not(.engineering-toc-open) .engineering-toc-button {
-  opacity: 0; transform: translateY(24px) scale(.9); pointer-events: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  body.engineering-page, .engineering-page *, .engineering-page *::before, .engineering-page *::after { transition: none !important; }
+.attr-card-body {
+  flex: 1;
+  padding: 0.9rem 1rem 1rem;
+  border-radius: 10px;
+  background: #1d2a24;
+  color: #e6efe9;
 }
 
-/* Attributions: the team photo in the banner sits a little lower than the
-   default centre, so the faces clear the menu bar. */
-body.attr-page .page-hero-bg { background-position: center 35%; }
+.attr-card-role {
+  margin: 0 0 0.55rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: #a0e860;
+}
+
+.attr-card-tasks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.7rem;
+  padding: 0;
+  list-style: none;
+}
+.attr-card-tasks li {
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(160, 232, 96, 0.35);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #cfe3d6;
+}
+
+.attr-card-text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 767.98px) {
+  .attr-cards { grid-template-columns: 1fr; }
+}
 
 /* Attributions: the AI disclosure the Judge Handbook asks for (2026, p.95).
    Set apart from the rest of the page so it reads as a deliberate statement
@@ -2562,22 +2405,14 @@ body.edu-cosmos-page::after {
 body.edu-cosmos-page::before {
   background-image:
     linear-gradient(to bottom,
-      rgba(73, 197, 182, 0.05) 0%,
-      rgba(73, 197, 182, 0.015) 42%,
-      rgba(73, 197, 182, 0) 100%);
+      rgba(20, 179, 145, 0.06) 0%,
+      rgba(20, 179, 145, 0.02) 42%,
+      rgba(20, 179, 145, 0) 100%);
 }
 
 body.edu-cosmos-page::after {
-  background-image:
-    linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
-  background-size: 88px 88px;
-  -webkit-mask-image:
-    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
-                    transparent 100%);
-  mask-image:
-    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
-                    transparent 100%);
+  /* 橫豎網格依使用者要求取消：Education 底圖只留純色，不畫線 */
+  background-image: none;
 }
 
 @media print {
@@ -3321,209 +3156,150 @@ body.edu-cosmos-page .hero-sub {
   }
 }
 
-/* ===== Promotion: the microphone and its control keys ================
-   A microphone lying lower-left to upper-right with three keys on its body,
-   one per session. A key carries only its number; the session's name
-   arrives beside it when the pointer reaches it or it takes focus.
+/* ===== Promotion: the Tainan Girls' Q&A sticky wall =======================
+   A question on a card's front, flipped on hover/tap/focus to the answer on
+   its back -- the same .hw-flip mechanism as the Hardware page and the
+   Description methods list (style.css, ~line 5671), with its own skin.
 
-   Line art in the wiki's green, one stroke weight, no gradients and no
-   shadows: the same drawing style as the podcast artwork further down this
-   page. Flat is the house style and the earlier glossy mic was the odd one
-   out.
+   Square notes, three to a row, each its own colour (consistent front to
+   back, the way a real sticky note is the same colour on both sides -- the
+   Q/A badge carries the distinction instead), and each tilted a little
+   differently so it reads as a wall someone actually stuck notes on rather
+   than a form. No panel behind them: they sit straight on the page.
 
-   The keys are placed at points computed on the mic's own axis and
-   positioned in per-cent, so .promo-stage-inner holding its aspect ratio is
-   what keeps a key on the handle at every width. That is why the inner box
-   and the svg viewBox carry the same numbers: change one without the other
-   and the keys slide off.
-   -------------------------------------------------------------------- */
-.promo-stage {
-  /* A panel, not a full-bleed band. A mic turned 52 degrees occupies a
-     roughly square area, so stretched across the viewport it would sit
-     between two very wide empty margins and read as small. */
-  max-width: 760px;
-  margin: 0 auto 2.5rem;
-  padding: 1.2rem;
-  background: #fffdf7;
-  border: 1px solid #dfe8e2;
-  border-radius: 20px;
-}
-
-.promo-stage-inner {
-  position: relative;
-  /* Matches the svg viewBox, which is fitted to the drawing. */
-  aspect-ratio: 623.5 / 532.9;
-}
-
-.promo-mic {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.promo-keys {
-  position: absolute;
-  inset: 0;
-}
-
-.promo-key {
-  position: absolute;
-  left: var(--x);
-  top: var(--y);
-  /* Per-cent of the same box the mic is drawn in, so the key keeps its size
-     against the handle however wide the panel is. */
-  width: 8.34%;
-  height: 12.76%;
-  /* Centre on the computed point, then lie flat on the handle. The rotation
-     is about the key's own centre, so it does not move that point. */
-  transform: translate(-50%, -50%) rotate(52deg);
+   .hw-flip-card is given aspect-ratio:1/1 to be square, which means its
+   faces need the same fix as the team photo squares elsewhere in this file
+   (search "a percentage height only resolves against a parent"): sized by
+   content, a grid "face" won't reliably inherit a square from an
+   aspect-ratio ancestor, so the faces are pinned with position:absolute;
+   inset:0 instead, with the extra .tngs-qa ancestor on that rule only to
+   outweigh the generic mechanism's own position:relative at equal
+   specificity otherwise. The rotation lives on .hw-flip-card, a level above
+   the mechanism's own rotateY, so a tilted note stays tilted through the
+   flip instead of snapping upright. */
+.tngs-qa {
   display: grid;
-  place-items: center;
-  border: 3px solid #075a3e;
-  border-radius: 9px;
-  background: #fffdf7;
-  color: #075a3e;
-  text-decoration: none;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  /* Fixed rather than 1fr: a third of the full text column stretched these
+     notes much bigger than an actual sticky note. Centred since three fixed
+     220px columns no longer fill the row on their own. */
+  grid-template-columns: repeat(3, 290px);
+  justify-content: center;
+  gap: 2rem 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 1.5rem;
 }
 
-/* The marking on a key: volume up, volume down, power, drawn rather than
-   typed so it carries the mic's line weight instead of a font's. */
-.promo-key-glyph {
-  /* Upright inside a key that is lying at 52 degrees. */
-  transform: rotate(-52deg);
-  width: 1.3rem;
-  height: 1.3rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.tngs-qa .hw-flip-card {
+  aspect-ratio: 1 / 1;
+  position: relative;
+  transition: transform 0.25s ease;
 }
 
-.promo-key:hover,
-.promo-key:focus-visible {
-  background: #075a3e;
-  transform: translate(-50%, -50%) rotate(52deg) scale(1.08);
-}
-
-.promo-key:hover,
-.promo-key:focus-visible { color: #fffdf7; }
-
-.promo-key:focus-visible {
-  outline: 3px solid #d8b26a;
-  outline-offset: 3px;
-}
-
-/* The name is a sibling rather than a child, so it can stay upright while
-   the key lies over at 52 degrees, and so the key can be named by it
-   through aria-labelledby instead of carrying a second copy of the text.
-
-   Idle it is scaled to nothing, not merely transparent: it is nowrap and
-   wider than the panel has to spare on that side, and an invisible one
-   still has a box that would push the page sideways. */
-.promo-key-name {
+/* .tngs-qa.hw-flip (both classes, matching the dl itself) rather than plain
+   .tngs-qa: the extra class is only there to outweigh the generic
+   mechanism's own position:relative on these same elements, declared later
+   in this file at equal specificity otherwise -- without it, file order
+   decides and the generic rule wins, same as it did the first two times
+   this exact mistake got made on this page (search this file for "a
+   percentage height only resolves against a parent"). */
+.tngs-qa.hw-flip .hw-flip-front,
+.tngs-qa.hw-flip .hw-flip-back {
   position: absolute;
-  left: var(--x);
-  top: var(--y);
-  transform: translate(7rem, -50%) scale(0);
-  transform-origin: left center;
-  /* 7rem because the handle is ~67px of half-width and moving straight
-     right off the axis only clears that past 109px. Wrapped rather than
-     nowrap: the longest of these names is ~307px on one line, which at that
-     offset would hang out of the panel. */
-  width: max-content;
-  max-width: 14rem;
-  font-family: "Changa", sans-serif;
-  font-size: 0.78rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: #075a3e;
-  background: #fffdf7;
-  border: 1px solid #cfdcd5;
+  inset: 0;
+}
+
+/* Six-value cycle so no two neighbouring notes lean the same way. */
+.tngs-qa .hw-flip-card:nth-child(6n+1) { transform: rotate(-5deg); margin-top: 0.8rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+2) { transform: rotate(4deg); margin-top: -0.6rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+3) { transform: rotate(-3deg); margin-top: 1.1rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+4) { transform: rotate(5deg); margin-top: -0.4rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+5) { transform: rotate(-4deg); margin-top: 0.9rem; }
+.tngs-qa .hw-flip-card:nth-child(6n+6) { transform: rotate(3deg); margin-top: -0.7rem; }
+
+/* Straightens and lifts toward the reader on the same hover/focus that
+   flips it, rather than staying tilted while it turns over. */
+.tngs-qa .hw-flip-card:hover,
+.tngs-qa .hw-flip-card:focus-within {
+  transform: rotate(0deg) scale(1.06);
+  z-index: 2;
+}
+
+.tngs-qa .hw-flip-front,
+.tngs-qa .hw-flip-back {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6rem;
+  overflow: hidden;
+  border-radius: 2px 2px 14px 2px;
+  padding: 1.1rem 1rem 2.6rem;
+  box-shadow: 3px 6px 14px rgba(55, 40, 10, 0.28);
+}
+
+/* One colour per note, front and back alike -- six notes, six colours, no
+   cycling needed. The tag keeps Q vs. A legible regardless of the colour
+   underneath, so the palette doesn't have to mean anything. */
+.tngs-qa .hw-flip-card:nth-child(6n+1) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+1) .hw-flip-back { background: #fff4b8; border: 1px solid #e8d87a; }
+.tngs-qa .hw-flip-card:nth-child(6n+2) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+2) .hw-flip-back { background: #ffe0c2; border: 1px solid #edbf8d; }
+.tngs-qa .hw-flip-card:nth-child(6n+3) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+3) .hw-flip-back { background: #d9ecff; border: 1px solid #a9cdec; }
+.tngs-qa .hw-flip-card:nth-child(6n+4) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+4) .hw-flip-back { background: #e0f3e0; border: 1px solid #b3d9b3; }
+.tngs-qa .hw-flip-card:nth-child(6n+5) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+5) .hw-flip-back { background: #ffd9e8; border: 1px solid #edb0c9; }
+.tngs-qa .hw-flip-card:nth-child(6n+6) .hw-flip-front,
+.tngs-qa .hw-flip-card:nth-child(6n+6) .hw-flip-back { background: #fdf8ec; border: 1px solid #e3dabd; }
+
+.tngs-qa-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
   border-radius: 999px;
-  padding: 0.24rem 0.72rem;
-  opacity: 0;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  pointer-events: none;
+  background: #075a3e;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #fffdf7;
 }
 
-.promo-key:hover + .promo-key-name,
-.promo-key:focus-visible + .promo-key-name {
-  opacity: 1;
-  transform: translate(7rem, -50%) scale(1);
+.tngs-qa p {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #4a3f35;
+  overflow-y: auto;
 }
 
-@media (max-width: 879.98px) {
-  /* The keys are most of the picture apart and would stack on each other,
-     and there is no pointer to reveal a name with. The mic becomes an
-     ornament above and each key pairs up with its name in a row. */
-  .promo-stage-inner {
-    aspect-ratio: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.9rem;
-  }
+@media (max-width: 860px) {
+  .tngs-qa { grid-template-columns: repeat(2, 1fr); }
+}
 
-  .promo-mic {
-    position: static;
-    width: min(280px, 66%);
-    height: auto;
-  }
-
-  .promo-keys {
-    position: static;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    gap: 0.55rem 0.75rem;
-    width: 100%;
-  }
-
-  .promo-key {
-    position: static;
-    width: 3.4rem;
-    height: 2.2rem;
-    transform: none;
-  }
-
-  .promo-key:hover,
-  .promo-key:focus-visible { transform: scale(1.04); }
-
-  .promo-key-glyph { transform: none; }
-
-  .promo-key-name {
-    position: static;
-    transform: none;
-    opacity: 1;
-    max-width: none;
-    width: auto;
-    border-color: transparent;
-    background: none;
-    padding: 0;
-    font-size: 0.86rem;
-  }
-
-  /* Higher specificity than the rule above, so it has to be restated. */
-  .promo-key:hover + .promo-key-name,
-  .promo-key:focus-visible + .promo-key-name { transform: none; }
+@media (max-width: 575.98px) {
+  /* Six competing tilts in one narrow column reads as clutter rather than a
+     wall -- halved rather than removed, so it still looks hand-placed. */
+  .tngs-qa { grid-template-columns: 1fr; gap: 1.75rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+1) { transform: rotate(-2deg); margin-top: 0.3rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+2) { transform: rotate(1.5deg); margin-top: -0.25rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+3) { transform: rotate(-1deg); margin-top: 0.5rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+4) { transform: rotate(2deg); margin-top: -0.15rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+5) { transform: rotate(-1.5deg); margin-top: 0.4rem; }
+  .tngs-qa .hw-flip-card:nth-child(6n+6) { transform: rotate(1deg); margin-top: -0.3rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Only the transitions. An override carrying a transform would land after
-     the narrow-screen block above and undo its layout. */
-  .promo-key,
-  .promo-key-glyph,
-  .promo-key-name { transition: none; }
+  .tngs-qa .hw-flip-card { transition: none; }
 }
 
 @media print {
   /* Nothing here is clickable on paper, and the three sessions it points at
      are the three headings directly below it. */
-  .promo-stage { display: none; }
+  .promo-signal { display: none; }
 }
 
 .edu-section-header {
@@ -3881,42 +3657,21 @@ body.edu-lightbox-locked {
   .edu-arrow { display: none; }
 }
 
-.edu-feedback {
-  max-width: 700px;
-  margin: 1.5rem auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.edu-feedback figure {
-  margin: 0;
-}
-
-.edu-feedback img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-.edu-feedback figcaption {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #6b6055;
-}
-
 .edu-pdf-viewer {
   margin: 1.25rem auto 0;
   max-width: 850px;
   line-height: 0;
 }
 
+/* One height for every embedded PDF on the site -- the Lab Book protocols
+   and these feedback reports used to be 940px and 1000px tall, which made
+   each one a near-full screen the reader had to scroll past. The document
+   itself still opens full size from the link underneath. */
 .edu-pdf-viewer iframe {
   display: block;
   width: 100%;
-  height: min(85vh, 1000px);
-  min-height: 500px;
+  height: min(62vh, 720px);
+  min-height: 380px;
   border: 0;
   border-radius: 8px;
 }
@@ -3951,6 +3706,94 @@ body.edu-lightbox-locked {
   text-align: center;
 }
 
+/* ===== Education: the Tainan Girls' Q&A, as a chat log ===================
+   Audience questions on the left, Hank's answers on the right, each bubble
+   fading and sliding in as it scrolls into view (tngs-chat.js adds
+   .is-visible via IntersectionObserver) rather than all at once -- closer
+   to reading the conversation as it actually happened than a wall of text
+   would be. The opacity:0 default is only safe because tngs-chat.js also
+   covers browsers without IntersectionObserver support, and the page
+   carries a <noscript> rule forcing every bubble visible if JS never runs
+   at all -- without one of those two, a bubble with .is-visible never
+   applied would stay invisible forever instead of just losing the fade. */
+.tngs-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 1.5rem 0;
+}
+
+.tngs-chat-msg {
+  max-width: min(32rem, 82%);
+  padding: 0.7rem 1rem;
+  border-radius: 16px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.tngs-chat-msg.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tngs-chat-q {
+  align-self: flex-start;
+  background: #eef1ec;
+  border-bottom-left-radius: 4px;
+}
+
+.tngs-chat-a {
+  align-self: flex-end;
+  background: #075a3e;
+  border-bottom-right-radius: 4px;
+}
+
+.tngs-chat-name {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.tngs-chat-q .tngs-chat-name { color: #6b7a72; }
+.tngs-chat-a .tngs-chat-name { color: #a8d9c3; }
+
+.tngs-chat-msg p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.tngs-chat-q p { color: #333; }
+.tngs-chat-a p { color: #fffdf7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tngs-chat-msg { transition: none; }
+}
+
+/* 深夜外觀：Education 是 edu-nexus 深綠底，全站文字被調成霧白，原本的淺灰
+   問題泡泡會變成淺字淺底。問題改深綠面板、回答加薄荷描邊，跟頁面其他卡片同色系。 */
+body.edu-nexus .tngs-chat-q,
+html[data-theme="dark"] .tngs-chat-q {
+  background: #1c4352;
+  border: 1px solid rgba(160, 232, 96, 0.18);
+}
+body.edu-nexus .tngs-chat-a,
+html[data-theme="dark"] .tngs-chat-a {
+  background: #0d6a4a;
+  border: 1px solid rgba(73, 197, 182, 0.35);
+}
+body.edu-nexus .tngs-chat-q .tngs-chat-name,
+html[data-theme="dark"] .tngs-chat-q .tngs-chat-name { color: #93b0bb; }
+body.edu-nexus .tngs-chat-a .tngs-chat-name,
+html[data-theme="dark"] .tngs-chat-a .tngs-chat-name { color: #b8f57e; }
+body.edu-nexus .tngs-chat-msg p,
+html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
+
 .edu-consent-note {
   margin-top: 1.25rem;
   padding-top: 0.75rem;
@@ -3984,6 +3827,80 @@ body.edu-lightbox-locked {
   flex: none;
   font-size: 1.1em;
 }
+
+/* ---- Education Handbook: one document, two languages ----
+   Two native radios drive it, with no script (see the note in
+   education.html). The radios stay in the page -- focusable, and announced
+   as a pair of options -- but out of sight; the labels are what is seen, as
+   a joined two-way switch in the same green as the View PDF button. */
+.edu-handbook { position: relative; margin-top: 1rem; }
+
+.edu-handbook-radio {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.edu-handbook-lang {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.edu-handbook-lang-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b7a72;
+}
+
+.edu-handbook-switch {
+  display: inline-flex;
+  padding: 3px;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  background: #fffdf9;
+}
+
+.edu-handbook-switch label {
+  margin: 0;
+  padding: 0.4rem 1.15rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  color: #075a3e;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.edu-handbook-switch label:hover { background: #e7f1eb; }
+
+/* The language being shown. */
+#edu-handbook-en:checked ~ .edu-handbook-lang label[for="edu-handbook-en"],
+#edu-handbook-cn:checked ~ .edu-handbook-lang label[for="edu-handbook-cn"] {
+  background: #075a3e;
+  color: #fffdf9;
+  cursor: default;
+}
+
+/* Keyboard focus lands on the hidden radio, so it is drawn on its label. */
+#edu-handbook-en:focus-visible ~ .edu-handbook-lang label[for="edu-handbook-en"],
+#edu-handbook-cn:focus-visible ~ .edu-handbook-lang label[for="edu-handbook-cn"] {
+  outline: 2px solid #075a3e;
+  outline-offset: 3px;
+}
+
+/* Only the chosen language's panel. The other one's frame is lazy and
+   undisplayed, so its PDF is not fetched until it is asked for. */
+#edu-handbook-en:checked ~ .edu-handbook-panel-cn,
+#edu-handbook-cn:checked ~ .edu-handbook-panel-en { display: none; }
 
 @media (max-width: 860px) {
   .edu-detail-layout {
@@ -4225,14 +4142,6 @@ body.edu-lightbox-locked {
   margin: 0 0 0.6rem;
 }
 
-.sgd-sub {
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 0.92rem;
-  color: #1f4a38;
-  margin: 1.1rem 0 0.35rem;
-}
-
 .sgd-text p,
 .sgd-list li {
   font-size: 0.93rem;
@@ -4243,73 +4152,8 @@ body.edu-lightbox-locked {
 
 .sgd-text p:last-child { margin-bottom: 0; }
 
-/* The playtest figures. Two columns, because the stop's text column is half
-   the page less the bend: a measure and its value, with the groups of a
-   single analysis set off by a band rather than split into a table each.
-   tabular-nums so the digits line up down the value column. */
-.sgd-table {
-  width: 100%;
-  margin: 0.95rem 0 1.15rem;
-  border-collapse: collapse;
-  font-size: 0.84rem;
-  line-height: 1.4;
-  font-variant-numeric: tabular-nums;
-}
-
-.sgd-table caption {
-  caption-side: top;
-  padding: 0 0 0.4rem;
-  text-align: left;
-  font-family: "Changa", sans-serif;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #1f4a38;
-}
-
-.sgd-table th,
-.sgd-table td {
-  padding: 0.4rem 0.65rem;
-  border-bottom: 1px solid #dfe8e2;
-  text-align: left;
-  vertical-align: baseline;
-}
-
-.sgd-table thead th {
-  background: #e7f1eb;
-  border-bottom: 2px solid #9ec5b2;
-  font-family: "Changa", sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #075a3e;
-}
-
 /* The band that names a group of rows. It sits in the body so a screen
    reader meets it as part of the data, and colspan carries it across. */
-.sgd-table tbody th[scope="colgroup"] {
-  background: #f3f8f5;
-  border-top: 2px solid #cfdcd5;
-  font-family: "Changa", sans-serif;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #075a3e;
-}
-
-.sgd-table tbody:first-of-type th[scope="colgroup"] { border-top: 0; }
-
-.sgd-table tbody th[scope="row"] {
-  font-weight: 500;
-  color: #4a5a51;
-}
-
-.sgd-table td {
-  text-align: right;
-  font-weight: 600;
-  color: #1f4a38;
-}
-
-.sgd-table thead th:last-child { text-align: right; }
 
 .sgd-list {
   margin: 0;
@@ -4874,157 +4718,6 @@ body.edu-lightbox-locked {
   margin-bottom: 1rem;
 }
 
-/* Objectives and references are lists of statements, not steps; keep them
-   quiet and let the procedure below own the reader's attention. */
-.labbook .protocol-aims,
-.labbook .protocol-refs {
-  padding-left: 1.15rem;
-  line-height: 1.7;
-}
-
-.labbook .protocol-aims li,
-.labbook .protocol-refs li {
-  margin-bottom: 0.55rem;
-}
-
-.labbook .protocol-aims li::marker {
-  color: #60c028;
-}
-
-.labbook .protocol-refs {
-  font-size: 0.92rem;
-  color: #4a3f35;
-}
-
-/* Materials are things you fetch before starting, so they read as a shelf of
-   items rather than prose. */
-.labbook .protocol-materials {
-  list-style: none;
-  padding-left: 0;
-  margin-bottom: 0;
-  display: grid;
-  gap: 0.6rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(275px, 100%), 1fr));
-}
-
-.labbook .protocol-materials li {
-  background: #f7f4ea;
-  border-left: 3px solid #8fd94f;
-  border-radius: 0 8px 8px 0;
-  padding: 0.6rem 0.85rem;
-  font-size: 0.94rem;
-  line-height: 1.55;
-}
-
-/* The procedure. Numbers move out into the margin and a thread joins them, so
-   you can look away, look back, and find your step again. */
-.labbook .protocol-steps {
-  list-style: none;
-  counter-reset: protostep;
-  padding-left: 0;
-  margin: 1.35rem 0 0;
-}
-
-.labbook .protocol-steps > li {
-  counter-increment: protostep;
-  position: relative;
-  padding: 0 0 1.6rem 3.5rem;
-  line-height: 1.75;
-}
-
-.labbook .protocol-steps > li:last-child {
-  padding-bottom: 0;
-}
-
-.labbook .protocol-steps > li::before {
-  content: counter(protostep);
-  position: absolute;
-  left: 0;
-  top: -0.2rem;
-  width: 2.35rem;
-  height: 2.35rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  color: #075a3e;
-  background: #eaf7dd;
-  border: 2px solid #075a3e;
-  border-radius: 50%;
-}
-
-.labbook .protocol-steps > li::after {
-  content: "";
-  position: absolute;
-  left: calc(1.175rem - 1px);
-  top: 2.4rem;
-  bottom: 0.4rem;
-  width: 2px;
-  background: #dfe9d2;
-}
-
-.labbook .protocol-steps > li:last-child::after {
-  display: none;
-}
-
-/* "Note:" and "Tip:" are the protocol's own asides. In the source they are
-   emphasis; here they take the shape of a margin note so they read as
-   guidance rather than as another sentence of the step. */
-.labbook .protocol-note,
-.labbook .protocol-steps > li > em {
-  display: block;
-  background: #fdf8e3;
-  border-left: 4px solid #c9a227;
-  border-radius: 0 8px 8px 0;
-  padding: 0.75rem 1rem;
-  margin: 0.85rem 0 0;
-  font-size: 0.92rem;
-  font-style: italic;
-  line-height: 1.65;
-  color: #4a3f35;
-}
-
-.labbook .protocol-note {
-  margin: 0 0 0.5rem;
-}
-
-/* That <br> only existed to push the tip onto its own line. Now that the tip
-   is a block of its own, the break would leave a gap. */
-.labbook .protocol-steps > li > br:has(+ em) {
-  display: none;
-}
-
-/* The last step hands off to another protocol. Mark it so the sheet has a
-   visible end instead of just stopping. */
-.labbook .protocol-endpoint {
-  background: #f2f8ec;
-  border: 1px solid #d6e7c4;
-  border-radius: 10px;
-  padding: 1rem 1rem 1rem 3.5rem !important;
-  margin-top: 0.4rem;
-}
-
-.labbook .protocol-endpoint::before {
-  left: 0.75rem;
-  top: 0.85rem;
-}
-
-.labbook .protocol-steps > li.protocol-endpoint > strong:first-child {
-  display: inline-block;
-  font-family: "Changa", sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: #fffdf9;
-  background: #075a3e;
-  border-radius: 5px;
-  padding: 0.2rem 0.55rem;
-  margin-right: 0.35rem;
-  vertical-align: 0.08em;
-}
-
 /* Reagent table. Volumes are a column of numbers, so they line up on the
    right and share one figure width. */
 /* Shrink-to-fit, but still a block. As an inline-block its baseline is its
@@ -5140,30 +4833,63 @@ body.edu-lightbox-locked {
   border-top: 2px solid #dbe7cb;
 }
 
-/* The recognition-site diagrams are the source PDF's own figures
-   (both strands with the cut marked by a triangle), not a redrawn
-   text approximation -- just size the image to the cell. */
-.labbook .restriction-site-img {
-  display: block;
-  max-width: 100%;
-  height: auto;
+/* The recognition sites, set as text rather than shown as pictures. A grid of
+   three columns by two rows, so the two strands line up base for base and the
+   stagger between the cut marks is the overhang you can read off directly. */
+.labbook .rsite {
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+  gap: 0.2rem 0.55rem;
+  align-items: center;
+  /* Monospace, and only here: equal-width characters are what keeps the two
+     strands aligned. These are all system faces, so nothing extra is loaded. */
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+
+.labbook .rsite-end {
+  font-size: 0.8em;
+  font-weight: 400;
+  color: var(--c-text-3);
+}
+
+.labbook .rsite-bases {
+  letter-spacing: 0.3em;
+  /* letter-spacing also trails the last character; this pulls that back so the
+     bases sit centred between the 5'/3' labels instead of drifting left. */
+  margin-right: -0.3em;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+/* Taller than the bases and standing clear of them on both sides, so it reads
+   as a cut through the strand rather than as a stray stroke in the lettering.
+   The width is fixed rather than zero, but both strands carry exactly one, so
+   they still line up base for base. */
+.labbook .rsite-cut {
+  display: inline-block;
+  width: 3px;
+  height: 1.7em;
+  margin: 0 0.1em;
+  border-radius: 2px;
+  background: var(--c-amber);
+  vertical-align: -0.5em;
+}
+
+@media print {
+  .labbook .rsite-cut { background: #000; }
+  .labbook .rsite-bases { color: #000; }
+  .labbook .rsite-end { color: #444; }
 }
 
 /* A sheet that is only a title and its PDF should look finished, not like a
    section that failed to load. */
-.labbook .protocol-pdf-only .protocol-pdf {
-  border-bottom: none;
-}
 
 @media (max-width: 575.98px) {
   .labbook .protocol > h2 { padding: 1rem 1.15rem 0.95rem; }
   .labbook .protocol-pdf { padding: 0.9rem 1.15rem; }
   .labbook .protocol-body { padding: 1.4rem 1.15rem 1.6rem; }
-  .labbook .protocol-steps > li { padding-left: 2.9rem; }
-  .labbook .protocol-steps > li::before { width: 2rem; height: 2rem; font-size: 0.9rem; }
-  .labbook .protocol-steps > li::after { left: calc(1rem - 1px); top: 2.05rem; }
-  .labbook .protocol-endpoint { padding-left: 2.9rem !important; }
-  .labbook .protocol-endpoint::before { left: 0.55rem; }
   .labbook .protocol-table-wrap { width: auto; }
   .labbook .protocol-table-wrap--recipe { width: 100%; }
 }
@@ -5177,11 +4903,13 @@ body.edu-lightbox-locked {
   line-height: 0;            /* an iframe is inline: without this it sits on a descender gap */
 }
 
+/* Same height as the other embedded PDFs on the site (see
+   .edu-pdf-viewer iframe). */
 .labbook .protocol-viewer iframe {
   display: block;
   width: 100%;
-  height: min(82vh, 940px);
-  min-height: 460px;
+  height: min(62vh, 720px);
+  min-height: 380px;
   border: 0;
   background: #ece6d8;
 }
@@ -5198,15 +4926,16 @@ body.edu-lightbox-locked {
 /* Twenty-one protocols is too many to scroll past looking for one, so the
    page opens on an index grouped by stage of the work, and each group gets a
    heading the index can jump to. */
+/* No panel behind it: the index reads as part of the page, not a card on top
+   of it. The near-white it used to carry was a bright box in the middle of a
+   dark page, and the colours below are tokens for the same reason -- they
+   follow the ground instead of assuming a pale one. */
 .labbook .protocol-index {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 1.25rem 1.75rem;
-  background: #fffdf9;
-  border: 1px solid #e6ddc8;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(43, 30, 23, 0.06);
-  padding: 1.5rem 1.5rem 1.35rem;
+  gap: 1.5rem 1.75rem;
+  padding: 0.25rem 0 1.5rem;
+  border-bottom: 1px solid var(--c-line);
   margin-bottom: 2.75rem;
 }
 
@@ -5216,11 +4945,11 @@ body.edu-lightbox-locked {
   font-weight: 700;
   margin: 0 0 0.5rem;
   padding-bottom: 0.35rem;
-  border-bottom: 2px solid #075a3e;
+  border-bottom: 2px solid var(--c-ink-2);
 }
 
 .labbook .protocol-index-title a {
-  color: #075a3e;
+  color: var(--c-ink-2);
   text-decoration: none;
 }
 
@@ -5237,8 +4966,13 @@ body.edu-lightbox-locked {
 }
 
 .labbook .protocol-index li a {
-  color: #2b1e17;
+  color: var(--c-text-2);
   text-decoration: none;
+}
+
+.labbook .protocol-index li a:hover,
+.labbook .protocol-index li a:focus-visible {
+  color: var(--c-text);
 }
 
 .labbook .protocol-index a:hover,
@@ -5246,13 +4980,17 @@ body.edu-lightbox-locked {
   text-decoration: underline;
 }
 
+/* Tokens, not fixed greens: these headings sit on the page ground, and the
+   fixed #075a3e left them at about 1.9:1 once that ground went dark -- which
+   reads worst of all right above a white PDF. Light mode is unchanged, since
+   --c-ink-2 is that same green. */
 .labbook .protocol-group {
   font-family: "Changa", sans-serif;
   font-size: clamp(1.45rem, 1.1rem + 1.5vw, 2rem);
-  color: #075a3e;
+  color: var(--c-ink-2);
   margin: 3.25rem 0 1.25rem;
   padding-bottom: 0.4rem;
-  border-bottom: 3px solid #075a3e;
+  border-bottom: 3px solid var(--c-ink-2);
   scroll-margin-top: 90px;
 }
 
@@ -5264,11 +5002,26 @@ body.edu-lightbox-locked {
 /* Each protocol is its PDF, shown in place: a title, the document itself,
    and a rule before the next one. No card around it -- the PDF already is
    the sheet. */
-.labbook .protocol-embed > h2 {
+/* The title and its download sit on one line: the link is the only control
+   here, so it reads as part of the heading rather than as a full-width bar
+   below a PDF that already fills the width. */
+.labbook .protocol-head {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0 0 0.85rem;
+}
+
+.labbook .protocol-head > h2 {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.labbook .protocol-embed h2 {
   font-family: "Changa", sans-serif;
   font-size: clamp(1.2rem, 1rem + 0.9vw, 1.5rem);
   line-height: 1.3;
-  color: #075a3e;
+  color: var(--c-ink-2);
   margin: 0 0 0.85rem;
 }
 
@@ -5278,10 +5031,38 @@ body.edu-lightbox-locked {
   overflow: hidden;
 }
 
+/* Icon only: the title beside it already names the document, so the words
+   would just repeat it. They stay in the markup for screen readers and for
+   print, where the frame cannot show anything. */
 .labbook .protocol-embed .protocol-pdf {
   background: none;
   border: none;
-  padding: 0.85rem 0 0;
+  padding: 0;
+  margin: 0;
+  flex: none;
+}
+
+.labbook .protocol-embed .protocol-pdf a {
+  gap: 0;
+  padding: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  justify-content: center;
+  border-color: var(--c-ink-2);
+  background: none;
+}
+
+.labbook .protocol-embed .protocol-pdf svg { font-size: 1.15em; }
+
+.labbook .protocol-pdf-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .labbook .protocol-rule {
@@ -5292,8 +5073,8 @@ body.edu-lightbox-locked {
 }
 
 @media (max-width: 575.98px) {
-  .labbook .protocol-index { padding: 1.2rem 1.15rem; }
-  .labbook .protocol-embed .protocol-pdf { padding-top: 0; }
+  /* no side padding to trim any more -- the panel is gone; just a shorter tail */
+  .labbook .protocol-index { padding-bottom: 1.2rem; }
   .labbook .protocol-rule { margin: 1.75rem 0; }
 }
 
@@ -5301,13 +5082,27 @@ body.edu-lightbox-locked {
   .labbook .protocol-index { display: none !important; }
   .labbook .protocol-group { margin: 1rem 0 0.5rem; font-size: 14pt; color: #000; border-color: #000; }
   .labbook .protocol-embed { break-inside: avoid; }
-  .labbook .protocol-embed > h2 { color: #000; font-size: 12pt; margin: 0 0 0.2rem; }
+  .labbook .protocol-embed h2 { color: #000; font-size: 12pt; margin: 0 0 0.2rem; }
+  /* On paper the heading and the link stack, and the link says what it is
+     again -- there is no icon and no frame to give it away. */
+  .labbook .protocol-head { display: block; }
+  .labbook .protocol-pdf-label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
   .labbook .protocol-rule { margin: 0.6rem 0; border-color: #999; }
   /* The PDF cannot print from its frame, so on paper each protocol keeps its
      address written out. */
   .labbook .protocol-embed .protocol-pdf { display: block !important; padding: 0; }
   .labbook .protocol-embed .protocol-pdf a {
     display: inline;
+    width: auto;
+    height: auto;
     border: none;
     padding: 0;
     font-weight: 400;
@@ -5652,54 +5447,7 @@ body.tour-active { overflow: hidden; }
   .labbook .protocol-body h4 { break-after: avoid; margin: 0.8rem 0 0.3rem; }
   .labbook .protocol-body p { line-height: 1.5; margin-bottom: 0.5rem; }
 
-  .labbook .protocol-materials { gap: 0.2rem 1.2rem; }
-  .labbook .protocol-materials li {
-    background: none;
-    border-left: 1.5pt solid #000;
-    border-radius: 0;
-    padding: 0.1rem 0 0.1rem 0.5rem;
-    break-inside: avoid;
-  }
-
   /* Every step stays whole, and its number keeps an outline that ink can draw. */
-  .labbook .protocol-steps > li {
-    break-inside: avoid;
-    padding: 0 0 0.7rem 2.6rem;
-    line-height: 1.5;
-  }
-  .labbook .protocol-steps > li::before {
-    background: none;
-    border: 1.2pt solid #000;
-    color: #000;
-    width: 1.9rem;
-    height: 1.9rem;
-    font-size: 9pt;
-    top: 0;
-  }
-  .labbook .protocol-steps > li::after { display: none; }
-
-  .labbook .protocol-note,
-  .labbook .protocol-steps > li > em {
-    background: none;
-    border-left: 1.5pt solid #000;
-    border-radius: 0;
-    padding: 0.15rem 0 0.15rem 0.6rem;
-    color: #000;
-    break-inside: avoid;
-  }
-
-  .labbook .protocol-endpoint {
-    background: none;
-    border: 1pt solid #000;
-    padding: 0.5rem 0.5rem 0.5rem 2.6rem !important;
-  }
-  .labbook .protocol-endpoint::before { left: 0.4rem; top: 0.5rem; }
-  .labbook .protocol-steps > li.protocol-endpoint > strong:first-child {
-    background: none !important;
-    color: #000 !important;
-    border: 1pt solid #000;
-    padding: 0.02rem 0.3rem;
-  }
 
   .labbook .protocol-table-wrap {
     border: 1pt solid #000;
@@ -5719,34 +5467,6 @@ body.tour-active { overflow: hidden; }
     font-weight: 700;
   }
 
-  /* Paper cannot be clicked, so a reference is only useful spelled out. */
-  .labbook .protocol-refs a::after {
-    content: " (" attr(href) ")";
-    font-size: 8.5pt;
-    word-break: break-all;
-  }
-
-  /* A sheet whose only content is its PDF would otherwise print as a bare
-     title. It keeps its link, with the address written out. */
-  .labbook .protocol-pdf-only .protocol-pdf {
-    display: block !important;
-    background: none;
-    border: none;
-    padding: 0.3rem 0;
-  }
-  .labbook .protocol-pdf-only .protocol-pdf a {
-    display: inline;
-    background: none;
-    border: none;
-    padding: 0;
-    font-weight: 400;
-  }
-  .labbook .protocol-pdf-only .protocol-pdf svg { display: none; }
-  .labbook .protocol-pdf-only .protocol-pdf a::after {
-    content: " — " attr(href);
-    font-size: 8.5pt;
-    word-break: break-all;
-  }
 }
 
 /* ===== Hardware: CAPTURE-Reader ======================================
@@ -6127,7 +5847,6 @@ body.tour-active { overflow: hidden; }
   color: #75b299;
   font-size: 1.1rem;
 }
-.hw-flow-plus { color: #75b299; margin: 0 0.35rem; font-weight: 700; }
 
 /* ---- the three kinds of note the page uses ---- */
 .hw-aside {
@@ -6191,6 +5910,9 @@ body.tour-active { overflow: hidden; }
 .hw-figure {
   margin: 1.5rem 0;
   overflow-x: auto;
+  /* Sideways only. Without this the other axis becomes "auto" too, and half a
+     pixel of height draws a vertical scrollbar down the side of the figure. */
+  overflow-y: hidden;
 }
 .hw-two-tables {
   display: grid;
@@ -6199,13 +5921,6 @@ body.tour-active { overflow: hidden; }
   align-items: start;
 }
 .hw-two-tables .hw-figure { margin: 0; }
-.hw-table-keep caption { color: #075a3e; }
-.hw-table-drop caption { color: #6b7a72; }
-.hw-phase {
-  font-family: "Changa", sans-serif;
-  font-size: 0.8rem;
-  color: #5f6e66;
-}
 
 /* ---- the schematics ---- */
 .hw-diagram {
@@ -6228,12 +5943,7 @@ body.tour-active { overflow: hidden; }
   stroke-dasharray: 6 5;
 }
 .hw-svg-body { fill: none; stroke: #6b7a72; stroke-width: 2; }
-.hw-svg-lid { fill: #e8ede9; stroke: #6b7a72; stroke-width: 1.5; }
-.hw-svg-interlock { fill: #ffe9b8; stroke: #d8b26a; stroke-width: 1.5; }
-.hw-svg-red-box { fill: #fdecea; stroke: #d98b80; stroke-width: 1.5; }
 .hw-svg-blue-box { fill: #e8f0fd; stroke: #7aa5dd; stroke-width: 1.5; }
-.hw-svg-filter { fill: #ffd8a8; stroke: #e0996a; stroke-width: 1.5; }
-.hw-svg-filter-blue { fill: #cfe0f7; stroke: #7aa5dd; stroke-width: 1.5; }
 .hw-svg-sensor { fill: #eaf4ef; stroke: #4f8f74; stroke-width: 1.5; }
 .hw-svg-sample { fill: #fdf1dd; stroke: #d8b26a; stroke-width: 2; }
 .hw-svg-stop { fill: #3a4640; }
@@ -6252,7 +5962,6 @@ body.tour-active { overflow: hidden; }
    diagram does not depend on colour alone. */
 .hw-beam-blue { fill: none; stroke: #2b6cb0; stroke-width: 3.5; }
 .hw-beam-green { fill: none; stroke: #2e9e5b; stroke-width: 3.5; }
-.hw-beam-red { fill: none; stroke: #c0392b; stroke-width: 3.5; }
 
 .hw-legend {
   list-style: none;
@@ -6274,7 +5983,6 @@ body.tour-active { overflow: hidden; }
 }
 .hw-key-blue { background: #2b6cb0; }
 .hw-key-green { background: #2e9e5b; }
-.hw-key-red { background: #c0392b; }
 
 .hw-figure figcaption {
   padding-top: 0.85rem;
@@ -6289,12 +5997,10 @@ body.tour-active { overflow: hidden; }
    declared here as a custom property and read back by hardware-cutaway.js. */
 .hw3d {
   --hw3d-paper: #fffdf7;
-  --hw3d-panel: #f2f5f2;
   --hw3d-ink: #24352c;
   --hw3d-ink-2: #4a5a51;
   --hw3d-ink-3: #8a978f;
   --hw3d-rule: #dfe8e2;
-  --hw3d-rule-2: #cfdcd5;
   --hw3d-accent: #1f4a38;
   --hw3d-accent-2: #4f8f74;
   --hw3d-beam-ex: #2b6cb0;
@@ -6602,53 +6308,9 @@ body.tour-active { overflow: hidden; }
   .hw3d-hint { display: none; }
 }
 
-/* ---- the three groups, and the two branches they feed ---- */
-.hw-groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-.hw-group {
-  border: 1px solid #dfe8e2;
-  border-radius: 12px;
-  background: #fffdf7;
-  padding: 1.1rem 1.2rem;
-}
-.hw-group h3 {
-  font-size: 1.3rem;
-  margin: 0 0 0.35rem;
-  color: #075a3e;
-}
-.hw-group-cond {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #1f4a38;
-  margin-bottom: 0.5rem;
-}
-.hw-group p:last-child { font-size: 0.88rem; color: #4a5a51; margin-bottom: 0; }
 /* G1 is the control that decides what we are entitled to conclude, so it is
    the one the eye should land on. */
-.hw-group[data-group="g1"] { border-color: #d8b26a; background: #fffaf0; }
 
-.hw-branches {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
-  gap: 1rem;
-}
-.hw-branch {
-  border: 1px solid #b9d7c8;
-  border-radius: 12px;
-  background: #f6fffb;
-  padding: 1.1rem 1.2rem;
-}
-.hw-branch h4 {
-  font-family: "Changa", sans-serif;
-  font-size: 1rem;
-  color: #1f4a38;
-  margin: 0 0 0.5rem;
-}
-.hw-branch p { font-size: 0.9rem; margin-bottom: 0; }
 .hw-table {
   width: 100%;
   min-width: 18rem;
@@ -6788,10 +6450,7 @@ body.tour-active { overflow: hidden; }
 }
 /* The right-hand column of the claim tables is the part that keeps us
    honest, so it is tinted rather than left to look like ordinary prose. */
-.hw-table .hw-not {
-  background: #fff6e2;
-  color: #6b4a1f;
-}.hw-spec { margin: 0; font-size: 0.9rem; }
+.hw-spec { margin: 0; font-size: 0.9rem; }
 .hw-spec > div {
   display: grid;
   grid-template-columns: 6.5rem 1fr;
@@ -6832,31 +6491,6 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
 .hw-jump .sw-links { margin: 0 0 2.4rem; }
 .hw section[id],
 .hw h3[id] { scroll-margin-top: 90px; }
-
-/* ---- which build is which ----
-   Three cards in the grid Software uses for its three tools. The facts in
-   each are a short definition list, so its label column is narrower than the
-   page-width one, and a photograph, once there is one, takes the card's
-   width. */
-.hw-builds {
-  /* Narrower than the shared grid's 300px floor, so all three sit in one
-     row on a desktop column instead of two and a straggler. */
-  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
-  gap: 1.5rem 1.1rem;
-  margin-bottom: 1.5rem;
-}
-.hw-builds .hw-module h4 { margin: 0.35rem 0 0.5rem; font-size: 1.15rem; }
-/* A build's record name is one token; broken across two lines its chip
-   reads as two. */
-.hw-builds code { white-space: nowrap; }
-.hw-builds .hw-spec > div { grid-template-columns: 5.6rem 1fr; gap: 0.5rem; }
-.hw-builds .hw-module img {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin: 0 0 1rem;
-  border-radius: 8px;
-}
 
 /* ---- the two builds, one at a time ----
    Two readers share this page. A card stands for each and says what it is;
@@ -7219,7 +6853,6 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 /* The original sheet is in Chinese. Keeping the Chinese name beside the
    English one costs a line and saves anyone comparing this page against the
    team's own spreadsheet from having to guess which row is which. */
-.hw-cost-zh { color: #6b7a72; font-size: 0.86em; margin-left: 0.35rem; }
 
 .hw-cost .hw-cost-head th {
   padding-top: 0.9rem;
@@ -7252,7 +6885,7 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
    this width they hold a legible size and their own panel scrolls sideways;
    the page itself still does not. */
 @media (max-width: 767.98px) {
-  .hw-diagram { overflow-x: auto; }
+  .hw-diagram { overflow-x: auto; overflow-y: hidden; }
   /* Wide enough that the smallest annotations on the optical-core drawing --
      the scale bar and the enlarged chamber detail -- stay legible. */
   .hw-svg { min-width: 680px; }
@@ -8298,7 +7931,7 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   /* The two schematics carry 11-12px type that cannot shrink with the
      viewport and stay readable, so below this width they scroll sideways
      inside their own panel instead of being squeezed. */
-  .hwx-rig-figure { overflow-x: auto; }
+  .hwx-rig-figure { overflow-x: auto; overflow-y: hidden; }
   .hwx-lab, .hwx-spec { min-width: 560px; }
 
 }
@@ -8346,7 +7979,7 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
    result over the top of it. */
 .cap-page { max-width: 58rem; }
 
-.cap-intro p { line-height: 1.8; color: #33413a; }
+.cap-intro p { font-size: 1.1rem; line-height: 1.8; color: #33413a; }
 .cap-intro { margin-bottom: 1.75rem; }
 
 .cap-game { margin: 0 0 1.5rem; }
@@ -8364,12 +7997,13 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   overflow: hidden;
   /* The pointer over the dish is the aptamer being caught, rather than a
      drawn net -- set on the whole field, not only on the target. The source
-     photo is served from iGEM's own host at 272x424, far larger than any
-     browser will actually use as a cursor (most cap out well under 128px and
-     silently fall back when it is too big), so this is a small PNG resized
-     from it and inlined here rather than the remote file directly. crosshair
-     is the fallback anywhere a custom cursor image is refused. */
-  cursor: url("data:image/png;base64,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") 17 27, crosshair;
+     is onlinegame/aptamer2.avif on iGEM's own host, 464x724, far larger than
+     any browser will actually use as a cursor (most cap out well under 128px
+     and silently fall back when it is too big), so this is that file resized
+     to 34x53 and inlined as PNG rather than linked directly. To change the
+     cursor, swap that file and re-inline it the same way. crosshair is the
+     fallback anywhere a custom cursor image is refused. */
+  cursor: url("data:image/png;base64,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") 17 27, crosshair;
 }
 
 /* ---- the score and the clock, pinned to the top-right corner ---- */
@@ -8628,7 +8262,8 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   display: grid;
   gap: 0.5rem;
   width: 100%;
-  max-width: 28rem;
+  max-width: 32rem;        /* wider than the text needs at 0.84rem, so that
+                              the larger size does not cost an extra line */
   margin: 0;
   padding: 0;
   list-style: none;
@@ -8667,8 +8302,8 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
    every stretch of words between the inline elements. */
 .cap-rule-text {
   margin: 0;
-  font-size: 0.84rem;
-  line-height: 1.55;
+  font-size: 0.98rem;
+  line-height: 1.6;
   color: #33413a;
 }
 
@@ -8733,12 +8368,6 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   font-size: 1.05rem;
   font-weight: 700;
   color: #1f4a38;
-}
-
-.cap-level-sub {
-  display: block;
-  font-size: 0.8rem;
-  color: #4d6b5c;
 }
 
 .cap-level-box:hover { border-color: #75b299; background: #f2f9f5; }
@@ -8818,12 +8447,6 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   justify-content: center;
 }
 
-.cap-foot {
-  font-size: 0.86rem;
-  line-height: 1.7;
-  color: #5f6e66;
-}
-
 @media (max-width: 575.98px) {
   .cap-field { height: clamp(320px, 58vh, 440px); }
   .cap-target { width: 60px; height: 60px; }
@@ -8845,7 +8468,7 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   .cap-rule { grid-template-columns: 2.1rem 1fr; gap: 0.6rem; }
   .cap-rule-chip { width: 2.1rem; height: 2.1rem; }
   .cap-rule-chip .cap-ahl { font-size: 0.52rem; }
-  .cap-rule-text { font-size: 0.8rem; line-height: 1.5; }
+  .cap-rule-text { font-size: 0.9rem; line-height: 1.55; }
 }
 
 /* Asked for less motion: a target still appears and is still caught, it just
@@ -9191,18 +8814,6 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 
 /* The stretch of season still ahead: one line across the track columns rather
    than three empty cells, because nothing has happened in any of them yet. */
-.nb-week-open .nb-blank {
-  flex: 1 1 0;
-  min-width: 0;
-  margin: 0;
-  padding-left: 0.9rem;
-  border-left: 2px dotted rgba(7, 90, 62, 0.3);
-  font-weight: 300;
-  font-style: italic;
-  font-size: 0.98rem;
-  line-height: 1.6;
-  color: var(--nb-muted);
-}
 
 .nb-week-open { border-bottom: 0; }
 
@@ -9655,6 +9266,40 @@ body.quiz-active { overflow: hidden; }
   font-style: italic;
 }
 
+/* The Overview's slogan, straight under its heading. Coloured from the
+   deep-teal palette when the page wears it, the site green otherwise. */
+.hp-slogan {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.9rem);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: var(--nx-lime, #075a3e);
+  margin: 0.4rem 0 1.4rem;
+}
+
+/* Downward, upward, forward, backward: each direction a short block with its
+   name leading, so the four read as a set rather than one long paragraph. */
+.hp-directions {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 1.25rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.hp-directions li {
+  padding-left: 1rem;
+  border-left: 3px solid var(--nx-mint, #075a3e);
+}
+
+.hp-directions strong { color: var(--nx-mint, #075a3e); }
+
+/* The deep-teal theme paints every paragraph and <strong> in its body ink,
+   at higher specificity than the two rules above. */
+body.edu-nexus .edu-session-block .hp-slogan { color: var(--nx-lime); }
+body.edu-nexus .edu-session-block .hp-directions strong { color: var(--nx-mint); }
+
 @media (max-width: 767.98px) {
   .hp-map {
     grid-template-columns: 1fr;
@@ -9719,6 +9364,126 @@ body.quiz-active { overflow: hidden; }
   .hp-figure-grid > .hp-figure { max-width: none; }
 }
 
+/* ---- the survey charts ----
+   Each figure carries its numbers as a table; static/hp-survey-pies.js draws
+   them as a donut with a legend beside it and adds .is-drawn. The table then
+   stays for screen readers only, and the drawing is hidden from them, so the
+   numbers are read once. Without the script the table is what shows. */
+.hp-pie-source {
+  font-size: 0.85rem;
+  color: #6b6055;
+}
+
+.hp-pie-chart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem 1.4rem;
+  padding: 0.4rem 0.2rem 0.2rem;
+}
+
+.hp-pie-svg {
+  flex: none;
+  width: clamp(150px, 40%, 200px);
+  height: auto;
+  overflow: visible;
+}
+
+.hp-pie-slice path { transition: opacity 0.15s ease; }
+.hp-pie.is-focusing .hp-pie-slice:not(.is-on) path { opacity: 0.35; }
+.hp-pie.is-focusing .hp-pie-slice:not(.is-on) .hp-pie-pct { opacity: 0.35; }
+
+.hp-pie-pct {
+  font-family: "Changa", sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.hp-pie-total {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  text-anchor: middle;
+  fill: #2b2b2b;
+}
+.hp-pie-total-sub {
+  font-family: "Changa", sans-serif;
+  font-size: 12px;
+  text-anchor: middle;
+  fill: #6b6055;
+}
+
+.hp-pie-legend {
+  flex: 1 1 170px;
+  max-width: 260px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.25;
+}
+.hp-pie-legend li {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.22rem 0.4rem;
+  border-radius: 6px;
+  color: #2b2b2b;
+  transition: background-color 0.15s ease;
+}
+.hp-pie-legend li.is-on { background: rgba(0, 0, 0, 0.06); }
+.hp-pie-swatch { width: 12px; height: 12px; border-radius: 3px; }
+.hp-pie-val { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+
+/* the data, as a table: what shows without the script, and what a screen
+   reader reads with it */
+.hp-pie-table table {
+  width: 100%;
+  font-size: 0.88rem;
+  border-collapse: collapse;
+}
+.hp-pie-table caption { caption-side: top; font-weight: 600; padding-bottom: 0.3rem; }
+.hp-pie-table th,
+.hp-pie-table td { padding: 0.2rem 0.4rem; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+.hp-pie-table td { text-align: right; font-variant-numeric: tabular-nums; }
+.hp-pie.is-drawn .hp-pie-table {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.hp-pie { position: relative; }
+
+.hp-pie-tip {
+  position: fixed;
+  z-index: 1090;
+  max-width: 260px;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #2b2b2b;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  pointer-events: none;
+}
+.hp-pie-tip strong { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-pie-slice path,
+  .hp-pie-legend li { transition: none; }
+}
+
 /* ===== The deep-teal treatment ==============================================
    A page-scoped theme, switched on by body.hw-nexus from hardware.html and
    body.edu-nexus from education.html, and nothing else. Purely additive:
@@ -9731,12 +9496,13 @@ body.quiz-active { overflow: hidden; }
    block further down.
 
    The palette is sampled from the reference the team chose (Nexus, Awwwards
-   SOTD 2022-12-09): a deep petrol ground, mint and lime picking out what
-   matters. Contrast was checked against the ground and against both panel
-   tints before anything was written -- every text token below clears WCAG AA
-   on all three. The one colour that does not is the reference's own blue
-   (#2779a7, 3.3:1), so it is used for fills and borders only and a lifted
-   #5fb3e0 carries any blue that has to be read.
+   SOTD 2022-12-09), then re-tuned onto the home hero's deep-green family:
+   a deep forest ground (#0e242e), mint and lime picking out what matters.
+   Contrast was checked against the ground and against both panel tints
+   before anything was written -- every text token below clears WCAG AA on
+   all three. The teal that used to be the reference's blue is now
+   #2779a7 (fills and borders only) with a lifted
+   #5fb3e0 carrying anything that has to be read.
    ========================================================================== */
 body.hw-nexus,
 body.nb-nexus,
@@ -9779,13 +9545,21 @@ body.bg-nexus::before,
 body.hw-nexus::after,
 body.nb-nexus::after,
 body.bg-nexus::after,
-body.edu-nexus::before,
+body.edu-nexus::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+/* Education 的橫豎網格依使用者要求取消：::after 不再掛網格 */
 body.edu-nexus::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  background-image: none;
 }
 
 body.hw-nexus::before,
@@ -9799,30 +9573,19 @@ body.edu-nexus::before {
      at all. */
   background-image:
     linear-gradient(to bottom,
-      rgba(73, 197, 182, 0.05) 0%,
-      rgba(73, 197, 182, 0.015) 42%,
-      rgba(73, 197, 182, 0) 100%);
+      rgba(20, 179, 145, 0.06) 0%,
+      rgba(20, 179, 145, 0.02) 42%,
+      rgba(20, 179, 145, 0) 100%);
 }
 
+/* Hardware／Software／Model（以及同樣用 hw-nexus 的 Engineering、Team、
+   Attributions）的橫豎網格也取消，和 Education／HP 頁的背景一致。 */
+/* Every nexus page (Hardware/Software/Model, Notebook, Board Game ...) now has the
+   same flat deep-teal ground as Education and the HP pages: the horizontal and
+   vertical background grid is gone everywhere. */
 body.hw-nexus::after,
 body.nb-nexus::after,
-body.bg-nexus::after,
-body.edu-nexus::after {
-  background-image:
-    linear-gradient(rgba(36, 89, 107, 0.26) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(36, 89, 107, 0.26) 1px, transparent 1px);
-  background-size: 88px 88px;
-  /* Strongest in the middle of the view and gone at the edges, so it reads
-     as a surface the page is sitting on rather than as a chart drawn over
-     it. One grid pitch only: a second, finer one moires against this at
-     most window widths. */
-  -webkit-mask-image:
-    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
-                    transparent 100%);
-  mask-image:
-    radial-gradient(120% 95% at 50% 40%, #000 0%, rgba(0, 0, 0, 0.45) 55%,
-                    transparent 100%);
-}
+body.bg-nexus::after { background-image: none; }
 
 /* ---- three green glows, drifting ------------------------------------
    The reporter in this project fluoresces, so the ground carries a few soft
@@ -9885,10 +9648,10 @@ body.edu-nexus::after {
     radial-gradient(closest-side circle at 44% 40%,
       rgba(160, 232, 96, 0.1148) 0%,
       rgba(160, 232, 96, 0.0459) 44%,
-      rgba(73, 197, 182, 0) 72%),
+      rgba(20, 179, 145, 0) 72%),
     radial-gradient(closest-side circle at 62% 61%,
-      rgba(73, 197, 182, 0.0536) 0%,
-      rgba(73, 197, 182, 0) 56%);
+      rgba(20, 179, 145, 0.05) 0%,
+      rgba(20, 179, 145, 0) 56%);
 }
 
 .hw-orb-b > span {
@@ -9896,10 +9659,10 @@ body.edu-nexus::after {
     radial-gradient(closest-side circle at 58% 37%,
       rgba(160, 232, 96, 0.1186) 0%,
       rgba(160, 232, 96, 0.0420) 40%,
-      rgba(73, 197, 182, 0) 70%),
+      rgba(20, 179, 145, 0) 70%),
     radial-gradient(closest-side circle at 38% 64%,
-      rgba(73, 197, 182, 0.0459) 0%,
-      rgba(73, 197, 182, 0) 52%);
+      rgba(20, 179, 145, 0.04) 0%,
+      rgba(20, 179, 145, 0) 52%);
 }
 
 .hw-orb-c > span {
@@ -9907,10 +9670,10 @@ body.edu-nexus::after {
     radial-gradient(closest-side circle at 49% 55%,
       rgba(160, 232, 96, 0.0994) 0%,
       rgba(160, 232, 96, 0.0383) 46%,
-      rgba(73, 197, 182, 0) 74%),
+      rgba(20, 179, 145, 0) 74%),
     radial-gradient(closest-side circle at 63% 36%,
       rgba(160, 232, 96, 0.0459) 0%,
-      rgba(73, 197, 182, 0) 50%);
+      rgba(20, 179, 145, 0) 50%);
 }
 
 .hw-orb-a { --d: 26rem; --tx: 71s; --ty: 47s; --dx: 0s; --dy: -13s; }
@@ -9982,7 +9745,7 @@ body.hw-nexus .navbar,
 body.nb-nexus .navbar,
 body.bg-nexus .navbar,
 body.edu-nexus .navbar {
-  background: rgba(14, 36, 46, 0.82) !important;
+  background: rgba(14, 36, 46, 0.86) !important;
   border: 1px solid var(--nx-line);
 }
 body.hw-nexus .navbar-nav .nav-link,
@@ -10031,16 +9794,14 @@ body.hw-nexus .hw a { color: var(--nx-lime); }
 body.hw-nexus .hw strong { color: #fff; }
 body.hw-nexus .hw code {
   color: var(--nx-mint);
-  background: rgba(73, 197, 182, 0.10);
-  border: 1px solid rgba(73, 197, 182, 0.22);
+  background: rgba(20, 179, 145, 0.12);
+  border: 1px solid rgba(20, 179, 145, 0.24);
 }
 body.hw-nexus .hw-lead { border-left-color: var(--nx-mint); }
 body.hw-nexus .hw-lead p { font-size: 1.14rem; }
 
 /* ---- anything that was a cream card ---- */
 body.hw-nexus .hw-module,
-body.hw-nexus .hw-group,
-body.hw-nexus .hw-branch,
 body.hw-nexus .hw-fold,
 body.hw-nexus .hw-diagram,
 body.hw-nexus .hw-flip-front,
@@ -10057,7 +9818,6 @@ body.hw-nexus .hw-module-tag {
   background: var(--nx-mint);
   color: var(--nx-ground);
 }
-body.hw-nexus .hw-group-cond,
 body.hw-nexus .hw-module-what { color: var(--nx-muted); }
 body.hw-nexus .hw-ico { color: var(--nx-mint); }
 body.hw-nexus .hw-fold-head { color: var(--nx-text); }
@@ -10119,22 +9879,15 @@ body.hw-nexus .hw-svg-axis  { stroke: #4d7383; }
 body.hw-nexus .hw-svg-dim   { stroke: #7d99a4; }
 body.hw-nexus .hw-svg-right-angle { stroke: var(--nx-mint); }
 body.hw-nexus .hw-svg-stop  { fill: #050f14; }
-body.hw-nexus .hw-svg-lid,
 body.hw-nexus .hw-svg-sensor { fill: var(--nx-raised); stroke: var(--nx-mint); }
 body.hw-nexus .hw-svg-sample { fill: rgba(230, 176, 96, 0.16); stroke: var(--nx-warm); }
 body.hw-nexus .hw-svg-meniscus { stroke: var(--nx-warm); }
-body.hw-nexus .hw-svg-filter { fill: rgba(230, 176, 96, 0.30); stroke: var(--nx-warm); }
-body.hw-nexus .hw-svg-filter-blue,
 body.hw-nexus .hw-svg-blue-box { fill: rgba(95, 179, 224, 0.20); stroke: var(--nx-blue-up); }
-body.hw-nexus .hw-svg-red-box { fill: rgba(224, 108, 95, 0.18); stroke: #e0705f; }
-body.hw-nexus .hw-svg-interlock { fill: rgba(230, 176, 96, 0.25); stroke: var(--nx-warm); }
 
 body.hw-nexus .hw-beam-blue  { stroke: var(--nx-blue-up); }
 body.hw-nexus .hw-beam-green { stroke: #55d98a; }
-body.hw-nexus .hw-beam-red   { stroke: #ef7361; }
 body.hw-nexus .hw-key-blue   { background: var(--nx-blue-up); }
 body.hw-nexus .hw-key-green  { background: #55d98a; }
-body.hw-nexus .hw-key-red    { background: #ef7361; }
 
 /* ---- the instrument panels were already dark; only the hue moves ----------
    hwx-* and hw3d-* drive themselves from custom properties, so the whole
@@ -10152,12 +9905,10 @@ body.hw-nexus .hwx-rig {
    than on a dark bench, so its surfaces move as well as its ink. */
 body.hw-nexus .hw3d {
   --hw3d-paper: var(--nx-panel);
-  --hw3d-panel: var(--nx-raised);
   --hw3d-ink: var(--nx-text);
   --hw3d-ink-2: var(--nx-muted);
   --hw3d-ink-3: #7d99a4;
   --hw3d-rule: var(--nx-line);
-  --hw3d-rule-2: #2d6577;
   --hw3d-accent: var(--nx-mint);
   --hw3d-accent-2: var(--nx-mint);
   --hw3d-beam-ex: var(--nx-blue-up);
@@ -10194,7 +9945,7 @@ body.hw-nexus .hw3d input[type="range"] { accent-color: var(--nx-mint); }
 /* The total row read as a pale green band; on this ground it is a tint of
    the accent instead. */
 body.hw-nexus .hw-table tr.is-total {
-  background: rgba(73, 197, 182, 0.12);
+  background: rgba(20, 179, 145, 0.14);
   color: var(--nx-text);
 }
 
@@ -10274,8 +10025,7 @@ body.hw-nexus .hw3d-list-title { color: var(--nx-text); }
 body.hw-nexus .hw3d-list-state,
 body.hw-nexus .hw3d-list-caret { color: var(--nx-mint); }
 body.hw-nexus .hw3d-dim,
-body.hw-nexus .hw3d-list thead th,
-body.hw-nexus .hw-cost-zh { color: var(--nx-muted); }
+body.hw-nexus .hw3d-list thead th { color: var(--nx-muted); }
 body.hw-nexus .hw3d-num,
 body.hw-nexus .hw3d-name { color: var(--nx-text); }
 body.hw-nexus .hw3d-list td,
@@ -10526,11 +10276,11 @@ body.hw-nexus .sw .sw-lab-msg.is-error { color: var(--nx-warm); }
   border: 1px solid var(--nx-line);
   border-radius: 10px;
 }
-.sw-plot-grid { stroke: rgba(36, 89, 107, 0.6); stroke-width: 1; }
+.sw-plot-grid { stroke: rgba(20, 179, 145, 0.45); stroke-width: 1; }
 .sw-plot-axis { stroke: var(--nx-muted); stroke-width: 1.2; fill: none; }
 .sw-plot-tick { font-size: 12px; fill: var(--nx-muted); }
 .sw-plot-title { font-size: 13px; fill: var(--nx-text); }
-.sw-plot-range { fill: rgba(73, 197, 182, 0.1); }
+.sw-plot-range { fill: rgba(20, 179, 145, 0.12); }
 .sw-plot-lod { stroke: var(--nx-warm); stroke-width: 1.3; stroke-dasharray: 6 5; }
 .sw-plot-curve { fill: none; stroke: var(--nx-mint); stroke-width: 2.5; }
 .sw-plot-pt { fill: var(--nx-lime); fill-opacity: 0.85; stroke: #0a1c24; stroke-width: 1; }
@@ -10708,6 +10458,139 @@ body.hw-nexus .hw .md-legend li {
   border-top: 2px dashed var(--nx-warm, #e6b060);
 }
 
+/* ---- the three parts ----
+   The page holds three models. The cards at the top are its table of
+   contents, one per part; each part then opens with a banner that is set
+   apart from the sections inside it by a rule and a larger heading, so a
+   reader scrolling past can tell where one model ends and the next begins. */
+/* The cards double as a map of how the parts follow one another: an arrow
+   sits in the gap before every card but the first, pointing down while the
+   cards are stacked and across once they stand in a row. */
+.md-parts {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+.md-parts > li { position: relative; }
+.md-parts > li + li::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -1.45rem;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 9px solid var(--nx-mint, #49c5b6);
+  transform: translateX(-50%);
+}
+@media (min-width: 768px) {
+  .md-parts { grid-template-columns: repeat(3, 1fr); }
+  .md-parts > li + li::before {
+    left: -1.35rem;
+    top: 50%;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 9px solid var(--nx-mint, #49c5b6);
+    border-right: 0;
+    transform: translateY(-50%);
+  }
+}
+body.hw-nexus .hw .md-parts-link { margin: 0 0 3.5rem; }
+.md-parts a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  height: 100%;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--nx-line, #24596b);
+  border-top: 3px solid var(--nx-mint, #49c5b6);
+  border-radius: 10px;
+  background: var(--nx-panel, #16323f);
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.md-parts a:hover,
+.md-parts a:focus-visible {
+  border-color: var(--nx-lime, #a0e860);
+  background: var(--nx-raised, #1c4352);
+}
+.md-parts-no {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-muted, #93b0bb);
+}
+.md-parts-name {
+  font-family: "Changa", sans-serif;
+  font-size: 1.18rem;
+  color: var(--nx-lime, #a0e860);
+}
+.md-parts-q {
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--nx-text, #dbe9ee);
+}
+.md-parts-state {
+  margin-top: auto;
+  padding-top: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--nx-warm, #e6b060);
+}
+
+.md-part {
+  margin: 4.5rem 0 2rem;
+  padding-top: 1.6rem;
+  border-top: 2px solid var(--nx-mint, #49c5b6);
+  scroll-margin-top: 90px;
+}
+body.hw-nexus .md .md-part-no {
+  margin: 0 0 0.3rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-lime, #a0e860);
+}
+.md .md-part h2 {
+  font-size: clamp(1.8rem, 1.3rem + 2vw, 2.4rem);
+  margin-bottom: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .md-parts a { transition: none; }
+}
+
+/* "Part 3 at a glance": where in the part each thing a judge looks for is. */
+.md-glance {
+  margin: 0 0 3rem;
+  padding: 0.9rem 1.2rem 0.4rem;
+  border: 1px solid var(--nx-line, #24596b);
+  border-radius: 10px;
+  background: var(--nx-panel, #16323f);
+}
+body.hw-nexus .md .md-glance-title {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nx-mint, #49c5b6);
+}
+.md .md-glance .hw-spec { margin: 0.6rem 0 0.4rem; }
+.md .md-glance .hw-spec > div { grid-template-columns: 8.5rem 1fr; }
+
+/* A fold on this page holds a term list or a table that backs a finding up. */
+.md .md-fold { margin: 1.5rem 0; }
+.md .md-fold .hw-spec { margin: 0.4rem 0 0.6rem; }
+
+/* The summary table: a part still being written spans both columns. */
+body.hw-nexus .md .md-impact-pending { color: var(--nx-warm, #e6b060); }
+.md .md-impact td:first-child { white-space: nowrap; }
+
 /* ===== Education: the deep-teal treatment, content side =====================
    The shared half of this theme -- palette, ground, orbs, hero, navbar -- is
    up in "The deep-teal treatment" and is turned on here by body.edu-nexus
@@ -10755,21 +10638,39 @@ body.edu-nexus .edu-sidebar-link::before { border-left-color: var(--nx-line); }
 body.edu-nexus .edu-sidebar-link:hover::before,
 body.edu-nexus .edu-sidebar-link.active::before { border-left-color: var(--nx-lime); }
 body.edu-nexus .edu-sidebar-track { background: var(--nx-line); }
-body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(73, 197, 182, 0.45); }
+body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(20, 179, 145, 0.5); }
 
 /* ---- the map ---- */
-body.edu-nexus .edu-map-viewport { background: var(--nx-panel); }
+body.edu-nexus .edu-map-viewport { background: transparent; }   /* 島外全透明：只剩台灣島本身 */
 body.edu-nexus .edu-map-county,
-body.edu-nexus .edu-map-county-interactive { stroke: var(--nx-mint); }
+body.edu-nexus .edu-map-county-interactive { stroke: var(--nx-mint); stroke-width: 0.8; }
 body.edu-nexus .edu-map-leader-line { stroke: var(--nx-mint); }
+
+/* ---- 台灣全島輪廓 hover 呼吸光暈（taiwan-map.js 以 SVG filter 生成）----
+   光暈由 feMorphology＋blur 直接從島的填色剪影生成（绝無橫穿直線）；
+   這裡只管亮度呼吸：亮起 3.6s 一吸一吐，離開淡滅。 */
+.tw-coast-glow-group { opacity: 0; transition: opacity 0.5s ease; }
+.tw-coast-glow-group.is-lit { animation: tw-breathe 3.6s ease-in-out infinite; }
+@keyframes tw-breathe {
+  0%   { opacity: 0.45; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tw-coast-glow-group.is-lit { opacity: 0.85; animation: none; }
+}
 
 /* The orbiting chips are liquid glass in the light theme: translucent white
    over blur, with dark ink on top. Over petrol that white settles to a mid
    grey and the ink goes with it, so the chip becomes a panel and the ink
-   becomes the body token. The blur stays -- it is what keeps the map legible
-   underneath a chip passing over it. */
+   becomes the body token.
+   效能：深色底的卡片幾乎不透明（0.9／啟用中完全不透明），backdrop-filter
+   模糊幾乎看不出來，卻要對 15 張每幀移動的卡片、壓在每幀重畫的背景
+   canvas 上重算，是這頁卡頓的主因之一，所以在這裡關掉。 */
 body.edu-nexus .edu-map-orbit-item {
-  background: rgba(22, 50, 63, 0.82);
+  background: rgba(7, 60, 41, 0.9);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   border-color: var(--nx-line);
   color: var(--nx-text);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
@@ -10779,6 +10680,25 @@ body.edu-nexus .edu-map-orbit-item.is-active {
   background: var(--nx-raised);
   border-color: var(--nx-mint);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* strip cards on the dark theme: same panel language as the orbit cards */
+body.edu-nexus .edu-strip-item {
+  background: rgba(7, 60, 41, 0.9);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+}
+body.edu-nexus .edu-strip-title { color: var(--nx-text); }
+body.edu-nexus .edu-strip-meta { color: var(--nx-text); opacity: 0.75; }
+body.edu-nexus .edu-strip-item.is-selected {
+  background: var(--nx-raised);
+  border-color: var(--nx-mint);
+  box-shadow: 0 0 0 2px var(--nx-mint), 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+html[data-theme="dark"] .edu-pin.is-selected {
+  background: #a0e860;
+  border-color: #a0e860;
+  box-shadow: 0 0 0 3px rgba(160, 232, 96, 0.4);
 }
 
 /* ---- the galleries and their controls ---- */
@@ -10798,8 +10718,7 @@ body.edu-nexus .edu-dot:hover::before,
 body.edu-nexus .edu-dot:focus-visible::before { background: var(--nx-muted); }
 body.edu-nexus .edu-dot[aria-current="true"]::before { background: var(--nx-lime); }
 body.edu-nexus .edu-dot:focus-visible { outline-color: var(--nx-mint); }
-body.edu-nexus .edu-carousel-status,
-body.edu-nexus .edu-feedback figcaption { color: var(--nx-muted); }
+body.edu-nexus .edu-carousel-status { color: var(--nx-muted); }
 
 /* ---- the PDF and podcast blocks ---- */
 body.edu-nexus .edu-pdf-link a {
@@ -10811,6 +10730,26 @@ body.edu-nexus .edu-pdf-link a:hover,
 body.edu-nexus .edu-pdf-link a:focus-visible {
   background: var(--nx-mint);
   color: var(--nx-ground);
+}
+
+/* The handbook language switch, in the same mint as the View PDF button. */
+body.edu-nexus .edu-handbook-lang-label { color: var(--nx-muted); }
+body.edu-nexus .edu-handbook-switch {
+  background: var(--nx-panel);
+  border-color: var(--nx-mint);
+}
+body.edu-nexus .edu-handbook-switch label { color: var(--nx-mint); }
+body.edu-nexus .edu-handbook-switch label:hover {
+  background: color-mix(in srgb, var(--nx-mint) 14%, var(--nx-panel));
+}
+body.edu-nexus #edu-handbook-en:checked ~ .edu-handbook-lang label[for="edu-handbook-en"],
+body.edu-nexus #edu-handbook-cn:checked ~ .edu-handbook-lang label[for="edu-handbook-cn"] {
+  background: var(--nx-mint);
+  color: var(--nx-ground);
+}
+body.edu-nexus #edu-handbook-en:focus-visible ~ .edu-handbook-lang label[for="edu-handbook-en"],
+body.edu-nexus #edu-handbook-cn:focus-visible ~ .edu-handbook-lang label[for="edu-handbook-cn"] {
+  outline-color: var(--nx-mint);
 }
 body.edu-nexus .edu-consent-note {
   color: var(--nx-muted);
@@ -11419,12 +11358,9 @@ body.bg-nexus .sgd {
 body.bg-nexus .sgd-kicker { color: var(--nx-mint); }
 body.bg-nexus .sgd-title { color: var(--nx-mint); }
 body.bg-nexus .sgd-heading { color: var(--nx-text); }
-body.bg-nexus .sgd-text p,
-body.bg-nexus .sgd-lead { color: var(--nx-text); }
+body.bg-nexus .sgd-text p { color: var(--nx-text); }
 body.bg-nexus .sgd-arc path { stroke: var(--nx-line); }
-body.bg-nexus .sgd-arc .sgd-arc-done { stroke: var(--nx-mint); }
-body.bg-nexus .sgd-dot,
-body.bg-nexus .sgd-icon-wrap {
+body.bg-nexus .sgd-dot {
   background: var(--nx-panel);
   border-color: var(--nx-mint);
 }
@@ -11451,25 +11387,6 @@ body.bg-nexus .sgd-icon-wrap {
   margin-bottom: 0.75rem;
 }
 .bg-handoff-lead { line-height: 1.8; color: #33413a; }
-.bg-handoff-facts {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem 1.25rem;
-  padding: 0;
-  margin: 1.1rem 0 0;
-  font-size: 0.92rem;
-  color: #5f6e66;
-}
-/* Inline rather than flex: a flex item per text node puts a gap between
-   "2-4 players" and the comma after it. */
-.bg-handoff-facts li { display: inline; }
-.bg-handoff-facts li + li::before {
-  content: "·";
-  margin: 0 0.6rem;
-  opacity: 0.55;
-}
 /* A quiet arrow rather than an animated one: it points at something a
    screen-length away, and a moving glyph in the corner of the eye for the
    rest of the page is a cost with no matching gain. */
@@ -11483,8 +11400,6 @@ body.bg-nexus .sgd-icon-wrap {
 body.bg-nexus .bg-handoff-kicker { color: var(--nx-mint); }
 body.bg-nexus .bg-handoff-title { color: var(--nx-mint); }
 body.bg-nexus .bg-handoff-lead { color: var(--nx-text); }
-body.bg-nexus .bg-handoff-facts { color: var(--nx-muted); }
-body.bg-nexus .bg-handoff-facts strong { color: var(--nx-text); }
 body.bg-nexus .bg-handoff-cue { color: var(--nx-mint); }
 
 /* The game opens with its own <h1> repeating the page title, which the
@@ -11497,14 +11412,6 @@ body.bg-nexus #mainMenu > h1 {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-@media (max-width: 575.98px) {
-  /* One per line on a narrow screen, where the separators would otherwise
-     fall at the ends of wrapped lines. */
-  .bg-handoff-facts li { display: block; }
-  .bg-handoff-facts li + li { margin-top: 0.3rem; }
-  .bg-handoff-facts li + li::before { content: none; }
 }
 
 /* ---- the game ------------------------------------------------------------
@@ -11583,21 +11490,6 @@ body.bg-nexus .sgd-node {
 body.bg-nexus .sgd-stop.is-reached .sgd-node {
   border-color: var(--nx-mint);
   box-shadow: 0 0 0 7px rgba(73, 197, 182, 0.18);
-}
-body.bg-nexus .sgd-table caption { color: var(--nx-mint); }
-body.bg-nexus .sgd-table th,
-body.bg-nexus .sgd-table td {
-  border-bottom-color: var(--nx-line);
-  color: var(--nx-text);
-}
-body.bg-nexus .sgd-table thead th {
-  background: rgba(73, 197, 182, 0.12);
-  border-bottom-color: var(--nx-mint);
-  color: var(--nx-mint);
-}
-body.bg-nexus .sgd-table tbody th[scope="colgroup"] {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--nx-text);
 }
 
 /* The two coloured actions kept white text, which on these fills is 3.3:1
@@ -11802,21 +11694,6 @@ body.bg-nexus .board-game-page { --muted: #c6dde4; --ink2: #c6dde4; }
   hyphens: manual;
 }
 
-.sdgp-legend {
-  margin-top: 0.9rem;
-  font-size: 0.88rem;
-  color: #5c6b62;
-}
-
-.sdgp-key {
-  display: inline-block;
-  width: 0.9em;
-  height: 0.9em;
-  border-radius: 3px;
-  vertical-align: -0.1em;
-  background: linear-gradient(135deg, #4c9f38 0 33%, #c5192d 33% 66%, #19486a 66%);
-}
-
 /* One goal's section: its number in a badge of its colour, beside the name. */
 .sdgp-goal-head {
   display: flex;
@@ -11999,6 +11876,20 @@ body.edu-nexus .hp-figure {
   border-color: var(--nx-line);
 }
 body.edu-nexus .hp-figure figcaption { color: var(--nx-muted); }
+body.edu-nexus .hp-pie-source { color: var(--nx-muted); }
+body.edu-nexus .hp-pie-total { fill: var(--nx-text); }
+body.edu-nexus .hp-pie-total-sub { fill: var(--nx-muted); }
+body.edu-nexus .hp-pie-legend li { color: var(--nx-text); }
+body.edu-nexus .hp-pie-legend li.is-on { background: var(--nx-raised); }
+body.edu-nexus .hp-pie-table th,
+body.edu-nexus .hp-pie-table td { color: var(--nx-text); border-bottom-color: var(--nx-line); }
+body.edu-nexus .hp-pie-table caption { color: var(--nx-muted); }
+body.edu-nexus .hp-pie-tip {
+  background: var(--nx-raised);
+  color: var(--nx-text);
+  border: 1px solid var(--nx-line);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
 
 /* ---- the Collaboration wall ---- */
 
@@ -12099,7 +11990,6 @@ body.nb-nexus .nb-week-open {
   background: rgba(73, 197, 182, 0.06);
   border-color: var(--nx-line);
 }
-body.nb-nexus .nb-blank { color: var(--nx-muted); }
 
 /* ---- the sort control ---- */
 body.nb-nexus .nb-sort {
@@ -12190,6 +12080,17 @@ body.hw-nexus .hw .hw-more a:focus-visible { text-decoration: underline; }
 
 /* The first screen of the build: the numbers sit right under its sentence. */
 body.hw-nexus .hw .hw-build-head .hw-keys { margin-bottom: 0.2rem; }
+/* Under each number, what it measures in plain words, as large as a statement
+   in a card; the conditions follow in the small print. */
+.hw .hw-build-head .hw-keys .hw-key-say {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #33413a;
+}
+body.hw-nexus .hw .hw-build-head .hw-keys .hw-key-say { color: var(--nx-text); }
 body.hw-nexus .hw .hw-build-head .hw-limit { margin: 0.9rem 0 1.7rem; }
 body.hw-nexus .hw #printed .hw-limit + p:not(.hw-more) { margin-top: 1.6rem; }
 
@@ -12204,6 +12105,7 @@ body.hw-nexus .hw .hw-do {
   list-style: none;
 }
 body.hw-nexus .hw .hw-said { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.hw-nexus .hw .hw-said.is-one { grid-template-columns: minmax(0, 1fr); }
 body.hw-nexus .hw .hw-do { grid-template-columns: repeat(3, minmax(0, 1fr)); counter-reset: hw-do; }
 body.hw-nexus .hw .hw-said > li,
 body.hw-nexus .hw .hw-do > li {
@@ -12224,25 +12126,37 @@ body.hw-nexus .hw .hw-do > li::before {
   color: var(--nx-mint);
 }
 body.hw-nexus .hw .hw-said p { margin: 0; }
-body.hw-nexus .hw .hw-said .hw-said-what {
-  margin: 0.6rem 0 1rem;
-  font-size: 1.04rem;
+/* Set like the improvement cards: the large line is what was said and what
+   followed, and the two statements sit side by side under it. */
+body.hw-nexus .hw .hw-said .hw-gain-fig { margin: 0.35rem 0 1rem; }
+body.hw-nexus .hw .hw-said .hw-said-note {
+  margin: -0.55rem 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-said .hw-said-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--nx-line);
+}
+body.hw-nexus .hw .hw-said .hw-said-what,
+body.hw-nexus .hw .hw-said .hw-said-then {
+  font-size: 1.12rem;
   line-height: 1.6;
   color: var(--nx-text);
 }
+body.hw-nexus .hw .hw-said .hw-said-what { padding-right: 1.5rem; }
 body.hw-nexus .hw .hw-said .hw-said-then {
-  margin-top: auto;
-  padding-top: 0.75rem;
-  border-top: 1px dashed var(--nx-line);
-  font-size: 0.93rem;
-  line-height: 1.6;
-  color: var(--nx-muted);
+  padding-left: 1.5rem;
+  border-left: 1px dashed var(--nx-line);
 }
 body.hw-nexus .hw .hw-said b {
   display: block;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.3rem;
   font-family: "Changa", sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -12250,12 +12164,179 @@ body.hw-nexus .hw .hw-said b {
 }
 body.hw-nexus .hw .hw-said .hw-said-then b { color: var(--nx-lime); }
 
+/* Two photographs side by side: the same reader before and after. Both are
+   held to 4:3 so they line up whatever the files' own proportions are. */
+body.hw-nexus .hw .hw-shots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 1.6rem;
+}
+body.hw-nexus .hw .hw-shot { margin: 0; }
+body.hw-nexus .hw .hw-shot img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--nx-line);
+  border-radius: 12px;
+  background: var(--nx-panel);
+}
+body.hw-nexus .hw .hw-shot figcaption {
+  margin-top: 0.65rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-shot figcaption b {
+  margin-right: 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nx-mint);
+}
+@media (max-width: 640px) {
+  body.hw-nexus .hw .hw-shots { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Placing the cuvette, in photographs: one deck to a version. As written,
+   each deck is a row of small pictures. static/hardware-steps.js adds
+   .is-live, and then the pictures of a deck share one cell and one shows at
+   a time; the cell is as tall as the tallest caption, so nothing jumps. */
+body.hw-nexus .hw .hw-place {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.3rem 0 1.4rem;
+}
+body.hw-nexus .hw .hw-place-deck {
+  margin: 0;
+  padding: 0.95rem 0.95rem 1rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 12px;
+  background: var(--nx-panel);
+}
+body.hw-nexus .hw .hw-place-who {
+  margin-bottom: 0.7rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-place-deck[data-deck="v2"] .hw-place-who { color: var(--nx-lime); }
+body.hw-nexus .hw .hw-place-who span { margin-left: 0.5rem; font-weight: 500; color: var(--nx-muted); }
+body.hw-nexus .hw .hw-place-slides {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+body.hw-nexus .hw .hw-place-slides img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--nx-ground);
+}
+body.hw-nexus .hw .hw-place-slides p {
+  margin: 0.6rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-place-slides b {
+  display: block;
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+}
+body.hw-nexus .hw .hw-place-deck[data-deck="v2"] .hw-place-slides b { color: var(--nx-lime); }
+
+body.hw-nexus .hw .hw-place.is-live .hw-place-slides { grid-template-columns: minmax(0, 1fr); }
+body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li.is-on {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease, visibility 0s;
+}
+
+body.hw-nexus .hw .hw-place-ctrl {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem 0.5rem;
+}
+/* One mark to a step: the one showing is bright, the ones passed stay lit. */
+body.hw-nexus .hw .hw-place-marks {
+  flex: 0 0 100%;
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+}
+body.hw-nexus .hw .hw-place-marks i {
+  width: 1.7rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--nx-line);
+  transition: background-color 0.25s ease;
+}
+body.hw-nexus .hw .hw-place-marks i.is-done { background: var(--nx-mint); }
+body.hw-nexus .hw .hw-place-marks i.is-on { background: var(--nx-lime); }
+body.hw-nexus .hw .hw-place-btn {
+  min-width: 2.3rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 999px;
+  background: var(--nx-panel);
+  font-family: "Changa", sans-serif;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--nx-lime);
+  cursor: pointer;
+}
+body.hw-nexus .hw .hw-place-btn:hover { border-color: var(--nx-mint); }
+body.hw-nexus .hw .hw-place-btn:focus-visible { outline: 2px solid var(--nx-lime); outline-offset: 2px; }
+body.hw-nexus .hw .hw-place-prev,
+body.hw-nexus .hw .hw-place-next { font-size: 1.1rem; line-height: 1.1; }
+body.hw-nexus .hw .hw-place-toggle { margin-left: 0.6rem; min-width: 4.4rem; }
+body.hw-nexus .hw .hw-place-at {
+  min-width: 6.6rem;
+  text-align: center;
+  font-family: "Changa", sans-serif;
+  font-size: 0.86rem;
+  color: var(--nx-muted);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  body.hw-nexus .hw .hw-place { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li,
+  body.hw-nexus .hw .hw-place.is-live .hw-place-slides > li.is-on { transition: none; }
+}
+
 /* Building one: three steps, each a way into its own tables. */
 body.hw-nexus .hw .hw-do > li { counter-increment: hw-do; }
 body.hw-nexus .hw .hw-do > li::before { content: "Step " counter(hw-do); }
 body.hw-nexus .hw .hw-do h3 {
   margin: 0.25rem 0 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   color: var(--nx-lime);
 }
 body.hw-nexus .hw .hw-do p { margin: 0 0 0.9rem; font-size: 0.95rem; line-height: 1.6; }
@@ -12307,12 +12388,22 @@ body.hw-nexus .hw .hw-docs-list .hw-fold-body > h4:first-child { margin-top: 0.5
 @media (max-width: 760px) {
   body.hw-nexus .hw .hw-said,
   body.hw-nexus .hw .hw-do { grid-template-columns: minmax(0, 1fr); }
+  body.hw-nexus .hw .hw-said .hw-gain-fig { font-size: 1.35rem; }
+  body.hw-nexus .hw .hw-said .hw-said-pair { grid-template-columns: minmax(0, 1fr); }
+  body.hw-nexus .hw .hw-said .hw-said-what { padding-right: 0; }
+  body.hw-nexus .hw .hw-said .hw-said-then {
+    margin-top: 0.9rem;
+    padding: 0.9rem 0 0;
+    border-left: 0;
+    border-top: 1px dashed var(--nx-line);
+  }
   body.hw-nexus .hw .hw-point { font-size: 1.16rem; }
   body.hw-nexus .hw .hw-point.hw-point-sub { font-size: 1.04rem; }
   body.hw-nexus .hw #printed > section { margin-bottom: 3.4rem; }
   body.hw-nexus .hw .hw-build-head .hw-keys { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
   body.hw-nexus .hw .hw-build-head .hw-keys > div { padding: 0.8rem 0.85rem; }
   body.hw-nexus .hw .hw-build-head .hw-keys dt { font-size: 1.55rem; }
+  body.hw-nexus .hw .hw-build-head .hw-keys .hw-key-say { font-size: 1.04rem; }
 }
 
 /* ===== Team and Attributions: the deep-teal treatment ======================
@@ -12450,6 +12541,24 @@ body.hw-nexus.attr-page .attr-ai h4 { color: var(--nx-muted); }
 body.hw-nexus.attr-page .attr-ai strong { color: #fff; }
 body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
 
+/* The thank-you and the credit lists, on the deep-teal ground. */
+body.hw-nexus.attr-page .attr-thanks { color: var(--nx-text); }
+body.hw-nexus.attr-page .attr-people h2 { color: var(--nx-mint); }
+body.hw-nexus.attr-page .attr-list,
+body.hw-nexus.attr-page .attr-list li { color: var(--nx-text); }
+body.hw-nexus.attr-page .attr-list b { color: #fff; }
+body.hw-nexus.attr-page .attr-list ul li { color: var(--nx-muted); }
+body.hw-nexus.attr-page .attr-todo { color: var(--nx-muted); }
+/* the cards on the deep-teal ground: panel card, raised name bar, the darkest
+   tone for the text panel */
+body.hw-nexus.attr-page .attr-card { background: var(--nx-panel); border-color: var(--nx-line); }
+body.hw-nexus.attr-page .attr-avatar { background: var(--nx-raised); box-shadow: 0 0 0 2px var(--nx-line); }
+body.hw-nexus.attr-page .attr-avatar.is-initials { color: var(--nx-mint); }
+body.hw-nexus.attr-page .attr-card-name { background: var(--nx-raised); color: #fff; }
+body.hw-nexus.attr-page .attr-card-body { background: #0a1a21; color: var(--nx-text); }
+body.hw-nexus.attr-page .attr-card-role { color: var(--nx-lime); }
+body.hw-nexus.attr-page .attr-card-tasks li { color: var(--nx-muted); border-color: var(--nx-line); }
+
 /* ---- the banner photo, at full brightness ----
    The other deep-teal pages take their banner down to 0.42 (0.32 on a phone)
    and lay a petrol tint over it that is more than half opaque from the top.
@@ -12459,34 +12568,43 @@ body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
    gets a deeper shadow to stand clear of a light photo. Hardware's bench
    photo is treated the same way (its brightness is set with its other
    banner rules, near the top of this file). */
-body.hw-nexus.attr-page .page-hero-bg { filter: blur(2px) saturate(1) brightness(0.8); }
+/* (Attributions has since moved to the Team treatment below.) */
 
-/* ---- the Team banner, taller and sharp ----
-   This one banner is the group photo, and the point of it is that the faces
+/* ---- the Team and Attributions banners, taller and sharp ----
+   These two banners are group photos from the same shoot, and the point of
+   them is that the faces
    can be made out, so it gets three things the other banners do not. It is
    tall enough for the photo to be read as a photo rather than as a band
    across the middle of one; the 2px blur every other banner carries is off,
    since it is the one thing that would stop a face resolving; and the title
    is anchored to the bottom, where the tint is already near-opaque, so it
-   has something dark to sit on without being laid over anybody's face. */
-body.team-page .page-hero-bg { filter: saturate(1) brightness(0.8); }
+   has something dark to sit on without being laid over anybody's face.
+   At 70% brightness. */
+/* body.hw-nexus.team-page rather than body.team-page: the site-wide dark
+   mode (css/editorial.css, html[data-theme="dark"] .page-hero-bg) sets every
+   banner to 0.42 at the same specificity and loads later, so the shorter
+   selector lost to it. */
+body.hw-nexus.team-page .page-hero-bg,
+body.hw-nexus.attr-page .page-hero-bg { filter: saturate(1) brightness(0.7); }
 
-body.team-page .page-hero {
+body.team-page .page-hero,
+body.hw-nexus.attr-page .page-hero {
   min-height: clamp(520px, 82vh, 900px);
   display: flex;
   align-items: center;
-  /* Centred, then pushed about 100px below centre: dead centre laid the
-     title across the face of the person on the left of the group. The
-     padding is what does the pushing -- centring happens inside the content
-     box, so a heavier top padding lowers where "centre" lands, by half the
-     difference between the two. Change that difference to move the title up
-     or down the photo. */
-  padding-top: 204px !important;
+  /* Centred, then pushed 100px below centre: dead centre laid the title
+     across the face of the person on the left of the group, and at 204px it
+     still clipped her chin. The padding is what does the pushing -- centring
+     happens inside the content box, so a heavier top padding lowers where
+     "centre" lands, by HALF the difference between the two. So this pair is
+     100px down the photo, not 200. Change the difference to move the title. */
+  padding-top: 254px !important;
   padding-bottom: 104px;
 }
 
 /* .container is a flex item here, and would otherwise shrink to its text. */
-body.team-page .page-hero > .container { width: 100%; }
+body.team-page .page-hero > .container,
+body.hw-nexus.attr-page .page-hero > .container { width: 100%; }
 
 /* This page sets no subtitle, so layout.html's <p class="lead mb-5 hero-sub">
    renders empty -- but an empty <p> still holds a line box and its 3rem
@@ -12495,9 +12613,11 @@ body.team-page .page-hero > .container { width: 100%; }
    the title the only thing in the banner, all three go, so what is centred is
    the title itself. Scoped here because every other banner relies on that
    spacing for its height. */
-body.team-page .page-hero .hero-sub:empty { display: none; }
-body.team-page .page-hero .hero-title { margin: 0 !important; }
-body.team-page .page-hero-tint,
+body.team-page .page-hero .hero-sub:empty,
+body.hw-nexus.attr-page .page-hero .hero-sub:empty { display: none; }
+body.team-page .page-hero .hero-title,
+body.hw-nexus.attr-page .page-hero .hero-title { margin: 0 !important; }
+body.hw-nexus.team-page .page-hero-tint,
 body.hw-nexus.attr-page .page-hero-tint,
 body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
   background: linear-gradient(to bottom,

@@ -1,0 +1,194 @@
+/* ============================================================
+   BASE — 全站基礎層（載入於 bootstrap + 舊 style.css 之後，
+   以 token 重新上妝；不改舊版 DOM 結構，只覆蓋樣式）
+   ============================================================ */
+
+/* ---- 深色模式基礎：跟隨 data-theme ---- */
+/* engineering（DBTL）與 board-game（桌遊）各持完整紙白世界主題，
+   全站深夜底不得蓋過去（屬性選擇器特異性較高，會誤傷它們的 --paper 底）*/
+html[data-theme="dark"] body:not(.engineering-page):not(.board-game-page) {
+  background-color: var(--c-dark);
+  color: var(--c-text);
+  transition: background-color 0.5s var(--ease-io), color 0.5s var(--ease-io);
+}
+body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+
+::selection { background: var(--c-glow); color: var(--c-ink); }
+html[data-theme="dark"] ::selection { background: var(--c-teal); color: #000000; }
+
+/* 自訂滾動條（僅 webkit；Firefox 保持預設） */
+@media (pointer: fine) {
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--c-ink-2) 45%, transparent);
+    border-radius: 99px; border: 2px solid transparent; background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--c-teal-deep); background-clip: content-box; border: 2px solid transparent; }
+}
+
+/* ---- 焦點可見性（無障礙）---- */
+:focus-visible {
+  outline: 3px solid var(--c-teal);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---- 閱讀進度條 ---- */
+#rxProgress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  z-index: 2000; pointer-events: none;
+  background: linear-gradient(90deg, var(--c-teal), var(--c-glow));
+  box-shadow: 0 0 12px rgba(20, 179, 145, 0.6);
+  border-radius: 0 99px 99px 0;
+  opacity: 0; transition: opacity 0.3s ease;
+}
+body.rx-ready #rxProgress { opacity: 1; }
+
+/* ---- 深淺色切換鈕（JS 注入導覽列）---- */
+.rx-theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px; margin-left: 0.5rem;
+  border: 1.5px solid var(--glass-border, rgba(255,255,255,.25));
+  border-radius: var(--r-pill);
+  background: rgba(255, 253, 247, 0.14); color: #fff;
+  cursor: pointer; flex: none;
+  transition: transform var(--t-fast) var(--ease-spring),
+              background var(--t-fast) ease, color var(--t-fast) ease,
+              border-color var(--t-fast) ease;
+}
+.rx-theme-toggle:hover { transform: rotate(20deg) scale(1.08); background: rgba(160, 232, 96, 0.22); border-color: var(--c-glow); }
+.rx-theme-toggle svg { width: 20px; height: 20px; display: block; }
+.rx-theme-toggle .rx-moon { display: none; }
+html[data-theme="dark"] .rx-theme-toggle .rx-moon { display: block; }
+html[data-theme="dark"] .rx-theme-toggle .rx-sun { display: none; }
+
+/* ---- 通用 reveal（純 CSS 降級：無 JS 時全部可見）---- */
+html.rx-js [data-reveal] {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  transition-delay: calc(var(--rx-d, 0) * 1ms);
+}
+html.rx-js [data-reveal].rx-in { opacity: 1; transform: none; }
+/* clip-path 影像揭露 */
+html.rx-js [data-reveal="clip"] {
+  clip-path: inset(0 0 100% 0); opacity: 1; transform: none;
+  transition: clip-path 0.9s var(--ease-out);
+  transition-delay: calc(var(--rx-d, 0) * 1ms);
+}
+html.rx-js [data-reveal="clip"].rx-in { clip-path: inset(0 0 0 0); }
+
+/* ---- 編輯式：sticky 側欄 scroll-spy 目錄 ---- */
+.rx-toc {
+  position: sticky; top: calc(var(--nav-h-scrolled) + 24px);
+  padding-left: 1.1rem; border-left: 2px solid var(--c-line);
+  display: none;
+}
+@media (min-width: 1200px) { .rx-toc { display: block; } }
+.rx-toc a {
+  display: block; padding: 0.35rem 0; font-size: 0.85rem;
+  color: var(--c-text-3); text-decoration: none;
+  transition: color var(--t-fast) ease, transform var(--t-fast) var(--ease-out);
+}
+.rx-toc a:hover { color: var(--c-teal-deep); transform: translateX(3px); }
+.rx-toc a.active { color: var(--c-ink-2); font-weight: 700; border-left: 2px solid var(--c-teal); margin-left: -1.32rem; padding-left: 1.25rem; }
+html[data-theme="dark"] .rx-toc { border-color: var(--c-line); }
+html[data-theme="dark"] .rx-toc a { color: var(--c-text-3); }
+html[data-theme="dark"] .rx-toc a.active { color: var(--c-glow); }
+
+/* ---- 頁面主體套紙色（舊頁面 base 多為白底，補齊深色模式）---- */
+html[data-theme="dark"] .container,
+html[data-theme="dark"] .container-fluid { color: var(--c-text); }
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .table { background-color: var(--c-dark-2); color: var(--c-text); border-color: var(--c-line); }
+html[data-theme="dark"] .table td, html[data-theme="dark"] .table th { border-color: var(--c-line); }
+/* 按鈕排除在外：這條的權重是 (0,1,2)，兩個元素選擇器會壓過 .rx-btn-glow 這類
+   單一 class 的按鈕規則，讓按鈕字色被換成連結青色。.rx-btn-solid / -ghost 之所以
+   沒出事，只是因為它們各自另外寫了 html[data-theme="dark"] 開頭的規則擋下來。
+   按鈕的顏色由它自己的變體規則決定，不該走連結色。 */
+html[data-theme="dark"] a:not(.rx-btn) { color: var(--c-teal); }
+html[data-theme="dark"] .text-muted, html[data-theme="dark"] .text-white-50 { color: var(--c-text-3) !important; }
+
+/* ---- 內文可讀性（編輯式）---- */
+.rx-reading { max-width: var(--reading-max); }
+
+/* ---- 磁吸按鈕 ---- */
+.rx-magnetic { display: inline-block; will-change: transform; transition: transform 0.35s var(--ease-out); }
+
+/* ---- 全站深夜（Collaboration 主視覺）外殼適配 ----
+   導覽列文字：深夜底上轉螢光綠家族（原 #075a3e 深綠只屬淺色模式） */
+html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link { color: #d7f5b8; }
+html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link:hover,
+html[data-theme="dark"] body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link:focus-visible { color: #b8f57e; }
+
+/* ---- 深夜底打底洗光：頂部一抹 Collaboration 青綠（全站，engineering 除外）---- */
+html[data-theme="dark"] body:not(.engineering-page)::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    radial-gradient(120% 70% at 85% -10%, rgba(20, 179, 145, 0.10), transparent 55%),
+    radial-gradient(90% 60% at 8% 105%, rgba(160, 232, 96, 0.05), transparent 60%),
+    linear-gradient(to bottom, rgba(20, 179, 145, 0.05) 0%, rgba(20, 179, 145, 0) 45%);
+}
+/* nexus 系頁面自己管底光／網格，不重複上妝 */
+html[data-theme="dark"] body.hp-nexus::before,
+html[data-theme="dark"] body.edu-nexus::before,
+html[data-theme="dark"] body.hw-nexus::before { background-image: none; }
+
+/* ---- 自訂遊標（僅 pointer:fine）---- */
+@media (pointer: fine) {
+  html.rx-cursor, html.rx-cursor a, html.rx-cursor button { cursor: none; }
+  #rxCursor {
+    position: fixed; z-index: 3000; pointer-events: none;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--c-teal); mix-blend-mode: multiply;
+    transform: translate(-50%, -50%);
+    transition: width 0.25s var(--ease-out), height 0.25s var(--ease-out),
+                background 0.25s ease, opacity 0.3s ease;
+  }
+  html[data-theme="dark"] #rxCursor { mix-blend-mode: screen; }
+  #rxCursor.rx-big { width: 52px; height: 52px; background: rgba(20,179,145,0.22); border: 2px solid var(--c-teal); }
+  /* 深夜系頁面一律螢光綠游標＋同色光暈（含 Nexus 三頁與全站深色模式）：
+     深底上青點看不清，lime 一眼找到鼠標。 */
+  html[data-theme="dark"] #rxCursor,
+  body.hp-nexus #rxCursor,
+  body.edu-nexus #rxCursor {
+    background: #a0e860;
+    mix-blend-mode: screen;
+    box-shadow:
+      0 0 12px rgba(160, 232, 96, 0.9),
+      0 0 34px rgba(160, 232, 96, 0.45);
+  }
+  html[data-theme="dark"] #rxCursor.rx-big,
+  body.hp-nexus #rxCursor.rx-big,
+  body.edu-nexus #rxCursor.rx-big {
+    background: transparent;
+    border-color: #a0e860;
+    box-shadow:
+      inset 0 0 18px rgba(160, 232, 96, 0.35),
+      0 0 18px rgba(160, 232, 96, 0.55),
+      0 0 46px rgba(160, 232, 96, 0.3);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #rxCursor { display: none; }
+  html.rx-cursor, html.rx-cursor a, html.rx-cursor button { cursor: auto; }
+  html.rx-js [data-reveal], html.rx-js [data-reveal="clip"] { opacity: 1 !important; transform: none !important; clip-path: none !important; transition: none !important; }
+}
+
+/* ---- View Transitions：換頁如細胞分裂的交融（深夜版：螢光 bloom）---- */
+@media (view-transition) {
+  ::view-transition-old(root) { animation: rx-fade-out 0.3s var(--ease-io) both; }
+  ::view-transition-new(root) { animation: rx-bloom-in 0.6s var(--ease-out) both; }
+}
+@keyframes rx-fade-out {
+  to { opacity: 0; filter: blur(3px); transform: scale(0.995); }
+}
+@keyframes rx-bloom-in {
+  from { opacity: 0; filter: blur(8px);
+         clip-path: circle(0% at 50% 42%); }
+  to   { opacity: 1; filter: blur(0);
+         clip-path: circle(78% at 50% 42%); }
+}
+
+/* ---- 首頁專屬 token 骨幹（home.css 使用）---- */
+:root { --hero-h: min(92svh, 860px); }

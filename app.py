@@ -12,6 +12,8 @@ app = Flask(__name__, template_folder=template_folder)
 app.config['FREEZER_DESTINATION'] = 'public'
 app.config['FREEZER_RELATIVE_URLS'] = True
 app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
+# 開發期間關掉靜態檔瀏覽器快取（Flask 預設 12h 會咬住舊 CSS）
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 freezer = Freezer(app)
 
 @app.cli.command()

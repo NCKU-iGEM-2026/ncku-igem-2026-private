@@ -1,0 +1,112 @@
+/* ============================================================
+   HOME — 首頁沉浸式改版（rx-hero / bento / 章節軌道）
+   只加新 class；舊 home-slogan / story-* 原樣保留並接新皮。
+   ============================================================ */
+
+/* ---- 全螢幕 hero ---- */
+.rx-hero {
+  position: relative;
+  height: var(--hero-h, min(92svh, 860px));
+  min-height: 560px;
+  margin: 0 0 var(--sp-8);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 80% 0%, rgba(20,179,145,0.20), transparent 55%),
+    radial-gradient(90% 70% at 12% 100%, rgba(216,178,106,0.14), transparent 60%),
+    linear-gradient(165deg, #0e242e 0%, #0f2832 45%, #000000 100%);
+}
+html[data-theme="light"] .rx-hero {
+  background:
+    radial-gradient(120% 90% at 80% 0%, rgba(20,179,145,0.22), transparent 55%),
+    radial-gradient(90% 70% at 12% 100%, rgba(216,178,106,0.16), transparent 60%),
+    linear-gradient(165deg, #073c29 0%, #0e242e 55%, #000000 100%);
+}
+#rxHeroCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* 底部漸層淡出：hero 在最後 --hero-fade 淡成透明、融進下面的網頁背景，
+   不再有一條顏色落差的硬邊。滑動提示（SCROLL）整個抬到淡出區上方，不會被淡掉。 */
+.rx-hero {
+  --hero-fade: 5rem;
+  margin-bottom: 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--hero-fade)), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--hero-fade)), transparent 100%);
+}
+.rx-hero .rx-scroll-cue { bottom: calc(var(--hero-fade) + 0.5rem); }
+
+/* 第一個章節（.story）的上緣也從透明淡入，接住 hero 淡出後露出的頁面背景；
+   多出來的上方 padding 就是淡入的那一段，標題不會被淡掉。 */
+.story {
+  --story-fade: 3.5rem;
+  padding-top: calc(3rem + var(--story-fade)) !important;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--story-fade));
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--story-fade));
+}
+@media print { .rx-hero, .story { -webkit-mask-image: none; mask-image: none; } }
+
+.rx-hero-inner {
+  position: relative; z-index: 2; text-align: center;
+  padding: 0 1.25rem; max-width: 980px;
+}
+.rx-hero-kicker { color: var(--c-glow) !important; justify-content: center; }
+/* 首頁大標上方這一行置中，前面不加 .rx-kicker 的那段短橫；其他頁的 kicker 靠左，
+   短橫是起始標記，仍然保留。 */
+.rx-hero-kicker::before { display: none; }
+
+.rx-hero-title {
+  font-weight: 800; letter-spacing: -0.02em; line-height: 1.02;
+  font-size: clamp(2.6rem, 7vw, 5.4rem); color: #f2fff8; margin-bottom: 0.35rem;
+}
+/* 沿用 home-slogan 的既有文案，換上螢光皮膚 */
+.rx-hero-slogan {
+  color: rgba(226, 255, 240, 0.88) !important;
+  font-size: var(--fs-lead) !important;
+  margin-top: 0.9rem; margin-bottom: 2rem !important;
+}
+.rx-hero .home-slogan-accent {
+  color: var(--c-glow); position: relative;
+  text-shadow: 0 0 24px rgba(160,232,96,0.45);
+}
+/* Capture 一詞的呼吸光 */
+.rx-hero .home-slogan-accent::after {
+  content: ""; position: absolute; left: -0.15em; right: -0.15em; bottom: -0.18em; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--c-glow), transparent);
+  border-radius: 99px; opacity: 0.75; animation: rx-breathe 5s ease-in-out infinite;
+}
+.rx-hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 0.5rem; }
+/* hero 深底上的 ghost 鈕要亮字，否則深綠字陷進暗背景 */
+.rx-hero .rx-btn-ghost { color: #d7f5b8; border-color: rgba(215,245,184,0.45); }
+.rx-hero .rx-btn-ghost:hover { color: var(--c-glow); border-color: var(--c-glow); }
+
+/* hero 下方進入箭頭 */
+.rx-hero .rx-scroll-cue { color: rgba(242,255,248,0.8); }
+
+/* ---- bento 亮點區 ---- */
+.rx-bento { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 1.25rem; margin: var(--sp-6) 0 var(--sp-8); }
+.rx-bento .rx-card { height: 100%; display: flex; flex-direction: column; }
+.rx-bento h3 { font-size: var(--fs-h3); font-weight: 800; color: var(--c-ink); margin: 0 0 0.8rem; }
+.rx-bento p { color: var(--c-text-2); line-height: 1.8; }
+.rx-bento .rx-bento-todo { margin-top: auto; }
+@media (max-width: 991.98px) { .rx-bento { grid-template-columns: 1fr; } }
+
+/* ---- 敘事章節：軌道 + reveal 節拍 ---- */
+.rx-chapter .story-figures li { opacity: 1; } /* 章節整體仍由 data-reveal 驅動 */
+
+/* ---- 影片框：加入發光描邊 ---- */
+.home-video-frame {
+  border-radius: var(--r-lg); overflow: hidden;
+  border: 1px solid rgba(20,179,145,0.25);
+  box-shadow: 0 24px 60px -30px rgba(6,64,46,0.5);
+}
+
+/* ---- 行動版收斂 ---- */
+@media (max-width: 767.98px) {
+  .rx-hero { min-height: 480px; height: min(88svh, 640px); margin-top: calc(-1 * var(--sp-4)); }
+  .rx-hero-title { font-size: clamp(2.3rem, 11vw, 3.4rem); }
+}
+
+/* ---- print ---- */
+@media print {
+  .rx-hero { height: auto; min-height: 0; padding: 2rem 0; background: none !important; }
+  #rxHeroCanvas, .rx-scroll-cue { display: none !important; }
+}

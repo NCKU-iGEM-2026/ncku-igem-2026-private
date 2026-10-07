@@ -1,0 +1,357 @@
+/* ============================================================
+   COLLABORATION — 重製 v2：方皿分子網絡（位置固定不晃）
+   使用者回饋照辦：
+   - 一個 logo 只出現一次（六隊六節點，不再重複貼紙）
+   - 舞台是正方形，四邊都帶大 r 角
+   - 節點不晃：固定在盤面六方位
+   - 動畫感＋科技感＋生物元素：連線沿用首頁底色那套分子鍵結
+     （canvas：底層粒子＋近鄰鍵結線＋游標牽線，粒子慢、線密），
+     盤心一組雙股螺旋緩旋、scan 掃描線掠過、格網底＋六邊紋
+   舊 .collab-wall 的 DOM 已整段移除；JS 沒跑時節點仍完整可見。
+   ============================================================ */
+
+/* ---- 整帶：深夜培養皿 ---- */
+.rx-dish {
+  --dish-fade: 3rem;
+  margin-inline: calc(50% - 50vw);
+  /* 上下各多留一段 --dish-fade 給淡出，再用負外距把版面高度補回來 */
+  padding: calc(2.2rem + 1rem) 1rem calc(2.6rem + 1rem);
+  margin-block: -1rem;
+  background:
+    radial-gradient(120% 90% at 80% 0%, rgba(20,179,145,0.20), transparent 55%),
+    radial-gradient(90% 70% at 12% 100%, rgba(216,178,106,0.12), transparent 60%),
+    linear-gradient(165deg, #0e242e 0%, #0f2832 45%, #000000 100%);
+  /* 整帶的上下緣原本是一條硬邊加一條細線，和下面的方框看起來是同一個大方框；
+     現在拿掉細線，上下緣淡出，只剩中間圓角的培養皿舞台。 */
+  border-block: 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--dish-fade), #000 calc(100% - var(--dish-fade)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--dish-fade), #000 calc(100% - var(--dish-fade)), transparent 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---- 寬版舞台＋四邊大 r 角：橫向鋪滿大區域，不再是正方形。
+       桌面 16:7、平板 16:8、手機 4:3——行動版自動縮矮縮窄。---- */
+.rx-dish-stage {
+  position: relative;
+  width: min(1180px, 94vw);
+  aspect-ratio: 16 / 7;
+  border-radius: clamp(28px, 4vw, 56px);
+  background:
+    radial-gradient(90% 90% at 50% 42%, rgba(20, 179, 145, 0.14), transparent 62%),
+    linear-gradient(165deg, #0f2832 0%, #0e242e 55%, #000000 100%);
+  border: 1px solid rgba(20, 179, 145, 0.36);
+  box-shadow:
+    inset 0 0 90px rgba(3, 15, 10, 0.85),
+    inset 0 0 26px rgba(20, 179, 145, 0.12),
+    0 30px 80px -40px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+  touch-action: none; /* 觸控拖曳不滾頁 */
+}
+@media (max-width: 991.98px) {
+  .rx-dish-stage { aspect-ratio: 16 / 8; }
+}
+
+/* 科技感：細格網（皿內坐標紙） */
+.rx-dish-stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(20, 179, 145, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 179, 145, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(75% 75% at 50% 50%, #000 30%, transparent 78%);
+          mask-image: radial-gradient(75% 75% at 50% 50%, #000 30%, transparent 78%);
+  pointer-events: none;
+}
+
+/* 科技感：一條 scan 掃描線緩慢掠過（純裝飾） */
+.rx-dish-stage::after {
+  content: "";
+  position: absolute; left: -20%; right: -20%; top: 0; height: 120px;
+  background: linear-gradient(180deg, transparent, rgba(20, 179, 145, 0.08) 46%, rgba(160, 232, 96, 0.18) 50%, rgba(20, 179, 145, 0.08) 54%, transparent);
+  animation: rx-scan 9s linear infinite;
+  pointer-events: none;
+}
+@keyframes rx-scan {
+  0%   { transform: translateY(-140px); }
+  100% { transform: translateY(680px); }
+}
+
+/* ---- 盤內底色不再平坦：三顆螢光光球在皿內漂移（同底層 .hw-orbs 配方，
+       只是座標系換成盤面：外層跑 X、內層跑 Y，錯週期合成不規則軌跡）---- */
+.rx-dish-orbs {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.rx-dish-orbs > span {
+  position: absolute; left: 0; top: 0;
+  width: var(--d); height: var(--d);
+  animation: rx-orb-x var(--tx) ease-in-out infinite alternate;
+  animation-delay: var(--dx);
+}
+.rx-dish-orbs > span > span {
+  display: block; width: 100%; height: 100%;
+  animation: rx-orb-y var(--ty) ease-in-out infinite alternate;
+  animation-delay: var(--dy);
+  background:
+    radial-gradient(closest-side circle at 45% 42%,
+      rgba(160, 232, 96, 0.16) 0%,
+      rgba(160, 232, 96, 0.06) 44%,
+      rgba(20, 179, 145, 0) 72%),
+    radial-gradient(closest-side circle at 60% 60%,
+      rgba(20, 179, 145, 0.10) 0%,
+      rgba(20, 179, 145, 0) 58%);
+}
+.rx-dish-orbs > span:nth-child(1) { --d: 62%;  --tx: 37s; --ty: 29s; --dx: 0s;   --dy: -11s; }
+.rx-dish-orbs > span:nth-child(2) { --d: 44%;  --tx: 47s; --ty: 23s; --dx: -17s; --dy: -5s; }
+.rx-dish-orbs > span:nth-child(3) { --d: 78%;  --tx: 29s; --ty: 41s; --dx: -23s; --dy: -19s; }
+.rx-dish-orbs > span:nth-child(2) > span {
+  background:
+    radial-gradient(closest-side circle at 58% 38%,
+      rgba(160, 232, 96, 0.15) 0%,
+      rgba(160, 232, 96, 0.05) 42%,
+      rgba(20, 179, 145, 0) 70%),
+    radial-gradient(closest-side circle at 38% 62%,
+      rgba(216, 178, 106, 0.08) 0%,
+      rgba(20, 179, 145, 0) 55%);
+}
+.rx-dish-orbs > span:nth-child(3) > span {
+  background:
+    radial-gradient(closest-side circle at 48% 55%,
+      rgba(20, 179, 145, 0.14) 0%,
+      rgba(20, 179, 145, 0.06) 46%,
+      rgba(20, 179, 145, 0) 74%),
+    radial-gradient(closest-side circle at 62% 38%,
+      rgba(160, 232, 96, 0.07) 0%,
+      rgba(160, 232, 96, 0) 52%);
+}
+@keyframes rx-orb-x { from { transform: translateX(-25%); } to { transform: translateX(210%); } }
+@keyframes rx-orb-y { from { transform: translateY(-25%); } to { transform: translateY(180%); } }
+
+/* 六邊形紋（生物×科技主題裝飾，落在底層） */
+.rx-dish-hex {
+  position: absolute;
+  width: 46%; aspect-ratio: 1 / 1;
+  clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  border: 1px solid rgba(20, 179, 145, 0.18);
+  background: rgba(20, 179, 145, 0.04);
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.rx-dish-hex-a { animation: rx-hex 60s linear infinite; }
+.rx-dish-hex-b { width: 30%; border-color: rgba(13, 138, 112, 0.30); animation: rx-hex 44s linear infinite; }
+@keyframes rx-hex { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+/* 分子連線 canvas：鋪在最底、節點之下 */
+.rx-dish-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+
+/* ---- 盤心：雙股螺旋（生物核心）---- */
+.rx-dish-core {
+  position: absolute; left: 50%; top: 50%;
+  width: 54px; height: 54px;
+  transform: translate(-50%, -50%);
+  color: rgba(160, 232, 96, 0.85);
+  filter: drop-shadow(0 0 12px rgba(160, 232, 96, 0.55));
+  animation: rx-core-spin 14s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.rx-dish-core svg { width: 100%; height: 100%; display: block; }
+@keyframes rx-core-spin {
+  0%   { transform: translate(-50%, -50%) rotate(0deg)   scaleX(1); }
+  50%  { transform: translate(-50%, -50%) rotate(180deg) scaleX(0.42); }
+  100% { transform: translate(-50%, -50%) rotate(360deg) scaleX(1); }
+}
+
+/* ---- 節點：可拖曳重組，位置由 --nx/--ny 控制 ---- */
+.rx-node {
+  position: absolute;
+  left: var(--nx); top: var(--ny);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  touch-action: none; /* 觸控拖曳時不滾動頁面 */
+  cursor: grab;
+}
+/* 拖曳中的節點：不套 CSS transition（歸位由 JS 每幀緩動牽回） */
+.rx-node.rx-dragging { cursor: grabbing; z-index: 9; }
+/* 被牽回途中：微傾、發亮，提醒「線還有張力」（JS 進出場加註用） */
+.rx-node.rx-homing .rx-node-disc {
+  filter: drop-shadow(0 0 14px rgba(160, 232, 96, 0.45));
+}
+.rx-node-link {
+  display: flex; flex-direction: column; align-items: center; gap: 0.45rem;
+  text-decoration: none;
+  color: inherit;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* 方圓之間（squircle）：logo 底色填滿整個方塊——
+   不透明底圖（mingdao／NYCU／VIS／CCU）用 object-fit:cover 滿版撐出，
+   盤面底色取樣自 logo 本身、border 同色無縫，
+   不會在方盤裡看到「另一個正方形的框」。
+   透明底圖（Okinawa／HIA）落在深青raised底上，圖形完整浮現。 */
+.rx-node-disc {
+  width: clamp(64px, 13vw, 96px);
+  aspect-ratio: 1 / 1;
+  border-radius: 26%;
+  background: var(--nx-fill, var(--nx-raised));
+  border: 1px solid var(--nx-fill, var(--nx-raised));
+  box-shadow:
+    0 0 0 5px rgba(3, 19, 13, 0.62),
+    0 0 26px rgba(20, 179, 145, 0.22),
+    0 14px 30px -14px rgba(0, 0, 0, 0.85);
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.25, 1),
+              box-shadow 0.35s ease, border-color 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+.rx-node-disc img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; /* 底色滿版 */
+  -webkit-user-drag: none;
+}
+/* 取樣自 logo 邊緣的實際底色 */
+.rx-node-mingdao .rx-node-disc { --nx-fill: #F5F5F4; }
+.rx-node-nycu    .rx-node-disc { --nx-fill: #2E6084; }
+.rx-node-vis     .rx-node-disc { --nx-fill: #F5F5F4; }
+.rx-node-ccu     .rx-node-disc { --nx-fill: #EEF6D6; }
+/* 透明底兩隊：淡米黃白盤底＋圖形完整（contain） */
+.rx-node-okinawa .rx-node-disc,
+.rx-node-hia .rx-node-disc { --nx-fill: #f7f1de; }
+.rx-node-okinawa .rx-node-disc img,
+.rx-node-hia .rx-node-disc img { object-fit: contain; inset: 10%; width: 80%; height: 80%; }
+/* 環形雷達脈衝（動畫感；位置不動，只有光在動） */
+.rx-node-disc::after {
+  content: "";
+  position: absolute; inset: -5px;
+  border-radius: 26%;
+  border: 1.5px solid rgba(46, 219, 180, 0.55);
+  opacity: 0;
+  animation: rx-pulse 3.2s ease-out infinite;
+  animation-delay: var(--pd, 0s);
+  pointer-events: none;
+}
+.rx-node-nycu .rx-node-disc::after { animation-delay: 0.4s; }
+.rx-node-vis .rx-node-disc::after { animation-delay: 0.8s; }
+.rx-node-okinawa .rx-node-disc::after { animation-delay: 1.2s; }
+.rx-node-ccu .rx-node-disc::after { animation-delay: 1.6s; }
+.rx-node-hia .rx-node-disc::after { animation-delay: 2.0s; }
+@keyframes rx-pulse {
+  0%   { transform: scale(1);    opacity: 0.55; }
+  70%  { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+/* 吸附中：logo 被磁鐵吸向游標——盤緣亮起螢光描邊＋外擴光暈，
+   名牌轉 lime：一眼看出「這顆吸住了」 */
+.rx-node.rx-magnet .rx-node-disc {
+  border-color: var(--nx-lime, #a0e860);
+  box-shadow:
+    inset 0 0 26px rgba(160, 232, 96, 0.22),
+    0 0 22px rgba(160, 232, 96, 0.55),
+    0 0 54px rgba(160, 232, 96, 0.28);
+}
+.rx-node.rx-magnet .rx-node-name {
+  color: var(--nx-lime, #a0e860);
+  border-color: var(--nx-lime, #a0e860);
+}
+
+/* hover／焦點：微升＋發亮（只有縮放與光，不位移散落） */
+.rx-node-link:hover .rx-node-disc,
+.rx-node-link:focus-visible .rx-node-disc {
+  transform: translateY(-4px) scale(1.06);
+  border-color: var(--nx-lime, #a0e860);
+  box-shadow:
+    0 0 0 5px rgba(3, 19, 13, 0.62),
+    0 0 0 9px rgba(160, 232, 96, 0.25),
+    0 0 44px rgba(20, 179, 145, 0.5),
+    0 20px 40px -16px rgba(0, 0, 0, 0.9);
+}
+.rx-node-link:focus-visible {
+  outline: 3px solid var(--nx-lime, #a0e860);
+  outline-offset: 8px;
+  border-radius: 30%;
+}
+
+/* 名字：常駐小浮標（深色毛玻璃 micro-label） */
+.rx-node-name {
+  font-size: clamp(0.62rem, 1.5vw, 0.74rem);
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--nx-text, #dbe9ee);
+  background: rgba(6, 32, 22, 0.8);
+  border: 1px solid rgba(20, 179, 145, 0.34);
+  border-radius: 999px;
+  padding: 0.16rem 0.6rem;
+  backdrop-filter: blur(4px);
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+.rx-node-link:hover .rx-node-name {
+  color: var(--nx-lime, #a0e860);
+  border-color: var(--nx-lime, #a0e860);
+  background: rgba(6, 32, 22, 0.92);
+}
+
+/* 拖曳／重組操作提示 */
+.rx-dish-hint {
+  margin: 0.9rem auto 0;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--nx-muted, #a9c3b4);
+  opacity: 0.85;
+}
+.rx-dish-hint kbd {
+  font: inherit;
+  color: var(--nx-mint, #49c5b6);
+  border: 1px solid var(--nx-line, #14584a);
+  border-radius: 6px;
+  padding: 0 0.35em;
+  background: rgba(11, 44, 34, 0.6);
+}
+
+/* ---- 進場：整塊皿由中心縮放浮現 ---- */
+html.rx-js .rx-dish-stage {
+  opacity: 0; transform: scale(0.92);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+html.rx-js .rx-dish-stage.rx-in { opacity: 1; transform: scale(1); }
+
+/* ---- 行動版 ---- */
+@media (max-width: 575.98px) {
+  .rx-dish-stage { width: min(420px, 92vw); border-radius: 34px; }
+  .rx-node-disc { width: 58px; }
+  .rx-node-name { font-size: 0.58rem; padding: 0.12rem 0.45rem; }
+  .rx-dish-core { width: 40px; height: 40px; }
+}
+
+/* ---- 無障礙：減少動態全靜態 ---- */
+@media (prefers-reduced-motion: reduce) {
+  .rx-dish-stage::after, .rx-dish-hex, .rx-dish-core, .rx-node-disc::after { animation: none !important; }
+  .rx-dish-orbs > span, .rx-dish-orbs > span > span { animation-play-state: paused; }
+  html.rx-js .rx-dish-stage { opacity: 1; transform: none; transition: none; }
+}
+
+/* ---- print ---- */
+@media print {
+  .rx-dish { background: none !important; -webkit-mask-image: none; mask-image: none; }
+  .rx-dish-canvas, .rx-dish-hex, .rx-dish-stage::after { display: none !important; }
+}
+
+/* WiST（第七隊，dev 新增）：透明底，比照 Okinawa／HIA 淡米黃盤底＋contain */
+.rx-node-wist .rx-node-disc { --nx-fill: #f7f1de; }
+/* 原圖 4000×2252 橫幅、透明底，logo 只佔中央約 1/4 寬：改 cover 填滿高度、再放大裁到 logo 本體 */
+.rx-node-wist .rx-node-disc img { object-fit: cover; inset: 0; width: 100%; height: 100%; transform: scale(1.5); }
+.rx-node-wist .rx-node-disc::after { animation-delay: 2.4s; }

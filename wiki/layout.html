@@ -4,7 +4,21 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 浮水印小圖示：AVIF 給新瀏覽器，PNG 兜底（舊 Safari／LINE 預覽不吃 avif）-->
     <link rel="shortcut icon" href="https://static.igem.wiki/teams/6379/wiki/logo/logo-only.avif"/>
+    <link rel="icon" type="image/png" sizes="64x64" href="{{ url_for('static', filename = 'img/favicon-64.png') }}"/>
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename = 'img/apple-touch-icon.png') }}"/>
+    <!-- 社群分享預覽卡（LINE／Telegram／Facebook／X）：缺 og:image 時會抓圖一品質崩壞的隨機截圖 -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="NCKU-Tainan iGEM 2026">
+    <meta property="og:title" content="{% block og_title %}NCKU-Tainan iGEM 2026{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}成功大學 iGEM 2026 團隊 wiki：合成生物學 × 深夜螢光綠。{% endblock %}">
+    <meta property="og:image" content="https://2026.igem.wiki/ncku-tainan/static/img/og-cover.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://2026.igem.wiki/ncku-tainan/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://2026.igem.wiki/ncku-tainan/static/img/og-cover.png">
     <link rel="license" href="https://creativecommons.org/licenses/by/4.0/"/>
 
     <!-- Every page pulls its banner, photos and fonts from static.igem.wiki.
@@ -22,10 +36,35 @@
     <link href="{{ url_for('static', filename = 'site-loader.css') }}" rel="stylesheet">
     <!-- The loading screen's bacterium is asked for first, so it is there when
          the screen is. Without JavaScript the screen is not drawn at all. -->
-    <link rel="preload" as="image" href="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria.avif" fetchpriority="high">
+    <link rel="preload" as="image" href="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria2.avif" fetchpriority="high">
     <noscript><style>.site-loader { display: none !important; }</style></noscript>
 
+    <!-- Redesign layers: tokens → base → components → shell（順序即覆蓋順序） -->
+    <link href="{{ url_for('static', filename = 'css/tokens.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'css/base.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'css/components.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'css/shell.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename = 'css/editorial.css') }}" rel="stylesheet">
+    <!-- 全站深夜覆蓋層：舊淺色面板→Collaboration 深夜綠家族（僅 dark 生效）-->
+    <link href="{{ url_for('static', filename = 'css/pages/nexus-dark.css') }}" rel="stylesheet">
+    {% block page_css %}{% endblock %}
+
     <title>{% block title %}{% endblock %} | NCKU-Tainan - iGEM 2026</title>
+
+    <!-- 深淺色：首幀前定色，避免閃白。全站預設 Collaboration 深夜綠；
+         使用者手動切過淺色才記住淺色 -->
+    <script>
+      (function () {
+        var RX_THEME_TOGGLE = false; /* 暫時關閉深淺色切換，固定深色；與 motion.js 的 THEME_TOGGLE_ENABLED 同步 */
+        var t = 'dark';
+        if (RX_THEME_TOGGLE) {
+          try { t = localStorage.getItem('rx-theme') || 'dark'; } catch (e) {}
+        }
+        if (t !== 'light') t = 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.classList.add('rx-js');
+      })();
+    </script>
 
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -34,7 +73,7 @@
        see static/site-loader.css. -->
   <div class="site-loader" id="siteLoader" role="status" aria-busy="true">
     <div class="site-loader-stage">
-      <img class="site-loader-germ" src="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria.avif" alt="" width="218" height="295" decoding="async" fetchpriority="high">
+      <img class="site-loader-germ" src="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria2.avif" alt="" width="858" height="1163" decoding="async" fetchpriority="high">
       <div class="site-loader-ring" aria-hidden="true">
         <span class="site-loader-slot" style="--i:0"><span class="cap-ahl"></span></span>
         <span class="site-loader-slot" style="--i:1"><span class="cap-ahl"></span></span>
@@ -89,6 +128,16 @@
   <!-- Bootstrap Bundle with Popper -->
   <script src="{{ url_for('static', filename = 'bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename = 'navbar-scroll.js') }}"></script>
+  <!-- Redesign motion: vendor GSAP/ScrollTrigger/Lenis（自架）+ 全站動態 -->
+  <script src="{{ url_for('static', filename = 'vendor/gsap.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename = 'vendor/ScrollTrigger.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename = 'vendor/lenis.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename = 'js/motion.js') }}" defer></script>
+  <script src="{{ url_for('static', filename = 'js/editorial.js') }}" defer></script>
+  <!-- 全站動態底圖：網格＋DNA（Collaboration 同款；engineering/board-game 自行跳過）-->
+  <script src="{{ url_for('static', filename = 'js/pages/hp-mesh.js') }}" defer></script>
+  <!-- 區塊級螢網：data-glow 元素内長出一層螢網（见 glow-mesh.js 檔頭規格）-->
+  <script src="{{ url_for('static', filename = 'js/glow-mesh.js') }}" defer></script>
   <script src="{{ url_for('static', filename = 'page-toc.js') }}"></script>
   {% block extra_scripts %}{% endblock %}
 </body>

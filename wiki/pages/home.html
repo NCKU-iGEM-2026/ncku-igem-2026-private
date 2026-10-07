@@ -2,14 +2,30 @@
 
 {% block title %}Home{% endblock %}
 
+{% block page_css %}
+<link href="{{ url_for('static', filename = 'css/motion.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename = 'css/pages/home.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+<!-- 沉浸式 hero：分子粒子場 + kinetic type。Canvas 壞/無 JS 時退化為 CSS 漸層+靜態文字。 -->
+<header class="rx-hero" id="rxHeroStage">
+  <canvas id="rxHeroCanvas" aria-hidden="true"></canvas>
+  <div class="rx-hero-inner">
+    <p class="rx-kicker rx-hero-kicker">NCKU-Tainan &middot; iGEM 2026</p>
+    <h1 class="rx-hero-title" data-rx-split>Capture</h1>
+    <p class="lead home-slogan rx-hero-slogan">Secure the future, <span class="home-slogan-accent">Capture</span> the cure.</p>
+    <div class="rx-hero-cta">
+      <a class="rx-btn rx-btn-glow rx-magnetic" href="{{ url_for('pages', page='description') }}">Discover the Project</a>
+      <a class="rx-btn rx-btn-ghost" href="#captureGame">Play Capture &darr;</a>
+    </div>
+  </div>
+  <div class="rx-scroll-cue" aria-hidden="true"><span>Scroll</span><i></i></div>
+</header>
+{% endblock %}
+
 {% block page_content %}
 
-<div class="jumbotron jumbotron-fluid text-center text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #2c3e50 0%, #1f6f78 55%, #1abc9c 100%); height: 450px; margin-top: -24px;">
-  <div>
-    <h1 class="display-3 font-weight-bold">Welcome</h1>
-    <p class="lead home-slogan">Secure the future, <span class="home-slogan-accent">Capture</span> the cure.</p>
-  </div>
-</div>
 
 <!--
   The opening: how big the problem is, then the project in four beats, in the
@@ -29,9 +45,10 @@
   same figures behind these same desc-pending badges, so there is one place
   to fix rather than two. If that page changes, change this with it.
 -->
-<section class="story" aria-labelledby="story-heading">
+<section class="story" aria-labelledby="story-heading" data-rx-chapter>
+  <span class="rx-chapter-rail" aria-hidden="true"></span>
   <div class="story-inner">
-    <p class="story-kicker">The organism we are after</p>
+    <p class="story-kicker" data-reveal>The organism we are after</p>
     <h2 class="story-heading" id="story-heading">
       <em>Pseudomonas aeruginosa</em> is hard to treat because its cells act
       together
@@ -42,19 +59,19 @@
     </p>
 
     <ul class="story-figures">
-      <li>
+      <li data-reveal style="--rx-d:0">
         <span class="story-figure"><span data-count-to="32000">32,000</span></span>
         <span class="story-figure-note">infections a year attributed to it in the United States</span>
       </li>
-      <li>
+      <li data-reveal style="--rx-d:90">
         <span class="story-figure"><span data-count-to="2700">2,700</span></span>
         <span class="story-figure-note">deaths a year, in the same reporting</span>
       </li>
-      <li>
+      <li data-reveal style="--rx-d:180">
         <span class="story-figure"><span data-count-to="20">20</span>&ndash;<span data-count-to="40">40</span>%</span>
         <span class="story-figure-note">reported mortality in critically ill patients who go on to severe pneumonia or bacteraemia</span>
       </li>
-      <li>
+      <li data-reveal style="--rx-d:270">
         <span class="story-figure"><span data-count-to="140000">140,000</span>+</span>
         <span class="story-figure-note">healthcare-associated infections a year in Taiwan, of every kind &mdash; it is among the top three pathogens behind them</span>
       </li>
@@ -102,15 +119,11 @@
 
 <div class="container my-5">
 
-  <div class="row mt-5">
-    <!--
-      Four sentences condensed from Project Description: the coordination
-      problem, what makes the signal worth reading, the two systems, and why
-      capturing rather than killing. Nothing here is a claim the Description
-      page does not already make -- if that page changes, change this with it.
-    -->
-    <div class="col-md-6">
-      <h3 class="font-weight-bold">Project Background</h3>
+  <!-- bento：專案背景＋亮點（亮點區為既有佔位文字，未捏造內容） -->
+  <div class="rx-bento" data-reveal>
+    <div class="rx-card">
+      <p class="rx-kicker">Background</p>
+      <h3>Project Background</h3>
       <p>
         <em>Pseudomonas aeruginosa</em> is hard to treat not because any single
         cell is formidable, but because the cells act together &mdash;
@@ -128,13 +141,15 @@
         not a result we have measured.
       </p>
       <p>
-        <a href="{{ url_for('pages', page='description') }}">Read the full
+        <a class="rx-btn rx-btn-ghost" href="{{ url_for('pages', page='description') }}">Read the full
         Project Description &rarr;</a>
       </p>
     </div>
-    <div class="col-md-6">
-      <h3 class="font-weight-bold">Key Achievements</h3>
+    <div class="rx-card">
+      <p class="rx-kicker">Highlights</p>
+      <h3>Key Achievements</h3>
       <p>這裡可以放一些團隊最引以為傲的亮點。</p>
+      <span class="rx-todo rx-bento-todo">TODO: 內容待團隊提供</span>
     </div>
   </div>
 
@@ -143,7 +158,7 @@
     it directly. The markup and the script are unchanged: capture-game.js finds
     its root by .cap-game, not by which page it is on.
   -->
-  <section class="cap-page mx-auto mt-5">
+  <section class="cap-page mx-auto mt-5" id="captureGame">
     <h3 class="font-weight-bold text-center">Capture</h3>
 
     <div class="cap-intro">
@@ -166,7 +181,7 @@
     -->
     <div class="cap-game" data-state="idle">
 
-      <div class="cap-field">
+      <div class="cap-field" data-lenis-prevent>
 
         <div class="cap-hud">
           <p class="cap-pill"><span class="cap-pill-key">Score</span>
@@ -203,7 +218,7 @@
             </li>
             <li class="cap-rule">
               <span class="cap-rule-chip" aria-hidden="true"><img
-                src="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria.avif"
+                src="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria2.avif"
                 alt=""></span>
               <p class="cap-rule-text"><span class="cap-rule-score is-loss">&minus;1</span>Click a
                 <em>P.&nbsp;aeruginosa</em> and you lose a point. The aptamer
@@ -294,7 +309,11 @@
     {# Bootstrap's .ratio holds the 16:9 box, so the iframe needs no width or
        height of its own and cannot letterbox on a narrow screen. #}
     <div class="ratio ratio-16x9 home-video-frame">
-      <iframe src="{{ promo_embed }}"
+      {# data-src, not src: the player is only given its address once the page
+         has loaded (script at the bottom), so a slow video host cannot hold
+         the loading screen up. loading="lazy" then keeps it from being
+         fetched before the reader scrolls near it. #}
+      <iframe data-src="{{ promo_embed }}" loading="lazy"
               title="NCKU-Tainan: Capture &mdash; Striking Back at Pseudomonas aeruginosa with Dual-Action Engineered E. coli (2026), project promotion"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
               allow="fullscreen"
@@ -399,7 +418,10 @@
 <div class="tour" id="siteTour" hidden>
   <div class="tour-backdrop" data-tour-dismiss></div>
 
-  <div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourHeading" tabindex="-1">
+  <!-- data-lenis-prevent: this card scrolls on its own when it is taller than
+       the viewport, and Lenis otherwise swallows the wheel and scrolls the
+       page behind it instead, leaving the rest of the card unreachable. -->
+  <div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourHeading" tabindex="-1" data-lenis-prevent>
     <div class="tour-bar">
       <p class="tour-count"><span id="tourNow">1</span> / <span id="tourTotal">2</span></p>
       <button type="button" class="tour-skip" data-tour-dismiss>Skip</button>
@@ -485,4 +507,14 @@
 <script src="{{ url_for('static', filename = 'site-quiz.js') }}"></script>
 <script src="{{ url_for('static', filename = 'capture-game.js') }}"></script>
 <script src="{{ url_for('static', filename = 'count-up.js') }}"></script>
+<script src="{{ url_for('static', filename = 'js/pages/home.js') }}" defer></script>
+<script>
+(function () {
+  var frame = document.querySelector(".home-video-frame iframe[data-src]");
+  if (!frame) return;
+  function give() { frame.src = frame.getAttribute("data-src"); }
+  if (document.readyState === "complete") give();
+  else window.addEventListener("load", give);
+})();
+</script>
 {% endblock %}

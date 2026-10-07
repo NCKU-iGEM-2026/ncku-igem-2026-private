@@ -25,8 +25,10 @@
 
   .page-toc-inner {
     position: sticky;
-    top: 84px;
-    max-height: calc(100vh - 104px);
+    /* 浮動導覽列（捲動往上時會重新出現）底緣約在 96px，目錄要貼在它下面，
+       不然最上面的「On this page」會被導覽列蓋住 */
+    top: 112px;
+    max-height: calc(100vh - 132px);
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -149,6 +151,20 @@
   body.hw-nexus .page-toc-list a:focus-visible,
   body.edu-nexus .page-toc-list a:focus-visible,
   body.bg-nexus .page-toc-list a:focus-visible { outline-color: var(--nx-mint); }
+
+  /* A part of a page split into parts (data-toc-group): a small uppercase
+     title with room above it, so the entries under it read as its own. */
+  .page-toc-list li.page-toc-group { margin-top: 0.9rem; }
+  .page-toc-list li.page-toc-group:first-child { margin-top: 0; }
+  .page-toc-list li.page-toc-group > a {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  body.hw-nexus .page-toc-list li.page-toc-group > a { color: var(--nx-mint); }
+  body.hw-nexus .page-toc-list li.page-toc-group > a.is-active,
+  body.hw-nexus .page-toc-list li.page-toc-group > a:hover { color: var(--nx-lime); }
 }
 
 @media (min-width: 1200px) and (prefers-reduced-motion: reduce) {

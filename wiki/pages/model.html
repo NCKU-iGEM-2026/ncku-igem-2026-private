@@ -16,9 +16,48 @@
 {#
   === 給團隊的說明，發布前請讀 ===
 
-  這一頁目前只有「讀取器的量測模型」（dry lab）。wet lab 的模型位置已預留，
-  見下方「預留：wet lab modeling」的註解。wet lab 內容放進來之後，開頭兩段
-  hw-lead 要改寫成涵蓋兩部分，並決定頁首副標題（block lead，目前留空）。
+  本頁分成三個 Part（2026-10-07 改版）：
+    Part 1  Inhibition model          #model-inhibition   佔位，內容待補
+    Part 2  Inhibition zone imaging   #model-zone         佔位，內容待補
+    Part 3  Reader model              #model-reader       讀取器的量測模型（原本整頁的內容）
+    Summary                           #model-impact       What modelling changed（三個 Part 的總表）
+  Part 3 裡原本的 Model 1/2/3 已改成 3.2/3.3/3.4，其餘各節也編成 3.1–3.8；section 的 id 沒有改。
+  2026-10-08：Part 3 精簡過一次（硬體負責人的決定，因為前面還要放兩個模型）。現在是 3.1–3.7：
+    原本的 3.6 A prediction on the record 併進 3.3（id model-prediction 還在，在那一段上）；
+    原本的 3.7、3.8 改成 3.6、3.7；3.5 後半的兩個小標收進收合列；Part 3 開頭少說一次它做了什麼。
+    沒有刪任何數字、表或圖，離開正文的內容都在收合列裡。
+
+  導覽：
+    - 頁首三張卡片（md-parts）同時是目錄和「三個模型怎麼串起來」的關係圖，卡片之間有箭頭。
+    - 寬螢幕（≥1200px）左邊會自動出現 On this page 側邊目錄（static/page-toc.js），
+      Part 的標題用 data-toc-group 標成分組，各節標題用 data-toc-title 給短名。
+      新增一節時，h2 加上 data-toc-title="X.Y 短名" 即可，目錄會自己更新。
+    - Part 3 標題下另有各節捷徑（hw-jump），手機上用。
+
+  評審（Best Model）看的是：假設、用到的數據、結果、任何人都看得懂的說明、
+  以及模型有沒有實際影響專案設計。所以每個 Part 都照同一套小標題寫：
+    X.1 The question       這個模型要回答什麼、為什麼專案需要它
+    X.2 Assumptions
+    X.3 The model          公式或方法
+    X.4 Data & parameters  參數從哪來（實驗或文獻，要標出處）
+    X.5 Results
+    X.6 Validation         跟實驗比對
+    X.7 What it changed    這個模型讓我們改了什麼設計或決定
+    X.8 Limits
+  Part 1、2 的骨架寫在各自的註解裡，照著填即可。Part 3 是先寫好的，沒有照這套標題，
+  改用標題下的「Part 3 at a glance」對照到它的各節。
+
+  Part 1、2 放內容之前請先確認：
+    - 頁首卡片的一句話說明（md-parts-q）是暫定的，請改成該模型真正回答的問題，
+      並拿掉卡片上的 In preparation（md-parts-state）與 Part 底下的 In preparation 段落。
+    - 頁首 hw-lead 那一段的描述（inhibition → inhibition zone → reader）是否正確。
+    - 卡片下方「三個模型怎麼串起來」那一句（md-parts-link）要寫成真正的關係，
+      這是科學內容，必須由團隊確認，不可推測。
+    - 最後的 What modelling changed 總表：Part 1、2 那兩列要補；Part 3 那幾列是從本頁
+      既有文字整理的，請確認它們確實反映團隊當時的決定。
+    - 正式提交（wiki freeze）前，不可留下任何 In preparation 的佔位文字。
+
+  以下說明都是針對 Part 3。
 
   內容來源（全部在硬體資料夾 C:\IGEM\prototype_1\_AI_REFACTOR_WORK\，本頁沒有加入
   這些文件以外的數據、結果或引用）：
@@ -75,6 +114,113 @@
 
   <div class="hw-lead">
     <p>
+      This page holds three models, in the order the project runs: the
+      inhibition itself, the inhibition zone that shows it on a plate, and the
+      reader that measures fluorescence. Each part can be read on its own.
+    </p>
+  </div>
+
+  {# 三張入口卡片，同時是本頁的目錄和三個模型的關係圖：卡片之間的箭頭是專案的順序。
+     每張連到下面一個 Part 的 id，改了 id 要一起改。
+     Part 1、2 的一句話說明是暫定的，內容放進來之後請改成那個模型真正回答的問題，
+     並拿掉 md-parts-state 那一行。 #}
+  <ol class="md-parts" aria-label="The three models on this page, in the order the project runs">
+    <li>
+      <a href="#model-inhibition">
+        <span class="md-parts-no">Part 1</span>
+        <span class="md-parts-name">Inhibition model</span>
+        <span class="md-parts-q">A model of the inhibition itself.</span>
+        <span class="md-parts-state">In preparation</span>
+      </a>
+    </li>
+    <li>
+      <a href="#model-zone">
+        <span class="md-parts-no">Part 2</span>
+        <span class="md-parts-name">Inhibition zone imaging</span>
+        <span class="md-parts-q">Turning a photograph of an inhibition zone into a number.</span>
+        <span class="md-parts-state">In preparation</span>
+      </a>
+    </li>
+    <li>
+      <a href="#model-reader">
+        <span class="md-parts-no">Part 3</span>
+        <span class="md-parts-name">Reader model</span>
+        <span class="md-parts-q">What the reader's counts say about the culture in the cuvette.</span>
+      </a>
+    </li>
+  </ol>
+
+  {# 三個模型怎麼互相銜接（例如 Part 1 的預測由 Part 2 的量測來檢驗），由團隊確認後
+     寫成一兩句，取代這裡的 In preparation。這是科學內容，不可推測。 #}
+  <p class="hw-aside md-parts-link">
+    How the three models feed into each other: in preparation.
+  </p>
+
+  {# ======================================================================
+     Part 1：抑制模型（佔位）
+     內容進來之後，刪掉下面 In preparation 那個 section，換成這份骨架（照填即可）：
+
+       <section id="model-inhibition-question">
+         <h2 data-toc-title="1.1 The question">1.1 The question</h2> …
+       </section>
+       <section id="model-inhibition-assumptions">  1.2 Assumptions
+       <section id="model-inhibition-model">        1.3 The model（公式用 sw-eq，見 Part 3）
+       <section id="model-inhibition-data">         1.4 Data and parameters（每個參數標出處）
+       <section id="model-inhibition-results">      1.5 Results
+       <section id="model-inhibition-validation">   1.6 Validation
+       <section id="model-inhibition-changed">      1.7 What it changed
+       <section id="model-inhibition-limits">       1.8 Limits
+
+     每個 h2 都要加 data-toc-title，側邊目錄才會用短名。可用的元件（表格 hw-table、
+     重點清單 hw-spec、收合 hw-fold、圖框 hwx-rig、注意框 hw-caution）在 Part 3 都有範例。
+     ====================================================================== #}
+  <header class="md-part" id="model-inhibition" data-toc-group>
+    <p class="md-part-no">Part 1</p>
+    <h2 data-toc-title="Part 1 · Inhibition">Inhibition model</h2>
+  </header>
+
+  <section>
+    <p class="hw-aside">In preparation.</p>
+  </section>
+
+  {# ======================================================================
+     Part 2：抑制圈影像辨識（佔位）
+     同 Part 1 的骨架，id 用 model-zone-…，標題用 2.1–2.8。
+     影像辨識的話，2.3 The model 寫處理流程（例如前處理 → 分割 → 量測），
+     2.6 Validation 寫跟人工量測的比對。照片請用 iGEM uploads 工具上傳後再引用（見 README）。
+     ====================================================================== #}
+  <header class="md-part" id="model-zone" data-toc-group>
+    <p class="md-part-no">Part 2</p>
+    <h2 data-toc-title="Part 2 · Inhibition zone">Inhibition zone imaging</h2>
+  </header>
+
+  <section>
+    <p class="hw-aside">In preparation.</p>
+  </section>
+
+  {# ======================================================================
+     Part 3：讀取器的量測模型（原本整頁的內容）
+     ====================================================================== #}
+  <header class="md-part" id="model-reader" data-toc-group>
+    <p class="md-part-no">Part 3</p>
+    <h2 data-toc-title="Part 3 · Reader">Reader model: from counts to culture</h2>
+  </header>
+
+  {# Part 3 的各節捷徑。每個連結對應一個 section 的 id，改了 id 要一起改。 #}
+  <nav class="hw-jump" aria-label="Part 3 sections">
+    <ul class="sw-links">
+      <li><a href="#model-data">3.1 Data</a></li>
+      <li><a href="#model-within">3.2 Within a session</a></li>
+      <li><a href="#model-across">3.3 Across sessions</a></li>
+      <li><a href="#model-design">3.4 Design</a></li>
+      <li><a href="#model-inverse">3.5 Inverse</a></li>
+      <li><a href="#model-limits">3.6 Limits</a></li>
+      <li><a href="#model-reproduce">3.7 Reproducing</a></li>
+    </ul>
+  </nav>
+
+  <div class="hw-lead">
+    <p>
       <a href="{{ url_for('pages', page='hardware') }}">CAPTURE-Screen</a>
       reports counts from a spectral sensor. A count is not yet a statement
       about a sample: it depends on how much reporter culture is in the
@@ -82,41 +228,44 @@
       scatter that pipetting, cuvettes and the sensor add on top.
     </p>
     <p>
-      The model on this page connects the two. It was built from our own bench
-      data and tested against it, and it did three jobs: it showed how the
-      reading scales with the amount of GFP culture, it explained why the same
-      recipe read six times higher in one session than in another, and it told
-      us when another experiment was not worth running.
+      The model in this part connects the two. It was built from our own bench
+      data and tested against it.
     </p>
   </div>
 
   <div class="hw-caution">
     <p>
-      <em>What this page does not claim.</em> Every reading here is a relative
+      <em>What this part does not claim.</em> Every reading here is a relative
       fluorescence on one instrument. There is no fluorescence standard behind
       it, so there is no absolute unit, no limit of detection and no
       calibration curve. None of these cultures was induced with AHL: the
       samples are cultures reported to carry the sfGFP plasmid, cultures
       without it, and medium. A dose&ndash;response model of the biosensor
-      itself is not here, because we have not measured one.
+      itself is not part of this model, because we have not measured one.
     </p>
   </div>
 
-  {#
-    === 預留：wet lab modeling ===
-    wet lab 的模型（例如感測器或 aptamer 的動力學）放在這裡，寫成和下面各節同一層的
-    <section>，建議加上 id 方便其他頁連結。放進來之前這裡不會顯示任何東西。
-    有了內容之後，記得回頭改上面的 hw-lead 兩段與 hw-caution 的最後一句。
-  #}
+  {# Part 3 寫在這套小標題訂下之前，所以用這張表把評審要找的每一項對到它所在的節。
+     每一列都只指向本頁已經寫了的內容。 #}
+  <div class="md-glance">
+    <p class="md-glance-title">Part 3 at a glance</p>
+    <dl class="hw-spec">
+      <div><dt>Question</dt><dd>How the reading scales with GFP culture, why sessions disagree, and when another experiment is worth running. <a href="#model-questions">Three questions</a></dd></div>
+      <div><dt>Data</dt><dd>50 tubes from three mixing sessions on one instrument, each tube the mean of its valid cycles. <a href="#model-data">3.1</a></dd></div>
+      <div><dt>Model</dt><dd>A line through the origin within a session, a stock-density conversion across sessions, and a four-channel ridge regression in the other direction. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
+      <div><dt>Validation</dt><dd>Every model is scored on tubes it was not fitted to: a left-out recipe, or a whole left-out session. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
+      <div><dt>What it changed</dt><dd>How many pairs to make, whether to repeat a comparison, and which pipeline to keep. <a href="#model-design">3.4</a>, <a href="#model-impact">Summary</a></dd></div>
+      <div><dt>Limits</dt><dd>Relative readings only, three sessions, and a cross-session conversion found after the fact. <a href="#model-limits">3.6</a></dd></div>
+    </dl>
+  </div>
 
   <!-- ========================= the questions ========================= -->
-  <section>
-    <h2>Three questions</h2>
+  <section id="model-questions">
+    <h2 data-toc-title="Three questions">Three questions</h2>
 
     <p>
-      A model earns its place by answering something we could not otherwise
-      answer. Ours had three questions put to it, and each card turns over to
-      show what came back.
+      The reader model had three questions put to it. Each card turns over
+      to show what came back.
     </p>
 
     <dl class="hw-terms hw-flip">
@@ -152,8 +301,8 @@
     <ol class="hw-flow">
       <li>Dark &middot; lit &middot; dark cycles</li>
       <li>Tube mean of 3 cycles</li>
-      <li>Model 1: within a session</li>
-      <li>Model 2: across sessions</li>
+      <li>3.2 Within a session</li>
+      <li>3.3 Across sessions</li>
       <li>A prediction to test</li>
     </ol>
 
@@ -177,7 +326,7 @@
 
   <!-- ========================= the data ========================= -->
   <section id="model-data">
-    <h2>The data behind it</h2>
+    <h2 data-toc-title="3.1 Data">3.1 The data behind it</h2>
 
     <p>
       Everything below comes from one instrument, <code>P1-PROTO-01</code>,
@@ -218,39 +367,50 @@
       the ones the cross-session model uses.
     </p>
 
-    <h3>What counts as one measurement</h3>
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">What counts as one measurement</span>
+        <span class="hw-fold-meta">657 rows &middot; 631 valid</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+        <p>
+          Each cycle reads the sensor three times: dark, lit, dark. A cycle whose
+          dark read before the flash is not zero on all twelve channels is void,
+          because that is what room light reaching the detector looks like. Each
+          tube is read for three cycles and enters every model as the mean of its
+          valid ones. The cycles are three looks at one tube, not three samples,
+          so the tube is the unit throughout. A reading of zero is a legitimate
+          value and is kept.
+        </p>
 
-    <p>
-      Each cycle reads the sensor three times: dark, lit, dark. A cycle whose
-      dark read before the flash is not zero on all twelve channels is void,
-      because that is what room light reaching the detector looks like. Each
-      tube is read for three cycles and enters every model as the mean of its
-      valid ones. The cycles are three looks at one tube, not three samples,
-      so the tube is the unit throughout. A reading of zero is a legitimate
-      value and is kept.
-    </p>
+        <p>
+          Across nine sets of logs from eight days the instrument recorded 657
+          rows, of which 631 are valid (96.0&nbsp;%). The other 26 are accounted
+          for: 18 are deliberate gate checks, run with the LED not armed or
+          disabled, and 8 are cycles the firmware voided for a non-zero dark read.
+          No row saturated.
+        </p>
 
-    <p>
-      Across nine sets of logs from eight days the instrument recorded 657
-      rows, of which 631 are valid (96.0&nbsp;%). The other 26 are accounted
-      for: 18 are deliberate gate checks, run with the LED not armed or
-      disabled, and 8 are cycles the firmware voided for a non-zero dark read.
-      No row saturated.
-    </p>
-
-    <p class="hw-aside">
-      The same record sets the scale of the noise. Within one insertion the
-      three cycles differ by about 0.69 counts (root mean square), so a tube
-      mean carries 0.27 to 0.43 counts of it. In four of seven replicate
-      groups the spread left over between tubes is larger than that: there,
-      seating, sampling, preparation or the cuvette contribute more than the
-      detector's own cycle noise.
-    </p>
+        <p class="hw-aside">
+          The same record sets the scale of the noise. Within one insertion the
+          three cycles differ by about 0.69 counts (root mean square), so a tube
+          mean carries 0.27 to 0.43 counts of it. In four of seven replicate
+          groups the spread left over between tubes is larger than that: there,
+          seating, sampling, preparation or the cuvette contribute more than the
+          detector's own cycle noise.
+        </p>
+      </div>
+    </details>
   </section>
 
-  <!-- ========================= model 1 ========================= -->
+  <!-- ========================= 3.2 within a session ========================= -->
   <section id="model-within">
-    <h2>Model 1: within one session, the reading is proportional</h2>
+    <h2 data-toc-title="3.2 Within a session">3.2 Within one session, the reading is proportional</h2>
 
     <p>
       The simplest thing the reading could do is rise in proportion to the
@@ -338,17 +498,30 @@
       warranted depends on how far the signal is from the floor.
     </p>
 
-    <dl class="hw-spec">
-      <div><dt>Doubling</dt><dd>Going from <var>G</var>&nbsp;=&nbsp;0.5 to 1.0 multiplied the reading by 2.04 in mixing session 3, by 1.51 in session 1 with a dense stock, and by 9.25 in session 2 near the floor. Proportional would be 2.</dd></div>
-      <div><dt>Low end</dt><dd>The lowest-concentration recipe reads below the line in all three sessions, by 1.2 to 1.9 counts. One straight line is a first-order description.</dd></div>
-      <div><dt>Design</dt><dd>The six-parameter surface cannot be estimated from mixing session 3 at all. Its five recipes all lie on (<var>d</var>&nbsp;&minus;&nbsp;<var>G</var>)(<var>d</var>&nbsp;&minus;&nbsp;1)&nbsp;=&nbsp;0, so the design matrix has rank 5. A session meant to test curvature has to place recipes off that curve.</dd></div>
-      <div><dt>Caveat</dt><dd>The lack-of-fit test in mixing session 1 has two degrees of freedom of pure error, from one replicated recipe. It has almost no power, and its <var>p</var> values say little either way.</dd></div>
-    </dl>
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Notes on the line</span>
+        <span class="hw-fold-meta">4 notes</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+        <dl class="hw-spec">
+          <div><dt>Doubling</dt><dd>Going from <var>G</var>&nbsp;=&nbsp;0.5 to 1.0 multiplied the reading by 2.04 in mixing session 3, by 1.51 in session 1 with a dense stock, and by 9.25 in session 2 near the floor. Proportional would be 2.</dd></div>
+          <div><dt>Low end</dt><dd>The lowest-concentration recipe reads below the line in all three sessions, by 1.2 to 1.9 counts. One straight line is a first-order description.</dd></div>
+          <div><dt>Design</dt><dd>The six-parameter surface cannot be estimated from mixing session 3 at all. Its five recipes all lie on (<var>d</var>&nbsp;&minus;&nbsp;<var>G</var>)(<var>d</var>&nbsp;&minus;&nbsp;1)&nbsp;=&nbsp;0, so the design matrix has rank 5. A session meant to test curvature has to place recipes off that curve.</dd></div>
+          <div><dt>Caveat</dt><dd>The lack-of-fit test in mixing session 1 has two degrees of freedom of pure error, from one replicated recipe. It has almost no power, and its <var>p</var> values say little either way.</dd></div>
+        </dl>
+      </div>
+    </details>
   </section>
 
-  <!-- ========================= model 2 ========================= -->
+  <!-- ========================= 3.3 across sessions ========================= -->
   <section id="model-across">
-    <h2>Model 2: across sessions, most of the difference is the stock</h2>
+    <h2 data-toc-title="3.3 Across sessions">3.3 Across sessions, most of the difference is the stock</h2>
 
     <p>
       The three slopes above are 30.93, 5.17 and 18.69, a spread of
@@ -460,45 +633,123 @@
       </p>
     </div>
 
+    {# 2026-10-08：這一段原本是獨立的一節（3.6 A prediction on the record）。它是上面那個警語的下一句話
+       （還沒有事前的預測檢驗過），而且預測沒有被檢驗，所以併進 3.3：兩三句話留在正文，公式與五項條件收在
+       下面的收合列，一個字都沒有刪。id 留在這一段上，總表的連結照舊。原本的 3.7、3.8 改成 3.6、3.7。 #}
+    <p id="model-prediction">
+      To turn it into evidence, we wrote a prediction into our closing report
+      on 2026-09-30, with the rule for judging it fixed in advance: a new
+      stock should read within 0.80 to 1.20 of
+      10.85&nbsp;&times;&nbsp;4&nbsp;&times;&nbsp;<var>q</var><sub>G</sub>. It was
+      not tested. On 2026-10-03 the reader was rebuilt, and the number 10.85
+      does not carry over to the rebuilt reader without being measured again.
+    </p>
+
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">The prediction as written</span>
+        <span class="hw-fold-meta">5 terms</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+    <div class="sw-eq sw-eq-key">
+      F4<sub>predicted</sub> = 10.85 &times; 4 &times; <var>q</var><sub>G</sub>
+    </div>
+
     <dl class="hw-spec">
-      <div><dt>Robust?</dt><dd>Reading <var>&rho;</var> from other reasonable low-range tubes moves <var>s</var> between 9.76 and 11.68, and the largest-to-smallest ratio stays between 1.08 and 1.20.</dd></div>
-      <div><dt>Not any OD</dt><dd>Converting with the stock's own displayed OD (1.56, 0.52, 1.10) gives 19.83, 9.95 and 16.99, still 1.99&times; apart. The displayed OD does not scale with dilution: a 1:2 tube reads only 1.59 to 1.69 times a 1:4 tube, where proportional would be 2. The cause is not established.</dd></div>
-      <div><dt>Left out</dt><dd>The earlier sessions (the stability read, first fluorescence and re-insertion tests 1 and 2) have no dilution series from one stock with a low-range OD, so they cannot enter this model. They neither support it nor contradict it.</dd></div>
+      <div><dt>Input</dt><dd><var>q</var><sub>G</sub> is the displayed OD of a new GFP stock diluted 1:4 (50&nbsp;&micro;L of stock, 150&nbsp;&micro;L of medium), read twice and averaged.</dd></div>
+      <div><dt>Output</dt><dd>The F4 of 200&nbsp;&micro;L of that stock, as the mean of at least two tubes. For <var>q</var><sub>G</sub>&nbsp;=&nbsp;0.43 the prediction is about 18.7 counts.</dd></div>
+      <div><dt>Conditions</dt><dd>The same <code>P1-PROTO-01</code>, the same detector settings, shielded, the UVette in the same orientation, and a new batch of GFP culture.</dd></div>
+      <div><dt>Verdict</dt><dd>Measured over predicted between 0.80 and 1.20 supports the model. Anything else does not, and will be reported as such.</dd></div>
+      <div><dt>Scope</dt><dd>The number 10.85 belongs to this instrument's present optics. A revised light path needs its own.</dd></div>
     </dl>
 
-    <h3>What it says about the faint end</h3>
+    {# 2026-10-03：機器已改版（P1-PROTO-02：新的 UVette 座與激發端、LED 電流約 10 mA）。
+       來源：硬體資料夾 PROJECT_STATE/CURRENT_STATE.md、DECISION_LOG.md GOV-011
+       （434 Ω 與 217 Ω 的讀值沒有實測比值不能合併）。
+       如果改版前其實測過這個預測，請把結果寫在這裡，並改掉這一段。 #}
+    <p class="hw-aside">
+      This prediction was not tested, and it can no longer be tested as
+      written. On 2026-10-03 the reader was rebuilt, with a new cuvette seat
+      and excitation end and about twice the LED current, so the instrument
+      named under Conditions no longer exists in that form, and the number
+      10.85 does not carry over to the rebuilt reader without being measured
+      again. The cross-session model stays what it was: a description of
+      three sessions that happens to be consistent. The rebuild is described
+      on the
+      <a href="{{ url_for('pages', page='hardware') }}#hardware-v2">Hardware</a>
+      page.
+    </p>
+      </div>
+    </details>
 
-    <div class="hw-figure hw-figure-table">
-      <table class="hw-table md-keep">
-        <caption>Tubes containing GFP culture, by density index</caption>
-        <thead>
-          <tr>
-            <th scope="col">Density index <var>x</var></th>
-            <th scope="col" class="md-n">Tubes</th>
-            <th scope="col" class="md-n">Read above zero</th>
-            <th scope="col">Mixing sessions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>0 to 0.2</td><td class="md-n">4</td><td class="md-n">1</td><td>2</td></tr>
-          <tr><td>0.2 to 0.3</td><td class="md-n">4</td><td class="md-n">4</td><td>2</td></tr>
-          <tr><td>0.3 to 0.5</td><td class="md-n">5</td><td class="md-n">5</td><td>1, 2 and 3</td></tr>
-          <tr><td>0.5 to 1</td><td class="md-n">18</td><td class="md-n">18</td><td>1, 2 and 3</td></tr>
-          <tr><td>1 to 3</td><td class="md-n">7</td><td class="md-n">7</td><td>1 and 3</td></tr>
-          <tr class="is-total"><td>All</td><td class="md-n">38</td><td class="md-n">35</td><td></td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        All 27 measurements of samples without GFP read exactly zero on F4.
-        This table describes three sessions. It is not a limit of detection,
-        and <var>x</var> itself comes from the post hoc conversion above.
-      </figcaption>
-    </div>
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">How robust the conversion is</span>
+        <span class="hw-fold-meta">3 notes</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+        <dl class="hw-spec">
+          <div><dt>Robust?</dt><dd>Reading <var>&rho;</var> from other reasonable low-range tubes moves <var>s</var> between 9.76 and 11.68, and the largest-to-smallest ratio stays between 1.08 and 1.20.</dd></div>
+          <div><dt>Not any OD</dt><dd>Converting with the stock's own displayed OD (1.56, 0.52, 1.10) gives 19.83, 9.95 and 16.99, still 1.99&times; apart. The displayed OD does not scale with dilution: a 1:2 tube reads only 1.59 to 1.69 times a 1:4 tube, where proportional would be 2. The cause is not established.</dd></div>
+          <div><dt>Left out</dt><dd>The earlier sessions (the stability read, first fluorescence and re-insertion tests 1 and 2) have no dilution series from one stock with a low-range OD, so they cannot enter this model. They neither support it nor contradict it.</dd></div>
+        </dl>
+      </div>
+    </details>
+
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">What it says about the faint end</span>
+        <span class="hw-fold-meta">35 of 38 above zero</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
+        <div class="hw-figure hw-figure-table">
+          <table class="hw-table md-keep">
+            <caption>Tubes containing GFP culture, by density index</caption>
+            <thead>
+              <tr>
+                <th scope="col">Density index <var>x</var></th>
+                <th scope="col" class="md-n">Tubes</th>
+                <th scope="col" class="md-n">Read above zero</th>
+                <th scope="col">Mixing sessions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>0 to 0.2</td><td class="md-n">4</td><td class="md-n">1</td><td>2</td></tr>
+              <tr><td>0.2 to 0.3</td><td class="md-n">4</td><td class="md-n">4</td><td>2</td></tr>
+              <tr><td>0.3 to 0.5</td><td class="md-n">5</td><td class="md-n">5</td><td>1, 2 and 3</td></tr>
+              <tr><td>0.5 to 1</td><td class="md-n">18</td><td class="md-n">18</td><td>1, 2 and 3</td></tr>
+              <tr><td>1 to 3</td><td class="md-n">7</td><td class="md-n">7</td><td>1 and 3</td></tr>
+              <tr class="is-total"><td>All</td><td class="md-n">38</td><td class="md-n">35</td><td></td></tr>
+            </tbody>
+          </table>
+          <figcaption>
+            All 27 measurements of samples without GFP read exactly zero on F4.
+            This table describes three sessions. It is not a limit of detection,
+            and <var>x</var> itself comes from the post hoc conversion above.
+          </figcaption>
+        </div>
+      </div>
+    </details>
   </section>
 
-  <!-- ========================= model 3 ========================= -->
+  <!-- ========================= 3.4 design ========================= -->
   <section id="model-design">
-    <h2>Model 3: deciding what to measure, and when to stop</h2>
+    <h2 data-toc-title="3.4 Design">3.4 Deciding what to measure, and when to stop</h2>
 
     <p>
       One question the instrument has to answer is whether other cells in the
@@ -557,16 +808,29 @@
       comparison and for spending the remaining bench time elsewhere.
     </p>
 
-    <dl class="hw-spec">
-      <div><dt>More tubes</dt><dd>Because tube-to-tube spread exceeds cycle noise, precision comes from more tubes or more pairs, not from more cycles per tube.</dd></div>
-      <div><dt>Confound</dt><dd>The cuvettes were washed and reused, so which use of a cuvette it was, and whether A or C was read first, coincide exactly in that session. One cuvette per tube, or a cross-tabulation of the factors at the design stage, would have kept them apart.</dd></div>
-      <div><dt>Attribution</dt><dd>C receives culture, cells together with their spent medium, where A receives fresh medium. C&nbsp;&minus;&nbsp;A is the difference between two recipes and cannot be assigned to the cells alone.</dd></div>
-    </dl>
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Lessons for the next design</span>
+        <span class="hw-fold-meta">3 notes</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+        <dl class="hw-spec">
+          <div><dt>More tubes</dt><dd>Because tube-to-tube spread exceeds cycle noise, precision comes from more tubes or more pairs, not from more cycles per tube.</dd></div>
+          <div><dt>Confound</dt><dd>The cuvettes were washed and reused, so which use of a cuvette it was, and whether A or C was read first, coincide exactly in that session. One cuvette per tube, or a cross-tabulation of the factors at the design stage, would have kept them apart.</dd></div>
+          <div><dt>Attribution</dt><dd>C receives culture, cells together with their spent medium, where A receives fresh medium. C&nbsp;&minus;&nbsp;A is the difference between two recipes and cannot be assigned to the cells alone.</dd></div>
+        </dl>
+      </div>
+    </details>
   </section>
 
   <!-- ========================= inverse ========================= -->
   <section id="model-inverse">
-    <h2>The other direction: from four channels back to G</h2>
+    <h2 data-toc-title="3.5 Inverse">3.5 The other direction: from four channels back to G</h2>
 
     <p>
       The models above predict a reading from a recipe. In use the question
@@ -603,25 +867,38 @@
       {{ frac('&minus;0.0049&thinsp;F2 &minus; 0.0811&thinsp;F3 + 0.0203&thinsp;F4 + 0.0531&thinsp;Clear', 'OD<sub>stock</sub>') }}
     </div>
 
-    <div class="hw-figure hw-figure-table">
-      <table class="hw-table">
-        <caption>Ridge coefficients, fitted to all 50 tubes</caption>
-        <thead><tr><th scope="col">Coefficient</th><th scope="col">Multiplies</th><th scope="col" class="md-n">Value</th></tr></thead>
-        <tbody>
-          <tr><td><var>b</var><sub>0</sub></td><td>the intercept</td><td class="md-n">&minus;0.05174420</td></tr>
-          <tr><td><var>b</var><sub>2</sub></td><td>F2, 445&nbsp;nm</td><td class="md-n">&minus;0.00485952</td></tr>
-          <tr><td><var>b</var><sub>3</sub></td><td>F3, 480&nbsp;nm</td><td class="md-n">&minus;0.08107594</td></tr>
-          <tr><td><var>b</var><sub>4</sub></td><td>F4, 515&nbsp;nm</td><td class="md-n">0.02033082</td></tr>
-          <tr><td><var>b</var><sub>C</sub></td><td>Clear</td><td class="md-n">0.05305219</td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        <var>&Gcirc;</var> is the predicted volume fraction of GFP stock, so
-        <var>&Gcirc;</var>&nbsp;&times;&nbsp;100 is a percentage. Channel values
-        are raw counts averaged over three cycles; OD<sub>stock</sub> is the
-        displayed OD of that day's GFP stock.
-      </figcaption>
-    </div>
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">The coefficients to eight places</span>
+        <span class="hw-fold-meta">5 values</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
+        <div class="hw-figure hw-figure-table">
+          <table class="hw-table">
+            <caption>Ridge coefficients, fitted to all 50 tubes</caption>
+            <thead><tr><th scope="col">Coefficient</th><th scope="col">Multiplies</th><th scope="col" class="md-n">Value</th></tr></thead>
+            <tbody>
+              <tr><td><var>b</var><sub>0</sub></td><td>the intercept</td><td class="md-n">&minus;0.05174420</td></tr>
+              <tr><td><var>b</var><sub>2</sub></td><td>F2, 445&nbsp;nm</td><td class="md-n">&minus;0.00485952</td></tr>
+              <tr><td><var>b</var><sub>3</sub></td><td>F3, 480&nbsp;nm</td><td class="md-n">&minus;0.08107594</td></tr>
+              <tr><td><var>b</var><sub>4</sub></td><td>F4, 515&nbsp;nm</td><td class="md-n">0.02033082</td></tr>
+              <tr><td><var>b</var><sub>C</sub></td><td>Clear</td><td class="md-n">0.05305219</td></tr>
+            </tbody>
+          </table>
+          <figcaption>
+            <var>&Gcirc;</var> is the predicted volume fraction of GFP stock, so
+            <var>&Gcirc;</var>&nbsp;&times;&nbsp;100 is a percentage. Channel values
+            are raw counts averaged over three cycles; OD<sub>stock</sub> is the
+            displayed OD of that day's GFP stock.
+          </figcaption>
+        </div>
+      </div>
+    </details>
 
     <p class="hw-aside">
       This is the fit to all the data, and it is what one would carry to a new
@@ -665,12 +942,31 @@
 
     <p class="hw-aside">
       This study divided by the stock's displayed OD as read (1.56, 0.52,
-      1.10), not by the low-range index <var>&rho;</var> of Model 2. The two
+      1.10), not by the low-range index <var>&rho;</var> of 3.3. The two
       analyses were made separately and have not been reconciled.
     </p>
 
-    <h3>Where it is wrong</h3>
+    {# 2026-10-08：硬體負責人問這一部分會不會太多（前面還要放另外兩個模型），交給我決定。
+       這一節原本有四個小標；後兩個（Where it is wrong、What more modelling did not buy）是次要的檢查，
+       結論都是「沒有理由換掉原本的做法」，所以收成一句話加兩個收合列。表、圖、段落一個字都沒有刪，只是搬進去。 #}
+    <p>
+      The error sits in the faint tubes and in the session with the thin
+      stock, and more modelling did not lower it: forty configurations from
+      eighteen model families, scored the same way, gave no reason to move
+      off the pipeline that was fixed first.
+    </p>
 
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Where it is wrong</span>
+        <span class="hw-fold-meta">2 tables</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
     <div class="hw-two-tables">
       <div class="hw-figure">
         <table class="hw-table md-keep">
@@ -705,9 +1001,20 @@
       was off by 29.37, so 8.24 is an average over sessions and not a bound on
       any single tube.
     </p>
+      </div>
+    </details>
 
-    <h3>What more modelling did not buy</h3>
-
+    <details class="hw-fold md-fold hw-fold-wide">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">What more modelling did not buy</span>
+        <span class="hw-fold-meta">18 model families &middot; 8 notes</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
     <p>
       Forty configurations from eighteen model families were then run through
       the same held-out scoring. Reporting the best of forty as the result
@@ -752,61 +1059,23 @@
       gave a reason to move off the fixed pipeline.
     </p>
 
-    <dl class="hw-spec">
-      <div><dt>Best of 40</dt><dd>The lowest score found was 7.60, from plain least squares. Letting the training data choose the model, which is the fair version of the same search, gives 9.13. Neither replaces 8.24.</dd></div>
-      <div><dt>MLP</dt><dd>The neural network's fits raised convergence warnings and were sensitive to how the input was laid out in memory. Its bar is shown for completeness and supports no conclusion.</dd></div>
-      <div><dt>Regimes</dt><dd>Separate models for low and high signal scored 8.85. An OD main effect scored 8.76 and an OD interaction 12.23.</dd></div>
-      <div><dt>Background</dt><dd>A background correction from the Clear channel scored 8.62, the same with a zero constraint 8.72, and a cell-density term 9.62. None improved on the uncorrected model.</dd></div>
-      <div><dt>Channels</dt><dd>A general advantage of four channels over one is not established. Dropping F4 scored 6.65 across three sessions; dropping Clear scored 14.97. With sessions one and three alone, F4 by itself scored 7.04 against 7.00 for all four.</dd></div>
-      <div><dt>Curvature</dt><dd>For the forward relation on the twenty pure-GFP tubes, a straight line has a mean absolute held-out error of 2.05 counts, a quadratic 2.43 and a cubic 5.65.</dd></div>
-      <div><dt>Zero</dt><dd>All 36 F4 cycles of the 12 GFP-free tubes read zero. The model still predicted the six from mixing session 2 at +6.06&nbsp;% on average. That bias comes from the regression's other channels, not from the raw green signal.</dd></div>
-      <div><dt>Two sessions</dt><dd>Restricted to sessions one and three the fixed pipeline scores 7.00. Session two was set aside on the operator's account of a thin stock, not by a rule written beforehand, so this is a supplement and the three-session figure stands as the result.</dd></div>
-    </dl>
-  </section>
-
-  <!-- ========================= prediction ========================= -->
-  <section id="model-prediction">
-    <h2>A prediction on the record</h2>
-
-    <p>
-      Model 2 was found by looking at data, which is the weakest way to find
-      anything. What would turn it into evidence is a prediction written down
-      before the measurement, with the rule for judging it fixed in advance.
-      We wrote one into our closing report on 2026-09-30.
-    </p>
-
-    <div class="sw-eq sw-eq-key">
-      F4<sub>predicted</sub> = 10.85 &times; 4 &times; <var>q</var><sub>G</sub>
-    </div>
-
-    <dl class="hw-spec">
-      <div><dt>Input</dt><dd><var>q</var><sub>G</sub> is the displayed OD of a new GFP stock diluted 1:4 (50&nbsp;&micro;L of stock, 150&nbsp;&micro;L of medium), read twice and averaged.</dd></div>
-      <div><dt>Output</dt><dd>The F4 of 200&nbsp;&micro;L of that stock, as the mean of at least two tubes. For <var>q</var><sub>G</sub>&nbsp;=&nbsp;0.43 the prediction is about 18.7 counts.</dd></div>
-      <div><dt>Conditions</dt><dd>The same <code>P1-PROTO-01</code>, the same detector settings, shielded, the UVette in the same orientation, and a new batch of GFP culture.</dd></div>
-      <div><dt>Verdict</dt><dd>Measured over predicted between 0.80 and 1.20 supports the model. Anything else does not, and will be reported as such.</dd></div>
-      <div><dt>Scope</dt><dd>The number 10.85 belongs to this instrument's present optics. A revised light path needs its own.</dd></div>
-    </dl>
-
-    {# 2026-10-03：機器已改版（P1-PROTO-02：新的 UVette 座與激發端、LED 電流約 10 mA）。
-       來源：硬體資料夾 PROJECT_STATE/CURRENT_STATE.md、DECISION_LOG.md GOV-011
-       （434 Ω 與 217 Ω 的讀值沒有實測比值不能合併）。
-       如果改版前其實測過這個預測，請把結果寫在這裡，並改掉這一段。 #}
-    <p class="hw-aside">
-      This prediction was not tested, and it can no longer be tested as
-      written. On 2026-10-03 the reader was rebuilt, with a new cuvette seat
-      and excitation end and about twice the LED current, so the instrument
-      named under Conditions no longer exists in that form, and the number
-      10.85 does not carry over to the rebuilt reader without being measured
-      again. Model 2 stays what it was: a description of three sessions that
-      happens to be consistent. The rebuild is described on the
-      <a href="{{ url_for('pages', page='hardware') }}#hardware-v2">Hardware</a>
-      page.
-    </p>
+        <dl class="hw-spec">
+          <div><dt>Best of 40</dt><dd>The lowest score found was 7.60, from plain least squares. Letting the training data choose the model, which is the fair version of the same search, gives 9.13. Neither replaces 8.24.</dd></div>
+          <div><dt>MLP</dt><dd>The neural network's fits raised convergence warnings and were sensitive to how the input was laid out in memory. Its bar is shown for completeness and supports no conclusion.</dd></div>
+          <div><dt>Regimes</dt><dd>Separate models for low and high signal scored 8.85. An OD main effect scored 8.76 and an OD interaction 12.23.</dd></div>
+          <div><dt>Background</dt><dd>A background correction from the Clear channel scored 8.62, the same with a zero constraint 8.72, and a cell-density term 9.62. None improved on the uncorrected model.</dd></div>
+          <div><dt>Channels</dt><dd>A general advantage of four channels over one is not established. Dropping F4 scored 6.65 across three sessions; dropping Clear scored 14.97. With sessions one and three alone, F4 by itself scored 7.04 against 7.00 for all four.</dd></div>
+          <div><dt>Curvature</dt><dd>For the forward relation on the twenty pure-GFP tubes, a straight line has a mean absolute held-out error of 2.05 counts, a quadratic 2.43 and a cubic 5.65.</dd></div>
+          <div><dt>Zero</dt><dd>All 36 F4 cycles of the 12 GFP-free tubes read zero. The model still predicted the six from mixing session 2 at +6.06&nbsp;% on average. That bias comes from the regression's other channels, not from the raw green signal.</dd></div>
+          <div><dt>Two sessions</dt><dd>Restricted to sessions one and three the fixed pipeline scores 7.00. Session two was set aside on the operator's account of a thin stock, not by a rule written beforehand, so this is a supplement and the three-session figure stands as the result.</dd></div>
+        </dl>
+      </div>
+    </details>
   </section>
 
   <!-- ========================= limits ========================= -->
   <section id="model-limits">
-    <h2>Assumptions and limits</h2>
+    <h2 data-toc-title="3.6 Limits">3.6 Assumptions and limits</h2>
 
     <div class="hw-figure">
       <table class="hw-table">
@@ -849,10 +1118,10 @@
 
   <!-- ========================= reproducing ========================= -->
   <section id="model-reproduce">
-    <h2>How the numbers were produced</h2>
+    <h2 data-toc-title="3.7 Reproducing">3.7 How the numbers were produced</h2>
 
     <p>
-      The tables behind Models 1 to 3 were not typed in by hand. Each is
+      The tables behind sections 3.2 to 3.4 were not typed in by hand. Each is
       generated by a script that reads the instrument's raw serial logs and
       the bench record, and is then recomputed by a second script, written
       separately, that compares the two cell by cell. The least-squares fits
@@ -860,8 +1129,7 @@
       Every tube mean the models use is listed in those tables, including the
       readings of zero and the tubes that were re-prepared. The four-channel
       study keeps a record of every model it fitted and refits its held-out
-      predictions as a check. The three figures of Models 1 and 2 on this page
-      are drawn from the twenty tube means themselves, with their slopes and
+      predictions as a check. The three figures in 3.2 and 3.3 are drawn from the twenty tube means themselves, with their slopes and
       held-out errors computed in the page.
     </p>
 
@@ -871,6 +1139,68 @@
       <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page, and
       the software that turns a reading into a concentration on the
       <a href="{{ url_for('pages', page='software') }}">Software</a> page.
+    </p>
+  </section>
+
+  {# ======================================================================
+     總結：三個模型各改變了什麼。評審最看重「模型有沒有影響專案設計」，這張表一次回答。
+     Part 1、2 的列等內容進來後補上（同樣只寫實際發生的決定）。
+     Part 3 的四列是從 3.3–3.6 既有文字整理的，請團隊確認。
+     ====================================================================== #}
+  <header class="md-part" id="model-impact" data-toc-group>
+    <p class="md-part-no">Summary</p>
+    <h2 data-toc-title="Summary · What changed">What modelling changed</h2>
+  </header>
+
+  <section>
+    <p>
+      A model belongs on this page because it changed what we did. This is
+      each part's answer to that, in one place.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table md-impact">
+        <caption>What each model answered, and what we did because of it</caption>
+        <thead>
+          <tr><th scope="col">Model</th><th scope="col">The question</th><th scope="col">What it changed</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="#model-inhibition">Part 1</a></td>
+            <td colspan="2" class="md-impact-pending">In preparation.</td>
+          </tr>
+          <tr>
+            <td><a href="#model-zone">Part 2</a></td>
+            <td colspan="2" class="md-impact-pending">In preparation.</td>
+          </tr>
+          <tr>
+            <td><a href="#model-design">Part 3 &middot; 3.4</a></td>
+            <td>How many A/C pairs to make, and whether to repeat the comparison.</td>
+            <td>Six pairs were chosen before the session. Afterwards the analysis recommended against repeating the comparison and for spending the bench time elsewhere.</td>
+          </tr>
+          <tr>
+            <td><a href="#model-design">Part 3 &middot; 3.4</a></td>
+            <td>Where precision comes from.</td>
+            <td>Because tube-to-tube spread exceeds cycle noise, precision comes from more tubes or more pairs, not from more cycles per tube.</td>
+          </tr>
+          <tr>
+            <td><a href="#model-inverse">Part 3 &middot; 3.5</a></td>
+            <td>Whether a more complex model reads G back better.</td>
+            <td>The fixed four-channel ridge pipeline was kept: nothing in forty configurations gave a reason to move off it.</td>
+          </tr>
+          <tr>
+            <td><a href="#model-prediction">Part 3 &middot; 3.3</a></td>
+            <td>How to turn the cross-session model into evidence.</td>
+            <td>A prediction for a new stock was written into the closing report, with its verdict rule fixed in advance.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-refs-note">
+      How these decisions sit in our design&ndash;build&ndash;test&ndash;learn
+      cycle is on the
+      <a href="{{ url_for('pages', page='engineering') }}">Engineering</a> page.
     </p>
   </section>
 
