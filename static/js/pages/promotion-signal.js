@@ -67,7 +67,7 @@
       lastWave = t;
     }
     // age out finished rings
-    rings = rings.filter(function (r) { return (t - r.t0) * WAVE_SPEED < r.max; });
+    rings = rings.filter(function (r) { return Math.max(0, t - r.t0) * WAVE_SPEED < r.max; });
 
     // bonds
     ctx.lineWidth = 1;
@@ -94,7 +94,9 @@
 
     // the waves themselves
     for (i = 0; i < rings.length; i++) {
-      var rg = rings[i], rad = (t - rg.t0) * WAVE_SPEED, fade = 1 - rad / rg.max;
+      // a wave started from performance.now() can be a hair newer than this frame's
+      // timestamp, which would make the radius negative and throw in arc()
+      var rg = rings[i], rad = Math.max(0, t - rg.t0) * WAVE_SPEED, fade = 1 - rad / rg.max;
       ctx.strokeStyle = 'rgba(184,245,126,' + (0.42 * fade).toFixed(3) + ')';
       ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(rg.x, rg.y, rad, 0, 7); ctx.stroke();
@@ -114,7 +116,7 @@
       // lit by a passing wave
       var lit = 0;
       for (j = 0; j < rings.length; j++) {
-        var rr0 = (t - rings[j].t0) * WAVE_SPEED;
+        var rr0 = Math.max(0, t - rings[j].t0) * WAVE_SPEED;
         var dist = Math.abs(Math.hypot(p.x - rings[j].x, p.y - rings[j].y) - rr0);
         if (dist < BAND) lit = Math.max(lit, (1 - dist / BAND) * (1 - rr0 / rings[j].max));
       }
