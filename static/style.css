@@ -10334,6 +10334,139 @@ body.hw-nexus .hw .md-legend li {
   border-top: 2px dashed var(--nx-warm, #e6b060);
 }
 
+/* ---- the three parts ----
+   The page holds three models. The cards at the top are its table of
+   contents, one per part; each part then opens with a banner that is set
+   apart from the sections inside it by a rule and a larger heading, so a
+   reader scrolling past can tell where one model ends and the next begins. */
+/* The cards double as a map of how the parts follow one another: an arrow
+   sits in the gap before every card but the first, pointing down while the
+   cards are stacked and across once they stand in a row. */
+.md-parts {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+.md-parts > li { position: relative; }
+.md-parts > li + li::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -1.45rem;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 9px solid var(--nx-mint, #49c5b6);
+  transform: translateX(-50%);
+}
+@media (min-width: 768px) {
+  .md-parts { grid-template-columns: repeat(3, 1fr); }
+  .md-parts > li + li::before {
+    left: -1.35rem;
+    top: 50%;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 9px solid var(--nx-mint, #49c5b6);
+    border-right: 0;
+    transform: translateY(-50%);
+  }
+}
+body.hw-nexus .hw .md-parts-link { margin: 0 0 3.5rem; }
+.md-parts a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  height: 100%;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--nx-line, #24596b);
+  border-top: 3px solid var(--nx-mint, #49c5b6);
+  border-radius: 10px;
+  background: var(--nx-panel, #16323f);
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.md-parts a:hover,
+.md-parts a:focus-visible {
+  border-color: var(--nx-lime, #a0e860);
+  background: var(--nx-raised, #1c4352);
+}
+.md-parts-no {
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-muted, #93b0bb);
+}
+.md-parts-name {
+  font-family: "Changa", sans-serif;
+  font-size: 1.18rem;
+  color: var(--nx-lime, #a0e860);
+}
+.md-parts-q {
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--nx-text, #dbe9ee);
+}
+.md-parts-state {
+  margin-top: auto;
+  padding-top: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--nx-warm, #e6b060);
+}
+
+.md-part {
+  margin: 4.5rem 0 2rem;
+  padding-top: 1.6rem;
+  border-top: 2px solid var(--nx-mint, #49c5b6);
+  scroll-margin-top: 90px;
+}
+body.hw-nexus .md .md-part-no {
+  margin: 0 0 0.3rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-lime, #a0e860);
+}
+.md .md-part h2 {
+  font-size: clamp(1.8rem, 1.3rem + 2vw, 2.4rem);
+  margin-bottom: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .md-parts a { transition: none; }
+}
+
+/* "Part 3 at a glance": where in the part each thing a judge looks for is. */
+.md-glance {
+  margin: 0 0 3rem;
+  padding: 0.9rem 1.2rem 0.4rem;
+  border: 1px solid var(--nx-line, #24596b);
+  border-radius: 10px;
+  background: var(--nx-panel, #16323f);
+}
+body.hw-nexus .md .md-glance-title {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nx-mint, #49c5b6);
+}
+.md .md-glance .hw-spec { margin: 0.6rem 0 0.4rem; }
+.md .md-glance .hw-spec > div { grid-template-columns: 8.5rem 1fr; }
+
+/* A fold on this page holds a term list or a table that backs a finding up. */
+.md .md-fold { margin: 1.5rem 0; }
+.md .md-fold .hw-spec { margin: 0.4rem 0 0.6rem; }
+
+/* The summary table: a part still being written spans both columns. */
+body.hw-nexus .md .md-impact-pending { color: var(--nx-warm, #e6b060); }
+.md .md-impact td:first-child { white-space: nowrap; }
+
 /* ===== Education: the deep-teal treatment, content side =====================
    The shared half of this theme -- palette, ground, orbs, hero, navbar -- is
    up in "The deep-teal treatment" and is turned on here by body.edu-nexus
