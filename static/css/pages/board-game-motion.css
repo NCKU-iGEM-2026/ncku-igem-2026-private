@@ -1,0 +1,124 @@
+/* ===== Board Game: motion and interaction ===============================
+   Everything here is decoration on top of the page as it already works:
+   delete this file and the include in board-game.html and the page is exactly
+   what it was. Nothing moves for anyone who has asked for reduced motion.
+
+   1. Card shapes drifting behind the page (a hint of the game).
+   2. Each stop's text is "dealt" in from its own side, like a card.
+   3. A ring ripples out of a stop's circle the moment the reader reaches it.
+   4. The circles tilt toward the pointer (board-game-motion.js sets --rx/--ry).
+   5. The hand-off to the game: a bobbing cue arrow and a soft glow behind it.
+   6. The game's own buttons lift and glow under the pointer.
+   -------------------------------------------------------------------- */
+
+/* 1. drifting cards -------------------------------------------------- */
+.bgm-cards {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  will-change: transform;
+}
+.bgm-card {
+  position: absolute;
+  width: 74px;
+  aspect-ratio: 5 / 7;
+  border: 1.5px solid rgba(46, 218, 179, 0.22);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(160, 232, 96, 0.16) 0 14px, transparent 15px),
+    rgba(46, 218, 179, 0.04);
+  opacity: 0.8;
+  animation: bgm-drift 22s ease-in-out infinite alternate;
+}
+.bgm-card::after {              /* a small pip in the corner, like a playing card */
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(160, 232, 96, 0.35);
+}
+.bgm-card-1 { left: 6%;  top: 18%; --r: -14deg; animation-duration: 24s; }
+.bgm-card-2 { left: 88%; top: 12%; --r: 11deg;  animation-duration: 28s; animation-delay: -6s;  width: 62px; }
+.bgm-card-3 { left: 3%;  top: 62%; --r: 8deg;   animation-duration: 26s; animation-delay: -11s; width: 86px; }
+.bgm-card-4 { left: 92%; top: 56%; --r: -9deg;  animation-duration: 30s; animation-delay: -3s; }
+.bgm-card-5 { left: 14%; top: 88%; --r: 16deg;  animation-duration: 23s; animation-delay: -15s; width: 58px; }
+.bgm-card-6 { left: 80%; top: 86%; --r: -17deg; animation-duration: 27s; animation-delay: -9s; width: 80px; }
+@keyframes bgm-drift {
+  from { transform: translate3d(0, 0, 0) rotate(var(--r, 0deg)); }
+  to   { transform: translate3d(14px, -34px, 0) rotate(calc(var(--r, 0deg) + 9deg)); }
+}
+
+/* 2. dealing the text in --------------------------------------------- */
+.sgd-js .sgd-stop.is-right .sgd-text { transform: translate(-26px, 14px) rotate(-1.2deg); }
+.sgd-js .sgd-stop.is-left  .sgd-text { transform: translate(26px, 14px) rotate(1.2deg); }
+.sgd-js .sgd-stop.is-in .sgd-text {
+  transform: none;
+  transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+
+/* 3. the ripple when a stop is reached ------------------------------- */
+.sgd-stop.is-reached .sgd-node { animation: bgm-reach 1s ease-out 1; }
+@keyframes bgm-reach {
+  0%   { box-shadow: 0 0 0 7px #e3efe8, 0 0 0 7px rgba(46, 218, 179, 0.55); }
+  100% { box-shadow: 0 0 0 7px #e3efe8, 0 0 0 30px rgba(46, 218, 179, 0); }
+}
+body.bg-nexus .sgd-stop.is-reached .sgd-node { animation-name: bgm-reach-dark; }
+@keyframes bgm-reach-dark {
+  0%   { box-shadow: 0 0 0 7px rgba(46, 218, 179, 0.18), 0 0 0 7px rgba(160, 232, 96, 0.6); }
+  100% { box-shadow: 0 0 0 7px rgba(46, 218, 179, 0.18), 0 0 0 30px rgba(160, 232, 96, 0); }
+}
+
+/* 4. tilt toward the pointer ------------------------------------------ */
+.sgd-stop.is-right:hover .sgd-node,
+.sgd-stop.is-left:hover .sgd-node {
+  transform: translate(-50%, -50%) perspective(420px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.12);
+}
+
+/* 5. the hand-off to the game ----------------------------------------- */
+.bg-handoff { position: relative; }
+.bg-handoff::before {           /* a soft glow behind the title */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  width: min(520px, 90%);
+  aspect-ratio: 2 / 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(46, 218, 179, 0.16), transparent);
+  pointer-events: none;
+  animation: bgm-glow 5s ease-in-out infinite alternate;
+}
+.bg-handoff > * { position: relative; }
+.bg-handoff-cue { animation: bgm-bob 1.6s ease-in-out infinite; }
+@keyframes bgm-glow { from { opacity: 0.45; } to { opacity: 1; } }
+@keyframes bgm-bob  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(9px); } }
+
+/* 6. the game's own buttons ---------------------------------------------- */
+.board-game-page button.large,
+.board-game-page #startBtn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+.board-game-page button.large:hover:not(:disabled),
+.board-game-page #startBtn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.3), 0 0 18px rgba(160, 232, 96, 0.25);
+  filter: brightness(1.06);
+}
+.board-game-page button.large:active:not(:disabled),
+.board-game-page #startBtn:active:not(:disabled) { transform: translateY(-1px) scale(0.99); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bgm-card, .bg-handoff::before, .bg-handoff-cue,
+  .sgd-stop.is-reached .sgd-node { animation: none; }
+  .sgd-js .sgd-stop.is-right .sgd-text,
+  .sgd-js .sgd-stop.is-left .sgd-text { transform: translateY(14px); }
+  .board-game-page button.large, .board-game-page #startBtn { transition: none; }
+  .board-game-page button.large:hover:not(:disabled),
+  .board-game-page #startBtn:hover:not(:disabled) { transform: none; }
+}
+@media print { .bgm-cards { display: none; } }
