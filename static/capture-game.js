@@ -19,7 +19,7 @@
   // 60px on a phone a picture of the letters "AHL" is a blurry picture of
   // text, where the letters themselves stay sharp -- and it keeps the game
   // down to the one remote asset it already had.
-  const GERM_URL = 'https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria.avif';
+  const GERM_URL = 'https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria2.avif';
 
   // --------------------------------------------------------------- the rules
   const ROUND_MS = 60000;                    // one minute, fixed
