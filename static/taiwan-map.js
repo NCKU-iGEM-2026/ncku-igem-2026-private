@@ -412,7 +412,8 @@
       var rowRect = row.getBoundingClientRect();
       var cx = rowRect.width / 2;
       var cy = rowRect.height / 2;
-      var rx = Math.max(0, cx - 140);
+      // half a card plus a little air; compact mode uses narrower cards
+      var rx = Math.max(0, cx - (row.classList.contains('is-orbit-compact') ? 105 : 140));
       var ry = Math.max(0, cy - 24);
 
       // 先讀：算出每張卡的位置與狀態，啟用中的卡才量它的圖釘位置
@@ -447,44 +448,129 @@
       });
     }
 
-    if (orbitItems.length) {
-      if (reduceMotion) {
-        layoutOrbit(0);
-      } else {
-        // 只在「寬螢幕（環繞卡片有顯示）＋地圖在畫面內」時才跑動畫，其餘時間
-        // 整個停掉（分頁切到背景時瀏覽器本來就會停 requestAnimationFrame）；
-        // 旋轉角度以暫停前累積的進度接續，不會跳格。
-        var wideMq = window.matchMedia('(min-width: 861px)');
-        var rowVisible = true;
-        var rafId = null, lastTs = null, elapsed = 0;
+    // ---- Layout modes ---------------------------------------------------
+    // 依「地圖這一列實際可用的寬度」(不是視窗寬度，頁面左側還有側邊欄) 選版面：
+    //   orbit         ≥1010px  環繞卡片，左右各留 280px
+    //   orbit-compact ≥760px   環繞卡片縮小，左右各留 190px，地圖維持 380px 不被擠小
+    //   strip         其餘     地圖維持完整大小，下方放可橫向滑動的照片列
+    var ORBIT_MIN = 1010, COMPACT_MIN = 760;
+    var orbitOn = false;
+    var rowVisible = true;
+    var rafId = null, lastTs = null, elapsed = 0;
 
-        var orbitTick = function (ts) {
-          if (lastTs !== null) elapsed += Math.min(ts - lastTs, 100);
-          lastTs = ts;
-          layoutOrbit((elapsed / ROTATION_PERIOD_MS) * 2 * Math.PI);
-          rafId = requestAnimationFrame(orbitTick);
-        };
-        var syncOrbit = function () {
-          var shouldRun = wideMq.matches && rowVisible;
-          if (shouldRun && rafId === null) {
-            lastTs = null;
-            rafId = requestAnimationFrame(orbitTick);
-          } else if (!shouldRun && rafId !== null) {
-            cancelAnimationFrame(rafId);
-            rafId = null;
-          }
-        };
-
-        if ('IntersectionObserver' in window) {
-          new IntersectionObserver(function (entries) {
-            rowVisible = entries[0].isIntersecting;
-            syncOrbit();
-          }, { rootMargin: '100px 0px' }).observe(row);
-        }
-        if (wideMq.addEventListener) wideMq.addEventListener('change', syncOrbit);
-        else if (wideMq.addListener) wideMq.addListener(syncOrbit);
-        syncOrbit();
+    var orbitTick = function (ts) {
+      if (lastTs !== null) elapsed += Math.min(ts - lastTs, 100);
+      lastTs = ts;
+      layoutOrbit((elapsed / ROTATION_PERIOD_MS) * 2 * Math.PI);
+      rafId = requestAnimationFrame(orbitTick);
+    };
+    // 只在「環繞卡片有顯示＋地圖在畫面內」時才跑動畫，其餘時間整個停掉；
+    // 旋轉角度以暫停前累積的進度接續，不會跳格。
+    var syncOrbit = function () {
+      if (reduceMotion) { if (orbitOn) layoutOrbit(0); return; }
+      var shouldRun = orbitOn && rowVisible;
+      if (shouldRun && rafId === null) {
+        lastTs = null;
+        rafId = requestAnimationFrame(orbitTick);
+      } else if (!shouldRun && rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
       }
+    };
+
+    if (orbitItems.length && !reduceMotion && 'IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        rowVisible = entries[0].isIntersecting;
+        syncOrbit();
+      }, { rootMargin: '100px 0px' }).observe(row);
+    }
+
+    // ---- Photo strip (narrow screens) ----------------------------------
+    // 窄螢幕沒有地方放環繞卡片，所以改成地圖下方一排可橫向滑動的照片。
+    // 點圖釘 → 照片列捲到那一張並標示；點照片 → 圖釘亮起。
+    // 已經選中的再點一次，才會跳到下方對應的活動段落。
+    var strip = null;
+    var stripItems = [];
+    var selectedIdx = -1;
+
+    function select(i, scrollStrip) {
+      if (selectedIdx >= 0) {
+        stripItems[selectedIdx].classList.remove('is-selected');
+        pinEls[selectedIdx].classList.remove('is-selected');
+      }
+      selectedIdx = i;
+      if (i < 0) return;
+      stripItems[i].classList.add('is-selected');
+      pinEls[i].classList.add('is-selected');
+      if (scrollStrip && strip) {
+        var it = stripItems[i];
+        strip.scrollTo({
+          left: it.offsetLeft - (strip.clientWidth - it.offsetWidth) / 2,
+          behavior: reduceMotion ? 'auto' : 'smooth'
+        });
+      }
+    }
+
+    if (row && pinEls.length) {
+      strip = document.createElement('div');
+      strip.className = 'edu-map-strip';
+      strip.setAttribute('role', 'list');
+      pinEls.forEach(function (pin, i) {
+        var a = document.createElement('a');
+        a.className = 'edu-strip-item';
+        a.setAttribute('role', 'listitem');
+        a.href = pin.getAttribute('href') || '#';
+        var photo = pin.getAttribute('data-photo');
+        if (photo) {
+          var img = document.createElement('img');
+          img.className = 'edu-strip-photo';
+          img.alt = '';
+          img.loading = 'lazy';
+          img.src = photo;
+          a.appendChild(img);
+        }
+        var name = document.createElement('span');
+        name.className = 'edu-strip-title';
+        name.textContent = schoolNameFor(pin) || '';
+        var meta = document.createElement('span');
+        meta.className = 'edu-strip-meta';
+        meta.textContent = [countyLabel((SESSIONS[i] || {}).county), pin.getAttribute('data-date')]
+          .filter(Boolean).join(' · ');
+        a.appendChild(name);
+        a.appendChild(meta);
+        a.addEventListener('click', function (e) {
+          if (selectedIdx !== i) { e.preventDefault(); select(i, true); }
+        });
+        strip.appendChild(a);
+        stripItems.push(a);
+
+        pin.addEventListener('click', function (e) {
+          if (!row.classList.contains('is-strip')) return;
+          if (selectedIdx !== i) { e.preventDefault(); select(i, true); }
+        });
+      });
+      row.parentNode.insertBefore(strip, row.nextSibling);
+    }
+
+    var currentMode = '';
+    function applyMode() {
+      var w = (row.parentElement || row).clientWidth;
+      var mode = w >= ORBIT_MIN ? 'orbit' : (w >= COMPACT_MIN ? 'orbit-compact' : 'strip');
+      if (mode === currentMode) return;
+      currentMode = mode;
+      row.classList.toggle('is-orbit', mode === 'orbit');
+      row.classList.toggle('is-orbit-compact', mode === 'orbit-compact');
+      row.classList.toggle('is-strip', mode === 'strip');
+      if (mode !== 'strip') select(-1);
+      orbitOn = mode !== 'strip' && orbitItems.length > 0;
+      layoutPins();   // 地圖寬度變了，圖釘間距要重算
+      syncOrbit();
+    }
+
+    if (row) {
+      if ('ResizeObserver' in window) new ResizeObserver(applyMode).observe(row.parentElement || row);
+      else window.addEventListener('resize', applyMode);
+      applyMode();
     }
 
     pinEls.forEach(function (pin, i) {
