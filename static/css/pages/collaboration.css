@@ -12,13 +12,20 @@
 
 /* ---- 整帶：深夜培養皿 ---- */
 .rx-dish {
+  --dish-fade: 3rem;
   margin-inline: calc(50% - 50vw);
-  padding: 2.2rem 1rem 2.6rem;
+  /* 上下各多留一段 --dish-fade 給淡出，再用負外距把版面高度補回來 */
+  padding: calc(2.2rem + 1rem) 1rem calc(2.6rem + 1rem);
+  margin-block: -1rem;
   background:
     radial-gradient(120% 90% at 80% 0%, rgba(20,179,145,0.20), transparent 55%),
     radial-gradient(90% 70% at 12% 100%, rgba(216,178,106,0.12), transparent 60%),
     linear-gradient(165deg, #0e242e 0%, #0f2832 45%, #000000 100%);
-  border-block: 1px solid rgba(20, 179, 145, 0.28);
+  /* 整帶的上下緣原本是一條硬邊加一條細線，和下面的方框看起來是同一個大方框；
+     現在拿掉細線，上下緣淡出，只剩中間圓角的培養皿舞台。 */
+  border-block: 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--dish-fade), #000 calc(100% - var(--dish-fade)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--dish-fade), #000 calc(100% - var(--dish-fade)), transparent 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -339,7 +346,7 @@ html.rx-js .rx-dish-stage.rx-in { opacity: 1; transform: scale(1); }
 
 /* ---- print ---- */
 @media print {
-  .rx-dish { background: none !important; }
+  .rx-dish { background: none !important; -webkit-mask-image: none; mask-image: none; }
   .rx-dish-canvas, .rx-dish-hex, .rx-dish-stage::after { display: none !important; }
 }
 
