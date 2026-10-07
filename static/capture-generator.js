@@ -30,15 +30,17 @@
     // R chamber (light trap) inner size; its top outer edge sits 0.58 below the top of the cuvette pocket
     R_W: 34, R_H: 30, R_GAP: 0.58,
     // T chamber (detection) inner size: fixed x range, 42 up from the top of the cuvette pocket
-    T_X0: 49.35, T_X1: 71.34, T_Y1: 88.2, T_CROSS: 79.96,
+    T_X0: 49.35, T_X1: 71.34, T_Y1: 88.2,
     // deck and enclosure
     DECK_W: 127.4, DECK_H: 99.4,
     BOX_IN: { x: 128, y: 100, z: 81 },
     BOX_N: { x: 13, y: 11, z: 9 },      // number of finger segments per edge (odd)
-    RAIL_H: 12, RAIL_LONG_GAP: 5, RAIL_SHORTEN: 20,   // support rails each shortened by 20 (2026-10-06)
+    RAIL_H: 12, RAIL_LONG_GAP: 5,
     WIRE_HOLE: { x: 17.13, y: 33.04, r: 3.5 },
+    // wire hole in the T chamber floor (8 x 3 before the fit offset); no wall stands in it
+    T_WIRE_HOLE: { x: 60.34, y: 81.46, w: 8, h: 3 },
     // light holes (position s in deck coordinates, height z above the deck surface)
-    LED_HOLE: { s: 39.7, z: 3.7, r: 2 },   // raised from 3 by 0.7 (2026-10-06)
+    LED_HOLE: { s: 39.7, z: 3, r: 2 },
     // Opening from the cuvette into the R chamber (light trap), straight across from the LED.
     // It was labelled "sensor hole" in earlier drawings; the sensor sits in the T chamber at 90 deg.
     TRAP_HOLE: { s: 38.99, z: 6.6, r: 4 },
@@ -137,7 +139,6 @@
   // ───────────────────────── Parametric model ─────────────────────────
   function generate(params) {
     var t = +params.t, f = +params.fit, bf = params.boxFit == null ? 0.1 : +params.boxFit;
-    var includeOthers = params.includeOthers !== false;
     var T = K.TAB, H = K.WALL_INNER_H + t;
     var pieces = [], checks = [];
 
@@ -153,23 +154,26 @@
       { id: 'L2', name: 'L chamber bottom wall', axis: 'x', face: Ly0, dir: -1, s0: Lx0 - t, s1: Lx1, slots: [Lx0 + 10.25, Lx0 + 24.75] },
       { id: 'L3', name: 'L chamber top wall', axis: 'x', face: Ly1, dir: +1, s0: Lx0 - t, s1: Lx1, slots: [Lx0 + 9, Lx0 + 24.75] },
       { id: 'C1', name: 'Cuvette left wall (Ø4 LED hole)', axis: 'y', face: K.cuvL, dir: -1, s0: Ly0 - t, s1: K.cuvTop, slots: [K.cuvY], holes: [K.LED_HOLE] },
-      { id: 'C2', name: 'Cuvette right wall (Ø8 light-trap opening)', axis: 'y', face: K.cuvR, dir: +1, s0: Ry0 - t, s1: K.cuvTop, slots: [K.cuvY], holes: [K.TRAP_HOLE] },
+      // C2 runs 0.08 short of the R chamber corner and 0.5 past the top of the cuvette pocket, as in the cut set
+      { id: 'C2', name: 'Cuvette right wall (Ø8 light-trap opening)', axis: 'y', face: K.cuvR, dir: +1, s0: Ry0 - t + 0.08, s1: K.cuvTop + 0.5, slots: [K.cuvY], holes: [K.TRAP_HOLE] },
+      // C3 closes the bottom of the cuvette pocket, centred between C1 and C2
+      { id: 'C3', name: 'Cuvette bottom wall (12 mm)', axis: 'x', face: K.cuvBot, dir: -1, s0: (K.cuvL + K.cuvR) / 2 - 6, s1: (K.cuvL + K.cuvR) / 2 + 6, slots: [(K.cuvL + K.cuvR) / 2] },
       { id: 'R1', name: 'R chamber right wall', axis: 'y', face: Rx1, dir: +1, s0: Ry0 - t, s1: Ry1 + t, slots: [Ry0 + 6, Ry0 + 24] },
       { id: 'R2', name: 'R chamber bottom wall', axis: 'x', face: Ry0, dir: -1, s0: Rx0, s1: Rx1, slots: [Rx0 + 8.5, Rx0 + 25.5] },
       { id: 'R3', name: 'R chamber top wall', axis: 'x', face: Ry1, dir: +1, s0: Rx0, s1: Rx1, slots: [Rx0 + 8.5, Rx0 + 25.5] },
       { id: 'T1', name: 'T chamber left wall', axis: 'y', face: Tx0, dir: -1, s0: Ty0, s1: Ty1 + t, slots: [Ty0 + 13.67, Ty0 + 28.67] },
       { id: 'T2', name: 'T chamber right wall', axis: 'y', face: Tx1, dir: +1, s0: Ty0, s1: Ty1 + t, slots: [Ty0 + 13.67, Ty0 + 28.67] },
-      { id: 'T3', name: 'T chamber divider', axis: 'x', face: K.T_CROSS, dir: +1, s0: Tx0, s1: Tx1, slots: [Tx0 + 10.99], extraNotch: [Tx0 + 10.99] },
       { id: 'T4', name: 'T chamber end wall', axis: 'x', face: Ty1, dir: +1, s0: Tx0, s1: Tx1, slots: [Tx0 + 10.99] }
     ];
-    var W = {}; walls.forEach(function (w) { w.notches = (w.extraNotch || []).slice(); W[w.id] = w; });
+    var W = {}; walls.forEach(function (w) { w.notches = []; W[w.id] = w; });
 
     // Roofs: inner rectangle + tongues (edge: bottom/top/left/right, at: deck coordinate, wall: the wall it locks into)
     var roofs = [
       { name: 'L chamber roof', x0: Lx0, y0: Ly0, x1: Lx1, y1: Ly1, tabs: [
         { edge: 'bottom', at: Lx0 + 20, wall: 'L2' }, { edge: 'top', at: Lx0 + 20, wall: 'L3' },
         { edge: 'left', at: Ly0 + 14.5, wall: 'L1' }, { edge: 'right', at: Ly0 + 14.5, wall: 'C1' }] },
-      { name: 'R chamber roof', x0: Rx0, y0: Ry0, x1: Rx1, y1: Ry1, tabs: [
+      // the R roof is 1 mm deeper than its chamber (0.5 over each long wall), as in the cut set
+      { name: 'R chamber roof', x0: Rx0, y0: Ry0 - 0.5, x1: Rx1, y1: Ry1 + 0.5, tabs: [
         { edge: 'bottom', at: Rx0 + 18.5, wall: 'R2' }, { edge: 'top', at: Rx0 + 18.5, wall: 'R3' },
         { edge: 'right', at: Ry0 + 15, wall: 'R1' }] },
       { name: 'T chamber roof', x0: Tx0, y0: Ty0, x1: Tx1, y1: Ty1, tabs: [
@@ -215,6 +219,8 @@
     // ── Deck ──
     deckCuts.push({ type: 'poly', pts: rectPts(Tx0 - t + f, Ty0 + f, Tx1 + t - f, Ty0 + t - f) }); // wire slot under the T chamber
     deckCuts.push({ type: 'circle', cx: K.WIRE_HOLE.x, cy: K.WIRE_HOLE.y, r: K.WIRE_HOLE.r - f });   // wire hole in the L chamber
+    var tw = K.T_WIRE_HOLE;
+    deckCuts.push({ type: 'poly', pts: rectPts(tw.x - tw.w / 2 + f, tw.y - tw.h / 2 + f, tw.x + tw.w / 2 - f, tw.y + tw.h / 2 - f) }); // wire hole in the T chamber
     pieces.push(makePiece('Optical deck', 'Deck', [[0, 0, K.DECK_W, K.DECK_H, 1]], deckCuts));
 
     // ── Enclosure (finger joints) ──
@@ -247,10 +253,6 @@
     panel('Enclosure side (with opening)', Y, Z, BN.y, BN.z, false, false, [hole(K.SIDE_PORT)]);
     panel('Enclosure side', Y, Z, BN.y, BN.z, false, false);
 
-
-    if (includeOthers) {
-      pieces.push(makePiece('12 mm small wall (fixed size)', 'Other', [[0, 0, 12, 27, 1], [2, 27, 10, 30, 1]]));
-    }
 
     // ───────────────────────── Checks ─────────────────────────
     function ok(msg) { checks.push({ level: 'ok', msg: msg }); }
@@ -285,20 +287,19 @@
     return { params: { t: t, fit: f, boxFit: bf }, pieces: pieces, checks: checks, walls: walls };
   }
   // Parts without joints. They do not depend on board thickness and may be cut from any board.
-  // Deck support rails: long = inner length − 5 − 20; short = inner width − thickness of both long rails − 20
+  // Deck support rails: long = inner length − 5; short = inner width − thickness of both long rails
   function fixedPieces(shortRail) {
     var G = 'Parts without joints';
-    var longRail = K.BOX_IN.x - K.RAIL_LONG_GAP - K.RAIL_SHORTEN;
-    if (!(shortRail > 0)) shortRail = K.BOX_IN.y - 2 * 3 - K.RAIL_SHORTEN;
+    var longRail = K.BOX_IN.x - K.RAIL_LONG_GAP;
+    if (!(shortRail > 0)) shortRail = K.BOX_IN.y - 2 * 3;
     return [
       big(makePiece('Second plate (13×13 cuvette hole)', G, [[0, 0, K.DECK_W, K.DECK_H, 1]],
         [{ type: 'poly', pts: rectPts(K.cuvL, K.cuvBot, K.cuvR, K.cuvTop) }])),
       kind(makePiece('Deck support rail (long)', G, [[0, 0, longRail, K.RAIL_H, 1]]), 'railLong'),
       kind(makePiece('Deck support rail (long)', G, [[0, 0, longRail, K.RAIL_H, 1]]), 'railLong'),
       makePiece('Deck support rail (short)', G, [[0, 0, shortRail, K.RAIL_H, 1]]),
-      makePiece('Deck support rail (short)', G, [[0, 0, shortRail, K.RAIL_H, 1]]),
-      makePiece('Lid plug (16×16)', G, [[0, 0, 16, 16, 1]]),
-      makePiece('Lid plug cap (18×18)', G, [[0, 0, 18, 18, 1]]),
+      makePiece('Lid (16×16)', G, [[0, 0, 16, 16, 1]]),
+      makePiece('Lid cap (18×18)', G, [[0, 0, 18, 18, 1]]),
       makePiece('Square 29.73×30', G, [[0, 0, 29.73, 30, 1]]),
       triangle('Triangle 22×20', G),
       triangle('Triangle 22×20', G)
@@ -394,7 +395,7 @@
   function plan(params, lopt) {
     var r = generate(params);
     var jointed = r.pieces.filter(function (x) { return params.includeBox !== false || x.group !== 'Enclosure'; });
-    var t = +params.t, t2 = +(params.t2 || 3), short = K.BOX_IN.y - 2 * t - K.RAIL_SHORTEN, best = null, fixed;
+    var t = +params.t, t2 = +(params.t2 || 3), short = K.BOX_IN.y - 2 * t, best = null, fixed;
     function area(list) { return list.reduce(function (s, p) { return s + p.w * p.h; }, 0); }
     for (var pass = 0; pass < 3; pass++) {
       fixed = fixedPieces(short);
@@ -412,7 +413,7 @@
       });
       var longOnMain = 0;
       best.lay.sheets.forEach(function (sh) { sh.placed.forEach(function (pl) { if (pl.fill && pl.piece.kind === 'railLong') longOnMain++; }); });
-      var need = K.BOX_IN.y - (longOnMain * t + (2 - longOnMain) * t2) - K.RAIL_SHORTEN;
+      var need = K.BOX_IN.y - (longOnMain * t + (2 - longOnMain) * t2);
       if (Math.abs(need - short) < 1e-9) break;
       short = need;
     }
@@ -557,7 +558,6 @@
       '    <div class="cg-field"><label for="cg-margin">Sheet margin</label><div class="cg-inline"><input id="cg-margin" type="number" step="0.5" min="0" value="3"><span class="cg-unit">mm</span></div></div>',
       '   </div>',
       '   <label class="cg-check"><input id="cg-box" type="checkbox" checked> Include the 6 enclosure panels</label>',
-      '   <label class="cg-check"><input id="cg-others" type="checkbox" checked> Include the 12 mm small wall</label>',
       '   <label class="cg-check"><input id="cg-frame" type="checkbox"> Add the sheet outline to the DXF (SHEET layer, do not cut)</label>',
       '  </details>',
       '  <div class="cg-actions">',
@@ -610,7 +610,7 @@
       $('cg-fx-preview').style.width = fo.fitPct ? fo.fitPct.toFixed(2) + '%' : '';
     }
     function run() {
-      var p = { t: num('cg-t', 3), fit: num('cg-fit', 0.1), boxFit: num('cg-bfit', 0.1), includeOthers: $('cg-others').checked,
+      var p = { t: num('cg-t', 3), fit: num('cg-fit', 0.1), boxFit: num('cg-bfit', 0.1),
                 includeBox: $('cg-box').checked, t2: num('cg-t2', 3) };
       var P = plan(p, { sheetW: num('cg-sw', 450), sheetH: num('cg-sh', 300), gap: num('cg-gap', 2), margin: num('cg-margin', 3) });
       var r = P.r, lay = P.lay, pcs = P.main;
