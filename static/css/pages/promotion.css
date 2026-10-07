@@ -1,0 +1,233 @@
+/* ===== Promotion: the signal navigation ===============================
+   Capture at the centre sends out waves, like the AHL our bacteria use; each
+   session is a disc the signal reaches. The drifting molecule field behind it
+   is the home page hero's (promotion-signal.js, adapted from home.js).
+
+   The discs are placed in per-cent of the box (--x, --y), so the box keeping
+   its aspect ratio is what keeps them in place at every width. Below 720px
+   there is no room for that, so the box becomes a column: the hub on top and
+   the sessions as an ordinary list under it.
+   -------------------------------------------------------------------- */
+.promo-signal {
+  position: relative;
+  max-width: 960px;
+  margin: 0 auto 2.5rem;
+  aspect-ratio: 16 / 8;
+  overflow: hidden;
+  border: 1px solid rgba(160, 232, 96, 0.18);
+  border-radius: 20px;
+  background:
+    radial-gradient(90% 80% at 50% 50%, rgba(20, 179, 145, 0.14), transparent 70%),
+    #0e242e;
+}
+
+.promo-signal-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* Kept low on purpose: the field is atmosphere, the discs and the names are
+     the point. Raise this one number to bring it up. */
+  opacity: 0.4;
+}
+
+.promo-hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  pointer-events: none;
+}
+.promo-hub img {
+  display: block;
+  height: clamp(64px, 14%, 96px);
+  height: 88px;
+  width: auto;
+  filter: drop-shadow(0 6px 20px rgba(160, 232, 96, 0.35));
+  animation: promo-hub-bob 2.8s ease-in-out infinite alternate;
+}
+.promo-hub span {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #b8f57e;
+  letter-spacing: 0.04em;
+}
+@keyframes promo-hub-bob {
+  from { transform: translateY(0) rotate(-3deg); }
+  to { transform: translateY(5px) rotate(3deg); }
+}
+
+.promo-nodes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.promo-node {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+  width: 200px;
+}
+.promo-node a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  text-align: center;
+  color: #e7f2ea;
+  text-decoration: none;
+  font-family: "Changa", sans-serif;
+}
+.promo-node a:focus-visible { outline: none; }
+
+/* The same AHL disc as the loading screen and the online game. */
+.promo-disc {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid #5c3a1e;
+  background: radial-gradient(circle at 34% 30%, #a9713d 0%, #8a5524 52%, #6f421a 100%);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.promo-node a:hover .promo-disc,
+.promo-node a:focus-visible .promo-disc {
+  transform: scale(1.35);
+  border-color: #b8f57e;
+  box-shadow: 0 0 18px rgba(160, 232, 96, 0.6);
+}
+.promo-node-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  transition: color 0.2s ease;
+}
+.promo-node a:hover .promo-node-name,
+.promo-node a:focus-visible .promo-node-name { color: #2edab3; }
+.promo-node-date {
+  font-size: 0.8rem;
+  color: #b8f57e;
+}
+
+/* Who we spoke with: four photo cards under the signal field */
+.promo-cards {
+  list-style: none;
+  max-width: 960px;
+  margin: 0 auto 2.75rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.promo-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  color: #e7f2ea;
+  text-decoration: none;
+  font-family: "Changa", sans-serif;
+  background: #0b2a35;
+  border: 1px solid rgba(160, 232, 96, 0.18);
+  border-radius: 14px;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.promo-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  opacity: 0.85;
+  transition: opacity 0.25s ease;
+}
+.promo-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.75rem 0.9rem 0.95rem;
+}
+.promo-chip {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #0e242e;
+  background: #b8f57e;
+  border-radius: 999px;
+  padding: 0.05rem 0.65rem;
+}
+.promo-card-name { font-weight: 700; font-size: 0.98rem; line-height: 1.3; }
+.promo-card-date { font-size: 0.82rem; color: #a9c3b4; }
+.promo-card:hover,
+.promo-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: #2edab3;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  outline: none;
+}
+.promo-card:hover img,
+.promo-card:focus-visible img { opacity: 1; }
+
+@media (max-width: 719.98px) {
+  .promo-signal {
+    aspect-ratio: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem 1rem 1rem;
+    gap: 0.5rem;
+  }
+  .promo-hub { position: relative; left: auto; top: auto; transform: none; z-index: 1; }
+  /* the sessions become a vertical timeline: one line, a disc on it per stop */
+  .promo-nodes { position: relative; z-index: 1; width: 100%; }
+  .promo-nodes::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 1.4rem;
+    bottom: 1.4rem;
+    width: 2px;
+    background: linear-gradient(to bottom, #2edab3, #b8f57e);
+    transform-origin: top;
+    animation: promo-line-draw 1.2s ease-out both;
+  }
+  .promo-node {
+    position: static;
+    transform: none;
+    width: auto;
+  }
+  .promo-node a {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: left;
+    gap: 0.2rem 0.8rem;
+    padding: 0.8rem 0.25rem;
+  }
+  .promo-disc { position: relative; z-index: 1; width: 24px; height: 24px; border-width: 2px; flex: none; }
+  .promo-node-name { flex: 1 1 0; min-width: 0; }
+  .promo-node-date { flex: 0 0 100%; padding-left: calc(24px + 0.8rem); }
+}
+@keyframes promo-line-draw { from { transform: scaleY(0); } }
+
+/* two cards across on a phone, so four photos do not become four screens */
+@media (max-width: 719.98px) {
+  .promo-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+  .promo-card-body { padding: 0.6rem 0.65rem 0.75rem; }
+  .promo-card-name { font-size: 0.86rem; }
+  .promo-card-date { font-size: 0.76rem; }
+  .promo-chip { font-size: 0.7rem; padding: 0.05rem 0.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-hub img { animation: none; }
+  .promo-disc, .promo-node-name, .promo-card, .promo-card img { transition: none; }
+  .promo-nodes::before { animation: none; }
+}
