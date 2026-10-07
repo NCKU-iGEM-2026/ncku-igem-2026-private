@@ -3766,6 +3766,80 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   font-size: 1.1em;
 }
 
+/* ---- Education Handbook: one document, two languages ----
+   Two native radios drive it, with no script (see the note in
+   education.html). The radios stay in the page -- focusable, and announced
+   as a pair of options -- but out of sight; the labels are what is seen, as
+   a joined two-way switch in the same green as the View PDF button. */
+.edu-handbook { position: relative; margin-top: 1rem; }
+
+.edu-handbook-radio {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.edu-handbook-lang {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.edu-handbook-lang-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b7a72;
+}
+
+.edu-handbook-switch {
+  display: inline-flex;
+  padding: 3px;
+  border: 2px solid #075a3e;
+  border-radius: 999px;
+  background: #fffdf9;
+}
+
+.edu-handbook-switch label {
+  margin: 0;
+  padding: 0.4rem 1.15rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  color: #075a3e;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.edu-handbook-switch label:hover { background: #e7f1eb; }
+
+/* The language being shown. */
+#edu-handbook-en:checked ~ .edu-handbook-lang label[for="edu-handbook-en"],
+#edu-handbook-cn:checked ~ .edu-handbook-lang label[for="edu-handbook-cn"] {
+  background: #075a3e;
+  color: #fffdf9;
+  cursor: default;
+}
+
+/* Keyboard focus lands on the hidden radio, so it is drawn on its label. */
+#edu-handbook-en:focus-visible ~ .edu-handbook-lang label[for="edu-handbook-en"],
+#edu-handbook-cn:focus-visible ~ .edu-handbook-lang label[for="edu-handbook-cn"] {
+  outline: 2px solid #075a3e;
+  outline-offset: 3px;
+}
+
+/* Only the chosen language's panel. The other one's frame is lazy and
+   undisplayed, so its PDF is not fetched until it is asked for. */
+#edu-handbook-en:checked ~ .edu-handbook-panel-cn,
+#edu-handbook-cn:checked ~ .edu-handbook-panel-en { display: none; }
+
 @media (max-width: 860px) {
   .edu-detail-layout {
     flex-direction: column;
@@ -10853,6 +10927,26 @@ body.edu-nexus .edu-pdf-link a:hover,
 body.edu-nexus .edu-pdf-link a:focus-visible {
   background: var(--nx-mint);
   color: var(--nx-ground);
+}
+
+/* The handbook language switch, in the same mint as the View PDF button. */
+body.edu-nexus .edu-handbook-lang-label { color: var(--nx-muted); }
+body.edu-nexus .edu-handbook-switch {
+  background: var(--nx-panel);
+  border-color: var(--nx-mint);
+}
+body.edu-nexus .edu-handbook-switch label { color: var(--nx-mint); }
+body.edu-nexus .edu-handbook-switch label:hover {
+  background: color-mix(in srgb, var(--nx-mint) 14%, var(--nx-panel));
+}
+body.edu-nexus #edu-handbook-en:checked ~ .edu-handbook-lang label[for="edu-handbook-en"],
+body.edu-nexus #edu-handbook-cn:checked ~ .edu-handbook-lang label[for="edu-handbook-cn"] {
+  background: var(--nx-mint);
+  color: var(--nx-ground);
+}
+body.edu-nexus #edu-handbook-en:focus-visible ~ .edu-handbook-lang label[for="edu-handbook-en"],
+body.edu-nexus #edu-handbook-cn:focus-visible ~ .edu-handbook-lang label[for="edu-handbook-cn"] {
+  outline-color: var(--nx-mint);
 }
 body.edu-nexus .edu-consent-note {
   color: var(--nx-muted);
