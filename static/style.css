@@ -512,7 +512,10 @@ footer a:hover { color: white; text-decoration: underline; }
   gap: 2.5rem;
   width: max-content;
   padding: 0 1.25rem;
-  animation: sponsorMarquee 20s linear infinite;
+  /* One loop is one track's width, so a longer track scrolls faster at the
+     same duration. 24s with fourteen logos keeps the pace the eleven had at
+     20s (about 100px a second); lengthen it again if more are added. */
+  animation: sponsorMarquee 24s linear infinite;
 }
 
 @keyframes sponsorMarquee {
@@ -2190,6 +2193,127 @@ body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
 .attr-todo {
   color: #8a978f;
   font-style: italic;
+}
+
+/* ---- the people, one card each, two to a row ----
+   A round photo with the name beside it, and under them a panel with the
+   role, the contribution categories as tags, and what the person did. Two
+   columns from 768px; one on a phone. */
+.attr-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.attr-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 14px;
+  background: #e9eeeb;
+  border: 1px solid #d5ddd8;
+}
+
+.attr-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+/* The photo is the one on the Team page, with its crop: some of those crops
+   place the image absolutely inside a square, so the circle is a positioned
+   square too. */
+.attr-avatar {
+  position: relative;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #c9d6cf;
+}
+.attr-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The Team page photos are full-length portraits, and in a 64px circle a
+   whole person leaves a face a few pixels wide. Zoomed in on the upper part
+   of the frame, where the faces are; a tall photo is also lifted, so its crop
+   starts near the top. Each card can move the zoom onto its own face with
+   --ox/--oy (the point the zoom is centred on) and --az (how far), set on the
+   avatar in attributions.html. The few photos that carry their own crop from
+   the Team page (an inline style) are left as they are. */
+.attr-avatar img:not([style]) {
+  object-position: 50% 12%;
+  transform: scale(var(--az, 2.2));
+  transform-origin: var(--ox, 50%) var(--oy, 24%);
+}
+.attr-avatar.is-initials {
+  display: grid;
+  place-items: center;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #075a3e;
+}
+
+.attr-card-name {
+  flex: 1;
+  margin: 0;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  background: #ffffff;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  color: #24352c;
+}
+
+.attr-card-body {
+  flex: 1;
+  padding: 0.9rem 1rem 1rem;
+  border-radius: 10px;
+  background: #1d2a24;
+  color: #e6efe9;
+}
+
+.attr-card-role {
+  margin: 0 0 0.55rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: #a0e860;
+}
+
+.attr-card-tasks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.7rem;
+  padding: 0;
+  list-style: none;
+}
+.attr-card-tasks li {
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(160, 232, 96, 0.35);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: #cfe3d6;
+}
+
+.attr-card-text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 767.98px) {
+  .attr-cards { grid-template-columns: 1fr; }
 }
 
 /* Attributions: the AI disclosure the Judge Handbook asks for (2026, p.95).
@@ -12479,6 +12603,15 @@ body.hw-nexus.attr-page .attr-list li { color: var(--nx-text); }
 body.hw-nexus.attr-page .attr-list b { color: #fff; }
 body.hw-nexus.attr-page .attr-list ul li { color: var(--nx-muted); }
 body.hw-nexus.attr-page .attr-todo { color: var(--nx-muted); }
+/* the cards on the deep-teal ground: panel card, raised name bar, the darkest
+   tone for the text panel */
+body.hw-nexus.attr-page .attr-card { background: var(--nx-panel); border-color: var(--nx-line); }
+body.hw-nexus.attr-page .attr-avatar { background: var(--nx-raised); box-shadow: 0 0 0 2px var(--nx-line); }
+body.hw-nexus.attr-page .attr-avatar.is-initials { color: var(--nx-mint); }
+body.hw-nexus.attr-page .attr-card-name { background: var(--nx-raised); color: #fff; }
+body.hw-nexus.attr-page .attr-card-body { background: #0a1a21; color: var(--nx-text); }
+body.hw-nexus.attr-page .attr-card-role { color: var(--nx-lime); }
+body.hw-nexus.attr-page .attr-card-tasks li { color: var(--nx-muted); border-color: var(--nx-line); }
 
 /* ---- the banner photo, at full brightness ----
    The other deep-teal pages take their banner down to 0.42 (0.32 on a phone)
