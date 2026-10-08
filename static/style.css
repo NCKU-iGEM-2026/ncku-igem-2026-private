@@ -449,9 +449,9 @@ footer.footer {
    the bench, its right edge the bench in shadow. */
 .page-hero-bg.hero-hardware { --hero-fill-from: #5b5855; --hero-fill-to: #21201d; --hero-zoom: 125%; }
 
-/* At 80% brightness, well above the other deep-teal banners (brightness 0.42,
-   0.32 on a phone): the bench photo is dark to begin with -- a black base
-   plate on a black bench -- and at that level it all but disappeared. The
+/* At 80% brightness, the brightest of the banners: the bench photo is dark
+   to begin with -- a black base plate on a black bench -- and at the shared
+   level it all but disappeared. The
    tint over it and the title's shadow are set with the Team and Attributions
    banners, near the end of this file. */
 body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) brightness(0.8); }
@@ -461,14 +461,21 @@ body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) bright
    is what keeps the graphic's own lettering behind the page title. */
 body.hw-nexus .page-hero-bg.hero-software { filter: blur(2px) saturate(1) brightness(0.75); }
 
-/* Lab Book: 55% rather than the shared 42%, because that photo is dark to
-   start with and the usual treatment flattened it. Only the brightness moves
-   -- the blur and the desaturation stay as every other banner has them, so it
-   still reads as the same treatment. This page carries no body class of its
-   own, so the dark-mode default in css/editorial.css is what has to be
-   outranked; the extra .hero-labbook is what does that. */
-html[data-theme="dark"] .page-hero-bg.hero-labbook {
-  filter: blur(2px) brightness(0.55) saturate(0.8);
+/* 70% rather than the shared 60%: Lab Book, Description, Parts and the HP
+   pages. Only the brightness moves -- the blur and the desaturation stay as
+   every other banner has them, so it still reads as the same treatment. The
+   dark-mode default in css/editorial.css is what has to be outranked: Lab
+   Book, Description and Parts carry no body class of their own, so they ask
+   for it with a hero class (layout.html's {% block hero_class %}); the HP
+   pages are the edu-nexus and bg-nexus ones here, and the hp-nexus ones in
+   css/pages/hp-nexus.css (Promotion is with the Team banners, near the end
+   of this file). */
+html[data-theme="dark"] .page-hero-bg.hero-labbook,
+html[data-theme="dark"] .page-hero-bg.hero-description,
+html[data-theme="dark"] .page-hero-bg.hero-parts,
+html[data-theme="dark"] body.edu-nexus .page-hero-bg,
+html[data-theme="dark"] body.bg-nexus .page-hero-bg {
+  filter: blur(2px) brightness(0.7) saturate(0.8);
 }
 
 .page-hero-tint {
@@ -12661,10 +12668,12 @@ body.hw-nexus.attr-page .attr-card-tasks li { color: var(--nx-muted); border-col
    banner to 0.42 at the same specificity and loads later, so the shorter
    selector lost to it. */
 body.hw-nexus.team-page .page-hero-bg,
-body.hw-nexus.attr-page .page-hero-bg { filter: saturate(1) brightness(0.7); }
+body.hw-nexus.attr-page .page-hero-bg,
+body.hp-nexus.promotion-page .page-hero-bg { filter: saturate(1) brightness(0.7); }
 
 body.team-page .page-hero,
-body.hw-nexus.attr-page .page-hero {
+body.hw-nexus.attr-page .page-hero,
+body.promotion-page .page-hero {
   min-height: clamp(520px, 82vh, 900px);
   display: flex;
   align-items: center;
@@ -12678,9 +12687,18 @@ body.hw-nexus.attr-page .page-hero {
   padding-bottom: 104px;
 }
 
+/* Promotion's group photo has the same treatment, but there the people fill
+   the middle of the banner and hold a sign across it just below their faces,
+   so the title goes to the bottom, over their legs, instead. */
+body.promotion-page .page-hero {
+  align-items: flex-end;
+  padding-bottom: 48px;
+}
+
 /* .container is a flex item here, and would otherwise shrink to its text. */
 body.team-page .page-hero > .container,
-body.hw-nexus.attr-page .page-hero > .container { width: 100%; }
+body.hw-nexus.attr-page .page-hero > .container,
+body.promotion-page .page-hero > .container { width: 100%; }
 
 /* This page sets no subtitle, so layout.html's <p class="lead mb-5 hero-sub">
    renders empty -- but an empty <p> still holds a line box and its 3rem
@@ -12690,11 +12708,14 @@ body.hw-nexus.attr-page .page-hero > .container { width: 100%; }
    the title itself. Scoped here because every other banner relies on that
    spacing for its height. */
 body.team-page .page-hero .hero-sub:empty,
-body.hw-nexus.attr-page .page-hero .hero-sub:empty { display: none; }
+body.hw-nexus.attr-page .page-hero .hero-sub:empty,
+body.promotion-page .page-hero .hero-sub:empty { display: none; }
 body.team-page .page-hero .hero-title,
-body.hw-nexus.attr-page .page-hero .hero-title { margin: 0 !important; }
+body.hw-nexus.attr-page .page-hero .hero-title,
+body.promotion-page .page-hero .hero-title { margin: 0 !important; }
 body.hw-nexus.team-page .page-hero-tint,
 body.hw-nexus.attr-page .page-hero-tint,
+body.hp-nexus.promotion-page .page-hero-tint,
 body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
   background: linear-gradient(to bottom,
     rgba(14, 36, 46, 0) 0%,
@@ -12703,6 +12724,7 @@ body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
 }
 body.team-page .hero-title,
 body.hw-nexus.attr-page .hero-title,
+body.promotion-page .hero-title,
 body.hw-nexus .page-hero:has(.hero-hardware) .hero-title {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75), 0 2px 22px rgba(0, 0, 0, 0.6);
 }
