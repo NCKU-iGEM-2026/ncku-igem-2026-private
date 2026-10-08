@@ -3,9 +3,8 @@
 
   /* Hardware page — the instrument panels.
    *
-   * Five things live here: a shared tooltip, the light-path bench, the
-   * AS7341 channel map, the development log and the switch between the
-   * circuit's two states.
+   * Four things live here: a shared tooltip, the light-path bench, the
+   * development log and the switch between the circuit's two states.
    *
    * No library, no network request, nothing from outside iGEM infrastructure.
    * The page is written so that losing this file costs a reader the
@@ -594,89 +593,12 @@
 
   /* ======================================================================
      2. THE AS7341 CHANNEL MAP
-     Built here rather than written out by hand: it is thirty-odd rectangles
-     placed by wavelength, and a wavelength typed into markup is a wavelength
-     that can disagree with the one in the label beside it.
+     Moved into the markup on 2026-10-08: the ten channels are now the lower
+     inset of the Measurement principle drawing (wiki/pages/hardware.html),
+     written out there with their data-tip texts. The shared tooltip above
+     still serves them, through bindTips(document).
      ====================================================================== */
 
-  (function () {
-    var box = $("#hwxSpecBox");
-    if (!box) return;
-
-    var X0 = 70, X1 = 660, NM0 = 400, NM1 = 700;
-    function X(nm) { return X0 + (nm - NM0) / (NM1 - NM0) * (X1 - X0); }
-
-    var CHANS = [
-      [415, "F1", "Below the excitation band. It should sit near zero; a rise here points at a violet ambient source rather than at the assay."],
-      [445, "F2", "Brackets the 470 nm source from below. At first light this channel read 87 counts off a paper scatterer."],
-      [480, "F3", "Brackets the 470 nm source from above. This is the channel excitation shows up in, and the denominator of the leakage bound."],
-      [515, "F4", "The emission channel. sfGFP emission falls here, and this is the number the assay depends on. It is also the channel room light leaks into."],
-      [555, "F5", "The shoulder above the emission peak. It changed concurrently with F4 in the first fluorescence session."],
-      [590, "F6", "Long-wavelength diagnostic. Not expected to carry assay signal."],
-      [630, "F7", "Long-wavelength diagnostic. Useful for spotting warm ambient light."],
-      [680, "F8", "Long-wavelength diagnostic. Useful for spotting warm ambient light."]
-    ];
-
-    var WIDE = [
-      [700, "Clear", "Unfiltered total light across the visible range. A sanity check on the filtered channels, and the first place saturation shows up."],
-      [762, "NIR", "Near-infrared. It responds to warm ambient sources such as incandescent lighting rather than to the assay."]
-    ];
-
-    function colourAt(nm) {
-      if (nm < 430) return "#8E7BE8";
-      if (nm < 490) return "#3E97E8";
-      if (nm < 540) return "#3FCB79";
-      if (nm < 600) return "#C9CC3F";
-      if (nm < 650) return "#E08A46";
-      return "#DC6154";
-    }
-
-    var s = '<svg class="hwx-spec" viewBox="0 0 820 220" role="img" ' +
-      'aria-label="The AS7341 channel map across the visible spectrum. Eight filtered channels sit at nominal centres of 415, 445, 480, 515, 555, 590, 630 and 680 nanometres, with an unfiltered Clear channel and a near-infrared channel to their right. The nominal 470 nanometre excitation falls between F2 and F3; sfGFP emission is read on F4 at 515 nanometres.">';
-
-    s += '<defs><linearGradient id="hwxSpecBand" x1="0" x2="1">' +
-      '<stop offset="0" stop-color="#7B6BD8"/><stop offset=".22" stop-color="#3E97E8"/>' +
-      '<stop offset=".42" stop-color="#3FCB79"/><stop offset=".62" stop-color="#D2D24A"/>' +
-      '<stop offset=".8" stop-color="#E08A46"/><stop offset="1" stop-color="#D2564A"/>' +
-      "</linearGradient></defs>";
-
-    s += '<rect x="' + X0 + '" y="118" width="' + (X1 - X0) +
-         '" height="14" rx="3" fill="url(#hwxSpecBand)" opacity=".5"/>';
-
-    CHANS.forEach(function (c) {
-      var x = X(c[0]);
-      s += '<g class="hwx-chan" tabindex="0" role="button" data-tip-t="' +
-        c[1] + " · " + c[0] + ' nm" data-tip="' + c[2] + '">' +
-        '<rect x="' + (x - 15) + '" y="60" width="30" height="58" rx="4" fill="' +
-        colourAt(c[0]) + '" opacity=".85"/>' +
-        '<text class="hwx-chan-n" x="' + x + '" y="94">' + c[1] + "</text>" +
-        '<text class="hwx-chan-nm" x="' + x + '" y="150">' + c[0] + "</text></g>";
-    });
-
-    WIDE.forEach(function (c) {
-      s += '<g class="hwx-chan" tabindex="0" role="button" data-tip-t="' +
-        c[1] + '" data-tip="' + c[2] + '">' +
-        '<rect x="' + (c[0] - 26) + '" y="60" width="52" height="58" rx="4" fill="#4A5E68" opacity=".85"/>' +
-        '<text class="hwx-chan-n" x="' + c[0] + '" y="94">' + c[1] + "</text></g>";
-    });
-
-    s += '<g><path d="M' + X(470) + " 26 L" + (X(470) - 6) + " 14 L" +
-      (X(470) + 6) + ' 14 Z" fill="#5BAEFF"/>' +
-      '<line x1="' + X(470) + '" y1="26" x2="' + X(470) +
-      '" y2="56" stroke="#5BAEFF" stroke-width="2" stroke-dasharray="3 3"/>' +
-      '<text class="hwx-spec-cue hwx-cue-ex" x="' + (X(470) - 104) + '" y="20">470 nm excitation</text></g>';
-
-    s += '<g><path d="M' + X(515) + " 192 L" + (X(515) - 6) + " 204 L" +
-      (X(515) + 6) + ' 204 Z" fill="#64DE9A"/>' +
-      '<line x1="' + X(515) + '" y1="162" x2="' + X(515) +
-      '" y2="192" stroke="#64DE9A" stroke-width="2" stroke-dasharray="3 3"/>' +
-      '<text class="hwx-spec-cue hwx-cue-em" x="' + (X(515) + 14) + '" y="204">sfGFP emission is read here</text></g>';
-
-    s += "</svg>";
-
-    box.innerHTML = s;
-    bindTips(box);
-  })();
   /* ======================================================================
      3. THE DEVELOPMENT LOG
      The steps are written out in the markup, every one of them, so the
