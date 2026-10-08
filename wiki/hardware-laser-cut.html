@@ -100,8 +100,8 @@
 
     <p>
       A blue LED lights a UVette from the side, and an AS7341 spectral sensor
-      looks at it from 90&deg;. Everything sits in a laser-cut enclosure of
-      blackened plywood in two layers: the optics above, the ESP32 and its
+      looks at it from 90&deg;. Everything sits in a laser-cut plywood enclosure,
+      painted matte black inside, in two layers: the optics above, the ESP32 and its
       wiring below, with a deck between them. An OLED shows each
       result and one button starts a measurement.
     </p>
@@ -133,8 +133,8 @@
         <canvas class="lc3d-view" tabindex="0" role="img"
           aria-label="Three-dimensional view of the laser-cut reader, built from the generator's own outlines. A deck carries three chambers around the cuvette pocket: the LED chamber on one side, the light trap straight across, and the detection chamber at right angles. Drag to rotate, or use the arrow keys."></canvas>
         <ul class="lc3d-legend">
-          <li class="lc3d-k-black">coloured matte black</li>
-          <li class="lc3d-k-box">enclosure, bare plywood</li>
+          <li class="lc3d-k-black">painted matte black</li>
+          <li class="lc3d-k-box">enclosure: black inside, bare outside</li>
           <li class="lc3d-k-proxy">bought parts, plain shapes</li>
         </ul>
         <div class="lc3d-hint" aria-hidden="true">drag to rotate &middot; click a part &middot; ctrl + scroll to zoom</div>
@@ -154,7 +154,7 @@
       <div><dt>Emission filter</dt><dd>None. Blue is kept out by the 90&deg; geometry and the light trap</dd></div>
       <div><dt>Light trap</dt><dd>A deep, dark chamber straight across from the LED, entered through an 8&nbsp;mm hole in the wall of the cuvette holder</dd></div>
       <div><dt>Controller</dt><dd>ESP32 DevKit (ESP32-WROOM-32), with an SSD1306 OLED and a push button</dd></div>
-      <div><dt>Enclosure</dt><dd>Laser-cut 3&nbsp;mm plywood, blackened; two layers</dd></div>
+      <div><dt>Enclosure</dt><dd>Laser-cut 3&nbsp;mm plywood, painted matte black inside; two layers</dd></div>
     </dl>
 
     <p>
@@ -584,7 +584,41 @@
   <section id="hardware-laser-build">
     <h2>Building one</h2>
 
-    <h3>The laser-cut parts</h3>
+    {# 三張卡片是這一節的入口，每一句都出自下面的產生器說明、電路段落與 How a reading is made。
+       Run 卡片的「零點」那句還在等分析那邊的原文，拿到再補。組裝流程、操作流程寫好後，卡片再加連結。 #}
+    <ol class="hw-do">
+      <li>
+        <h3>Build</h3>
+        <p>
+          Generate the parts below for your board's thickness and cut the
+          jointed parts from one 450&nbsp;&times;&nbsp;300&nbsp;mm sheet of the
+          same board. Paint every part matte black, the enclosure on the inside
+          only; glue the chambers to the deck, and set the deck on its rails
+          inside the enclosure.
+        </p>
+        <p class="hw-more"><a href="#lc-parts">The laser-cut parts</a></p>
+      </li>
+      <li>
+        <h3>Wire</h3>
+        <p>
+          The AS7341 sensor and the OLED share the ESP32's I&sup2;C bus; the
+          LED runs from GPIO25 through 220&nbsp;&Omega;, and the button sits on
+          GPIO13. Everything runs from 3.3&nbsp;V.
+        </p>
+        <p class="hw-more"><a href="#lc-circuit">The circuit</a> <a href="#lc-wiring">Wiring</a></p>
+      </li>
+      <li>
+        <h3>Run</h3>
+        <p>
+          Seat the UVette with its 2&nbsp;mm path toward the LED, close the
+          lid, and press the button: five readings of about 22 seconds each,
+          the first discarded and the other four averaged.
+        </p>
+        <p class="hw-more"><a href="#hardware-laser-reading">How a reading is made</a></p>
+      </li>
+    </ol>
+
+    <h3 id="lc-parts">The laser-cut parts</h3>
     <p>
       The whole set of parts is generated in the browser from the measured
       thickness of the plywood. The optical layout stays fixed: the cuvette
@@ -621,7 +655,7 @@
       described above.
     </p>
 
-    <h3>The circuit</h3>
+    <h3 id="lc-circuit">The circuit</h3>
     <p>
       Everything runs from the ESP32's 3.3&nbsp;V supply. The AS7341 and the
       OLED share one I&sup2;C bus at different addresses (0x39 and 0x3C); both
@@ -637,7 +671,7 @@
        (GPIO25, 220 Ω) and reads a push button (GPIO13). The AS7341 spectral sensor (DFRobot Gravity SEN0364)
        and the SSD1306 OLED share one I²C bus (SDA GPIO21, SCL GPIO22). Everything runs from the 3.3 V rail.
        兩張圖都是依接線表重畫的示意圖，不是 Tinkercad／Fritzing 匯出的原始檔；不要用舊的 Tinkercad 截圖。 #}
-    <figure class="hw-figure hw-figure-table">
+    <figure id="lc-wiring" class="hw-figure hw-figure-table">
       <table class="hw-table">
         <caption>Wiring. All parts run from 3.3&nbsp;V.</caption>
         <thead>
