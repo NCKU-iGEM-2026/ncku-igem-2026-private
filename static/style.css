@@ -1453,6 +1453,7 @@ body.team-bio-locked { overflow: hidden; }
   pointer-events: auto;
   overflow: hidden;
   white-space: nowrap;
+  text-decoration: none;       /* the card is a link */
   z-index: 1;
   transition: width 0.5s ease, border-radius 0.5s ease, padding 0.5s ease,
               opacity 0.4s ease, box-shadow 0.4s ease;
@@ -10697,11 +10698,12 @@ body.edu-nexus .edu-strip-item.is-selected {
   border-color: var(--nx-mint);
   box-shadow: 0 0 0 2px var(--nx-mint), 0 8px 18px rgba(0, 0, 0, 0.45);
 }
-/* The strip drifts by itself and stops while the pointer is on it (see
-   taiwan-map.js). The card under the pointer gets the same edge glow as the
-   map of Taiwan does on hover: a pale rim, a lime halo outside it, and the
-   same slow breathing (tw-breathe, 3.6s). */
-@keyframes edu-strip-breathe {
+/* Hover glow shared by the narrow-screen photo strip and the ring of orbiting
+   cards (see taiwan-map.js). Each stops moving while the pointer is on it, and
+   the card under the pointer gets the same edge glow the map of Taiwan has on
+   hover: a pale rim, a lime halo outside it, and the same slow breathing
+   (tw-breathe, 3.6s). */
+@keyframes edu-glow-breathe {
   0%, 100% { box-shadow: 0 0 0 1px rgba(215, 245, 184, 0.45), 0 0 10px 2px rgba(160, 232, 96, 0.3), 0 0 22px 6px rgba(160, 232, 96, 0.14); }
   50%      { box-shadow: 0 0 0 1px #d7f5b8,                    0 0 16px 4px rgba(160, 232, 96, 0.9), 0 0 34px 10px rgba(160, 232, 96, 0.45); }
 }
@@ -10709,12 +10711,25 @@ body.edu-nexus .edu-strip-item.is-selected {
   .edu-strip-item:hover,
   body.edu-nexus .edu-strip-item:hover {
     border-color: #d7f5b8;
-    animation: edu-strip-breathe 3.6s ease-in-out infinite;
+    animation: edu-glow-breathe 3.6s ease-in-out infinite;
   }
+  .edu-map-orbit-item:hover,
+  body.edu-nexus .edu-map-orbit-item:hover {
+    border-color: #d7f5b8;
+    opacity: 1;
+    z-index: 9;
+    animation: edu-glow-breathe 3.6s ease-in-out infinite;
+  }
+}
+.edu-map-orbit-item:focus-visible {
+  outline: 2px solid #d7f5b8;
+  outline-offset: 2px;
 }
 @media (hover: hover) and (prefers-reduced-motion: reduce) {
   .edu-strip-item:hover,
-  body.edu-nexus .edu-strip-item:hover {
+  body.edu-nexus .edu-strip-item:hover,
+  .edu-map-orbit-item:hover,
+  body.edu-nexus .edu-map-orbit-item:hover {
     animation: none;
     box-shadow: 0 0 0 1px #d7f5b8, 0 0 16px 4px rgba(160, 232, 96, 0.85), 0 0 30px 8px rgba(160, 232, 96, 0.4);
   }
