@@ -45,7 +45,10 @@
     // It was labelled "sensor hole" in earlier drawings; the sensor sits in the T chamber at 90 deg.
     TRAP_HOLE: { s: 38.99, z: 6.6, r: 4 },
     // openings in the enclosure (coordinates from the inner corner of the box)
-    LID_HOLE: { x: 53.27, y: 31.7, w: 16, h: 16 },
+    // lid opening, centred over the cuvette pocket (61.27, 39.7); enlarged from 16 x 16 to 25 x 25 (2026-10-08)
+    LID_HOLE: { x: 48.77, y: 27.2, w: 25, h: 25 },
+    LID_CAP_OVER: 1,        // the lid's top square overhangs the opening by this much on each side
+    SENSOR_PLATE_OVER: 5,   // the plate under the sensor slot reaches this far past the slot on every side
     FRONT_PORT: { x: 84.46, y: 6.74, w: 26, h: 14.69 },
     SIDE_PORT: { x: 37.57, y: 12.15, w: 25.99, h: 14.69 }
   };
@@ -133,7 +136,8 @@
       if (c.type === 'circle') c2.push({ type: 'circle', cx: c.cx - minx, cy: c.cy - miny, r: c.r });
       else c2.push({ type: 'poly', pts: c.pts.map(sh) });
     });
-    return { name: name, group: group, outline: outer.map(sh), cuts: c2, w: maxx - minx, h: maxy - miny, note: note || '' };
+    // ox, oy: where the part's own origin was before it was moved to its lower-left corner (used by assembly())
+    return { name: name, group: group, outline: outer.map(sh), cuts: c2, w: maxx - minx, h: maxy - miny, ox: minx, oy: miny, note: note || '' };
   }
 
   // ───────────────────────── Parametric model ─────────────────────────
@@ -217,11 +221,16 @@
     });
 
     // ── Deck ──
-    deckCuts.push({ type: 'poly', pts: rectPts(Tx0 - t + f, Ty0 + f, Tx1 + t - f, Ty0 + t - f) }); // wire slot under the T chamber
+    // the slot beside the cuvette pocket where the sensor board stands upright, facing the cuvette at 90°
+    var ss = [Tx0 - t + f, Ty0 + f, Tx1 + t - f, Ty0 + t - f];
+    deckCuts.push({ type: 'poly', pts: rectPts(ss[0], ss[1], ss[2], ss[3]) });
     deckCuts.push({ type: 'circle', cx: K.WIRE_HOLE.x, cy: K.WIRE_HOLE.y, r: K.WIRE_HOLE.r - f });   // wire hole in the L chamber
     var tw = K.T_WIRE_HOLE;
     deckCuts.push({ type: 'poly', pts: rectPts(tw.x - tw.w / 2 + f, tw.y - tw.h / 2 + f, tw.x + tw.w / 2 - f, tw.y + tw.h / 2 - f) }); // wire hole in the T chamber
     pieces.push(makePiece('Optical deck', 'Deck', [[0, 0, K.DECK_W, K.DECK_H, 1]], deckCuts));
+    // a plain plate glued under the deck closes the sensor slot from below and carries the sensor board
+    var so = K.SENSOR_PLATE_OVER, sp = [ss[0] - f - so, ss[1] - f - so, ss[2] + f + so, ss[3] + f + so];
+    pieces.push(makePiece('Sensor support plate (glued under the deck)', 'Deck', [[0, 0, sp[2] - sp[0], sp[3] - sp[1], 1]]));
 
     // ── Enclosure (finger joints) ──
     var BI = K.BOX_IN, BN = K.BOX_N;
@@ -247,8 +256,8 @@
     var X = BI.x + 2 * t, Y = BI.y + 2 * t, Z = BI.z + 2 * t;
     function hole(o) { return { type: 'poly', pts: rectPts(o.x + t, o.y + t, o.x + t + o.w, o.y + t + o.h) }; }
     panel('Enclosure base', X, Y, BN.x, BN.y, true, true);
-    panel('Enclosure lid (16×16 cuvette hole)', X, Y, BN.x, BN.y, true, true, [hole(K.LID_HOLE)]);
-    panel('Enclosure front (USB opening)', X, Z, BN.x, BN.z, false, true, [hole(K.FRONT_PORT)]);
+    panel('Enclosure lid (' + K.LID_HOLE.w + '×' + K.LID_HOLE.h + ' cuvette opening)', X, Y, BN.x, BN.y, true, true, [hole(K.LID_HOLE)]);
+    panel('Enclosure front (opening for the display and button wires)', X, Z, BN.x, BN.z, false, true, [hole(K.FRONT_PORT)]);
     panel('Enclosure back', X, Z, BN.x, BN.z, false, true);
     panel('Enclosure side (with opening)', Y, Z, BN.y, BN.z, false, false, [hole(K.SIDE_PORT)]);
     panel('Enclosure side', Y, Z, BN.y, BN.z, false, false);
@@ -284,7 +293,7 @@
     ok('Tabs 8 × ' + fmt(t) + '; deck slots ' + fmt(T - 2 * f) + ' × ' + fmt(t - 2 * f) + '; wall-top notches ' + fmt(T - 2 * f) + ' wide, ' + fmt(t) + ' deep');
     ok('Enclosure outer size ' + fmt(X) + ' × ' + fmt(Y) + ' × ' + fmt(Z) + ' (inner size fixed at 128 × 100 × 81)');
 
-    return { params: { t: t, fit: f, boxFit: bf }, pieces: pieces, checks: checks, walls: walls };
+    return { params: { t: t, fit: f, boxFit: bf }, pieces: pieces, checks: checks, walls: walls, roofs: roofs, sensorPlate: sp };
   }
   // Parts without joints. They do not depend on board thickness and may be cut from any board.
   // Deck support rails: long = inner length − 5; short = inner width − thickness of both long rails
@@ -298,8 +307,11 @@
       kind(makePiece('Deck support rail (long)', G, [[0, 0, longRail, K.RAIL_H, 1]]), 'railLong'),
       kind(makePiece('Deck support rail (long)', G, [[0, 0, longRail, K.RAIL_H, 1]]), 'railLong'),
       makePiece('Deck support rail (short)', G, [[0, 0, shortRail, K.RAIL_H, 1]]),
-      makePiece('Lid (16×16)', G, [[0, 0, 16, 16, 1]]),
-      makePiece('Lid cap (18×18)', G, [[0, 0, 18, 18, 1]]),
+      makePiece('Deck support rail (short)', G, [[0, 0, shortRail, K.RAIL_H, 1]]),
+      // the lid that closes the opening: one square the size of the opening, glued under one a little larger
+      makePiece('Lid (' + K.LID_HOLE.w + '×' + K.LID_HOLE.h + ')', G, [[0, 0, K.LID_HOLE.w, K.LID_HOLE.h, 1]]),
+      makePiece('Lid cap (' + (K.LID_HOLE.w + 2 * K.LID_CAP_OVER) + '×' + (K.LID_HOLE.h + 2 * K.LID_CAP_OVER) + ')', G,
+        [[0, 0, K.LID_HOLE.w + 2 * K.LID_CAP_OVER, K.LID_HOLE.h + 2 * K.LID_CAP_OVER, 1]]),
       makePiece('Square 29.73×30', G, [[0, 0, 29.73, 30, 1]]),
       triangle('Triangle 22×20', G),
       triangle('Triangle 22×20', G)
@@ -309,7 +321,7 @@
   function big(p) { p.big = true; return p; }
   function kind(p, k) { p.kind = k; return p; }
   function triangle(name, group) {
-    return { name: name, group: group || 'Other', outline: [[0, 0], [22, 0], [0, 20]], cuts: [], w: 22, h: 20, note: '' };
+    return { name: name, group: group || 'Other', outline: [[0, 0], [22, 0], [0, 20]], cuts: [], w: 22, h: 20, ox: 0, oy: 0, note: '' };
   }
   function fmt(v) { return (Math.round(v * 100) / 100).toString(); }
 
@@ -694,6 +706,81 @@
     run();
   }
 
-  var API = { K: K, generate: generate, layout: layout, toDXF: toDXF, toSVG: toSVG, rectilinear: rectilinear, mount: mount, fixedPieces: fixedPieces, plan: plan };
+  // ───────────────────────── 3D assembly (for the viewer) ─────────────────────────
+  // Every part placed in deck coordinates: x, y as on the deck drawing, z up, z = 0 on the deck's top face.
+  // A point (u, v) of a part's outline lands at O + U·(u + ox) + V·(v + oy); the board's thickness runs along N.
+  // kind: 'core' = chamber parts and deck, 'plate' = the cuvette-holding plate on top of the chambers,
+  //       'trap' = the square and two triangles that slope the light trap's back,
+  //       'under' = the plate glued under the deck that closes the sensor slot and carries the sensor,
+  //       'cap' = the two squares that close the lid opening, 'box' = the enclosure (bare plywood),
+  //       'rail' = deck support rails. Everything except 'box' is coloured matte black.
+  // where: 'cut' = placed from the drawing; 'sized' = placed by its size only (the drawing does not give the spot).
+  function assembly(params) {
+    var r = generate(params), t = +params.t, out = [];
+    var Rx0 = K.cuvR + t, Ry1 = K.cuvTop - K.R_GAP - t, Ry0 = Ry1 - K.R_H;   // R chamber inside, as in generate()
+    var byName = {}; r.pieces.forEach(function (p) { byName[p.name] = p; });
+    function put(p, kind, where, O, U, V, N) {
+      out.push({ name: p.name, group: p.group, kind: kind, where: where, piece: p, O: O, U: U, V: V, N: N });
+    }
+    r.walls.forEach(function (w) {
+      var p = byName[w.name];
+      if (w.axis === 'y') put(p, 'core', 'cut', [w.face, w.s0, 0], [0, 1, 0], [0, 0, 1], [w.dir * t, 0, 0]);
+      else put(p, 'core', 'cut', [w.s0, w.face, 0], [1, 0, 0], [0, 0, 1], [0, w.dir * t, 0]);
+    });
+    r.roofs.forEach(function (rf) {
+      put(byName[rf.name], 'core', 'cut', [rf.x0, rf.y0, K.WALL_INNER_H], [1, 0, 0], [0, 1, 0], [0, 0, t]);
+    });
+    put(byName['Optical deck'], 'core', 'cut', [0, 0, -t], [1, 0, 0], [0, 1, 0], [0, 0, t]);
+    out[out.length - 1].height = 'about';
+    put(byName['Sensor support plate (glued under the deck)'], 'under', 'cut', [r.sensorPlate[0], r.sensorPlate[1], -2 * t], [1, 0, 0], [0, 1, 0], [0, 0, t]);
+    // The box shares the deck's x, y origin (the lid's opening sits centred over the cuvette pocket in
+    // both drawings). The deck's height is not in the drawing: the builder puts it at about half the inside
+    // height, with the electronics below it, so its underside is placed at half of 81 mm.
+    var BI = K.BOX_IN, zf = -t - BI.z / 2, X = BI.x + 2 * t, Y = BI.y + 2 * t, Z = BI.z + 2 * t;
+    var bo = [-t, -t, zf - t];
+    function at(dx, dy, dz) { return [bo[0] + dx, bo[1] + dy, bo[2] + dz]; }
+    var side = r.pieces.filter(function (p) { return p.name === 'Enclosure side'; })[0];
+    put(byName['Enclosure base'], 'box', 'cut', at(0, 0, 0), [1, 0, 0], [0, 1, 0], [0, 0, t]);
+    put(r.pieces.filter(function (p) { return /^Enclosure lid/.test(p.name); })[0], 'box', 'cut', at(0, 0, Z - t), [1, 0, 0], [0, 1, 0], [0, 0, t]);
+    // the front's opening is on the detection-chamber side (high y), where the display and button wires come out
+    put(byName['Enclosure front (opening for the display and button wires)'], 'box', 'cut', at(0, Y - t, 0), [1, 0, 0], [0, 0, 1], [0, t, 0]);
+    put(byName['Enclosure back'], 'box', 'cut', at(0, 0, 0), [1, 0, 0], [0, 0, 1], [0, t, 0]);
+    put(byName['Enclosure side (with opening)'], 'box', 'sized', at(0, 0, 0), [0, 1, 0], [0, 0, 1], [t, 0, 0]);
+    put(side, 'box', 'sized', at(X - t, 0, 0), [0, 1, 0], [0, 0, 1], [t, 0, 0]);
+    // Rails: under the deck, two long ones along the long walls and the short one across between them
+    var zr = -t - K.RAIL_H, zTop = K.WALL_INNER_H + t, lidZ = bo[2] + Z - t;
+    fixedPieces(BI.y - 2 * t).forEach(function (p) {
+      if (p.kind === 'railLong') {
+        var y0 = out.filter(function (o) { return o.kind === 'rail'; }).length ? BI.y - t : 0;
+        put(p, 'rail', 'sized', [0, y0, zr], [1, 0, 0], [0, 0, 1], [0, t, 0]);
+      } else if (/rail \(short\)/.test(p.name)) {
+        var nShort = out.filter(function (o) { return /rail \(short\)/.test(o.name); }).length;
+        put(p, 'rail', 'sized', [nShort ? 0 : BI.x - t, t, zr], [0, 1, 0], [0, 0, 1], [t, 0, 0]);
+      } else if (/^Second plate/.test(p.name)) {
+        // the plain plate lies on the chambers; its 13 x 13 opening holds the cuvette upright
+        put(p, 'plate', 'cut', [0, 0, zTop], [1, 0, 0], [0, 1, 0], [0, 0, t]);
+      } else if (/^Lid \(/.test(p.name)) {
+        // the lid: the square the size of the opening sits in it, the larger square glued on top of it
+        put(p, 'cap', 'cut', [K.LID_HOLE.x, K.LID_HOLE.y, lidZ], [1, 0, 0], [0, 1, 0], [0, 0, t]);
+      } else if (/^Triangle|^Square/.test(p.name)) {
+        // light trap: the square's lower edge stands on the floor against the wall with the 8 mm opening and
+        // rises away from it at about 45°, carried by two triangles against the chamber's long walls (right
+        // angle at the far end, 22 mm along the floor, 20 mm up). Next to the opening the triangles are
+        // nearly flat, so they leave it clear. d: the board's own thickness, measured along the floor.
+        var L = Math.hypot(22, 20), d = 20 / L * t;
+        if (/^Triangle/.test(p.name)) {
+          var nTri = out.filter(function (o) { return /^Triangle/.test(o.name); }).length;
+          put(p, 'trap', 'sized', [Rx0 + d + 22, nTri ? Ry1 - t : Ry0, 0], [-1, 0, 0], [0, 0, 1], [0, t, 0]);
+        } else {
+          put(p, 'trap', 'sized', [Rx0 + d, Ry0, 0], [22 / L, 0, 20 / L], [0, 1, 0], [-d, 0, 22 / L * t]);
+        }
+      } else if (/^Lid cap/.test(p.name)) {
+        put(p, 'cap', 'cut', [K.LID_HOLE.x - K.LID_CAP_OVER, K.LID_HOLE.y - K.LID_CAP_OVER, lidZ + t], [1, 0, 0], [0, 1, 0], [0, 0, t]);
+      }
+    });
+    return { parts: out, t: t, box: { x0: bo[0], y0: bo[1], z0: bo[2], X: X, Y: Y, Z: Z } };
+  }
+
+  var API = { K: K, generate: generate, layout: layout, toDXF: toDXF, toSVG: toSVG, rectilinear: rectilinear, mount: mount, fixedPieces: fixedPieces, plan: plan, assembly: assembly };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.CaptureGen = API;
 })(this);
