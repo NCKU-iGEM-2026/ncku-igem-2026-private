@@ -119,6 +119,33 @@
       </figure>
     </div>
 
+    {# 3D 圖：每一片都是產生器（capture-generator.js）切出來的外形，加上板厚，放在 CaptureGen.assembly() 指定的位置；
+       沒有手畫的模型，也沒有上傳任何模型檔。畫圖的是 static/capture-3d.js（WebGL，沒有外部函式庫）。
+       比色管與 LED 是買來的零件，畫成簡單形狀。外殼哪一面朝哪裡、支撐軌的確切位置，圖面沒有給，
+       點那幾片時畫面會說明。沒有 WebGL 時只顯示下面那段文字。 #}
+    <div class="hwx-rig lc3d" id="lc3d" data-t="3">
+      <div class="hwx-rig-head">
+        <h3>The reader in 3D</h3>
+        <p class="hwx-rig-sub">Every laser-cut part, from the generator at 3.0&nbsp;mm</p>
+      </div>
+      <div class="hwx-ctrls lc3d-ctrls" hidden></div>
+      <div class="hwx-rig-figure lc3d-stage" hidden>
+        <canvas class="lc3d-view" tabindex="0" role="img"
+          aria-label="Three-dimensional view of the laser-cut reader, built from the generator's own outlines. A deck carries three chambers around the cuvette pocket: the LED chamber on one side, the light trap straight across, and the detection chamber at right angles. Drag to rotate, or use the arrow keys."></canvas>
+        <ul class="lc3d-legend">
+          <li class="lc3d-k-black">coloured matte black</li>
+          <li class="lc3d-k-box">enclosure, bare plywood</li>
+          <li class="lc3d-k-proxy">bought parts, plain shapes</li>
+        </ul>
+        <div class="lc3d-hint" aria-hidden="true">drag to rotate &middot; click a part &middot; ctrl + scroll to zoom</div>
+      </div>
+      <div class="hwx-rig-body lc3d-readout" aria-live="polite">
+        The deck carries three chambers around the cuvette pocket: the LED
+        chamber, the light trap straight across from it, and the detection
+        chamber at right angles. Click a part for its size.
+      </div>
+    </div>
+
     <dl class="hw-spec">
       <div><dt>Excitation</dt><dd>Cree C503B blue LED, 470&nbsp;nm, driven from GPIO25 through 220&nbsp;&Omega;</dd></div>
       <div><dt>Detector</dt><dd>AS7341, ten channels (DFRobot Gravity SEN0364 board), I&sup2;C 0x39</dd></div>
@@ -126,7 +153,7 @@
       <div><dt>Cuvette</dt><dd>Eppendorf UVette, 200&nbsp;&micro;L. The 2&nbsp;mm path faces the LED, the 10&nbsp;mm path faces the sensor</dd></div>
       <div><dt>Emission filter</dt><dd>None. Blue is kept out by the 90&deg; geometry and the light trap</dd></div>
       <div><dt>Light trap</dt><dd>A deep, dark chamber straight across from the LED, entered through an 8&nbsp;mm hole in the wall of the cuvette holder</dd></div>
-      <div><dt>Controller</dt><dd>ESP32 DevKit (ESP-WROOM-32), with an SSD1306 OLED and a push button</dd></div>
+      <div><dt>Controller</dt><dd>ESP32 DevKit (ESP32-WROOM-32), with an SSD1306 OLED and a push button</dd></div>
       <div><dt>Enclosure</dt><dd>Laser-cut 3&nbsp;mm plywood, blackened; two layers</dd></div>
     </dl>
 
@@ -139,7 +166,8 @@
     <p>
       The data show the sensor sits to the side of the beam. With no cuvette
       in place, the blue channel F3 (480&nbsp;nm) read about 312 counts; with
-      a cuvette of plain medium it rose to about 730. A reading that goes up
+      a cuvette of plain medium it rose to about 730 (both in the grid
+      session). A reading that goes up
       when the sample goes in is consistent with a sensor collecting light
       scattered sideways out of the sample.
     </p>
@@ -177,7 +205,7 @@
       batch: over readings two to five, F3 and F5 each fall by about 2.7%,
       while F5/F3 changes by less than 0.1% on average. Net signal is the
       F5/F3 of a tube
-      minus that of a tube with no sfGFP cells, measured the same day.
+      minus that of a tube with no sfGFP cells, measured in the same session.
     </p>
 
     <h3>Why F5, and not F4</h3>
@@ -200,7 +228,7 @@
           sfGFP culture, used for the fit, and one with none, which sets the
           zero and gives the background row. The grid varies both culture
           density and sfGFP fraction over twelve tubes. The last row is a
-          culture-medium blank measured on the grid day, lifted out and put
+          culture-medium blank measured in the grid session, lifted out and put
           back.
         </caption>
         <thead>
@@ -567,8 +595,8 @@
       jointed parts all fit one 450&nbsp;&times;&nbsp;300&nbsp;mm sheet and must
       be cut from one batch of board, because every joint is sized from a
       single measured thickness. The small parts without joints fill the
-      gaps around them; at some thicknesses one or two do not fit and go on a
-      second sheet of any board.
+      gaps around them; those that do not fit go on a second sheet of any
+      board.
     </p>
     <p class="hw-aside">
       Assembly tip: the deck and the enclosure panels have symmetric
@@ -590,9 +618,7 @@
       in 3D from the generated outlines, close with no gaps and no overlaps
       at zero fit offset for every thickness from 2.8 to 3.2&nbsp;mm; the
       default 0.1&nbsp;mm per side is there to take up the laser's kerf, as
-      described above. At 3.0&nbsp;mm the generated parts match the drawing
-      of the reader used for every measurement on this page, part for part,
-      except the enclosure finger spacing (within 0.4&nbsp;mm).
+      described above.
     </p>
 
     <h3>The circuit</h3>
@@ -650,14 +676,13 @@
 
     <p>
       The costing below is for the laser-cut build, including its
-      enclosure, display and button. Figures are converted from New Taiwan dollars at
-      <strong>NT$31.68 to US$1</strong> (2026-09-22).
+      enclosure, display and button. All figures are in US dollars.
     </p>
 
     {#
       === 給團隊 ===
-      成本只以美元呈現，原始台幣數字已拿掉，所以頁面上留著匯率與日期——
-      沒有匯率的美金數字別人無法驗算，也無法用自己的匯率重算。
+      成本只以美元呈現，原始台幣數字與匯率都已拿掉（隊伍決定，2026-10-08）。換算用的匯率是 NT$31.68 兑 US$1（2026-09-22），留在這裡備查，
+      之後要驗算或用別的匯率重算時用。
       小計是「上面那幾列四捨五入後相加」的結果，不是原始台幣總額再換算：
       電子零件那欄逐列相加是 $42.18，1336 元直接換算是 $42.17，差一分錢。
       台幣欄還在時看不出來，現在讀者會自己加那一欄，所以取能加得起來的那個。
@@ -707,8 +732,8 @@
     </details>
 
     <p>
-      Printing that enclosure instead of laser-cutting it costs
-      <strong>$36.30</strong> for the step and brings the build to
+      Printing that enclosure instead of laser-cutting it replaces the
+      $11.36 enclosure step with <strong>$36.30</strong> and brings the build to
       <strong>$78.48</strong>.
     </p>
 
@@ -721,6 +746,9 @@
   </section>
 
   <script src="{{ url_for('static', filename='hardware-laser-figs.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='capture-3d.css') }}">
+  <script src="{{ url_for('static', filename='capture-3d.js') }}"></script>
+  <script>Capture3D.mount('#lc3d');</script>
 
   <p class="hw-build-end">
     <a href="#printed">See the 3D-printed build</a>

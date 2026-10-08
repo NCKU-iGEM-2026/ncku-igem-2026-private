@@ -449,9 +449,9 @@ footer.footer {
    the bench, its right edge the bench in shadow. */
 .page-hero-bg.hero-hardware { --hero-fill-from: #5b5855; --hero-fill-to: #21201d; --hero-zoom: 125%; }
 
-/* At 80% brightness, well above the other deep-teal banners (brightness 0.42,
-   0.32 on a phone): the bench photo is dark to begin with -- a black base
-   plate on a black bench -- and at that level it all but disappeared. The
+/* At 80% brightness, the brightest of the banners: the bench photo is dark
+   to begin with -- a black base plate on a black bench -- and at the shared
+   level it all but disappeared. The
    tint over it and the title's shadow are set with the Team and Attributions
    banners, near the end of this file. */
 body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) brightness(0.8); }
@@ -460,6 +460,23 @@ body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) bright
    colour, on phones as well. The petrol tint over it is the shared one, which
    is what keeps the graphic's own lettering behind the page title. */
 body.hw-nexus .page-hero-bg.hero-software { filter: blur(2px) saturate(1) brightness(0.75); }
+
+/* 70% rather than the shared 60%: Lab Book, Description, Parts and the HP
+   pages. Only the brightness moves -- the blur and the desaturation stay as
+   every other banner has them, so it still reads as the same treatment. The
+   dark-mode default in css/editorial.css is what has to be outranked: Lab
+   Book, Description and Parts carry no body class of their own, so they ask
+   for it with a hero class (layout.html's {% block hero_class %}); the HP
+   pages are the edu-nexus and bg-nexus ones here, and the hp-nexus ones in
+   css/pages/hp-nexus.css (Promotion is with the Team banners, near the end
+   of this file). */
+html[data-theme="dark"] .page-hero-bg.hero-labbook,
+html[data-theme="dark"] .page-hero-bg.hero-description,
+html[data-theme="dark"] .page-hero-bg.hero-parts,
+html[data-theme="dark"] body.edu-nexus .page-hero-bg,
+html[data-theme="dark"] body.bg-nexus .page-hero-bg {
+  filter: blur(2px) brightness(0.7) saturate(0.8);
+}
 
 .page-hero-tint {
   position: absolute;
@@ -503,9 +520,11 @@ footer a:hover { color: white; text-decoration: underline; }
   width: max-content;
   padding: 0 1.25rem;
   /* One loop is one track's width, so a longer track scrolls faster at the
-     same duration. 24s with fourteen logos keeps the pace the eleven had at
-     20s (about 100px a second); lengthen it again if more are added. */
-  animation: sponsorMarquee 24s linear infinite;
+     same duration. Measured: fourteen logos made a 2,355px track, which 24s
+     ran at about 98px a second; nineteen make 3,119px, and 32s keeps that
+     pace. Lengthen it again if more are added -- the track's width divided
+     by 98 gives the seconds. */
+  animation: sponsorMarquee 32s linear infinite;
 }
 
 @keyframes sponsorMarquee {
@@ -939,6 +958,13 @@ footer a:hover { color: white; text-decoration: underline; }
 .polaroid-photo .hw-flip-front,
 .polaroid-photo .hw-flip-back { background: #ddd; }
 .polaroid-photo .hw-flip-back img { width: 100%; height: 100%; object-fit: cover; }
+
+/* A card with one photo and nothing to turn over to (the PIs). Positioned
+   for the same reason as the flip cards above -- a percentage height inside
+   this aspect-ratio box does not resolve everywhere -- and so that a photo
+   can be cropped by size and offset in its own style attribute. */
+.polaroid-photo.is-single { position: relative; }
+.polaroid-photo.is-single > img { position: absolute; inset: 0; }
 
 /* No "hover to read" hint or corner fold on these -- the card is a plain
    photo, not a text card, and a corner fold with no label on it would just
@@ -1378,6 +1404,7 @@ body.team-bio-locked { overflow: hidden; }
 /* ===== Education: map + filter tabs row ===== */
 .edu-map-row {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1442,7 +1469,12 @@ body.team-bio-locked { overflow: hidden; }
   pointer-events: auto;
   overflow: hidden;
   white-space: nowrap;
+  text-decoration: none;       /* the card is a link */
   z-index: 1;
+  /* Moved every frame: on a layer of its own, a move is the compositor's
+     work and the card is not repainted. translate3d(x, y, 0) alone does not
+     get it one -- with no depth, Chrome counts it as a flat transform. */
+  will-change: transform;
   transition: width 0.5s ease, border-radius 0.5s ease, padding 0.5s ease,
               opacity 0.4s ease, box-shadow 0.4s ease;
 }
@@ -1496,29 +1528,37 @@ body.team-bio-locked { overflow: hidden; }
   text-overflow: ellipsis;
 }
 
-.edu-map-leader-svg {
+/* The leader lines are thin strips rather than SVG lines. Each is moved and
+   turned with transform on a layer of its own, so following its card every
+   frame redraws a strip one line long; an SVG line had the browser redraw the
+   tiles under its whole diagonal, every frame. The dashes are the old
+   stroke-dasharray: 3px on, 3px off. */
+.edu-map-leaders {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
   display: none;
   pointer-events: none;
   z-index: 5;
-  overflow: visible;
 }
 
 .edu-map-leader-line {
-  stroke: #075a3e;
-  stroke-width: 1.25;
-  stroke-dasharray: 3 3;
+  --leader: #075a3e;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1.25px;
+  margin-top: -0.625px;        /* centred on the line between the two points */
+  transform-origin: 0 50%;
+  background: repeating-linear-gradient(90deg, var(--leader) 0 3px, transparent 3px 6px);
   opacity: 0.7;
+  will-change: transform;
   transition: opacity 0.3s ease;
 }
 
 .edu-map-row.is-orbit .edu-map-orbit,
 .edu-map-row.is-orbit-compact .edu-map-orbit,
-.edu-map-row.is-orbit .edu-map-leader-svg,
-.edu-map-row.is-orbit-compact .edu-map-leader-svg { display: block; }
+.edu-map-row.is-orbit .edu-map-leaders,
+.edu-map-row.is-orbit-compact .edu-map-leaders { display: block; }
 
 /* Compact: smaller cards so the map keeps its size */
 .edu-map-row.is-orbit-compact .edu-map-orbit-item { width: 110px; }
@@ -1529,13 +1569,24 @@ body.team-bio-locked { overflow: hidden; }
 .edu-map-strip {
   display: none;
   gap: 0.75rem;
-  margin: 0.5rem 0 1.25rem;
-  padding: 0.25rem 0.25rem 0.75rem;
+  /* A strip that scrolls sideways also clips what sticks out above and below
+     it, and the hover glow reaches about 44px past a card. So the strip has
+     that much empty room above and below, and a negative margin of the same
+     size takes it back out of the layout: the cards sit exactly where they
+     did (0.5rem / 1.25rem of margin and 0.25rem / 0.75rem of padding before).
+     The map row is lifted above the strip so the empty room never covers its
+     pins. */
+  margin: -2.5rem 0 -0.75rem;
+  padding: 2.75rem 0.25rem 2.75rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 }
 .edu-map-row.is-strip + .edu-map-strip { display: flex; }
+/* Only when it is a marquee (taiwan-map.js): with reduced motion it stays an
+   ordinary swipeable row and keeps its scroll bar. Swiping still works. */
+.edu-map-strip.is-marquee { scrollbar-width: none; }
+.edu-map-strip.is-marquee::-webkit-scrollbar { display: none; }
 
 .edu-strip-item {
   flex: 0 0 auto;
@@ -2316,7 +2367,7 @@ body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
   padding: 1.5rem 1.75rem;
 }
 
-.attr-ai h3 {
+.attr-ai h2 {
   font-family: "Changa", sans-serif;
   color: #075a3e;
   margin-top: 0;
@@ -9278,27 +9329,7 @@ body.quiz-active { overflow: hidden; }
   margin: 0.4rem 0 1.4rem;
 }
 
-/* Downward, upward, forward, backward: each direction a short block with its
-   name leading, so the four read as a set rather than one long paragraph. */
-.hp-directions {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0 1.25rem;
-  display: grid;
-  gap: 0.85rem;
-}
-
-.hp-directions li {
-  padding-left: 1rem;
-  border-left: 3px solid var(--nx-mint, #075a3e);
-}
-
-.hp-directions strong { color: var(--nx-mint, #075a3e); }
-
-/* The deep-teal theme paints every paragraph and <strong> in its body ink,
-   at higher specificity than the two rules above. */
-body.edu-nexus .edu-session-block .hp-slogan { color: var(--nx-lime); }
-body.edu-nexus .edu-session-block .hp-directions strong { color: var(--nx-mint); }
+/* The four directions themselves are the compass in css/pages/hp-hub.css. */
 
 @media (max-width: 767.98px) {
   .hp-map {
@@ -9718,7 +9749,7 @@ body.edu-nexus .bg-hero { background-color: var(--nx-ground); }
 body.hw-nexus .page-hero-bg,
 body.nb-nexus .page-hero-bg,
 body.bg-nexus .page-hero-bg,
-body.edu-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.42); }
+body.edu-nexus .page-hero-bg { filter: blur(2px) saturate(0.55) brightness(0.6); }
 body.hw-nexus .page-hero-tint,
 body.nb-nexus .page-hero-tint,
 body.bg-nexus .page-hero-tint,
@@ -9969,13 +10000,6 @@ body.hw-nexus .back-to-top:focus-visible {
 body.hw-nexus footer.footer,
 body.nb-nexus footer.footer,
 body.bg-nexus footer.footer { background: #071820 !important; }
-
-/* The banner photo carries a lot of light on a page this dark. Reduce it
-   further where the viewport is small enough that the hero fills the screen
-   on arrival. */
-@media (max-width: 767.98px) {
-  body.hw-nexus .page-hero-bg { filter: blur(2px) saturate(0.5) brightness(0.32); }
-}
 
 @media (prefers-contrast: more) {
   body.hw-nexus { --nx-text: #f2f8fa; --nx-muted: #b6ccd4; }
@@ -10644,7 +10668,7 @@ body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(20, 179, 145, 0.
 body.edu-nexus .edu-map-viewport { background: transparent; }   /* 島外全透明：只剩台灣島本身 */
 body.edu-nexus .edu-map-county,
 body.edu-nexus .edu-map-county-interactive { stroke: var(--nx-mint); stroke-width: 0.8; }
-body.edu-nexus .edu-map-leader-line { stroke: var(--nx-mint); }
+body.edu-nexus .edu-map-leader-line { --leader: var(--nx-mint); }
 
 /* ---- 台灣全島輪廓 hover 呼吸光暈（taiwan-map.js 以 SVG filter 生成）----
    光暈由 feMorphology＋blur 直接從島的填色剪影生成（绝無橫穿直線）；
@@ -10694,6 +10718,42 @@ body.edu-nexus .edu-strip-item.is-selected {
   background: var(--nx-raised);
   border-color: var(--nx-mint);
   box-shadow: 0 0 0 2px var(--nx-mint), 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+/* Hover glow shared by the narrow-screen photo strip and the ring of orbiting
+   cards (see taiwan-map.js). Each stops moving while the pointer is on it, and
+   the card under the pointer gets the same edge glow the map of Taiwan has on
+   hover: a pale rim, a lime halo outside it, and the same slow breathing
+   (tw-breathe, 3.6s). */
+@keyframes edu-glow-breathe {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(215, 245, 184, 0.45), 0 0 10px 2px rgba(160, 232, 96, 0.3), 0 0 22px 6px rgba(160, 232, 96, 0.14); }
+  50%      { box-shadow: 0 0 0 1px #d7f5b8,                    0 0 16px 4px rgba(160, 232, 96, 0.9), 0 0 34px 10px rgba(160, 232, 96, 0.45); }
+}
+@media (hover: hover) {
+  .edu-strip-item:hover,
+  body.edu-nexus .edu-strip-item:hover {
+    border-color: #d7f5b8;
+    animation: edu-glow-breathe 3.6s ease-in-out infinite;
+  }
+  .edu-map-orbit-item:hover,
+  body.edu-nexus .edu-map-orbit-item:hover {
+    border-color: #d7f5b8;
+    opacity: 1;
+    z-index: 9;
+    animation: edu-glow-breathe 3.6s ease-in-out infinite;
+  }
+}
+.edu-map-orbit-item:focus-visible {
+  outline: 2px solid #d7f5b8;
+  outline-offset: 2px;
+}
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+  .edu-strip-item:hover,
+  body.edu-nexus .edu-strip-item:hover,
+  .edu-map-orbit-item:hover,
+  body.edu-nexus .edu-map-orbit-item:hover {
+    animation: none;
+    box-shadow: 0 0 0 1px #d7f5b8, 0 0 16px 4px rgba(160, 232, 96, 0.85), 0 0 30px 8px rgba(160, 232, 96, 0.4);
+  }
 }
 html[data-theme="dark"] .edu-pin.is-selected {
   background: #a0e860;
@@ -11355,6 +11415,50 @@ body.bg-nexus .sgd {
   background: transparent;
   border-block-color: var(--nx-line);
 }
+
+/* Closing the gap between the banner and the band, which was mostly inside
+   the banner rather than between the two:
+     - this page sets no subtitle, so layout.html's <p class="lead mb-5
+       hero-sub"> renders empty -- and an empty <p> still holds a line box
+       and its 3rem margin, about 78px of nothing under the title;
+     - the banner's own bottom padding is 2rem plus the --hero-fade the mask
+       needs (css/shell.css), and the fade is the part that cannot simply go;
+     - the band then adds its own top padding on top of all that.
+   The fade is kept, just shorter, so the banner still dissolves into the
+   page instead of ending on an edge. The !important matches shell.css, which
+   sets those two with it. Scoped to this page: .sgd is also the Promotion
+   band and the beats on Home, where the banner sits differently. */
+/* The photo reaches the bottom edge of the banner. The tint the four nexus
+   pages share ends at 0.97, near enough solid, so the last third of this
+   banner was the tint rather than the photo. Only the bottom stop moves --
+   the top one is what holds the title's contrast against a bright picture,
+   and the fade below still dissolves the banner into the page. */
+body.bg-nexus .page-hero-tint {
+  background: linear-gradient(to bottom,
+    rgba(14, 36, 46, 0.55), rgba(14, 36, 46, 0.8));
+}
+
+body.bg-nexus .page-hero .hero-sub:empty { display: none; }
+body.bg-nexus .page-hero {
+  /* Fade off: the photo meets the band on a clean horizontal edge instead of
+     dissolving into it. css/shell.css drives a mask off this variable, so
+     that has to be turned off with it -- a zero-length fade still leaves a
+     mask whose last stop is transparent. */
+  --hero-fade: 0rem;
+  /* Held at what css/editorial.css was giving this page before bg-nexus was
+     added to its exclusion list, so only the bottom of the banner moves. */
+  padding-top: calc(var(--nav-h) + 4rem) !important;
+  padding-bottom: 1rem !important;
+  margin-bottom: 0 !important;
+  /* Height is no longer whatever the title and the padding happen to add up
+     to. Once the subtitle and the fade went, that came to about 300px, which
+     is too little for a photo to read as a banner. The extra lands under the
+     title, where the photo is. */
+  min-height: clamp(400px, 54vh, 600px);
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+body.bg-nexus .sgd { padding-top: 2rem; }
 body.bg-nexus .sgd-kicker { color: var(--nx-mint); }
 body.bg-nexus .sgd-title { color: var(--nx-mint); }
 body.bg-nexus .sgd-heading { color: var(--nx-text); }
@@ -11771,6 +11875,36 @@ body.bg-nexus .board-game-page { --muted: #c6dde4; --ink2: #c6dde4; }
 
 .sdgp-stat-label { font-size: 0.88rem; color: #4a4a4a; line-height: 1.35; }
 
+/* The page's closing sentence, set as a statement: large, centred, in the
+   glow's lime-to-mint, with "citizens" in the SDG 17 blue's lighter cousin. */
+.sdgp-closing { text-align: center; }
+
+.sdgp-closing-text {
+  max-width: 34ch;
+  margin: 1.5rem auto 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.4rem, 1.05rem + 1.6vw, 2.2rem);
+  line-height: 1.35;
+  background: linear-gradient(100deg, #a0e860, #49c5b6 60%, #5fb3e0);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 16px rgba(160, 232, 96, 0.3));
+}
+
+.sdgp-closing-text em {
+  font-style: normal;
+  font-weight: 800;
+}
+
+/* The deep-teal page paints every paragraph in its body ink
+   (css/pages/hp-nexus.css); the gradient has to win over that. */
+body.hp-nexus .edu-session-block .sdgp-closing-text {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
 @media (max-width: 575.98px) {
   .sdgp-tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
   .sdgp-tile { min-height: 108px; }
@@ -12082,7 +12216,8 @@ body.hw-nexus .hw .hw-more a:focus-visible { text-decoration: underline; }
 body.hw-nexus .hw .hw-build-head .hw-keys { margin-bottom: 0.2rem; }
 /* Under each number, what it measures in plain words, as large as a statement
    in a card; the conditions follow in the small print. */
-.hw .hw-build-head .hw-keys .hw-key-say {
+.hw .hw-build-head .hw-keys .hw-key-say,
+.hw .hw-brief .hw-key-say {
   display: block;
   margin-bottom: 0.35rem;
   font-size: 1.12rem;
@@ -12090,7 +12225,89 @@ body.hw-nexus .hw .hw-build-head .hw-keys { margin-bottom: 0.2rem; }
   line-height: 1.3;
   color: #33413a;
 }
-body.hw-nexus .hw .hw-build-head .hw-keys .hw-key-say { color: var(--nx-text); }
+body.hw-nexus .hw .hw-build-head .hw-keys .hw-key-say,
+body.hw-nexus .hw .hw-brief .hw-key-say { color: var(--nx-text); }
+
+/* The shared part of Hardware (2026-10-08). Background is the assay in four
+   figures, set like a build's opening numbers so that the brief and the two
+   answers to it read alike. Measurement principle is one drawing: the light
+   path, and under the detector the ten channels it reads, drawn as a second
+   enlarged inset. No new type size: 1.9rem, 1.12rem, 0.95rem and 0.9rem are
+   the page's own. */
+body.hw-nexus .hw .hw-brief {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 0;
+}
+body.hw-nexus .hw .hw-brief + .hw-limit { margin-top: 1.1rem; }
+
+.hw-svg-lead { fill: none; stroke: var(--nx-mint, #4f8f74); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.hw-svg-nm { text-anchor: middle; font-size: 13px; fill: var(--nx-muted, #8a978f); }
+.hw-svg-cue { font-size: 14px; font-weight: 600; }
+.hw-svg-cue-blue { fill: var(--nx-blue-up, #2b6cb0); }
+.hw-svg-cue-green { fill: #55d98a; }
+.hw-svg-land-blue { fill: none; stroke: var(--nx-blue-up, #2b6cb0); stroke-width: 2; }
+.hw-svg-land-green { fill: none; stroke: #55d98a; stroke-width: 2; }
+.hw-svg-badge circle { fill: var(--nx-ground, #fffdf7); stroke: var(--nx-mint, #1f4a38); stroke-width: 1.5; }
+.hw-svg-badge text {
+  text-anchor: middle;
+  font-family: "Changa", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--nx-mint, #1f4a38);
+}
+.hw-svg .hwx-chan.is-em rect { stroke: #55d98a; stroke-width: 2.5; opacity: 1; }
+.hw-svg .hwx-chan:focus-visible { outline: 3px solid var(--nx-warm, #e6a94b); outline-offset: 2px; }
+.hw-svg .hwx-chan-wide { font-size: 11px; fill: #dbe9ee; }
+
+/* The three notes the drawing's numbers point at. */
+body.hw-nexus .hw .hw-how {
+  list-style: none;
+  counter-reset: hw-how;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem 1.6rem;
+  margin: 1.1rem 0 0;
+  padding: 0;
+}
+body.hw-nexus .hw .hw-how > li {
+  counter-increment: hw-how;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-how > li > b {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.3rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-how > li > b::before {
+  content: counter(hw-how);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1.5px solid var(--nx-mint);
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--nx-mint);
+}
+@media (max-width: 991.98px) {
+  body.hw-nexus .hw .hw-brief { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+  body.hw-nexus .hw .hw-how { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  body.hw-nexus .hw .hw-brief > div { padding: 0.8rem 0.85rem; }
+  body.hw-nexus .hw .hw-brief dt { font-size: 1.55rem; }
+  body.hw-nexus .hw .hw-brief .hw-key-say { font-size: 1.04rem; }
+}
 body.hw-nexus .hw .hw-build-head .hw-limit { margin: 0.9rem 0 1.7rem; }
 body.hw-nexus .hw #printed .hw-limit + p:not(.hw-more) { margin-top: 1.6rem; }
 
@@ -12479,6 +12696,19 @@ body.team-page .polaroid-photo .hw-flip-front,
 body.team-page .polaroid-photo .hw-flip-back { background: #24414d; }
 body.team-page .polaroid-caption { color: var(--nx-text); }
 body.team-page .polaroid-role { color: var(--nx-muted); }
+
+/* A professor's field, under the PI role: sentence case and in the mint, so
+   it reads as what they work on rather than another label. */
+.polaroid-field {
+  text-align: center;
+  margin-top: 4px;
+  font-family: "Changa", sans-serif;
+  font-weight: 600;
+  font-size: 0.98rem;
+  line-height: 1.3;
+  color: #075a3e;
+}
+body.team-page .polaroid-field { color: var(--nx-mint); }
 body.team-page .polaroid-has-bio:focus-visible { outline-color: var(--nx-lime); }
 
 /* ---- Team: the self-intro card ---- */
@@ -12536,7 +12766,7 @@ body.hw-nexus.attr-page .attr-ai {
   border-left-color: var(--nx-mint);
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
 }
-body.hw-nexus.attr-page .attr-ai h3 { color: var(--nx-mint); }
+body.hw-nexus.attr-page .attr-ai h2 { color: var(--nx-mint); }
 body.hw-nexus.attr-page .attr-ai h4 { color: var(--nx-muted); }
 body.hw-nexus.attr-page .attr-ai strong { color: #fff; }
 body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
@@ -12558,6 +12788,172 @@ body.hw-nexus.attr-page .attr-card-name { background: var(--nx-raised); color: #
 body.hw-nexus.attr-page .attr-card-body { background: #0a1a21; color: var(--nx-text); }
 body.hw-nexus.attr-page .attr-card-role { color: var(--nx-lime); }
 body.hw-nexus.attr-page .attr-card-tasks li { color: var(--nx-muted); border-color: var(--nx-line); }
+
+/* ---- Special Thanks: the people and places outside the team ----
+   The Team card again, with a drawing in the circle instead of a photo, and
+   one colour per group (--tone): advisors mint, sponsors amber, education
+   lime, iGEM teams blue, the wiki coral. The colour runs through the circle,
+   the role line, the group heading and its chip, and nothing else, so the
+   cards still read as one family with Team's. */
+body.hw-nexus.attr-page .tone-advisor { --tone: var(--nx-mint); }
+body.hw-nexus.attr-page .tone-sponsor { --tone: var(--nx-warm); }
+body.hw-nexus.attr-page .tone-edu     { --tone: var(--nx-lime); }
+body.hw-nexus.attr-page .tone-igem    { --tone: var(--nx-blue-up); }
+body.hw-nexus.attr-page .tone-wiki    { --tone: #f08a7e; }
+
+/* The page's last word: large, centred, in the brightest colours the site
+   has -- the lime-to-mint of the glow, with Capture in the warm amber. */
+.attr-finale {
+  margin: 4.5rem auto 1rem;
+  padding: 3rem 1rem 2.5rem;
+  max-width: 54rem;
+  text-align: center;
+  border-top: 1px solid var(--nx-line, #d5ddd8);
+}
+
+.attr-finale-text {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.7rem, 1.1rem + 2.6vw, 3rem);
+  line-height: 1.25;
+  background: linear-gradient(100deg, #a0e860 0%, #49c5b6 55%, #5fb3e0 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 18px rgba(160, 232, 96, 0.35));
+}
+
+.attr-finale-name {
+  background: linear-gradient(100deg, #f5c96a, #e6b060);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+body.hw-nexus.attr-page .attr-finale-sign {
+  margin: 1.2rem 0 0;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+/* jump to a group */
+.attr-groups-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 2rem;
+}
+
+body.hw-nexus.attr-page .attr-group-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--tone);
+  color: var(--tone);
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.attr-group-chip svg { width: 1.1rem; height: 1.1rem; }
+
+body.hw-nexus.attr-page .attr-group-chip:hover,
+body.hw-nexus.attr-page .attr-group-chip:focus-visible {
+  background: var(--tone);
+  color: var(--nx-ground);
+}
+
+.attr-group-count {
+  font-size: 0.78em;
+  font-weight: 600;
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+.attr-group {
+  margin: 0 0 2.75rem;
+  scroll-margin-top: 104px;
+}
+
+.attr-group-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1.1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--nx-line, #d5ddd8);
+}
+
+body.hw-nexus.attr-page .attr-group-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 14px;
+  color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 14%, var(--nx-panel));
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--tone) 45%, transparent),
+              0 0 22px -6px var(--tone);
+}
+
+.attr-group-icon svg { width: 1.7rem; height: 1.7rem; }
+
+body.hw-nexus.attr-page .attr-group-title {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--tone);
+}
+
+body.hw-nexus.attr-page .attr-group-intro {
+  margin: 0.15rem 0 0;
+  color: var(--nx-muted);
+  font-size: 0.95rem;
+}
+
+/* three to a row on a wide screen: these cards carry one line each */
+@media (min-width: 1200px) {
+  .attr-cards.attr-cards-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* the drawing in place of a photo */
+body.hw-nexus.attr-page .attr-avatar.is-icon {
+  display: grid;
+  place-items: center;
+  color: var(--tone);
+  background: radial-gradient(circle at 50% 35%,
+              color-mix(in srgb, var(--tone) 22%, var(--nx-raised)),
+              var(--nx-raised) 75%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tone) 55%, transparent),
+              0 0 18px -4px var(--tone);
+}
+
+.attr-avatar.is-icon svg { width: 34px; height: 34px; }
+
+body.hw-nexus.attr-page .attr-card.is-supporter .attr-card-name {
+  font-size: 1.05rem;
+}
+
+body.hw-nexus.attr-page .attr-card.is-supporter .attr-card-role { color: var(--tone); }
+
+body.hw-nexus.attr-page .attr-card.is-supporter {
+  transition: border-color 0.2s ease;
+}
+
+body.hw-nexus.attr-page .attr-card.is-supporter:hover {
+  border-color: color-mix(in srgb, var(--tone) 55%, var(--nx-line));
+}
 
 /* ---- the banner photo, at full brightness ----
    The other deep-teal pages take their banner down to 0.42 (0.32 on a phone)
@@ -12585,10 +12981,12 @@ body.hw-nexus.attr-page .attr-card-tasks li { color: var(--nx-muted); border-col
    banner to 0.42 at the same specificity and loads later, so the shorter
    selector lost to it. */
 body.hw-nexus.team-page .page-hero-bg,
-body.hw-nexus.attr-page .page-hero-bg { filter: saturate(1) brightness(0.7); }
+body.hw-nexus.attr-page .page-hero-bg,
+body.hp-nexus.promotion-page .page-hero-bg { filter: saturate(1) brightness(0.7); }
 
 body.team-page .page-hero,
-body.hw-nexus.attr-page .page-hero {
+body.hw-nexus.attr-page .page-hero,
+body.promotion-page .page-hero {
   min-height: clamp(520px, 82vh, 900px);
   display: flex;
   align-items: center;
@@ -12602,9 +13000,18 @@ body.hw-nexus.attr-page .page-hero {
   padding-bottom: 104px;
 }
 
+/* Promotion's group photo has the same treatment, but there the people fill
+   the middle of the banner and hold a sign across it just below their faces,
+   so the title goes to the bottom, over their legs, instead. */
+body.promotion-page .page-hero {
+  align-items: flex-end;
+  padding-bottom: 48px;
+}
+
 /* .container is a flex item here, and would otherwise shrink to its text. */
 body.team-page .page-hero > .container,
-body.hw-nexus.attr-page .page-hero > .container { width: 100%; }
+body.hw-nexus.attr-page .page-hero > .container,
+body.promotion-page .page-hero > .container { width: 100%; }
 
 /* This page sets no subtitle, so layout.html's <p class="lead mb-5 hero-sub">
    renders empty -- but an empty <p> still holds a line box and its 3rem
@@ -12614,11 +13021,14 @@ body.hw-nexus.attr-page .page-hero > .container { width: 100%; }
    the title itself. Scoped here because every other banner relies on that
    spacing for its height. */
 body.team-page .page-hero .hero-sub:empty,
-body.hw-nexus.attr-page .page-hero .hero-sub:empty { display: none; }
+body.hw-nexus.attr-page .page-hero .hero-sub:empty,
+body.promotion-page .page-hero .hero-sub:empty { display: none; }
 body.team-page .page-hero .hero-title,
-body.hw-nexus.attr-page .page-hero .hero-title { margin: 0 !important; }
+body.hw-nexus.attr-page .page-hero .hero-title,
+body.promotion-page .page-hero .hero-title { margin: 0 !important; }
 body.hw-nexus.team-page .page-hero-tint,
 body.hw-nexus.attr-page .page-hero-tint,
+body.hp-nexus.promotion-page .page-hero-tint,
 body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
   background: linear-gradient(to bottom,
     rgba(14, 36, 46, 0) 0%,
@@ -12627,6 +13037,40 @@ body.hw-nexus .page-hero-bg.hero-hardware + .page-hero-tint {
 }
 body.team-page .hero-title,
 body.hw-nexus.attr-page .hero-title,
+body.promotion-page .hero-title,
 body.hw-nexus .page-hero:has(.hero-hardware) .hero-title {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75), 0 2px 22px rgba(0, 0, 0, 0.6);
+}
+
+/* ---- Board Game: what to notice, in colour ----
+   Three marks in the write-up, each a different colour from the site's
+   palette so they never read as the same kind of thing:
+     .bg-num    a number or a count -- the warm amber, bold
+     .bg-hl     the sentence the section is making -- the lime, with a soft
+                underline of the same colour
+     .bg-key    a named rule, card or place -- the mint
+     .bg-quote  what the playtesters wrote -- italic, in light blue
+   Nothing else on the page changes. */
+body.bg-nexus .bg-num {
+  color: var(--nx-warm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+body.bg-nexus .bg-hl {
+  color: var(--nx-lime);
+  font-weight: 600;
+  background-image: linear-gradient(transparent 62%, rgba(160, 232, 96, 0.16) 62%);
+  -webkit-box-decoration-break: clone;
+          box-decoration-break: clone;
+}
+
+body.bg-nexus .bg-key {
+  color: var(--nx-mint);
+  font-weight: 700;
+}
+
+body.bg-nexus .bg-quote {
+  color: var(--nx-blue-up);
+  font-style: italic;
 }

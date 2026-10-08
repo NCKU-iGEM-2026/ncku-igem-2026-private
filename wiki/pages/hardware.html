@@ -191,6 +191,13 @@
   re-insertion test、room-light test…），不再用日期；名字與日期的對照在它的 Data and documentation
   第一列，也寫在 wiki/hardware-printed.html 開頭的註解。Model 頁一起改了。
 
+  2026-10-08：共同的部分從五節縮成三節（硬體負責人：共同的原理太佔版面）。
+    Background           併入原本的 Design requirements：一句重點加四格大字（檢測的條件與自己做的理由）。
+    Measurement principle 併入原本的 Spectral detection：平面圖與十個通道畫成同一張圖，圖下三句對應圖上的 1、2、3。
+    The two builds       沒有動，只拿掉一句指到通道圖的話。
+  各節的細節寫在該節上方的註解。通道圖原本由 static/hardware-bench.js 產生，現在寫在本檔的 SVG 裡。
+  3D 列印機的感測器設定原本寫在通道圖下面，現在只留在它的 Data and documentation（What you need to build one）。
+
   2026-10-06（夜）標題改回較正式的寫法（組員的要求：左側「On this page」目錄是用各節的 h2 自動產生的，
   標題就是目錄上的字，Why build a reader 這類句子式的標題放在目錄上不夠正式）。各節的 id 都沒有變。
     共同的部分   Why build a reader -> Background；The assay it is built for -> Design requirements；
@@ -319,82 +326,39 @@
     </ul>
   </nav>
 
-  <!-- ========================= why build one ========================= -->
+  <!-- ========================= why build one, and for what assay ========================= -->
+  {# 2026-10-08（第二版）：Background 與 Design requirements 併成一節（硬體負責人：共同的部分太佔版面；
+     第一版只是把檢測條件收進收合列，負責人認為那不算合併，也沒有重點）。
+     現在是一句重點加四格：每一格上面是檢測本身的一個條件（大字），下面的小字是它為什麼讓我們自己做一台。
+     重點句的四個子句和四格一一對應，寫法與 3D 列印機開頭那四格相同（class="hw-keys" 加 hw-key-say）。
+     內容都是原本兩節裡的句子：Reporter／Volume → 第一格；Incubation 與 Cost and access 的前半 → 第二格；
+     Benchmark 與 A measurement we can defend → 第三格；Cost and access 的後半 → 第四格；
+     AHL series 與原本黃框的第一句 → 最下面那一行 Not yet。
+     拿掉的：三張翻面卡片的版型；「An engineering object to test」那一張的兩句；
+     「AHL induction has not been run yet」（wet lab 已經在養含 AHL 的盤，留著的說法是
+     「本頁沒有任何讀值來自 AHL 誘導的培養」）。 #}
   <section id="hardware-background">
     <h2>Background</h2>
 
     <p class="hw-point">
-      A plate reader can already make this measurement. The case for building
-      a reader is about who can make it, where, and at what cost.
+      Our biosensor reports AHL, the quorum-sensing signal, by making GFP.
+      Reading it takes a small sample, measured every hour, checked against a
+      plate reader, on an instrument cheap enough to rebuild.
     </p>
 
-    <!--
-      Each card shows its claim; the reasoning is on the back and the card
-      turns over to show it. tabindex makes the card reachable by keyboard and
-      by tap, so the back is not hover-only. Both faces stay in the document,
-      so a screen reader and a printout still get the whole list.
-    -->
-    <dl class="hw-terms hw-flip">
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.2 3h5.6l-1.4 2.6h-2.8z"/><path d="M10.1 5.6C6.9 7.3 4.6 10.7 4.6 14.6A6.4 6.4 0 0 0 11 21h2a6.4 6.4 0 0 0 6.4-6.4c0-3.9-2.3-7.3-5.5-9"/><path d="M12 10.3v6.8"/><path d="M13.9 11.6h-2.6a1.35 1.35 0 0 0 0 2.7h1.4a1.35 1.35 0 0 1 0 2.7h-2.6"/></svg></span>Cost and access</span></dt>
-        <dd class="hw-flip-back">
-          A shared benchtop reader is booked, scheduled and located in one
-          building. Our two builds cost about US$54 and US$161 by our own
-          costing. Either can sit next to the incubator, and can be rebuilt
-          by anyone with the source files.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="8.2" width="18.8" height="7.6" rx="1.2"/><path d="M6.9 8.2v3.1M10.6 8.2v4.3M14.3 8.2v3.1M18 8.2v4.3"/></svg></span>A measurement we can defend</span></dt>
-        <dd class="hw-flip-back">
-          We can state our own optical geometry, drive current, integration
-          time and dark baseline, because we chose them. That makes a result
-          traceable in a way that a black-box instrument setting is not.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17.6 3.4a4.6 4.6 0 0 0-6 6L4.3 16.7a1.6 1.6 0 0 0 0 2.3l.7.7a1.6 1.6 0 0 0 2.3 0l7.3-7.3a4.6 4.6 0 0 0 6-6l-2.7 2.7-2.2-.5-.5-2.2z"/></svg></span>An engineering object to test</span></dt>
-        <dd class="hw-flip-back">
-          Building it forces every assumption into the open: stray light,
-          alignment, repeatability. Most of this page exists because building
-          the thing produced questions that a plate reader would have hidden.
-        </dd>
-      </div>
+    <dl class="hw-keys hw-brief">
+      <div><dt>200&nbsp;&micro;L</dt><dd><span class="hw-key-say">of sfGFP culture per reaction</span> The reporter is superfolder GFP. Its construct and strain are not yet specified.</dd></div>
+      <div><dt>Every hour</dt><dd><span class="hw-key-say">for six hours, at 37&nbsp;&deg;C</span> A shared plate reader is booked, scheduled and in one building. Either build can sit next to the incubator.</dd></div>
+      <div><dt>485 / 510</dt><dd><span class="hw-key-say">nm, the plate-reader benchmark</span> Ours excites at 470&nbsp;nm, and its geometry, drive current, integration time and dark baseline are ours to state.</dd></div>
+      <div><dt>US$54&ndash;161</dt><dd><span class="hw-key-say">to build one of our two readers</span> By our own costing. Anyone with the source files can rebuild them.</dd></div>
     </dl>
 
-    <p>
-      The plate reader stays our benchmark.
+    <p class="hw-limit">
+      <b>Not yet</b> No reading on this page comes from an AHL-induced
+      culture, and there is no plate-reader dataset to compare against. The
+      AHL series is planned at 10&nbsp;&micro;M, 1&nbsp;&micro;M,
+      100&nbsp;nM, 10&nbsp;nM and 1&nbsp;nM.
     </p>
-  </section>
-
-  <!-- ========================= interface ========================= -->
-  <section>
-    <h2>Design requirements</h2>
-
-    <p class="hw-point">
-      The reader has to fit an assay the wet lab defines: our biosensor makes
-      GFP in response to AHL, the quorum-sensing signal. This is what we are
-      designing against.
-    </p>
-
-    <dl class="hw-spec">
-      <div><dt>Reporter</dt><dd>Superfolder GFP (sfGFP). Construct and strain not yet specified.</dd></div>
-      <div><dt>AHL series</dt><dd>10&nbsp;&micro;M, 1&nbsp;&micro;M, 100&nbsp;nM, 10&nbsp;nM, 1&nbsp;nM, as planned.</dd></div>
-      <div><dt>Volume</dt><dd>200&nbsp;&micro;L per reaction.</dd></div>
-      <div><dt>Incubation</dt><dd>37&nbsp;&deg;C, read every hour for six hours.</dd></div>
-      <div><dt>Benchmark</dt><dd>Plate reader at excitation 485&nbsp;nm, emission 510&nbsp;nm, 200&nbsp;&micro;L.</dd></div>
-    </dl>
-
-    <div class="hw-caution">
-      <p>
-        <em>No reading on this page comes from an AHL-induced culture.</em>
-        AHL induction has not been run yet, and there is no plate-reader
-        dataset to compare against; our 470&nbsp;nm excitation also differs
-        from the plate reader's 485&nbsp;nm. What the reader has shown is that
-        it tells a culture reported to carry the sfGFP plasmid from one
-        without it, and from medium.
-      </p>
-    </div>
   </section>
 
   <!-- ========================= how it measures ========================= -->
@@ -405,29 +369,38 @@
     <h2>Measurement principle</h2>
 
     <p class="hw-point">
-      Both readers measure the same way. Blue excitation crosses the sample
-      along one axis, and the detector looks at it from 90&deg; to that
-      axis; the reporter is sfGFP<sup class="hw-ref"><a href="#hardware-ref-2">2</a></sup>.
+      Both readers keep the blue that excites the sample apart from the
+      green it gives off in two ways: by angle, and by colour.
     </p>
 
-    <p>
-      The drawing shows this layout to scale, as it is built in the
-      3D-printed build. There, excitation that passes through the sample
-      ends in a light trap on the far side, so it does not reach the
-      detector. The sample sits in a UVette, a disposable cuvette with a
-      10&nbsp;mm and a 2&nbsp;mm light path<sup class="hw-ref"><a href="#hardware-ref-4">4</a></sup>.
-    </p>
-
+    {# 2026-10-08：原本的平面圖與 Spectral detection 的通道圖併成這一張（硬體負責人問：量光譜為什麼要自己
+       一節）。上半是原本的平面圖，一筆都沒有改，只有兩處搬動：偵測器的說明移到方塊右邊，底下那一排
+       裝置 X 座標換成左上角一段 10 mm 的比例尺（各零件的 X 座標仍在下面收合列的表裡）。
+       下半是偵測器的十個通道，畫成和「UVette chamber, enlarged」同一種放大框；位置照波長算：
+       x = 24 + (nm − 400) × 2，橫跨整個框（座標由 scratchpad 的 channel_inset.py 算出，不要手改單一格）。
+       兩個括號上的字置中在括號正上方：470 nm 在 F2 與 F3 之間，sfGFP 在 F4 與 F5 上。
+       通道的說明原本由 static/hardware-bench.js 產生，現在直接寫在這裡（data-tip，同一個提示框）；
+       F3、F4、F5 三句改成兩台都對：3D 列印機讀 F4，雷切機讀 F5 ÷ F3（見雷切機的 Why F5, and not F4）。
+       圖上的 1、2、3 對應圖下面的三句。 #}
     <figure class="hw-figure">
       <div class="hw-diagram">
-        <svg class="hw-svg" viewBox="0 0 780 510" role="img"
-             aria-label="Scaled plan view of the CAPTURE-Screen optical core. A Cree 470 nanometre LED in its holder sends blue excitation along the plus X axis through an aperture baffle with two slots for aperture disks, both drawn empty because no disk was fitted, then across the 2 millimetre path of a UVette holding the sample. Excitation that leaves the sample enters an angled-wedge light trap 8 millimetres across and 27 millimetres deep, whose slanted end face deflects rather than returns it. Green sfGFP emission leaves the UVette along the plus Y axis, at 90 degrees to the excitation, through a reserved but as yet unspecified emission filter position, and reaches the AS7341 detector. An enlarged inset shows the UVette chamber, 2 millimetres across the excitation path and 10 millimetres along the detection path. A scale bar gives device X coordinates from minus 33.25 to plus 45.25 millimetres.">
+        <svg class="hw-svg hw-svg-principle" viewBox="0 0 780 600" role="img"
+             aria-label="Plan view of the CAPTURE-Screen optical core, to scale, with the detector's channels enlarged below it. A Cree 470 nanometre LED in its holder sends blue excitation along the plus X axis through an aperture baffle with two slots for aperture disks, both drawn empty because no disk was fitted, then across the 2 millimetre path of a UVette holding the sample. Excitation that leaves the sample enters an angled-wedge light trap 8 millimetres across and 27 millimetres deep, whose slanted end face deflects rather than returns it. Green sfGFP emission leaves the UVette along the plus Y axis, at 90 degrees to the excitation, through a reserved but as yet unspecified emission filter position, and reaches the AS7341 detector. An enlarged inset shows the UVette chamber, 2 millimetres across the excitation path and 10 millimetres along the detection path. A second inset under the detector shows its ten channels: eight filtered channels at nominal centres of 415, 445, 480, 515, 555, 590, 630 and 680 nanometres, an unfiltered Clear channel and a near-infrared channel. The 470 nanometre excitation is bracketed over F2 and F3, and sfGFP emission over F4 and F5.">
+          <defs>
+            <linearGradient id="hwSpecBand" x1="0" x2="1">
+              <stop offset="0" stop-color="#7B6BD8"/><stop offset=".22" stop-color="#3E97E8"/>
+              <stop offset=".42" stop-color="#3FCB79"/><stop offset=".62" stop-color="#D2D24A"/>
+              <stop offset=".8" stop-color="#E08A46"/><stop offset="1" stop-color="#D2564A"/>
+            </linearGradient>
+          </defs>
 
           <!-- ---------- axes, drawn first so everything sits on top ---------- -->
           <path class="hw-svg-axis" d="M126 230 H664"/>
           <path class="hw-svg-axis" d="M380 186 V366"/>
 
           <text class="hw-svg-note" x="20" y="26">optical core &#8212; plan view, 5 px = 1 mm along X</text>
+          <path class="hw-svg-dim" d="M20 46 H70 M20 41 V51 M70 41 V51"/>
+          <text class="hw-svg-note" x="78" y="50">10 mm</text>
 
           <!-- ---------- enlarged inset: the UVette chamber ---------- -->
           <rect class="hw-svg-case" x="500" y="20" width="260" height="150" rx="10"/>
@@ -498,33 +471,88 @@
           <text class="hw-svg-sub" x="424" y="340">part not yet specified</text>
 
           <text class="hw-svg-label" x="380" y="392" text-anchor="middle">AS7341</text>
-          <text class="hw-svg-sub" x="380" y="434" text-anchor="middle">detector, on SEN0365 board</text>
+          <text class="hw-svg-sub" x="442" y="391">detector, on SEN0365 board</text>
 
           <text class="hw-svg-sub" x="640" y="224">+X</text>
           <text class="hw-svg-sub" x="392" y="346">+Y</text>
 
-          <!-- ---------- scale bar in device coordinates ---------- -->
-          <path class="hw-svg-dim" d="M214 462 H606 M214 456 V468 M289 456 V468 M380 456 V468 M471 456 V468 M606 456 V468"/>
-          <text class="hw-svg-note" x="214" y="482" text-anchor="middle">&#8722;33.25</text>
-          <text class="hw-svg-note" x="289" y="482" text-anchor="middle">&#8722;18.25</text>
-          <text class="hw-svg-note" x="380" y="482" text-anchor="middle">0</text>
-          <text class="hw-svg-note" x="471" y="482" text-anchor="middle">+18.25</text>
-          <text class="hw-svg-note" x="606" y="482" text-anchor="middle">+45.25</text>
-          <text class="hw-svg-note" x="380" y="502" text-anchor="middle">device X coordinate (mm)</text>
+          <!-- ---------- enlarged inset: what the detector reads, channel by channel ----------
+               Each channel sits at its nominal centre: x = 24 + (nm - 400) * 2. -->
+          <path class="hw-svg-lead" d="M380 416 V448"/>
+          <rect class="hw-svg-case" x="14" y="448" width="752" height="140" rx="10"/>
+          <text class="hw-svg-label" x="536" y="475">AS7341</text>
+          <text class="hw-svg-sub" x="604" y="475">ten channels, one read</text>
+
+          <rect x="24" y="552" width="600" height="10" rx="3" fill="url(#hwSpecBand)" opacity=".5"/>
+
+          <g class="hwx-chan" tabindex="0" role="button" data-tip-t="F1 &#183; 415 nm" data-tip="Below the excitation band. It should sit near zero; a rise here points at a violet ambient source rather than at the assay.">
+            <rect x="39" y="494" width="30" height="58" rx="4" fill="#8E7BE8" opacity=".85"/>
+            <text class="hwx-chan-n" x="54" y="528">F1</text><text class="hw-svg-nm" x="54" y="579">415</text>
+          </g>
+          <g class="hwx-chan" tabindex="0" role="button" data-tip-t="F2 &#183; 445 nm" data-tip="Brackets the 470 nm source from below. At the 3D-printed build's first light this channel read 87 counts off a paper scatterer.">
+            <rect x="99" y="494" width="30" height="58" rx="4" fill="#3E97E8" opacity=".85"/>
+            <text class="hwx-chan-n" x="114" y="528">F2</text><text class="hw-svg-nm" x="114" y="579">445</text>
+          </g>
+          <g class="hwx-chan" tabindex="0" role="button" data-tip-t="F3 &#183; 480 nm" data-tip="Brackets the 470 nm source from above. This is the channel excitation shows up in. The laser-cut build divides its green channel by this one.">
+            <rect x="169" y="494" width="30" height="58" rx="4" fill="#3E97E8" opacity=".85"/>
+            <text class="hwx-chan-n" x="184" y="528">F3</text><text class="hw-svg-nm" x="184" y="579">480</text>
+          </g>
+          <g class="hwx-chan is-em" tabindex="0" role="button" data-tip-t="F4 &#183; 515 nm" data-tip="sfGFP emission peaks here. The 3D-printed build reads this channel. It is also the channel room light leaks into.">
+            <rect x="239" y="494" width="30" height="58" rx="4" fill="#3FCB79" opacity=".85"/>
+            <text class="hwx-chan-n" x="254" y="528">F4</text><text class="hw-svg-nm" x="254" y="579">515</text>
+          </g>
+          <g class="hwx-chan is-em" tabindex="0" role="button" data-tip-t="F5 &#183; 555 nm" data-tip="The shoulder above the emission peak. The laser-cut build reads this channel, divided by F3.">
+            <rect x="319" y="494" width="30" height="58" rx="4" fill="#C9CC3F" opacity=".85"/>
+            <text class="hwx-chan-n" x="334" y="528">F5</text><text class="hw-svg-nm" x="334" y="579">555</text>
+          </g>
+          <g class="hwx-chan" tabindex="0" role="button" data-tip-t="F6 &#183; 590 nm" data-tip="Long-wavelength diagnostic. Not expected to carry assay signal.">
+            <rect x="389" y="494" width="30" height="58" rx="4" fill="#C9CC3F" opacity=".85"/>
+            <text class="hwx-chan-n" x="404" y="528">F6</text><text class="hw-svg-nm" x="404" y="579">590</text>
+          </g>
+          <g class="hwx-chan" tabindex="0" role="button" data-tip-t="F7 &#183; 630 nm" data-tip="Long-wavelength diagnostic. Useful for spotting warm ambient light.">
+            <rect x="469" y="494" width="30" height="58" rx="4" fill="#E08A46" opacity=".85"/>
+            <text class="hwx-chan-n" x="484" y="528">F7</text><text class="hw-svg-nm" x="484" y="579">630</text>
+          </g>
+          <g class="hwx-chan" tabindex="0" role="button" data-tip-t="F8 &#183; 680 nm" data-tip="Long-wavelength diagnostic. Useful for spotting warm ambient light.">
+            <rect x="569" y="494" width="30" height="58" rx="4" fill="#DC6154" opacity=".85"/>
+            <text class="hwx-chan-n" x="584" y="528">F8</text><text class="hw-svg-nm" x="584" y="579">680</text>
+          </g>
+          <g class="hwx-chan" tabindex="0" role="button" data-tip-t="Clear" data-tip="Unfiltered total light across the visible range. A sanity check on the filtered channels, and the first place saturation shows up.">
+            <rect x="646" y="494" width="44" height="58" rx="4" fill="#4A5E68" opacity=".85"/>
+            <text class="hwx-chan-n hwx-chan-wide" x="668" y="528">Clear</text>
+          </g>
+          <g class="hwx-chan" tabindex="0" role="button" data-tip-t="NIR" data-tip="Near-infrared. It responds to warm ambient sources such as incandescent lighting rather than to the assay.">
+            <rect x="696" y="494" width="44" height="58" rx="4" fill="#4A5E68" opacity=".85"/>
+            <text class="hwx-chan-n hwx-chan-wide" x="718" y="528">NIR</text>
+          </g>
+
+          <!-- where each colour of the drawing above lands: a bracket over the two channels,
+               and its label centred on the bracket -->
+          <path class="hw-svg-land-blue" d="M99 488 V481 H199 V488"/>
+          <text class="hw-svg-cue hw-svg-cue-blue" x="149" y="474" text-anchor="middle">470 nm excitation</text>
+          <path class="hw-svg-land-green" d="M239 488 V481 H349 V488"/>
+          <text class="hw-svg-cue hw-svg-cue-green" x="294" y="474" text-anchor="middle">sfGFP emission</text>
+
+          <!-- ---------- 1, 2, 3: the three notes under the drawing ---------- -->
+          <g class="hw-svg-badge"><circle cx="118" cy="170" r="11"/><text x="118" y="174.5">1</text></g>
+          <g class="hw-svg-badge"><circle cx="470" cy="271" r="11"/><text x="470" y="275.5">2</text></g>
+          <g class="hw-svg-badge"><circle cx="516" cy="469" r="11"/><text x="516" y="473.5">3</text></g>
         </svg>
       </div>
-      <ul class="hw-legend">
-        <li><span class="hw-key hw-key-blue"></span>470&nbsp;nm excitation</li>
-        <li><span class="hw-key hw-key-green"></span>sfGFP emission, collected at 90&deg;</li>
-      </ul>
-    </figure>
 
-    {# 來源：PROJECT_STATE/CURRENT_STATE.md「Physical Prototype State」— 10-03 owner 說明
-       P1 從頭到尾都沒裝過光闌片，新機構也沒有裝。圖上的兩個槽因此畫成虛線。 #}
-    <p class="hw-aside">
-      The dashed outlines in the baffle are slots for aperture disks. No
-      disk has been fitted.
-    </p>
+      <ol class="hw-how">
+        <li><b>470&nbsp;nm in</b> One blue LED lights the sample, 200&nbsp;&micro;L in a UVette<sup class="hw-ref"><a href="#hardware-ref-4">4</a></sup>, across the cuvette's 2&nbsp;mm path.</li>
+        <li><b>90&deg; to the beam</b> The detector looks at the sample from the side, along the 10&nbsp;mm path. Blue that passes straight through ends in a light trap.</li>
+        <li><b>Ten channels out</b> The AS7341<sup class="hw-ref"><a href="#hardware-ref-1">1</a></sup> sorts what arrives by colour, so a read gives the shape of the light and not one number. Excitation lands in F2 and F3, sfGFP<sup class="hw-ref"><a href="#hardware-ref-2">2</a></sup> emission in F4 and F5.</li>
+      </ol>
+
+      <figcaption>
+        Drawn to scale as it is built in the 3D-printed build, which reads
+        F4; the laser-cut build reads F5 over F3. The dashed outlines in the
+        baffle are slots for aperture disks, and no disk has been fitted.
+        Hover or focus a channel for its role.
+      </figcaption>
+    </figure>
 
     <details class="hw-fold hw-fold-wide">
       <summary class="hw-fold-head">
@@ -669,44 +697,6 @@
     </details>
   </section>
 
-  <!-- ========================= detection ========================= -->
-  <section>
-    <h2>Spectral detection</h2>
-
-    <p class="hw-point">
-      Ten channels instead of one filter, so one read returns the
-      <em>shape</em> of the light and not a single number.
-    </p>
-
-    <p>
-      A conventional fluorimeter puts one narrow filter in front of one
-      photodiode. The AS7341<sup class="hw-ref"><a href="#hardware-ref-1">1</a></sup> has eight filtered channels across the
-      visible range plus a clear and a near-infrared channel. That
-      makes a reading checkable: at the 3D-printed build's first light the
-      excitation showed up concentrated in F2 and F3, the two channels
-      either side of 470&nbsp;nm.
-    </p>
-
-    <div class="hwx-rig">
-      <div class="hwx-rig-head">
-        <h3>AS7341 channel map</h3>
-        <p class="hwx-rig-sub">Hover or focus a channel for its role in this instrument</p>
-      </div>
-      <div class="hwx-rig-figure" id="hwxSpecBox">
-        <p class="hwx-fallback">
-          Eight filtered channels at nominal centres of 415, 445, 480, 515,
-          555, 590, 630 and 680&nbsp;nm, plus an unfiltered Clear channel and a
-          near-infrared channel. Excitation is nominally 470&nbsp;nm and sits
-          between F2 and F3; sfGFP emission is read on F4 at 515&nbsp;nm.
-        </p>
-      </div>
-      <div class="hwx-rig-foot">
-        <span>Working settings on the 3D-printed build: gain 512&times;, ATIME 255, ASTEP 280, about 200&nbsp;ms per integration.</span>
-        <span>Centre wavelengths are the sensor's nominal channel centres.</span>
-      </div>
-    </div>
-  </section>
-
   <!-- ========================= the two builds ========================= -->
   {# 兩張卡片就是兩台機器的切換。data-build 是下面那一台內容的 id（printed／laser-cut），
      卡片最下面的連結連到同一個 id；程式（static/hardware-builds.js）只認這些。
@@ -731,8 +721,7 @@
 
     <p class="hw-aside">
       Counts from the two readers are not interchangeable: they run different
-      firmware and integrate for different times. The sensor settings under
-      the channel map above are the 3D-printed build's.
+      firmware and integrate for different times.
     </p>
 
     {# VIDEO: 示範影片上傳到 video.igem.org 之後放在這裡（寫法照 home.html 的 promotion video），

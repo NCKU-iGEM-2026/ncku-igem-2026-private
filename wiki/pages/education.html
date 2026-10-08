@@ -8,9 +8,47 @@
    deleting this one line puts the page back as it was. #}
 {% block body_class %}edu-nexus{% endblock %}
 
+{% block page_css %}
+<link href="{{ url_for('static', filename = 'css/pages/edu-interactive.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/education.avif{% endblock %}
 
 {% block page_content %}
+
+{#- Small inline icons and the two pieces every event opens with: a row of
+    fact chips (date, place, who) and a row of figures. Every figure here is
+    one already stated in that event's own text; the number written in the
+    markup is the real one, and static/js/pages/edu-interactive.js only counts
+    up to it. -#}
+{% macro ico(name) -%}
+{%- if name == 'date' -%}<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.5 0a.5.5 0 0 1 .5.5V1h6V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5z"/></svg>
+{%- elif name == 'place' -%}<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/></svg>
+{%- elif name == 'who' -%}<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/></svg>
+{%- elif name == 'tag' -%}<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 1a1 1 0 0 0-1 1v4.586a1 1 0 0 0 .293.707l7 7a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414l-7-7A1 1 0 0 0 6.586 1zm4 3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/></svg>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro facts(date, place, who='', tag='') -%}
+<ul class="edx-facts">
+      <li>{{ ico('date') }}{{ date|safe }}</li>
+      <li>{{ ico('place') }}{{ place|safe }}</li>
+      {%- if who %}
+      <li>{{ ico('who') }}{{ who|safe }}</li>
+      {%- endif %}
+      {%- if tag %}
+      <li>{{ ico('tag') }}{{ tag|safe }}</li>
+      {%- endif %}
+    </ul>
+{%- endmacro %}
+
+{% macro kpi(n, label, unit='', counts=true) -%}
+<div class="edx-kpi"><span class="edx-kpi-n">{% if counts %}<span data-edx-to="{{ n }}">{{ n }}</span>{% else %}{{ n|safe }}{% endif %}{% if unit %}<small>{{ unit|safe }}</small>{% endif %}</span><span class="edx-kpi-l">{{ label|safe }}</span></div>
+{%- endmacro %}
+
+{% macro shift(a, b, unit, label) -%}
+<div class="edx-kpi"><span class="edx-kpi-n"><span data-edx-to="{{ a }}">{{ a }}</span><span class="edx-arrow" aria-label="to">&rarr;</span><span data-edx-to="{{ b }}">{{ b }}</span>{% if unit %}<small>{{ unit|safe }}</small>{% endif %}</span><span class="edx-kpi-l">{{ label|safe }}</span></div>
+{%- endmacro %}
 
 <!-- Same background treatment as the Hardware page: a wash + grid behind
      everything (body.edu-cosmos-page::before/::after in style.css, built to
@@ -24,10 +62,19 @@
 </div>
 
 <div class="edu-detail-layout">
+  {# Sidebar in the same order as the page: earliest event first. #}
   <aside class="edu-sidebar">
 
     <div class="edu-sidebar-group" data-group="overview">
       <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-overview" data-target="session-overview">Overview</a>
+    </div>
+
+    <div class="edu-sidebar-group" data-group="xihu">
+      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-xihu" data-target="session-xihu">National Xihu Senior High School</a>
+    </div>
+
+    <div class="edu-sidebar-group" data-group="puyan">
+      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-puyan" data-target="session-puyan">Puyan Elementary School</a>
     </div>
 
     <div class="edu-sidebar-group" data-group="zhanxin">
@@ -43,6 +90,7 @@
         <li><a class="edu-sidebar-link" href="#session-zhanxin" data-target="session-zhanxin" data-scroll="heading-heshun-2">Heshun Elementary School (II)</a></li>
         <li><a class="edu-sidebar-link" href="#session-zhanxin" data-target="session-zhanxin" data-scroll="heading-zhuqiao">Zhuqiao Elementary School</a></li>
         <li><a class="edu-sidebar-link" href="#session-zhanxin" data-target="session-zhanxin" data-scroll="heading-sanci">Sanci Elementary School</a></li>
+        <li><a class="edu-sidebar-link" href="#session-zhanxin" data-target="session-zhanxin" data-scroll="heading-hp-safety">HP safety</a></li>
       </ul>
     </div>
 
@@ -50,18 +98,20 @@
       <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-ncku" data-target="session-ncku">NCKU Workshops</a>
     </div>
 
-    <div class="edu-sidebar-group" data-group="highschool">
-      <p class="edu-sidebar-group-title">High School Workshops</p>
-      <ul class="edu-sidebar-list">
-        <li><a class="edu-sidebar-link" href="#session-xihu" data-target="session-xihu">National Xihu Senior High School</a></li>
-        <li><a class="edu-sidebar-link" href="#session-puyan" data-target="session-puyan">Puyan Elementary School</a></li>
-        <li><a class="edu-sidebar-link" href="#session-anping" data-target="session-anping">Anping Junior High School</a></li>
-        <li><a class="edu-sidebar-link" href="#session-tainan-girls" data-target="session-tainan-girls">Tainan Girls' Senior High School</a></li>
-      </ul>
-    </div>
-
     <div class="edu-sidebar-group" data-group="littlesun">
       <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-littlesun" data-target="session-littlesun">Little Sun Project</a>
+    </div>
+
+    <div class="edu-sidebar-group" data-group="anping">
+      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-anping" data-target="session-anping">Anping Junior High School</a>
+    </div>
+
+    <div class="edu-sidebar-group" data-group="tainan-girls">
+      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-tainan-girls" data-target="session-tainan-girls">Tainan Girls' Senior High School</a>
+    </div>
+
+    <div class="edu-sidebar-group" data-group="kindergarten">
+      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-kindergarten" data-target="session-kindergarten">Kindergarten: Germ Detectives</a>
     </div>
 
     <div class="edu-sidebar-group" data-group="handbook">
@@ -92,12 +142,12 @@
   地圖是用真實的台灣縣市界線資料（TopoJSON）在瀏覽器端即時解碼、畫成 SVG，
   不是接外部地圖圖磚，也沒有用任何外部函式庫，解碼邏輯都寫在 taiwan-map.js。
   圖釘位置依各活動地點的實際經緯度換算，跟地圖用同一套投影，位置對得起來。
-  地圖跟下面的圖例維持 15 場活動（去過兩次的學校各算一場），圖釘順序不可更動，
+  地圖維持 17 支圖釘（去過兩次的學校各算一場），圖釘順序不可更動，
   taiwan-map.js 裡的 SESSIONS 座標陣列是用 index 對應這裡的圖釘順序。
 -->
 <div class="edu-map-row">
   <div class="edu-map-orbit"></div>
-  <svg class="edu-map-leader-svg" aria-hidden="true"></svg>
+  <div class="edu-map-leaders" aria-hidden="true"></div>
   <div class="edu-map-viewport">
     <div class="edu-map" id="edu-map" data-src="{{ url_for('static', filename='taiwan-counties.topo.json') }}">
       <a class="edu-pin edu-pin-highschool" data-category="highschool" href="#session-xihu" data-title="National Xihu Senior High School" data-photo="https://static.igem.wiki/teams/6379/wiki/education/xihu-1.avif" data-date="May 24"></a>
@@ -115,14 +165,116 @@
       <a class="edu-pin" data-category="zhanxin" href="#session-zhanxin" data-title="Zhuqiao Elementary School" data-photo="https://static.igem.wiki/teams/6379/wiki/education/08170818.avif" data-date="August 17&ndash;18"></a>
       <a class="edu-pin" data-category="zhanxin" href="#session-zhanxin" data-title="Sanci Elementary School" data-photo="https://static.igem.wiki/teams/6379/wiki/education/08200821.avif" data-date="August 20&ndash;21"></a>
       <a class="edu-pin edu-pin-highschool" data-category="highschool" href="#session-anping" data-title="Anping Junior High School" data-photo="https://static.igem.wiki/teams/6379/wiki/education/anping-1.avif" data-date="September 13"></a>
+      <a class="edu-pin edu-pin-highschool" data-category="highschool" href="#session-tainan-girls" data-title="Inside Tainan Girls&rsquo; High School: From Capture to &ldquo;What Is Medical School Really Like?&rdquo;" data-photo="https://static.igem.wiki/teams/6379/wiki/education/0930.avif" data-date="September 30"></a>
+      <a class="edu-pin edu-pin-kindergarten" data-category="kindergarten" href="#session-kindergarten" data-title="Kindergarten Education &ndash; Germ Detective Team Deployed" data-photo="https://static.igem.wiki/teams/6379/wiki/education/10-01-5.avif" data-date="October 1"></a>
     </div>
   </div>
 </div>
 
+
+{# Every event, earliest first -- the same order as the sections below.
+   Each stop is a plain link; the script lights the rail up to the event
+   being read. #}
+<nav class="edx-timeline" aria-label="Our education events, in date order">
+  <p class="edx-timeline-title">Our year of teaching, in order</p>
+  <ol>
+    <li><a href="#session-xihu" data-edx-stop="session-xihu"><span class="edx-tl-date">May 24</span><span class="edx-tl-name">Xihu Senior High</span></a></li>
+    <li><a href="#session-puyan" data-edx-stop="session-puyan"><span class="edx-tl-date">May 25</span><span class="edx-tl-name">Puyan Elementary</span></a></li>
+    <li><a href="#session-zhanxin" data-edx-stop="session-zhanxin"><span class="edx-tl-date">Jul 13 &ndash; Aug 21</span><span class="edx-tl-name">STEAM from Seed</span></a></li>
+    <li><a href="#session-ncku" data-edx-stop="session-ncku"><span class="edx-tl-date">Aug 2&ndash;3</span><span class="edx-tl-name">NCKU Workshops</span></a></li>
+    <li><a href="#session-littlesun" data-edx-stop="session-littlesun"><span class="edx-tl-date">Aug 5</span><span class="edx-tl-name">Little Sun Project</span></a></li>
+    <li><a href="#session-anping" data-edx-stop="session-anping"><span class="edx-tl-date">Sep 13</span><span class="edx-tl-name">Anping Junior High</span></a></li>
+    <li><a href="#session-tainan-girls" data-edx-stop="session-tainan-girls"><span class="edx-tl-date">Sep 30</span><span class="edx-tl-name">Tainan Girls&rsquo; High</span></a></li>
+    <li><a href="#session-kindergarten" data-edx-stop="session-kindergarten"><span class="edx-tl-date">Oct 1</span><span class="edx-tl-name">Kindergarten</span></a></li>
+  </ol>
+</nav>
+
+  </section>
+
+  <section id="session-xihu" class="edu-session-block">
+    <h2 class="h3">National Xihu Senior High School</h2>
+    {{ facts('May 24, 2026', 'Changhua County', 'Senior &amp; junior high students') }}
+    <div class="edx-kpis">
+      {{ kpi('39', 'students took part') }}
+      {{ kpi('66.7', 'of participants were female, with no quotas', '%') }}
+      {{ kpi('4.82', 'overall satisfaction', ' / 5') }}
+      {{ kpi('p &lt; 0.001', 'rise in comprehension, pre vs. post', counts=false) }}
+    </div>
+    <p><strong>Workshop:</strong> 3D玩家出任務</p>
+    <blockquote class="edu-quote">"Sharing science might not transform their lives overnight, but it lights a beacon that guides them toward a broader world."</blockquote>
+    <p>On May 24, 2026, we hosted an interactive Synthetic Biology and STEM camp at National Xihu Senior High School in Changhua County for 39 students from both the senior and junior high schools. With no gender quotas in registration, 26 of the 39 participants (66.7%) were female—a turnout that reflects how an open, approachable learning environment can naturally support Women in STEM.</p>
+    <p>To make synthetic biology tangible, our curriculum linked STEAM concepts to our 2026 project, "Capture," using an agar-protease assay built from household materials to model how Pseudomonas aeruginosa degrades epidermal cells' extracellular matrix. Watching the simulated tissue degradation in real time showed students that complex biology can be explored with simple tools.</p>
+    <p>Beyond the experiments, we ran an Innovation Workshop challenging students to tackle everyday problems with synthetic biology. Watching them sketch and debate ideas on whiteboards mirrored our own iGEM brainstorming—proof these young minds don't lack creativity, just a stage. Giving them that platform revealed real potential as future innovators.</p>
+    <p>Quantitatively, the camp showed real impact: students rated overall satisfaction at 4.82/5.00, and pre/post surveys showed a highly significant increase in comprehension of synthetic biology and STEM concepts (p &lt; 0.001). The experience was a two-way learning journey for us too, pushing us to translate intricate science into language that resonates with everyone. A single camp won't transform lives overnight, but we believe "the seeds of curiosity planted here will serve as a beacon, guiding these students toward a broader world."</p>
+
+    <p>Beyond the numerical results, students also shared thoughtful reflections on their experience. One participant wrote:</p>
+    <blockquote class="edu-quote">"學習到了STEM和合成生物學的一些知識，因為我才高一，其實有一些之前沒聽過，但今天的營隊讓我了解了很多，吸收了很多新知識，我覺得很讚～～💯"<br>"I learned some things about STEM and synthetic biology. Since I'm only a high school freshman, there were some things I hadn't heard of before, but today's camp taught me a lot and I absorbed a lot of new knowledge. I think it's great!"</blockquote>
+    <p>Another participant shared:</p>
+    <blockquote class="edu-quote">"了解關於合成生物學的相關知識，也和許多不同想法的人討論、碰撞，不僅可以向成大優秀的學長姐學習，也能和其他同學一起討論，我認為這是對我很大的收穫。"<br>"Learning about synthetic biology and discussing and exchanging ideas with many people who have different perspectives has been a great gain for me. I can learn from outstanding students at National Cheng Kung University School and also discuss with other students."</blockquote>
+
+    <div class="edu-gallery">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-1.avif" alt="Xihu Senior and Junior High School students and team members group photo" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-2.avif" alt="Team member presenting synthetic biology concepts to students" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-3.avif" alt="Students working on the agar-protease assay experiment" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-4.avif" alt="Students engaged in the Innovation Workshop discussion" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-5.avif" alt="Students presenting their innovation ideas" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-6.avif" alt="Team member guiding students through the hands-on activity" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-7.avif" alt="Students and team members during the workshop" loading="lazy">
+    </div>
+
+    <div class="edu-pdf-viewer">
+      <iframe src="https://static.igem.wiki/teams/6379/wiki/education/3d-feedback-analysis.pdf#view=FitH&amp;navpanes=0"
+              title="Xihu Senior High School Feedback Analysis" loading="lazy"></iframe>
+    </div>
+    <p class="edu-pdf-link">
+      <a href="https://static.igem.wiki/teams/6379/wiki/education/3d-feedback-analysis.pdf" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/></svg>
+        View feedback analysis (PDF)
+      </a>
+    </p>
+
+    <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
+  </section>
+
+  <section id="session-puyan" class="edu-session-block">
+    <h2 class="h3">Puyan Elementary School</h2>
+    {{ facts('May 25, 2026', 'Changhua County', 'Students aged 10&ndash;11') }}
+    <div class="edx-kpis">
+      {{ kpi('16', 'students took part') }}
+      {{ kpi('5.00', 'overall satisfaction', ' / 5') }}
+      {{ shift('2.81', '3.50', ' / 4', 'comprehension of genetics &amp; STEM, pre &rarr; post') }}
+      {{ kpi('93.8', 'want to join a similar activity again', '%') }}
+    </div>
+    <p><strong>Workshop:</strong> The Ultimate Code of Life</p>
+    <blockquote class="edu-quote">"Science is not merely about finding answers; it is the key that unlocks the hidden blueprint of our world."</blockquote>
+    <p>Building on our visit to Xihu Senior High School, we traveled to Puyan Elementary School in Changhua County on May 25, 2026, to host "The Ultimate Code of Life," an interactive STEM workshop grounded in SDG 4 (Quality Education) and STEAM principles, aimed at building scientific literacy through equal access and hands-on exploration.</p>
+    <p>To make genetics intuitive for young learners, our curriculum framed DNA as a "code of life." Gamified activities like "Lego Instruction Manuals" and "Trait Battle Royale" helped students understand how DNA and genes shape the human body and its traits, while a hands-on DNA Extraction Experiment let them isolate genetic material with simple, low-cost tools—demystifying complex biology through direct observation.</p>
+    <p>Beyond the experiments, we aimed to cultivate curious, active thinkers. Framing DNA as "life's hidden blueprint" encouraged students to question and imagine how genetics connects to healthcare and agriculture. Their enthusiastic debate mirrored our own iGEM brainstorming—proof that young minds simply need a stage to shine.</p>
+    <p>Designed for 16 students aged 10&ndash;11, the workshop showed strong measurable impact: overall satisfaction reached a perfect 5.00/5.00, and pre/post surveys showed comprehension of genetics and STEM concepts rising from 2.81 to 3.50 out of 4.00 (+0.69, t(15) = 3.91, p &lt; 0.01). 93.8% of students said they wanted to join similar activities again.</p>
+    <p>This was a rewarding two-way exchange, pushing us to translate molecular biology into language that sparks childhood curiosity. A single workshop won't teach everything, but we believe the curiosity planted here will encourage these students to keep exploring.</p>
+
+    <div class="edu-gallery">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-1.avif" alt="Puyan Elementary School STEM workshop group photo" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-2.avif" alt="Team member introducing DNA concepts on the classroom screen" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-3.avif" alt="Students and team members gathered around a DNA extraction experiment" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-4.avif" alt="Team member guiding students through the DNA extraction experiment" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-5.avif" alt="Students and team members giving a thumbs-up during the workshop" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-6.avif" alt="Team member demonstrating the DNA extraction experiment with a banana" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-7.avif" alt="Student's feedback survey with hand-drawn illustrations" loading="lazy">
+    </div>
+
+    <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
   </section>
 
   <section id="session-zhanxin" class="edu-session-block">
     <h2 class="h3">NCKU-Tainan &amp; STEAM from Seed</h2>
+    {{ facts('July 13 &ndash; August 21, 2026', 'Rural elementary schools, Tainan City', 'Elementary school children') }}
+    <div class="edx-kpis">
+      {{ kpi('10', 'camp sessions') }}
+      {{ kpi('266', 'children reached') }}
+      {{ kpi('217', 'pre/post questionnaires (N)') }}
+      {{ kpi('p &lt; 0.001', 'improvement across every area measured', counts=false) }}
+    </div>
     <p>The STEAM from Seed team is a service-oriented group of students from various high schools and universities in Tainan City. Every year, this team conducts science education camps in rural elementary schools in Tainan City. Their contributions to education have earned them recognition for three consecutive years from the Taiwan Ministry of Education's Youth Volunteer Action Competition. This year, our NCKU-Tainan team collaborated with them to integrate life science lessons into the STEAM curriculum, allowing students in rural elementary schools to experience life science in their daily lives and inspiring the next generation of scientific talent.</p>
 
     {# The ten sessions as one contact sheet instead of ten stacked strips.
@@ -225,8 +377,54 @@
 
     <p>To quantify the curriculum's effectiveness, we used pre/post questionnaires covering students' curiosity about science, interest in science, tolerance for experimental failure, willingness to ask questions, understanding of DNA, and grasp of experimental procedure. Statistical analysis showed significant improvement across all areas (p &lt; 0.001, N=217).</p>
 
-    <h3>HP safety</h3>
+    <h3 id="heading-hp-safety">HP safety</h3>
     <p>We consulted faculty on safety procedures and purchased materials only after school approval. Participants wore safety goggles and gloves, and a medical professional was present at every activity. Most experiments followed the 3R principle (Replace, Recycle, Reduce), reusing equipment and sorting waste properly.</p>
+    <p>On top of this, our team leader completed four of <span class="edx-key">National Cheng Kung University&rsquo;s (NCKU)</span> campus safety training courses and holds a certificate for each, so that the safety of every experiment we brought into a classroom rests on <span class="edx-hl">formal lab-safety training</span>.</p>
+
+    {# The four NCKU training certificates. Each card links straight to its
+       PDF; on a wide screen the script opens it in the dialog at the foot of
+       the page instead. Course names follow the certificates themselves. #}
+    <div class="edx-certs">
+      <ul class="edx-certs-head">
+        <li><b>4</b>training courses</li>
+        <li><b>10</b>training hours</li>
+        <li><b>NCKU</b>issued by the university</li>
+      </ul>
+      <ul class="edx-cert-grid">
+        <li class="edx-cert" style="--edx-c: var(--nx-warm)">
+          <svg class="edx-cert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12z"/><path d="M12 7.5v6" stroke-linecap="round"/><circle cx="12" cy="16.6" r="1" fill="currentColor" stroke="none"/></svg>
+          <span class="edx-cert-no" aria-hidden="true">01</span>
+          <h4>Hazardous Chemicals Labelling &amp; Hazard Communication Training</h4>
+          <p class="edx-cert-zh" lang="zh-Hant">危害性化學品標示及通識規則教育訓練</p>
+          <p class="edx-cert-meta">Oct 9, 2025 &middot; 2 h</p>
+          <a class="edx-cert-open" href="https://static.igem.wiki/teams/6379/wiki/education/biosafety-2.pdf" target="_blank" rel="noopener" data-edx-cert="Hazardous Chemicals Labelling and Hazard Communication Training">View certificate <span aria-hidden="true">&rarr;</span></a>
+        </li>
+        <li class="edx-cert" style="--edx-c: var(--nx-blue-up)">
+          <svg class="edx-cert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5h16M9.5 6.5V4h5v2.5M6 6.5l1 14h10l1-14"/><path d="M10 10.5v6.5M14 10.5v6.5"/></svg>
+          <span class="edx-cert-no" aria-hidden="true">02</span>
+          <h4>Toxic Chemical Substance Handling &amp; Laboratory Waste Management Training</h4>
+          <p class="edx-cert-zh" lang="zh-Hant">毒性化學物質運作暨實驗廢棄物管理教育訓練</p>
+          <p class="edx-cert-meta">Sep 3, 2025 &middot; 2 h</p>
+          <a class="edx-cert-open" href="https://static.igem.wiki/teams/6379/wiki/education/biosafety-3.pdf" target="_blank" rel="noopener" data-edx-cert="Toxic Chemical Substance Handling and Laboratory Waste Management Training">View certificate <span aria-hidden="true">&rarr;</span></a>
+        </li>
+        <li class="edx-cert" style="--edx-c: var(--nx-lime)">
+          <svg class="edx-cert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="7.2" r="4"/><circle cx="7.6" cy="14.8" r="4"/><circle cx="16.4" cy="14.8" r="4"/><circle cx="12" cy="12.3" r="1.6" fill="currentColor" stroke="none"/></svg>
+          <span class="edx-cert-no" aria-hidden="true">03</span>
+          <h4>Biosafety &amp; Biosecurity Training</h4>
+          <p class="edx-cert-zh" lang="zh-Hant">生安與生保教育訓練</p>
+          <p class="edx-cert-meta">Sep 3, 2025 &middot; 4 h</p>
+          <a class="edx-cert-open" href="https://static.igem.wiki/teams/6379/wiki/education/biosafety-1.pdf" target="_blank" rel="noopener" data-edx-cert="Biosafety and Biosecurity Training">View certificate <span aria-hidden="true">&rarr;</span></a>
+        </li>
+        <li class="edx-cert" style="--edx-c: var(--nx-mint)">
+          <svg class="edx-cert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 4.5 5.5v6c0 4.6 3.2 8.4 7.5 10 4.3-1.6 7.5-5.4 7.5-10v-6z"/><path d="m8.5 12 2.4 2.4 4.6-4.8"/></svg>
+          <span class="edx-cert-no" aria-hidden="true">04</span>
+          <h4>General Laboratory Safety &amp; Health Training</h4>
+          <p class="edx-cert-zh" lang="zh-Hant">實驗室一般安全衛生教育訓練</p>
+          <p class="edx-cert-meta">Sep 3, 2025 &middot; 2 h</p>
+          <a class="edx-cert-open" href="https://static.igem.wiki/teams/6379/wiki/education/biosafety-4.pdf" target="_blank" rel="noopener" data-edx-cert="General Laboratory Safety and Health Training">View certificate <span aria-hidden="true">&rarr;</span></a>
+        </li>
+      </ul>
+    </div>
 
     <h3>Education, a process of two-way learning</h3>
     <p>Teaching the same lessons across ages and levels taught us, through trial and error, how to make complex science concrete enough for children to love. Their pure curiosity about the unknown reminded us that researchers, too, must hold onto curiosity in the face of setbacks. What moved us most were the thank-you cards children wrote at the end of each activity&mdash;proof they felt our care. For us, education is a two-way learning process, not just knowledge flowing outward.</p>
@@ -258,7 +456,12 @@
 
   <section id="session-ncku" class="edu-session-block">
     <h2 class="h3">NCKU Workshops</h2>
-    <p><strong>Date:</strong> August 2&ndash;3 &nbsp;|&nbsp; <strong>Location:</strong> National Cheng Kung University, Tainan</p>
+    {{ facts('August 2&ndash;3, 2026', 'National Cheng Kung University, Tainan', 'High school students') }}
+    <div class="edx-kpis">
+      {{ kpi('2', 'days of hands-on activities') }}
+      {{ kpi('4.6', 'average satisfaction', ' / 5') }}
+      {{ shift('2.39', '3.88', '', 'self-rated understanding of synthetic biology, before &rarr; after') }}
+    </div>
     <p><strong>Workshop:</strong> 我們一起追的科學</p>
     <p>This two-day workshop introduced high school students to the spirit of iGEM, synthetic biology, and how science connects with creativity and sustainability through interactive, hands-on activities. Beyond our project and how our team works, we hoped to spark interest in scientific research and build skills in observation, critical thinking, teamwork, and communication.</p>
     <p>Activities included ice-breaking games, a World Café session, the Agarose Enzyme Lab, an RPG-style adventure, The Green Cabinet board game, Micro Detective, and brainstorming. Day one opened with ice-breakers, then the World Café introduced iGEM, our team, and our project; the Agarose Enzyme Lab gave participants hands-on experimental work and direct observation of scientific phenomena, and the RPG added exploration and immersion. A highlight was The Green Cabinet, a board game our team built from scratch&mdash;idea, cards, production, and testing&mdash;that introduced participants to the 17 Sustainable Development Goals in an everyday, relatable way. Day two's Micro Detective explored the microscopic world beyond the naked eye, and a brainstorming session closed things out with open idea-sharing.</p>
@@ -304,72 +507,43 @@
     <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
   </section>
 
-  <section id="session-xihu" class="edu-session-block">
-    <h2 class="h3">National Xihu Senior High School</h2>
-    <p><strong>Date:</strong> May 24, 2026 &nbsp;|&nbsp; <strong>Location:</strong> Changhua County</p>
-    <p><strong>Workshop:</strong> 3D玩家出任務</p>
-    <blockquote class="edu-quote">"Sharing science might not transform their lives overnight, but it lights a beacon that guides them toward a broader world."</blockquote>
-    <p>On May 24, 2026, we hosted an interactive Synthetic Biology and STEM camp at National Xihu Senior High School in Changhua County for 39 students from both the senior and junior high schools. With no gender quotas in registration, 26 of the 39 participants (66.7%) were female—a turnout that reflects how an open, approachable learning environment can naturally support Women in STEM.</p>
-    <p>To make synthetic biology tangible, our curriculum linked STEAM concepts to our 2026 project, "Capture," using an agar-protease assay built from household materials to model how Pseudomonas aeruginosa degrades epidermal cells' extracellular matrix. Watching the simulated tissue degradation in real time showed students that complex biology can be explored with simple tools.</p>
-    <p>Beyond the experiments, we ran an Innovation Workshop challenging students to tackle everyday problems with synthetic biology. Watching them sketch and debate ideas on whiteboards mirrored our own iGEM brainstorming—proof these young minds don't lack creativity, just a stage. Giving them that platform revealed real potential as future innovators.</p>
-    <p>Quantitatively, the camp showed real impact: students rated overall satisfaction at 4.82/5.00, and pre/post surveys showed a highly significant increase in comprehension of synthetic biology and STEM concepts (p &lt; 0.001). The experience was a two-way learning journey for us too, pushing us to translate intricate science into language that resonates with everyone. A single camp won't transform lives overnight, but we believe "the seeds of curiosity planted here will serve as a beacon, guiding these students toward a broader world."</p>
-
-    <p>Beyond the numerical results, students also shared thoughtful reflections on their experience. One participant wrote:</p>
-    <blockquote class="edu-quote">"學習到了STEM和合成生物學的一些知識，因為我才高一，其實有一些之前沒聽過，但今天的營隊讓我了解了很多，吸收了很多新知識，我覺得很讚～～💯"<br>"I learned some things about STEM and synthetic biology. Since I'm only a high school freshman, there were some things I hadn't heard of before, but today's camp taught me a lot and I absorbed a lot of new knowledge. I think it's great!"</blockquote>
-    <p>Another participant shared:</p>
-    <blockquote class="edu-quote">"了解關於合成生物學的相關知識，也和許多不同想法的人討論、碰撞，不僅可以向成大優秀的學長姐學習，也能和其他同學一起討論，我認為這是對我很大的收穫。"<br>"Learning about synthetic biology and discussing and exchanging ideas with many people who have different perspectives has been a great gain for me. I can learn from outstanding students at National Cheng Kung University School and also discuss with other students."</blockquote>
+  <section id="session-littlesun" class="edu-session-block">
+    <h2 class="h3">Little Sun Project</h2>
+    {{ facts('August 5, 2026', 'Nanxi District, Tainan', 'Children at the Little Sun Care Association') }}
+    <div class="edx-kpis">
+      {{ kpi('1', 'afternoon of science', '') }}
+      {{ kpi('1.5', 'drive from the city centre', ' h') }}
+      {{ kpi('p &lt; 0.05', 'gain in scientific cognition, curiosity &amp; confidence', counts=false) }}
+    </div>
+    <blockquote class="edu-quote">Some forms of education focus on guiding children outward to explore a broader world, while others choose to remain rooted in one community, accompanying them day by day as they grow.</blockquote>
+    <p>This year, our team visited the Little Sun Care Association in Nanxi District, Tainan. Situated in a mountainous region about an hour and a half's drive from the city center, Nanxi has experienced a severe outmigration of its young working-age population, leaving behind a demographic largely composed of children and the elderly.</p>
+    <p>At the invitation of a supervisor from the Tainan City Education Bureau, we organized a science program tailored for the disadvantaged children at the Association. Through hands-on experiments, we introduced concepts in life sciences, DNA, and photochemistry—transforming complex, abstract knowledge into tangible experiences they could relate to in their daily lives.</p>
+    <p>To evaluate our impact, we conducted pre- and post-event surveys. As shown in the attached data, this single afternoon of science education led to a statistically significant increase in the children's scientific cognition, curiosity, and confidence (p &lt; 0.05).</p>
+    <p>If we can introduce a novel experience and open a new window to the world for these children—complementing the long-term, stable support provided by Little Sun—then our encounter takes on profound meaning.</p>
+    <p>Education is never a short sprint, but a long-term relay race passed between many hands. Little Sun provides the fertile soil for these children to grow safely, and we are honored to serve as one of the bridges connecting them to the fascinating world of life sciences.</p>
 
     <div class="edu-gallery">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-1.avif" alt="Xihu Senior and Junior High School students and team members group photo" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-2.avif" alt="Team member presenting synthetic biology concepts to students" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-3.avif" alt="Students working on the agar-protease assay experiment" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-4.avif" alt="Students engaged in the Innovation Workshop discussion" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-5.avif" alt="Students presenting their innovation ideas" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-6.avif" alt="Team member guiding students through the hands-on activity" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/xihu-7.avif" alt="Students and team members during the workshop" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/0805.avif" alt="Little Sun Project photo 1" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/0805-2.avif" alt="Little Sun Project photo 2" loading="lazy">
     </div>
 
     <div class="edu-pdf-viewer">
-      <iframe src="https://static.igem.wiki/teams/6379/wiki/education/3d-feedback-analysis.pdf#view=FitH&amp;navpanes=0"
-              title="Xihu Senior High School Feedback Analysis" loading="lazy"></iframe>
+      <iframe src="https://static.igem.wiki/teams/6379/wiki/education/little-sun-project.pdf#view=FitH&amp;navpanes=0"
+              title="Little Sun Project" loading="lazy"></iframe>
     </div>
     <p class="edu-pdf-link">
-      <a href="https://static.igem.wiki/teams/6379/wiki/education/3d-feedback-analysis.pdf" target="_blank" rel="noopener">
+      <a href="https://static.igem.wiki/teams/6379/wiki/education/little-sun-project.pdf" target="_blank" rel="noopener">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/></svg>
-        View feedback analysis (PDF)
+        View PDF
       </a>
     </p>
 
     <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
   </section>
 
-  <section id="session-puyan" class="edu-session-block">
-    <h2 class="h3">Puyan Elementary School</h2>
-    <p><strong>Date:</strong> May 25, 2026 &nbsp;|&nbsp; <strong>Location:</strong> Changhua County</p>
-    <p><strong>Workshop:</strong> The Ultimate Code of Life</p>
-    <blockquote class="edu-quote">"Science is not merely about finding answers; it is the key that unlocks the hidden blueprint of our world."</blockquote>
-    <p>Building on our visit to Xihu Senior High School, we traveled to Puyan Elementary School in Changhua County on May 25, 2026, to host "The Ultimate Code of Life," an interactive STEM workshop grounded in SDG 4 (Quality Education) and STEAM principles, aimed at building scientific literacy through equal access and hands-on exploration.</p>
-    <p>To make genetics intuitive for young learners, our curriculum framed DNA as a "code of life." Gamified activities like "Lego Instruction Manuals" and "Trait Battle Royale" helped students understand how DNA and genes shape the human body and its traits, while a hands-on DNA Extraction Experiment let them isolate genetic material with simple, low-cost tools—demystifying complex biology through direct observation.</p>
-    <p>Beyond the experiments, we aimed to cultivate curious, active thinkers. Framing DNA as "life's hidden blueprint" encouraged students to question and imagine how genetics connects to healthcare and agriculture. Their enthusiastic debate mirrored our own iGEM brainstorming—proof that young minds simply need a stage to shine.</p>
-    <p>Designed for 16 students aged 10&ndash;11, the workshop showed strong measurable impact: overall satisfaction reached a perfect 5.00/5.00, and pre/post surveys showed comprehension of genetics and STEM concepts rising from 2.81 to 3.50 out of 4.00 (+0.69, t(15) = 3.91, p &lt; 0.01). 93.8% of students said they wanted to join similar activities again.</p>
-    <p>This was a rewarding two-way exchange, pushing us to translate molecular biology into language that sparks childhood curiosity. A single workshop won't teach everything, but we believe the curiosity planted here will encourage these students to keep exploring.</p>
-
-    <div class="edu-gallery">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-1.avif" alt="Puyan Elementary School STEM workshop group photo" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-2.avif" alt="Team member introducing DNA concepts on the classroom screen" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-3.avif" alt="Students and team members gathered around a DNA extraction experiment" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-4.avif" alt="Team member guiding students through the DNA extraction experiment" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-5.avif" alt="Students and team members giving a thumbs-up during the workshop" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-6.avif" alt="Team member demonstrating the DNA extraction experiment with a banana" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/puyan-7.avif" alt="Student's feedback survey with hand-drawn illustrations" loading="lazy">
-    </div>
-
-    <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
-  </section>
-
   <section id="session-anping" class="edu-session-block">
     <h2 class="h3">Anping Junior High School</h2>
-    <p><strong>Date:</strong> September 13, 2026 &nbsp;|&nbsp; <strong>Location:</strong> Anping District, Tainan</p>
+    {{ facts('September 13, 2026', 'Anping District, Tainan', 'Third-year gifted students', 'DNA crude extraction') }}
     <p>In this iGEM junior high school workshop, we guided students to understand the core concepts of the iGEM competition and synthetic biology, and through the simple hands-on activity of "DNA crude extraction," allowed them to experience firsthand the close connection between science and daily life.</p>
     <p>This activity was specially designed for gifted students in the third year of Anping Junior High School. Facing the pressure of college entrance exams, we used a relaxed and humorous interactive approach to guide them in exploring the joy of science. When the experiment was successfully completed, the students excitedly shared their extracted results: "So the knowledge in textbooks can actually be seen with the naked eye!" Promoting science education is not only about guiding students to discover knowledge, but more importantly, inspiring them to apply theory to real life—this is the vision that our team continues to strive for.</p>
 
@@ -388,7 +562,12 @@
       <h2 class="h3">Inside Tainan Girls&rsquo; High School: From Capture to &ldquo;What Is Medical School Really Like?&rdquo;</h2>
       <img src="https://static.igem.wiki/teams/6379/wiki/education/tngs-logo-jpeg.avif" alt="National Tainan Girls&rsquo; Senior High School logo" class="edu-logo">
     </div>
-    <p><strong>Date:</strong> September 30, 2026 &nbsp;|&nbsp; <strong>Location:</strong> Tainan City</p>
+    {{ facts('September 30, 2026', 'Tainan City', 'Medical Research Club members') }}
+    <div class="edx-kpis">
+      {{ kpi('50', 'club members') }}
+      {{ kpi('31', 'questions through an anonymous form') }}
+      {{ kpi('2', 'parts: our project, then medical school') }}
+    </div>
     <p>On September 30, 2026, we were invited by the Medical Research Club of National Tainan Girls&rsquo; Senior High School to meet with 50 club members. The session covered two topics: our 2026 iGEM project, Capture, and the question the students were most curious about: &ldquo;What is medical school actually like?&rdquo;</p>
 
     <h3>Part 1: Unpacking a Synthetic Biology Project</h3>
@@ -446,31 +625,177 @@
     <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
   </section>
 
-  <section id="session-littlesun" class="edu-session-block">
-    <h2 class="h3">Little Sun Project</h2>
-    <p><strong>Date:</strong> August 5 &nbsp;|&nbsp; <strong>Location:</strong> Nanxi District, Tainan</p>
-    <blockquote class="edu-quote">Some forms of education focus on guiding children outward to explore a broader world, while others choose to remain rooted in one community, accompanying them day by day as they grow.</blockquote>
-    <p>This year, our team visited the Little Sun Care Association in Nanxi District, Tainan. Situated in a mountainous region about an hour and a half's drive from the city center, Nanxi has experienced a severe outmigration of its young working-age population, leaving behind a demographic largely composed of children and the elderly.</p>
-    <p>At the invitation of a supervisor from the Tainan City Education Bureau, we organized a science program tailored for the disadvantaged children at the Association. Through hands-on experiments, we introduced concepts in life sciences, DNA, and photochemistry—transforming complex, abstract knowledge into tangible experiences they could relate to in their daily lives.</p>
-    <p>To evaluate our impact, we conducted pre- and post-event surveys. As shown in the attached data, this single afternoon of science education led to a statistically significant increase in the children's scientific cognition, curiosity, and confidence (p &lt; 0.05).</p>
-    <p>If we can introduce a novel experience and open a new window to the world for these children—complementing the long-term, stable support provided by Little Sun—then our encounter takes on profound meaning.</p>
-    <p>Education is never a short sprint, but a long-term relay race passed between many hands. Little Sun provides the fertile soil for these children to grow safely, and we are honored to serve as one of the bridges connecting them to the fascinating world of life sciences.</p>
+  {# Kindergarten, October 1. The team's write-up, shortened; every figure is
+     from it. The interactive parts (the five-step mission, the two flip
+     cards, the feedback rows) all fall back to plain stacked content without
+     JavaScript -- see static/css/pages/edu-interactive.css. #}
+  <section id="session-kindergarten" class="edu-session-block edx-kg">
+    <p class="edx-kg-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5.5 5.5"/><circle cx="9" cy="9.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="12.3" cy="11.8" r=".8" fill="currentColor" stroke="none"/></svg>
+      Mission: Germ Detectives
+    </p>
+    <h2 class="h3">Kindergarten Education &ndash; Germ Detective Team Deployed</h2>
+    {{ facts('October 1, 2026', 'Tainan City', 'Preschoolers') }}
+    <div class="edx-kpis">
+      {{ kpi('7', 'groups of 2&ndash;6 children asked for feedback') }}
+      {{ kpi('100', 'of groups said it was fun', '%') }}
+      {{ kpi('100', 'of groups remembered the handwashing steps and showed us', '%') }}
+    </div>
+
+    <p>Preschoolers almost never meet words like <span class="edx-hl">&ldquo;bacteria&rdquo;</span> or <span class="edx-hl">&ldquo;infection&rdquo;</span>, yet <span class="edx-key">handwashing</span> and <span class="edx-key">wearing a mask</span> are exactly the habits that need to take root at this age. So we turned the theme at the heart of <span class="edx-hl">Capture</span> &mdash; preventing bacterial infection &mdash; into something the youngest children could play their way through: taking synthetic biology to the places it seldom reaches, and planting public-health awareness <span class="edx-key">as early as possible</span>.</p>
+
+    <h3 class="edx-kg-sub">The mission, in five steps</h3>
+    <div class="edx-tabs">
+      <div class="edx-tablist" role="tablist" aria-label="The five parts of the activity">
+        <button type="button" class="edx-tab" role="tab" id="kg-tab-1" aria-controls="kg-panel-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5v13"/></svg>
+          <span class="edx-tab-n">01</span><span class="edx-tab-label">The story</span>
+        </button>
+        <button type="button" class="edx-tab" role="tab" id="kg-tab-2" aria-controls="kg-panel-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1-4.5L16 4.5a2.1 2.1 0 0 1 3 3L8 18.5z"/><path d="m14 6.5 3 3"/></svg>
+          <span class="edx-tab-n">02</span><span class="edx-tab-label">Draw a germ</span>
+        </button>
+        <button type="button" class="edx-tab" role="tab" id="kg-tab-3" aria-controls="kg-panel-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5.5 5.5"/></svg>
+          <span class="edx-tab-n">03</span><span class="edx-tab-label">Hot &amp; Cold hunt</span>
+        </button>
+        <button type="button" class="edx-tab" role="tab" id="kg-tab-4" aria-controls="kg-panel-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v8M12 11l-2.5 2.5M12 11l2.5 2.5"/><path d="M9.5 7C6 7.5 4 11 4 15.5 4 18.5 5.5 20 7.5 20s3-1.5 3-4V9M14.5 7c3.5.5 5.5 4 5.5 8.5 0 3-1.5 4.5-3.5 4.5s-3-1.5-3-4V9"/></svg>
+          <span class="edx-tab-n">04</span><span class="edx-tab-label">Bottle lung</span>
+        </button>
+        <button type="button" class="edx-tab" role="tab" id="kg-tab-5" aria-controls="kg-panel-5">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6z"/><path d="M12 8.5c-1.4 1.8-2.2 3-2.2 4a2.2 2.2 0 0 0 4.4 0c0-1-.8-2.2-2.2-4z"/></svg>
+          <span class="edx-tab-n">05</span><span class="edx-tab-label">Shields up</span>
+        </button>
+      </div>
+
+      <div class="edx-tabpanel" role="tabpanel" id="kg-panel-1" aria-labelledby="kg-tab-1">
+        <h4>&ldquo;Little Scientists vs. Bacteria&rdquo;</h4>
+        <p>The whole event ran as one <span class="edx-hl">mini skit</span>, so the children took the content in by playing a part in the story rather than sitting through one-way teaching.</p>
+      </div>
+      <div class="edx-tabpanel" role="tabpanel" id="kg-panel-2" aria-labelledby="kg-tab-2">
+        <h4>Draw a germ</h4>
+        <p>Each child drew what they imagined bacteria look like and told us why &mdash; an early sense that <span class="edx-key">bacteria have a shape and can spread</span>.</p>
+      </div>
+      <div class="edx-tabpanel" role="tabpanel" id="kg-panel-3" aria-labelledby="kg-tab-3">
+        <h4>Hot &amp; Cold treasure hunt</h4>
+        <p>&ldquo;Bacteria weapon&rdquo; props were hidden around the classroom, and the children searched for them, practising <span class="edx-key">observation and teamwork</span>.</p>
+      </div>
+      <div class="edx-tabpanel" role="tabpanel" id="kg-panel-4" aria-labelledby="kg-tab-4">
+        <h4>A lung in a bottle</h4>
+        <p>A plastic bottle, a balloon and straws made a simple lung. Pulling the balloon themselves, the children watched the &ldquo;lungs&rdquo; <span class="edx-hl">expand and contract</span> &mdash; and connected it to what happens when bacteria invade the airway.</p>
+      </div>
+      <div class="edx-tabpanel" role="tabpanel" id="kg-panel-5" aria-labelledby="kg-tab-5">
+        <h4>Shields up</h4>
+        <p>Finally we introduced <span class="edx-key">wearing a mask</span> and <span class="edx-key">washing hands</span>, and the children practised the handwashing steps on the spot.</p>
+      </div>
+      <div class="edx-tabs-foot"><button type="button" class="edx-tabs-next">Next step &rarr;</button></div>
+    </div>
+
+    <h3 class="edx-kg-sub">Harder than we imagined &mdash; and what we changed</h3>
+    <div class="edx-flips">
+      <button type="button" class="edx-flip">
+        <span class="edx-flip-face edx-flip-front">
+          <span class="edx-flip-tag">The challenge</span>
+          <span class="edx-flip-title">Attention is a moving target</span>
+          <span class="edx-flip-text">Preschoolers are lively and easily distracted. We expected it, but holding their focus took far more energy and skill than running an elementary school camp.</span>
+          <span class="edx-flip-hint">Tap to see what we did &#8635;</span>
+        </span>
+        <span class="edx-flip-face edx-flip-back">
+          <span class="edx-flip-tag">What we changed</span>
+          <span class="edx-flip-title">Bigger, shorter, in character</span>
+          <span class="edx-flip-text">We raised our voices and expressions, used shorter sentences, and spoke as characters in the story rather than as &ldquo;teachers&rdquo;.</span>
+          <span class="edx-flip-hint">Tap to flip back &#8635;</span>
+        </span>
+      </button>
+      <button type="button" class="edx-flip">
+        <span class="edx-flip-face edx-flip-front">
+          <span class="edx-flip-tag">The challenge</span>
+          <span class="edx-flip-title">The rules didn&rsquo;t stick</span>
+          <span class="edx-flip-text">After a practice round everyone seemed to understand the treasure hunt &mdash; but once the real game began, some children still weren&rsquo;t sure what to do.</span>
+          <span class="edx-flip-hint">Tap to see what we did &#8635;</span>
+        </span>
+        <span class="edx-flip-face edx-flip-back">
+          <span class="edx-flip-tag">What we changed</span>
+          <span class="edx-flip-title">From stepping back to stepping in</span>
+          <span class="edx-flip-text">We had planned to let them explore alone; on the spot we switched to active guidance and prompting to keep the game moving. With this age, the balance between freedom and guidance has to be <span class="edx-hl">read and adjusted in real time</span>.</span>
+          <span class="edx-flip-hint">Tap to flip back &#8635;</span>
+        </span>
+      </button>
+    </div>
+
+    <h3 class="edx-kg-sub">What the children told us</h3>
+    <p>Most preschoolers can&rsquo;t yet read or write, so instead of a written form we asked each group out loud &mdash; <span class="edx-num">2&ndash;6</span> children per group &mdash; and team members recorded the answers. Open a question to see more.</p>
+    <div class="edx-fb">
+      <details>
+        <summary>
+          <span class="edx-fb-q">Was it fun?</span>
+          <span class="edx-fb-score">7 / 7 <small>groups said yes</small></span>
+          <span class="edx-bar" style="--v: 100%"><i></i></span>
+        </summary>
+        <div class="edx-fb-body">
+          <p>Uniformly positive. The favourite part was the <span class="edx-hl">Hot &amp; Cold treasure hunt</span> &mdash; hands-on, physically active segments left a stronger impression than the quieter drawing activity.</p>
+        </div>
+      </details>
+      <details>
+        <summary>
+          <span class="edx-fb-q">What do bacteria look like?</span>
+          <span class="edx-fb-score">7 / 7 <small>gave a concrete description</small></span>
+          <span class="edx-bar" style="--v: 100%"><i></i></span>
+        </summary>
+        <div class="edx-fb-body">
+          <p>Answers clustered around two shapes, and some children added details &mdash; the drawing had given them a real picture, not just an abstract word.</p>
+          <ul class="edx-germs">
+            <li><svg viewBox="0 0 52 40" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="26" cy="20" r="13"/><circle cx="21" cy="17" r="2" fill="currentColor"/><circle cx="30" cy="23" r="1.6" fill="currentColor"/></svg>&ldquo;Round&rdquo;</li>
+            <li><svg viewBox="0 0 52 40" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="13" width="40" height="14" rx="7"/><circle cx="18" cy="20" r="1.6" fill="currentColor"/><circle cx="32" cy="20" r="1.6" fill="currentColor"/></svg>&ldquo;Long and thin&rdquo;</li>
+            <li><svg viewBox="0 0 52 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="13" width="26" height="14" rx="7"/><path d="M30 20c3-5 6 5 9 0s6 5 9 0"/></svg>&ldquo;A long tail&rdquo;</li>
+            <li><svg viewBox="0 0 52 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="26" cy="20" r="10"/><path d="M26 10V4M26 30v6M16 20h-6M36 20h6M19 13l-4-4M33 13l4-4M19 27l-4 4M33 27l4 4"/></svg>&ldquo;Feelers&rdquo;</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>
+          <span class="edx-fb-q">How do you protect yourself?</span>
+          <span class="edx-fb-score">6 / 6 <small>named specific ways</small></span>
+          <span class="edx-bar" style="--v: 100%"><i></i></span>
+        </summary>
+        <div class="edx-fb-body">
+          <div class="edx-fb-split">
+            <div><span>Wearing a mask</span><span class="edx-bar is-warm" style="--v: 83.3%"><i></i></span><b>5 groups</b></div>
+            <div><span>Washing hands</span><span class="edx-bar is-warm" style="--v: 83.3%"><i></i></span><b>5 groups</b></div>
+          </div>
+          <p>Some children also mentioned <span class="edx-key">staying away from sick people</span>, or <span class="edx-key">resting and drinking more water at home</span> &mdash; a sign they had grasped not only what to do but, to some extent, why.</p>
+        </div>
+      </details>
+      <details>
+        <summary>
+          <span class="edx-fb-q">Do you remember the handwashing steps?</span>
+          <span class="edx-fb-score">6 / 6 <small>remembered &amp; showed us</small></span>
+          <span class="edx-bar" style="--v: 100%"><i></i></span>
+        </summary>
+        <div class="edx-fb-body">
+          <p>Every group said they remembered the steps and <span class="edx-hl">demonstrated them on the spot</span> &mdash; the most consistently retained takeaway of the whole event.</p>
+        </div>
+      </details>
+    </div>
+
+    <p>And to the older students, the children mostly said thank you:</p>
+    <ul class="edx-bubbles">
+      <li>&ldquo;Thank you for playing games with us!&rdquo;</li>
+      <li>&ldquo;That was fun!&rdquo;</li>
+      <li>&ldquo;I learned a lot!&rdquo;</li>
+    </ul>
+
+    <h3>What we take away</h3>
+    <p>Science outreach can&rsquo;t use <span class="edx-hl">one approach for every age</span>: preschoolers need completely different guidance and attention-holding from what we learned at elementary school camps, and this taught us to <span class="edx-key">observe and adjust on the spot</span> rather than stick rigidly to the plan. Hands-on, game-based segments worked far better than one-way explanation, and the near-perfect recall of the handwashing steps convinced us that <span class="edx-hl">even the youngest children can make a hygiene habit their own</span> when the approach fits. Next time, we hope to design more learn-while-playing segments, and find a simple way to check whether the habits last days or weeks after the event.</p>
 
     <div class="edu-gallery">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/0805.avif" alt="Little Sun Project photo 1" loading="lazy">
-      <img src="https://static.igem.wiki/teams/6379/wiki/education/0805-2.avif" alt="Little Sun Project photo 2" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/10-01-1.avif" alt="Kindergarten Germ Detective activity photo 1" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/10-01-2.avif" alt="Kindergarten Germ Detective activity photo 2" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/10-01-3.avif" alt="Kindergarten Germ Detective activity photo 3" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/10-01-4.avif" alt="Kindergarten Germ Detective activity photo 4" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/education/10-01-5.avif" alt="Kindergarten Germ Detective activity photo 5" loading="lazy">
     </div>
-
-    <div class="edu-pdf-viewer">
-      <iframe src="https://static.igem.wiki/teams/6379/wiki/education/little-sun-project.pdf#view=FitH&amp;navpanes=0"
-              title="Little Sun Project" loading="lazy"></iframe>
-    </div>
-    <p class="edu-pdf-link">
-      <a href="https://static.igem.wiki/teams/6379/wiki/education/little-sun-project.pdf" target="_blank" rel="noopener">
-        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2M9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/></svg>
-        View PDF
-      </a>
-    </p>
 
     <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
   </section>
@@ -495,6 +820,29 @@
   #}
   <section id="session-handbook" class="edu-session-block">
     <h2 class="h3">Education Handbook</h2>
+
+    <div class="edx-hb">
+      <div class="edx-hb-count"><div><b data-edx-to="10">10</b><span>rural sessions, written down</span></div></div>
+      <p class="edx-hb-lead">We made this Education Handbook to pass on what our <span class="edx-hl">ten rural education sessions</span> taught us &mdash; what we learned, the problems we ran into, and the details of how the whole thing was actually carried out &mdash; so that any future iGEM team hoping to do similar work has <span class="edx-key">a reference to start from</span>.</p>
+      <ul class="edx-hb-cards">
+        <li tabindex="0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/></svg>
+          <strong>What we learned</strong>
+          The lessons ten classrooms taught us.
+        </li>
+        <li tabindex="0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19z"/><path d="M12 9.5v5"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg>
+          <strong>What we ran into</strong>
+          The problems we faced along the way.
+        </li>
+        <li tabindex="0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5h10M9 12h10M9 19h10"/><path d="m3.5 5 1.2 1.2L7 4M3.5 12l1.2 1.2L7 11M3.5 19l1.2 1.2L7 18"/></svg>
+          <strong>How we ran it</strong>
+          The details of the whole process, step by step.
+        </li>
+      </ul>
+      <p class="edx-hb-relay" aria-hidden="true">NCKU-Tainan <i></i> the next team</p>
+    </div>
 
     <div class="edu-handbook">
       <input class="edu-handbook-radio" type="radio" name="edu-handbook-lang" id="edu-handbook-en" checked>
@@ -536,10 +884,29 @@
     </div>
   </section>
 
+  {# The page's last word: a line about why science education matters. #}
+  <section class="edx-finale" aria-label="Closing quote">
+    <blockquote>
+      <p>If a child is to keep alive his inborn sense of wonder &hellip; he needs the companionship of at least one adult who can share it, rediscovering with him the joy, excitement and mystery of the world we live in.</p>
+      <footer>&mdash; Rachel Carson, <cite>The Sense of Wonder</cite></footer>
+    </blockquote>
+    <p class="edx-finale-note">In every classroom we visited this year, we tried to be that adult.</p>
+  </section>
+
   </div>
 </div>
 
 <noscript><style>.tngs-chat-msg { opacity: 1 !important; transform: none !important; }</style></noscript>
+
+{# Opened by the certificate links in HP safety (edu-interactive.js). #}
+<dialog class="edx-cert-dialog" aria-labelledby="edx-cert-dialog-title">
+  <div class="edx-cert-dialog-bar">
+    <h4 class="edx-cert-dialog-title" id="edx-cert-dialog-title">Certificate</h4>
+    <a class="edx-cert-dialog-newtab" href="#" target="_blank" rel="noopener">Open in new tab</a>
+    <button type="button" class="edx-cert-dialog-close" aria-label="Close">&times;</button>
+  </div>
+  <iframe src="about:blank" title="Certificate"></iframe>
+</dialog>
 
 <script src="{{ url_for('static', filename = 'taiwan-map.js') }}"></script>
 <script src="{{ url_for('static', filename = 'education-sidebar.js') }}"></script>
@@ -550,4 +917,5 @@
 <script src="{{ url_for('static', filename = 'tngs-chat.js') }}"></script>
 <script src="{{ url_for('static', filename = 'js/pages/hp-reveal.js') }}" defer></script>
 <script src="{{ url_for('static', filename = 'js/pages/hp-mesh.js') }}" defer></script>
+<script src="{{ url_for('static', filename = 'js/pages/edu-interactive.js') }}" defer></script>
 {% endblock %}

@@ -1,0 +1,1027 @@
+/* ============================================================
+   Human Practices hub and its subpages
+   human-practices.html (the compass), meet-with-experts.html (.mx-*),
+   survey.html (.sv-*). All three wear body.edu-nexus, so the --nx-*
+   palette from style.css is in scope: mint for headings, lime for
+   highlights, the lifted blue and the warm amber as second accents.
+
+   Each direction keeps one colour wherever it appears -- its card on the
+   hub, its kicker on its subpage:
+     downward  lime     upward  mint     forward  blue     backward  amber
+   ============================================================ */
+
+body.edu-nexus {
+  --hpx-down: var(--nx-lime);
+  --hpx-up:   var(--nx-mint);
+  --hpx-fwd:  var(--nx-blue-up);
+  --hpx-back: var(--nx-warm);
+}
+
+/* ---------- shared: kicker, back link, next/previous ---------- */
+.hpx-kicker {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hpx-dir, var(--nx-lime));
+  margin: 0 0 0.6rem;
+}
+
+.hpx-dir-arrow { font-size: 1.1em; margin-right: 0.15em; }
+
+.hpx-back { margin: -1rem 0 2rem; font-size: 0.92rem; }
+body.edu-nexus .hpx-back a { color: var(--nx-muted); text-decoration: none; }
+body.edu-nexus .hpx-back a:hover,
+body.edu-nexus .hpx-back a:focus-visible { color: var(--nx-lime); }
+
+.hpx-next {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--nx-line);
+}
+
+.hpx-next a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-decoration: none;
+  color: var(--nx-text);
+}
+
+.hpx-next a:last-child { text-align: right; margin-left: auto; }
+
+.hpx-next a span {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.hpx-next a:hover,
+.hpx-next a:focus-visible { color: var(--nx-lime); }
+
+/* ---------- the hub ---------- */
+.hpx-overview { max-width: 72ch; }
+
+body.edu-nexus .hpx-overview h2 {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  color: var(--nx-mint);
+  margin: 0;
+}
+
+body.edu-nexus .hpx-overview .hp-slogan { color: var(--nx-lime); }
+
+/* The ring. A square stage; the circle the four discs sit on is inset 17%
+   from each side, so its radius is 33% of the stage's width -- 33cqw, since
+   the stage is the container the units measure. The discs are centred on
+   the circle at top, right, bottom and left; the core sits in the middle. */
+.hpx-compass {
+  position: relative;
+  width: min(880px, 100%);
+  aspect-ratio: 1;
+  margin: 1.5rem auto 0.5rem;
+  container-type: inline-size;
+}
+
+/* A faint inner orbit, for depth. */
+.hpx-compass::before {
+  content: "";
+  position: absolute;
+  inset: 29%;
+  border-radius: 50%;
+  border: 1px dashed var(--nx-line);
+  pointer-events: none;
+}
+
+/* The ring itself, in the four directions' colours, each blending into the
+   next: upward at the top, forward at the right, downward at the bottom,
+   backward at the left. A conic gradient cut to a 4px band by a mask. */
+.hpx-ring {
+  position: absolute;
+  inset: 17%;
+  border-radius: 50%;
+  background: conic-gradient(var(--hpx-up) 0%, var(--hpx-fwd) 25%, var(--hpx-down) 50%, var(--hpx-back) 75%, var(--hpx-up) 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+  opacity: 0.8;
+  filter: drop-shadow(0 0 8px rgba(160, 232, 96, 0.35));
+  pointer-events: none;
+}
+
+/* AHL dots travelling round the ring, half-way between the discs, as on the
+   loading screen. */
+.hpx-orbit {
+  position: absolute;
+  inset: 17%;
+  pointer-events: none;
+  animation: hpx-orbit 90s linear infinite;
+}
+
+.hpx-orbit span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px;
+  border-radius: 50%;
+  background: var(--nx-lime);
+  box-shadow: 0 0 10px 2px rgba(160, 232, 96, 0.55);
+  transform: rotate(calc(var(--i) * 45deg + 22.5deg)) translateY(-33cqw);
+}
+
+.hpx-orbit span:nth-child(even) {
+  width: 6px;
+  height: 6px;
+  margin: -3px;
+  opacity: 0.7;
+}
+
+@keyframes hpx-orbit { to { transform: rotate(360deg); } }
+
+.hpx-up       { --hpx-dir: var(--hpx-up);   left: 50%; top: 17%; }
+.hpx-down     { --hpx-dir: var(--hpx-down); left: 50%; top: 83%; }
+.hpx-fwd      { --hpx-dir: var(--hpx-fwd);  left: 83%; top: 50%; }
+.hpx-back-dir { --hpx-dir: var(--hpx-back); left: 17%; top: 50%; }
+
+/* One disc per direction. Sized and lettered in cqw so the whole ring scales
+   as one drawing. The dark halo (the first shadow) cuts the coloured ring
+   where the disc crosses it, so the disc reads as sitting on the ring. */
+.hpx-card {
+  position: absolute;
+  z-index: 1;
+  /* width and height both in cqw: aspect-ratio alone gives way to the
+     content and draws an ellipse */
+  width: 32cqw;
+  height: 32cqw;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  padding: 0 2.4cqw;   /* cqw: a % here would be of the whole ring */
+  border-radius: 50%;
+  border: 2px solid var(--hpx-dir);
+  background: radial-gradient(circle at 50% 28%,
+              color-mix(in srgb, var(--hpx-dir) 16%, var(--nx-panel)),
+              var(--nx-panel) 72%);
+  box-shadow: 0 0 0 7px var(--nx-ground),
+              0 0 34px -4px color-mix(in srgb, var(--hpx-dir) 50%, transparent);
+  text-align: center;
+  font-size: clamp(0.78rem, 1.7cqw, 1rem);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hpx-card:hover,
+.hpx-card:focus-within {
+  transform: translate(-50%, -50%) scale(1.05);
+  box-shadow: 0 0 0 7px var(--nx-ground),
+              0 0 54px 0 color-mix(in srgb, var(--hpx-dir) 60%, transparent);
+}
+
+.hpx-dir {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 0.8em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hpx-dir);
+}
+
+.hpx-icon {
+  flex: none;
+  width: 2.6em;
+  height: 2.6em;
+  color: var(--hpx-dir);
+}
+
+body.edu-nexus .hpx-card-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.22em;
+  line-height: 1.15;
+  color: var(--nx-text);
+  margin: 0.1em 0 0;
+}
+
+body.edu-nexus .hpx-card p {
+  max-width: 16em;
+  margin: 0;
+  color: var(--nx-muted);
+  font-size: 0.86em;
+  line-height: 1.4;
+}
+
+body.edu-nexus .hpx-card .hpx-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4em;
+  margin-top: 0.45em;
+}
+
+body.edu-nexus .hpx-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.32em 0.85em;
+  border-radius: 999px;
+  border: 1.5px solid var(--hpx-dir);
+  color: var(--hpx-dir);
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.82em;
+  text-decoration: none;
+  transition: background-color 0.22s ease, color 0.22s ease;
+}
+
+body.edu-nexus .hpx-link:hover,
+body.edu-nexus .hpx-link:focus-visible {
+  background: var(--hpx-dir);
+  color: var(--nx-ground);
+}
+
+body.edu-nexus .hpx-link:focus-visible {
+  outline: 2px solid var(--nx-text);
+  outline-offset: 3px;
+}
+
+.hpx-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  width: 21cqw;
+  height: 21cqw;
+  border-radius: 50%;
+  border: 2px solid var(--nx-lime);
+  background: radial-gradient(circle at 50% 40%, rgba(160, 232, 96, 0.18), var(--nx-ground) 72%);
+  box-shadow: 0 0 44px rgba(160, 232, 96, 0.25), inset 0 0 24px rgba(160, 232, 96, 0.08);
+  color: var(--nx-lime);
+  font-size: clamp(0.8rem, 1.7cqw, 1rem);
+}
+
+.hpx-core-icon { width: 2.8em; height: 2.8em; }
+
+.hpx-core-label {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.7em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hpx-core-name {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1.45em;
+  line-height: 1;
+  color: var(--nx-text);
+}
+.hpx-closing { text-align: center; }
+
+/* The closing line: the page's one sentence to remember, so it is set as a
+   statement -- large, centred, with the slogan in the slogan's lime. */
+body.edu-nexus .hpx-statement {
+  max-width: 34ch;
+  margin: 3.5rem auto 2.5rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--nx-line);
+  border-bottom: 1px solid var(--nx-line);
+  text-align: center;
+  font-family: "Changa", sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 1.05rem + 1.5vw, 2.1rem);
+  line-height: 1.35;
+  color: var(--nx-text);
+}
+
+body.edu-nexus .hpx-statement em {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--nx-lime);
+}
+body.edu-nexus .hpx-also { color: var(--nx-muted); font-size: 0.95rem; }
+
+/* Narrow screens: no ring. The discs become cards, one under another, in
+   the order the overview gives them. */
+@media (max-width: 991.98px) {
+  .hpx-compass {
+    width: auto;
+    aspect-ratio: auto;
+    container-type: normal;
+    display: grid;
+    gap: 1.1rem;
+    margin: 2rem 0 1rem;
+  }
+  .hpx-compass::before,
+  .hpx-ring,
+  .hpx-orbit,
+  .hpx-core { display: none; }
+  .hpx-card {
+    position: static;
+    width: auto;
+    height: auto;
+    transform: none;
+    align-items: flex-start;
+    text-align: left;
+    padding: 1.3rem 1.4rem;
+    border-radius: 16px;
+    font-size: 1rem;
+    box-shadow: 0 14px 34px -22px rgba(0, 0, 0, 0.8);
+  }
+  .hpx-card:hover,
+  .hpx-card:focus-within { transform: translateY(-3px); }
+  body.edu-nexus .hpx-card p { max-width: none; }
+  body.edu-nexus .hpx-card .hpx-links { justify-content: flex-start; }
+}}
+
+/* ---------- Meet with Experts ---------- */
+.mx-intro { max-width: 72ch; margin-bottom: 2.5rem; }
+.mx-intro { --hpx-dir: var(--hpx-up); }
+
+body.edu-nexus .mx-intro-lead {
+  font-size: 1.12rem;
+  line-height: 1.6;
+  color: var(--nx-text);
+}
+
+.mx-card {
+  margin: 0 0 2.75rem;
+  padding: 2rem;
+  border-radius: 18px;
+  border: 1px solid var(--nx-line);
+  background: var(--nx-panel);
+  box-shadow: 0 20px 44px -28px rgba(0, 0, 0, 0.85);
+  scroll-margin-top: 104px;
+}
+
+.mx-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+/* The photo sits in an .edu-gallery only so edu-lightbox.js opens it full
+   size on click; none of the gallery's strip layout applies here. */
+.edu-gallery.mx-photo {
+  display: block;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.edu-gallery.mx-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 14px;
+  cursor: zoom-in;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.edu-gallery.mx-photo img:hover { transform: scale(1.03); }
+
+.mx-tag {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--nx-mint);
+  color: var(--nx-mint);
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mx-tag-industry { border-color: var(--nx-blue-up); color: var(--nx-blue-up); }
+
+body.edu-nexus .mx-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.35rem, 1.05rem + 1.1vw, 1.85rem);
+  line-height: 1.2;
+  color: var(--nx-mint);
+  margin: 0.8rem 0 1rem;
+}
+
+body.edu-nexus .mx-who { margin: 0; font-size: 1.1rem; color: var(--nx-text); }
+body.edu-nexus .mx-who strong { color: var(--nx-text); }
+body.edu-nexus .mx-role { margin: 0.35rem 0 0; color: var(--nx-muted); line-height: 1.5; }
+
+.mx-org { display: flex; align-items: center; gap: 0.8rem; }
+
+.mx-logo {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  padding: 6px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+body.edu-nexus .mx-meta-date {
+  margin: 0.9rem 0 0;
+  color: var(--nx-text);
+}
+
+.mx-meta-date span {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.mx-body { max-width: 75ch; }
+body.edu-nexus .mx-body p { line-height: 1.7; }
+
+.mx-advice {
+  margin-top: 1.75rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  border-left: 3px solid var(--nx-lime);
+  background: rgba(160, 232, 96, 0.06);
+}
+
+body.edu-nexus .mx-advice-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-lime);
+  margin: 0 0 0.75rem;
+}
+
+.mx-advice ol {
+  list-style: none;
+  counter-reset: mx;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.mx-advice li {
+  counter-increment: mx;
+  position: relative;
+  padding-left: 2.4rem;
+  line-height: 1.5;
+}
+
+.mx-advice li::before {
+  content: counter(mx);
+  position: absolute;
+  left: 0;
+  top: -0.05rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--nx-lime);
+  color: var(--nx-ground);
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+body.edu-nexus .mx-advice li strong { color: var(--nx-text); }
+body.edu-nexus .mx-advice-link { margin: 1rem 0 0; color: var(--nx-muted); font-size: 0.95rem; }
+
+@media (max-width: 767.98px) {
+  .mx-card { padding: 1.25rem; }
+  .mx-head { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+}
+
+/* ---------- Survey ---------- */
+.sv-intro { --hpx-dir: var(--hpx-back); margin-bottom: 1rem; }
+.sv-intro > p:not(.hpx-kicker) { max-width: 75ch; }
+
+body.edu-nexus .sv-title,
+body.edu-nexus .sv-section h2 {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  color: var(--nx-mint);
+}
+
+body.edu-nexus .sv-title {
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+  margin: 0 0 1.5rem;
+}
+
+body.edu-nexus .sv-date {
+  margin: -0.9rem 0 1.5rem;
+  color: var(--nx-text);
+}
+
+.sv-date span {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.sv-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0 0 2rem;
+}
+
+.sv-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 14px;
+  border: 1px solid var(--nx-line);
+  border-top: 3px solid var(--nx-warm);
+  background: var(--nx-panel);
+}
+
+.sv-stat-n {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.7rem, 1.3rem + 1.2vw, 2.3rem);
+  line-height: 1;
+  color: var(--nx-warm);
+  font-variant-numeric: tabular-nums;
+}
+
+body.edu-nexus .sv-stat-label { color: var(--nx-muted); font-size: 0.9rem; line-height: 1.4; }
+
+.sv-section {
+  padding: 2.25rem 0 0.5rem;
+  border-top: 1px solid var(--nx-line);
+  margin-top: 1.5rem;
+  scroll-margin-top: 104px;
+}
+
+body.edu-nexus .sv-section h2 {
+  font-size: clamp(1.35rem, 1.1rem + 0.9vw, 1.8rem);
+  margin: 0 0 1rem;
+}
+
+.sv-section > p { max-width: 75ch; }
+
+@media (max-width: 991.98px) {
+  .sv-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 479.98px) {
+  .sv-stats { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hpx-card,
+  .edu-gallery.mx-photo img { transition: none; }
+  .hpx-orbit { animation: none; }
+  /* The discs are centred on the ring by their transform, so hovering keeps
+     that and only drops the grow. */
+  .hpx-card:hover,
+  .hpx-card:focus-within { transform: translate(-50%, -50%); }
+  .edu-gallery.mx-photo img:hover { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 991.98px) {
+  .hpx-card:hover,
+  .hpx-card:focus-within { transform: none; }
+}
+
+/* ============================================================
+   The hub's lower half: figures, what we heard / what we did,
+   the year, and photos. Every item carries its direction's colour
+   as --hpx-dir, set inline.
+   ============================================================ */
+.hpx-section {
+  margin: 5rem 0 0;
+  scroll-margin-top: 104px;
+}
+
+body.edu-nexus .hpx-eyebrow {
+  margin: 0 0 0.4rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nx-lime);
+}
+
+body.edu-nexus .hpx-h2 {
+  margin: 0 0 0.8rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 1.2rem + 1.5vw, 2.4rem);
+  line-height: 1.15;
+  color: var(--nx-mint);
+}
+
+body.edu-nexus .hpx-section-lead {
+  max-width: 62ch;
+  margin: 0 0 2rem;
+  color: var(--nx-muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+/* ---------- figures ---------- */
+.hpx-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 4rem 0 0;
+}
+
+.hpx-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.4rem 1.3rem 1.3rem;
+  border-radius: 16px;
+  border: 1px solid var(--nx-line);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--hpx-dir) 10%, var(--nx-panel)), var(--nx-panel) 60%);
+  text-decoration: none;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.22s ease;
+}
+
+.hpx-stat:hover,
+.hpx-stat:focus-visible {
+  transform: translateY(-3px);
+  border-color: var(--hpx-dir);
+}
+
+.hpx-stat-n {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 1.6rem + 2vw, 3.2rem);
+  line-height: 1;
+  color: var(--hpx-dir);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 22px color-mix(in srgb, var(--hpx-dir) 40%, transparent);
+}
+
+body.edu-nexus .hpx-stat-label {
+  color: var(--nx-muted);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+/* ---------- what we heard, what we did ---------- */
+.hpx-loop {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.hpx-loop-row {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr) minmax(0, 1fr) 2.75rem;
+  gap: 1.5rem 2.5rem;
+  align-items: center;
+  padding: 1.25rem 1.4rem;
+  border-radius: 16px;
+  border: 1px solid var(--nx-line);
+  border-left: 4px solid var(--hpx-dir);
+  background: var(--nx-panel);
+}
+
+.hpx-loop-src {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+body.edu-nexus .hpx-loop-who {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.02rem;
+  line-height: 1.25;
+  color: var(--nx-text);
+}
+
+body.edu-nexus .hpx-loop-when { color: var(--nx-muted); font-size: 0.85rem; }
+
+.hpx-loop-heard,
+.hpx-loop-did { position: relative; }
+
+/* the arrow from what we heard to what we did */
+.hpx-loop-did::before {
+  content: "\2192";
+  position: absolute;
+  left: -1.25rem;            /* the middle of the 2.5rem column gap */
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--hpx-dir);
+  font-size: 1.2rem;
+}
+
+body.edu-nexus .hpx-loop-k {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+body.edu-nexus .hpx-loop-did .hpx-loop-k { color: var(--hpx-dir); }
+
+body.edu-nexus .hpx-loop-row p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+body.edu-nexus .hpx-loop-heard p { color: var(--nx-muted); }
+body.edu-nexus .hpx-loop-did p { color: var(--nx-text); }
+
+body.edu-nexus .hpx-loop-go {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--hpx-dir);
+  color: var(--hpx-dir);
+  font-size: 1.15rem;
+  text-decoration: none;
+  transition: background-color 0.22s ease, color 0.22s ease;
+}
+
+body.edu-nexus .hpx-loop-go:hover,
+body.edu-nexus .hpx-loop-go:focus-visible {
+  background: var(--hpx-dir);
+  color: var(--nx-ground);
+}
+
+/* ---------- the year ---------- */
+.hpx-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  margin: 0 0 2rem;
+  padding: 0;
+}
+
+body.edu-nexus .hpx-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hpx-dir);
+}
+
+.hpx-legend-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--hpx-dir);
+  box-shadow: 0 0 8px var(--hpx-dir);
+}
+
+/* Two columns either side of a spine. Each event spans two grid rows and
+   the next one starts a row lower on the other side, so the two columns
+   interlock instead of leaving a gap beside every card. */
+.hpx-year {
+  --hpx-gap: 4rem;
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: var(--hpx-gap);
+}
+
+.hpx-year::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(var(--hpx-down), var(--hpx-up) 33%, var(--hpx-fwd) 66%, var(--hpx-back));
+  opacity: 0.5;
+}
+
+.hpx-event {
+  position: relative;
+  padding: 0.45rem 0;
+}
+
+.hpx-event:nth-child(odd)  { grid-column: 1; }
+.hpx-event:nth-child(even) { grid-column: 2; }
+
+/* the dot on the spine, level with the date */
+.hpx-event::after {
+  content: "";
+  position: absolute;
+  top: 1.45rem;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--hpx-dir);
+  border: 3px solid var(--nx-ground);
+  box-shadow: 0 0 10px var(--hpx-dir);
+}
+
+.hpx-event:nth-child(odd)::after  { right: calc(var(--hpx-gap) / -2 - 6.5px); }
+.hpx-event:nth-child(even)::after { left:  calc(var(--hpx-gap) / -2 - 6.5px); }
+
+.hpx-event-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.8rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid var(--nx-line);
+  background: var(--nx-panel);
+  text-decoration: none;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.22s ease;
+}
+
+.hpx-event:nth-child(odd) .hpx-event-card  { border-right: 3px solid var(--hpx-dir); }
+.hpx-event:nth-child(even) .hpx-event-card { border-left: 3px solid var(--hpx-dir); }
+
+.hpx-event-card:hover,
+.hpx-event-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--hpx-dir);
+}
+
+.hpx-event-when {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--hpx-dir);
+  font-variant-numeric: tabular-nums;
+}
+
+.hpx-event-dir {
+  justify-self: end;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hpx-dir);
+  opacity: 0.85;
+}
+
+body.edu-nexus .hpx-event-what {
+  grid-column: 1 / -1;
+  color: var(--nx-text);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* ---------- moments ---------- */
+.hpx-moments {
+  position: relative;
+  overflow: hidden;
+  margin: 1.5rem 0 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+
+.hpx-moments-track {
+  display: flex;
+  width: max-content;
+  animation: hpx-drift 80s linear infinite;
+}
+
+.hpx-moments:hover .hpx-moments-track,
+.hpx-moments:focus-within .hpx-moments-track { animation-play-state: paused; }
+
+@keyframes hpx-drift { to { transform: translateX(-50%); } }
+
+.hpx-moments-set {
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.5rem 1rem 0.5rem 0;
+  list-style: none;
+}
+
+.hpx-moment {
+  position: relative;
+  display: block;
+  width: 17rem;
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--nx-line);
+  text-decoration: none;
+}
+
+.hpx-moment img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hpx-moment:hover img,
+.hpx-moment:focus-visible img { transform: scale(1.06); }
+
+.hpx-moment-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.6rem 0.9rem 0.7rem;
+  background: linear-gradient(transparent, rgba(8, 22, 28, 0.88));
+  color: #fff;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+/* ---------- narrow screens ---------- */
+@media (max-width: 991.98px) {
+  .hpx-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .hpx-loop-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+  .hpx-loop-did::before { content: none; }
+  body.edu-nexus .hpx-loop-go { justify-self: end; }
+
+  /* one column, the spine down the left */
+  .hpx-year {
+    grid-template-columns: minmax(0, 1fr);
+    padding-left: 1.75rem;
+  }
+  .hpx-year::before { left: 0.45rem; transform: none; }
+  .hpx-event:nth-child(odd),
+  .hpx-event:nth-child(even) { grid-column: 1; grid-row: auto !important; }
+  .hpx-event:nth-child(odd)::after,
+  .hpx-event:nth-child(even)::after { left: calc(-1.75rem + 0.45rem - 5.5px); right: auto; }
+  .hpx-event:nth-child(odd) .hpx-event-card { border-right: 1px solid var(--nx-line); border-left: 3px solid var(--hpx-dir); }
+
+  .hpx-moment { width: 13rem; }
+}
+
+@media (max-width: 479.98px) {
+  .hpx-stats { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hpx-stat,
+  .hpx-event-card,
+  .hpx-moment img { transition: none; }
+  .hpx-stat:hover,
+  .hpx-stat:focus-visible,
+  .hpx-event-card:hover,
+  .hpx-event-card:focus-visible,
+  .hpx-moment:hover img,
+  .hpx-moment:focus-visible img { transform: none; }
+  /* no drift: one copy of the photos, scrolled by hand */
+  .hpx-moments { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .hpx-moments-track { animation: none; }
+  .hpx-moments-set[aria-hidden="true"] { display: none; }
+}

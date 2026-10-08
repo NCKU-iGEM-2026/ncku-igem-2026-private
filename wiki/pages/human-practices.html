@@ -3,6 +3,7 @@
 {% block title %}Human Practices{% endblock %}
 {# subtitle, not published -- replace with a real one when there is one:
    一些其他計畫放這裡 #}
+{% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/human.avif{% endblock %}
 {% block lead %}{% endblock %}
 
 {# The same deep-teal treatment Hardware uses. Everything it switches on
@@ -10,6 +11,8 @@
    in style.css, and overrides the light theme rather than replacing it --
    deleting this one line puts the page back as it was. #}
 {% block body_class %}edu-nexus{% endblock %}
+
+{% block page_css %}<link href="{{ url_for('static', filename = 'css/pages/hp-hub.css') }}" rel="stylesheet">{% endblock %}
 
 {% block page_content %}
 
@@ -25,374 +28,315 @@
 </div>
 
 {#
-  Shaped after the 2019 NCKU_Tainan Human Practices page, which sorts its
-  conversations by who was on the other side of them -- experts, enterprises,
-  government bodies -- opens with a card per category, and gives every entry a
-  date, the person or company, what was discussed, and what it changed.
+  The front door of our Human Practices. The write-ups themselves live on the
+  subpages; this page says why, then sends the reader the way they want to go.
 
-  Their structure, not their words: everything written here is ours.
+  Text from the team (2026-10-07), translated from Chinese and lightly edited;
+  the four directions and what each one did are theirs.
 
-  The layout is the one Collaboration, Promotion and Education already use: a
-  sticky sidebar of entries beside the entries themselves. A new conversation
-  is a line in the card at the top, a link in the sidebar, and a section here.
+  The ring: our project, Capture, at the centre, and the four directions on
+  a circle around it, each where its arrow points -- Rising (upward, to the
+  experts) at the top, Rooting (downward, into the schools) at the bottom,
+  Reaching (forward, onto the stage) on the right, Returning (backward, to the
+  public) on the left. The four words replace "upward / downward / forward /
+  backward" and keep their meaning: roots go down, a plant rises up, branches
+  reach out, and what grows returns to the ground it came from.
 
-  UNFINISHED: four of the five expert interviews are placeholders waiting on
-  their write-ups, and each one says what it needs.
-  Anything still carrying .hp-todo must be filled in or deleted before this
-  page is published -- a blank entry on a judged page is worse than no entry.
+  The ring is coloured with the four directions' own colours, blending from
+  one to the next, and a few AHL dots travel round it -- the loading
+  screen's ring, the signal Capture listens for. Each disc links to the
+  subpages where that direction is written up; a new subpage is one more
+  .hpx-link in its disc. Below 992px the ring goes and the discs stack as
+  cards in the order the text gives them. Every drawing is inline SVG in
+  currentColor, so the disc's colour carries it.
 #}
-<div class="edu-detail-layout">
-  <aside class="edu-sidebar">
+<section id="session-overview" class="hpx-overview">
+  <h2 class="h3">Overview</h2>
+  <p class="hp-slogan">From Lab to Society</p>
+  <p>As scientists, we can lose sight of the world outside the lab. An innovation that succeeds at the bench is not automatically one that works in the real world, and the knowledge and spirit of the lab do not always reach the society around it. So one question stayed with us all year: how can our technology actually serve society, and how can more people come to understand what we are doing?</p>
+  <p>That is why this year NCKU-Tainan put Integrated Human Practices (IHP) at the centre of our work, and took it in four directions. Choose one to follow it.</p>
+</section>
 
-    <div class="edu-sidebar-group" data-group="overview">
-      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-overview" data-target="session-overview">Overview</a>
-    </div>
+<nav class="hpx-compass" aria-label="Our Human Practices, in four directions">
 
-    <div class="edu-sidebar-group" data-group="experts">
-      <p class="edu-sidebar-group-title">Expert interviews</p>
-      <ul class="edu-sidebar-list">
-        <li><a class="edu-sidebar-link" href="#session-expert-1" data-target="session-expert-1">Prof. Tsunglin Liu</a></li>
-        <li><a class="edu-sidebar-link" href="#session-expert-2" data-target="session-expert-2">Expert 2</a></li>
-        <li><a class="edu-sidebar-link" href="#session-expert-3" data-target="session-expert-3">Expert 3</a></li>
-        <li><a class="edu-sidebar-link" href="#session-expert-4" data-target="session-expert-4">Expert 4</a></li>
-        <li><a class="edu-sidebar-link" href="#session-expert-5" data-target="session-expert-5">Expert 5</a></li>
-      </ul>
-    </div>
-
-    <div class="edu-sidebar-group" data-group="enterprise">
-      <p class="edu-sidebar-group-title">Enterprise interviews</p>
-      <ul class="edu-sidebar-list">
-        <li><a class="edu-sidebar-link" href="#session-aiweili" data-target="session-aiweili">Ai Wei Li Laser Engraving Studio</a></li>
-      </ul>
-    </div>
-
-    <div class="edu-sidebar-group" data-group="survey">
-      <p class="edu-sidebar-group-title">Survey</p>
-      <ul class="edu-sidebar-list">
-        <li><a class="edu-sidebar-link" href="#session-survey" data-target="session-survey">Public survey</a></li>
-      </ul>
-    </div>
-  </aside>
-
-  <div class="edu-sessions">
-
-  {# Overview first, ahead of the map, so the page says why before it says
-     who. Text from the team (2026-10-07), translated from Chinese and lightly
-     edited; the four directions and what each one did are theirs. Each
-     direction links to where that work is written up. #}
-  <section id="session-overview" class="edu-session-block edu-overview-block">
-    <h2 class="h3">Overview</h2>
-    <p class="hp-slogan">From Lab to Society</p>
-    <p>As scientists, we can lose sight of the world outside the lab. An innovation that succeeds at the bench is not automatically one that works in the real world, and the knowledge and spirit of the lab do not always reach the society around it. So one question stayed with us all year: how can our technology actually serve society, and how can more people come to understand what we are doing?</p>
-    <p>That is why this year NCKU-Tainan put Integrated Human Practices (IHP) at the centre of our work, and took it in four directions:</p>
-    <ul class="hp-directions">
-      <li><strong>Downward</strong> &mdash; into schools at every level, where we explained our project and used science education to show students the appeal of science and what synthetic biology can do. See <a href="{{ url_for('pages', page='education') }}">Education</a>.</li>
-      <li><strong>Upward</strong> &mdash; to experts with professional backgrounds, asking them for the strengths and weaknesses of our project, and using that two-way discussion to find where to improve. See the <a href="#session-expert-1">expert interviews</a> below.</li>
-      <li><strong>Forward</strong> &mdash; onto the stage, through <a href="{{ url_for('pages', page='collaboration') }}">Collaboration</a> and <a href="{{ url_for('pages', page='promotion') }}">Promotion</a>, presenting our project to the public, NCKU students and other iGEM teams, and listening to what they thought.</li>
-      <li><strong>Backward</strong> &mdash; to the wider public, where a <a href="#session-survey">survey</a> showed us what people think about <em>Pseudomonas aeruginosa</em> infection, gene editing, and gene-edited bacterial drugs.</li>
-    </ul>
-    <p><em>From Lab to Society</em> is not only where our Human Practices began; it is what we hope for science itself &mdash; that it has no boundaries, and that it truly connects with society.</p>
-    <p>The rest of our human practices work has pages of its own &mdash; the schools and workshops on <a href="{{ url_for('pages', page='education') }}">Education</a>, the other iGEM teams on <a href="{{ url_for('pages', page='collaboration') }}">Collaboration</a>, the talks and sharing sessions on <a href="{{ url_for('pages', page='promotion') }}">Promotion</a>, and the SDG game on <a href="{{ url_for('pages', page='board-game') }}">Board Game</a>.</p>
-  </section>
-
-  {#
-    The map of the page, the way the 2019 page opens: one card per kind of
-    conversation, every line a link down to the write-up. Add an entry here at
-    the same time as you add it to the sidebar, or the two stop agreeing.
-  #}
-  <nav class="hp-map" aria-label="Human practices by who we spoke to">
-    <div class="hp-map-card">
-      {# Expert: a person and a speech bubble. #}
-      <svg class="hp-map-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="22" cy="22" r="9"/>
-        <path d="M6 54c0-8.8 7.2-16 16-16s16 7.2 16 16"/>
-        <path d="M41 8h15a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4h-9l-7 6v-6h-0.5"/>
-        <circle cx="45" cy="18" r="1.7" fill="currentColor" stroke="none"/>
-        <circle cx="50" cy="18" r="1.7" fill="currentColor" stroke="none"/>
-        <circle cx="55" cy="18" r="1.7" fill="currentColor" stroke="none"/>
-      </svg>
-      <h3 class="hp-map-title">Expert Interviews</h3>
-      <ul class="hp-map-list">
-        <li><a href="#session-expert-1">Prof. Tsunglin Liu</a></li>
-        <li><a href="#session-expert-2">Expert 2</a></li>
-        <li><a href="#session-expert-3">Expert 3</a></li>
-        <li><a href="#session-expert-4">Expert 4</a></li>
-        <li><a href="#session-expert-5">Expert 5</a></li>
-      </ul>
-    </div>
-
-    <div class="hp-map-card hp-map-card-enterprise">
-      {# Enterprise: a tall building and two annexes on a ground line. #}
-      <svg class="hp-map-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M4 56h56"/>
-        <path d="M24 56V10h24v46"/>
-        <path d="M8 56V28h16"/>
-        <path d="M48 56V34h8v22"/>
-        <path d="M30 20h4M38 20h4M30 30h4M38 30h4M30 40h4M38 40h4"/>
-        <path d="M13 36h6M13 45h6"/>
-      </svg>
-      <h3 class="hp-map-title">Enterprise Interviews</h3>
-      <ul class="hp-map-list">
-        <li><a href="#session-aiweili">Ai Wei Li Laser Engraving Studio</a></li>
-      </ul>
-    </div>
-
-    <div class="hp-map-card hp-map-card-survey">
-      {# Survey: a clipboard, two answers given and one still blank. #}
-      <svg class="hp-map-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M24 10h-6a4 4 0 0 0-4 4v38a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4V14a4 4 0 0 0-4-4h-6"/>
-        <rect x="24" y="6" width="16" height="8" rx="2"/>
-        <path d="M21 26l3 3 5-6"/>
-        <path d="M34 27h12"/>
-        <path d="M21 38l3 3 5-6"/>
-        <path d="M34 39h12"/>
-        <rect x="20" y="46" width="7" height="7" rx="1.5"/>
-        <path d="M34 50h12"/>
-      </svg>
-      <h3 class="hp-map-title">Survey</h3>
-      <ul class="hp-map-list">
-        <li><a href="#session-survey">Public survey</a></li>
-      </ul>
-    </div>
-  </nav>
-
-  {#
-    PLACEHOLDER x5. For each interview, replace the heading with the person's
-    name and fill in:
-      - Date          the day you met, written like "June 10, 2026"
-      - Affiliation   their title and institution, under the heading
-      - Photo         an .edu-gallery block, once the photo is on static.igem.wiki
-      - The body      what you asked, what they told you, and -- the part the
-                      judges are reading for -- what you changed because of it,
-                      linked to the page where that change shows.
-    Delete any of the five you do not need; add more by copying one.
-  #}
-  {# Write-up and photo from the team (2026-10-07): Prof. Tsunglin Liu (劉宗霖),
-     Chair of the Department of Biotechnology and Bioindustry Sciences at NCKU.
-     The DNA paragraph comes before the sensor one, at the team's request, and
-     the wording was lightly edited; what was said is unchanged. Still missing:
-     the date of the interview -- add it as a <p><strong>Date:</strong> ...</p>
-     line under the Expert line, the way the Ai Wei Li section has it. #}
-  <section id="session-expert-1" class="edu-session-block">
-    <h2 class="h3">Designing for the clinic: priorities, DNA stability and sensor choice</h2>
-    <p><strong>Expert:</strong> Prof. Tsunglin Liu, Chair of the Department of Biotechnology and Bioindustry Sciences, National Cheng Kung University</p>
-    <p>Prof. Liu began by asking us what we value most in designing and developing our hardware. Weighing the current needs of medical testing, we settled on three priorities: low cost, speed and convenience, with the aim of a testing method that is both accessible and efficient.</p>
-    <p>Prof. Liu also suggested that we collect and analyze the relevant DNA sequences, so that we can anticipate how enzymes present in patient samples might degrade them. Doing so would help us choose suitable sequences and make our system more stable and reliable for future clinical use.</p>
-    <p>On the hardware design itself, Prof. Liu encouraged us to explore a wider range of sensors and to make use of their different detection thresholds and characteristics. Experimenting with different sensing mechanisms may reveal new ways to improve the performance of our detection system.</p>
-
-    {# One photo: education-gallery.js leaves a gallery of fewer than two
-       alone, so it is a plain picture, as in the Ai Wei Li section. #}
-    <div class="edu-gallery">
-      <img src="https://static.igem.wiki/teams/6379/wiki/communication/head-of-biotechnology-department.avif" alt="Prof. Tsunglin Liu (centre) with four members of our team in the professor's office" loading="lazy">
-    </div>
-  </section>
-
-  <section id="session-expert-2" class="edu-session-block">
-    <h2 class="h3">Expert 2</h2>
-    <p class="hp-todo">Name, affiliation, date and write-up to come.</p>
-  </section>
-
-  <section id="session-expert-3" class="edu-session-block">
-    <h2 class="h3">Expert 3</h2>
-    <p class="hp-todo">Name, affiliation, date and write-up to come.</p>
-  </section>
-
-  <section id="session-expert-4" class="edu-session-block">
-    <h2 class="h3">Expert 4</h2>
-    <p class="hp-todo">Name, affiliation, date and write-up to come.</p>
-  </section>
-
-  <section id="session-expert-5" class="edu-session-block">
-    <h2 class="h3">Expert 5</h2>
-    <p class="hp-todo">Name, affiliation, date and write-up to come.</p>
-  </section>
-
-  <section id="session-aiweili" class="edu-session-block">
-    <div class="edu-section-header">
-      <h2 class="h3">Ai Wei Li Laser Engraving Studio: the hardware shell</h2>
-      <img src="https://static.igem.wiki/teams/6379/wiki/communication/aiweili.avif" alt="Ai Wei Li Laser Engraving Studio logo" class="edu-logo">
-    </div>
-    <p><strong>Date:</strong> September 10, 2026</p>
-    <p>While developing the hardware, thought was put into using cost-effective and reusable materials. Therefore, 3D printing and laser cutting were considered as methods of hardware fabrication. Within the period between July and August, a number of materials and designs were used for the hardware case. Nevertheless, most prototypes could not meet the requirements with respect to strength and efficiency.</p>
-    <p>In order to improve the design, professional consultation was obtained through working with Ai Wei Li (Laser Engraving Studio). The design files were discussed at the studio, and valuable advice was received concerning material choice and fabrication process. Firstly, it should be pointed out that each substance has its own properties and they should be taken into account during the device construction, including light reflection. The importance of the thickness of the material was stressed, especially at the places where different elements are connected, because the incorrect connection may cause light leakage.</p>
-    <p>Furthermore, assembly and adjustment of the hardware were performed at the studio under the on-site support of the manufacturer.</p>
-
-    {# One photo for now: education-gallery.js leaves a gallery of fewer than
-       two alone, so this stays a plain picture until a second one joins it and
-       turns the block into the carousel the other pages have. #}
-    <div class="edu-gallery">
-      <img src="https://static.igem.wiki/teams/6379/wiki/communication/communication2.avif" alt="Our team with Ai Wei Li Laser Engraving Studio at the studio" loading="lazy">
-    </div>
-  </section>
-
-  <section id="session-survey" class="edu-session-block">
-    <h2 class="h3">2026 NCKU iGEM Capture Survey</h2>
-    <p>Genetically Modified Organisms (GMOs) are becoming increasingly prevalent due to their vast potential across various sectors, particularly in medicine and pharmaceuticals. However, significant misconceptions and controversies continue to surround them. While the majority of the scientific community advocates for the advancement of GMOs, public skepticism appears to be growing.</p>
-    <p>To better understand public perception of GMOs within the context of our Capture project, we designed a survey focusing on their application in treating <em>Pseudomonas aeruginosa</em> infections. We successfully distributed this survey to an international audience, ultimately collecting 376 responses.</p>
-    {# The eight charts below are drawn by static/hp-survey-pies.js from the
-       tables inside each figure, which hold the numbers: the responses to each
-       answer, out of 376, and the share they make. They come from the Google
-       Forms summaries that used to be shown here as screenshots
-       (education/survey-1..8.avif), and the team checked every count against
-       the survey data on 2026-10-07. #}
-    <p class="hp-pie-source">Charts redrawn from the Google Forms summary of all 376 responses.</p>
-
-    <h3>Population Sample</h3>
-    <p>To properly contextualize our findings, we first analyzed the demographics of our 376 respondents. The data (Figure 1) reveals a predominantly young demographic, with 83.3% of participants being 25 years old or younger, which includes 26.1% under 18 and 57.2% aged 18 to 25. Furthermore, we were encouraged to see that a vast majority of respondents have attained at least a high school level of education, with 59.8% holding a senior high school diploma and 28.7% possessing a bachelor's degree (Figure 2). Interestingly, despite this high baseline of general education, only 23.9% of participants reported having a scientific background (Figure 3).</p>
-
-    <div class="hp-figure-grid hp-figure-grid-2">
-      <figure class="hp-figure hp-pie" data-pie="ordinal" data-total="376">
-        <div class="hp-pie-table">
-          <table>
-            <caption>Age distribution, 376 responses</caption>
-            <thead><tr><th scope="col">Answer</th><th scope="col">Responses</th><th scope="col">Share</th></tr></thead>
-            <tbody>
-            <tr><th scope="row">Under 18</th><td>98</td><td>26.1%</td></tr>
-            <tr><th scope="row">18–25</th><td>215</td><td>57.2%</td></tr>
-            <tr><th scope="row">26–40</th><td>26</td><td>6.9%</td></tr>
-            <tr><th scope="row">41–65</th><td>34</td><td>9.0%</td></tr>
-            <tr><th scope="row">Over 65</th><td>3</td><td>0.8%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <figcaption>Figure 1. Age distribution</figcaption>
-      </figure>
-      <figure class="hp-figure hp-pie" data-pie="ordinal" data-total="376">
-        <div class="hp-pie-table">
-          <table>
-            <caption>Highest education level, 376 responses</caption>
-            <thead><tr><th scope="col">Answer</th><th scope="col">Responses</th><th scope="col">Share</th></tr></thead>
-            <tbody>
-            <tr><th scope="row">Junior high</th><td>23</td><td>6.1%</td></tr>
-            <tr><th scope="row">Senior high</th><td>225</td><td>59.8%</td></tr>
-            <tr><th scope="row">Bachelor’s</th><td>108</td><td>28.7%</td></tr>
-            <tr><th scope="row">Master’s</th><td>16</td><td>4.3%</td></tr>
-            <tr><th scope="row">Doctorate</th><td>4</td><td>1.1%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <figcaption>Figure 2. Highest education level</figcaption>
-      </figure>
-      <figure class="hp-figure hp-pie" data-pie="nominal" data-total="376">
-        <div class="hp-pie-table">
-          <table>
-            <caption>Background, 376 responses</caption>
-            <thead><tr><th scope="col">Answer</th><th scope="col">Responses</th><th scope="col">Share</th></tr></thead>
-            <tbody>
-            <tr><th scope="row">Science</th><td>90</td><td>23.9%</td></tr>
-            <tr><th scope="row">Engineering</th><td>71</td><td>18.9%</td></tr>
-            <tr><th scope="row">Business</th><td>19</td><td>5.1%</td></tr>
-            <tr><th scope="row">Others</th><td>196</td><td>52.1%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <figcaption>Figure 3. Background</figcaption>
-      </figure>
-    </div>
-
-    <h3>Knowledge on Infection</h3>
-    <p>To begin our analysis, we sought to assess the general public's baseline understanding of <em>Pseudomonas aeruginosa</em> infections. We designed specific questions to gauge their familiarity with the pathogen. Surprisingly, only 37% of respondents had ever heard of <em>P. aeruginosa</em> (see Figure 4), and a mere 0.8% considered themselves to be well-informed about the infections it causes (see Figure 5).</p>
-
-    <div class="hp-figure-grid hp-figure-grid-2">
-      <figure class="hp-figure hp-pie" data-pie="nominal" data-total="376">
-        <div class="hp-pie-table">
-          <table>
-            <caption>Have you heard of <em>P. aeruginosa</em> infections?, 376 responses</caption>
-            <thead><tr><th scope="col">Answer</th><th scope="col">Responses</th><th scope="col">Share</th></tr></thead>
-            <tbody>
-            <tr><th scope="row">Yes</th><td>139</td><td>37.0%</td></tr>
-            <tr><th scope="row">No</th><td>237</td><td>63.0%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <figcaption>Figure 4. Have you heard of <em>P. aeruginosa</em> infections?</figcaption>
-      </figure>
-      <figure class="hp-figure hp-pie" data-pie="diverging" data-total="376">
-        <div class="hp-pie-table">
-          <table>
-            <caption>Understanding of <em>P. aeruginosa</em> infections, 376 responses</caption>
-            <thead><tr><th scope="col">Answer</th><th scope="col">Responses</th><th scope="col">Share</th></tr></thead>
-            <tbody>
-            <tr><th scope="row">1 – I don’t know</th><td>258</td><td>68.6%</td></tr>
-            <tr><th scope="row">2</th><td>73</td><td>19.4%</td></tr>
-            <tr><th scope="row">3</th><td>34</td><td>9.0%</td></tr>
-            <tr><th scope="row">4</th><td>8</td><td>2.1%</td></tr>
-            <tr><th scope="row">5 – Very knowledgeable</th><td>3</td><td>0.8%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <figcaption>Figure 5. Understanding of <em>P. aeruginosa</em> infections</figcaption>
-      </figure>
-    </div>
-
-    <p>These findings underscored a significant knowledge gap regarding <em>Pseudomonas aeruginosa</em> among the general public. Recognizing this lack of awareness directly inspired our team to take action. Consequently, we launched interactive workshops and community outreach programs designed to educate the public about these infections through an engaging, hands-on approach.</p>
-
-    <h3>Living Therapeutic Acceptance</h3>
-    <p>Following our evaluation of public awareness, we sought to assess the respondents' acceptance of "living therapeutics" &mdash; specifically, the use of engineered bacteria as medical treatments. To achieve this, we posed several questions regarding their stance on genetic modification and gene-edited drugs.</p>
-    <p>The survey revealed a cautious public attitude. Only 48.4% of the participants expressed support for genetic engineering or modification in general (combining level 4 and 5 support), while a significant portion, 39.9%, remained entirely neutral (see Figure 6). Interestingly, when asked specifically about the development of gene-edited bacterial drugs (see Figure 7), support increased slightly to 63.6% (combining level 4 and 5 support). However, when it came to the actual use of these bacterial drugs on themselves (see Figure 8), the acceptance rate dropped to 58.5% (combining level 4 and 5 acceptance).</p>
-
-    <div class="hp-figure-grid hp-figure-grid-2">
-      <figure class="hp-figure hp-pie" data-pie="diverging" data-total="376">
-        <div class="hp-pie-table">
-          <table>
-            <caption>Support for genetic engineering, 376 responses</caption>
-            <thead><tr><th scope="col">Answer</th><th scope="col">Responses</th><th scope="col">Share</th></tr></thead>
-            <tbody>
-            <tr><th scope="row">1 – No support</th><td>11</td><td>2.9%</td></tr>
-            <tr><th scope="row">2</th><td>33</td><td>8.8%</td></tr>
-            <tr><th scope="row">3</th><td>150</td><td>39.9%</td></tr>
-            <tr><th scope="row">4</th><td>135</td><td>35.9%</td></tr>
-            <tr><th scope="row">5 – Strong support</th><td>47</td><td>12.5%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <figcaption>Figure 6. Support for genetic engineering</figcaption>
-      </figure>
-      <figure class="hp-figure hp-pie" data-pie="diverging" data-total="376">
-        <div class="hp-pie-table">
-          <table>
-            <caption>Support for gene-edited bacterial drugs, 376 responses</caption>
-            <thead><tr><th scope="col">Answer</th><th scope="col">Responses</th><th scope="col">Share</th></tr></thead>
-            <tbody>
-            <tr><th scope="row">1 – No support</th><td>7</td><td>1.9%</td></tr>
-            <tr><th scope="row">2</th><td>25</td><td>6.6%</td></tr>
-            <tr><th scope="row">3</th><td>105</td><td>27.9%</td></tr>
-            <tr><th scope="row">4</th><td>171</td><td>45.5%</td></tr>
-            <tr><th scope="row">5 – Strong support</th><td>68</td><td>18.1%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <figcaption>Figure 7. Support for gene-edited bacterial drugs</figcaption>
-      </figure>
-      <figure class="hp-figure hp-pie" data-pie="diverging" data-total="376">
-        <div class="hp-pie-table">
-          <table>
-            <caption>Willingness to use gene-edited bacterial drugs, 376 responses</caption>
-            <thead><tr><th scope="col">Answer</th><th scope="col">Responses</th><th scope="col">Share</th></tr></thead>
-            <tbody>
-            <tr><th scope="row">1 – Not acceptable</th><td>8</td><td>2.1%</td></tr>
-            <tr><th scope="row">2</th><td>27</td><td>7.2%</td></tr>
-            <tr><th scope="row">3</th><td>121</td><td>32.2%</td></tr>
-            <tr><th scope="row">4</th><td>145</td><td>38.6%</td></tr>
-            <tr><th scope="row">5 – Very acceptable</th><td>75</td><td>19.9%</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <figcaption>Figure 8. Willingness to use gene-edited bacterial drugs</figcaption>
-      </figure>
-    </div>
-
-    <p>From these responses, we deduced that a substantial portion of the population remains hesitant or neutral toward gene editing, particularly when these technologies are applied as direct medical treatments.</p>
-
-    <p>Overall, the results of this survey provided critical insights for our Capture project. The data clearly highlighted a dual challenge: a profound lack of public knowledge regarding <em>Pseudomonas aeruginosa</em> infections, coupled with persistent hesitancy toward genetically engineered living therapeutics. These findings proved that developing a great scientific solution is only half the battle. To ensure the future success and acceptance of our project, we realized we must actively engage with the community. This realization became the driving force behind our subsequent educational workshops and outreach programs, which aimed not only to inform the public about <em>P. aeruginosa</em> but also to demystify genetic engineering, thereby fostering a more informed and receptive society.</p>
-  </section>
-
+  <div class="hpx-ring" aria-hidden="true"></div>
+  <div class="hpx-orbit" aria-hidden="true">
+    <span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span><span style="--i:3"></span>
+    <span style="--i:4"></span><span style="--i:5"></span><span style="--i:6"></span><span style="--i:7"></span>
   </div>
-</div>
 
-<script src="{{ url_for('static', filename = 'education-sidebar.js') }}"></script>
-<script src="{{ url_for('static', filename = 'education-gallery.js') }}"></script>
-<script src="{{ url_for('static', filename = 'edu-lightbox.js') }}"></script>
-<script src="{{ url_for('static', filename = 'hp-survey-pies.js') }}"></script>
+  <article class="hpx-card hpx-down">
+    <span class="hpx-dir"><span class="hpx-dir-arrow" aria-hidden="true">&darr;</span> Rooting</span>
+    {# A school: a gabled building, a flag on the roof, a door. #}
+    <svg class="hpx-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M6 56h52"/>
+      <path d="M12 56V30l20-13 20 13v26"/>
+      <path d="M32 17V5l10 3.5L32 12"/>
+      <path d="M27 56V44h10v12"/>
+      <path d="M18 36h6M40 36h6M18 45h4M42 45h4"/>
+    </svg>
+    <h3 class="hpx-card-title">Into the schools</h3>
+    <p>Taking our project and synthetic biology into schools at every level.</p>
+    <p class="hpx-links">
+      <a class="hpx-link" href="{{ url_for('pages', page='education') }}">Education</a>
+      <a class="hpx-link" href="{{ url_for('pages', page='board-game') }}">Board Game</a>
+    </p>
+  </article>
+
+  <article class="hpx-card hpx-up">
+    <span class="hpx-dir"><span class="hpx-dir-arrow" aria-hidden="true">&uarr;</span> Rising</span>
+    {# An expert: a person and a speech bubble. #}
+    <svg class="hpx-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="22" cy="22" r="9"/>
+      <path d="M6 54c0-8.8 7.2-16 16-16s16 7.2 16 16"/>
+      <path d="M41 8h15a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4h-9l-7 6v-6h-0.5"/>
+      <circle cx="45" cy="18" r="1.7" fill="currentColor" stroke="none"/>
+      <circle cx="50" cy="18" r="1.7" fill="currentColor" stroke="none"/>
+      <circle cx="55" cy="18" r="1.7" fill="currentColor" stroke="none"/>
+    </svg>
+    <h3 class="hpx-card-title">To the experts</h3>
+    <p>Asking specialists for our project&rsquo;s strengths and weaknesses.</p>
+    <p class="hpx-links"><a class="hpx-link" href="{{ url_for('pages', page='meet-with-experts') }}">Meet with Experts</a></p>
+  </article>
+
+  <article class="hpx-card hpx-fwd">
+    <span class="hpx-dir"><span class="hpx-dir-arrow" aria-hidden="true">&rarr;</span> Reaching</span>
+    {# The stage: a microphone on its stand, sound coming off it. #}
+    <svg class="hpx-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="22" y="6" width="14" height="26" rx="7"/>
+      <path d="M16 24a13 13 0 0 0 26 0"/>
+      <path d="M29 37v12M20 56h18M29 49v7"/>
+      <path d="M47 12a12 12 0 0 1 0 16"/>
+      <path d="M53 7a19 19 0 0 1 0 26"/>
+    </svg>
+    <h3 class="hpx-card-title">Onto the stage</h3>
+    <p>Sharing Capture with the public, NCKU students and other iGEM teams.</p>
+    <p class="hpx-links">
+      <a class="hpx-link" href="{{ url_for('pages', page='collaboration') }}">Collaboration</a>
+      <a class="hpx-link" href="{{ url_for('pages', page='promotion') }}">Promotion</a>
+    </p>
+  </article>
+
+  <article class="hpx-card hpx-back-dir">
+    <span class="hpx-dir"><span class="hpx-dir-arrow" aria-hidden="true">&larr;</span> Returning</span>
+    {# The public: a clipboard, two answers given and one still blank. #}
+    <svg class="hpx-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M24 10h-6a4 4 0 0 0-4 4v38a4 4 0 0 0 4 4h28a4 4 0 0 0 4-4V14a4 4 0 0 0-4-4h-6"/>
+      <rect x="24" y="6" width="16" height="8" rx="2"/>
+      <path d="M21 26l3 3 5-6"/>
+      <path d="M34 27h12"/>
+      <path d="M21 38l3 3 5-6"/>
+      <path d="M34 39h12"/>
+      <rect x="20" y="46" width="7" height="7" rx="1.5"/>
+      <path d="M34 50h12"/>
+    </svg>
+    <h3 class="hpx-card-title">To the public</h3>
+    <p>Asking what people think of <em>P.&nbsp;aeruginosa</em> and gene editing.</p>
+    <p class="hpx-links"><a class="hpx-link" href="{{ url_for('pages', page='survey') }}">Survey</a></p>
+  </article>
+
+  {# Our project, Capture, where every direction starts. A flask on a ground line. #}
+  <div class="hpx-core" aria-hidden="true">
+    <svg class="hpx-core-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M25 8h14M27 8v16L13 50a4 4 0 0 0 3.5 6h31a4 4 0 0 0 3.5-6L37 24V8"/>
+      <path d="M19 40h26"/>
+      <circle cx="27" cy="47" r="2"/>
+      <circle cx="36" cy="44" r="1.5"/>
+    </svg>
+    <span class="hpx-core-label">Our project</span>
+    <span class="hpx-core-name">Capture</span>
+  </div>
+
+</nav>
+
+{#
+  ======================== the lower half ========================
+  Four sections under the ring, and nothing in them is new: every number,
+  date and sentence restates what one of our other pages already says, and
+  each one links back to it. If a fact changes there, change it here.
+
+    .hpx-stats    four figures, counted up as they scroll into view
+                  (static/count-up.js; the real number is in the markup)
+    #hpx-loop     what we heard and what we did about it, one row per
+                  direction -- the "integrated" in Integrated HP
+    #hpx-year     the season as a timeline, each event in its direction's
+                  colour; the list is the hpx_events table below
+    #hpx-moments  photos from those events, drifting past (still, and
+                  scrollable instead, for reduced motion)
+#}
+
+<section class="hpx-stats" aria-label="This year in numbers">
+  <a class="hpx-stat" style="--hpx-dir: var(--hpx-down)" href="{{ url_for('pages', page='education') }}#session-zhanxin">
+    <span class="hpx-stat-n" data-count-to="10">10</span>
+    <span class="hpx-stat-label">science camps in rural elementary schools</span>
+  </a>
+  <a class="hpx-stat" style="--hpx-dir: var(--hpx-down)" href="{{ url_for('pages', page='education') }}#session-zhanxin">
+    <span class="hpx-stat-n" data-count-to="266">266</span>
+    <span class="hpx-stat-label">children reached by those camps</span>
+  </a>
+  <a class="hpx-stat" style="--hpx-dir: var(--hpx-back)" href="{{ url_for('pages', page='survey') }}">
+    <span class="hpx-stat-n" data-count-to="376">376</span>
+    <span class="hpx-stat-label">responses to our public survey</span>
+  </a>
+  <a class="hpx-stat" style="--hpx-dir: var(--hpx-down)" href="{{ url_for('pages', page='board-game') }}">
+    <span class="hpx-stat-n" data-count-to="33">33</span>
+    <span class="hpx-stat-label">students in The Green Cabinet&rsquo;s first playtest</span>
+  </a>
+</section>
+
+<section id="hpx-loop" class="hpx-section">
+  <p class="hpx-eyebrow">Integrated Human Practices</p>
+  <h2 class="hpx-h2">What We Heard, What We Did</h2>
+  <p class="hpx-section-lead">Going out was only half of it. Each direction brought something back, and what came back changed what we did next.</p>
+
+  <ol class="hpx-loop">
+    <li class="hpx-loop-row" style="--hpx-dir: var(--hpx-fwd)">
+      <div class="hpx-loop-src">
+        <span class="hpx-dir"><span class="hpx-dir-arrow" aria-hidden="true">&rarr;</span> Reaching</span>
+        <span class="hpx-loop-who">NCKU Pilot Interdisciplinary Sharing Session</span>
+        <span class="hpx-loop-when">May 23</span>
+      </div>
+      <div class="hpx-loop-heard"><span class="hpx-loop-k">We heard</span><p>Panelists from fields far from synthetic biology questioned assumptions we had stopped questioning ourselves.</p></div>
+      <div class="hpx-loop-did"><span class="hpx-loop-k">We did</span><p>We narrowed Capture from a broad entry point around ventilator-associated pneumonia to the infection mechanisms of <em>P.&nbsp;aeruginosa</em>.</p></div>
+      <a class="hpx-loop-go" href="{{ url_for('pages', page='promotion') }}#session-ncku-pilot" aria-label="Read about the NCKU Pilot Interdisciplinary Sharing Session">&rarr;</a>
+    </li>
+    <li class="hpx-loop-row" style="--hpx-dir: var(--hpx-down)">
+      <div class="hpx-loop-src">
+        <span class="hpx-dir"><span class="hpx-dir-arrow" aria-hidden="true">&darr;</span> Rooting</span>
+        <span class="hpx-loop-who">Science camps with STEAM from Seed</span>
+        <span class="hpx-loop-when">Jul 13 &ndash; Aug 21</span>
+      </div>
+      <div class="hpx-loop-heard"><span class="hpx-loop-k">We heard</span><p>The same lessons landed differently with children of different ages and levels.</p></div>
+      <div class="hpx-loop-did"><span class="hpx-loop-k">We did</span><p>We learned to make complex science concrete enough for each of them, through trial and error from one camp to the next.</p></div>
+      <a class="hpx-loop-go" href="{{ url_for('pages', page='education') }}#session-zhanxin" aria-label="Read about the camps with STEAM from Seed">&rarr;</a>
+    </li>
+    <li class="hpx-loop-row" style="--hpx-dir: var(--hpx-up)">
+      <div class="hpx-loop-src">
+        <span class="hpx-dir"><span class="hpx-dir-arrow" aria-hidden="true">&uarr;</span> Rising</span>
+        <span class="hpx-loop-who">Prof. Tsung Lin Liao</span>
+        <span class="hpx-loop-when">NCKU Biotechnology</span>
+      </div>
+      <div class="hpx-loop-heard"><span class="hpx-loop-k">We heard</span><p>Decide what matters most in the hardware, check how enzymes in patient samples might degrade our DNA sequences, and try a wider range of sensors.</p></div>
+      <div class="hpx-loop-did"><span class="hpx-loop-k">We did</span><p>We set three priorities for the hardware: low cost, speed and convenience.</p></div>
+      <a class="hpx-loop-go" href="{{ url_for('pages', page='meet-with-experts') }}#expert-liao" aria-label="Read the conversation with Prof. Tsung Lin Liao">&rarr;</a>
+    </li>
+    <li class="hpx-loop-row" style="--hpx-dir: var(--hpx-up)">
+      <div class="hpx-loop-src">
+        <span class="hpx-dir"><span class="hpx-dir-arrow" aria-hidden="true">&uarr;</span> Rising</span>
+        <span class="hpx-loop-who">Ai Wei Li Laser Engraving Studio</span>
+        <span class="hpx-loop-when">Sep 10</span>
+      </div>
+      <div class="hpx-loop-heard"><span class="hpx-loop-k">We heard</span><p>Every material reflects light differently, and a joint of the wrong thickness lets light leak in.</p></div>
+      <div class="hpx-loop-did"><span class="hpx-loop-k">We did</span><p>We took their advice on materials and fabrication, and assembled and adjusted the hardware at the studio with them.</p></div>
+      <a class="hpx-loop-go" href="{{ url_for('pages', page='meet-with-experts') }}#expert-aiweili" aria-label="Read the consultation with Ai Wei Li Laser Engraving Studio">&rarr;</a>
+    </li>
+    <li class="hpx-loop-row" style="--hpx-dir: var(--hpx-back)">
+      <div class="hpx-loop-src">
+        <span class="hpx-dir"><span class="hpx-dir-arrow" aria-hidden="true">&larr;</span> Returning</span>
+        <span class="hpx-loop-who">2026 Capture survey</span>
+        <span class="hpx-loop-when">Jul 6 &middot; 376 responses</span>
+      </div>
+      <div class="hpx-loop-heard"><span class="hpx-loop-k">We heard</span><p>Only 37.0% had heard of <em>P.&nbsp;aeruginosa</em> infections, and many were neutral or hesitant about gene-edited bacterial drugs.</p></div>
+      <div class="hpx-loop-did"><span class="hpx-loop-k">We did</span><p>It drove our later workshops and outreach: explaining the infection, and demystifying genetic engineering.</p></div>
+      <a class="hpx-loop-go" href="{{ url_for('pages', page='survey') }}#what-it-told-us" aria-label="Read what the survey told us">&rarr;</a>
+    </li>
+  </ol>
+</section>
+
+{# The season. One row per event: date, direction, what, and where it is
+   written up (page, then a #fragment or ''). Dates are the ones our pages
+   give, and agree with the Notebook's; the one with only a week (the Lund
+   podcast) is the Notebook's week. Add an event as a
+   row in the right place -- the list draws itself. #}
+{% set hpx_events = [
+  ("Mar 7",            "fwd",  "Mentoring the Mingdao High School iGEM team",                                          "collaboration",     "session-mingdao"),
+  ("Apr 10",           "up",   "Clinical experience, with Dr. 廖信閔 of NCKU&rsquo;s Division of Chest Medicine",      "notebook",          "week-0"),
+  ("May 23",           "fwd",  "NCKU Pilot Interdisciplinary Sharing Session",                                         "promotion",         "session-ncku-pilot"),
+  ("May 24",           "down", "Workshop at National Xihu Senior High School",                                         "education",         "session-xihu"),
+  ("May 25",           "down", "&ldquo;The Ultimate Code of Life&rdquo; at Puyan Elementary School",                   "education",         "session-puyan"),
+  ("May 27",           "up",   "Our ideas, with 謝淑珠 of NCKU&rsquo;s Dept. of Medical Laboratory Science and Biotechnology", "notebook",   "week-4"),
+  ("Jul 6",            "back", "Our public survey: the 2026 Capture survey",                                            "survey",            ""),
+  ("Jul 13 &ndash; Aug 21", "down", "Ten science camps with STEAM from Seed",                                          "education",         "session-zhanxin"),
+  ("Jul 19&ndash;25",  "fwd",  "A Chinese-language podcast with the Lund University iGEM team",                        "promotion",         "session-lund"),
+  ("Jul 27",           "fwd",  "Taiwan 2026 iGEMers Meetup",                                                           "collaboration",     "session-meetup"),
+  ("Aug 2&ndash;3",    "down", "NCKU Workshops, and the first playtest of The Green Cabinet",                          "education",         "session-ncku"),
+  ("Aug 5",            "down", "Little Sun Project",                                                                    "education",         "session-littlesun"),
+  ("Sep 2",            "fwd",  "NCKU UR Interdisciplinary Sharing Session",                                            "promotion",         "session-ncku-ur"),
+  ("Sep 10",           "up",   "Ai Wei Li Laser Engraving Studio, on the hardware shell",                              "meet-with-experts", "expert-aiweili"),
+  ("Sep 13",           "down", "Workshop at Anping Junior High School",                                                "education",         "session-anping"),
+  ("Sep 17",           "fwd",  "Online collaboration with Team WiST",                                                  "collaboration",     "session-wist"),
+  ("Sep 19&ndash;20",  "fwd",  "Meetups with CCU-Taiwan and HIA-Taiwan",                                               "collaboration",     "session-ccu"),
+  ("Sep 30",           "down", "Tainan Girls&rsquo; Senior High School Medical Research Club",                         "education",         "session-tainan-girls"),
+  ("Oct 1",            "down", "Education session at the NCKU non-profit preschool",                                   "notebook",          "week-22"),
+  ("Oct 8",            "fwd",  "Mini Jamboree",                                                                        "notebook",          "week-23"),
+] %}
+{% set hpx_dir_names = {"up": ("&uarr;", "Rising"), "down": ("&darr;", "Rooting"), "fwd": ("&rarr;", "Reaching"), "back": ("&larr;", "Returning")} %}
+
+<section id="hpx-year" class="hpx-section">
+  <p class="hpx-eyebrow">March to October</p>
+  <h2 class="hpx-h2">Our Year, in Four Directions</h2>
+  <ul class="hpx-legend" aria-label="Colour key">
+    {% for key in ["down", "up", "fwd", "back"] %}
+    <li style="--hpx-dir: var(--hpx-{{ key }})"><span class="hpx-legend-dot" aria-hidden="true"></span>{{ hpx_dir_names[key][1] }}</li>
+    {% endfor %}
+  </ul>
+
+  <ol class="hpx-year">
+    {% for when, dir, what, page, frag in hpx_events %}
+    <li class="hpx-event" style="--hpx-dir: var(--hpx-{{ dir }}); grid-row: {{ loop.index }} / span 2">
+      <a class="hpx-event-card" href="{{ url_for('pages', page=page) }}{% if frag %}#{{ frag }}{% endif %}">
+        <span class="hpx-event-when">{{ when | safe }}</span>
+        <span class="hpx-event-dir"><span aria-hidden="true">{{ hpx_dir_names[dir][0] | safe }}</span> {{ hpx_dir_names[dir][1] }}</span>
+        <span class="hpx-event-what">{{ what | safe }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+{# Photos already on our other pages, each linking to where it comes from.
+   The strip is drawn twice so it can drift in a loop; the second copy is
+   hidden from screen readers and from the keyboard. #}
+{% set hpx_photos = [
+  ("education/xihu-1.avif",        "Students and team members at National Xihu Senior High School", "Xihu Senior High",    "education",         "session-xihu"),
+  ("education/puyan-1.avif",       "Puyan Elementary School STEM workshop group photo",             "Puyan Elementary",    "education",         "session-puyan"),
+  ("education/pilot-1.avif",       "NCKU Pilot Interdisciplinary Sharing Session",                  "NCKU Pilot session",  "promotion",         "session-ncku-pilot"),
+  ("education/07130714.avif",      "Science camp with STEAM from Seed at Xigang Elementary School", "STEAM from Seed",     "education",         "session-zhanxin"),
+  ("education/meetup-1.avif",      "Taiwan 2026 iGEMers Meetup",                                     "iGEMers Meetup",      "collaboration",     "session-meetup"),
+  ("education/ncku-workshop-1.avif", "NCKU iGEM Workshop",                                           "NCKU Workshops",      "education",         "session-ncku"),
+  ("education/0805.avif",          "Little Sun Project",                                             "Little Sun Project",  "education",         "session-littlesun"),
+  ("education/ur-1.avif",          "NCKU UR Interdisciplinary Sharing Session",                      "NCKU UR session",     "promotion",         "session-ncku-ur"),
+  ("communication/communication2.avif", "Our team with Ai Wei Li Laser Engraving Studio",           "Ai Wei Li studio",    "meet-with-experts", "expert-aiweili"),
+  ("education/anping-1.avif",      "Anping Junior High School workshop",                             "Anping Junior High",  "education",         "session-anping"),
+  ("education/tngs-1.avif",        "National Tainan Girls&rsquo; Senior High School session",        "Tainan Girls&rsquo; High", "education",    "session-tainan-girls"),
+  ("education/mingdao-1.avif",     "Mingdao High School communication",                              "Mingdao High School", "collaboration",     "session-mingdao"),
+] %}
+
+<section id="hpx-moments" class="hpx-section hpx-moments-section">
+  <p class="hpx-eyebrow">From the road</p>
+  <h2 class="hpx-h2">Moments Along the Way</h2>
+  <div class="hpx-moments" data-lenis-prevent>
+    <div class="hpx-moments-track">
+      {% for copy in [0, 1] %}
+      <ul class="hpx-moments-set"{% if copy %} aria-hidden="true"{% endif %}>
+        {% for img, alt, label, page, frag in hpx_photos %}
+        <li>
+          <a class="hpx-moment" href="{{ url_for('pages', page=page) }}#{{ frag }}"{% if copy %} tabindex="-1"{% endif %}>
+            <img src="https://static.igem.wiki/teams/6379/wiki/{{ img }}" alt="{{ alt | safe if not copy else '' }}" loading="lazy" decoding="async">
+            <span class="hpx-moment-label">{{ label | safe }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<section class="hpx-closing">
+  <p class="hpx-statement"><em>From Lab to Society</em> is not only where our Human Practices began; it is what we hope for science itself &mdash; that it has no boundaries, and that it truly connects with society.</p>
+  <p class="hpx-also">How this work maps onto the UN&rsquo;s goals: <a href="{{ url_for('pages', page='sustainability') }}">SDGs</a></p>
+</section>
+
+<script src="{{ url_for('static', filename = 'count-up.js') }}"></script>
 
 {% endblock %}
