@@ -366,10 +366,10 @@
     // matter how the rotation lines up.
     var row = container.closest('.edu-map-row');
     var orbitEl = row && row.querySelector('.edu-map-orbit');
-    var leaderSvg = row && row.querySelector('.edu-map-leader-svg');
+    var leaderLayer = row && row.querySelector('.edu-map-leaders');
     var orbitItems = [];
 
-    if (orbitEl && leaderSvg) {
+    if (orbitEl && leaderLayer) {
       pinEls.forEach(function (pin, i) {
         // A real link, like the pin it stands for: one click goes to that
         // session's section, and the keyboard can reach it.
@@ -393,9 +393,10 @@
         metaEl.textContent = meta;
         orbitEl.appendChild(item);
 
-        var line = document.createElementNS(svgNS, 'line');
-        line.setAttribute('class', 'edu-map-leader-line');
-        leaderSvg.appendChild(line);
+        // 連線是一條細長的 span，用 transform 平移＋旋轉到位（見 CSS）
+        var line = document.createElement('span');
+        line.className = 'edu-map-leader-line';
+        leaderLayer.appendChild(line);
 
         line.style.opacity = '0';
         orbitItems.push({ pin: pin, el: item, line: line, active: false,
@@ -452,10 +453,12 @@
           it.line.style.opacity = f.active ? '' : '0';
         }
         if (f.active) {
-          it.line.setAttribute('x1', f.x);
-          it.line.setAttribute('y1', f.y);
-          it.line.setAttribute('x2', f.pinRect.left + f.pinRect.width / 2 - rowRect.left);
-          it.line.setAttribute('y2', f.pinRect.top + f.pinRect.height / 2 - rowRect.top);
+          // 從卡片中心拉到圖釘中心：長度給 width，方向給 rotate
+          var dx = f.pinRect.left + f.pinRect.width / 2 - rowRect.left - f.x;
+          var dy = f.pinRect.top + f.pinRect.height / 2 - rowRect.top - f.y;
+          it.line.style.width = Math.sqrt(dx * dx + dy * dy).toFixed(1) + 'px';
+          it.line.style.transform = 'translate(' + f.x.toFixed(1) + 'px,' + f.y.toFixed(1) + 'px) rotate(' +
+                                    Math.atan2(dy, dx).toFixed(4) + 'rad)';
         }
       });
     }
