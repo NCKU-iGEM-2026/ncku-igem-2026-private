@@ -371,8 +371,11 @@
 
     if (orbitEl && leaderSvg) {
       pinEls.forEach(function (pin, i) {
-        var item = document.createElement('div');
+        // A real link, like the pin it stands for: one click goes to that
+        // session's section, and the keyboard can reach it.
+        var item = document.createElement('a');
         item.className = 'edu-map-orbit-item';
+        item.href = pin.getAttribute('href') || '#';
         item.innerHTML = '<img class="edu-map-info-photo" alt="">' +
                           '<span class="edu-map-info-body">' +
                           '<span class="edu-map-info-title"></span>' +
@@ -467,8 +470,18 @@
     var rowVisible = true;
     var rafId = null, lastTs = null, elapsed = 0;
 
+    // The ring holds still while the pointer is on one of its cards (or one has
+    // keyboard focus), so it can be read and clicked. Asked of the browser each
+    // frame, not remembered from enter/leave events: cards move under a still
+    // pointer, and a click that jumps the page leaves no "leave" behind.
+    var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    var orbitHeld = function () {
+      if (canHover && orbitEl.querySelector('.edu-map-orbit-item:hover')) return true;
+      var el = document.activeElement;
+      return !!(el && orbitEl.contains(el) && el.matches(':focus-visible'));
+    };
     var orbitTick = function (ts) {
-      if (lastTs !== null) elapsed += Math.min(ts - lastTs, 100);
+      if (lastTs !== null && !orbitHeld()) elapsed += Math.min(ts - lastTs, 100);
       lastTs = ts;
       layoutOrbit((elapsed / ROTATION_PERIOD_MS) * 2 * Math.PI);
       rafId = requestAnimationFrame(orbitTick);
