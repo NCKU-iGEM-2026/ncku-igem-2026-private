@@ -40,17 +40,16 @@
     // wire hole in the T chamber floor (8 x 3 before the fit offset); no wall stands in it
     T_WIRE_HOLE: { x: 60.34, y: 81.46, w: 8, h: 3 },
     // light holes (position s in deck coordinates, height z above the deck surface)
-    LED_HOLE: { s: 39.7, z: 3, r: 2 },
+    LED_HOLE: { s: 39.7, z: 8, r: 2 },     // centre raised 5 mm from the old drawing's 3, to the vendor's spec (2026-10-08)
     // Opening from the cuvette into the R chamber (light trap), straight across from the LED.
     // It was labelled "sensor hole" in earlier drawings; the sensor sits in the T chamber at 90 deg.
-    TRAP_HOLE: { s: 38.99, z: 6.6, r: 4 },
+    TRAP_HOLE: { s: 38.99, z: 11.6, r: 4 },   // centre raised 5 mm from the old drawing's 6.6, with the LED hole (2026-10-08)
     // openings in the enclosure (coordinates from the inner corner of the box)
     // lid opening, centred over the cuvette pocket (61.27, 39.7); enlarged from 16 x 16 to 25 x 25 (2026-10-08)
     LID_HOLE: { x: 48.77, y: 27.2, w: 25, h: 25 },
     LID_CAP_OVER: 1,        // the lid's top square overhangs the opening by this much on each side
     SENSOR_PLATE_OVER: 5,   // the plate under the sensor slot reaches this far past the slot on every side
-    FRONT_PORT: { x: 84.46, y: 6.74, w: 26, h: 14.69 },
-    SIDE_PORT: { x: 37.57, y: 12.15, w: 25.99, h: 14.69 }
+    FRONT_PORT: { x: 84.46, y: 6.74, w: 26, h: 14.69 }
   };
 
   // ───────────────────────── Geometry helpers ─────────────────────────
@@ -259,7 +258,8 @@
     panel('Enclosure lid (' + K.LID_HOLE.w + '×' + K.LID_HOLE.h + ' cuvette opening)', X, Y, BN.x, BN.y, true, true, [hole(K.LID_HOLE)]);
     panel('Enclosure front (opening for the display and button wires)', X, Z, BN.x, BN.z, false, true, [hole(K.FRONT_PORT)]);
     panel('Enclosure back', X, Z, BN.x, BN.z, false, true);
-    panel('Enclosure side (with opening)', Y, Z, BN.y, BN.z, false, false, [hole(K.SIDE_PORT)]);
+    // the short sides have no opening: the one that took the USB cable went when the reader moved to a battery (2026-10-08)
+    panel('Enclosure side', Y, Z, BN.y, BN.z, false, false);
     panel('Enclosure side', Y, Z, BN.y, BN.z, false, false);
 
 
@@ -739,14 +739,14 @@
     var BI = K.BOX_IN, zf = -t - BI.z / 2, X = BI.x + 2 * t, Y = BI.y + 2 * t, Z = BI.z + 2 * t;
     var bo = [-t, -t, zf - t];
     function at(dx, dy, dz) { return [bo[0] + dx, bo[1] + dy, bo[2] + dz]; }
-    var side = r.pieces.filter(function (p) { return p.name === 'Enclosure side'; })[0];
+    var sides = r.pieces.filter(function (p) { return p.name === 'Enclosure side'; });
     put(byName['Enclosure base'], 'box', 'cut', at(0, 0, 0), [1, 0, 0], [0, 1, 0], [0, 0, t]);
     put(r.pieces.filter(function (p) { return /^Enclosure lid/.test(p.name); })[0], 'box', 'cut', at(0, 0, Z - t), [1, 0, 0], [0, 1, 0], [0, 0, t]);
     // the front's opening is on the detection-chamber side (high y), where the display and button wires come out
     put(byName['Enclosure front (opening for the display and button wires)'], 'box', 'cut', at(0, Y - t, 0), [1, 0, 0], [0, 0, 1], [0, t, 0]);
     put(byName['Enclosure back'], 'box', 'cut', at(0, 0, 0), [1, 0, 0], [0, 0, 1], [0, t, 0]);
-    put(byName['Enclosure side (with opening)'], 'box', 'sized', at(0, 0, 0), [0, 1, 0], [0, 0, 1], [t, 0, 0]);
-    put(side, 'box', 'sized', at(X - t, 0, 0), [0, 1, 0], [0, 0, 1], [t, 0, 0]);
+    put(sides[0], 'box', 'cut', at(0, 0, 0), [0, 1, 0], [0, 0, 1], [t, 0, 0]);
+    put(sides[1], 'box', 'cut', at(X - t, 0, 0), [0, 1, 0], [0, 0, 1], [t, 0, 0]);
     // Rails: under the deck, two long ones along the long walls and the short one across between them
     var zr = -t - K.RAIL_H, zTop = K.WALL_INNER_H + t, lidZ = bo[2] + Z - t;
     fixedPieces(BI.y - 2 * t).forEach(function (p) {
