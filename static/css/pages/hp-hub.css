@@ -1,0 +1,534 @@
+/* ============================================================
+   Human Practices hub and its subpages
+   human-practices.html (the compass), meet-with-experts.html (.mx-*),
+   survey.html (.sv-*). All three wear body.edu-nexus, so the --nx-*
+   palette from style.css is in scope: mint for headings, lime for
+   highlights, the lifted blue and the warm amber as second accents.
+
+   Each direction keeps one colour wherever it appears -- its card on the
+   hub, its kicker on its subpage:
+     downward  lime     upward  mint     forward  blue     backward  amber
+   ============================================================ */
+
+body.edu-nexus {
+  --hpx-down: var(--nx-lime);
+  --hpx-up:   var(--nx-mint);
+  --hpx-fwd:  var(--nx-blue-up);
+  --hpx-back: var(--nx-warm);
+}
+
+/* ---------- shared: kicker, back link, next/previous ---------- */
+.hpx-kicker {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hpx-dir, var(--nx-lime));
+  margin: 0 0 0.6rem;
+}
+
+.hpx-dir-arrow { font-size: 1.1em; margin-right: 0.15em; }
+
+.hpx-back { margin: -1rem 0 2rem; font-size: 0.92rem; }
+body.edu-nexus .hpx-back a { color: var(--nx-muted); text-decoration: none; }
+body.edu-nexus .hpx-back a:hover,
+body.edu-nexus .hpx-back a:focus-visible { color: var(--nx-lime); }
+
+.hpx-next {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--nx-line);
+}
+
+.hpx-next a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-decoration: none;
+  color: var(--nx-text);
+}
+
+.hpx-next a:last-child { text-align: right; margin-left: auto; }
+
+.hpx-next a span {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.hpx-next a:hover,
+.hpx-next a:focus-visible { color: var(--nx-lime); }
+
+/* ---------- the hub ---------- */
+.hpx-overview { max-width: 72ch; }
+
+body.edu-nexus .hpx-overview h2 {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  color: var(--nx-mint);
+  margin: 0;
+}
+
+body.edu-nexus .hpx-overview .hp-slogan { color: var(--nx-lime); }
+
+/* The compass. Our lab in the centre; upward above it, downward below,
+   backward to the left, forward to the right. The two dashed lines behind
+   are the axes the cards sit on; each card's panel covers them. */
+.hpx-compass {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    ".    up   ."
+    "back core fwd"
+    ".    down .";
+  gap: 1.5rem;
+  align-items: center;
+  margin: 2.5rem 0 2rem;
+}
+
+.hpx-compass::before,
+.hpx-compass::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hpx-compass::before {               /* up--down */
+  left: 50%; top: 4%; bottom: 4%;
+  border-left: 2px dashed var(--nx-line);
+}
+
+.hpx-compass::after {                /* back--forward */
+  top: 50%; left: 4%; right: 4%;
+  border-top: 2px dashed var(--nx-line);
+}
+
+.hpx-up   { grid-area: up;   --hpx-dir: var(--hpx-up); }
+.hpx-down { grid-area: down; --hpx-dir: var(--hpx-down); }
+.hpx-fwd  { grid-area: fwd;  --hpx-dir: var(--hpx-fwd); }
+.hpx-back-dir { grid-area: back; --hpx-dir: var(--hpx-back); }
+
+.hpx-card {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.4rem 1.5rem 1.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--nx-line);
+  border-top: 3px solid var(--hpx-dir);
+  background: var(--nx-panel);
+  box-shadow: 0 14px 34px -22px rgba(0, 0, 0, 0.8);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.22s ease;
+}
+
+.hpx-card:hover,
+.hpx-card:focus-within {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--hpx-dir) 55%, var(--nx-line));
+  box-shadow: 0 18px 40px -20px color-mix(in srgb, var(--hpx-dir) 45%, transparent);
+}
+
+.hpx-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.hpx-dir {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hpx-dir);
+}
+
+.hpx-icon {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  color: var(--hpx-dir);
+}
+
+body.edu-nexus .hpx-card-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--nx-text);
+  margin: 0 0 0.5rem;
+}
+
+body.edu-nexus .hpx-card p {
+  color: var(--nx-muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin: 0 0 1rem;
+}
+
+body.edu-nexus .hpx-card .hpx-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: auto 0 0;
+}
+
+body.edu-nexus .hpx-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--hpx-dir);
+  color: var(--hpx-dir);
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: background-color 0.22s ease, color 0.22s ease;
+}
+
+body.edu-nexus .hpx-link:hover,
+body.edu-nexus .hpx-link:focus-visible {
+  background: var(--hpx-dir);
+  color: var(--nx-ground);
+}
+
+body.edu-nexus .hpx-link:focus-visible {
+  outline: 2px solid var(--nx-text);
+  outline-offset: 3px;
+}
+
+.hpx-core {
+  grid-area: core;
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 2px solid var(--nx-lime);
+  background: radial-gradient(circle at 50% 40%, rgba(160, 232, 96, 0.16), var(--nx-ground) 70%);
+  box-shadow: 0 0 36px rgba(160, 232, 96, 0.22);
+  color: var(--nx-lime);
+}
+
+.hpx-core-icon { width: 44px; height: 44px; }
+
+.hpx-core-label {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hpx-core-name {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--nx-text);
+}
+
+.hpx-closing { text-align: center; }
+
+/* The closing line: the page's one sentence to remember, so it is set as a
+   statement -- large, centred, with the slogan in the slogan's lime. */
+body.edu-nexus .hpx-statement {
+  max-width: 34ch;
+  margin: 3.5rem auto 2.5rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--nx-line);
+  border-bottom: 1px solid var(--nx-line);
+  text-align: center;
+  font-family: "Changa", sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 1.05rem + 1.5vw, 2.1rem);
+  line-height: 1.35;
+  color: var(--nx-text);
+}
+
+body.edu-nexus .hpx-statement em {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--nx-lime);
+}
+body.edu-nexus .hpx-also { color: var(--nx-muted); font-size: 0.95rem; }
+
+@media (max-width: 991.98px) {
+  .hpx-compass {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: none;
+    gap: 1.1rem;
+  }
+  .hpx-compass::before,
+  .hpx-compass::after,
+  .hpx-core { display: none; }
+  .hpx-up, .hpx-down, .hpx-fwd, .hpx-back-dir { grid-area: auto; }
+}
+
+/* ---------- Meet with Experts ---------- */
+.mx-intro { max-width: 72ch; margin-bottom: 2.5rem; }
+.mx-intro { --hpx-dir: var(--hpx-up); }
+
+body.edu-nexus .mx-intro-lead {
+  font-size: 1.12rem;
+  line-height: 1.6;
+  color: var(--nx-text);
+}
+
+.mx-card {
+  margin: 0 0 2.75rem;
+  padding: 2rem;
+  border-radius: 18px;
+  border: 1px solid var(--nx-line);
+  background: var(--nx-panel);
+  box-shadow: 0 20px 44px -28px rgba(0, 0, 0, 0.85);
+  scroll-margin-top: 104px;
+}
+
+.mx-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+/* The photo sits in an .edu-gallery only so edu-lightbox.js opens it full
+   size on click; none of the gallery's strip layout applies here. */
+.edu-gallery.mx-photo {
+  display: block;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+.edu-gallery.mx-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 14px;
+  cursor: zoom-in;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.edu-gallery.mx-photo img:hover { transform: scale(1.03); }
+
+.mx-tag {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--nx-mint);
+  color: var(--nx-mint);
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mx-tag-industry { border-color: var(--nx-blue-up); color: var(--nx-blue-up); }
+
+body.edu-nexus .mx-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.35rem, 1.05rem + 1.1vw, 1.85rem);
+  line-height: 1.2;
+  color: var(--nx-mint);
+  margin: 0.8rem 0 1rem;
+}
+
+body.edu-nexus .mx-who { margin: 0; font-size: 1.1rem; color: var(--nx-text); }
+body.edu-nexus .mx-who strong { color: var(--nx-text); }
+body.edu-nexus .mx-role { margin: 0.35rem 0 0; color: var(--nx-muted); line-height: 1.5; }
+
+.mx-org { display: flex; align-items: center; gap: 0.8rem; }
+
+.mx-logo {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  padding: 6px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+body.edu-nexus .mx-meta-date {
+  margin: 0.9rem 0 0;
+  color: var(--nx-text);
+}
+
+.mx-meta-date span {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.mx-body { max-width: 75ch; }
+body.edu-nexus .mx-body p { line-height: 1.7; }
+
+.mx-advice {
+  margin-top: 1.75rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  border-left: 3px solid var(--nx-lime);
+  background: rgba(160, 232, 96, 0.06);
+}
+
+body.edu-nexus .mx-advice-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-lime);
+  margin: 0 0 0.75rem;
+}
+
+.mx-advice ol {
+  list-style: none;
+  counter-reset: mx;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.mx-advice li {
+  counter-increment: mx;
+  position: relative;
+  padding-left: 2.4rem;
+  line-height: 1.5;
+}
+
+.mx-advice li::before {
+  content: counter(mx);
+  position: absolute;
+  left: 0;
+  top: -0.05rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--nx-lime);
+  color: var(--nx-ground);
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+body.edu-nexus .mx-advice li strong { color: var(--nx-text); }
+body.edu-nexus .mx-advice-link { margin: 1rem 0 0; color: var(--nx-muted); font-size: 0.95rem; }
+
+@media (max-width: 767.98px) {
+  .mx-card { padding: 1.25rem; }
+  .mx-head { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+}
+
+/* ---------- Survey ---------- */
+.sv-intro { --hpx-dir: var(--hpx-back); margin-bottom: 1rem; }
+.sv-intro > p:not(.hpx-kicker) { max-width: 75ch; }
+
+body.edu-nexus .sv-title,
+body.edu-nexus .sv-section h2 {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  color: var(--nx-mint);
+}
+
+body.edu-nexus .sv-title {
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+  margin: 0 0 1.5rem;
+}
+
+.sv-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0 0 2rem;
+}
+
+.sv-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 14px;
+  border: 1px solid var(--nx-line);
+  border-top: 3px solid var(--nx-warm);
+  background: var(--nx-panel);
+}
+
+.sv-stat-n {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.7rem, 1.3rem + 1.2vw, 2.3rem);
+  line-height: 1;
+  color: var(--nx-warm);
+  font-variant-numeric: tabular-nums;
+}
+
+body.edu-nexus .sv-stat-label { color: var(--nx-muted); font-size: 0.9rem; line-height: 1.4; }
+
+.sv-section {
+  padding: 2.25rem 0 0.5rem;
+  border-top: 1px solid var(--nx-line);
+  margin-top: 1.5rem;
+  scroll-margin-top: 104px;
+}
+
+body.edu-nexus .sv-section h2 {
+  font-size: clamp(1.35rem, 1.1rem + 0.9vw, 1.8rem);
+  margin: 0 0 1rem;
+}
+
+.sv-section > p { max-width: 75ch; }
+
+@media (max-width: 991.98px) {
+  .sv-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 479.98px) {
+  .sv-stats { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hpx-card,
+  .edu-gallery.mx-photo img { transition: none; }
+  .hpx-card:hover,
+  .hpx-card:focus-within,
+  .edu-gallery.mx-photo img:hover { transform: none; }
+}
