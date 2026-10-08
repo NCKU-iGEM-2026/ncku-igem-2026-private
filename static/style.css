@@ -1388,6 +1388,7 @@ body.team-bio-locked { overflow: hidden; }
 /* ===== Education: map + filter tabs row ===== */
 .edu-map-row {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1539,13 +1540,24 @@ body.team-bio-locked { overflow: hidden; }
 .edu-map-strip {
   display: none;
   gap: 0.75rem;
-  margin: 0.5rem 0 1.25rem;
-  padding: 0.25rem 0.25rem 0.75rem;
+  /* A strip that scrolls sideways also clips what sticks out above and below
+     it, and the hover glow reaches about 44px past a card. So the strip has
+     that much empty room above and below, and a negative margin of the same
+     size takes it back out of the layout: the cards sit exactly where they
+     did (0.5rem / 1.25rem of margin and 0.25rem / 0.75rem of padding before).
+     The map row is lifted above the strip so the empty room never covers its
+     pins. */
+  margin: -2.5rem 0 -0.75rem;
+  padding: 2.75rem 0.25rem 2.75rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 }
 .edu-map-row.is-strip + .edu-map-strip { display: flex; }
+/* Only when it is a marquee (taiwan-map.js): with reduced motion it stays an
+   ordinary swipeable row and keeps its scroll bar. Swiping still works. */
+.edu-map-strip.is-marquee { scrollbar-width: none; }
+.edu-map-strip.is-marquee::-webkit-scrollbar { display: none; }
 
 .edu-strip-item {
   flex: 0 0 auto;
@@ -10684,6 +10696,28 @@ body.edu-nexus .edu-strip-item.is-selected {
   background: var(--nx-raised);
   border-color: var(--nx-mint);
   box-shadow: 0 0 0 2px var(--nx-mint), 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+/* The strip drifts by itself and stops while the pointer is on it (see
+   taiwan-map.js). The card under the pointer gets the same edge glow as the
+   map of Taiwan does on hover: a pale rim, a lime halo outside it, and the
+   same slow breathing (tw-breathe, 3.6s). */
+@keyframes edu-strip-breathe {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(215, 245, 184, 0.45), 0 0 10px 2px rgba(160, 232, 96, 0.3), 0 0 22px 6px rgba(160, 232, 96, 0.14); }
+  50%      { box-shadow: 0 0 0 1px #d7f5b8,                    0 0 16px 4px rgba(160, 232, 96, 0.9), 0 0 34px 10px rgba(160, 232, 96, 0.45); }
+}
+@media (hover: hover) {
+  .edu-strip-item:hover,
+  body.edu-nexus .edu-strip-item:hover {
+    border-color: #d7f5b8;
+    animation: edu-strip-breathe 3.6s ease-in-out infinite;
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+  .edu-strip-item:hover,
+  body.edu-nexus .edu-strip-item:hover {
+    animation: none;
+    box-shadow: 0 0 0 1px #d7f5b8, 0 0 16px 4px rgba(160, 232, 96, 0.85), 0 0 30px 8px rgba(160, 232, 96, 0.4);
+  }
 }
 html[data-theme="dark"] .edu-pin.is-selected {
   background: #a0e860;
