@@ -512,6 +512,7 @@
     // 點圖釘 → 照片列捲到那一張並標示；點照片 → 圖釘亮起。
     // 已經選中的再點一次，才會跳到下方對應的活動段落。
     var strip = null;
+    var oneTap = false;   // true once the strip is a marquee: a tap on a card goes straight to its section
     var stripItems = [];
     var selectedIdx = -1;
 
@@ -561,6 +562,10 @@
         a.appendChild(name);
         a.appendChild(meta);
         a.addEventListener('click', function (e) {
+          // A still row: the first tap picks the card (and brings it to the middle),
+          // the second goes to the section. A marquee never holds still long
+          // enough for that, so there one tap goes straight there.
+          if (oneTap) { select(i, false); return; }
           if (selectedIdx !== i) { e.preventDefault(); select(i, true); }
         });
         strip.appendChild(a);
@@ -593,6 +598,124 @@
       if ('ResizeObserver' in window) new ResizeObserver(applyMode).observe(row.parentElement || row);
       else window.addEventListener('resize', applyMode);
       applyMode();
+    }
+
+    // ---- 窄螢幕照片列：跑馬燈 ---------------------------------------
+    // 手機上只看得到 1～2 張，其餘要滑才看得到。這裡讓照片列像跑馬燈一樣
+    // 持續慢慢往左走，最後一張接回第一張，不用滑也看得到全部。
+    // 做法：整排複製成前、中、後三份（複製的是純展示，螢幕閱讀器略過），
+    // 一直待在中間那份，走出中間就減掉／加上一份的寬度，畫面上看不出接縫。
+    // 滑鼠停在照片列上（或手指碰著、鍵盤聚焦）就停，卡片發光；
+    // 看不到照片列、分頁在背景、或系統設定「減少動態效果」時不動。
+    if (strip && stripItems.length > 1 && !reduceMotion) {
+      var SPEED = 38;          // px per second
+      var RESUME_MS = 2500;    // after a touch or scroll by hand
+      var before = [], after = [];
+      stripItems.forEach(function (el, k) {
+        el.setAttribute('data-strip-idx', k);
+        [before, after].forEach(function (list) {
+          var c = el.cloneNode(true);
+          c.classList.add('is-clone');
+          c.setAttribute('aria-hidden', 'true');
+          c.setAttribute('tabindex', '-1');
+          c.addEventListener('click', function (e) {
+            select(k, false);   // one tap: let the link carry on to the section
+          });
+          list.push(c);
+        });
+      });
+      before.forEach(function (c) { strip.insertBefore(c, stripItems[0]); });
+      after.forEach(function (c) { strip.appendChild(c); });
+      strip.style.scrollSnapType = 'none';   // snapping would fight a moving strip
+      oneTap = true;
+      strip.classList.add('is-marquee');     // an endless loop has no end to show, so no scroll bar
+
+      var loopW = 0, pos = 0, driving = false;
+      var touchedAt = 0, stripVisible = false, lastT = 0, rafId = 0;
+
+      var measure = function () {
+        loopW = after[0].offsetLeft - stripItems[0].offsetLeft;
+        if (loopW > 0 && (strip.scrollLeft < loopW || strip.scrollLeft >= loopW * 2)) {
+          strip.scrollLeft = loopW + (((strip.scrollLeft % loopW) + loopW) % loopW);
+        }
+      };
+      var wrap = function () {
+        if (!loopW) return;
+        if (strip.scrollLeft >= loopW * 2) strip.scrollLeft -= loopW;
+        else if (strip.scrollLeft < loopW) strip.scrollLeft += loopW;
+      };
+      // Asked of the browser every frame rather than tracked from enter/leave
+      // events: when a click jumps the page away, the pointer never "leaves",
+      // and a remembered flag would keep the strip frozen for good.
+      var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+      var pointerOn = function () { return canHover && strip.matches(':hover'); };
+      var keyboardOn = function () {
+        var el = document.activeElement;
+        return !!(el && strip.contains(el) && el.matches(':focus-visible'));
+      };
+      var paused = function () {
+        return pointerOn() || keyboardOn() || document.hidden || !stripVisible ||
+               !row.classList.contains('is-strip') || Date.now() - touchedAt < RESUME_MS;
+      };
+      var tick = function (t) {
+        rafId = 0;
+        if (!stripVisible || !row.classList.contains('is-strip')) {
+          driving = false;
+          return;   // the watchdog below starts it again once the strip is back
+        }
+        var dt = Math.min((t - (lastT || t)) / 1000, 0.1);
+        lastT = t;
+        if (paused()) {
+          driving = false;
+        } else {
+          if (!driving) { pos = strip.scrollLeft; driving = true; }
+          if (!loopW) measure();
+          pos += SPEED * dt;
+          strip.scrollLeft = pos;
+          wrap();
+          if (Math.abs(strip.scrollLeft - pos) > 2) pos = strip.scrollLeft;   // wrapped (or nudged)
+        }
+        rafId = requestAnimationFrame(tick);
+      };
+      var kick = function () { if (!rafId) { lastT = 0; rafId = requestAnimationFrame(tick); } };
+      // Watchdog. The loop above stops itself while the strip is out of sight or
+      // not in strip layout, and which event should wake it again (scrolling
+      // back, a resize, a scroll bar appearing) is easy to get wrong -- it did
+      // freeze for real readers. A cheap periodic check cannot miss.
+      window.setInterval(function () { if (stripVisible) kick(); }, 400);
+
+      var touched = function () { touchedAt = Date.now(); };
+      // The card the reader clicked. A click may jump the page down to that
+      // school's section; when they scroll back up the strip carries on from
+      // that card instead of from wherever it had drifted to.
+      var returnTo = -1;
+      strip.addEventListener('click', function (e) {
+        var card = e.target.closest && e.target.closest('.edu-strip-item');
+        if (card) returnTo = +card.getAttribute('data-strip-idx');
+      });
+      ['pointerdown', 'touchstart', 'touchmove', 'wheel'].forEach(function (ev) {
+        strip.addEventListener(ev, touched, { passive: true });
+      });
+      strip.addEventListener('scroll', function () {
+        if (!driving) { if (Date.now() - touchedAt < RESUME_MS) touched(); wrap(); }
+      }, { passive: true });
+      window.addEventListener('resize', function () { loopW = 0; });
+
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          stripVisible = entries[entries.length - 1].isIntersecting;   // the newest report, not the oldest
+          if (stripVisible && returnTo >= 0) {
+            var from = stripItems[returnTo];
+            returnTo = -1;
+            touchedAt = 0;
+            driving = false;   // so the next frame reads the position set here
+            strip.scrollTo({ left: from.offsetLeft - (strip.clientWidth - from.offsetWidth) / 2, behavior: 'instant' });
+          }
+          if (stripVisible) kick();
+        }, { threshold: 0.2 }).observe(strip);
+      } else { stripVisible = true; kick(); }
+      // the strip is display:none until the map is narrow; start from the middle set once it has a size
+      if ('ResizeObserver' in window) new ResizeObserver(function () { loopW = 0; measure(); }).observe(strip);
     }
 
     pinEls.forEach(function (pin, i) {
