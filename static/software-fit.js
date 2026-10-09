@@ -1,121 +1,148 @@
-// Software page: the "Try the fit" panel.
+// Software page: "Try it with your data".
 //
 // Everything numeric goes through CurveFit (static/lasreader-curve-fit.js), which is
 // LasReader's own curve_fit.js, so a curve drawn here is the curve the tool would give
-// for the same readings. This file only parses what was typed, draws the result and
-// asks CurveFit to invert a signal. Nothing is sent anywhere and nothing is stored.
+// for the same readings. This file only reads the table, draws the result and asks
+// CurveFit to convert a reading. Nothing is sent anywhere and nothing is stored.
 //
-// The input starts empty. The simulator fills it from a 4PL the reader chooses, and
-// marks every line it writes as simulated, so a simulated dataset can never be
-// mistaken for a measured one.
+// The table starts empty. A block copied from a spreadsheet can be pasted into any
+// cell and fills the table from there. The curve is refitted as you type.
 (function () {
   "use strict";
 
-  const root = document.getElementById("swLab");
+  const root = document.getElementById("swTry");
   if (!root || typeof CurveFit === "undefined") return;
 
-  const $ = (id) => document.getElementById(id);
-  const input = $("swLabInput");
-  const msg = $("swLabMsg");
-  const out = $("swLabOut");
-  const plot = $("swLabPlot");
-  const params = $("swLabParams");
-  const invF = $("swInvF");
-  const invN = $("swInvN");
-  const invOut = $("swInvOut");
+  // A real calibration from the team, to be added later: rows of
+  // [concentration, reading, reading, ...] plus a line saying where it comes from.
+  // While it is null the "Load our calibration" button stays out of the page.
+  const EXAMPLE = null; // { source: "…", unit: "nM", rows: [[0, …], …] }
 
+  const READINGS = 4;
+  const START_ROWS = 8;
   const SVG = "http://www.w3.org/2000/svg";
+  const $ = (id) => document.getElementById(id);
+
+  const rows = $("swTryRows");
+  const msg = $("swTryMsg");
+  const out = $("swTryOut");
+  const plot = $("swTryPlot");
+  const unitInput = $("swTryUnit");
+  const invF = $("swTryF");
+  const invN = $("swTryN");
+  const result = $("swTryResult");
+
   let current = null; // { points, fit, weighted }
+  let timer = 0;
 
-  // ---- formatting: the tool's own rules ----------------------------------
-  // Concentration to 1 dp, in µM above 1000 nM; signal to 4 significant figures.
-  function conc(nM) {
-    if (!Number.isFinite(nM)) return "--";
-    return nM > 1000 ? (nM / 1000).toFixed(1) + " µM" : nM.toFixed(1) + " nM";
-  }
-  function sig(x) {
+  // ---- formatting -------------------------------------------------------
+  const unit = () => unitInput.value.trim() || "units";
+  function num(x) {
     if (!Number.isFinite(x)) return "--";
-    return Number(x.toPrecision(4)).toString();
+    return Number(x.toPrecision(3)).toLocaleString("en-US", { maximumSignificantDigits: 3 });
+  }
+  const conc = (c) => num(c) + " " + unit();
+  const sig = (x) => (Number.isFinite(x) ? Number(x.toPrecision(4)).toString() : "--");
+
+  // ---- the table --------------------------------------------------------
+  function addRow() {
+    const tr = document.createElement("tr");
+    for (let col = 0; col <= READINGS; col++) {
+      const td = document.createElement("td");
+      const input = document.createElement("input");
+      input.type = "text";
+      input.inputMode = "decimal";
+      input.autocomplete = "off";
+      input.spellcheck = false;
+      input.setAttribute("aria-label", col === 0
+        ? `Row ${rows.children.length + 1}, concentration`
+        : `Row ${rows.children.length + 1}, reading ${col}`);
+      td.append(input);
+      tr.append(td);
+    }
+    rows.append(tr);
+    return tr;
+  }
+  function cell(r, c) {
+    while (rows.children.length <= r) addRow();
+    return rows.children[r].children[c].firstChild;
+  }
+  function clearTable() {
+    rows.replaceChildren();
+    for (let i = 0; i < START_ROWS; i++) addRow();
   }
 
-  // ---- parsing -----------------------------------------------------------
-  // One row per concentration: the concentration in nM (0 for a blank), then
-  // its readings. Tabs, commas, semicolons or spaces all separate, so a block
-  // pasted from a spreadsheet works. A line starting with # is a comment, and
-  // a line whose first cell is not a number (a header) is skipped.
-  function parse(text) {
+  // A block pasted from a spreadsheet: tab-separated cells, one line per row.
+  // Commas or semicolons also separate, for a block typed by hand.
+  rows.addEventListener("paste", (e) => {
+    const target = e.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    if (!/[\t\n,;]/.test(text.trim())) return; // a single value: let the browser paste it
+    e.preventDefault();
+    const td = target.parentElement;
+    const r0 = Array.prototype.indexOf.call(rows.children, td.parentElement);
+    const c0 = Array.prototype.indexOf.call(td.parentElement.children, td);
+    const lines = text.replace(/\r/g, "").split("\n");
+    while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+    lines.forEach((line, i) => {
+      line.split(/\t|[,;]\s*/).forEach((value, j) => {
+        if (c0 + j <= READINGS) cell(r0 + i, c0 + j).value = value.trim();
+      });
+    });
+    schedule();
+  });
+  rows.addEventListener("input", schedule);
+
+  function read() {
     const points = [];
     const problems = [];
-    text.split(/\r?\n/).forEach((line, i) => {
-      const t = line.trim();
-      if (!t || t.startsWith("#")) return;
-      const cells = t.split(/[\t,; ]+/).filter(Boolean);
-      const c = Number(cells[0]);
-      if (!Number.isFinite(c)) return;
-      if (c < 0) { problems.push(`Line ${i + 1}: a concentration cannot be negative.`); return; }
-      const ys = cells.slice(1).map(Number);
-      if (ys.length === 0) { problems.push(`Line ${i + 1}: no readings after the concentration.`); return; }
-      if (!ys.every(Number.isFinite)) { problems.push(`Line ${i + 1}: every reading must be a number.`); return; }
-      ys.forEach((y) => points.push({ c, y, sd: 0 }));
+    Array.from(rows.children).forEach((tr, i) => {
+      const values = Array.from(tr.querySelectorAll("input")).map((x) => x.value.trim());
+      if (values.every((v) => v === "")) return;
+      // A header row copied along with the data: skip it quietly.
+      if (i === 0 && values[0] !== "" && !Number.isFinite(Number(values[0]))) return;
+      const c = Number(values[0]);
+      if (values[0] === "" || !Number.isFinite(c) || c < 0) {
+        problems.push(`Row ${i + 1}: the concentration must be a number, 0 or more.`);
+        return;
+      }
+      values.slice(1).forEach((v, j) => {
+        if (v === "") return;
+        const y = Number(v);
+        if (!Number.isFinite(y)) problems.push(`Row ${i + 1}, reading ${j + 1}: not a number.`);
+        else points.push({ c, y, sd: 0 });
+      });
     });
     return { points, problems };
   }
 
-  // ---- the simulator -----------------------------------------------------
-  function gauss() {
-    let u = 0;
-    while (u === 0) u = Math.random();
-    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * Math.random());
+  // ---- fitting ----------------------------------------------------------
+  function schedule() {
+    clearTimeout(timer);
+    timer = setTimeout(run, 250);
   }
-
-  function simulate() {
-    const num = (id) => Number($(id).value);
-    const T = num("swSimT"), B = num("swSimB"), ec50 = num("swSimEc"), h = num("swSimH");
-    const cv = num("swSimCv") / 100, add = num("swSimAdd");
-    const reps = Math.round(num("swSimReps")), blanks = Math.round(num("swSimBlanks"));
-    const concs = $("swSimConcs").value.split(/[\s,;]+/).map(Number).filter((c) => Number.isFinite(c) && c > 0);
-
-    const bad = [];
-    if (!(T > B)) bad.push("top must be above bottom");
-    if (!(ec50 > 0)) bad.push("EC50 must be positive");
-    if (!(h > 0.05 && h < 20)) bad.push("the Hill coefficient must lie between 0.05 and 20");
-    if (!(cv >= 0) || !(add >= 0)) bad.push("noise cannot be negative");
-    if (!(reps >= 1 && reps <= 10)) bad.push("replicates must be 1 to 10");
-    if (!(blanks >= 2 && blanks <= 10)) bad.push("blanks must be 2 to 10");
-    if (new Set(concs).size < 4) bad.push("give at least 4 distinct positive concentrations");
-    if (bad.length) { say("Cannot simulate: " + bad.join("; ") + ".", true); return; }
-
-    const model = { top: T, bottom: B, ec50_nM: ec50, hill: h };
-    const reading = (c) => {
-      const F = CurveFit.model(c, model);
-      return F + gauss() * Math.sqrt(add * add + (cv * F) * (cv * F));
-    };
-    const lines = [
-      "# SIMULATED, not measured: drawn from a 4PL with",
-      `# top ${T}, bottom ${B}, EC50 ${ec50} nM, hill ${h}; noise ${cv * 100}% + ${add} (SD).`,
-      "# concentration (nM), readings...",
-      "0, " + Array.from({ length: blanks }, () => sig(reading(0))).join(", "),
-    ];
-    [...new Set(concs)].sort((a, b) => a - b).forEach((c) => {
-      lines.push(c + ", " + Array.from({ length: reps }, () => sig(reading(c))).join(", "));
-    });
-    input.value = lines.join("\n");
-    run();
-  }
-
-  // ---- fitting -----------------------------------------------------------
   function say(text, isError) {
     msg.textContent = text;
     msg.classList.toggle("is-error", !!isError);
   }
 
   function run() {
-    const { points, problems } = parse(input.value);
     current = null;
     out.hidden = true;
-    invOut.textContent = "";
-    if (problems.length) { say(problems.join(" "), true); return; }
-    if (points.length === 0) { say("Enter readings above, or simulate a dataset.", true); return; }
+    const { points, problems } = read();
+    if (problems.length) { say(problems.slice(0, 3).join(" "), true); return; }
+    if (!points.length) { say("Type or paste your standards to begin.", false); return; }
+
+    const blanks = points.filter((p) => p.c === 0).length;
+    const groups = new Map();
+    points.forEach((p) => groups.set(p.c, (groups.get(p.c) || 0) + 1));
+    const standards = [...groups.keys()].filter((c) => c > 0).length;
+    if (blanks < 2 || standards < 4) {
+      say(`So far: ${blanks} blank reading${blanks === 1 ? "" : "s"} and ${standards} standard concentration${standards === 1 ? "" : "s"}. ` +
+        "A curve needs at least 2 blank readings and 4 standard concentrations.", false);
+      return;
+    }
 
     let fit;
     try {
@@ -124,17 +151,22 @@
       say("No curve: " + e.message, true);
       return;
     }
-    // The same test CurveFit.fit makes: without replicate spread or read-noise SDs it fits unweighted.
-    const groups = new Map();
-    points.forEach((p) => groups.set(p.c, (groups.get(p.c) || 0) + 1));
+    // The same test CurveFit.fit makes: without replicate spread it fits unweighted.
     const weighted = [...groups.values()].some((n) => n >= 2);
-
     current = { points, fit, weighted };
-    const blanks = points.filter((p) => p.c === 0).length;
-    say(`Fitted ${points.length} readings: ${blanks} blanks and ${groups.size - 1} standard concentrations.`, false);
+    say("", false);
     out.hidden = false;
+    render();
+  }
+
+  function render() {
+    const { points, fit, weighted } = current;
+    $("swTryRange").textContent = num(fit.range_nM.min) + " – " + conc(fit.range_nM.max);
+    $("swTryLod").textContent = conc(fit.lod_nM);
+    $("swTryUsed").textContent = String(points.length);
+    $("swTryWeight").textContent = weighted ? "weighted by their replicate spread" : "unweighted: no replicates to weight by";
     renderParams();
-    renderPlot(null);
+    invert();
   }
 
   function row(label, value, note) {
@@ -144,30 +176,54 @@
     th.innerHTML = label;
     const td = document.createElement("td");
     td.textContent = value;
-    tr.append(th, td);
     const tn = document.createElement("td");
     tn.className = "sw-lab-note";
     tn.textContent = note || "";
-    tr.append(tn);
+    tr.append(th, td, tn);
     return tr;
   }
-
   function renderParams() {
-    const { fit, weighted } = current;
+    const { fit } = current;
     const p = fit.params;
-    params.replaceChildren(
+    $("swTryParams").replaceChildren(
       row("Top <var>T</var>", sig(p.top), "saturated signal"),
-      row("Bottom <var>B</var>", sig(p.bottom), "signal with no AHL"),
+      row("Bottom <var>B</var>", sig(p.bottom), "signal with no target"),
       row("EC<sub>50</sub>", conc(p.ec50_nM), "half-maximal response"),
       row("Hill <var>h</var>", sig(p.hill), "steepness"),
       row("LOD", conc(fit.lod_nM), "blank + 3 SD, through the curve"),
       row("LOQ", conc(fit.loq_nM), "blank + 10 SD, through the curve"),
-      row("Usable range", conc(fit.range_nM.min) + " – " + conc(fit.range_nM.max), "the only range that returns a number"),
-      row("RMSE", sig(fit.rmse), "unweighted, in signal units"),
+      row("RMSE", sig(fit.rmse), "in signal units"),
       row("Noise model", `a = ${sig(fit.noise.a)}, b = ${sig(fit.noise.b)}`, "Var(F) = a + bF²"),
-      row("Weighting", weighted ? "weighted" : "unweighted", weighted ? "weights from the replicate spread" : "no replicates: a from the residuals"),
     );
   }
+
+  // ---- converting a sample ----------------------------------------------
+  function invert() {
+    if (!current) return;
+    const raw = invF.value.trim();
+    const n = Math.round(Number(invN.value));
+    if (raw === "") { result.textContent = ""; result.className = "sw-try-result"; renderPlot(null); return; }
+    const F = Number(raw);
+    if (!Number.isFinite(F)) { result.textContent = "Enter the sample's mean reading."; renderPlot(null); return; }
+    if (!(n >= 1)) { result.textContent = "Replicates must be at least 1."; renderPlot(null); return; }
+    const r = CurveFit.invert(F, current.fit, n);
+    if (r.status === "ok") {
+      result.className = "sw-try-result is-ok";
+      result.innerHTML = "";
+      const big = document.createElement("strong");
+      big.textContent = "≈ " + conc(r.concentration_nM);
+      result.append(big, document.createTextNode(`  95% CI ${num(r.ci95_nM[0])} – ${conc(r.ci95_nM[1])}`));
+      renderPlot({ F, c: r.concentration_nM, ci: r.ci95_nM });
+    } else {
+      result.className = "sw-try-result is-bound";
+      result.textContent = r.status === "below_lod"
+        ? `Below the limit of detection: under ${conc(current.fit.range_nM.min)}. No number is given.`
+        : `Above the usable range: over ${conc(current.fit.range_nM.max)}. No number is given.`;
+      renderPlot({ F });
+    }
+  }
+  invF.addEventListener("input", invert);
+  invN.addEventListener("input", invert);
 
   // ---- the plot ----------------------------------------------------------
   // Log concentration axis. Blanks have no place on a log axis, so they sit in
@@ -199,18 +255,15 @@
     plot.replaceChildren();
     plot.setAttribute("viewBox", `0 0 ${W} ${H}`);
 
-    // usable range band
     plot.append(el("rect", {
       class: "sw-plot-range", x: X(fit.range_nM.min), y: TOP,
       width: Math.max(0, X(fit.range_nM.max) - X(fit.range_nM.min)), height: H - TOP - BOT,
     }));
 
-    // grid and ticks
     for (let d = lx0; d <= lx1; d++) {
       const x = X(10 ** d);
       plot.append(el("line", { class: "sw-plot-grid", x1: x, x2: x, y1: TOP, y2: H - BOT }));
-      const label = d >= 3 ? 10 ** (d - 3) + " µM" : d >= 0 ? 10 ** d + " nM" : Number((10 ** d).toPrecision(1)) + " nM";
-      plot.append(el("text", { class: "sw-plot-tick", x, y: H - BOT + 18, "text-anchor": "middle" }, label));
+      plot.append(el("text", { class: "sw-plot-tick", x, y: H - BOT + 18, "text-anchor": "middle" }, num(10 ** d)));
     }
     // Round ticks: a step of 1, 2 or 5 times a power of ten, about five of them.
     const raw = (y1 - y0) / 5;
@@ -225,32 +278,26 @@
     plot.append(el("line", { class: "sw-plot-axis", x1: L, x2: W - R, y1: H - BOT, y2: H - BOT }));
     plot.append(el("line", { class: "sw-plot-axis", x1: L, x2: L, y1: TOP, y2: H - BOT }));
     plot.append(el("path", { class: "sw-plot-axis", d: `M${x0px - 6} ${H - BOT + 5} l4 -10 M${x0px - 1} ${H - BOT + 5} l4 -10` }));
-    plot.append(el("text", { class: "sw-plot-title", x: (x0px + W - R) / 2, y: H - 10, "text-anchor": "middle" }, "AHL concentration (log scale)"));
-    plot.append(el("text", { class: "sw-plot-title", x: 14, y: (TOP + H - BOT) / 2, "text-anchor": "middle", transform: `rotate(-90 14 ${(TOP + H - BOT) / 2})` }, "signal"));
+    plot.append(el("text", { class: "sw-plot-title", x: (x0px + W - R) / 2, y: H - 10, "text-anchor": "middle" }, `concentration, ${unit()} (log scale)`));
+    plot.append(el("text", { class: "sw-plot-title", x: 14, y: (TOP + H - BOT) / 2, "text-anchor": "middle", transform: `rotate(-90 14 ${(TOP + H - BOT) / 2})` }, "reading"));
 
-    // LOD in signal: dashed horizontal
     const lodF = CurveFit.model(fit.lod_nM, fit.params);
     plot.append(el("line", { class: "sw-plot-lod", x1: L, x2: W - R, y1: Y(lodF), y2: Y(lodF) }));
     plot.append(el("text", { class: "sw-plot-tick", x: W - R - 4, y: Y(lodF) - 5, "text-anchor": "end" }, "LOD"));
 
-    // fitted curve
     let d = "";
     const steps = 160;
     for (let i = 0; i <= steps; i++) {
-      const lc = lx0 + ((lx1 - lx0) * i) / steps;
-      const c = 10 ** lc;
+      const c = 10 ** (lx0 + ((lx1 - lx0) * i) / steps);
       d += (i ? "L" : "M") + X(c).toFixed(1) + " " + Y(CurveFit.model(c, fit.params)).toFixed(1);
     }
     plot.append(el("path", { class: "sw-plot-curve", d }));
     plot.append(el("line", { class: "sw-plot-curve sw-plot-base", x1: XB - 12, x2: XB + 12, y1: Y(fit.params.bottom), y2: Y(fit.params.bottom) }));
 
-    // readings
     points.forEach((p) => {
-      const cx = p.c > 0 ? X(p.c) : XB;
-      plot.append(el("circle", { class: p.c > 0 ? "sw-plot-pt" : "sw-plot-pt is-blank", cx, cy: Y(p.y), r: 4 }));
+      plot.append(el("circle", { class: p.c > 0 ? "sw-plot-pt" : "sw-plot-pt is-blank", cx: p.c > 0 ? X(p.c) : XB, cy: Y(p.y), r: 4 }));
     });
 
-    // an inverted sample
     if (marker) {
       const yF = Y(marker.F);
       plot.append(el("line", { class: "sw-plot-inv", x1: L, x2: marker.c ? X(marker.c) : W - R, y1: yF, y2: yF }));
@@ -264,36 +311,32 @@
     }
   }
 
-  // ---- inversion ---------------------------------------------------------
-  function invert() {
-    if (!current) { invOut.textContent = "Fit a curve first."; return; }
-    const F = Number(invF.value);
-    const n = Math.round(Number(invN.value));
-    if (!Number.isFinite(F) || invF.value.trim() === "") { invOut.textContent = "Enter the sample's mean signal."; return; }
-    if (!(n >= 1)) { invOut.textContent = "n must be at least 1."; return; }
-    const r = CurveFit.invert(F, current.fit, n);
-    if (r.status === "ok") {
-      invOut.textContent = `${conc(r.concentration_nM)}, 95% CI ${conc(r.ci95_nM[0])} – ${conc(r.ci95_nM[1])}`;
-      renderPlot({ F, c: r.concentration_nM, ci: r.ci95_nM });
-    } else if (r.status === "below_lod") {
-      invOut.textContent = `Below LOD: under ${conc(current.fit.range_nM.min)}. No number is given.`;
-      renderPlot({ F });
-    } else {
-      invOut.textContent = `Above range: over ${conc(current.fit.range_nM.max)}. No number is given.`;
-      renderPlot({ F });
-    }
+  // ---- buttons ------------------------------------------------------------
+  $("swTryAdd").addEventListener("click", () => addRow().querySelector("input").focus());
+  $("swTryClear").addEventListener("click", () => {
+    clearTable();
+    invF.value = "";
+    result.textContent = "";
+    run();
+    cell(0, 0).focus();
+  });
+  unitInput.addEventListener("input", () => {
+    root.querySelectorAll(".sw-try-unit-label").forEach((n) => { n.textContent = unit(); });
+    if (current) render();
+  });
+  const exampleBtn = $("swTryExample");
+  if (exampleBtn) {
+    if (!EXAMPLE) exampleBtn.remove();
+    else exampleBtn.addEventListener("click", () => {
+      clearTable();
+      EXAMPLE.rows.forEach((r, i) => r.forEach((v, j) => { if (j <= READINGS) cell(i, j).value = String(v); }));
+      unitInput.value = EXAMPLE.unit;
+      unitInput.dispatchEvent(new Event("input"));
+      run();
+      if (current) say(EXAMPLE.source, false);
+    });
   }
 
-  $("swLabFit").addEventListener("click", run);
-  $("swLabClear").addEventListener("click", () => {
-    input.value = "";
-    current = null;
-    out.hidden = true;
-    invOut.textContent = "";
-    say("", false);
-    input.focus();
-  });
-  $("swSimGo").addEventListener("click", simulate);
-  $("swInvGo").addEventListener("click", invert);
-  invF.addEventListener("keydown", (e) => { if (e.key === "Enter") invert(); });
+  clearTable();
+  run();
 })();
