@@ -100,8 +100,8 @@
 
     <p>
       A blue LED lights a UVette from the side, and an AS7341 spectral sensor
-      looks at it from 90&deg;. Everything sits in a laser-cut enclosure of
-      blackened plywood in two layers: the optics above, the ESP32 and its
+      looks at it from 90&deg;. Everything sits in a laser-cut plywood enclosure,
+      painted matte black inside, in two layers: the optics above, the ESP32 and its
       wiring below, with a deck between them. An OLED shows each
       result and one button starts a measurement.
     </p>
@@ -133,8 +133,8 @@
         <canvas class="lc3d-view" tabindex="0" role="img"
           aria-label="Three-dimensional view of the laser-cut reader, built from the generator's own outlines. A deck carries three chambers around the cuvette pocket: the LED chamber on one side, the light trap straight across, and the detection chamber at right angles. Drag to rotate, or use the arrow keys."></canvas>
         <ul class="lc3d-legend">
-          <li class="lc3d-k-black">coloured matte black</li>
-          <li class="lc3d-k-box">enclosure, bare plywood</li>
+          <li class="lc3d-k-black">painted matte black</li>
+          <li class="lc3d-k-box">enclosure: black inside, bare outside</li>
           <li class="lc3d-k-proxy">bought parts, plain shapes</li>
         </ul>
         <div class="lc3d-hint" aria-hidden="true">drag to rotate &middot; click a part &middot; ctrl + scroll to zoom</div>
@@ -154,7 +154,7 @@
       <div><dt>Emission filter</dt><dd>None. Blue is kept out by the 90&deg; geometry and the light trap</dd></div>
       <div><dt>Light trap</dt><dd>A deep, dark chamber straight across from the LED, entered through an 8&nbsp;mm hole in the wall of the cuvette holder</dd></div>
       <div><dt>Controller</dt><dd>ESP32 DevKit (ESP32-WROOM-32), with an SSD1306 OLED and a push button</dd></div>
-      <div><dt>Enclosure</dt><dd>Laser-cut 3&nbsp;mm plywood, blackened; two layers</dd></div>
+      <div><dt>Enclosure</dt><dd>Laser-cut 3&nbsp;mm plywood, painted matte black inside; two layers</dd></div>
     </dl>
 
     <p>
@@ -584,7 +584,44 @@
   <section id="hardware-laser-build">
     <h2>Building one</h2>
 
-    <h3>The laser-cut parts</h3>
+    {# 三張卡片是這一節的入口，每一句都出自下面的產生器說明、電路段落與 How a reading is made。
+       組裝流程、操作流程寫好後，卡片再加連結。 #}
+    <ol class="hw-do">
+      <li>
+        <h3>Build</h3>
+        <p>
+          Generate the parts below for your board's thickness and cut the
+          jointed parts from one 450&nbsp;&times;&nbsp;300&nbsp;mm sheet of the
+          same board. Colour every part with a matte black marker, the
+          enclosure on the inside only; fit the chamber walls and roofs into
+          the deck by their tabs, and set the deck on its rails
+          inside the enclosure.
+        </p>
+        <p class="hw-more"><a href="#lc-parts">The laser-cut parts</a> <a href="#lc-assembly">Assembly, step by step</a></p>
+      </li>
+      <li>
+        <h3>Wire</h3>
+        <p>
+          The AS7341 sensor and the OLED share the ESP32's I&sup2;C bus; the
+          LED runs from GPIO25 through 220&nbsp;&Omega;, and the button sits on
+          GPIO13. Everything runs from 3.3&nbsp;V.
+        </p>
+        <p class="hw-more"><a href="#lc-circuit">The circuit</a> <a href="#lc-wiring">Wiring</a></p>
+      </li>
+      <li>
+        <h3>Run</h3>
+        <p>
+          Seat the UVette with its 2&nbsp;mm path toward the LED, close the
+          lid, and press the button: five readings of about 22 seconds each,
+          the first discarded and the other four averaged. In each session,
+          also read a tube with no sfGFP; results are its F5/F3 subtracted
+          from each sample's.
+        </p>
+        <p class="hw-more"><a href="#hardware-laser-reading">How a reading is made</a> <a href="#lc-operating">Operating steps</a></p>
+      </li>
+    </ol>
+
+    <h3 id="lc-parts">The laser-cut parts</h3>
     <p>
       The whole set of parts is generated in the browser from the measured
       thickness of the plywood. The optical layout stays fixed: the cuvette
@@ -597,13 +634,6 @@
       single measured thickness. The small parts without joints fill the
       gaps around them; those that do not fit go on a second sheet of any
       board.
-    </p>
-    <p class="hw-aside">
-      Assembly tip: the deck and the enclosure panels have symmetric
-      outlines, so each also fits when turned around, but their holes are not
-      symmetric and the parts carry no orientation marks. Before gluing, check
-      that every hole lines up with what it serves: the LED, the cuvette, the
-      sensor and the wire holes.
     </p>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='capture-generator.css') }}">
@@ -621,7 +651,164 @@
       described above.
     </p>
 
-    <h3>The circuit</h3>
+    {# 組裝步驟：每一步都由硬體負責人逐條確認過（2026-10-09）：先塗再組；牆與頂蓋只靠卡榫；
+       光陷阱的三角形與方片、感測器支撐板、支撐條、外殼指接榫用膠；LED 卡在 4 mm 孔裡；
+       ESP32、OLED、按鈕用雙面膠；所有線先接好再放甲板；固定板只是放著，上蓋可拿下。 #}
+    <details class="hw-fold" id="lc-assembly">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Assembly, step by step</span>
+        <span class="hw-fold-meta">10 steps</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
+        <ol class="lc-steps">
+          <li>
+            <b>1 &middot; Cut and colour.</b>
+            Generate the parts for your board's thickness and cut them, the
+            jointed parts from one sheet of the same board. Colour every part with
+            a matte black marker before anything is put together; on the enclosure
+            panels, colour the inside face only.
+          </li>
+          <li>
+            <b>2 &middot; Chambers.</b>
+            Press each wall's feet into its slots in the deck, the 12&nbsp;mm wall
+            included: it closes the side of the cuvette pocket opposite the
+            sensor. Nothing here is glued; the slots, drawn 0.1&nbsp;mm small on
+            each side, hold the walls by friction.
+          </li>
+          <li>
+            <b>3 &middot; Light trap.</b>
+            In the chamber across from the LED, glue the two triangles upright
+            against its long walls, right angle away from the 8&nbsp;mm opening,
+            and glue the square onto their slopes so that its lower edge rests
+            against the wall with the opening. The square rises away from the
+            opening at about 45&deg;, so light coming straight through meets a
+            sloped black surface instead of a wall facing it.
+          </li>
+          <li>
+            <b>4 &middot; LED.</b>
+            From inside the LED chamber, press the LED into the 4&nbsp;mm hole in
+            the cuvette wall so that it points at the cuvette; the hole holds it.
+            Take its two leads down through the round wire hole in the deck.
+          </li>
+          <li>
+            <b>5 &middot; Sensor.</b>
+            Glue the support plate under the deck so that it closes the slot
+            beside the cuvette pocket from below. Stand the sensor board in the
+            slot, resting on the plate, with the sensor facing the cuvette. Take
+            its four wires along the detection chamber and down through the
+            rectangular wire hole in the deck.
+          </li>
+          <li>
+            <b>6 &middot; Roofs.</b>
+            With the light trap, the LED and the sensor in place, press the three
+            roofs into the notches along the tops of their walls. Like the walls,
+            they are held by friction, not glue.
+          </li>
+          <li>
+            <b>7 &middot; Enclosure and rails.</b>
+            Glue the enclosure's base and four sides together at their finger
+            joints. Glue the four rails to the inside of the walls at about half
+            the enclosure's height: the two long ones along the long sides, the
+            two short ones across the ends. Fix the ESP32 to the base with double-
+            sided tape.
+          </li>
+          <li>
+            <b>8 &middot; Deck.</b>
+            Connect the LED, sensor, OLED and button wires to the ESP32 as in the
+            <a href="#lc-wiring">wiring table</a>, leading the OLED and button
+            wires out through the opening in the long side. Then lower the deck,
+            chambers and all, onto the rails.
+          </li>
+          <li>
+            <b>9 &middot; Display and button.</b>
+            Their wires are connected at the ESP32 end first, with the other ends
+            led out through the opening in the long side, on the detection
+            chamber's side. Connect the OLED and the button to those ends outside,
+            then fix them to the outside of that wall with double-sided tape, side
+            by side, so that together they cover the opening.
+          </li>
+          <li>
+            <b>10 &middot; Plate and lid.</b>
+            Lay the plate with the 13&nbsp;&times;&nbsp;13&nbsp;mm opening on top
+            of the chambers, its opening over the cuvette pocket; it rests there
+            unglued and holds the cuvette upright. Put the enclosure's lid on; it
+            is not glued and lifts off. Glue the 25&nbsp;&times;&nbsp;25&nbsp;mm
+            square under the 27&nbsp;&times;&nbsp;27&nbsp;mm one: this small cover
+            drops into the lid's opening, and the cuvette goes in and out through
+            that opening.
+          </li>
+        </ol>
+        <p class="hw-aside">
+          Assembly tip: the deck and the enclosure panels have symmetric
+          outlines, so each also fits when turned around, but their holes are not
+          symmetric and the parts carry no orientation marks. Before gluing, check
+          that every hole lines up with what it serves: the LED, the cuvette, the
+          sensor and the wire holes.
+        </p>
+      </div>
+    </details>
+
+    {# 操作步驟：照量測用的批次韌體 v5.5（桌面 0920/0920.ino）與 0922 的紀錄，硬體負責人確認過（2026-10-09）：
+       USB 接電腦、Serial 115200、輸入編號、按鈕跑五筆、每場次先跑一批暖機再下 k。
+       之後的電池版（結果傳到軟體、由軟體處理）做好後再補一句，不要先寫。 #}
+    <details class="hw-fold" id="lc-operating">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Operating steps</span>
+        <span class="hw-fold-meta">6 steps</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
+        <ol class="lc-steps">
+          <li>
+            <b>1 &middot; Connect.</b>
+            Plug the ESP32 into a computer by USB and open a serial monitor at
+            115200 baud. The display shows the reader's status and &ldquo;Type ID,
+            press button&rdquo;.
+          </li>
+          <li>
+            <b>2 &middot; Load.</b>
+            Fill a UVette with the sample and lower it through the lid opening
+            into its pocket, the 2&nbsp;mm path toward the LED. Close the opening
+            with the small cover.
+          </li>
+          <li>
+            <b>3 &middot; Calibrate.</b>
+            Start each session with a tube with no sfGFP. Load it and run one
+            batch to warm the LED, then type <b>k</b> into the serial monitor. The
+            display shows CAL OK with k5, the share of the blue signal that
+            reaches the green channel.
+          </li>
+          <li>
+            <b>4 &middot; Name and run.</b>
+            Type the tube's ID into the serial monitor and press the button. The
+            reader takes five readings, about 22 seconds each; leave it alone
+            while the display says &ldquo;do not touch&rdquo;.
+          </li>
+          <li>
+            <b>5 &middot; Read.</b>
+            The display shows DONE with the mean F3 and SIG of readings two to
+            five. Every reading also goes to the serial monitor as a line of CSV,
+            the first one included.
+          </li>
+          <li>
+            <b>6 &middot; Zero.</b>
+            Read the tube with no sfGFP again during the session. The results on
+            this page are each tube's F5/F3 minus that tube's.
+          </li>
+        </ol>
+      </div>
+    </details>
+
+    <h3 id="lc-circuit">The circuit</h3>
     <p>
       Everything runs from the ESP32's 3.3&nbsp;V supply. The AS7341 and the
       OLED share one I&sup2;C bus at different addresses (0x39 and 0x3C); both
@@ -637,7 +824,7 @@
        (GPIO25, 220 Ω) and reads a push button (GPIO13). The AS7341 spectral sensor (DFRobot Gravity SEN0364)
        and the SSD1306 OLED share one I²C bus (SDA GPIO21, SCL GPIO22). Everything runs from the 3.3 V rail.
        兩張圖都是依接線表重畫的示意圖，不是 Tinkercad／Fritzing 匯出的原始檔；不要用舊的 Tinkercad 截圖。 #}
-    <figure class="hw-figure hw-figure-table">
+    <figure id="lc-wiring" class="hw-figure hw-figure-table">
       <table class="hw-table">
         <caption>Wiring. All parts run from 3.3&nbsp;V.</caption>
         <thead>
