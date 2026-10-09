@@ -1390,7 +1390,7 @@
 
     {# 2026-10-06（晚）：三張卡片只是下面 Data and documentation 的入口，每一句都出自那裡的表格與說明。
        38 件：CAD 圖下方那句 Version 2 as designed: 38 printed pieces。 #}
-    <ol class="hw-do">
+    <ol class="hw-do hw-do-two">
       <li>
         <h3>Print</h3>
         <p>
@@ -1414,18 +1414,199 @@
         </p>
         <p class="hw-more">
           <a href="#hardware-circuit">The circuit</a>
-          <a href="#hw-doc-timing">Timing</a>
         </p>
       </li>
-      <li>
+      {#
+        === 給團隊：Run 這一格（2026-10-09）===
+        原本「怎麼用」分在三處：這裡的三句話、收合的 Operating protocol（七個步驟加 row flag 表）、
+        以及只在硬體資料夾裡的操作卡。現在合成這一格，Operating protocol 那一列已拿掉，內容都在這裡。
+
+        每一句的出處：
+          步驟、規則、故障排除：_AI_REFACTOR_WORK/P1_BENCH_OPERATING_CARD_2026-09-15.md。
+          右欄「機器回什麼」：_AI_REFACTOR_WORK/P1_CAL_LOWEND_LOGS_2026-10-05/ 的原始序列埠紀錄。
+            # 開頭的行逐字照抄；dark／F4／flag 那一條是由程式從資料列讀出的（每一列有 66 個欄位）：
+            第 1 步 00_id.log；
+            第 2 步 01_G1_EMPTY_WM_noarm.log：1 列，predark、on、postdark 共 36 個值全 0，
+              NO_SIGNAL;LED_DISABLED、fault NOT_ARMED，cycle 1 後 abort（預期）；
+            第 3 步 02_G2_EMPTY_WM.log：F4 0, 0, 0，三個 cycle 的 predark、postdark 十二通道全 0；
+            第 4 步 P01_LOW_BLK_1.log：同上；
+            第 5 步 P06_LOW_D_1.log：F4 56, 57, 55，predark、postdark 全 0，
+              就是 The dilution series 表裡 100 µL 的 56.00 那一管。
+          「You type」那一欄是該步驟必要的指令，不是當天送出的全部：擷取工具 serial_read_tool.ps1 每一次擷取
+            都先送 id、sample、ahl、rep，再 arm、run、disarm。圖下方的小字有寫明。
+          燒錄指令：_AI_REFACTOR_WORK/P1_FIRMWARE_BUILD_EVIDENCE_2026-08-28.md 記錄的 gate 1 建置指令。
+            韌體的 CAPTURE_LED_HARDWARE_ENABLE 預設是 0（esp32_fluorescence_reader.ino 第 73–74 行）。
+          115200：esp32_fluorescence_reader.ino 的 Serial.begin(115200)，擷取工具的預設值也是。
+          AMBIENT_PRESENT 的例子：P02_LOW_R3_1.log 的 t4 c2，predark_NIR0 = 1；重讀 P02b 九列全乾淨（NOTES.md）。
+          REFUSED 的例子：P1_V08_FIRST_READ_LOGS_2026-10-03/ 的 09、11 兩筆，各自在重置後恢復（SESSION_NOTE.md）。
+          十個通道、十二個值：感測器有十個通道（F1–F8、Clear、NIR），韌體一次讀取分兩半（各四個 F 通道加 Clear、NIR），
+            所以每次讀取有十二個值，欄位是 F1…F4、Clear0、NIR0、F5…F8、Clear、NIR（firmware/README.md 的 CSV schema）。
+            頁面上方共同的原理圖講「ten channels」，這裡講十二個值，圖下方的小字有說明。
+          HW_ENABLE_COMPILED_OFF、REJECTED 的訊息文字出自韌體原始碼，不是出自紀錄；我們的紀錄裡沒有發生過，
+            所以那兩格沒有寫 Seen。SATURATED 也沒有寫 Seen。
+
+        2026-10-09：擷取工具 serial_read_tool.ps1 已放上 GitLab（capture-screen-hardware 的 firmware/host/，
+        commit 9cd096b；從 GitLab 取回的檔案 SHA-256 與硬體紀錄一致），圖下方的小字已加連結。
+        同一個 commit 也在那份 README 的編譯指令補上了 LED 閘門的旗標。
+      #}
+      <li class="hw-do-wide" id="hardware-run">
         <h3>Run</h3>
-        <p>
-          Over the serial port, one command per line, under an opaque shield.
-          One run reads three cycles of dark, lit, dark, and a dark read that
-          is not zero voids its cycle.
+        <p class="hw-run-lead">
+          Any serial terminal at 115&nbsp;200&nbsp;baud, one command per
+          line, under an opaque shield. This is one session from start to
+          finish; the reader's answers are from the log of the dilution
+          series on version 2, 2026-10-05.
         </p>
+
+        <div class="hw-run-cols" aria-hidden="true">
+          <span>On the bench</span><span>You type</span><span>The reader answers</span>
+        </div>
+        <ol class="hw-run">
+          <li>
+            <div class="hw-run-do">
+              <b>Shield on</b>
+              Box over the reader. Reset the controller once, now, and not
+              again.
+            </div>
+            <div class="hw-run-cmd"><kbd>id</kbd></div>
+            <div class="hw-run-say">
+              <pre class="hw-run-log"># hw_enable(compile)<b>1</b>
+# sensor_ready      <b>1</b>
+# settings_readback <b>1</b></pre>
+              <p class="hw-run-note">Go on only if all three read 1.</p>
+            </div>
+          </li>
+          <li>
+            <div class="hw-run-do">
+              <b>Empty cuvette, LED not armed</b>
+              The check that the shield is on.
+            </div>
+            <div class="hw-run-cmd"><kbd>run</kbd></div>
+            <div class="hw-run-say">
+              <p class="hw-run-strip"><span class="is-dark">dark <b>0</b></span><span class="is-off">LED off <b>0</b></span><span class="is-dark">dark <b>0</b></span><code>NO_SIGNAL;LED_DISABLED</code></p>
+              <p class="hw-run-note">It stops after one cycle, as it should. All 36 values must be 0.</p>
+            </div>
+          </li>
+          <li>
+            <div class="hw-run-do">
+              <b>Same cuvette, LED armed</b>
+              The day's empty reading, not a reference across days.
+            </div>
+            <div class="hw-run-cmd"><kbd>arm ARM-LED-P1</kbd><kbd>run</kbd></div>
+            <div class="hw-run-say">
+              <pre class="hw-run-log"># LED ARMED</pre>
+              <p class="hw-run-strip"><span class="is-dark">dark <b>0</b></span><span class="is-lit">F4 <b>0, 0, 0</b></span><span class="is-dark">dark <b>0</b></span><code>OK</code></p>
+            </div>
+          </li>
+          <li>
+            <div class="hw-run-do">
+              <b>Medium blank, 200&nbsp;&micro;L</b>
+              The day's zero.
+            </div>
+            <div class="hw-run-cmd"><kbd>sample LOW_BLK_1</kbd><kbd>run</kbd></div>
+            <div class="hw-run-say">
+              <pre class="hw-run-log"># sample_id=LOW_BLK_1</pre>
+              <p class="hw-run-strip"><span class="is-dark">dark <b>0</b></span><span class="is-lit">F4 <b>0, 0, 0</b></span><span class="is-dark">dark <b>0</b></span><code>OK</code></p>
+            </div>
+          </li>
+          <li class="is-hero">
+            <div class="hw-run-do">
+              <b>Each sample, 200&nbsp;&micro;L</b>
+              No bubble where the beam passes, 8.5&nbsp;mm above the floor.
+              Repeat for every tube.
+            </div>
+            <div class="hw-run-cmd"><kbd>sample LOW_D_1</kbd><kbd>run</kbd></div>
+            <div class="hw-run-say">
+              <p class="hw-run-strip"><span class="is-dark">dark <b>0</b></span><span class="is-lit">F4 <b>56, 57, 55</b></span><span class="is-dark">dark <b>0</b></span><code>OK</code></p>
+              <p class="hw-run-note">Three cycles of dark, lit, dark. This tube: 100&nbsp;&micro;L of GFP culture in its 200&nbsp;&micro;L.</p>
+            </div>
+          </li>
+          <li>
+            <div class="hw-run-do">
+              <b>Done</b>
+              A finished run does not disarm by itself.
+            </div>
+            <div class="hw-run-cmd"><kbd>disarm</kbd></div>
+            <div class="hw-run-say">
+              <pre class="hw-run-log"># LED DISARMED</pre>
+            </div>
+          </li>
+        </ol>
+        <p class="hw-run-foot">
+          <i>dark</i> is all twelve values of a read, before and after each
+          flash: the sensor's ten channels, with Clear and NIR read twice.
+          F4 is the three cycles with the LED on. Each cycle prints
+          one CSV row of 66 fields: keep the terminal's whole log. Ours was
+          kept by a script that stamps and stores every line; it is in the
+          repository as
+          <a href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware/-/blob/main/firmware/host/serial_read_tool.ps1"><code>firmware/host/serial_read_tool.ps1</code></a>.
+        </p>
+
+        <div class="hw-run-once">
+          <b>Once, before the first session</b>
+          <p>
+            The sketch ships with its LED gate off, and built that way the
+            LED never lights. Build it with the gate on, then upload it.
+          </p>
+          <pre class="hw-run-log">arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 --build-property "compiler.cpp.extra_flags=-DCAPTURE_LED_HARDWARE_ENABLE=1" firmware/esp32_fluorescence_reader</pre>
+        </div>
+
+        <h4 class="hw-run-else-head">When the reader says something else</h4>
+        <div class="hw-run-else">
+          <dl>
+            <div>
+              <dt><code>AMBIENT_PRESENT</code></dt>
+              <dd>
+                A dark read was not zero: light is getting in. Void the
+                cycle, fix the shield, read again. Do not subtract it, and
+                leave the voided row in the file.
+                <span class="hw-run-seen">Seen 2026-10-05, at 6.25&nbsp;&micro;L: one channel read 1 before one flash of nine. Read again, all nine cycles were clean.</span>
+              </dd>
+            </div>
+            <div>
+              <dt><code># REFUSED: ENABLE is not in a defined acquisition state</code></dt>
+              <dd>
+                The detector lost power or was reset, and <code>id</code>
+                shows <code>settings_readback&nbsp;0</code>. Reset the
+                controller once. If that fails, unplug the USB for five
+                seconds, then check the detector's wires: SDA on GPIO21,
+                SCL on GPIO22, and 3V3.
+                <span class="hw-run-seen">Seen 2026-10-03, twice, during version 2's first readings. A reset cleared it both times.</span>
+              </dd>
+            </div>
+          </dl>
+          <dl>
+            <div>
+              <dt><code>NO_SIGNAL;LED_DISABLED</code></dt>
+              <dd>
+                The LED did not light. <code>fault=NOT_ARMED</code>: arm and
+                run again. <code>fault=HW_ENABLE_COMPILED_OFF</code>: the
+                sketch was built with its gate off.
+              </dd>
+            </div>
+            <div>
+              <dt><code># REJECTED sample_id: longer than 24 chars</code></dt>
+              <dd>
+                A name takes up to 24 letters, digits and
+                <code>.</code> <code>_</code> <code>-</code> <code>+</code>.
+                A rejected name leaves the last one in force: read the echo
+                before <code>run</code>.
+              </dd>
+            </div>
+            <div>
+              <dt><code>SATURATED</code></dt>
+              <dd>A channel reached full scale, 65&nbsp;535. Dilute the sample.</dd>
+            </div>
+            <div class="is-ok">
+              <dt><code>flag=OK</code> with F4 at 0</dt>
+              <dd>A valid reading. Keep it: every tube without GFP has read zero.</dd>
+            </div>
+          </dl>
+        </div>
+
         <p class="hw-more">
-          <a href="#hw-doc-protocol">Operating protocol</a>
+          <a href="#hw-doc-timing">Acquisition timing</a>
+          <a href="#hw-doc-session">The dilution series, tube by tube</a>
         </p>
       </li>
     </ol>
@@ -2544,66 +2725,6 @@
       session, by its own timer and not by an edge measured on the pin, and
       the 1.0&nbsp;s cut-off itself has never been exercised.
     </p>
-        </div>
-      </details>
-      <details class="hw-fold hw-fold-wide" id="hw-doc-protocol">
-        <summary class="hw-fold-head">
-          <span class="hw-fold-title">Operating protocol</span>
-          <span class="hw-fold-meta">7 steps</span>
-          <span class="hw-fold-state" aria-hidden="true">
-            <span class="hw-fold-verb" data-open="false">Show</span>
-            <span class="hw-fold-verb" data-open="true">Hide</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-          </span>
-        </summary>
-        <div class="hw-fold-body hw-fold-prose">
-    {# 來源：_AI_REFACTOR_WORK/P1_BENCH_OPERATING_CARD_2026-09-15.md（操作卡）。
-       收尾報告建議的兩條（一管一杯、原液 OD 固定在 1:4 下讀）還沒寫進操作卡，
-       所以這裡沒有列為步驟，而是放在 What using it taught us。 #}
-    <p>
-      The 3D-printed build is driven over the serial port, one command per
-      line, under its shield. One run reads three cycles of dark, lit, dark.
-    </p>
-
-    <p class="hw-aside">
-      Two rules first. The controller is reset once, at the start, and not
-      again: a sensor initialisation fault has followed a reset, for a
-      reason we have not found, and in that state the firmware refuses to
-      run. And a voided row stays in the file: it is left out of the
-      statistics, not deleted.
-    </p>
-
-    <ol class="hw-steps">
-      <li>Connect, power up, and put the opaque box over the instrument.</li>
-      <li><code>id</code>: go on only if the sensor reports ready and its
-        settings read back as written.</li>
-      <li>Empty cuvette, LED not armed, <code>run</code>: all twelve channels
-        must read zero in all three phases. This is the check that the shield
-        is on.</li>
-      <li>Empty cuvette again, <code>arm</code> and <code>run</code>: the
-        day's empty-cuvette reading. It is not used as a reference across
-        days.</li>
-      <li>A medium blank, 200&nbsp;&micro;L.</li>
-      <li>Each sample: check the cuvette against the light for bubbles, the
-        beam passing 8.5&nbsp;mm above its floor; name it with
-        <code>sample</code>; then <code>run</code>, which reads three cycles
-        of dark, lit, dark.</li>
-      <li><code>disarm</code> when done. A successful run does not disarm by
-        itself.</li>
-    </ol>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption>How to read one row of data</caption>
-        <thead><tr><th scope="col">The row says</th><th scope="col">It means</th><th scope="col">Do</th></tr></thead>
-        <tbody>
-          <tr><td><code>flag=OK</code>, <code>fault=NONE</code></td><td>A valid reading, including when F4 is 0.</td><td>Keep it.</td></tr>
-          <tr><td><code>AMBIENT_PRESENT</code></td><td>The dark read before the flash was not zero.</td><td>Void the cycle, fix the shield, read again. Do not subtract.</td></tr>
-          <tr><td><code>SATURATED</code></td><td>A channel reached full scale, 65&nbsp;535.</td><td>Dilute the sample.</td></tr>
-          <tr><td><code>NOT_ARMED</code></td><td>The LED was not armed, so there is no signal.</td><td>For a sample, arm and run again. In the shield check it is expected.</td></tr>
-        </tbody>
-      </table>
-    </div>
         </div>
       </details>
     </div>
