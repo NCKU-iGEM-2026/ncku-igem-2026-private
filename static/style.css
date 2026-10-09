@@ -460,6 +460,19 @@ body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) bright
    colour, on phones as well. The petrol tint over it is the shared one, which
    is what keeps the graphic's own lettering behind the page title. */
 body.hw-nexus .page-hero-bg.hero-software { filter: blur(2px) saturate(1) brightness(0.75); }
+/* The whole graphic, never cropped: as wide as the banner, as tall as that
+   makes it, and centred. (The box runs 6px past the banner on each side for
+   the blur, hence the 12px off its width; no zoom, so nothing is cut.) The
+   space above and below is filled with the graphic's own top and bottom
+   edge colours (#edf5f6, #f2f6f7), so the join does not show. A new banner
+   with different edges needs these two colours changed to match. */
+.page-hero-bg.hero-software {
+  background-image: var(--hero-img), linear-gradient(#edf5f6, #f2f6f7);
+  background-size: calc(100% - 12px) auto, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  transform: none;
+}
 
 /* 70% rather than the shared 60%: Lab Book, Description, Parts and the HP
    pages. Only the brightness moves -- the blur and the desaturation stay as
@@ -958,6 +971,13 @@ footer a:hover { color: white; text-decoration: underline; }
 .polaroid-photo .hw-flip-front,
 .polaroid-photo .hw-flip-back { background: #ddd; }
 .polaroid-photo .hw-flip-back img { width: 100%; height: 100%; object-fit: cover; }
+
+/* A card with one photo and nothing to turn over to (the PIs). Positioned
+   for the same reason as the flip cards above -- a percentage height inside
+   this aspect-ratio box does not resolve everywhere -- and so that a photo
+   can be cropped by size and offset in its own style attribute. */
+.polaroid-photo.is-single { position: relative; }
+.polaroid-photo.is-single > img { position: absolute; inset: 0; }
 
 /* No "hover to read" hint or corner fold on these -- the card is a plain
    photo, not a text card, and a corner fold with no label on it would just
@@ -1464,6 +1484,10 @@ body.team-bio-locked { overflow: hidden; }
   white-space: nowrap;
   text-decoration: none;       /* the card is a link */
   z-index: 1;
+  /* Moved every frame: on a layer of its own, a move is the compositor's
+     work and the card is not repainted. translate3d(x, y, 0) alone does not
+     get it one -- with no depth, Chrome counts it as a flat transform. */
+  will-change: transform;
   transition: width 0.5s ease, border-radius 0.5s ease, padding 0.5s ease,
               opacity 0.4s ease, box-shadow 0.4s ease;
 }
@@ -1517,29 +1541,37 @@ body.team-bio-locked { overflow: hidden; }
   text-overflow: ellipsis;
 }
 
-.edu-map-leader-svg {
+/* The leader lines are thin strips rather than SVG lines. Each is moved and
+   turned with transform on a layer of its own, so following its card every
+   frame redraws a strip one line long; an SVG line had the browser redraw the
+   tiles under its whole diagonal, every frame. The dashes are the old
+   stroke-dasharray: 3px on, 3px off. */
+.edu-map-leaders {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
   display: none;
   pointer-events: none;
   z-index: 5;
-  overflow: visible;
 }
 
 .edu-map-leader-line {
-  stroke: #075a3e;
-  stroke-width: 1.25;
-  stroke-dasharray: 3 3;
+  --leader: #075a3e;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1.25px;
+  margin-top: -0.625px;        /* centred on the line between the two points */
+  transform-origin: 0 50%;
+  background: repeating-linear-gradient(90deg, var(--leader) 0 3px, transparent 3px 6px);
   opacity: 0.7;
+  will-change: transform;
   transition: opacity 0.3s ease;
 }
 
 .edu-map-row.is-orbit .edu-map-orbit,
 .edu-map-row.is-orbit-compact .edu-map-orbit,
-.edu-map-row.is-orbit .edu-map-leader-svg,
-.edu-map-row.is-orbit-compact .edu-map-leader-svg { display: block; }
+.edu-map-row.is-orbit .edu-map-leaders,
+.edu-map-row.is-orbit-compact .edu-map-leaders { display: block; }
 
 /* Compact: smaller cards so the map keeps its size */
 .edu-map-row.is-orbit-compact .edu-map-orbit-item { width: 110px; }
@@ -2348,7 +2380,7 @@ body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
   padding: 1.5rem 1.75rem;
 }
 
-.attr-ai h3 {
+.attr-ai h2 {
   font-family: "Changa", sans-serif;
   color: #075a3e;
   margin-top: 0;
@@ -7209,6 +7241,8 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   --hwp-v1: #66757f;
   --hwp-v2: #49c5b6;
   --hwp-proxy: #5fb3e0;
+  --hwp-ex: #5fb3e0;
+  --hwp-em: #55d98a;
   --hwp-absent: #8fa5b0;
   --hwp-hot: #e6b060;
   --hwp-bed: #12222b;
@@ -7277,6 +7311,8 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 .hwp-legend .hwp-k-v1::before { background: var(--hwp-v1); }
 .hwp-legend .hwp-k-v2::before { background: var(--hwp-v2); }
 .hwp-legend .hwp-k-proxy::before { background: var(--hwp-proxy); }
+.hwp-legend .hwp-k-ex::before { background: var(--hwp-ex); }
+.hwp-legend .hwp-k-em::before { background: var(--hwp-em); }
 /* Drawn the way the view draws it: an outline with nothing in it. */
 .hwp-legend .hwp-k-absent::before {
   background: none;
@@ -7343,6 +7379,22 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   cursor: pointer;
 }
 .hwp-back:hover { background: #1e313a; color: #dce9ee; }
+/* "Take a reading": the steps of one cycle, all on show, the current one lit. */
+.hwp-r-tools { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
+.hw .hwp-readout .hwp-r-steps {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.35rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--hwx-dim);
+}
+.hw .hwp-readout .hwp-r-steps li { margin: 0; padding-left: 0.15rem; transition: color 0.2s ease; }
+.hw .hwp-readout .hwp-r-steps li.is-done { color: var(--hwx-ink); }
+.hw .hwp-readout .hwp-r-steps li.is-now { color: #fff; }
+.hw .hwp-readout .hwp-r-steps li.is-now::marker { color: var(--hwp-em); }
+@media (prefers-reduced-motion: reduce) {
+  .hw .hwp-readout .hwp-r-steps li { transition: none; }
+}
 .hwp-back:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
 
 /* ---- what a part's line is made of, in the list and in the readout ---- */
@@ -10314,6 +10366,400 @@ body.hw-nexus .sw .sw-inv-out {
   .sw-lab { display: none; }
 }
 
+/* ---- page structure ------------------------------------------------------
+   The page borrows the Model page's parts (md-parts cards, md-part banners;
+   its container carries .md for them). Four cards instead of three: stacked
+   on a phone, two by two on a tablet (no arrow into the second row), four
+   abreast once there is room. */
+@media (min-width: 768px) {
+  .sw .sw-parts { grid-template-columns: repeat(2, 1fr); }
+  .sw .sw-parts > li:nth-child(3)::before { display: none; }
+}
+@media (min-width: 1200px) {
+  .sw .sw-parts { grid-template-columns: repeat(4, 1fr); }
+  .sw .sw-parts > li:nth-child(3)::before { display: block; }
+}
+/* The one sentence under each part's banner: what a judge should take away. */
+body.hw-nexus .sw .sw-takeaway {
+  max-width: 50rem;
+  margin: 0.9rem 0 2.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--nx-mint);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--nx-text);
+}
+/* The Swarming Assay sits outside the workflow: a dashed rule, not the parts' solid one. */
+.sw .md-part.sw-apart {
+  margin-top: 6rem;
+  border-top: 2px dashed var(--nx-muted);
+}
+body.hw-nexus .sw .sw-apart .md-part-no { color: var(--nx-muted); }
+
+/* ---- screenshots -----------------------------------------------------------
+   Every shot sits in the same plain browser frame (a bar with three dots), so
+   screenshots of any size and crop read as one set. A shot with an image
+   opens full size on click (edu-lightbox.js). Until the image is uploaded the
+   frame is dashed in the caution colour and says so. */
+.sw-shot { display: flex; flex-direction: column; gap: 0.55rem; margin: 0; }
+.sw-frame {
+  overflow: hidden;
+  background: #0a1c24;
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+.sw-frame-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  background: var(--nx-raised);
+  border-bottom: 1px solid var(--nx-line);
+}
+.sw-frame-bar i { width: 7px; height: 7px; border-radius: 50%; background: var(--nx-line); }
+.sw-shot img { display: block; width: 100%; height: auto; }
+body.hw-nexus .sw .sw-shot figcaption { font-size: 0.8rem; line-height: 1.5; color: var(--nx-muted); }
+body.hw-nexus .sw .sw-shot figcaption strong { color: var(--nx-text); font-weight: 600; }
+.sw-shot.is-todo .sw-frame { border: 1.5px dashed var(--nx-warm); box-shadow: none; }
+.sw-shot-todo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--nx-warm);
+  background: rgba(230, 176, 96, 0.04);
+}
+.sw-todo-block .sw-shot-todo {
+  aspect-ratio: auto;
+  min-height: 8rem;
+  border: 1.5px dashed var(--nx-warm);
+  border-radius: 10px;
+}
+.sw-tools .sw-shot { margin-top: 1rem; }
+
+/* ---- the workflow ----------------------------------------------------------
+   Seven steps as tabs (software-workflow.js adds .is-live). Without the
+   script the panels simply stack. */
+.sw-flow { margin-top: 1.25rem; }
+.sw-flow-steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+@media (min-width: 768px) {
+  .sw-flow-steps { grid-template-columns: repeat(7, 1fr); }
+  /* a line joining the steps, behind the buttons */
+  .sw-flow-steps > li { position: relative; }
+  .sw-flow-steps > li + li::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    width: 0.5rem;
+    border-top: 2px solid var(--nx-line);
+  }
+}
+.sw-flow-steps button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.65rem 0.25rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.92rem;
+  color: var(--nx-muted);
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.sw-flow-steps button:hover { border-color: var(--nx-mint); color: var(--nx-text); }
+.sw-flow-steps button[aria-selected="true"] {
+  color: var(--nx-text);
+  background: var(--nx-raised);
+  border-color: var(--nx-mint);
+}
+.sw-flow-steps button:focus-visible,
+.sw-flow-nav .sw-btn:focus-visible {
+  outline: 3px solid var(--nx-warm);
+  outline-offset: 2px;
+}
+.sw-flow-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--nx-mint);
+  border: 2px solid var(--nx-mint);
+  border-radius: 50%;
+}
+.sw-flow-steps button.is-done .sw-flow-n { background: rgba(73, 197, 182, 0.18); }
+.sw-flow-steps button[aria-selected="true"] .sw-flow-n {
+  color: var(--nx-ground);
+  background: var(--nx-mint);
+}
+.sw-flow-panel { margin-bottom: 1.5rem; }
+.sw-flow.is-live .sw-flow-panel {
+  margin: 0;
+  padding: 1.25rem;
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 14px;
+}
+.sw-flow-panel[hidden] { display: none; }
+.sw-flow-panel:focus-visible { outline: 3px solid var(--nx-warm); outline-offset: 2px; }
+.sw .sw-flow-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+}
+.sw-flow-cols { display: grid; gap: 1.25rem; }
+@media (min-width: 768px) {
+  .sw-flow-cols { grid-template-columns: 1fr 1fr; }
+  .sw-flow-cols > .sw-shot { grid-column: 1 / -1; }
+}
+@media (min-width: 992px) {
+  .sw-flow-cols { grid-template-columns: 0.8fr 1.2fr 1.3fr; }
+  .sw-flow-cols > .sw-shot { grid-column: auto; }
+}
+.sw-flow-k {
+  margin: 0 0 0.4rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+body.hw-nexus .sw .sw-flow-bench .sw-flow-k { color: var(--nx-muted); }
+body.hw-nexus .sw .sw-flow-soft .sw-flow-k { color: var(--nx-mint); }
+.sw-flow-bench p:not(.sw-flow-k) { font-size: 1rem; }
+.sw-flow-soft ul { padding-left: 1.1rem; margin: 0 0 0.6rem; font-size: 0.93rem; }
+.sw-flow-soft li { margin-bottom: 0.4rem; line-height: 1.6; }
+body.hw-nexus .sw .sw-flow-where { margin: 0; font-size: 0.82rem; color: var(--nx-muted); }
+.sw-flow-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.9rem;
+}
+.sw-flow-nav[hidden] { display: none; }
+.sw-flow-nav .sw-btn:disabled { opacity: 0.4; cursor: default; }
+body.hw-nexus .sw .sw-flow-count { font-size: 0.85rem; color: var(--nx-muted); }
+.sw-flow-chips {
+  display: inline-block;
+  margin-left: 0.3rem;
+  padding: 0 0.55rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  color: var(--nx-mint);
+  border: 1px solid var(--nx-line);
+  border-radius: 999px;
+}
+
+/* ---- numbering ------------------------------------------------------------
+   Sections (1.1, 1.2 ...), figures, tables and equations are numbered so a
+   judge can point at any of them. */
+.sw h2 .sw-h-no {
+  display: inline-block;
+  margin-right: 0.55em;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--nx-muted);
+}
+/* equation numbers sit at the right edge; equal padding keeps the equation centred */
+.sw-idea .sw-eq { position: relative; padding-left: 3.5rem; padding-right: 3.5rem; }
+.sw-eq-no {
+  position: absolute;
+  right: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  font-style: normal;
+  color: var(--nx-muted);
+}
+/* table captions, visible and numbered, above the table (Software only: the
+   Model page shares .sw and keeps its own captions) */
+body.hw-nexus .sw-page .hw-table caption:not(.visually-hidden) {
+  caption-side: top;
+  padding: 0 0 0.6rem;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--nx-muted);
+}
+body.hw-nexus .sw-page .hw-table caption strong { color: var(--nx-text); font-weight: 600; }
+
+/* Prose at a readable measure (about 75 characters); tables, figures and the
+   panels keep the full width. */
+.sw-parts ~ section > p,
+.sw-parts ~ section > ul,
+.sw-parts ~ section > h3 + p,
+.sw-idea > p,
+.sw-parts ~ section .sw-swarm p { max-width: 46rem; }
+
+/* The cards on top follow the page's single accent. */
+body.hw-nexus .sw .sw-parts .md-parts-name { color: var(--nx-text); }
+.sw-parts a:hover,
+.sw-parts a:focus-visible { border-color: var(--nx-mint); }
+
+/* ---- the five ideas ---- */
+.sw-idea { margin: 0 0 2.4rem; }
+.sw .sw-idea h3 { display: flex; align-items: center; gap: 0.6rem; }
+.sw-idea-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--nx-mint);
+  border: 2px solid var(--nx-mint);
+  border-radius: 50%;
+}
+
+/* ---- who can use it ---- */
+.sw-yes, .sw-adapt, .sw-no {
+  display: inline-block;
+  padding: 0.05rem 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+.sw-yes { color: var(--nx-mint); }
+.sw-adapt { color: var(--nx-text); border-color: var(--nx-line); }
+.sw-no { color: var(--nx-warm); }
+
+/* ---- try it with your data ---- */
+.sw-try {
+  display: grid;
+  gap: 2rem;
+  padding: 1.25rem;
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 14px;
+}
+.sw-try-step[hidden] { display: none; }
+body.hw-nexus .sw .sw-try-k {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.08rem;
+  color: var(--nx-text);
+}
+body.hw-nexus .sw .sw-try-step > .sw-try-k ~ .sw-try-k { margin-top: 1.8rem; }
+.sw-try-table-wrap { overflow-x: auto; margin-top: 0.6rem; }
+.sw-try-table { width: 100%; min-width: 30rem; border-collapse: separate; border-spacing: 0.3rem; }
+body.hw-nexus .sw .sw-try-table th {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--nx-muted);
+  text-align: left;
+  padding: 0 0.2rem;
+}
+body.hw-nexus .sw .sw-try-table th:first-child { color: var(--nx-mint); }
+.sw-try input {
+  width: 100%;
+  color: var(--nx-text);
+  background: #0a1c24;
+  border: 1px solid var(--nx-line);
+  border-radius: 6px;
+  padding: 0.35rem 0.55rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88rem;
+}
+.sw-try-table td:first-child input { border-color: var(--nx-mint); }
+.sw-try input:focus-visible,
+.sw-try summary:focus-visible { outline: 3px solid var(--nx-warm); outline-offset: 1px; }
+.sw-try-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+body.hw-nexus .sw .sw-try-unit {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--nx-muted);
+}
+.sw-try-unit input { width: 6rem; }
+body.hw-nexus .sw .sw-try-msg { min-height: 1.5rem; margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--nx-muted); }
+body.hw-nexus .sw .sw-try-msg.is-error { color: var(--nx-warm); }
+.sw-try-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+.sw-try-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.9rem 1rem;
+  background: var(--nx-raised);
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+}
+.sw-try-stat-k {
+  font-family: "Changa", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+.sw-try-stat-v {
+  font-family: "Changa", sans-serif;
+  font-size: 1.35rem;
+  color: var(--nx-text);
+  font-variant-numeric: tabular-nums;
+}
+.sw-try-stat-s { font-size: 0.78rem; color: var(--nx-muted); }
+.sw-try-more { margin: 1rem 0 0; }
+.sw-try-more summary { cursor: pointer; font-family: "Changa", sans-serif; color: var(--nx-mint); }
+body.hw-nexus .sw .sw-try-result { min-height: 2rem; margin: 0.8rem 0 0; font-size: 0.95rem; color: var(--nx-muted); }
+body.hw-nexus .sw .sw-try-result.is-ok strong {
+  margin-right: 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.55rem;
+  color: var(--nx-mint);
+}
+body.hw-nexus .sw .sw-try-result.is-bound { color: var(--nx-warm); }
+
+/* ---- swarming ---- */
+.sw-swarm { display: grid; gap: 2rem; }
+@media (min-width: 992px) { .sw-swarm { grid-template-columns: 1.2fr 1fr; } }
+.sw-swarm-shots { display: grid; gap: 1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-flow-steps button { transition: none; }
+}
+
 /* ===== Model: the reader's measurement model ================================
    The Model page wears the same deep-teal treatment as Hardware and Software
    (body.hw-nexus) and is built from their parts -- hw-lead, hw-flip, hw-flow,
@@ -10649,7 +11095,7 @@ body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(20, 179, 145, 0.
 body.edu-nexus .edu-map-viewport { background: transparent; }   /* 島外全透明：只剩台灣島本身 */
 body.edu-nexus .edu-map-county,
 body.edu-nexus .edu-map-county-interactive { stroke: var(--nx-mint); stroke-width: 0.8; }
-body.edu-nexus .edu-map-leader-line { stroke: var(--nx-mint); }
+body.edu-nexus .edu-map-leader-line { --leader: var(--nx-mint); }
 
 /* ---- 台灣全島輪廓 hover 呼吸光暈（taiwan-map.js 以 SVG filter 生成）----
    光暈由 feMorphology＋blur 直接從島的填色剪影生成（绝無橫穿直線）；
@@ -11856,6 +12302,36 @@ body.bg-nexus .board-game-page { --muted: #c6dde4; --ink2: #c6dde4; }
 
 .sdgp-stat-label { font-size: 0.88rem; color: #4a4a4a; line-height: 1.35; }
 
+/* The page's closing sentence, set as a statement: large, centred, in the
+   glow's lime-to-mint, with "citizens" in the SDG 17 blue's lighter cousin. */
+.sdgp-closing { text-align: center; }
+
+.sdgp-closing-text {
+  max-width: 34ch;
+  margin: 1.5rem auto 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.4rem, 1.05rem + 1.6vw, 2.2rem);
+  line-height: 1.35;
+  background: linear-gradient(100deg, #a0e860, #49c5b6 60%, #5fb3e0);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 16px rgba(160, 232, 96, 0.3));
+}
+
+.sdgp-closing-text em {
+  font-style: normal;
+  font-weight: 800;
+}
+
+/* The deep-teal page paints every paragraph in its body ink
+   (css/pages/hp-nexus.css); the gradient has to win over that. */
+body.hp-nexus .edu-session-block .sdgp-closing-text {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
 @media (max-width: 575.98px) {
   .sdgp-tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
   .sdgp-tile { min-height: 108px; }
@@ -12167,7 +12643,8 @@ body.hw-nexus .hw .hw-more a:focus-visible { text-decoration: underline; }
 body.hw-nexus .hw .hw-build-head .hw-keys { margin-bottom: 0.2rem; }
 /* Under each number, what it measures in plain words, as large as a statement
    in a card; the conditions follow in the small print. */
-.hw .hw-build-head .hw-keys .hw-key-say {
+.hw .hw-build-head .hw-keys .hw-key-say,
+.hw .hw-brief .hw-key-say {
   display: block;
   margin-bottom: 0.35rem;
   font-size: 1.12rem;
@@ -12175,7 +12652,89 @@ body.hw-nexus .hw .hw-build-head .hw-keys { margin-bottom: 0.2rem; }
   line-height: 1.3;
   color: #33413a;
 }
-body.hw-nexus .hw .hw-build-head .hw-keys .hw-key-say { color: var(--nx-text); }
+body.hw-nexus .hw .hw-build-head .hw-keys .hw-key-say,
+body.hw-nexus .hw .hw-brief .hw-key-say { color: var(--nx-text); }
+
+/* The shared part of Hardware (2026-10-08). Background is the assay in four
+   figures, set like a build's opening numbers so that the brief and the two
+   answers to it read alike. Measurement principle is one drawing: the light
+   path, and under the detector the ten channels it reads, drawn as a second
+   enlarged inset. No new type size: 1.9rem, 1.12rem, 0.95rem and 0.9rem are
+   the page's own. */
+body.hw-nexus .hw .hw-brief {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 0;
+}
+body.hw-nexus .hw .hw-brief + .hw-limit { margin-top: 1.1rem; }
+
+.hw-svg-lead { fill: none; stroke: var(--nx-mint, #4f8f74); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.hw-svg-nm { text-anchor: middle; font-size: 13px; fill: var(--nx-muted, #8a978f); }
+.hw-svg-cue { font-size: 14px; font-weight: 600; }
+.hw-svg-cue-blue { fill: var(--nx-blue-up, #2b6cb0); }
+.hw-svg-cue-green { fill: #55d98a; }
+.hw-svg-land-blue { fill: none; stroke: var(--nx-blue-up, #2b6cb0); stroke-width: 2; }
+.hw-svg-land-green { fill: none; stroke: #55d98a; stroke-width: 2; }
+.hw-svg-badge circle { fill: var(--nx-ground, #fffdf7); stroke: var(--nx-mint, #1f4a38); stroke-width: 1.5; }
+.hw-svg-badge text {
+  text-anchor: middle;
+  font-family: "Changa", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--nx-mint, #1f4a38);
+}
+.hw-svg .hwx-chan.is-em rect { stroke: #55d98a; stroke-width: 2.5; opacity: 1; }
+.hw-svg .hwx-chan:focus-visible { outline: 3px solid var(--nx-warm, #e6a94b); outline-offset: 2px; }
+.hw-svg .hwx-chan-wide { font-size: 11px; fill: #dbe9ee; }
+
+/* The three notes the drawing's numbers point at. */
+body.hw-nexus .hw .hw-how {
+  list-style: none;
+  counter-reset: hw-how;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem 1.6rem;
+  margin: 1.1rem 0 0;
+  padding: 0;
+}
+body.hw-nexus .hw .hw-how > li {
+  counter-increment: hw-how;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-how > li > b {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.3rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-how > li > b::before {
+  content: counter(hw-how);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1.5px solid var(--nx-mint);
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--nx-mint);
+}
+@media (max-width: 991.98px) {
+  body.hw-nexus .hw .hw-brief { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+  body.hw-nexus .hw .hw-how { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  body.hw-nexus .hw .hw-brief > div { padding: 0.8rem 0.85rem; }
+  body.hw-nexus .hw .hw-brief dt { font-size: 1.55rem; }
+  body.hw-nexus .hw .hw-brief .hw-key-say { font-size: 1.04rem; }
+}
 body.hw-nexus .hw .hw-build-head .hw-limit { margin: 0.9rem 0 1.7rem; }
 body.hw-nexus .hw #printed .hw-limit + p:not(.hw-more) { margin-top: 1.6rem; }
 
@@ -12431,6 +12990,233 @@ body.hw-nexus .hw .hw-do .hw-more {
   border-top: 1px dashed var(--nx-line);
 }
 
+/* Run, the third step, as one session at the bench (2026-10-09). It takes
+   the full width under Print and Wire. Each row of the session is three
+   things side by side: what the hands do, what is typed, and what the reader
+   answers, taken from a log. What is typed is the largest thing in a row,
+   and one reading is drawn as it is taken: dark, lit, dark. No new type
+   size: 1.75rem, 1.12rem, 0.95rem, 0.9rem and 0.86rem are the page's own,
+   and the labels are the 0.72rem of .hw-limit. */
+body.hw-nexus .hw .hw-do.hw-do-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.hw-nexus .hw .hw-do > .hw-do-wide {
+  grid-column: 1 / -1;
+  padding: 1.25rem 1.5rem 1.2rem;
+  scroll-margin-top: 96px;
+}
+body.hw-nexus .hw .hw-do .hw-run-lead { max-width: 46rem; margin-bottom: 1.2rem; }
+
+body.hw-nexus .hw .hw-run-once > b,
+body.hw-nexus .hw .hw-run-cols span {
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+/* A line the reader printed, or a line typed at a shell: as it was. */
+body.hw-nexus .hw .hw-run-log {
+  margin: 0 0 0.4rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 8px;
+  background: var(--nx-ground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--nx-muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+body.hw-nexus .hw .hw-run-log b { font-weight: 700; color: var(--nx-lime); }
+
+/* The session. The numbered marks run down a rail on the left. */
+body.hw-nexus .hw .hw-run-cols,
+body.hw-nexus .hw .hw-run > li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(0, 1.35fr);
+  column-gap: 1.25rem;
+}
+body.hw-nexus .hw .hw-run-cols { padding-bottom: 0.5rem; border-bottom: 1px solid var(--nx-line); }
+body.hw-nexus .hw .hw-run-cols span:first-child { grid-column: 2; }
+body.hw-nexus .hw .hw-run {
+  list-style: none;
+  counter-reset: hw-run;
+  margin: 0;
+  padding: 0;
+}
+body.hw-nexus .hw .hw-run > li {
+  position: relative;
+  counter-increment: hw-run;
+  padding: 0.85rem 0 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+body.hw-nexus .hw .hw-run > li::before {
+  content: counter(hw-run);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1.5px solid var(--nx-mint);
+  border-radius: 50%;
+  background: var(--nx-panel);
+  font-family: "Changa", sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--nx-mint);
+}
+body.hw-nexus .hw .hw-run > li::after {
+  content: "";
+  position: absolute;
+  left: calc(0.875rem - 0.5px);
+  top: 1rem;
+  bottom: -1rem;
+  width: 1px;
+  background: var(--nx-line);
+}
+body.hw-nexus .hw .hw-run > li:last-child::after { content: none; }
+body.hw-nexus .hw .hw-run > li.is-hero::before {
+  border-color: var(--nx-lime);
+  background: var(--nx-lime);
+  color: var(--nx-ground);
+}
+
+body.hw-nexus .hw .hw-run-do { color: var(--nx-muted); }
+body.hw-nexus .hw .hw-run-do > b {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #fff;
+}
+
+/* What is typed: the thing a reader of this page will copy. */
+body.hw-nexus .hw .hw-run-cmd { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+body.hw-nexus .hw .hw-run-cmd kbd {
+  max-width: 100%;
+  padding: 0.22rem 0.65rem 0.26rem;
+  border: 1px solid var(--nx-mint);
+  border-radius: 8px;
+  background: var(--nx-ground);
+  box-shadow: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+body.hw-nexus .hw .hw-run-cmd kbd::before { content: ">\00a0"; color: var(--nx-mint); }
+body.hw-nexus .hw .hw-run > li.is-hero .hw-run-cmd kbd { border-color: var(--nx-lime); }
+body.hw-nexus .hw .hw-run > li.is-hero .hw-run-cmd kbd::before { color: var(--nx-lime); }
+
+/* One reading as it is taken: dark, lit, dark, then the flag. */
+body.hw-nexus .hw .hw-do .hw-run-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0;
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+body.hw-nexus .hw .hw-run-strip > span {
+  padding: 0.24rem 0.6rem;
+  border: 1px solid var(--nx-line);
+  background: var(--nx-ground);
+  color: var(--nx-muted);
+  white-space: nowrap;
+}
+body.hw-nexus .hw .hw-run-strip > span + span { border-left: 0; }
+body.hw-nexus .hw .hw-run-strip > span:first-child { border-radius: 8px 0 0 8px; }
+body.hw-nexus .hw .hw-run-strip > span:nth-child(3) { border-radius: 0 8px 8px 0; }
+body.hw-nexus .hw .hw-run-strip > span b { font-weight: 700; color: var(--nx-text); }
+body.hw-nexus .hw .hw-run-strip > .is-lit {
+  background: rgba(95, 179, 224, 0.16);
+  color: var(--nx-blue-up);
+}
+body.hw-nexus .hw .hw-run-strip > .is-lit b { color: #55d98a; }
+body.hw-nexus .hw .hw-run-strip > code { margin-left: 0.55rem; overflow-wrap: anywhere; }
+body.hw-nexus .hw .hw-run > li.is-hero .hw-run-strip > .is-lit b { font-size: 1.12rem; line-height: 1; }
+
+body.hw-nexus .hw .hw-do .hw-run-note,
+body.hw-nexus .hw .hw-do .hw-run-foot {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-do .hw-run-foot {
+  max-width: 46rem;
+  margin: 0.55rem 0 0 3.25rem;
+}
+body.hw-nexus .hw .hw-run-foot i { font-style: normal; color: var(--nx-text); }
+
+/* Flashing it: once, and so set apart from the session. */
+body.hw-nexus .hw .hw-run-once {
+  margin: 1.5rem 0 0;
+  padding: 0.8rem 1rem 0.9rem;
+  border: 1px dashed var(--nx-line);
+  border-radius: 10px;
+}
+body.hw-nexus .hw .hw-run-once > b { display: block; margin-bottom: 0.25rem; color: var(--nx-warm); }
+body.hw-nexus .hw .hw-run-once p { margin: 0 0 0.55rem; }
+body.hw-nexus .hw .hw-run-once .hw-run-log { margin: 0; color: var(--nx-text); }
+
+/* What else the reader can say, and what to do then. */
+body.hw-nexus .hw .hw-do .hw-run-else-head {
+  margin: 1.5rem 0 0.1rem;
+  font-size: 1.12rem;
+  color: #fff;
+}
+body.hw-nexus .hw .hw-run-else {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2rem;
+  margin: 0 0 0.6rem;
+}
+body.hw-nexus .hw .hw-run-else dl { margin: 0; }
+body.hw-nexus .hw .hw-run-else dl > div { padding: 0.7rem 0 0.15rem; }
+body.hw-nexus .hw .hw-run-else dt { margin-bottom: 0.2rem; font-size: 0.95rem; font-weight: 700; color: var(--nx-warm); }
+body.hw-nexus .hw .hw-run-else dt code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--nx-warm);
+  overflow-wrap: anywhere;
+}
+body.hw-nexus .hw .hw-run-else .is-ok dt,
+body.hw-nexus .hw .hw-run-else .is-ok dt code { color: var(--nx-lime); }
+body.hw-nexus .hw .hw-run-else dd { margin: 0; font-size: 0.95rem; line-height: 1.55; color: var(--nx-text); }
+body.hw-nexus .hw .hw-run-seen {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--nx-muted);
+}
+
+@media (max-width: 760px) {
+  body.hw-nexus .hw .hw-do.hw-do-two { grid-template-columns: minmax(0, 1fr); }
+  body.hw-nexus .hw .hw-do > .hw-do-wide { padding: 1.1rem 1rem 1.05rem; }
+  body.hw-nexus .hw .hw-run-cols { display: none; }
+  body.hw-nexus .hw .hw-run { border-top: 1px solid var(--nx-line); }
+  body.hw-nexus .hw .hw-run > li { grid-template-columns: 2rem minmax(0, 1fr); column-gap: 0.8rem; row-gap: 0.5rem; }
+  body.hw-nexus .hw .hw-run > li > div { grid-column: 2; }
+  body.hw-nexus .hw .hw-run > li::before { grid-row: 1 / span 3; }
+  body.hw-nexus .hw .hw-do .hw-run-foot { margin-left: 0; }
+  body.hw-nexus .hw .hw-run-else { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Data and documentation: every folded table, in one list. The rows are
    ruled lines, not boxes, so thirteen of them read as an index. */
 body.hw-nexus .hw .hw-docs > h3 {
@@ -12564,6 +13350,19 @@ body.team-page .polaroid-photo .hw-flip-front,
 body.team-page .polaroid-photo .hw-flip-back { background: #24414d; }
 body.team-page .polaroid-caption { color: var(--nx-text); }
 body.team-page .polaroid-role { color: var(--nx-muted); }
+
+/* A professor's field, under the PI role: sentence case and in the mint, so
+   it reads as what they work on rather than another label. */
+.polaroid-field {
+  text-align: center;
+  margin-top: 4px;
+  font-family: "Changa", sans-serif;
+  font-weight: 600;
+  font-size: 0.98rem;
+  line-height: 1.3;
+  color: #075a3e;
+}
+body.team-page .polaroid-field { color: var(--nx-mint); }
 body.team-page .polaroid-has-bio:focus-visible { outline-color: var(--nx-lime); }
 
 /* ---- Team: the self-intro card ---- */
@@ -12621,7 +13420,7 @@ body.hw-nexus.attr-page .attr-ai {
   border-left-color: var(--nx-mint);
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
 }
-body.hw-nexus.attr-page .attr-ai h3 { color: var(--nx-mint); }
+body.hw-nexus.attr-page .attr-ai h2 { color: var(--nx-mint); }
 body.hw-nexus.attr-page .attr-ai h4 { color: var(--nx-muted); }
 body.hw-nexus.attr-page .attr-ai strong { color: #fff; }
 body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
@@ -12655,6 +13454,46 @@ body.hw-nexus.attr-page .tone-sponsor { --tone: var(--nx-warm); }
 body.hw-nexus.attr-page .tone-edu     { --tone: var(--nx-lime); }
 body.hw-nexus.attr-page .tone-igem    { --tone: var(--nx-blue-up); }
 body.hw-nexus.attr-page .tone-wiki    { --tone: #f08a7e; }
+
+/* The page's last word: large, centred, in the brightest colours the site
+   has -- the lime-to-mint of the glow, with Capture in the warm amber. */
+.attr-finale {
+  margin: 4.5rem auto 1rem;
+  padding: 3rem 1rem 2.5rem;
+  max-width: 54rem;
+  text-align: center;
+  border-top: 1px solid var(--nx-line, #d5ddd8);
+}
+
+.attr-finale-text {
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.7rem, 1.1rem + 2.6vw, 3rem);
+  line-height: 1.25;
+  background: linear-gradient(100deg, #a0e860 0%, #49c5b6 55%, #5fb3e0 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 18px rgba(160, 232, 96, 0.35));
+}
+
+.attr-finale-name {
+  background: linear-gradient(100deg, #f5c96a, #e6b060);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+body.hw-nexus.attr-page .attr-finale-sign {
+  margin: 1.2rem 0 0;
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
 
 /* jump to a group */
 .attr-groups-nav {
@@ -12855,4 +13694,37 @@ body.hw-nexus.attr-page .hero-title,
 body.promotion-page .hero-title,
 body.hw-nexus .page-hero:has(.hero-hardware) .hero-title {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75), 0 2px 22px rgba(0, 0, 0, 0.6);
+}
+
+/* ---- Board Game: what to notice, in colour ----
+   Three marks in the write-up, each a different colour from the site's
+   palette so they never read as the same kind of thing:
+     .bg-num    a number or a count -- the warm amber, bold
+     .bg-hl     the sentence the section is making -- the lime, with a soft
+                underline of the same colour
+     .bg-key    a named rule, card or place -- the mint
+     .bg-quote  what the playtesters wrote -- italic, in light blue
+   Nothing else on the page changes. */
+body.bg-nexus .bg-num {
+  color: var(--nx-warm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+body.bg-nexus .bg-hl {
+  color: var(--nx-lime);
+  font-weight: 600;
+  background-image: linear-gradient(transparent 62%, rgba(160, 232, 96, 0.16) 62%);
+  -webkit-box-decoration-break: clone;
+          box-decoration-break: clone;
+}
+
+body.bg-nexus .bg-key {
+  color: var(--nx-mint);
+  font-weight: 700;
+}
+
+body.bg-nexus .bg-quote {
+  color: var(--nx-blue-up);
+  font-style: italic;
 }

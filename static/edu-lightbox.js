@@ -1,7 +1,8 @@
 (function () {
   // Click any photo in an .edu-gallery -- or an .hp-figure-grid, the survey
   // figure layout on Human Practices, or an .edu-album-item, one school's
-  // pair in the Education contact sheet -- to open it full-size, with arrow
+  // pair in the Education contact sheet, or a .sw-shot screenshot on Software
+  // -- to open it full-size, with arrow
   // keys / on-screen arrows to step through the rest of that group.
   // The markup is untouched -- this only adds a click handler per <img>
   // and one shared overlay appended to <body>.
@@ -28,7 +29,7 @@
 
   function init() {
     var galleries = Array.prototype.slice.call(
-      document.querySelectorAll('.edu-gallery, .hp-figure-grid, .edu-album-item'));
+      document.querySelectorAll('.edu-gallery, .hp-figure-grid, .edu-album-item, .sw-shot'));
     if (!galleries.length) return;
 
     var overlay = buildOverlay();

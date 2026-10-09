@@ -1,9 +1,13 @@
 {% extends "layout.html" %}
 
 {% block title %}Meet with Experts{% endblock %}
+{% block hero_image %}https://static.igem.wiki/teams/6379/wiki/communication/head-of-biotechnology-department.avif{% endblock %}
 {% block lead %}{% endblock %}
 {% block body_class %}edu-nexus{% endblock %}
-{% block page_css %}<link href="{{ url_for('static', filename = 'css/pages/hp-hub.css') }}" rel="stylesheet">{% endblock %}
+{% block page_css %}
+<link href="{{ url_for('static', filename = 'css/pages/hp-hub.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename = 'css/pages/edu-interactive.css') }}" rel="stylesheet">
+{% endblock %}
 
 {% block page_content %}
 
@@ -15,19 +19,41 @@
 
 {#
   The "upward" direction of our Human Practices: the people with professional
-  backgrounds we took the project to. Moved here from the Human Practices page
-  (2026-10-08); the write-ups are unchanged, only laid out as one card per
-  conversation.
+  backgrounds we took the project to, in date order.
 
-  Each interview is an <article class="mx-card">:
-    - .mx-head    the photo, then who they are: kind of expert, name,
-                  affiliation, date
-    - .mx-body    the write-up, as the team wrote it
-    - .mx-advice  the conversation in short -- every point restates something the
-                  write-up above already says, nothing new
-  To add a conversation, copy an article and change all four parts. The
-  page's "On this page" list builds itself from the <h2>s.
+  Every interview is an <article class="mx-card"> with the same five parts:
+    - .mx-head     photos (the first large, the rest as thumbnails; all open
+                   in the lightbox), then who: kind of expert, title, name,
+                   affiliation, date
+    - .mx-body     the story of the conversation, written from the team's notes
+    - .edx-kpis    (optional) figures the expert gave us
+    - .mx-advice   the conversation in short, as flip cards: the point on the
+                   front, what it means on the back. Every card restates
+                   something the story above already says -- nothing new.
+  The lineup at the top links to each card and lights up the one in view
+  (static/js/pages/meet-experts.js); the flip cards and figures are the shared
+  .edx-* pieces (css/pages/edu-interactive.css, js/pages/edu-interactive.js).
+  Without JavaScript everything is simply shown.
 #}
+
+{% macro flip(point, detail) -%}
+<button type="button" class="edx-flip mx-flip">
+        <span class="edx-flip-face edx-flip-front">
+          <span class="edx-flip-tag">What we heard</span>
+          <span class="edx-flip-title">{{ point|safe }}</span>
+          <span class="edx-flip-hint">Tap to see more &#8635;</span>
+        </span>
+        <span class="edx-flip-face edx-flip-back">
+          <span class="edx-flip-tag">In detail</span>
+          <span class="edx-flip-text">{{ detail|safe }}</span>
+          <span class="edx-flip-hint">Tap to flip back &#8635;</span>
+        </span>
+      </button>
+{%- endmacro %}
+
+{% macro date_chip(text) -%}
+<p class="mx-meta-date"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.5 0a.5.5 0 0 1 .5.5V1h6V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5z"/></svg>{{ text|safe }}</p>
+{%- endmacro %}
 
 <p class="hpx-back"><a href="{{ url_for('pages', page='human-practices') }}">&larr; Human Practices</a></p>
 
@@ -36,38 +62,124 @@
   <p class="mx-intro-lead">We took Capture upward, to people with professional backgrounds, and asked them for the strengths and weaknesses of what we were building. Each conversation was two-way: we explained our design, they questioned it, and their advice told us where to improve.</p>
 </section>
 
-{# Write-up and photo from the team (2026-10-07): Prof. Tsung Lin Liao (spelling confirmed by the team, 2026-10-08),
-   Chair of the Department of Biotechnology and Bioindustry Sciences at NCKU.
-   The DNA paragraph comes before the sensor one, at the team's request, and
-   the wording was lightly edited; what was said is unchanged. Still missing:
-   the date of the interview -- add it as an .mx-meta-date line, the way the
-   Ai Wei Li card has it. #}
-<article id="expert-liao" class="mx-card">
+{# One stop per interview, same order as the cards. #}
+<nav class="mx-lineup" aria-label="The experts we met, in date order">
+  <ol>
+    <li><a href="#expert-xinmin" data-mx-stop="expert-xinmin">
+      <span class="mx-avatar"><img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-200011.avif" alt="" loading="lazy" decoding="async"></span>
+      <span class="mx-lineup-when">Apr 10</span>
+      <span class="mx-lineup-who">Dr. Xin Min Liao</span>
+      <span class="mx-lineup-tag">Clinician</span>
+    </a></li>
+    <li><a href="#expert-shiesh" data-mx-stop="expert-shiesh">
+      <span class="mx-avatar is-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 20c0-4 4-5 4-9S7 6 9 4.5s4 1.5 3 4.5-3 4 0 6.5 5 1 5 4.5"/><path d="M8.6 8h2.6M10 12h2.8M11.6 16h3"/></svg></span>
+      <span class="mx-lineup-when">May 27</span>
+      <span class="mx-lineup-who">Prof. Shu-Chu Shiesh</span>
+      <span class="mx-lineup-tag">Academic</span>
+    </a></li>
+    <li><a href="#expert-aiweili" data-mx-stop="expert-aiweili">
+      <span class="mx-avatar is-logo"><img src="https://static.igem.wiki/teams/6379/wiki/communication/aiweili.avif" alt="" loading="lazy" decoding="async"></span>
+      <span class="mx-lineup-when">Sep 10</span>
+      <span class="mx-lineup-who">Ai Wei Li Studio</span>
+      <span class="mx-lineup-tag is-industry">Industry</span>
+    </a></li>
+    <li><a href="#expert-li" data-mx-stop="expert-li">
+      <span class="mx-avatar"><img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-203159.avif" alt="" loading="lazy" decoding="async"></span>
+      <span class="mx-lineup-when">Sep 22</span>
+      <span class="mx-lineup-who">Prof. Nan Si Li</span>
+      <span class="mx-lineup-tag">Academic</span>
+    </a></li>
+    <li><a href="#expert-liao" data-mx-stop="expert-liao">
+      <span class="mx-avatar"><img src="https://static.igem.wiki/teams/6379/wiki/communication/head-of-biotechnology-department.avif" alt="" loading="lazy" decoding="async"></span>
+      <span class="mx-lineup-when">Sep 22</span>
+      <span class="mx-lineup-who">Prof. Tsung Lin Liao</span>
+      <span class="mx-lineup-tag">Academic</span>
+    </a></li>
+  </ol>
+</nav>
+
+{# Dr. Xin Min Liao, April 10. Written from the team's notes (2026-10-09). #}
+<article id="expert-xinmin" class="mx-card">
   <div class="mx-head">
     <div class="edu-gallery mx-photo">
-      <img src="https://static.igem.wiki/teams/6379/wiki/communication/head-of-biotechnology-department.avif" alt="Prof. Tsung Lin Liao (centre) with four members of our team in the professor's office" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-203152.avif" alt="Dr. Xin Min Liao with four members of our team" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-200011.avif" alt="Dr. Xin Min Liao talking with our team" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-200004.avif" alt="Dr. Liao holding up a sputum suction tube to show how it works" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-195933.avif" alt="Our team taking notes during the interview" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-195948.avif" alt="Two team members listening during the interview" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-195954.avif" alt="A team member asking a question during the interview" loading="lazy">
     </div>
     <div class="mx-meta">
-      <span class="mx-tag">Academic expert</span>
-      <h2 class="mx-title" data-toc-title="Prof. Tsung Lin Liao">Designing for the clinic: priorities, DNA stability and sensor choice</h2>
-      <p class="mx-who"><strong>Prof. Tsung Lin Liao</strong></p>
-      <p class="mx-role">Chair of the Department of Biotechnology and Bioindustry Sciences, National Cheng Kung University</p>
+      <span class="mx-tag mx-tag-clinic">Clinical expert</span>
+      <h2 class="mx-title" data-toc-title="Dr. Xin Min Liao">Finding what the clinical setting needs</h2>
+      <p class="mx-who"><strong>Dr. Xin Min Liao</strong></p>
+      <p class="mx-role">Physician, Division of Chest Medicine, National Cheng Kung University Hospital</p>
+      {{ date_chip('April 10, 2026') }}
     </div>
   </div>
 
   <div class="mx-body">
-    <p>Prof. Liao began by asking us what we value most in designing and developing our hardware. Weighing the current needs of medical testing, we settled on three priorities: low cost, speed and convenience, with the aim of a testing method that is both accessible and efficient.</p>
-    <p>Prof. Liao also suggested that we collect and analyze the relevant DNA sequences, so that we can anticipate how enzymes present in patient samples might degrade them. Doing so would help us choose suitable sequences and make our system more stable and reliable for future clinical use.</p>
-    <p>On the hardware design itself, Prof. Liao encouraged us to explore a wider range of sensors and to make use of their different detection thresholds and characteristics. Experimenting with different sensing mechanisms may reveal new ways to improve the performance of our detection system.</p>
+    <p>Before we committed to a design, we wanted to hear what the clinic actually needs. So we sat down with Dr. Xin Min Liao, a chest physician at National Cheng Kung University Hospital, and asked him how infections are really handled at the bedside.</p>
+    <p>He began with how antibiotics are actually prescribed. In clinical practice, only about <span class="mx-hl">20%</span> of patients who receive antibiotics are treated on the basis of drug-susceptibility results; the rest are treated <span class="mx-hl">empirically</span>, and acutely ill patients in particular depend on the physician&rsquo;s experience.</p>
+    <p>We had come with an idea of screening for infection <em>before</em> symptoms appear. Dr. Liao was candid: he did not think that was very feasible, and it would have to be weighed against cost. Instead, he pointed us toward a different need &mdash; <span class="mx-key">helping to tell which bacterium is responsible, within a short time</span>. Today&rsquo;s identification methods take days and are expensive, so a quick way to identify the species would have real potential, <span class="mx-key">even if it could only detect <em>Pseudomonas</em></span>. He also noted that <em>Haemophilus influenzae</em> is another common cause of ventilator-associated pneumonia (VAP) in Taiwan.</p>
+    <p>Then he walked us through where a sample would actually come from. In the ICU, sputum is suctioned about every <span class="mx-hl">2 hours</span>, and about every <span class="mx-hl">4 hours</span> at night; on general wards the frequency varies, and suctioning is usually done by caregivers or family members rather than nurses. A suction machine has a negative-pressure unit at the front, which draws the sputum into a collection canister &mdash; and Dr. Liao suggested we design our device to sit at <span class="mx-key">the front end</span>, where the sample would be more accurate.</p>
+    <p>He left us with encouragement: he believes our approach has <span class="mx-key">great potential in the clinic</span>.</p>
   </div>
 
-  <aside class="mx-advice" aria-label="Prof. Liao's advice, in short">
+  <div class="edx-kpis mx-kpis">
+    <div class="edx-kpi"><span class="edx-kpi-n">~<span data-edx-to="20">20</span><small>%</small></span><span class="edx-kpi-l">of antibiotic treatment guided by susceptibility results</span></div>
+    <div class="edx-kpi"><span class="edx-kpi-n"><span data-edx-to="2">2</span><small> h</small></span><span class="edx-kpi-l">between sputum suctions in the ICU, by day</span></div>
+    <div class="edx-kpi"><span class="edx-kpi-n"><span data-edx-to="4">4</span><small> h</small></span><span class="edx-kpi-l">between suctions in the ICU, at night</span></div>
+    <div class="edx-kpi"><span class="edx-kpi-n">Days</span><span class="edx-kpi-l">for today&rsquo;s identification methods &mdash; and they are expensive</span></div>
+  </div>
+
+  <aside class="mx-advice" aria-label="Dr. Liao's advice, in short">
     <p class="mx-advice-title">In short</p>
-    <ol>
-      <li><strong>Know your priorities.</strong> Low cost, speed and convenience, for a test that is accessible and efficient.</li>
-      <li><strong>Plan for the sample.</strong> Analyze the DNA sequences against the enzymes in patient samples, and choose ones that hold up.</li>
-      <li><strong>Widen the sensors.</strong> Try sensors with different detection thresholds and characteristics.</li>
-    </ol>
+    <div class="mx-flips">
+      {{ flip('Speed is the need', 'Most antibiotics are given empirically. A method that helps identify the bacterium within a short time &mdash; even one that only detects <em>Pseudomonas</em> &mdash; would have real potential.') }}
+      {{ flip('Screening before symptoms is a long shot', 'Detecting infection before symptoms appear is not very feasible, and the cost would have to be considered.') }}
+      {{ flip('Sample at the front end', 'Place the device at the suction machine&rsquo;s front end, before the canister, for a more accurate sample.') }}
+    </div>
+  </aside>
+</article>
+
+{# Prof. Shu-Chu Shiesh, May 27. Written from the team's notes (2026-10-09);
+   no photo of this conversation, so the head shows a drawing instead. #}
+<article id="expert-shiesh" class="mx-card">
+  <div class="mx-head">
+    <div class="mx-photo mx-illustration" aria-hidden="true">
+      <svg viewBox="0 0 240 180" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path class="mx-strand" stroke-width="5" d="M40 150c10-30 50-30 50-62s-34-34-20-58 52-6 46 22-28 36-8 52 54 2 54 34 30 30 40 18"/>
+        <path stroke-width="3" opacity="0.55" d="M58 126h22M82 96h20M78 62h24M104 36h18M120 82h20M148 112h22M178 138h18"/>
+        <circle class="mx-ion" cx="190" cy="54" r="8" stroke-width="3"/>
+        <circle class="mx-ion" cx="208" cy="84" r="5" stroke-width="3"/>
+        <circle class="mx-ion" cx="30" cy="70" r="6" stroke-width="3"/>
+      </svg>
+      <span class="mx-illustration-cap">pH &middot; ions &middot; fold</span>
+    </div>
+    <div class="mx-meta">
+      <span class="mx-tag">Academic expert</span>
+      <h2 class="mx-title" data-toc-title="Prof. Shu-Chu Shiesh">Aptamer? An insightful conversation with Prof. Shiesh</h2>
+      <p class="mx-who"><strong>Prof. Shu-Chu Shiesh</strong></p>
+      <p class="mx-role">Department of Medical Laboratory Science and Biotechnology, National Cheng Kung University</p>
+      {{ date_chip('May 27, 2026') }}
+    </div>
+  </div>
+
+  <div class="mx-body">
+    <p>With the aptamer at the centre of our design, we brought the idea to Prof. Shu-Chu Shiesh of NCKU&rsquo;s Department of Medical Laboratory Science and Biotechnology.</p>
+    <p>She told us we would not be the first to point aptamers at infection: others have built aptamer-based detection into a <span class="mx-key">chip integrated with a urinary catheter</span>, also to detect infection. It showed us that the idea of bringing aptamer sensing to the bedside has real precedent.</p>
+    <p>Then she turned to what makes an aptamer work at all. An aptamer only functions once it has folded into <span class="mx-hl">the right structure</span>, and the <span class="mx-hl">pH of the buffer</span> affects whether it can fold correctly; it also needs <span class="mx-hl">specific ions</span> to do its job. Her suggestion was practical: try buffers in <span class="mx-key">different proportions</span> to find the conditions under which the aptamer works best.</p>
+    <p>She liked the idea, and encouraged us to give it a try.</p>
+  </div>
+
+  <aside class="mx-advice" aria-label="Prof. Shiesh's advice, in short">
+    <p class="mx-advice-title">In short</p>
+    <div class="mx-flips">
+      {{ flip('There is precedent', 'Aptamer detection has already been made into a chip on a urinary catheter, to detect infection.') }}
+      {{ flip('Structure is everything', 'An aptamer only works once folded correctly &mdash; and buffer pH and specific ions decide whether it can.') }}
+      {{ flip('Test the buffer', 'Try buffers in different proportions to find the conditions where the aptamer works best.') }}
+    </div>
   </aside>
 </article>
 
@@ -83,7 +195,7 @@
         <img src="https://static.igem.wiki/teams/6379/wiki/communication/aiweili.avif" alt="Ai Wei Li Laser Engraving Studio logo" class="mx-logo" loading="lazy">
         <p class="mx-who"><strong>Ai Wei Li Laser Engraving Studio</strong></p>
       </div>
-      <p class="mx-meta-date"><span>Date</span> September 10, 2026</p>
+      {{ date_chip('September 10, 2026') }}
     </div>
   </div>
 
@@ -95,12 +207,80 @@
 
   <aside class="mx-advice" aria-label="The Ai Wei Li consultation, in short">
     <p class="mx-advice-title">In short</p>
-    <ol>
-      <li><strong>Every material behaves differently.</strong> Account for each one's properties, light reflection included.</li>
-      <li><strong>Mind the thickness at the joints.</strong> A poor connection between parts lets light leak in.</li>
-      <li><strong>Build it together.</strong> The case was assembled and adjusted at the studio, with the maker on hand.</li>
-    </ol>
+    <div class="mx-flips">
+      {{ flip('Every material behaves differently', 'Account for each one&rsquo;s properties, light reflection included.') }}
+      {{ flip('Mind the thickness at the joints', 'A poor connection between parts lets light leak in.') }}
+      {{ flip('Build it together', 'The case was assembled and adjusted at the studio, with the maker on hand.') }}
+    </div>
     <p class="mx-advice-link">How the case turned out: <a href="{{ url_for('pages', page='hardware') }}">Hardware</a></p>
+  </aside>
+</article>
+
+{# Prof. Nan Si Li, September 22. Written from the team's notes (2026-10-09). #}
+<article id="expert-li" class="mx-card">
+  <div class="mx-head">
+    <div class="edu-gallery mx-photo">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-203159.avif" alt="Prof. Nan Si Li with members of our team and the Capture slides" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/screenshot-2026-10-09-203206.avif" alt="Prof. Nan Si Li and our team after the interview" loading="lazy">
+    </div>
+    <div class="mx-meta">
+      <span class="mx-tag">Academic expert</span>
+      <h2 class="mx-title" data-toc-title="Prof. Nan Si Li">Finding what we need to improve</h2>
+      <p class="mx-who"><strong>Prof. Nan Si Li</strong></p>
+      <p class="mx-role">Department of Biotechnology and Bioindustry Sciences, National Cheng Kung University</p>
+      {{ date_chip('September 22, 2026') }}
+    </div>
+  </div>
+
+  <div class="mx-body">
+    <p>By late September, Capture had a working design, and we wanted someone to look hard for its weak spots. Prof. Nan Si Li of NCKU&rsquo;s Department of Biotechnology and Bioindustry Sciences did exactly that.</p>
+    <p>He started from how a project like ours should be framed: with a <span class="mx-key">specific target</span> &mdash; which kind of specimen, and whether that specimen contains substances that could <span class="mx-hl">degrade</span> our system. A real sample is not a clean one. It may contain <span class="mx-hl">antibiotics</span>, it may vary in <span class="mx-hl">viscosity</span>, and the body itself contains <span class="mx-hl">naturally fluorescent substances</span> &mdash; any of which could affect our engineered <em>E.&nbsp;coli</em>.</p>
+    <p>He was equally careful about what we claim. Looking beyond the competition, he advised us not to say that our system can <em>diagnose</em> <em>P.&nbsp;aeruginosa</em>, but that it can <span class="mx-key">estimate the risk that an infection is caused by <em>P.&nbsp;aeruginosa</em></span>, as a reference for clinicians.</p>
+    <p>Finally, the hardware. Its workflow should start from a clear <span class="mx-key">target user</span>. And we could present the technology as one that can later be combined with other hardware: a front-end unit to process the sample, followed by our hardware to run the detection.</p>
+  </div>
+
+  <aside class="mx-advice" aria-label="Prof. Li's advice, in short">
+    <p class="mx-advice-title">In short</p>
+    <div class="mx-flips">
+      {{ flip('Know your specimen', 'Define the target sample, and check what in it could degrade the system or interfere: antibiotics, viscosity, natural fluorescence.') }}
+      {{ flip('Estimate risk, don&rsquo;t diagnose', 'Present the result as the risk that an infection is caused by <em>P.&nbsp;aeruginosa</em>, as a reference &mdash; not a diagnosis.') }}
+      {{ flip('Design the workflow for its users', 'Start from the target user, and frame the hardware as one step: front-end sample processing, then our detection.') }}
+    </div>
+  </aside>
+</article>
+
+{# Write-up and photo from the team (2026-10-07): Prof. Tsung Lin Liao (spelling confirmed by the team, 2026-10-08),
+   Chair of the Department of Biotechnology and Bioindustry Sciences at NCKU.
+   The DNA paragraph comes before the sensor one, at the team's request, and
+   the wording was lightly edited; what was said is unchanged. Date from the
+   team (2026-10-09): September 22, the same day as Prof. Li. #}
+<article id="expert-liao" class="mx-card">
+  <div class="mx-head">
+    <div class="edu-gallery mx-photo">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/head-of-biotechnology-department.avif" alt="Prof. Tsung Lin Liao (centre) with four members of our team in the professor's office" loading="lazy">
+    </div>
+    <div class="mx-meta">
+      <span class="mx-tag">Academic expert</span>
+      <h2 class="mx-title" data-toc-title="Prof. Tsung Lin Liao">Designing for the clinic: priorities, DNA stability and sensor choice</h2>
+      <p class="mx-who"><strong>Prof. Tsung Lin Liao</strong></p>
+      <p class="mx-role">Chair of the Department of Biotechnology and Bioindustry Sciences, National Cheng Kung University</p>
+      {{ date_chip('September 22, 2026') }}
+    </div>
+  </div>
+
+  <div class="mx-body">
+    <p>Prof. Liao began by asking us what we value most in designing and developing our hardware. Weighing the current needs of medical testing, we settled on three priorities: low cost, speed and convenience, with the aim of a testing method that is both accessible and efficient.</p>
+    <p>Prof. Liao also suggested that we collect and analyze the relevant DNA sequences, so that we can anticipate how enzymes present in patient samples might degrade them. Doing so would help us choose suitable sequences and make our system more stable and reliable for future clinical use.</p>
+    <p>On the hardware design itself, Prof. Liao encouraged us to explore a wider range of sensors and to make use of their different detection thresholds and characteristics. Experimenting with different sensing mechanisms may reveal new ways to improve the performance of our detection system.</p>
+  </div>
+
+  <aside class="mx-advice" aria-label="Prof. Liao's advice, in short">
+    <p class="mx-advice-title">In short</p>
+    <div class="mx-flips">
+      {{ flip('Know your priorities', 'Low cost, speed and convenience, for a test that is accessible and efficient.') }}
+      {{ flip('Plan for the sample', 'Analyze the DNA sequences against the enzymes in patient samples, and choose ones that hold up.') }}
+      {{ flip('Widen the sensors', 'Try sensors with different detection thresholds and characteristics.') }}
+    </div>
   </aside>
 </article>
 
@@ -109,5 +289,7 @@
 </nav>
 
 <script src="{{ url_for('static', filename = 'edu-lightbox.js') }}"></script>
+<script src="{{ url_for('static', filename = 'js/pages/edu-interactive.js') }}" defer></script>
+<script src="{{ url_for('static', filename = 'js/pages/meet-experts.js') }}" defer></script>
 
 {% endblock %}
