@@ -33,7 +33,6 @@
     if (!ctx) return;
 
     var hud = stage.querySelector('.qs-hud');
-    var note = stage.querySelector('.qs-note');
     var fill = stage.querySelector('.qs-meter-fill');
     var stateEl = stage.querySelector('.qs-meter-state');
     var hint = stage.querySelector('.qs-hint');
@@ -382,7 +381,6 @@
     }
 
     hud.hidden = false;
-    if (note) note.hidden = false;
     hudUpdate(0, true);
 
     if ('IntersectionObserver' in window) {
@@ -510,8 +508,8 @@
     setSys('detect');
     if (reduce) return;
 
-    /* the steps play on their own while the section is in view, and the
-       other system follows when one is done */
+    /* the steps play on their own while the section is in view, one every
+       1.8 seconds, and the other system follows when one is done */
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (es) { inView = es[0].isIntersecting; }, { threshold: 0.35 }).observe(root);
     } else { inView = true; }
@@ -519,7 +517,7 @@
       if (!inView || hovering || now() < heldUntil || document.hidden) return;
       if (stepAt < 4) setStep(stepAt + 1);
       else setSys(sys === 'detect' ? 'capture' : 'detect');
-    }, 2600);
+    }, 1800);
   })();
 
   /* ------------------------------------------------------------------
