@@ -1,4 +1,4 @@
-// Copied unchanged from LasReader, frontend/js/curve_fit.js (commit b092eb6),
+// Copied unchanged from LasReader, frontend/js/curve_fit.js (commit b208edc),
 // https://gitlab.igem.org/2026/software/ncku-tainan/lasreader
 // MIT License, Copyright (c) 2026 iGEM Team NCKU-Tainan (National Cheng Kung University).
 // Keep it byte-for-byte in step with the repository: the Software page's demo
@@ -218,7 +218,7 @@ const CurveFit = {
 
     const { p, cov } = curveFit4PL(points);
     const [top, bottom, lnEc50, hill] = p;
-    if (!cov || !cov.flat().every(Number.isFinite)) throw new Error("Fit did not converge: parameter covariance is undefined.");
+    if (!cov || !cov.flat().every(Number.isFinite)) throw new Error("Fit didn't converge: parameter covariance is undefined.");
     if (!(top > bottom)) throw new Error("No increasing response: top ≤ bottom, so no curve can be built.");
 
     const params = { top, bottom, ec50_nM: Math.exp(lnEc50), hill };

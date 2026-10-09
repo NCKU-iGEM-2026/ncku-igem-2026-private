@@ -460,6 +460,19 @@ body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) bright
    colour, on phones as well. The petrol tint over it is the shared one, which
    is what keeps the graphic's own lettering behind the page title. */
 body.hw-nexus .page-hero-bg.hero-software { filter: blur(2px) saturate(1) brightness(0.75); }
+/* The whole graphic, never cropped: as wide as the banner, as tall as that
+   makes it, and centred. (The box runs 6px past the banner on each side for
+   the blur, hence the 12px off its width; no zoom, so nothing is cut.) The
+   space above and below is filled with the graphic's own top and bottom
+   edge colours (#edf5f6, #f2f6f7), so the join does not show. A new banner
+   with different edges needs these two colours changed to match. */
+.page-hero-bg.hero-software {
+  background-image: var(--hero-img), linear-gradient(#edf5f6, #f2f6f7);
+  background-size: calc(100% - 12px) auto, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  transform: none;
+}
 
 /* 70% rather than the shared 60%: Lab Book, Description, Parts and the HP
    pages. Only the brightness moves -- the blur and the desaturation stay as
@@ -10351,6 +10364,400 @@ body.hw-nexus .sw .sw-inv-out {
 
 @media print {
   .sw-lab { display: none; }
+}
+
+/* ---- page structure ------------------------------------------------------
+   The page borrows the Model page's parts (md-parts cards, md-part banners;
+   its container carries .md for them). Four cards instead of three: stacked
+   on a phone, two by two on a tablet (no arrow into the second row), four
+   abreast once there is room. */
+@media (min-width: 768px) {
+  .sw .sw-parts { grid-template-columns: repeat(2, 1fr); }
+  .sw .sw-parts > li:nth-child(3)::before { display: none; }
+}
+@media (min-width: 1200px) {
+  .sw .sw-parts { grid-template-columns: repeat(4, 1fr); }
+  .sw .sw-parts > li:nth-child(3)::before { display: block; }
+}
+/* The one sentence under each part's banner: what a judge should take away. */
+body.hw-nexus .sw .sw-takeaway {
+  max-width: 50rem;
+  margin: 0.9rem 0 2.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--nx-mint);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--nx-text);
+}
+/* The Swarming Assay sits outside the workflow: a dashed rule, not the parts' solid one. */
+.sw .md-part.sw-apart {
+  margin-top: 6rem;
+  border-top: 2px dashed var(--nx-muted);
+}
+body.hw-nexus .sw .sw-apart .md-part-no { color: var(--nx-muted); }
+
+/* ---- screenshots -----------------------------------------------------------
+   Every shot sits in the same plain browser frame (a bar with three dots), so
+   screenshots of any size and crop read as one set. A shot with an image
+   opens full size on click (edu-lightbox.js). Until the image is uploaded the
+   frame is dashed in the caution colour and says so. */
+.sw-shot { display: flex; flex-direction: column; gap: 0.55rem; margin: 0; }
+.sw-frame {
+  overflow: hidden;
+  background: #0a1c24;
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+.sw-frame-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  background: var(--nx-raised);
+  border-bottom: 1px solid var(--nx-line);
+}
+.sw-frame-bar i { width: 7px; height: 7px; border-radius: 50%; background: var(--nx-line); }
+.sw-shot img { display: block; width: 100%; height: auto; }
+body.hw-nexus .sw .sw-shot figcaption { font-size: 0.8rem; line-height: 1.5; color: var(--nx-muted); }
+body.hw-nexus .sw .sw-shot figcaption strong { color: var(--nx-text); font-weight: 600; }
+.sw-shot.is-todo .sw-frame { border: 1.5px dashed var(--nx-warm); box-shadow: none; }
+.sw-shot-todo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--nx-warm);
+  background: rgba(230, 176, 96, 0.04);
+}
+.sw-todo-block .sw-shot-todo {
+  aspect-ratio: auto;
+  min-height: 8rem;
+  border: 1.5px dashed var(--nx-warm);
+  border-radius: 10px;
+}
+.sw-tools .sw-shot { margin-top: 1rem; }
+
+/* ---- the workflow ----------------------------------------------------------
+   Seven steps as tabs (software-workflow.js adds .is-live). Without the
+   script the panels simply stack. */
+.sw-flow { margin-top: 1.25rem; }
+.sw-flow-steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+@media (min-width: 768px) {
+  .sw-flow-steps { grid-template-columns: repeat(7, 1fr); }
+  /* a line joining the steps, behind the buttons */
+  .sw-flow-steps > li { position: relative; }
+  .sw-flow-steps > li + li::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    width: 0.5rem;
+    border-top: 2px solid var(--nx-line);
+  }
+}
+.sw-flow-steps button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.65rem 0.25rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.92rem;
+  color: var(--nx-muted);
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.sw-flow-steps button:hover { border-color: var(--nx-mint); color: var(--nx-text); }
+.sw-flow-steps button[aria-selected="true"] {
+  color: var(--nx-text);
+  background: var(--nx-raised);
+  border-color: var(--nx-mint);
+}
+.sw-flow-steps button:focus-visible,
+.sw-flow-nav .sw-btn:focus-visible {
+  outline: 3px solid var(--nx-warm);
+  outline-offset: 2px;
+}
+.sw-flow-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--nx-mint);
+  border: 2px solid var(--nx-mint);
+  border-radius: 50%;
+}
+.sw-flow-steps button.is-done .sw-flow-n { background: rgba(73, 197, 182, 0.18); }
+.sw-flow-steps button[aria-selected="true"] .sw-flow-n {
+  color: var(--nx-ground);
+  background: var(--nx-mint);
+}
+.sw-flow-panel { margin-bottom: 1.5rem; }
+.sw-flow.is-live .sw-flow-panel {
+  margin: 0;
+  padding: 1.25rem;
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 14px;
+}
+.sw-flow-panel[hidden] { display: none; }
+.sw-flow-panel:focus-visible { outline: 3px solid var(--nx-warm); outline-offset: 2px; }
+.sw .sw-flow-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+}
+.sw-flow-cols { display: grid; gap: 1.25rem; }
+@media (min-width: 768px) {
+  .sw-flow-cols { grid-template-columns: 1fr 1fr; }
+  .sw-flow-cols > .sw-shot { grid-column: 1 / -1; }
+}
+@media (min-width: 992px) {
+  .sw-flow-cols { grid-template-columns: 0.8fr 1.2fr 1.3fr; }
+  .sw-flow-cols > .sw-shot { grid-column: auto; }
+}
+.sw-flow-k {
+  margin: 0 0 0.4rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+body.hw-nexus .sw .sw-flow-bench .sw-flow-k { color: var(--nx-muted); }
+body.hw-nexus .sw .sw-flow-soft .sw-flow-k { color: var(--nx-mint); }
+.sw-flow-bench p:not(.sw-flow-k) { font-size: 1rem; }
+.sw-flow-soft ul { padding-left: 1.1rem; margin: 0 0 0.6rem; font-size: 0.93rem; }
+.sw-flow-soft li { margin-bottom: 0.4rem; line-height: 1.6; }
+body.hw-nexus .sw .sw-flow-where { margin: 0; font-size: 0.82rem; color: var(--nx-muted); }
+.sw-flow-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.9rem;
+}
+.sw-flow-nav[hidden] { display: none; }
+.sw-flow-nav .sw-btn:disabled { opacity: 0.4; cursor: default; }
+body.hw-nexus .sw .sw-flow-count { font-size: 0.85rem; color: var(--nx-muted); }
+.sw-flow-chips {
+  display: inline-block;
+  margin-left: 0.3rem;
+  padding: 0 0.55rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  color: var(--nx-mint);
+  border: 1px solid var(--nx-line);
+  border-radius: 999px;
+}
+
+/* ---- numbering ------------------------------------------------------------
+   Sections (1.1, 1.2 ...), figures, tables and equations are numbered so a
+   judge can point at any of them. */
+.sw h2 .sw-h-no {
+  display: inline-block;
+  margin-right: 0.55em;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--nx-muted);
+}
+/* equation numbers sit at the right edge; equal padding keeps the equation centred */
+.sw-idea .sw-eq { position: relative; padding-left: 3.5rem; padding-right: 3.5rem; }
+.sw-eq-no {
+  position: absolute;
+  right: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  font-style: normal;
+  color: var(--nx-muted);
+}
+/* table captions, visible and numbered, above the table (Software only: the
+   Model page shares .sw and keeps its own captions) */
+body.hw-nexus .sw-page .hw-table caption:not(.visually-hidden) {
+  caption-side: top;
+  padding: 0 0 0.6rem;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--nx-muted);
+}
+body.hw-nexus .sw-page .hw-table caption strong { color: var(--nx-text); font-weight: 600; }
+
+/* Prose at a readable measure (about 75 characters); tables, figures and the
+   panels keep the full width. */
+.sw-parts ~ section > p,
+.sw-parts ~ section > ul,
+.sw-parts ~ section > h3 + p,
+.sw-idea > p,
+.sw-parts ~ section .sw-swarm p { max-width: 46rem; }
+
+/* The cards on top follow the page's single accent. */
+body.hw-nexus .sw .sw-parts .md-parts-name { color: var(--nx-text); }
+.sw-parts a:hover,
+.sw-parts a:focus-visible { border-color: var(--nx-mint); }
+
+/* ---- the five ideas ---- */
+.sw-idea { margin: 0 0 2.4rem; }
+.sw .sw-idea h3 { display: flex; align-items: center; gap: 0.6rem; }
+.sw-idea-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--nx-mint);
+  border: 2px solid var(--nx-mint);
+  border-radius: 50%;
+}
+
+/* ---- who can use it ---- */
+.sw-yes, .sw-adapt, .sw-no {
+  display: inline-block;
+  padding: 0.05rem 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+.sw-yes { color: var(--nx-mint); }
+.sw-adapt { color: var(--nx-text); border-color: var(--nx-line); }
+.sw-no { color: var(--nx-warm); }
+
+/* ---- try it with your data ---- */
+.sw-try {
+  display: grid;
+  gap: 2rem;
+  padding: 1.25rem;
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 14px;
+}
+.sw-try-step[hidden] { display: none; }
+body.hw-nexus .sw .sw-try-k {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.08rem;
+  color: var(--nx-text);
+}
+body.hw-nexus .sw .sw-try-step > .sw-try-k ~ .sw-try-k { margin-top: 1.8rem; }
+.sw-try-table-wrap { overflow-x: auto; margin-top: 0.6rem; }
+.sw-try-table { width: 100%; min-width: 30rem; border-collapse: separate; border-spacing: 0.3rem; }
+body.hw-nexus .sw .sw-try-table th {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--nx-muted);
+  text-align: left;
+  padding: 0 0.2rem;
+}
+body.hw-nexus .sw .sw-try-table th:first-child { color: var(--nx-mint); }
+.sw-try input {
+  width: 100%;
+  color: var(--nx-text);
+  background: #0a1c24;
+  border: 1px solid var(--nx-line);
+  border-radius: 6px;
+  padding: 0.35rem 0.55rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88rem;
+}
+.sw-try-table td:first-child input { border-color: var(--nx-mint); }
+.sw-try input:focus-visible,
+.sw-try summary:focus-visible { outline: 3px solid var(--nx-warm); outline-offset: 1px; }
+.sw-try-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+body.hw-nexus .sw .sw-try-unit {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--nx-muted);
+}
+.sw-try-unit input { width: 6rem; }
+body.hw-nexus .sw .sw-try-msg { min-height: 1.5rem; margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--nx-muted); }
+body.hw-nexus .sw .sw-try-msg.is-error { color: var(--nx-warm); }
+.sw-try-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+.sw-try-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.9rem 1rem;
+  background: var(--nx-raised);
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+}
+.sw-try-stat-k {
+  font-family: "Changa", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+.sw-try-stat-v {
+  font-family: "Changa", sans-serif;
+  font-size: 1.35rem;
+  color: var(--nx-text);
+  font-variant-numeric: tabular-nums;
+}
+.sw-try-stat-s { font-size: 0.78rem; color: var(--nx-muted); }
+.sw-try-more { margin: 1rem 0 0; }
+.sw-try-more summary { cursor: pointer; font-family: "Changa", sans-serif; color: var(--nx-mint); }
+body.hw-nexus .sw .sw-try-result { min-height: 2rem; margin: 0.8rem 0 0; font-size: 0.95rem; color: var(--nx-muted); }
+body.hw-nexus .sw .sw-try-result.is-ok strong {
+  margin-right: 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.55rem;
+  color: var(--nx-mint);
+}
+body.hw-nexus .sw .sw-try-result.is-bound { color: var(--nx-warm); }
+
+/* ---- swarming ---- */
+.sw-swarm { display: grid; gap: 2rem; }
+@media (min-width: 992px) { .sw-swarm { grid-template-columns: 1.2fr 1fr; } }
+.sw-swarm-shots { display: grid; gap: 1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-flow-steps button { transition: none; }
 }
 
 /* ===== Model: the reader's measurement model ================================

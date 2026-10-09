@@ -6,42 +6,64 @@
    from its two sides, so they wear the same ground. #}
 {% block body_class %}hw-nexus{% endblock %}
 
-{% block hero_image %}https://static.igem.wiki/teams/6379/wiki/software/software.avif{% endblock %}
+{% block hero_image %}https://static.igem.wiki/teams/6379/wiki/software/banner.avif{% endblock %}
 {# hero-software: the banner at 75% brightness; see style.css #}
 {% block hero_class %}hero-software{% endblock %}
 
-{% block lead %}LasReader: from a biosensor's fluorescence to an AHL estimate with an honest interval{% endblock %}
+{% block lead %}LasReader: the wet-lab workflow of a fluorescent biosensor, from readings to concentrations you can trust{% endblock %}
 
 {% block page_content %}
 
 {# A fraction, typeset. Arguments are trusted markup written on this page. #}
 {% macro frac(n, d) %}<span class="sw-frac"><span>{{ n|safe }}</span><span>{{ d|safe }}</span></span>{% endmacro %}
 
+{# A screenshot, in a plain browser frame so shots of any size sit alike.
+   Until the image is uploaded the frame is dashed and says so; give it src
+   (a static.igem.wiki URL) and alt, and it opens full size on click
+   (static/edu-lightbox.js). fig is its figure number. #}
+{% macro shot(name, fig='', src='', alt='') %}
+<figure class="sw-shot{% if not src %} is-todo{% endif %}">
+  <div class="sw-frame">
+    <span class="sw-frame-bar" aria-hidden="true"><i></i><i></i><i></i></span>
+    {% if src %}<img src="{{ src }}" alt="{{ alt }}" loading="lazy">{% else %}<span class="sw-shot-todo">Screenshot to come</span>{% endif %}
+  </div>
+  <figcaption>{% if fig %}<strong>{{ fig }}.</strong> {% endif %}{{ name }}</figcaption>
+</figure>
+{% endmacro %}
+
 {#
   === 給團隊的說明，發布前請讀 ===
 
-  內容來源：LasReader repo（C:\Users\user\Desktop\iGEM Code\iGEM Software）的
-  README.md 與 docs/capture_screen_model.md，commit b092eb6。本頁沒有加入那兩份
-  文件以外的數據、結果或引用。
+  內容來源：LasReader repo（C:\Users\user\Desktop\iGEM Code\iGEM Software），commit b208edc：
+  README.md、docs/capture_screen_model.md、frontend/js/curve_fit.js、
+  backend/app/swarming/。本頁沒有加入這些文件以外的數據、結果或引用。
 
-  還需要你們補的：
+  頁面結構（左側 On this page 目錄由 static/page-toc.js 依 h2 自動產生，
+  Part 標題用 data-toc-group 分組、data-toc-no 給編號，各節 h2 用 data-toc-title 給短名；
+  container 上的 data-toc-style="parts" 讓目錄畫成編號＋軌道＋進度條，其他頁不受影響）：
+    頁首四張卡片（md-parts）= 目錄 + 故事線
+    Part 1 From bench to number：The problem / The workflow（互動）/ Three tools
+    Part 2 How it decides：Five key ideas / Rules it keeps
+    Part 3 Yours to use：Who can use it / Try it with your data / Run and extend
+    Part 4 Evidence：Results / Limitations
+    Also in LasReader：Swarming Assay（和 workflow 無關，獨立放最後）
 
-  A. 實際結果（Results 一節目前只有說明文字）
-     校正曲線、LOD/LOQ、Cross-Validation 的 GMR 與 limits of agreement。
-     有真實數據後再放，不要用 "Try the fit" 的模擬資料代替。
+  關於「AHL」：app 畫面寫 AHL，本頁用通用說法，並在 Who can use it 明講
+  app 是為 AHL 感測器做的、換算本身不用到分析物名稱。curve_fit.js 已核對：
+  沒有任何地方用到 AHL；只接受隨濃度上升的反應（top > bottom），這點也寫在頁面上。
 
-  B. 截圖
-     各工具畫面的截圖要用 iGEM uploads tool 上傳到 static.igem.wiki。
-     插入位置用 <!-- SCREENSHOT: ... --> 標了。
-
-  C. 與 Hardware 頁不一致的地方，請確認哪一個是對的：
-     - 感測器設定：本頁（依 software 文件）是 ATIME 59 / ASTEP 999；
-       Hardware 頁 file manifest 寫 ATIME 255 / ASTEP 280。
-     - AS7341 函式庫：software README 是 DFRobot_AS7341；
-       Hardware 頁寫 Adafruit AS7341 library。
-
-  D. static/lasreader-curve-fit.js 是 LasReader 的 curve_fit.js 原封不動的複本。
-     LasReader 那邊的 curve_fit.js 改了，這裡也要一起更新。
+  發布前要補（freeze 前不可留下任何虛線佔位框）：
+  A. 截圖：每個 {{ shot('名稱', fig='Figure n') }} 都是一個佔位。上傳到 static.igem.wiki 後加上
+     src='https://static.igem.wiki/...', alt='替代文字'，點圖會放大。圖號不要改，內文有引用。
+  B. The problem：目前是一般性的描述。請改成你們團隊自己原本怎麼處理數據的真實經驗。
+  C. Try it with your data 的「Load example」：等團隊提供一組真實校正數據，
+     填進 static/software-fit.js 的 EXAMPLE（附來源說明），再把本頁那個按鈕的註解拿掉。
+  D. Results：放真實數據，每張圖標明 n、日期、條件；完整度表照實填。
+  E. 與 Hardware 頁不一致的地方，請確認哪一個是對的：
+     - 感測器設定：LasReader 文件是 ATIME 59 / ASTEP 999；Hardware 頁寫 ATIME 255 / ASTEP 280。
+     - AS7341 函式庫：LasReader README 是 DFRobot_AS7341；Hardware 頁寫 Adafruit。
+  F. static/lasreader-curve-fit.js 是 LasReader curve_fit.js（b208edc）的原封不動複本。
+     LasReader 那邊改了，這裡也要一起更新。
 #}
 
 <div class="hw-orbs" aria-hidden="true">
@@ -50,20 +72,19 @@
   <span class="hw-orb hw-orb-c"><span></span></span>
 </div>
 
-<div class="container my-4 hw sw">
+<div class="container my-4 hw sw md sw-page" data-toc-style="parts">
 
   <div class="hw-lead">
     <p>
-      Many synthetic-biology biosensors report a signal molecule by expressing a
-      fluorescent protein. Ours reports the quorum-sensing molecule AHL. Turning
-      that fluorescence into a number you can trust takes more than reading a
-      value: backgrounds must be subtracted, replicates combined, a standard
-      curve fitted, and its limits respected.
+      A fluorescent biosensor reports its target as light. Getting from that
+      light to a concentration takes a whole sequence of wet-lab steps:
+      standards, blanks, replicates, a curve, and judgment about where the
+      curve can be trusted.
     </p>
     <p>
-      LasReader packages those steps into web tools that open in a browser with
-      nothing to install. It serves the plate reader and our own instrument,
-      CAPTURE-Screen, through one shared calibration model.
+      LasReader turns that sequence into one workflow in the browser, with
+      nothing to install. We built it for our own AHL sensor and our own reader,
+      CAPTURE-Screen, but the analysis serves any team whose biosensor glows.
     </p>
   </div>
 
@@ -74,876 +95,585 @@
   </ul>
 
   <div class="hw-caution">
-    <em>Research use only.</em> LasReader reports relative fluorescence and AHL
-    concentrations <em>inferred</em> from a calibration curve. It is not
-    intended for diagnostic use.
+    <em>Research use only.</em> LasReader reports concentrations
+    <em>inferred</em> from a calibration curve. It is not intended for
+    diagnostic use.
   </div>
 
-  <!-- ========================= why ========================= -->
-  <section>
-    <h2>What it is for</h2>
+  {# 四張卡片：本頁的目錄，也是故事線。每張連到一個 Part 的 id，改了 id 要一起改。 #}
+  <ol class="md-parts sw-parts" aria-label="The four parts of this page">
+    <li>
+      <a href="#part-workflow">
+        <span class="md-parts-no">Part 1</span>
+        <span class="md-parts-name">From bench to number</span>
+        <span class="md-parts-q">Every wet-lab step, and the software step that takes it over.</span>
+      </a>
+    </li>
+    <li>
+      <a href="#part-model">
+        <span class="md-parts-no">Part 2</span>
+        <span class="md-parts-name">How it decides</span>
+        <span class="md-parts-q">Five ideas that make each number trustworthy.</span>
+      </a>
+    </li>
+    <li>
+      <a href="#part-yours">
+        <span class="md-parts-no">Part 3</span>
+        <span class="md-parts-name">Yours to use</span>
+        <span class="md-parts-q">Who else can use it, what to change, and a fit to try.</span>
+      </a>
+    </li>
+    <li>
+      <a href="#part-evidence">
+        <span class="md-parts-no">Part 4</span>
+        <span class="md-parts-name">Evidence</span>
+        <span class="md-parts-q">What it has measured so far, and what it cannot do yet.</span>
+      </a>
+    </li>
+  </ol>
+  <p class="hw-aside md-parts-link">
+    LasReader also has a fourth tool, outside this workflow:
+    <a href="#part-swarming">the Swarming Assay</a>, which measures colonies on plate photos.
+  </p>
 
+  {# ======================================================================
+     Part 1: From bench to number
+     ====================================================================== #}
+  <header class="md-part" id="part-workflow" data-toc-group data-toc-no="1">
+    <p class="md-part-no">Part 1</p>
+    <h2 data-toc-title="From bench to number">From bench to number</h2>
+  </header>
+  <p class="sw-takeaway">
+    Each step a wet-lab member does by hand has a matching step in
+    LasReader, done the same way every time and written into the export.
+  </p>
+
+  <!-- ========================= problem ========================= -->
+  {# 待改寫（說明 B）：這段是一般性的描述，請換成團隊自己原本處理數據的真實經驗。 #}
+  <section id="problem">
+    <h2 data-toc-title="1.1 The problem"><span class="sw-h-no">1.1</span>The problem</h2>
     <p>
-      Three commitments run through every page of the tool. Each card turns
-      over to show how it is kept.
+      A plate reader hands back a grid of numbers. Turning it into
+      concentrations is usually left to whoever holds the data, in a
+      spreadsheet rebuilt for each experiment: subtract the blank, average the
+      replicates, fit a curve, read the samples off it. Each of those steps
+      involves a choice that rarely gets written down, and the result is a
+      single number with no indication of how far to trust it, even when the
+      sample lies beyond the highest standard.
     </p>
-
-    <dl class="hw-terms hw-flip">
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 8h18"/><path d="M8 21h8"/></svg></span>Nothing to install</span></dt>
-        <dd class="hw-flip-back">
-          The frontend is a plain static site with no build step. A wet-lab
-          member uploads a file or follows the numbered steps at the
-          instrument; no programming is needed.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M4 8v8M20 8v8"/><circle cx="12" cy="12" r="2.2"/></svg></span>Every number has an interval</span></dt>
-        <dd class="hw-flip-back">
-          A concentration is never shown alone. It carries a 95% confidence
-          interval that combines the noise of the reading with the uncertainty
-          of the fitted curve.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18c4 0 5-12 9-12s5 12 9 12"/><path d="M4.2 19.8 19.8 4.2"/></svg></span>It never extrapolates</span></dt>
-        <dd class="hw-flip-back">
-          Outside a curve's usable range the software says "below LOD" or
-          "above range" and gives no number. Everything shown is a real
-          reading: there is no simulated device or demo data in the tool.
-        </dd>
-      </div>
-    </dl>
-
-    <h3>Who it is for</h3>
-    <ul>
-      <li><strong>Wet-lab members of iGEM teams and other labs</strong> who
-        characterize a fluorescent biosensor, especially one that responds to
-        AHL.</li>
-      <li><strong>Teams building a low-cost fluorescence reader.</strong>
-        CAPTURE-Screen's firmware, its data model and its calibration workflow
-        can be reused with any AS7341-based device.</li>
-      <li><strong>Developers extending the tools.</strong> Each analysis step is
-        a separate module, and the backend exposes a documented REST API.</li>
-    </ul>
   </section>
 
-  <!-- ========================= the tools ========================= -->
-  <section>
-    <h2>Three tools, one model</h2>
+  <!-- ========================= workflow ========================= -->
+  {# 互動流程圖：static/software-workflow.js 把七個 panel 變成分頁。
+     沒有 JavaScript 時，七個 panel 依序全部顯示，內容不會少。 #}
+  <section id="workflow">
+    <h2 data-toc-title="1.2 The workflow"><span class="sw-h-no">1.2</span>The workflow</h2>
+    <p>Seven steps, in the order they happen at the bench. Choose one to see what LasReader does there.</p>
 
-    <div class="hw-modules">
-      <div class="hw-module" data-module="primary">
-        <span class="hw-module-tag">Tool 1</span>
+    <div class="sw-flow" id="swFlow">
+      <ol class="sw-flow-steps" hidden>
+        <li><button type="button" data-step="0"><span class="sw-flow-n">1</span>Plan</button></li>
+        <li><button type="button" data-step="1"><span class="sw-flow-n">2</span>Read</button></li>
+        <li><button type="button" data-step="2"><span class="sw-flow-n">3</span>Check</button></li>
+        <li><button type="button" data-step="3"><span class="sw-flow-n">4</span>Fit</button></li>
+        <li><button type="button" data-step="4"><span class="sw-flow-n">5</span>Convert</button></li>
+        <li><button type="button" data-step="5"><span class="sw-flow-n">6</span>Compare</button></li>
+        <li><button type="button" data-step="6"><span class="sw-flow-n">7</span>Export</button></li>
+      </ol>
+
+      <div class="sw-flow-panel" id="swFlow-0">
+        <h3><span class="sw-flow-n">1</span>Plan the standards</h3>
+        <div class="sw-flow-cols">
+          <div class="sw-flow-bench">
+            <p class="sw-flow-k">At the bench</p>
+            <p>Prepare standards of known concentration and blanks with none, next to the samples.</p>
+          </div>
+          <div class="sw-flow-soft">
+            <p class="sw-flow-k">LasReader</p>
+            <ul>
+              <li>Asks for at least 4 standard concentrations and 2 blanks, the least a four-parameter curve and a limit of detection need.</li>
+              <li>On CAPTURE-Screen, lays the tubes out in replicate rounds (a blank, then every standard from low to high) so instrument drift falls on every concentration equally.</li>
+            </ul>
+            <p class="sw-flow-where">In <a href="#tool-plate">Plate Reader Assay</a> and <a href="#tool-capture">CAPTURE-Screen</a> &rarr; Calibrate</p>
+          </div>
+          {{ shot('Calibrate: the reading order in replicate rounds', fig='Figure 1a') }}
+        </div>
+      </div>
+
+      <div class="sw-flow-panel" id="swFlow-1">
+        <h3><span class="sw-flow-n">2</span>Read</h3>
+        <div class="sw-flow-cols">
+          <div class="sw-flow-bench">
+            <p class="sw-flow-k">At the bench</p>
+            <p>Read the plate on any plate reader, or read the tubes one by one on CAPTURE-Screen.</p>
+          </div>
+          <div class="sw-flow-soft">
+            <p class="sw-flow-k">LasReader</p>
+            <ul>
+              <li>Takes plate readings typed, pasted from Excel, or pasted as the reader's 8&nbsp;&times;&nbsp;12 export and marked on a plate map. Fluorescence can be divided by OD600.</li>
+              <li>On CAPTURE-Screen, each tube is one click: a dark &rarr; light &rarr; dark read of about 3&nbsp;s, with dark subtraction and normalization done for you.</li>
+            </ul>
+            <p class="sw-flow-where">In <a href="#tool-plate">Plate Reader Assay</a> and <a href="#tool-capture">CAPTURE-Screen</a></p>
+          </div>
+          {{ shot('Plate Reader Assay: the plate map', fig='Figure 1b') }}
+        </div>
+      </div>
+
+      <div class="sw-flow-panel" id="swFlow-2">
+        <h3><span class="sw-flow-n">3</span>Check the data</h3>
+        <div class="sw-flow-cols">
+          <div class="sw-flow-bench">
+            <p class="sw-flow-k">At the bench</p>
+            <p>Make sure the instrument behaves and that no well or tube is off.</p>
+          </div>
+          <div class="sw-flow-soft">
+            <p class="sw-flow-k">LasReader</p>
+            <ul>
+              <li>Grades CAPTURE-Screen with a buffer-only self-check: dark stability and saturation.</li>
+              <li>Flags each tube that saturated, missed a dark frame, scatters far more than the blank, or was read under different settings.</li>
+              <li>Lets you exclude a reading only with a written reason. It stays on the plot and in the export.</li>
+            </ul>
+            <p class="sw-flow-where">In <a href="#tool-capture">CAPTURE-Screen</a> &rarr; Instrument, and every fit</p>
+          </div>
+          {{ shot('Excluding a reading, with its reason', fig='Figure 1c') }}
+        </div>
+      </div>
+
+      <div class="sw-flow-panel" id="swFlow-3">
+        <h3><span class="sw-flow-n">4</span>Fit the curve</h3>
+        <div class="sw-flow-cols">
+          <div class="sw-flow-bench">
+            <p class="sw-flow-k">At the bench</p>
+            <p>Draw a standard curve through the standards.</p>
+          </div>
+          <div class="sw-flow-soft">
+            <p class="sw-flow-k">LasReader</p>
+            <ul>
+              <li>Fits a weighted four-parameter logistic curve (<a href="#key-ideas">§2.1, Eqs. 1–2</a>).</li>
+              <li>Works out the limit of detection and quantification from the blanks, and the usable range: the only stretch of the curve that returns a number (<a href="#key-ideas">§2.1, Eq. 3</a>).</li>
+            </ul>
+            <p class="sw-flow-where">In <a href="#tool-plate">Plate Reader Assay</a> and <a href="#tool-capture">CAPTURE-Screen</a></p>
+          </div>
+          {{ shot('A fitted curve with its LOD and usable range', fig='Figure 1d') }}
+        </div>
+      </div>
+
+      <div class="sw-flow-panel" id="swFlow-4">
+        <h3><span class="sw-flow-n">5</span>Convert the samples</h3>
+        <div class="sw-flow-cols">
+          <div class="sw-flow-bench">
+            <p class="sw-flow-k">At the bench</p>
+            <p>Read each sample's concentration off the curve.</p>
+          </div>
+          <div class="sw-flow-soft">
+            <p class="sw-flow-k">LasReader</p>
+            <ul>
+              <li>Averages a sample's replicates first, then converts once, and scales by its dilution.</li>
+              <li>Gives every concentration a 95% confidence interval (<a href="#key-ideas">§2.1, Eqs. 4–5</a>).</li>
+              <li>Outside the usable range, says "below LOD" or "above range" and gives no number.</li>
+            </ul>
+            <p class="sw-flow-where">In <a href="#tool-plate">Plate Reader Assay</a> and <a href="#tool-capture">CAPTURE-Screen</a> &rarr; Measure</p>
+          </div>
+          {{ shot('Sample results with their 95% CIs', fig='Figure 1e') }}
+        </div>
+      </div>
+
+      <div class="sw-flow-panel" id="swFlow-5">
+        <h3><span class="sw-flow-n">6</span>Compare instruments</h3>
+        <div class="sw-flow-cols">
+          <div class="sw-flow-bench">
+            <p class="sw-flow-k">At the bench</p>
+            <p>Measure the same samples on a reference plate reader and on your own reader.</p>
+          </div>
+          <div class="sw-flow-soft">
+            <p class="sw-flow-k">LasReader</p>
+            <ul>
+              <li>Pairs the two results by sample name.</li>
+              <li>Shows a log-log plot against <var>y</var>&nbsp;=&nbsp;<var>x</var>, the geometric mean ratio, Bland&ndash;Altman 95% limits of agreement, and how many confidence intervals overlap (<a href="#key-ideas">§2.1, Eq. 6</a>).</li>
+            </ul>
+            <p class="sw-flow-where">In <a href="#tool-compare">Cross-Validation</a></p>
+          </div>
+          {{ shot('Cross-Validation: log-log plot and agreement', fig='Figure 1f') }}
+        </div>
+      </div>
+
+      <div class="sw-flow-panel" id="swFlow-6">
+        <h3><span class="sw-flow-n">7</span>Export and reproduce</h3>
+        <div class="sw-flow-cols">
+          <div class="sw-flow-bench">
+            <p class="sw-flow-k">At the bench</p>
+            <p>Record the results so that someone else can check them.</p>
+          </div>
+          <div class="sw-flow-soft">
+            <p class="sw-flow-k">LasReader</p>
+            <ul>
+              <li>Exports a CSV that opens in Excel, with every reading, every exclusion and its reason, and every result. The curve comes as a PNG.</li>
+              <li>Backs up all CAPTURE-Screen runs, curves and batches to one JSON file.</li>
+              <li>Lets anyone refit a curve from its file and get the same numbers.</li>
+            </ul>
+            <p class="sw-flow-where">In every tool</p>
+          </div>
+          {{ shot('An exported CSV opened in Excel', fig='Figure 1g') }}
+        </div>
+      </div>
+
+      <div class="sw-flow-nav" hidden>
+        <button type="button" class="sw-btn" data-move="-1">&larr; Previous</button>
+        <span class="sw-flow-count" aria-live="polite"></span>
+        <button type="button" class="sw-btn is-primary" data-move="1">Next &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= tools ========================= -->
+  <section id="tools">
+    <h2 data-toc-title="1.3 Three tools"><span class="sw-h-no">1.3</span>Three tools, one workflow</h2>
+    <p>
+      The workflow runs on three tools. Two take readings from different
+      instruments through the same curve; the third compares them.
+    </p>
+
+    <div class="hw-modules sw-tools">
+      <div class="hw-module" data-module="primary" id="tool-plate">
+        <span class="hw-module-tag">Any plate reader</span>
         <h3>Plate Reader Assay</h3>
-        <p class="hw-module-what">AHL standards and samples read together on any
-          plate reader, fitted into a standard curve, with each sample's
-          inferred AHL and its 95% CI.</p>
+        <p class="hw-module-what">Standards and samples read together on any
+          plate reader become a standard curve, with each sample's
+          concentration and its 95% CI. <span class="sw-flow-chips">Steps 1&ndash;5, 7</span></p>
         <ol class="sw-steps">
-          <li><strong>Enter data.</strong> One row per standard (0&nbsp;nM for
-            blanks) or sample, up to six replicates. Type, paste from Excel, or
-            paste the 8&nbsp;&times;&nbsp;12 plate and mark the wells on a plate
-            map. Optionally normalize to cell density (F&nbsp;&divide;&nbsp;OD600).</li>
-          <li><strong>Fit.</strong> Review the standards, exclude a reading only
-            with a reason, and fit the 4PL. At least 4 non-zero concentrations
-            and 2 blanks are required.</li>
-          <li><strong>Results.</strong> Each sample's replicates are averaged
-            and converted once: AHL in the well with a 95% CI, and in the
-            original sample (&times;&nbsp;dilution).</li>
-          <li><strong>Export.</strong> A CSV with every reading, the curve and
-            each result, plus the curve as a PNG. Nothing is stored.</li>
+          <li><strong>Enter data.</strong> One row per standard (0 for blanks)
+            or sample, 1&ndash;6 replicates. Type, paste from Excel, or paste
+            the 8&nbsp;&times;&nbsp;12 plate and mark the wells.</li>
+          <li><strong>Fit.</strong> Exclude a reading only with a reason, then
+            fit the curve.</li>
+          <li><strong>Results.</strong> Each sample in the well and in the
+            original sample, with a 95% CI.</li>
+          <li><strong>Export.</strong> CSV and PNG. Nothing is stored or uploaded.</li>
         </ol>
+        {{ shot('Plate Reader Assay: results', fig='Figure 2') }}
       </div>
 
-      <div class="hw-module" data-module="primary">
-        <span class="hw-module-tag">Tool 2</span>
+      <div class="hw-module" data-module="primary" id="tool-capture">
+        <span class="hw-module-tag">Our instrument</span>
+        <h3>CAPTURE-Screen</h3>
+        <p class="hw-module-what">The control software for our low-cost
+          fluorescence reader (ESP32&nbsp;+&nbsp;AS7341). A step bar on every
+          page shows what comes next. <span class="sw-flow-chips">Steps 1&ndash;5, 7</span></p>
+        <ol class="sw-steps">
+          <li><strong>Instrument.</strong> Connection status and a buffer-only self-check.</li>
+          <li><strong>Calibrate.</strong> Read each tube in the order shown, or
+            type in recorded readings, then fit and save the curve.</li>
+          <li><strong>Curves.</strong> Each saved curve, its limits, and whether
+            it still matches the instrument's settings.</li>
+          <li><strong>Measure.</strong> Choose a curve, read blanks, then
+            samples in replicate, and export.</li>
+        </ol>
+        <p class="sw-small">The landing page shows all ten spectral channels
+          live while the device is on. The instrument itself is described on the
+          <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page.</p>
+        {{ shot('CAPTURE-Screen: live spectrum', fig='Figure 3') }}
+      </div>
+
+      <div class="hw-module" data-module="primary" id="tool-compare">
+        <span class="hw-module-tag">Validation</span>
         <h3>Cross-Validation</h3>
-        <p class="hw-module-what">The same samples inferred on a plate reader and
-          on CAPTURE-Screen, paired by name: the evidence that our reader
-          agrees with a commercial one.</p>
+        <p class="hw-module-what">The same samples measured on a plate reader
+          and on CAPTURE-Screen, paired by name: the check that a low-cost
+          reader agrees with a commercial one. <span class="sw-flow-chips">Step 6</span></p>
         <ol class="sw-steps">
-          <li><strong>Plate reader.</strong> Load the CSV exported by the Plate
-            Reader Assay.</li>
-          <li><strong>CAPTURE-Screen.</strong> Choose a measurement batch kept in
-            the browser, or load its CSV, with its dilution.</li>
-          <li><strong>Comparison.</strong> A table, a log-log plot against
-            <var>y</var>&nbsp;=&nbsp;<var>x</var>, the geometric mean ratio,
-            Bland&ndash;Altman 95% limits of agreement, and how many 95% CIs
-            overlap.</li>
-          <li><strong>Export.</strong> The comparison as CSV, the plot as PNG.</li>
+          <li><strong>Plate reader.</strong> Load the Plate Reader Assay's CSV.</li>
+          <li><strong>CAPTURE-Screen.</strong> Choose a measurement batch, or
+            load its CSV, with its dilution.</li>
+          <li><strong>Compare.</strong> Table, log-log plot, geometric mean
+            ratio and limits of agreement.</li>
+          <li><strong>Export.</strong> CSV and PNG.</li>
         </ol>
-      </div>
-
-      <div class="hw-module" data-module="primary">
-        <span class="hw-module-tag">Tool 3</span>
-        <h3>CAPTURE-Screen interface</h3>
-        <p class="hw-module-what">The control software for our fluorescence
-          reader (ESP32&nbsp;+&nbsp;AS7341). A step bar on every page shows
-          which step comes next.</p>
-        <ol class="sw-steps">
-          <li><strong>Instrument.</strong> Check that backend, device, sensor and
-            LED are connected, then run a buffer-only self-check of dark
-            stability and saturation.</li>
-          <li><strong>Calibrate.</strong> Enter the strain and standards, read
-            each tube in the order shown (or enter recorded values), fit the
-            4PL and save the curve.</li>
-          <li><strong>Curves.</strong> Review each saved curve: its fit, LOD/LOQ,
-            usable range, and whether it matches the instrument now.</li>
-          <li><strong>Measure.</strong> Choose a curve, read the blanks, read
-            each sample in replicate tubes, and export the batch.</li>
-        </ol>
-        <p class="sw-small">A separate <strong>Data</strong> page backs up,
-          restores or deletes all runs, curves and batches. The landing page
-          also shows all ten spectral channels live while the device's Live
-          switch is on.</p>
+        {{ shot('Cross-Validation: the comparison', fig='Figure 4') }}
       </div>
     </div>
-
-    <!-- SCREENSHOT: 三個工具各一張畫面截圖，上傳到 static.igem.wiki 後放這裡 -->
-
-    <p class="hw-aside">
-      The Plate Reader Assay and CAPTURE-Screen call the same fitting code
-      (<code>curve_fit.js</code>), so the same readings give the same curve on
-      either page. That is what makes the Cross-Validation comparison fair: any
-      difference it finds comes from the instruments, not from two different
-      pieces of arithmetic.
-    </p>
   </section>
 
-  <!-- ========================= architecture ========================= -->
-  <section>
-    <h2>How the pieces connect</h2>
+  {# ======================================================================
+     Part 2: How it decides
+     ====================================================================== #}
+  <header class="md-part" id="part-model" data-toc-group data-toc-no="2">
+    <p class="md-part-no">Part 2</p>
+    <h2 data-toc-title="How it decides">How it decides</h2>
+  </header>
+  <p class="sw-takeaway">
+    Five ideas carry the whole model. The full derivation, sixteen sections
+    of it, is in the repository's <code>docs/capture_screen_model.md</code>.
+  </p>
 
-    <p>
-      The frontend is a static site served by GitHub Pages; the backend is a
-      FastAPI service on Render. They talk over HTTPS and WebSocket with no
-      shared build step, so either half can be reused on its own. The plate
-      reader tools never touch the backend at all: their arithmetic runs in the
-      browser, and nothing is uploaded.
-    </p>
+  <!-- ========================= key ideas ========================= -->
+  <section id="key-ideas">
+    <h2 data-toc-title="2.1 Five key ideas"><span class="sw-h-no">2.1</span>Five key ideas</h2>
 
-    <figure class="hw-figure">
-      <div class="hw-diagram">
-        <svg class="hw-svg sw-arch" viewBox="0 0 780 360" role="img"
-             aria-label="Architecture. CAPTURE-Screen, an ESP32 with an AS7341 sensor, dials out over a secure WebSocket to the backend's hardware relay. The backend's live-spectrum service subscribes to that relay. In the browser, the CAPTURE-Screen pages call the relay over HTTPS for status and measurements, and the landing page receives the live spectrum over a WebSocket. The Plate Reader Assay and Cross-Validation pages compute entirely in the browser with the shared curve_fit.js and store runs, curves and batches in localStorage.">
-          <defs>
-            <marker id="swArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path class="sw-svg-head" d="M0 0 L10 5 L0 10 Z"/>
-            </marker>
-          </defs>
-
-          <!-- device -->
-          <rect class="hw-svg-sensor" x="16" y="120" width="170" height="110" rx="8"/>
-          <text class="hw-svg-label" x="101" y="152" text-anchor="middle">CAPTURE-Screen</text>
-          <text class="hw-svg-sub" x="101" y="176" text-anchor="middle">ESP32 + AS7341</text>
-          <text class="hw-svg-sub" x="101" y="198" text-anchor="middle">OLED · Live button</text>
-
-          <!-- backend -->
-          <rect class="hw-svg-case" x="262" y="36" width="228" height="292" rx="12"/>
-          <text class="hw-svg-note" x="276" y="58">backend · FastAPI on Render</text>
-          <rect class="hw-svg-body sw-svg-box" x="284" y="84" width="184" height="86" rx="6"/>
-          <text class="hw-svg-label" x="376" y="116" text-anchor="middle">/api/hardware</text>
-          <text class="hw-svg-sub" x="376" y="140" text-anchor="middle">relay: status · read</text>
-          <rect class="hw-svg-body sw-svg-box" x="284" y="220" width="184" height="86" rx="6"/>
-          <text class="hw-svg-label" x="376" y="252" text-anchor="middle">/api/live</text>
-          <text class="hw-svg-sub" x="376" y="276" text-anchor="middle">Live switch · spectrum</text>
-
-          <!-- browser -->
-          <rect class="hw-svg-case" x="560" y="16" width="206" height="328" rx="12"/>
-          <text class="hw-svg-note" x="574" y="38">browser · static pages</text>
-          <rect class="hw-svg-body sw-svg-box" x="574" y="50" width="178" height="44" rx="6"/>
-          <text class="hw-svg-sub sw-svg-in" x="663" y="77" text-anchor="middle">Landing · live spectrum</text>
-          <rect class="hw-svg-body sw-svg-box" x="574" y="104" width="178" height="44" rx="6"/>
-          <text class="hw-svg-sub sw-svg-in" x="663" y="131" text-anchor="middle">CAPTURE-Screen 1–4</text>
-          <rect class="hw-svg-body sw-svg-box" x="574" y="170" width="178" height="44" rx="6"/>
-          <text class="hw-svg-sub sw-svg-in" x="663" y="197" text-anchor="middle">Plate Reader Assay</text>
-          <rect class="hw-svg-body sw-svg-box" x="574" y="224" width="178" height="44" rx="6"/>
-          <text class="hw-svg-sub sw-svg-in" x="663" y="251" text-anchor="middle">Cross-Validation</text>
-          <rect class="sw-svg-shared" x="574" y="284" width="178" height="46" rx="6"/>
-          <text class="hw-svg-sub sw-svg-in" x="663" y="304" text-anchor="middle">curve_fit.js</text>
-          <text class="hw-svg-note" x="663" y="322" text-anchor="middle">localStorage</text>
-
-          <!-- links -->
-          <path class="sw-svg-link" d="M186 158 C230 158 240 127 284 127" marker-end="url(#swArrow)"/>
-          <text class="hw-svg-note" x="235" y="112" text-anchor="middle">WSS</text>
-          <text class="hw-svg-note" x="235" y="127" text-anchor="middle">dials out</text>
-
-          <path class="sw-svg-link" d="M376 220 V170" marker-end="url(#swArrow)"/>
-          <text class="hw-svg-note" x="384" y="199">subscribes</text>
-
-          <path class="sw-svg-link" d="M574 126 H468" marker-end="url(#swArrow)"/>
-          <text class="hw-svg-note" x="496" y="118" text-anchor="middle">HTTPS</text>
-
-          <path class="sw-svg-link" d="M574 72 H524 V263 H468" marker-end="url(#swArrow)"/>
-          <text class="hw-svg-note" x="518" y="200" text-anchor="end">WSS</text>
-
-          <path class="sw-svg-local" d="M663 214 V224"/>
-          <path class="sw-svg-local" d="M663 268 V284"/>
-          <path class="sw-svg-local" d="M752 126 H760 V307 H752"/>
-        </svg>
+    <div class="sw-idea">
+      <h3><span class="sw-idea-n">1</span>A curve shaped like the sensor</h3>
+      <p>
+        A biosensor saturates, so its response is S-shaped on a log
+        concentration axis. LasReader fits the four-parameter logistic, whose
+        four numbers each mean something at the bench: the signal with no
+        target <var>B</var>, the saturated signal <var>T</var>, the
+        half-response concentration EC<sub>50</sub>, and the steepness
+        <var>h</var>. Blanks enter at <var>c</var>&nbsp;=&nbsp;0, where the
+        curve equals <var>B</var>, so they pin the baseline directly.
+      </p>
+      <div class="sw-eq sw-eq-key">
+        <var>F</var>(<var>c</var>) = <var>B</var> + {{ frac('<var>T</var> &minus; <var>B</var>', '1 + (EC<sub>50</sub> / <var>c</var>)<sup><var>h</var></sup>') }}
+        <span class="sw-eq-no">(1)</span>
       </div>
-      <figcaption>
-        Solid arrows cross the network; dotted lines stay inside the browser.
-        The plate reader tools and the CAPTURE-Screen pages share one fitting
-        module and keep their data in the browser's own storage.
-      </figcaption>
-    </figure>
+    </div>
 
-    <h3>Why the device dials out</h3>
-    <p>
-      The backend runs in the cloud and cannot reach a device behind a lab or
-      home router. So the direction is reversed: once CAPTURE-Screen powers on
-      and joins Wi-Fi, it opens a secure WebSocket to
-      <code>/api/hardware/device</code> and keeps it open, reconnecting by
-      itself if it drops. Web pages only ever talk to the backend, which relays
-      over that connection.
-    </p>
-    <ul>
-      <li><strong>A measurement</strong> is one <code>POST /api/hardware/read</code>.
-        The device runs one dark &rarr; light &rarr; dark cycle (about 3&nbsp;s)
-        and the backend hands the raw reading back. Dark subtraction,
-        normalization and fitting all happen in the browser.</li>
-      <li><strong>Live</strong> is one switch, owned by the device and shared by
-        its button and every open landing page. It streams about two frames per
-        second, pauses during a measurement, and switches itself off after
-        10&nbsp;minutes, since leaving the LED on heats and bleaches the
-        sample.</li>
-    </ul>
-
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">REST and WebSocket API</span>
-        <span class="hw-fold-meta">5 endpoints</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <div class="hw-figure">
-        <table class="hw-table">
-          <caption class="visually-hidden">REST and WebSocket API</caption>
-          <thead>
-            <tr><th scope="col">Method</th><th scope="col">Path</th><th scope="col">What it does</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>GET</td><td><code>/health</code></td><td>Health check, polled by the page footer's connection indicator</td></tr>
-            <tr><td>GET</td><td><code>/api/hardware/status</code></td><td>Whether CAPTURE-Screen is online, with its last status and configuration</td></tr>
-            <tr><td>POST</td><td><code>/api/hardware/read</code></td><td>Ask the device for one dark &rarr; light &rarr; dark measurement and return the raw reading</td></tr>
-            <tr><td>WS</td><td><code>/api/hardware/device</code></td><td>The device's own inbound connection</td></tr>
-            <tr><td>WS</td><td><code>/api/live/spectrum</code></td><td>The Live switch and the live spectrum, for browsers</td></tr>
-          </tbody>
-        </table>
+    <div class="sw-idea">
+      <h3><span class="sw-idea-n">2</span>Noisy readings count for less</h3>
+      <p>
+        Replicates scatter more at high signal than at low, so an ordinary fit
+        would let the top standards dominate. LasReader estimates how the
+        spread grows from the replicates themselves, an additive part
+        <var>a</var> and a proportional part <var>b</var>, and weights each
+        reading by the inverse of its variance in a Levenberg&ndash;Marquardt
+        fit.
+      </p>
+      <div class="sw-eq">
+        Var(<var>F</var>) = <var>a</var> + <var>b</var><var>F</var><sup>2</sup>,
+        <span class="sw-sep"></span>
+        <var>w</var><sub><var>i</var></sub> &asymp; {{ frac('1', '<var>a</var> + <var>b</var><var>y</var><sub><var>i</var></sub><sup>2</sup>') }}
+        <span class="sw-eq-no">(2)</span>
       </div>
+    </div>
+
+    <div class="sw-idea">
+      <h3><span class="sw-idea-n">3</span>Know where the curve can be trusted</h3>
+      <p>
+        The limit of detection is the blank level plus three blank standard
+        deviations, taken through the curve; the limit of quantification uses
+        ten. A number is returned only between the larger of the LOD and the
+        lowest standard, and the smaller of the highest standard and the point
+        where the curve reaches 95% of its span. Beyond that the curve is so
+        flat that a tiny change in signal means a huge change in concentration.
+        <strong>LasReader never extrapolates.</strong>
+      </p>
+      <div class="sw-eq sw-eq-key">
+        <var>c</var><sub>min</sub> = max(LOD,&ensp;lowest standard),
+        <span class="sw-sep"></span>
+        <var>c</var><sub>max</sub> = min(highest standard,&ensp;EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup>)
+        <span class="sw-eq-no">(3)</span>
       </div>
-    </details>
-  </section>
+    </div>
 
-  <!-- ========================= the model ========================= -->
-  <section id="model">
-    <h2>From a reading to a concentration</h2>
-
-    <p>
-      This section is the complete data model, step by step, as the code runs
-      it. Every formula below is implemented in
-      <code>hardware_processing.js</code>, <code>curve_fit.js</code> and
-      <code>hardware_local.js</code>, and documented in the repository's
-      <code>docs/capture_screen_model.md</code>.
-    </p>
-
-    <ol class="hw-flow">
-      <li>Raw counts, 10 channels</li>
-      <li>Dark subtraction</li>
-      <li>Normalization</li>
-      <li>Signal <var>F</var></li>
-      <li>Weighted 4PL fit</li>
-      <li>Inversion + 95% CI</li>
-    </ol>
-
-    <p>
-      The model has three layers. <strong>Signal processing</strong> turns raw
-      counts into one number per tube, with its read noise and quality flags;
-      it has no state and fits nothing. <strong>Calibration</strong> turns
-      standards of known AHL concentration into a four-parameter logistic
-      curve with its uncertainty, LOD, LOQ and usable range.
-      <strong>Inversion</strong> turns a sample's signal into an AHL
-      concentration with a 95% confidence interval, only inside the usable
-      range. The last two layers are shared with the Plate Reader Assay.
-    </p>
-
-    <!-- ---------- 1 acquisition ---------- -->
-    <h3>1. One read</h3>
-    <p>
-      Every measurement is three consecutive frames. Each frame is all ten
-      AS7341 channels (F1&ndash;F8, Clear, NIR) as integer ADC counts. The LED is
-      on only during the light frame, which limits heating and photobleaching.
-      The dark frames on either side measure everything that is not
-      LED-excited fluorescence: ambient light, sensor offset, and drift.
-    </p>
-
-    <div class="hw-two-tables">
-      <div class="hw-figure">
-        <table class="hw-table">
-          <caption>The three frames</caption>
-          <thead><tr><th scope="col">Frame</th><th scope="col">LED</th><th scope="col">Settle</th></tr></thead>
-          <tbody>
-            <tr><td><code>dark_1</code></td><td>off</td><td>50&nbsp;ms</td></tr>
-            <tr><td><code>light</code></td><td>on</td><td>100&nbsp;ms</td></tr>
-            <tr><td><code>dark_2</code></td><td>off</td><td>50&nbsp;ms</td></tr>
-          </tbody>
-        </table>
+    <div class="sw-idea">
+      <h3><span class="sw-idea-n">4</span>Every number comes with an interval</h3>
+      <p>
+        A sample's signal is turned back into a concentration through the
+        inverse curve. Its 95% confidence interval combines two sources: the
+        noise of the reading, which shrinks with more replicates <var>n</var>,
+        and the uncertainty of the curve itself, which does not. The interval
+        is worked out on ln&nbsp;<var>c</var> (the delta method), because
+        concentration errors are multiplicative.
+      </p>
+      <div class="sw-eq">
+        ln <var>c</var> = ln EC<sub>50</sub> + {{ frac('1', '<var>h</var>') }} ln {{ frac('<var>F</var> &minus; <var>B</var>', '<var>T</var> &minus; <var>F</var>') }}
+        <span class="sw-eq-no">(4)</span>
       </div>
-      <div class="hw-figure">
-        <table class="hw-table">
-          <caption>Sensor settings at boot</caption>
-          <thead><tr><th scope="col">Setting</th><th scope="col">Value</th></tr></thead>
-          <tbody>
-            <tr><td>Gain</td><td>512&times;</td></tr>
-            <tr><td>ATIME, ASTEP</td><td>59, 999 &rarr; &asymp;&nbsp;166.8&nbsp;ms, full scale 60&nbsp;000 counts</td></tr>
-            <tr><td>LED current</td><td>5.553&nbsp;mA (bench-measured 2026-08-25)</td></tr>
-          </tbody>
-        </table>
+      <div class="sw-eq sw-eq-key">
+        Var(ln <var>c</var>) &asymp; <var>g</var><sub><var>F</var></sub><sup>2</sup> {{ frac('<var>a</var> + <var>b</var><var>F</var><sup>2</sup>', '<var>n</var>') }} + <var>g</var><sub><var>&theta;</var></sub><sup>&#8868;</sup> <var>&Sigma;</var><sub><var>&theta;</var></sub> <var>g</var><sub><var>&theta;</var></sub>
+        <span class="sw-eq-no">(5)</span>
+      </div>
+    </div>
+
+    <div class="sw-idea">
+      <h3><span class="sw-idea-n">5</span>One piece of code for both instruments</h3>
+      <p>
+        The Plate Reader Assay and CAPTURE-Screen call the same fitting module,
+        <code>curve_fit.js</code>, so the same readings give the same curve on
+        either. When Cross-Validation finds a difference, it comes from the
+        instruments, not from two pieces of arithmetic. Agreement is measured
+        on the log scale, with <var>d</var><sub><var>i</var></sub> the log ratio
+        of the two results for sample <var>i</var>:
+      </p>
+      <div class="sw-eq">
+        GMR = 10<sup><span class="sw-bar"><var>d</var></span></sup>,
+        <span class="sw-sep"></span>
+        LoA<sub>95</sub> = [ 10<sup><span class="sw-bar"><var>d</var></span> &minus; 1.96<var>s</var><sub><var>d</var></sub></sup>,&ensp;10<sup><span class="sw-bar"><var>d</var></span> + 1.96<var>s</var><sub><var>d</var></sub></sup> ]
+        <span class="sw-eq-no">(6)</span>
       </div>
     </div>
 
     <p class="hw-aside">
-      Live-stream frames have no dark frames, so they carry the ambient
-      background. The software refuses to turn them into measurements.
+      Ideas 1&ndash;4 can be tried on your own readings in
+      <a href="#try">§3.2</a>, which runs the same code.
     </p>
-
-    <!-- ---------- 2 dark subtraction ---------- -->
-    <h3>2. Dark subtraction</h3>
-    <p>For each channel <var>k</var>, with light frame <var>L</var> and dark frames <var>D</var><sub>1</sub>, <var>D</var><sub>2</sub>:</p>
-    <div class="sw-eq">
-      <var>S</var><sub><var>k</var></sub> = max(0,&ensp;<var>L</var><sub><var>k</var></sub> &minus; <span class="sw-bar"><var>D</var></span><sub><var>k</var></sub>),
-      <span class="sw-sep"></span>
-      <span class="sw-bar"><var>D</var></span><sub><var>k</var></sub> = {{ frac('1', '<var>n</var><sub><var>d</var></sub>') }}
-      <span class="sw-big">&sum;</span><sub class="sw-lim"><var>j</var>=1</sub><sup class="sw-lim"><var>n</var><sub><var>d</var></sub></sup>
-      <var>D</var><sub><var>j</var>,<var>k</var></sub>
-    </div>
-    <p>
-      The light frame sits between the two darks, so averaging them cancels
-      any drift that is linear in time. The clamp at zero is there because a
-      negative fluorescence has no physical meaning. If one dark frame is
-      missing, the other is used; if both are, nothing is subtracted and the
-      reading is flagged <code>NO_DARK_PAIR</code>.
-    </p>
-
-    <!-- ---------- 3 normalization ---------- -->
-    <h3>3. Normalization to basic counts</h3>
-    <p>Raw counts depend on the gain <var>g</var> and the integration time, so both are divided out:</p>
-    <div class="sw-eq">
-      <var>B</var><sub><var>k</var></sub> = {{ frac('<var>S</var><sub><var>k</var></sub>', '<var>g</var> &middot; <var>t</var><sub>int</sub>') }},
-      <span class="sw-sep"></span>
-      <var>t</var><sub>int</sub> [ms] = (ATIME + 1)(ASTEP + 1) &times; 2.78 &times; 10<sup>&minus;3</sup>
-    </div>
-    <p>
-      With the default settings the divisor is 512&nbsp;&times;&nbsp;166.8
-      &asymp;&nbsp;85&nbsp;400, so a real sample often reads well below one
-      basic count. That is why the pages show fluorescence to four
-      significant figures rather than a fixed number of decimals.
-    </p>
-    <p class="hw-aside">
-      Normalization does not make readings under different settings
-      interchangeable for calibration: the sensor is not perfectly linear in
-      gain, and the LED current is not part of it. A curve therefore stays
-      bound to the exact configuration it was made with (step 6).
-    </p>
-
-    <!-- ---------- 4 signal ---------- -->
-    <h3>4. Choosing the signal</h3>
-    <div class="sw-eq">
-      <var>F</var> = <var>B</var><sub>F4</sub>,
-      <span class="sw-sep"></span>
-      scatter = <var>B</var><sub>F3</sub>
-    </div>
-    <p>
-      F4 (~515&nbsp;nm) is the channel closest to sfGFP's emission peak. F3
-      (~480&nbsp;nm) sits near the excitation band, so it is mostly excitation
-      light scattered by cells and debris: a turbidity proxy.
-    </p>
-    <div class="hw-caution">
-      <em>This is a placeholder.</em> Proper linear unmixing needs an sfGFP
-      emission spectrum measured on this instrument, and none has been
-      measured yet. No basis values have been invented in the meantime, and
-      every page that shows fluorescence says so. Each measurement, run and
-      curve records its <em>signal id</em> (currently <code>F4</code>), so a
-      curve can never silently convert a different kind of number once the
-      definition changes.
-    </div>
-
-    <!-- ---------- 5 read noise ---------- -->
-    <h3>5. Read noise of a single measurement</h3>
-    <p>
-      The two dark frames are two independent readings of the same
-      background, so their difference estimates the noise of one frame:
-    </p>
-    <div class="sw-eq">
-      <var>&sigma;</var><sub>frame</sub> = max({{ frac('|<var>D</var><sub>2</sub> &minus; <var>D</var><sub>1</sub>|', '&radic;2') }},&ensp;{{ frac('1', '&radic;12') }})
-    </div>
-    <p>
-      The floor 1/&radic;12 &asymp; 0.29 counts is the standard deviation of ADC
-      quantization, so the estimate is never zero. The fluorescence is
-      <var>L</var>&nbsp;&minus;&nbsp;<span class="sw-bar"><var>D</var></span>, so its
-      variance is one frame's plus that of the dark mean:
-    </p>
-    <div class="sw-eq">
-      <var>&sigma;</var><sub><var>S</var></sub> = <var>&sigma;</var><sub>frame</sub> <span class="sw-root">&radic;<span>1 + 1/<var>n</var><sub><var>d</var></sub></span></span>,
-      <span class="sw-sep"></span>
-      <var>&sigma;</var><sub>read</sub> = {{ frac('<var>&sigma;</var><sub><var>S</var></sub>', '<var>g</var> &middot; <var>t</var><sub>int</sub>') }}
-    </div>
-    <p>
-      This leaves out shot noise, which grows with the signal and cannot be
-      estimated from a single read. Step 8 makes up for it with a noise model
-      estimated from replicate tubes.
-    </p>
-
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Quality flags on every tube</span>
-        <span class="hw-fold-meta">4 flags</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <div class="hw-figure">
-        <table class="hw-table">
-          <caption class="visually-hidden">Quality flags</caption>
-          <thead><tr><th scope="col">Flag</th><th scope="col">Set when</th><th scope="col">Effect</th></tr></thead>
-          <tbody>
-            <tr><td><code>SATURATED</code></td><td>Any channel's raw light count reaches full scale</td><td>The number underestimates the true signal. A saturated blank never becomes the scatter baseline.</td></tr>
-            <tr><td><code>NO_DARK_PAIR</code></td><td>A dark frame is missing</td><td>Dark subtraction and read noise are less reliable.</td></tr>
-            <tr><td><code>HIGH_SCATTER</code></td><td>Scatter &gt; 2&times; that of the last clean cell blank under the same configuration</td><td>Part of F4 may be scattered excitation rather than fluorescence.</td></tr>
-            <tr><td><code>STALE_CONFIG</code></td><td>Read under a different configuration or signal than its run or batch</td><td>Refused by the fit until re-read or excluded; excluded automatically from a batch.</td></tr>
-          </tbody>
-        </table>
-      </div>
-      </div>
-    </details>
-    <p class="hw-aside">
-      Flags never remove a tube by themselves. The user decides whether to
-      exclude a flagged tube, and must give a reason.
-    </p>
-
-    <!-- ---------- 6 fingerprint ---------- -->
-    <h3>6. The configuration fingerprint</h3>
-    <p>
-      A curve is only valid for readings taken the same way. Every setting
-      that changes what a reading means is condensed into six hex digits:
-    </p>
-    <pre class="sw-code">canonical   = LED current (3 dp) | gain | atime | astep | build_id
-fingerprint = first 6 hex digits of FNV-1a-32( UTF-8(canonical) )</pre>
-    <p>
-      The firmware <code>build_id</code> is changed deliberately whenever the
-      reading path changes, so that every existing curve becomes stale on
-      purpose. A measurement batch refuses a curve whose fingerprint or
-      signal id does not match the instrument's.
-    </p>
-
-    <!-- ---------- 7 run design ---------- -->
-    <h3>7. Designing a calibration run</h3>
-    <p>
-      A run needs at least 4 distinct positive concentrations (a 4PL has four
-      parameters), 1&ndash;10 replicates each, and 2&ndash;10 blanks (the LOD
-      needs a blank SD). The tubes are read in <em>replicate rounds</em>: one
-      blank, then every concentration from low to high.
-    </p>
-    <pre class="sw-code">round 1: blank r1, 1 nM r1, 10 nM r1, 100 nM r1, 1 µM r1
-round 2: blank r2, 1 nM r2, 10 nM r2, 100 nM r2, 1 µM r2
-round 3:           1 nM r3, 10 nM r3, 100 nM r3, 1 µM r3</pre>
-    <p>
-      Interleaving spreads instrument drift over every concentration equally,
-      instead of making all the high standards read late. Going low to high
-      within a round limits carryover through the single cuvette. The
-      software accepts only the next unread slot, so the order cannot be
-      broken by accident.
-    </p>
-
-    <!-- ---------- 8 4PL ---------- -->
-    <h3>8. The four-parameter logistic</h3>
-    <p>The biosensor's response is sigmoidal on a log-concentration axis:</p>
-    <div class="sw-eq sw-eq-key">
-      <var>F</var>(<var>c</var>) = <var>B</var> + {{ frac('<var>T</var> &minus; <var>B</var>', '1 + (EC<sub>50</sub> / <var>c</var>)<sup><var>h</var></sup>') }},
-      <span class="sw-sep"></span>
-      <var>F</var>(0) = <var>B</var>
-    </div>
-
-    <div class="hw-figure hw-figure-table">
-      <table class="hw-table">
-        <caption class="visually-hidden">4PL parameters</caption>
-        <thead><tr><th scope="col">Parameter</th><th scope="col">Meaning</th></tr></thead>
-        <tbody>
-          <tr><td><var>B</var> (bottom)</td><td>Signal with no AHL, including leaky expression</td></tr>
-          <tr><td><var>T</var> (top)</td><td>Saturated signal at high AHL</td></tr>
-          <tr><td>EC<sub>50</sub></td><td>Concentration giving half the response, (<var>T</var>&nbsp;+&nbsp;<var>B</var>)/2</td></tr>
-          <tr><td><var>h</var> (Hill)</td><td>Steepness</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p>
-      Blanks enter the fit at <var>c</var>&nbsp;=&nbsp;0, where the model equals
-      <var>B</var>, so they pin the baseline directly. Internally the fit works
-      on <var>&theta;</var>&nbsp;=&nbsp;(<var>T</var>,&nbsp;<var>B</var>,&nbsp;ln&nbsp;EC<sub>50</sub>,&nbsp;<var>h</var>):
-      stepping in ln&nbsp;EC<sub>50</sub> matches how the standards are spaced
-      and keeps EC<sub>50</sub> from ever going negative. The model is
-      evaluated in a numerically stable form,
-    </p>
-    <div class="sw-eq">
-      <var>u</var> = e<sup><var>h</var>(ln EC<sub>50</sub> &minus; ln <var>c</var>)</sup>,
-      <span class="sw-sep"></span>
-      <var>s</var> = {{ frac('1', '1 + <var>u</var>') }},
-      <span class="sw-sep"></span>
-      <var>F</var> = <var>B</var> + (<var>T</var> &minus; <var>B</var>) <var>s</var>
-    </div>
-    <p>and one row of the Jacobian is</p>
-    <div class="sw-eq sw-eq-stack">
-      <span>{{ frac('&part;<var>F</var>', '&part;<var>T</var>') }} = <var>s</var>,</span>
-      <span>{{ frac('&part;<var>F</var>', '&part;<var>B</var>') }} = 1 &minus; <var>s</var>,</span>
-      <span>{{ frac('&part;<var>F</var>', '&part; ln EC<sub>50</sub>') }} = &minus;(<var>T</var> &minus; <var>B</var>) <var>s</var>(1 &minus; <var>s</var>) <var>h</var>,</span>
-      <span>{{ frac('&part;<var>F</var>', '&part;<var>h</var>') }} = &minus;(<var>T</var> &minus; <var>B</var>) <var>s</var>(1 &minus; <var>s</var>)(ln EC<sub>50</sub> &minus; ln <var>c</var>)</span>
-    </div>
-    <p>
-      The code computes <var>s</var>(1&nbsp;&minus;&nbsp;<var>s</var>) rather than
-      <var>u</var>/(1&nbsp;+&nbsp;<var>u</var>)<sup>2</sup> because it stays
-      finite when <var>u</var> overflows. A curve is accepted only if
-      <var>T</var>&nbsp;&gt;&nbsp;<var>B</var>: a strain that does not respond gives
-      no curve, rather than a line fitted through noise.
-    </p>
-
-    <!-- ---------- 9 noise model ---------- -->
-    <h3>9. The noise model and the weights</h3>
-    <p>
-      Replicates are noisier at high signal than at low, so an unweighted fit
-      would let the top standards dominate. The weights come from a
-      two-component variance model:
-    </p>
-    <div class="sw-eq sw-eq-key">
-      Var(<var>F</var>) = <var>a</var> + <var>b</var> <var>F</var><sup>2</sup>
-    </div>
-    <p>
-      <var>a</var> is additive noise (read noise, background), constant across
-      concentrations; <var>b</var><var>F</var><sup>2</sup> is proportional noise
-      (pipetting, cell density, expression and, to first order, shot noise).
-      Grouping the tubes by concentration and keeping groups with at least two
-      tubes, <var>a</var> and <var>b</var> are fitted by ordinary least squares
-      of each group's sample variance on its squared mean:
-    </p>
-    <div class="sw-eq">
-      <var>s</var><sub><var>g</var></sub><sup>2</sup> &asymp; <var>a</var> + <var>b</var> <span class="sw-bar"><var>F</var></span><sub><var>g</var></sub><sup>2</sup>
-    </div>
-    <p>
-      A variance cannot be negative: if <var>b</var>&nbsp;&lt;&nbsp;0 the code
-      sets <var>b</var>&nbsp;=&nbsp;0 and <var>a</var>&nbsp;=&nbsp;mean(<var>s</var><sub><var>g</var></sub><sup>2</sup>);
-      if <var>a</var>&nbsp;&lt;&nbsp;0 it sets <var>a</var>&nbsp;=&nbsp;0 and fits
-      <var>b</var> through the origin. Each tube <var>i</var> then gets
-    </p>
-    <div class="sw-eq">
-      <var>&sigma;</var><sub><var>i</var></sub> = max(<var>&sigma;</var><sub>read,<var>i</var></sub>,&ensp;<span class="sw-root">&radic;<span><var>a</var> + <var>b</var> <var>y</var><sub><var>i</var></sub><sup>2</sup></span></span>,&ensp;10<sup>&minus;9</sup> max<sub><var>j</var></sub>|<var>y</var><sub><var>j</var></sub>|),
-      <span class="sw-sep"></span>
-      <var>w</var><sub><var>i</var></sub> = 1/<var>&sigma;</var><sub><var>i</var></sub><sup>2</sup>
-    </div>
-    <p>
-      Taking the larger of the tube's own read noise and the replicate model
-      matters, because the read noise leaves out shot noise: a tube with an
-      unusually quiet dark pair would otherwise get a weight it does not
-      deserve. The last term only prevents division by zero.
-    </p>
-    <p class="hw-aside">
-      With one tube per concentration and no read-noise estimate (typed-in
-      data), there is no noise information at all. The fit is then
-      unweighted (<var>&sigma;</var><sub><var>i</var></sub>&nbsp;=&nbsp;1), and the reading variance
-      used later is taken from the residuals: <var>a</var>&nbsp;=&nbsp;RSS/(<var>N</var>&nbsp;&minus;&nbsp;4),
-      <var>b</var>&nbsp;=&nbsp;0.
-    </p>
-
-    <!-- ---------- 10 LM ---------- -->
-    <h3>10. Fitting: weighted Levenberg&ndash;Marquardt</h3>
-    <p>The fit minimizes, over the <var>N</var> included tubes,</p>
-    <div class="sw-eq">
-      <var>&chi;</var><sup>2</sup>(<var>&theta;</var>) = <span class="sw-big">&sum;</span><sub class="sw-lim"><var>i</var>=1</sub><sup class="sw-lim"><var>N</var></sup>
-      ({{ frac('<var>y</var><sub><var>i</var></sub> &minus; <var>F</var>(<var>c</var><sub><var>i</var></sub>; <var>&theta;</var>)', '<var>&sigma;</var><sub><var>i</var></sub>') }})<sup>2</sup>
-    </div>
-    <p>
-      Starting values: <var>B</var><sub>0</sub> is the blanks' mean,
-      <var>T</var><sub>0</sub> the highest group's mean (nudged above
-      <var>B</var><sub>0</sub> if needed), EC<sub>50,0</sub> the standard whose
-      mean is closest to (<var>T</var><sub>0</sub>&nbsp;+&nbsp;<var>B</var><sub>0</sub>)/2,
-      and <var>h</var><sub>0</sub>&nbsp;=&nbsp;1. Each iteration solves the damped
-      normal equations for a step <var>&delta;</var>:
-    </p>
-    <div class="sw-eq sw-eq-key">
-      (<var>J</var><sup>&#8868;</sup><var>W</var><var>J</var> + <var>&lambda;</var> diag(<var>J</var><sup>&#8868;</sup><var>W</var><var>J</var>)) <var>&delta;</var> = <var>J</var><sup>&#8868;</sup><var>W</var><var>r</var>
-    </div>
-    <p>
-      with <var>W</var>&nbsp;=&nbsp;diag(<var>w</var><sub><var>i</var></sub>) and
-      <var>r</var><sub><var>i</var></sub>&nbsp;=&nbsp;<var>y</var><sub><var>i</var></sub>&nbsp;&minus;&nbsp;<var>F</var>(<var>c</var><sub><var>i</var></sub>).
-      A step that lowers <var>&chi;</var><sup>2</sup> is accepted and
-      <var>&lambda;</var> divided by 10, towards Gauss&ndash;Newton; otherwise
-      <var>&lambda;</var> is multiplied by 10, towards gradient descent, and the
-      step retried. Steps that would put <var>h</var> outside (0.05,&nbsp;20) are
-      rejected. The fit stops when the relative improvement falls below
-      10<sup>&minus;10</sup>, when no step can be accepted, or after 500
-      iterations. At the optimum, the parameter covariance is
-    </p>
-    <div class="sw-eq">
-      <var>&Sigma;</var><sub><var>&theta;</var></sub> = (<var>J</var><sup>&#8868;</sup><var>W</var><var>J</var>)<sup>&minus;1</sup> &middot; {{ frac('<var>&chi;</var><sup>2</sup><sub>min</sub>', '<var>N</var> &minus; 4') }}
-    </div>
-    <p>
-      Scaling by the reduced <var>&chi;</var><sup>2</sup> corrects for a noise
-      model whose absolute scale may be off. If the matrix is singular, or any
-      entry is not finite, the fit is reported as not converged and no curve
-      is made. An excluded tube stays in the run, on the plot and in the CSV,
-      and is recorded on the saved curve with a mandatory reason.
-    </p>
-
-    <!-- ---------- 11 LOD ---------- -->
-    <h3>11. LOD, LOQ and the usable range</h3>
-    <p>The limits follow the blank-based definition: the blank level plus 3 (LOD) or 10 (LOQ) blank standard deviations.</p>
-    <div class="sw-eq">
-      <span class="sw-bar"><var>y</var></span><sub>blank</sub> = max(mean of blanks,&ensp;<var>B</var>),
-      <span class="sw-sep"></span>
-      <var>F</var><sub>LOD</sub> = <span class="sw-bar"><var>y</var></span><sub>blank</sub> + 3<var>s</var><sub>blank</sub>,
-      <span class="sw-sep"></span>
-      <var>F</var><sub>LOQ</sub> = <span class="sw-bar"><var>y</var></span><sub>blank</sub> + 10<var>s</var><sub>blank</sub>
-    </div>
-    <p>
-      The blank level is never allowed below <var>B</var>, since the curve
-      cannot invert a signal below its own bottom. If
-      <var>F</var><sub>LOQ</sub>&nbsp;&ge;&nbsp;<var>T</var>, the blank scatter is
-      too large relative to the response and no curve is made. Each limit is
-      converted to a concentration through the inverse 4PL:
-    </p>
-    <div class="sw-eq">
-      LOD<sub>nM</sub> = EC<sub>50</sub> ({{ frac('<var>F</var><sub>LOD</sub> &minus; <var>B</var>', '<var>T</var> &minus; <var>F</var><sub>LOD</sub>') }})<sup>1/<var>h</var></sup>
-    </div>
-    <p>and the curve returns a number only inside</p>
-    <div class="sw-eq sw-eq-key">
-      <var>c</var><sub>min</sub> = max(LOD<sub>nM</sub>,&ensp;lowest standard),
-      <span class="sw-sep"></span>
-      <var>c</var><sub>max</sub> = min(highest standard,&ensp;EC<sub>50</sub> &middot; 19<sup>1/<var>h</var></sup>)
-    </div>
-    <p>
-      Below the LOD a signal cannot be told apart from the blank; below the
-      lowest standard or above the highest, the curve would be extrapolated.
-      At EC<sub>50</sub>&nbsp;&middot;&nbsp;19<sup>1/<var>h</var></sup> the curve
-      has reached 95% of its span (19&nbsp;=&nbsp;0.95/0.05). Beyond it the curve
-      is so flat that a tiny change in <var>F</var> maps to a huge change in
-      <var>c</var>, and the inversion error blows up. If
-      <var>c</var><sub>min</sub>&nbsp;&ge;&nbsp;<var>c</var><sub>max</sub>, there is
-      no usable range and no curve.
-    </p>
-
-    <!-- ---------- 12 inversion ---------- -->
-    <h3>12. Inversion with a 95% confidence interval</h3>
-    <p>Solving the 4PL for <var>c</var>:</p>
-    <div class="sw-eq sw-eq-key">
-      ln <var>c</var> = ln EC<sub>50</sub> + {{ frac('1', '<var>h</var>') }} ln {{ frac('<var>F</var> &minus; <var>B</var>', '<var>T</var> &minus; <var>F</var>') }}
-    </div>
-
-    <div class="hw-figure hw-figure-table">
-      <table class="hw-table">
-        <caption class="visually-hidden">Inversion statuses</caption>
-        <thead><tr><th scope="col">Condition</th><th scope="col">Status</th><th scope="col">Reported</th></tr></thead>
-        <tbody>
-          <tr><td><var>F</var> &le; <var>B</var>, or <var>c</var> &lt; <var>c</var><sub>min</sub></td><td><code>below_lod</code></td><td>no number</td></tr>
-          <tr><td><var>F</var> &ge; <var>T</var>, or <var>c</var> &gt; <var>c</var><sub>max</sub></td><td><code>above_range</code></td><td>no number</td></tr>
-          <tr><td>otherwise</td><td><code>ok</code></td><td><var>c</var> with its 95% CI</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p>
-      The uncertainty is propagated on ln&nbsp;<var>c</var> rather than on
-      <var>c</var>, because concentration errors are multiplicative. Two
-      independent sources contribute: the reading, through the noise model;
-      and the curve, through <var>&Sigma;</var><sub><var>&theta;</var></sub>. The
-      gradients of ln&nbsp;<var>c</var> are
-    </p>
-    <div class="sw-eq">
-      <var>g</var><sub><var>F</var></sub> = {{ frac('&part; ln <var>c</var>', '&part;<var>F</var>') }} = {{ frac('1', '<var>h</var>') }}({{ frac('1', '<var>F</var> &minus; <var>B</var>') }} + {{ frac('1', '<var>T</var> &minus; <var>F</var>') }})
-    </div>
-    <div class="sw-eq">
-      <var>g</var><sub><var>&theta;</var></sub> = (&minus;{{ frac('1', '<var>h</var>(<var>T</var> &minus; <var>F</var>)') }},&ensp;&minus;{{ frac('1', '<var>h</var>(<var>F</var> &minus; <var>B</var>)') }},&ensp;1,&ensp;&minus;{{ frac('1', '<var>h</var><sup>2</sup>') }} ln {{ frac('<var>F</var> &minus; <var>B</var>', '<var>T</var> &minus; <var>F</var>') }})
-    </div>
-    <p>and the delta method combines them, with <var>n</var> the number of tubes averaged into <var>F</var>:</p>
-    <div class="sw-eq sw-eq-key">
-      Var(ln <var>c</var>) &asymp; <var>g</var><sub><var>F</var></sub><sup>2</sup> {{ frac('<var>a</var> + <var>b</var><var>F</var><sup>2</sup>', '<var>n</var>') }} + <var>g</var><sub><var>&theta;</var></sub><sup>&#8868;</sup> <var>&Sigma;</var><sub><var>&theta;</var></sub> <var>g</var><sub><var>&theta;</var></sub>
-    </div>
-    <div class="sw-eq">
-      CI<sub>95</sub> = [ e<sup>ln <var>c</var> &minus; 1.96&radic;Var</sup>,&ensp;e<sup>ln <var>c</var> + 1.96&radic;Var</sup> ]
-    </div>
-    <p>
-      The interval is asymmetric in nM, which is correct for a quantity
-      measured on a log scale. <var>g</var><sub><var>F</var></sub> grows without
-      bound as <var>F</var> approaches <var>B</var> or <var>T</var>: that is the
-      formal reason the CI widens sharply at both ends of the curve, and part
-      of why the usable range stops at 95% of the span.
-    </p>
-
-    <!-- ---------- 13 batch ---------- -->
-    <h3>13. Replicates: average first, then convert</h3>
-    <p>A sample is converted once, from the mean of its counted tubes, not by averaging per-tube concentrations:</p>
-    <div class="sw-eq">
-      <span class="sw-bar"><var>F</var></span> = {{ frac('1', '<var>n</var>') }} <span class="sw-big">&sum;</span><sub class="sw-lim"><var>i</var>=1</sub><sup class="sw-lim"><var>n</var></sup> <var>F</var><sub><var>i</var></sub>,
-      <span class="sw-sep"></span>
-      estimate = invert(<span class="sw-bar"><var>F</var></span>,&ensp;<var>n</var>)
-    </div>
-    <p>
-      The 4PL is non-linear, so the mean of converted values is biased, and
-      one tube near the flat top would dominate it. Averaging in signal space
-      also splits the variance correctly: the reading variance is divided by
-      <var>n</var> because the tubes are independent, but the curve covariance
-      is not, because every tube goes through the same fitted curve. More
-      replicates therefore narrow the CI only down to the curve's own
-      uncertainty, never below it.
-    </p>
-    <p class="hw-aside">
-      A batch's own blanks are a check, not a subtraction: the curve already
-      contains its baseline <var>B</var>. If the batch blank converts to
-      anything other than <code>below_lod</code>, the Measure page warns that
-      the blank differs from the calibration blanks or the instrument has
-      drifted.
-    </p>
-
-    <!-- ---------- 14 plate reader + cross-validation ---------- -->
-    <h3>14. The plate reader and cross-validation</h3>
-    <p>
-      The Plate Reader Assay feeds plate-reader readings into the same fit
-      and inversion (steps 8&ndash;12). Its readings carry no read-noise SD, and
-      its curve serves only the readings entered with it, since a plate
-      reader's scale changes with instrument, gain and day. With OD
-      normalization, each well's signal is
-    </p>
-    <div class="sw-eq">
-      signal = {{ frac('<var>F</var> &minus; <span class="sw-bar"><var>F</var></span><sub>medium</sub>', 'OD<sub>600</sub> &minus; <span class="sw-bar">OD</span><sub>medium</sub>') }}
-    </div>
-    <p>
-      using the means of a medium-only blank. Cross-Validation then pairs the
-      two instruments' results by sample name. Only pairs with a number on
-      both sides are compared, since a bound says where a value is not, not
-      where it is. Agreement is measured on the log scale, because inferred
-      concentrations span decades and their errors are proportional. With
-      <var>d</var><sub><var>i</var></sub>&nbsp;=&nbsp;log<sub>10</sub>(<var>c</var><sub>CAPTURE,<var>i</var></sub>&nbsp;/&nbsp;<var>c</var><sub>plate,<var>i</var></sub>):
-    </p>
-    <div class="sw-eq">
-      GMR = 10<sup><span class="sw-bar"><var>d</var></span></sup>,
-      <span class="sw-sep"></span>
-      LoA<sub>95</sub> = [ 10<sup><span class="sw-bar"><var>d</var></span> &minus; 1.96<var>s</var><sub><var>d</var></sub></sup>,&ensp;10<sup><span class="sw-bar"><var>d</var></span> + 1.96<var>s</var><sub><var>d</var></sub></sup> ]
-    </div>
-    <p>
-      alongside the number of pairs whose 95% CIs overlap. No pass/fail
-      threshold is set: there will be none until real data says what
-      agreement to expect.
-    </p>
-  </section>
-
-  <!-- ========================= try it ========================= -->
-  <section id="try">
-    <h2>Try the fit</h2>
-
-    <p>
-      This panel runs LasReader's own fitting module, <code>curve_fit.js</code>,
-      copied unchanged, so a curve drawn here is the curve the tool would
-      give for the same readings. It fits and inverts exactly as in steps
-      8&ndash;12. Nothing you type leaves this page.
-    </p>
-
-    <div class="sw-lab" id="swLab">
-      <div class="sw-lab-in">
-        <label for="swLabInput" class="sw-lab-label">Readings: one row per concentration in nM (0 for a blank), then its replicate readings</label>
-        <textarea id="swLabInput" rows="9" spellcheck="false" placeholder="concentration (nM), reading, reading, …&#10;Paste from a spreadsheet, or simulate a dataset below."></textarea>
-        <div class="sw-lab-actions">
-          <button type="button" class="sw-btn is-primary" id="swLabFit">Fit 4PL</button>
-          <button type="button" class="sw-btn" id="swLabClear">Clear</button>
-        </div>
-        <p class="sw-lab-msg" id="swLabMsg" role="status" aria-live="polite"></p>
-
-        <details class="sw-sim">
-          <summary>Simulate a dataset</summary>
-          <p class="sw-small">
-            Draws readings from a 4PL you choose, with additive and
-            proportional noise. Useful for checking that the fit recovers
-            known parameters. Every simulated dataset is labelled as such in
-            its first line: it is <strong>not</strong> a measurement.
-          </p>
-          <div class="sw-sim-grid">
-            <label>Top <var>T</var><input id="swSimT" type="number" step="any" value="1"></label>
-            <label>Bottom <var>B</var><input id="swSimB" type="number" step="any" value="0.1"></label>
-            <label>EC<sub>50</sub> (nM)<input id="swSimEc" type="number" step="any" value="10"></label>
-            <label>Hill <var>h</var><input id="swSimH" type="number" step="any" value="1"></label>
-            <label>Proportional noise (%)<input id="swSimCv" type="number" step="any" value="5"></label>
-            <label>Additive noise (SD)<input id="swSimAdd" type="number" step="any" value="0.005"></label>
-            <label>Replicates<input id="swSimReps" type="number" min="1" max="10" value="3"></label>
-            <label>Blanks<input id="swSimBlanks" type="number" min="2" max="10" value="3"></label>
-            <label class="is-wide">Standards (nM)<input id="swSimConcs" type="text" value="0.1, 1, 3, 10, 30, 100, 1000"></label>
-          </div>
-          <button type="button" class="sw-btn" id="swSimGo">Simulate and fit</button>
-        </details>
-      </div>
-
-      <div class="sw-lab-out" id="swLabOut" hidden>
-        <figure class="sw-plot-wrap">
-          <svg class="sw-plot" id="swLabPlot" role="img" aria-label="The readings, the fitted 4PL curve, the LOD and the usable range"></svg>
-          <figcaption class="sw-small">
-            Dots: readings (blanks at 0, left of the break). Line: the fitted
-            4PL. Shaded: the usable range. Dashed: the LOD in signal.
-          </figcaption>
-        </figure>
-
-        <div class="hw-figure">
-          <table class="hw-table sw-lab-table">
-            <caption>The fitted curve</caption>
-            <tbody id="swLabParams"></tbody>
-          </table>
-        </div>
-
-        <div class="sw-inv">
-          <h3>Invert a sample</h3>
-          <div class="sw-inv-row">
-            <label>Mean signal <var>F</var><input id="swInvF" type="number" step="any"></label>
-            <label>Tubes <var>n</var><input id="swInvN" type="number" min="1" value="1"></label>
-            <button type="button" class="sw-btn is-primary" id="swInvGo">Convert</button>
-          </div>
-          <p class="sw-inv-out" id="swInvOut" role="status" aria-live="polite"></p>
-        </div>
-      </div>
-    </div>
   </section>
 
   <!-- ========================= rules ========================= -->
-  <section>
-    <h2>Rules the software keeps</h2>
-
+  <section id="rules">
+    <h2 data-toc-title="2.2 Rules it keeps"><span class="sw-h-no">2.2</span>Rules it keeps</h2>
     <div class="hw-figure">
       <table class="hw-table">
-        <caption class="visually-hidden">Rules the software keeps</caption>
+        <caption><strong>Table 1.</strong> Rules the software keeps</caption>
         <thead><tr><th scope="col">Rule</th><th scope="col">How it is enforced</th></tr></thead>
         <tbody>
-          <tr><td>No concentration without a valid inversion</td><td>A number is shown only when the status is <code>ok</code>; otherwise only the bound.</td></tr>
-          <tr><td>No simulated device, no demo data</td><td>When CAPTURE-Screen is off, the pages say it is offline and never fall back to fake readings.</td></tr>
-          <tr><td>A curve only converts what it was made for</td><td>The configuration fingerprint and signal id must match; the biosensor strain is recorded with the curve and every batch.</td></tr>
+          <tr><td>No concentration without a valid conversion</td><td>A number is shown only inside the usable range; otherwise only the bound.</td></tr>
+          <tr><td>No simulated device, no demo data</td><td>When CAPTURE-Screen is off, the pages say it is offline and never fall back to made-up readings.</td></tr>
+          <tr><td>A curve only converts what it was made for</td><td>A CAPTURE-Screen curve converts only readings taken with the same instrument settings and signal; the biosensor strain is recorded with the curve and every batch.</td></tr>
           <tr><td>A saved curve never changes</td><td>Refitting with different exclusions creates a new curve, so what a batch converted stays reproducible.</td></tr>
-          <tr><td>Nothing disappears silently</td><td>Excluded tubes stay in the run, on the plot and in the export, with the reason given.</td></tr>
-          <tr><td>No diagnostic claims</td><td>The pages contain no diagnostic or pathogen-detection wording; the output is an inferred, research-use-only value.</td></tr>
+          <tr><td>Nothing disappears silently</td><td>Excluded readings stay in the run, on the plot and in the export, with the reason given.</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <!-- ========================= reuse ========================= -->
-  <section>
-    <h2>Use it, run it, extend it</h2>
+  {# ======================================================================
+     Part 3: Yours to use
+     ====================================================================== #}
+  <header class="md-part" id="part-yours" data-toc-group data-toc-no="3">
+    <p class="md-part-no">Part 3</p>
+    <h2 data-toc-title="Yours to use">Yours to use</h2>
+  </header>
+  <p class="sw-takeaway">
+    Nothing in the analysis is specific to our sensor. A team with a
+    different fluorescent biosensor can use it today, and most changes beyond
+    that are one file.
+  </p>
 
+  <!-- ========================= who ========================= -->
+  <section id="who">
+    <h2 data-toc-title="3.1 Who can use it"><span class="sw-h-no">3.1</span>Who can use it</h2>
+    <p>
+      LasReader was built for our AHL biosensor, so its pages say "AHL" and
+      label concentrations in nM. The analysis never uses either: it fits
+      standards of known concentration to their readings and converts samples
+      through that curve. Any unit works, as long as standards and samples
+      share it.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table sw-who">
+        <caption><strong>Table 2.</strong> Who can use LasReader, and what they would change</caption>
+        <thead><tr><th scope="col">If your team has</th><th scope="col">Use it</th><th scope="col">What to do</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>A fluorescent biosensor and any plate reader</td>
+            <td><span class="sw-yes">As is</span></td>
+            <td>Open the Plate Reader Assay and paste your plate. Read the AHL labels as your own target.</td>
+          </tr>
+          <tr>
+            <td>A sensor whose fluorescence <em>falls</em> as the target rises</td>
+            <td><span class="sw-no">Not yet</span></td>
+            <td>The fit accepts only a rising curve (<var>T</var>&nbsp;&gt;&nbsp;<var>B</var>). A falling response would need a change in <code>curve_fit.js</code>.</td>
+          </tr>
+          <tr>
+            <td>A low-cost reader of your own, built on an AS7341 sensor</td>
+            <td><span class="sw-yes">As is</span></td>
+            <td>Flash the CAPTURE-Screen firmware and use its pages and data model.</td>
+          </tr>
+          <tr>
+            <td>A different fluorescent protein on that reader</td>
+            <td><span class="sw-adapt">One file</span></td>
+            <td>Set the signal channel in <code>frontend/config/unmix_basis.json</code>. It is F4 (515&nbsp;nm, for sfGFP) now; the AS7341's eight visible channels run from about 415 to 680&nbsp;nm.</td>
+          </tr>
+          <tr>
+            <td>A plate reader export that cannot be pasted as a plate</td>
+            <td><span class="sw-adapt">One file</span></td>
+            <td>Convert it to the Plate Reader Assay's table, as <code>js/plate_layout.js</code> does for a pasted plate.</td>
+          </tr>
+          <tr>
+            <td>A new analysis to add</td>
+            <td><span class="sw-adapt">One folder</span></td>
+            <td>A backend feature is a folder under <code>backend/app/</code> with its own <code>router.py</code>; a page is one HTML file and one script.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========================= try ========================= -->
+  {# 「用你的數據試試看」：static/software-fit.js。數學全部交給 LasReader 自己的
+     curve_fit.js（static/lasreader-curve-fit.js），所以結果和 app 一樣。
+     Load example 按鈕等團隊給真實校正數據（說明 C）再打開。 #}
+  <section id="try">
+    <h2 data-toc-title="3.2 Try it with your data"><span class="sw-h-no">3.2</span>Try it with your data</h2>
+    <p>
+      This panel runs LasReader's own fitting code, unchanged, so the curve
+      here is the curve the app would give. Paste a calibration from a
+      spreadsheet and the curve appears as you type. Nothing leaves this page.
+    </p>
+
+    <div class="sw-try" id="swTry">
+      <div class="sw-try-step">
+        <p class="sw-try-k"><span class="sw-idea-n">1</span>Paste your standards</p>
+        <p class="sw-small">
+          One row per concentration, with up to four replicate readings. Use
+          0 for blanks. Copy a block of cells from Excel and paste it into any
+          cell.
+        </p>
+        <div class="sw-try-table-wrap">
+          <table class="sw-try-table">
+            <thead>
+              <tr>
+                <th scope="col">Concentration (<span class="sw-try-unit-label">nM</span>)</th>
+                <th scope="col">Reading 1</th>
+                <th scope="col">Reading 2</th>
+                <th scope="col">Reading 3</th>
+                <th scope="col">Reading 4</th>
+              </tr>
+            </thead>
+            <tbody id="swTryRows"></tbody>
+          </table>
+        </div>
+        <div class="sw-try-actions">
+          <button type="button" class="sw-btn" id="swTryAdd">Add a row</button>
+          <button type="button" class="sw-btn" id="swTryClear">Clear</button>
+          {# <button type="button" class="sw-btn" id="swTryExample">Load our calibration</button> #}
+          <label class="sw-try-unit">Unit <input id="swTryUnit" type="text" value="nM" maxlength="12" spellcheck="false"></label>
+        </div>
+        <p class="sw-try-msg" id="swTryMsg" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="sw-try-step" id="swTryOut" hidden>
+        <p class="sw-try-k"><span class="sw-idea-n">2</span>Your curve</p>
+        <div class="sw-try-stats">
+          <div><span class="sw-try-stat-k">Usable range</span><span class="sw-try-stat-v" id="swTryRange"></span><span class="sw-try-stat-s">the only range that returns a number</span></div>
+          <div><span class="sw-try-stat-k">Limit of detection</span><span class="sw-try-stat-v" id="swTryLod"></span><span class="sw-try-stat-s">blank + 3 SD, through the curve</span></div>
+          <div><span class="sw-try-stat-k">Readings used</span><span class="sw-try-stat-v" id="swTryUsed"></span><span class="sw-try-stat-s" id="swTryWeight"></span></div>
+        </div>
+        <figure class="sw-plot-wrap">
+          <svg class="sw-plot" id="swTryPlot" role="img" aria-label="The readings, the fitted curve, the limit of detection and the usable range"></svg>
+          <figcaption class="sw-small">
+            <strong>Figure 5.</strong> Your curve. Dots: your readings (blanks at 0, left of the break). Line: the
+            fitted curve. Shaded: the usable range. Dashed: the LOD.
+          </figcaption>
+        </figure>
+        <details class="sw-try-more">
+          <summary>All fitted values</summary>
+          <div class="hw-figure">
+            <table class="hw-table sw-lab-table">
+              <caption class="visually-hidden">The fitted curve</caption>
+              <tbody id="swTryParams"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <p class="sw-try-k"><span class="sw-idea-n">3</span>Convert a sample</p>
+        <div class="sw-inv-row">
+          <label>Sample reading (mean)<input id="swTryF" type="number" step="any" inputmode="decimal"></label>
+          <label>Replicates averaged<input id="swTryN" type="number" min="1" value="1" inputmode="numeric"></label>
+        </div>
+        <p class="sw-try-result" id="swTryResult" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= run & extend ========================= -->
+  <section id="run">
+    <h2 data-toc-title="3.3 Run and extend"><span class="sw-h-no">3.3</span>Run it, build on it</h2>
     <p>
       To <em>use</em> LasReader you need only a browser: open the
       <a href="https://igem-ncku-software.github.io/igem-software/">live app</a>.
-      To run it locally, you need Python&nbsp;3.14 and Git; the frontend has no
-      dependencies and needs no Node.js.
+      To run it yourself you need Python&nbsp;3.14 and Git; the frontend has no
+      build step and needs no Node.js.
     </p>
     <pre class="sw-code">git clone https://gitlab.igem.org/2026/software/ncku-tainan/lasreader.git
 cd lasreader
@@ -951,94 +681,193 @@ bash scripts/setup.sh      # once
 bash scripts/dev.sh        # backend on :8000, frontend on :5500</pre>
     <p class="sw-small">
       On Windows PowerShell, run <code>scripts\setup.ps1</code> and
-      <code>scripts\dev.ps1</code> instead. Interactive API documentation is at
-      <code>/docs</code> once the backend runs, and <code>cd backend; pytest</code>
-      runs the test suite.
+      <code>scripts\dev.ps1</code> instead. <code>cd backend; pytest</code> runs
+      the 45 backend tests, and the API documents itself at <code>/docs</code>.
     </p>
 
-    <h3>Reproducing a result without the instrument</h3>
-    <p>
-      On the Calibrate page, choose <em>Enter recorded data</em> and type in
-      previously recorded readings with the instrument configuration they were
-      read under. Fitting, LOD/LOQ and saving work exactly as for a device run,
-      so a published curve can be refitted from its recorded values. A plate
-      reader assay's CSV holds every reading, so its curve can be refitted
-      from the file.
-    </p>
+    <h3>How the pieces connect</h3>
+    <figure class="hw-figure">
+      <div class="hw-diagram">
+        <svg class="hw-svg sw-arch" viewBox="0 0 780 400" role="img"
+             aria-label="Architecture. CAPTURE-Screen dials out over a secure WebSocket to the backend's hardware relay, which the live-spectrum service subscribes to. In the browser, the CAPTURE-Screen pages call the relay over HTTPS and the landing page receives the live spectrum over a WebSocket. The Plate Reader Assay and Cross-Validation compute entirely in the browser with the shared curve_fit.js. The Swarming Assay page uploads photos over HTTPS to the backend's photo analysis.">
+          <defs>
+            <marker id="swArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path class="sw-svg-head" d="M0 0 L10 5 L0 10 Z"/>
+            </marker>
+          </defs>
 
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Data formats</span>
-        <span class="hw-fold-meta">open and documented</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <div class="hw-figure">
-        <table class="hw-table">
-          <caption class="visually-hidden">Data formats</caption>
-          <thead><tr><th scope="col">Direction</th><th scope="col">Format</th><th scope="col">Where</th></tr></thead>
-          <tbody>
-            <tr><td>In</td><td>Plate readings, typed or pasted as an 8&nbsp;&times;&nbsp;12 block</td><td>Plate Reader Assay</td></tr>
-            <tr><td>In</td><td>Recorded CAPTURE-Screen readings, typed in</td><td>Calibrate &rarr; <em>Enter recorded data</em></td></tr>
-            <tr><td>Out</td><td>CSV (UTF-8 with BOM, opens in Excel), full precision</td><td>Plate assay, calibration run, measurement batch, comparison</td></tr>
-            <tr><td>In / Out</td><td>JSON backup of all runs, curves and batches</td><td>Data page</td></tr>
-            <tr><td>Out</td><td>JSON for every API response, with an OpenAPI schema</td><td><code>/docs</code> and <code>/openapi.json</code></td></tr>
-          </tbody>
-        </table>
-      </div>
-      </div>
-    </details>
+          <!-- device -->
+          <rect class="hw-svg-sensor" x="16" y="40" width="170" height="110" rx="8"/>
+          <text class="hw-svg-label" x="101" y="72" text-anchor="middle">CAPTURE-Screen</text>
+          <text class="hw-svg-sub" x="101" y="96" text-anchor="middle">ESP32 + AS7341</text>
+          <text class="hw-svg-sub" x="101" y="118" text-anchor="middle">OLED · Live button</text>
 
-    <h3>Extending it</h3>
-    <ul>
-      <li><strong>A backend feature</strong> is a folder under
-        <code>backend/app/</code> with its own <code>router.py</code>, wired in
-        with one <code>include_router()</code> line and tested under
-        <code>backend/tests/</code>.</li>
-      <li><strong>A frontend page</strong> is one <code>.html</code> file that
-        loads <code>js/config.js</code> first, then its own script. GitHub
-        Actions deploys the whole folder as-is.</li>
-      <li><strong>A change to the model</strong> updates the matching section
-        of <code>docs/capture_screen_model.md</code> in the same change.</li>
-    </ul>
-    <p>
-      The storage layer is isolated behind one file, <code>hardware_api.js</code>,
-      so moving runs and curves from the browser to a database changes only
-      that file. LasReader is released under the
-      <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader">MIT License</a>:
-      future teams may use, modify and redistribute it, keeping the copyright
-      notice.
+          <!-- backend -->
+          <rect class="hw-svg-case" x="262" y="16" width="228" height="368" rx="12"/>
+          <text class="hw-svg-note" x="276" y="38">backend · FastAPI</text>
+          <rect class="hw-svg-body sw-svg-box" x="284" y="52" width="184" height="76" rx="6"/>
+          <text class="hw-svg-label" x="376" y="84" text-anchor="middle">/api/hardware</text>
+          <text class="hw-svg-sub" x="376" y="108" text-anchor="middle">relay: status · read</text>
+          <rect class="hw-svg-body sw-svg-box" x="284" y="168" width="184" height="76" rx="6"/>
+          <text class="hw-svg-label" x="376" y="200" text-anchor="middle">/api/live</text>
+          <text class="hw-svg-sub" x="376" y="224" text-anchor="middle">Live switch · spectrum</text>
+          <rect class="hw-svg-body sw-svg-box" x="284" y="290" width="184" height="76" rx="6"/>
+          <text class="hw-svg-label" x="376" y="322" text-anchor="middle">/api/swarming</text>
+          <text class="hw-svg-sub" x="376" y="346" text-anchor="middle">photo analysis · OpenCV</text>
+
+          <!-- browser -->
+          <rect class="hw-svg-case" x="560" y="16" width="206" height="368" rx="12"/>
+          <text class="hw-svg-note" x="574" y="38">browser · static pages</text>
+          <rect class="hw-svg-body sw-svg-box" x="574" y="50" width="178" height="40" rx="6"/>
+          <text class="hw-svg-sub sw-svg-in" x="663" y="75" text-anchor="middle">Landing · live spectrum</text>
+          <rect class="hw-svg-body sw-svg-box" x="574" y="98" width="178" height="40" rx="6"/>
+          <text class="hw-svg-sub sw-svg-in" x="663" y="123" text-anchor="middle">CAPTURE-Screen 1–4</text>
+          <rect class="hw-svg-body sw-svg-box" x="574" y="158" width="178" height="40" rx="6"/>
+          <text class="hw-svg-sub sw-svg-in" x="663" y="183" text-anchor="middle">Plate Reader Assay</text>
+          <rect class="hw-svg-body sw-svg-box" x="574" y="206" width="178" height="40" rx="6"/>
+          <text class="hw-svg-sub sw-svg-in" x="663" y="231" text-anchor="middle">Cross-Validation</text>
+          <rect class="sw-svg-shared" x="574" y="256" width="178" height="44" rx="6"/>
+          <text class="hw-svg-sub sw-svg-in" x="663" y="275" text-anchor="middle">curve_fit.js</text>
+          <text class="hw-svg-note" x="663" y="292" text-anchor="middle">shared 4PL fit · localStorage</text>
+          <rect class="hw-svg-body sw-svg-box" x="574" y="318" width="178" height="40" rx="6"/>
+          <text class="hw-svg-sub sw-svg-in" x="663" y="343" text-anchor="middle">Swarming Assay</text>
+
+          <!-- links -->
+          <path class="sw-svg-link" d="M186 95 C232 95 240 90 284 90" marker-end="url(#swArrow)"/>
+          <text class="hw-svg-note" x="235" y="74" text-anchor="middle">WSS</text>
+          <text class="hw-svg-note" x="235" y="116" text-anchor="middle">dials out</text>
+
+          <path class="sw-svg-link" d="M376 168 V128" marker-end="url(#swArrow)"/>
+          <text class="hw-svg-note" x="384" y="152">subscribes</text>
+
+          <path class="sw-svg-link" d="M574 118 H468" marker-end="url(#swArrow)"/>
+          <text class="hw-svg-note" x="500" y="112" text-anchor="middle">HTTPS</text>
+
+          <path class="sw-svg-link" d="M574 70 H530 V206 H468" marker-end="url(#swArrow)"/>
+          <text class="hw-svg-note" x="524" y="196" text-anchor="end">WSS</text>
+
+          <path class="sw-svg-link" d="M574 338 H468" marker-end="url(#swArrow)"/>
+          <text class="hw-svg-note" x="520" y="330" text-anchor="middle">HTTPS · photo</text>
+
+          <path class="sw-svg-local" d="M663 198 V206"/>
+          <path class="sw-svg-local" d="M663 246 V256"/>
+          <path class="sw-svg-local" d="M752 118 H760 V278 H752"/>
+        </svg>
+      </div>
+      <figcaption>
+        <strong>Figure 6.</strong> How the pieces connect. Solid arrows cross the network; dotted lines stay inside the browser.
+        The plate reader tools never touch the backend: their arithmetic runs
+        in the browser and nothing is uploaded. The backend stores neither the
+        photos nor their results.
+      </figcaption>
+    </figure>
+
+    <h3>Built to be checked</h3>
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption><strong>Table 3.</strong> iGEM software requirements and where they are met</caption>
+        <thead><tr><th scope="col">Requirement (Judge Handbook 2026)</th><th scope="col">Where it is met</th></tr></thead>
+        <tbody>
+          <tr><td>Hosted on iGEM's GitLab</td><td><a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader">gitlab.igem.org/2026/software/ncku-tainan/lasreader</a></td></tr>
+          <tr><td>README: what, who, install and run, reproduce</td><td>The repository's README, with a section for each</td></tr>
+          <tr><td>OSI-approved license</td><td>MIT</td></tr>
+          <tr><td>Reproducible build and run</td><td><code>scripts/</code>, <code>setup</code> and <code>dev</code> in <code>.sh</code> and <code>.ps1</code>; no compiled binaries</td></tr>
+          <tr><td>Pinned dependencies</td><td><code>backend/requirements.txt</code> pins every package, direct and transitive</td></tr>
+          <tr><td>Repository under 50&nbsp;MB</td><td>About 1&nbsp;MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sw-small">
+      LasReader is released under the MIT License: future teams may use, modify
+      and redistribute it, keeping the copyright notice. Yu-Chun Sung designed
+      and wrote the software; Tzu-Chiao Chou wrote the colony-measurement code
+      the Swarming Assay runs. Everyone's contributions are listed on the
+      <a href="{{ url_for('pages', page='attributions') }}">Attributions</a> page.
     </p>
   </section>
 
-  <!-- ========================= limits ========================= -->
-  <section>
-    <h2>Known limitations</h2>
+  {# ======================================================================
+     Part 4: Evidence
+     ====================================================================== #}
+  <header class="md-part" id="part-evidence" data-toc-group data-toc-no="4">
+    <p class="md-part-no">Part 4</p>
+    <h2 data-toc-title="Evidence">Evidence</h2>
+  </header>
+  <p class="sw-takeaway">
+    What LasReader has measured so far, how complete that is, and what it
+    cannot do yet.
+  </p>
 
+  <!-- ========================= results ========================= -->
+  {# 說明 D：放真實數據。建議的格式：
+       1. 完整度表（hw-table）：Calibration curve / Cross-Validation / Plate Reader Assay on real data
+          / Swarming，每列寫 n、日期、狀態（Done / In progress / Not started），照實填。
+       2. 每個結果一張圖（截圖或重畫），圖說寫 n、日期、條件、用的是哪個工具。
+       3. 不寫「已驗證」「證明」；不完整的地方直接寫出缺什麼。
+     有數據之前，下面的虛線框會顯示在頁面上，freeze 前一定要換掉。 #}
+  <section id="results">
+    <h2 data-toc-title="4.1 Results"><span class="sw-h-no">4.1</span>Results</h2>
+    <div class="sw-shot is-todo sw-todo-block">
+      <span class="sw-shot-todo">Results: real data to come, with how complete each one is</span>
+    </div>
+  </section>
+
+  <!-- ========================= limitations ========================= -->
+  <section id="limits">
+    <h2 data-toc-title="4.2 Limitations"><span class="sw-h-no">4.2</span>Limitations and next steps</h2>
     <div class="hw-figure">
       <table class="hw-table">
-        <caption class="visually-hidden">Known limitations</caption>
-        <thead><tr><th scope="col">Limitation</th><th scope="col">Consequence</th><th scope="col">Status</th></tr></thead>
+        <caption><strong>Table 4.</strong> Known limitations and next steps</caption>
+        <thead><tr><th scope="col">Limitation</th><th scope="col">Consequence</th><th scope="col">Next step</th></tr></thead>
         <tbody>
-          <tr><td>Single-channel F4 signal (placeholder)</td><td>F4 includes autofluorescence and scattered excitation; the blank absorbs only the constant part.</td><td>Waits for a measured sfGFP spectrum</td></tr>
-          <tr><td>Read noise excludes shot noise</td><td>The per-tube SD underestimates noise at high signal.</td><td>Compensated by the replicate noise model</td></tr>
-          <tr><td>Delta method, normal 1.96</td><td>The CI is approximate, and somewhat too narrow with few tubes.</td><td>The flattest 5% of the span is excluded</td></tr>
-          <tr><td>LOD from 2&ndash;10 blanks</td><td>With 2 blanks the SD itself is very uncertain.</td><td>More blanks give firmer limits</td></tr>
-          <tr><td>No cell-density normalization on CAPTURE-Screen</td><td>Samples at a different OD than the standards convert wrongly; <code>HIGH_SCATTER</code> catches only gross cases.</td><td>A future signal definition can add it</td></tr>
-          <tr><td>No authentication on the device link</td><td>Anyone who knows the URL could impersonate the device or trigger a read.</td><td>A shared secret is planned</td></tr>
-          <tr><td>Browser-only storage</td><td>Clearing site data deletes runs and curves.</td><td>Back up from the Data page; a database is planned</td></tr>
-          <tr><td>One backend process</td><td>The relay keeps state in memory.</td><td>A multi-worker deployment would need pub/sub</td></tr>
+          <tr><td>Validation pending</td><td>The Plate Reader Assay is yet to be checked against a full real dataset, and its OD normalization against the wet lab's protocol.</td><td>Run both with real data</td></tr>
+          <tr><td>No thresholds without data</td><td>There is no replicate-spread limit and no pass/fail for Cross-Validation agreement.</td><td>Set them once real data shows what to expect</td></tr>
+          <tr><td>Single-channel signal on CAPTURE-Screen</td><td>F4 alone also picks up autofluorescence and scattered light; the blank absorbs only the constant part.</td><td>Unmix with a measured sfGFP spectrum</td></tr>
+          <tr><td>Rising responses only</td><td>A sensor whose fluorescence falls with its target gives no curve.</td><td>Support a falling 4PL</td></tr>
+          <tr><td>An approximate interval</td><td>The delta method with 1.96 is somewhat too narrow with few tubes.</td><td>The flattest 5% of the curve is already excluded</td></tr>
+          <tr><td>No cell-density correction on CAPTURE-Screen</td><td>Samples at a different OD than the standards convert wrongly.</td><td>Add it to the signal definition</td></tr>
+          <tr><td>Browser-only storage</td><td>Clearing site data deletes CAPTURE-Screen runs and curves.</td><td>Back up from the Data page; a database later</td></tr>
+          <tr><td>No authentication on the device link</td><td>Anyone who knows the address could impersonate the device.</td><td>A shared secret</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <!-- ========================= results ========================= -->
-  {# 實際結果之後補上：校正曲線、LOD/LOQ、Cross-Validation。見檔案開頭的說明 A。 #}
+  {# ======================================================================
+     Also in LasReader: Swarming Assay
+     和 workflow 無關，所以放在最後、獨立一區。
+     ====================================================================== #}
+  <header class="md-part sw-apart" id="part-swarming" data-toc-group data-toc-no="+" data-toc-apart>
+    <p class="md-part-no">Also in LasReader</p>
+    <h2 data-toc-title="Swarming Assay">Swarming Assay</h2>
+  </header>
+  <p class="sw-takeaway">
+    A separate tool for a phenotype: how far a swarming colony has spread,
+    measured from a photo of its plate.
+  </p>
+
+  <section id="swarming">
+    <div class="sw-swarm">
+      <div>
+        <dl class="hw-spec">
+          <div><dt>Input</dt><dd>Plate photos taken from above, up to 24 per batch, each with its strain, condition and replicate.</dd></div>
+          <div><dt>Scale</dt><dd>The plate is found in the photo, and its known diameter (93&nbsp;mm by default, adjustable) turns pixels into millimetres.</dd></div>
+          <div><dt>Detection</dt><dd>The background is corrected, colonies are thresholded, and a region that looks like more than one colony is split. Photos on a purple UV background are detected and handled separately.</dd></div>
+          <div><dt>Output</dt><dd>Each colony's longest span, equivalent diameter and area, in one CSV for the batch, and every photo returned annotated so you can check the plate edge was found.</dd></div>
+          <div><dt>Reproducible</dt><dd>The analysis is deterministic: the same photos and plate diameter give the same numbers. The CSV records both on every row.</dd></div>
+        </dl>
+        <p class="sw-small">
+          The analysis is Tzu-Chiao Chou's colony-measurement code, run
+          unchanged on the backend in Python with OpenCV. The backend keeps
+          neither the photos nor the results.
+        </p>
+      </div>
+      <div class="sw-swarm-shots">
+        {{ shot('Swarming Assay: choosing photos', fig='Figure 7a') }}
+        {{ shot('An annotated plate', fig='Figure 7b') }}
+      </div>
+    </div>
+  </section>
 
 </div>
 
@@ -1047,4 +876,6 @@ bash scripts/dev.sh        # backend on :8000, frontend on :5500</pre>
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename = 'lasreader-curve-fit.js') }}"></script>
 <script src="{{ url_for('static', filename = 'software-fit.js') }}"></script>
+<script src="{{ url_for('static', filename = 'software-workflow.js') }}"></script>
+<script src="{{ url_for('static', filename = 'edu-lightbox.js') }}"></script>
 {% endblock %}
