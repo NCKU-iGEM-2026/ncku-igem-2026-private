@@ -5912,6 +5912,267 @@ body.tour-active { overflow: hidden; }
   font-size: 1.1rem;
 }
 
+/* ---- the imaging pipeline on the Model page (Part 2) --------------------
+   A flow with two branches in it, which .hw-flow cannot carry -- that one is
+   a single row of boxes. Laid out downwards rather than across, because the
+   branches need room and a column survives a phone screen; the connectors
+   are drawn rather than written, so the markup stays an ordered list and a
+   screen reader gets the order and the two choices as list structure.
+
+   The blocks are tinted rather than left clear: over the page's starfield an
+   unfilled box reads as noise with a line round it, and the whole diagram
+   flattens. The four stages are deliberately not equal -- the one that does
+   the work the pipeline turns on carries the accent.
+
+   Only ever used inside body.hw-nexus, where the --nx-* palette is defined
+   for both themes, so there is no light/dark pair to keep in step here.
+   -------------------------------------------------------------------- */
+.md-pipe {
+  list-style: none;
+  margin: 1.75rem 0;
+  padding: 0;
+  display: grid;
+  gap: 1.4rem;
+  /* Labels only. The prose inside each block stays in the page face, the way
+     a schematic sets its callouts in the drawing face and its notes in text. */
+  --pipe-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --pipe-edge: color-mix(in srgb, var(--nx-mint) 30%, var(--nx-line));
+}
+
+/* The run from one block down to the next, with a head on it so the direction
+   is read rather than inferred. Nothing hangs below the last. */
+.md-pipe > li { position: relative; }
+.md-pipe > li:not(:last-child)::before,
+.md-pipe > li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.md-pipe > li:not(:last-child)::before {
+  bottom: -1.4rem;
+  width: 2px;
+  height: 1.4rem;
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--nx-mint) 55%, transparent),
+    color-mix(in srgb, var(--nx-mint) 22%, transparent));
+}
+.md-pipe > li:not(:last-child)::after {
+  bottom: -1.4rem;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid color-mix(in srgb, var(--nx-mint) 55%, transparent);
+}
+
+.md-pipe-step {
+  display: grid;
+  grid-template-areas: "body out";
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0 1.5rem;
+  padding: 1rem 1.25rem;
+  background: color-mix(in srgb, var(--nx-panel) 72%, transparent);
+  border: 1px solid var(--pipe-edge);
+  border-radius: 3px;
+  transition: border-color var(--t-fast, 0.15s) ease,
+              box-shadow var(--t-fast, 0.15s) ease;
+}
+.md-pipe-step:hover { border-color: var(--nx-mint); }
+
+/* A reference designator, filled so the sequence can be followed at a glance
+   down the left edge without reading anything. */
+.md-pipe-no {
+  grid-area: body;
+  align-self: start;
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  font-family: var(--pipe-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--nx-ground);
+  background: var(--nx-mint);
+  border-radius: 3px;
+}
+
+.md-pipe-body { grid-area: body; display: grid; gap: 0.35rem; padding-left: 2.5rem; }
+.md-pipe-body strong {
+  font-family: var(--pipe-mono);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nx-text);
+}
+.md-pipe-body > span { font-size: 0.9rem; line-height: 1.6; color: var(--nx-muted); }
+
+/* A signal tapped off the block: a short lead, then the label. */
+.md-pipe-out {
+  grid-area: out;
+  justify-self: end;
+  font-family: var(--pipe-mono);
+  font-size: 0.76rem;
+  color: var(--nx-mint);
+  background: color-mix(in srgb, var(--nx-mint) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nx-mint) 28%, transparent);
+  border-radius: 3px;
+  padding: 0.3rem 0.6rem;
+  white-space: nowrap;
+}
+.md-pipe-out::before {
+  content: "\2500\25B8";
+  color: color-mix(in srgb, var(--nx-mint) 55%, transparent);
+  margin-right: 0.4rem;
+}
+
+/* Nothing marks out one processing step over another any more. What carries
+   the eye is the branches: the questions breathe, and so do the answers. */
+.md-pipe-end .md-pipe-no { background: var(--nx-lime); }
+
+/* ---- a branch ---- */
+.md-pipe-fork { display: grid; gap: 0.7rem; }
+
+/* Legend across the top of the branch, with a rule running out either side.
+   The two questions are the only places the pipeline decides anything, so they
+   are the only things on the diagram that move -- a slow breath on the same
+   5-second count the rest of the wiki uses (css/motion.css). */
+.md-pipe-ask {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-family: var(--pipe-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-mint);
+  justify-self: stretch;
+  animation: md-pipe-breathe 5s ease-in-out infinite;
+}
+
+@keyframes md-pipe-breathe {
+  0%, 100% {
+    text-shadow: 0 0 6px color-mix(in srgb, var(--nx-mint) 30%, transparent);
+  }
+  50% {
+    text-shadow: 0 0 10px color-mix(in srgb, var(--nx-mint) 70%, transparent),
+                 0 0 22px color-mix(in srgb, var(--nx-mint) 40%, transparent);
+  }
+}
+.md-pipe-ask::before,
+.md-pipe-ask::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent, color-mix(in srgb, var(--nx-mint) 45%, transparent));
+}
+.md-pipe-ask::after { background: linear-gradient(to left,
+    transparent, color-mix(in srgb, var(--nx-mint) 45%, transparent)); }
+
+.md-pipe-fork > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.7rem;
+}
+
+/* Dashed, and a step darker than the trunk: these are the side routes.
+   Their edges breathe, the two in a pair half a cycle apart, so the light
+   crosses from one answer to the other and back -- the figure keeps saying
+   that this is a choice, without either side being the one that is taken.
+   No hover state: an animated border wins the cascade over a hovered one,
+   so it would not have shown. */
+.md-pipe-fork > ul > li {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  padding: 0.9rem 1.1rem;
+  background: color-mix(in srgb, var(--nx-ground) 55%, transparent);
+  border: 1px dashed var(--pipe-edge);
+  border-radius: 3px;
+  animation: md-pipe-edge-breathe 5s ease-in-out infinite;
+}
+.md-pipe-fork > ul > li:nth-child(2) { animation-delay: 2.5s; }
+
+@keyframes md-pipe-edge-breathe {
+  0%, 100% {
+    border-color: var(--pipe-edge);
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    border-color: var(--nx-mint);
+    box-shadow: 0 0 16px -3px color-mix(in srgb, var(--nx-mint) 38%, transparent);
+  }
+}
+
+/* The condition, written on the wire rather than boxed. */
+.md-pipe-cond {
+  justify-self: start;
+  font-family: var(--pipe-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-blue-up);
+}
+.md-pipe-cond::after {
+  content: " \2500\2500";
+  color: color-mix(in srgb, var(--nx-blue-up) 45%, transparent);
+}
+
+.md-pipe-fork > ul > li strong {
+  font-family: var(--pipe-mono);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--nx-text);
+}
+.md-pipe-fork > ul > li > span:last-child {
+  font-size: 0.87rem;
+  line-height: 1.55;
+  color: var(--nx-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-pipe-step { transition: none; }
+  /* The breathing stops; the glow that marks the branches out stays, held at
+     its midpoint, so nothing is lost by turning the motion off. */
+  .md-pipe-ask {
+    animation: none;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--nx-mint) 55%, transparent);
+  }
+  .md-pipe-fork > ul > li {
+    animation: none;
+    border-color: color-mix(in srgb, var(--nx-mint) 65%, var(--nx-line));
+  }
+}
+
+@media (max-width: 640px) {
+  /* The tapped signal drops under the text, and the branch stacks. */
+  .md-pipe-step { grid-template-areas: "body" "out"; grid-template-columns: 1fr; gap: 0.6rem; }
+  .md-pipe-out { justify-self: start; white-space: normal; margin-left: 2.5rem; }
+  .md-pipe-fork > ul { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .md-pipe-step,
+  .md-pipe-fork > ul > li { background: none; border-color: #999; box-shadow: none; }
+  .md-pipe-body strong,
+  .md-pipe-fork > ul > li strong { color: #000; }
+  .md-pipe-body > span,
+  .md-pipe-fork > ul > li > span:last-child { color: #333; }
+  .md-pipe-no { background: #ddd; color: #000; }
+  .md-pipe-out { background: none; border-color: #999; color: #000; }
+  .md-pipe-ask, .md-pipe-cond { color: #000; }
+}
+
 /* ---- the three kinds of note the page uses ---- */
 .hw-aside {
   font-size: 0.93rem;
@@ -6476,6 +6737,29 @@ body.tour-active { overflow: hidden; }
    in it. The cap is lifted below tablet width, where the column is already
    narrow and 72% of it would be too little to hold three columns. */
 .hw-figure-table { margin-inline: auto; }
+
+/* Part 2's tables run to the left margin and across the full column, rather
+   than sitting centred at 72% like the Part 3 ones. Both of these are prose in
+   a table -- long sentences, not figures -- and at 72% with a narrow first
+   column they broke a short label across five lines. The first column is given
+   a floor and a ceiling so it can hold a phrase without taking the width the
+   explanation needs. */
+#model-zone-params .hw-figure-table { margin-inline: 0; max-width: none; }
+#model-zone-params .hw-table th:first-child,
+#model-zone-params .hw-table td:first-child { min-width: 11rem; width: 26%; }
+
+/* The result plates. Each image is already a pair -- the photograph and the
+   same photograph measured -- so they run the full width of the column and
+   stack; side by side would halve something that is half a picture already. */
+.md-cv-figure { margin: 2rem 0; }
+.md-cv-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--nx-line);
+  border-radius: 4px;
+  background: #fff;   /* the plots are drawn on white and keep it */
+}
 
 @media (min-width: 768px) {
   .hw-figure-table { max-width: 72%; }
