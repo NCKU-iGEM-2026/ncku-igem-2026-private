@@ -917,20 +917,59 @@ body.edu-nexus .hpx-event-what {
   line-height: 1.4;
 }
 
-/* ---------- moments ---------- */
+/* ---------- moments ----------
+   Two rows drifting opposite ways; each photo carries its direction's
+   colour, its date, and a "read the story" line that rises on hover.
+   Three widths in turn (.hpx-moment-0/1/2) so the strip has a rhythm. */
+.hpx-moments-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.2rem 0 0.2rem;
+}
+.hpx-moments-filter[hidden] { display: none; }
+.hpx-mf {
+  --hpx-dir: var(--nx-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--hpx-dir) 55%, var(--nx-line));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--hpx-dir);
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.hpx-mf:hover { background: color-mix(in srgb, var(--hpx-dir) 14%, transparent); }
+.hpx-mf[aria-pressed="true"] { background: var(--hpx-dir); color: #0e242e; }
+.hpx-mf-n {
+  min-width: 1.4em;
+  padding: 0 0.3em;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 18%, transparent);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
 .hpx-moments {
   position: relative;
   overflow: hidden;
-  margin: 1.5rem 0 0;
+  margin: 1.1rem 0 0;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
           mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
+.hpx-moments + .hpx-moments { margin-top: 1rem; }
 
 .hpx-moments-track {
   display: flex;
   width: max-content;
-  animation: hpx-drift 80s linear infinite;
+  animation: hpx-drift 90s linear infinite;
 }
+.hpx-moments.is-reverse .hpx-moments-track { animation-direction: reverse; animation-duration: 100s; }
 
 .hpx-moments:hover .hpx-moments-track,
 .hpx-moments:focus-within .hpx-moments-track { animation-play-state: paused; }
@@ -949,11 +988,20 @@ body.edu-nexus .hpx-event-what {
   position: relative;
   display: block;
   width: 17rem;
-  aspect-ratio: 4 / 3;
+  height: 12.75rem;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--nx-line);
+  border-bottom: 3px solid var(--hpx-dir);
   text-decoration: none;
+  transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+}
+.hpx-moment-1 { width: 21rem; }
+.hpx-moment-2 { width: 14rem; }
+.hpx-moment:hover,
+.hpx-moment:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px -18px color-mix(in srgb, var(--hpx-dir) 75%, #000);
 }
 
 .hpx-moment img {
@@ -967,17 +1015,63 @@ body.edu-nexus .hpx-event-what {
 .hpx-moment:hover img,
 .hpx-moment:focus-visible img { transform: scale(1.06); }
 
+.hpx-moment-dir {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(8, 22, 28, 0.78);
+  border: 1px solid color-mix(in srgb, var(--hpx-dir) 70%, transparent);
+  color: var(--hpx-dir);
+  font-family: "Changa", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  backdrop-filter: blur(3px);
+}
+
 .hpx-moment-label {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 1.6rem 0.9rem 0.7rem;
-  background: linear-gradient(transparent, rgba(8, 22, 28, 0.88));
+  display: flex;
+  flex-direction: column;
+  padding: 1.8rem 0.9rem 0.7rem;
+  background: linear-gradient(transparent, rgba(8, 22, 28, 0.9));
   color: #fff;
   font-family: "Changa", sans-serif;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+.hpx-moment-when {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--hpx-dir);
+}
+.hpx-moment-go {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--nx-lime);
+  transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+}
+.hpx-moment:hover .hpx-moment-go,
+.hpx-moment:focus-visible .hpx-moment-go { max-height: 1.4em; opacity: 1; margin-top: 0.2rem; }
+
+/* one direction chosen: the rest step back */
+.hpx-moments-section[data-filter="down"] .hpx-moment:not([data-dir="down"]),
+.hpx-moments-section[data-filter="up"]   .hpx-moment:not([data-dir="up"]),
+.hpx-moments-section[data-filter="fwd"]  .hpx-moment:not([data-dir="fwd"]),
+.hpx-moments-section[data-filter="back"] .hpx-moment:not([data-dir="back"]) {
+  opacity: 0.18;
+  filter: grayscale(1);
 }
 
 /* ---------- narrow screens ---------- */
@@ -1003,7 +1097,9 @@ body.edu-nexus .hpx-event-what {
   .hpx-event:nth-child(even)::after { left: calc(-1.75rem + 0.45rem - 5.5px); right: auto; }
   .hpx-event:nth-child(odd) .hpx-event-card { border-right: 1px solid var(--nx-line); border-left: 3px solid var(--hpx-dir); }
 
-  .hpx-moment { width: 13rem; }
+  .hpx-moment { width: 13rem; height: 9.75rem; }
+  .hpx-moment-1 { width: 16rem; }
+  .hpx-moment-2 { width: 11rem; }
 }
 
 @media (max-width: 479.98px) {
@@ -1013,13 +1109,16 @@ body.edu-nexus .hpx-event-what {
 @media (prefers-reduced-motion: reduce) {
   .hpx-stat,
   .hpx-event-card,
-  .hpx-moment img { transition: none; }
+  .hpx-moment img,
+  .hpx-moment { transition: none; }
   .hpx-stat:hover,
   .hpx-stat:focus-visible,
   .hpx-event-card:hover,
   .hpx-event-card:focus-visible,
   .hpx-moment:hover img,
-  .hpx-moment:focus-visible img { transform: none; }
+  .hpx-moment:focus-visible img,
+  .hpx-moment:hover,
+  .hpx-moment:focus-visible { transform: none; }
   /* no drift: one copy of the photos, scrolled by hand */
   .hpx-moments { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
   .hpx-moments-track { animation: none; }

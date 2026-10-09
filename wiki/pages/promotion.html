@@ -8,9 +8,20 @@
 {% block page_css %}
 <link href="{{ url_for('static', filename = 'css/pages/hp-nexus.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename = 'css/pages/promotion.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename = 'css/pages/edu-interactive.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block page_content %}
+
+{#- Every session opens the same way: title, one line in lime under it
+    (.promo-subtitle), then these chips -- date, place, who. -#}
+{% macro facts(date, place, who) -%}
+<ul class="edx-facts">
+      <li><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.5 0a.5.5 0 0 1 .5.5V1h6V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5z"/></svg>{{ date|safe }}</li>
+      <li><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/></svg>{{ place|safe }}</li>
+      <li><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/></svg>{{ who|safe }}</li>
+    </ul>
+{%- endmacro %}
 
 <!-- 與 Hardware／Education 同一套 nexus 底色：三顆螢光光球（重用 .hw-orbs） -->
 <div class="hw-orbs" aria-hidden="true">
@@ -18,6 +29,27 @@
   <span class="hw-orb hw-orb-b"><span></span></span>
   <span class="hw-orb hw-orb-c"><span></span></span>
 </div>
+
+{# Why we do Promotion, before anything else on the page: the team's own
+   reasons (2026-10-09), in two directions -- what goes out, what comes back. #}
+<section class="promo-intro" aria-labelledby="promo-intro-title">
+  <p class="promo-intro-eyebrow">Introduction</p>
+  <h2 class="promo-intro-title" id="promo-intro-title">Why Promotion?</h2>
+  <p class="promo-intro-lead">A project that stays inside the lab cannot change much outside it. Promotion is how we carry Capture into the world: so that more people come to know our project and the problem it sets out to solve. But it was never meant to be a one-way broadcast. Every session is also a conversation, and a chance for us to listen &mdash; to hear how people from very different walks of life think about infection, about synthetic biology, and about what we are building.</p>
+  <div class="promo-intro-flow">
+    <div class="promo-intro-way is-out">
+      <span class="promo-intro-arrow" aria-hidden="true">&rarr;</span>
+      <span class="promo-intro-k">We share</span>
+      <span class="promo-intro-v">Our project, and the problem it is built to solve</span>
+    </div>
+    <div class="promo-intro-hub" aria-hidden="true"><span>Two-way<br>dialogue</span></div>
+    <div class="promo-intro-way is-back">
+      <span class="promo-intro-arrow" aria-hidden="true">&larr;</span>
+      <span class="promo-intro-k">We listen</span>
+      <span class="promo-intro-v">How scholars, students, future doctors and rural residents see it</span>
+    </div>
+  </div>
+</section>
 
 <!--
   Jump-to-session navigation: Capture sends out signal waves, like the AHL
@@ -27,6 +59,7 @@
   real link to its session below; the name and date are always in the text, so
   nothing depends on hovering. Below 720px the discs become an ordinary list.
   Dates are the ones each session below states; the Lund podcast has none.
+  Five discs since the Qigu session (2026-10-09).
 -->
 <nav class="promo-signal" aria-label="Jump to a session">
   <canvas class="promo-signal-canvas" aria-hidden="true"></canvas>
@@ -48,14 +81,21 @@
         <span class="promo-node-name">Lund University Podcast</span>
       </a>
     </li>
-    <li class="promo-node" style="--x:66%;--y:23%">
+    <li class="promo-node" style="--x:62%;--y:22%">
       <a href="#session-ncku-ur">
         <span class="promo-disc" aria-hidden="true"></span>
         <span class="promo-node-name">NCKU UR Interdisciplinary Sharing Session</span>
         <span class="promo-node-date">September 2, 2026</span>
       </a>
     </li>
-    <li class="promo-node" style="--x:84%;--y:71%">
+    <li class="promo-node" style="--x:85%;--y:46%">
+      <a href="#session-qigu">
+        <span class="promo-disc" aria-hidden="true"></span>
+        <span class="promo-node-name">Qigu District Clinical Promotion</span>
+        <span class="promo-node-date">September 20, 2026</span>
+      </a>
+    </li>
+    <li class="promo-node" style="--x:70%;--y:80%">
       <a href="#session-tainan-girls">
         <span class="promo-disc" aria-hidden="true"></span>
         <span class="promo-node-name">Tainan Girls&rsquo; Senior High School</span>
@@ -103,6 +143,16 @@
     </a>
   </li>
   <li>
+    <a class="promo-card" href="#session-qigu">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/0920-3.avif" alt="" loading="lazy" decoding="async">
+      <span class="promo-card-body">
+        <span class="promo-chip">Rural residents</span>
+        <span class="promo-card-name">Qigu District Clinical Promotion</span>
+        <span class="promo-card-date">September 20, 2026</span>
+      </span>
+    </a>
+  </li>
+  <li>
     <a class="promo-card" href="#session-tainan-girls">
       <img src="https://static.igem.wiki/teams/6379/wiki/education/tngs-1.avif" alt="" loading="lazy" decoding="async">
       <span class="promo-card-body">
@@ -129,6 +179,10 @@
       <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-ncku-ur" data-target="session-ncku-ur">NCKU UR Interdisciplinary Sharing Session</a>
     </div>
 
+    <div class="edu-sidebar-group" data-group="qigu">
+      <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-qigu" data-target="session-qigu">Qigu District Clinical Promotion</a>
+    </div>
+
     <div class="edu-sidebar-group" data-group="tainan-girls">
       <a class="edu-sidebar-link edu-sidebar-top-link" href="#session-tainan-girls" data-target="session-tainan-girls">Tainan Girls&rsquo; Senior High School</a>
     </div>
@@ -138,6 +192,8 @@
 
   <section id="session-ncku-pilot" class="edu-session-block">
     <h2 class="h3">NCKU Pilot Interdisciplinary Sharing Session</h2>
+    <p class="promo-subtitle">Putting our earliest ideas in front of scholars from well outside synthetic biology</p>
+    {{ facts('May 23, 2026', 'National Cheng Kung University, Tainan', 'Scholars and experts') }}
     <blockquote class="edu-quote">"Sharing our science is not merely about presenting localized results; it is an open invitation to refine our vision through critical dialogue and diverse perspectives."</blockquote>
     <p>On May 23, 2026, our team presented at the NCKU Pilot Interdisciplinary Sharing Session, a checkpoint chance to test our early concepts in front of scholars and experts from fields well outside synthetic biology. Because many panelists had never encountered iGEM before, their sharp, unfiltered questions cut straight to assumptions we had stopped questioning ourselves.</p>
     <p>That exchange proved pivotal: weighing their feedback, we narrowed our project from a broad entry point around Ventilator-Associated Pneumonia toward a focused investigation of Pseudomonas aeruginosa infection mechanisms. Admitting the gaps in our original logic was humbling, but it left us with a clearer direction and real momentum going forward.</p>
@@ -153,6 +209,8 @@
 
   <section id="session-lund" class="edu-session-block">
     <h2 class="h3">Lund University Podcast</h2>
+    <p class="promo-subtitle">From Tainan to Sweden, in Chinese: the science of Capture, and the people behind it</p>
+    {{ facts('July 2026', 'With Lund University, Sweden', 'Podcast listeners') }}
     <div class="edu-podcast-media">
       <img src="https://static.igem.wiki/teams/6379/wiki/education/lund-logo-01.avif" alt="Lund University iGEM team logo" class="edu-podcast-logo" loading="lazy" decoding="async">
       <img src="https://static.igem.wiki/teams/6379/wiki/education/podcast-cover.avif" alt="Lund University Podcast cover art" class="edu-podcast-cover" loading="lazy" decoding="async">
@@ -176,6 +234,8 @@
 
   <section id="session-ncku-ur" class="edu-session-block">
     <h2 class="h3">NCKU UR Interdisciplinary Sharing Session</h2>
+    <p class="promo-subtitle">The real arc of our project, told honestly to students just starting university</p>
+    {{ facts('September 2, 2026', 'National Cheng Kung University, Tainan', 'Incoming freshmen') }}
     <blockquote class="edu-quote">"Science is a torch passed down across generations—not merely to hand down answers, but to ignite the courage to ask bold, transformative questions."</blockquote>
     <p>On September 2, 2026, after two months of summer collaboration across all our sub-teams, we presented at the NCKU UR Interdisciplinary Sharing Session — a chance to pressure-test our project alongside students from fields as far from biology as aerospace and motorsport engineering.</p>
     <p>What made this session different was the audience: incoming freshmen just starting their university journeys. Rather than a polished showcase, we walked them through the real arc of the project — how it started, where it stalled, and what we've built since.</p>
@@ -191,12 +251,124 @@
     <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
   </section>
 
+  {# Qigu District, September 20. Written from the team's notes (2026-10-09);
+     nothing here goes beyond them. The chain and the three topic cards are
+     the shared .edx-* pieces (css/pages/edu-interactive.css and
+     js/pages/edu-interactive.js); without JavaScript they simply stack. #}
+  <section id="session-qigu" class="edu-session-block">
+    <h2 class="h3">Qigu District Clinical Promotion</h2>
+    <p class="promo-subtitle">Infection care and flu-season vaccines, taken to a rural clinic with the doctors who work there</p>
+    {{ facts('September 20, 2026', 'Qigu District, Tainan', 'Elderly residents and the public') }}
+
+    <p>Together with the <span class="edx-key">NCKU Medical Service Team</span>, we travelled to <span class="edx-hl">Qigu District</span>, a rural area on the coast of Tainan, and worked alongside the doctors of a local clinic. In the clinic&rsquo;s own waiting room, we spoke with elderly residents and members of the public about <span class="edx-key">what to do when an infection strikes</span>, <span class="edx-key">why vaccines matter in flu season</span>, and the <span class="edx-key">common misconceptions</span> people hold about them.</p>
+
+    <h3>Why Qigu? Follow the chain</h3>
+    <p>This was not a detour from Capture. Step through how everyday work in Qigu leads straight back to the bacterium at the heart of our project.</p>
+    <div class="edx-tabs" style="--edx-n: 4">
+      <div class="edx-tablist" role="tablist" aria-label="From work in Qigu to Pseudomonas aeruginosa">
+        <button type="button" class="edx-tab" role="tab" id="qg-tab-1" aria-controls="qg-panel-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18c2 0 2-1.5 4.5-1.5S9.5 18 12 18s2-1.5 4.5-1.5S18.5 18 21 18"/><path d="M12 14V5M12 9c-2.5 0-4-1.5-4-4 2.5 0 4 1.5 4 4zM12 8c2.5 0 4-1.5 4-4-2.5 0-4 1.5-4 4z"/></svg>
+          <span class="edx-tab-n">01</span><span class="edx-tab-label">Work on land &amp; sea</span>
+        </button>
+        <button type="button" class="edx-tab" role="tab" id="qg-tab-2" aria-controls="qg-panel-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20 15 9M14 4l6 6-3 3-6-6z"/><path d="M6 12.5c-1 1.6-1.5 2.6-1.5 3.3a1.5 1.5 0 0 0 3 0c0-.7-.5-1.7-1.5-3.3z"/></svg>
+          <span class="edx-tab-n">02</span><span class="edx-tab-label">Injured at work</span>
+        </button>
+        <button type="button" class="edx-tab" role="tab" id="qg-tab-3" aria-controls="qg-panel-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="9" width="17" height="6" rx="3" transform="rotate(-35 12 12)"/><circle cx="10.5" cy="12.8" r=".8" fill="currentColor"/><circle cx="13.5" cy="11.2" r=".8" fill="currentColor"/></svg>
+          <span class="edx-tab-n">03</span><span class="edx-tab-label">Wound infection</span>
+        </button>
+        <button type="button" class="edx-tab" role="tab" id="qg-tab-4" aria-controls="qg-panel-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="9" width="12" height="6" rx="3"/><path d="M16 12c1.3-2 2.7 2 4 0"/><circle cx="8" cy="12" r=".8" fill="currentColor"/><circle cx="12" cy="12" r=".8" fill="currentColor"/></svg>
+          <span class="edx-tab-n">04</span><span class="edx-tab-label"><em>P. aeruginosa</em></span>
+        </button>
+      </div>
+
+      <div class="edx-tabpanel" role="tabpanel" id="qg-panel-1" aria-labelledby="qg-tab-1">
+        <h4>Work on land and sea</h4>
+        <p>Most people in Qigu work in <span class="edx-hl">primary industries</span> &mdash; farming, forestry, fishing and animal husbandry: outdoor, hands-on work, every day.</p>
+      </div>
+      <div class="edx-tabpanel" role="tabpanel" id="qg-panel-2" aria-labelledby="qg-tab-2">
+        <h4>Injured at work</h4>
+        <p>Work like this makes <span class="edx-hl">injuries on the job</span> easy to come by.</p>
+      </div>
+      <div class="edx-tabpanel" role="tabpanel" id="qg-panel-3" aria-labelledby="qg-tab-3">
+        <h4>Wound infection</h4>
+        <p>An injury at work can easily become an <span class="edx-hl">infected wound</span> &mdash; which is why knowing what to do when an infection appears matters so much here.</p>
+      </div>
+      <div class="edx-tabpanel" role="tabpanel" id="qg-panel-4" aria-labelledby="qg-tab-4">
+        <h4><em>Pseudomonas aeruginosa</em> &mdash; already seen here</h4>
+        <p>The local doctors told us they have seen <span class="edx-hl"><em>P.&nbsp;aeruginosa</em> infections</span> themselves &mdash; the very bacterium <span class="edx-key">Capture</span> is built to detect. That made Qigu exactly the place to talk about it.</p>
+      </div>
+      <div class="edx-tabs-foot"><button type="button" class="edx-tabs-next">Next link &rarr;</button></div>
+    </div>
+
+    <h3>What we talked about</h3>
+    <p>Three topics, presented together with the clinic&rsquo;s doctors. Tap a card to see what we covered.</p>
+    <div class="edx-flips">
+      <button type="button" class="edx-flip">
+        <span class="edx-flip-face edx-flip-front">
+          <span class="edx-flip-tag">Topic 1</span>
+          <span class="edx-flip-title">When an infection strikes</span>
+          <span class="edx-flip-text">An infected wound is not something to wait out.</span>
+          <span class="edx-flip-hint">Tap to see what we covered &#8635;</span>
+        </span>
+        <span class="edx-flip-face edx-flip-back">
+          <span class="edx-flip-tag">What we covered</span>
+          <span class="edx-flip-title">The medical steps to take</span>
+          <span class="edx-flip-text">How to respond when an infection appears, and the medical care it calls for &mdash; tied back to the injuries that come with work in the fields and at sea.</span>
+          <span class="edx-flip-hint">Tap to flip back &#8635;</span>
+        </span>
+      </button>
+      <button type="button" class="edx-flip">
+        <span class="edx-flip-face edx-flip-front">
+          <span class="edx-flip-tag">Topic 2</span>
+          <span class="edx-flip-title">Vaccines in flu season</span>
+          <span class="edx-flip-text">We came in the middle of flu season.</span>
+          <span class="edx-flip-hint">Tap to see what we covered &#8635;</span>
+        </span>
+        <span class="edx-flip-face edx-flip-back">
+          <span class="edx-flip-tag">What we covered</span>
+          <span class="edx-flip-title">Why the shot matters now</span>
+          <span class="edx-flip-text">Why vaccination is important while influenza is circulating, especially for the elderly residents in the room.</span>
+          <span class="edx-flip-hint">Tap to flip back &#8635;</span>
+        </span>
+      </button>
+      <button type="button" class="edx-flip">
+        <span class="edx-flip-face edx-flip-front">
+          <span class="edx-flip-tag">Topic 3</span>
+          <span class="edx-flip-title">Common misconceptions</span>
+          <span class="edx-flip-text">Not everything people hear about vaccines is true.</span>
+          <span class="edx-flip-hint">Tap to see what we covered &#8635;</span>
+        </span>
+        <span class="edx-flip-face edx-flip-back">
+          <span class="edx-flip-tag">What we covered</span>
+          <span class="edx-flip-title">Myths, answered by doctors</span>
+          <span class="edx-flip-text">We went through the misconceptions people commonly hold, with the clinic&rsquo;s doctors there to answer them.</span>
+          <span class="edx-flip-hint">Tap to flip back &#8635;</span>
+        </span>
+      </button>
+    </div>
+
+    <h3>What it meant for us</h3>
+    <p>Our other promotion sessions brought Capture to students and scholars. Qigu brought its theme to the people for whom <span class="edx-hl">infection is a working hazard</span>, and alongside the doctors who treat them. Hearing from those doctors that <em>P.&nbsp;aeruginosa</em> is not an abstract pathogen here, but one they have met in their own patients, reminded us who a fast, low-cost way of detecting it is ultimately for.</p>
+
+    <div class="edu-gallery">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/0920-3.avif" alt="A team member presenting a slide titled 'What is the flu?' in the clinic waiting room" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/0920-2.avif" alt="Team members presenting to residents seated in the clinic waiting room" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/0920-4.avif" alt="A team member speaking to residents in the Qigu clinic" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/0920-5.avif" alt="Residents listening to the talk in the Qigu clinic" loading="lazy">
+      <img src="https://static.igem.wiki/teams/6379/wiki/communication/0920-1.avif" alt="A team member talking with a doctor at the Qigu clinic" loading="lazy">
+    </div>
+  </section>
+
   <section id="session-tainan-girls" class="edu-session-block">
     <div class="edu-section-header">
       <h2 class="h3">Bringing Capture and iGEM to Future Scientists and Doctors</h2>
       <img src="https://static.igem.wiki/teams/6379/wiki/education/tngs-logo-jpeg.avif" alt="National Tainan Girls&rsquo; Senior High School logo" class="edu-logo">
     </div>
-    <p><strong>Date:</strong> September 30, 2026</p>
+    <p class="promo-subtitle">Capture, iGEM and medical school, with the Medical Research Club of National Tainan Girls&rsquo; Senior High School</p>
+    {{ facts('September 30, 2026', 'Tainan City', '50 Medical Research Club members') }}
     <p>On September 30, 2026, the Medical Research Club of National Tainan Girls&rsquo; Senior High School invited us to introduce our project to 50 club members. These students were already passionate about medicine and life sciences, yet for many of them, this was their first encounter with synthetic biology and the iGEM competition. That made them exactly the audience we hoped to reach: future scientists and doctors who had not yet seen how engineering biology could connect to the careers they were dreaming of. We built the session around two themes: our 2026 project, Capture, and a question the club itself asked us to answer: &ldquo;What is medical school actually like?&rdquo;</p>
 
     <h3>Promoting Capture and Synthetic Biology</h3>
@@ -296,5 +468,6 @@
 <script src="{{ url_for('static', filename = 'js/pages/hp-reveal.js') }}" defer></script>
 <script src="{{ url_for('static', filename = 'js/pages/hp-mesh.js') }}" defer></script>
 <script src="{{ url_for('static', filename = 'js/pages/promotion-signal.js') }}" defer></script>
+<script src="{{ url_for('static', filename = 'js/pages/edu-interactive.js') }}" defer></script>
 
 {% endblock %}
