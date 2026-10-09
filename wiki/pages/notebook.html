@@ -14,9 +14,12 @@
 {# Links used inside the entry text below. Built once here so the week table
    stays readable and still goes through url_for. #}
 {% set lnk_board = '<a href="' ~ url_for('pages', page='board-game') ~ '">board game</a>' %}
-{% set lnk_collab = '<a href="' ~ url_for('pages', page='collaboration') ~ '">Collaboration</a>' %}
-{% set lnk_edu = '<a href="' ~ url_for('pages', page='education') ~ '">Education</a>' %}
-{% set lnk_survey = '<a href="' ~ url_for('pages', page='survey') ~ '">Survey</a>' %}
+
+{# A link straight to the section an entry is about:
+   go('education', 'session-xihu', 'Xihu Senior High School'). #}
+{% macro go(page, frag, text) -%}
+<a href="{{ url_for('pages', page=page) }}#{{ frag }}">{{ text|safe }}</a>
+{%- endmacro %}
 
 {# ======================= the record, one row per week ======================= #}
 {% set weeks = [
@@ -24,8 +27,7 @@
     "wet": ["Researched and brainstormed possible project topics.",
             "Met our PIs."],
     "dry": ["Case study."],
-    "hp":  ["Wrote a news script for the NCKU News Agency.",
-            "Communicated with the Mingdao iGEM team (3/7) &mdash; see " ~ lnk_collab ~ ".",
+    "hp":  ["Communicated with the " ~ go('collaboration', 'session-mingdao', 'Mingdao iGEM team') ~ " (3/7).",
             "Communicated with Dr. 廖信閔 (NCKU Division of Chest Medicine) about clinical experience (4/10)."] },
 
   { "n": "1", "dates": "5/3~5/9",
@@ -45,14 +47,15 @@
     "wet": ["Designed the engineering flow and experiment.",
             "Designed the plasmid, including a detecting system."],
     "dry": ["Completed the build of hardware prototype 1."],
-    "hp":  ["Met with STEAM from Seed and discussed the education camp."] },
+    "hp":  ["Met with " ~ go('education', 'session-zhanxin', 'STEAM from Seed') ~ " and discussed the education camp.",
+            "Presented at the " ~ go('promotion', 'session-ncku-pilot', 'NCKU Pilot Interdisciplinary Sharing Session') ~ " (5/23)."] },
 
   { "n": "4", "dates": "5/24~5/30",
     "wet": ["Ordered materials.",
             "Coordinated with Dry Lab and modified the hardware design."],
     "dry": ["Designed hardware prototype 2, taking precision and labour cost into account."],
-    "hp":  ["Held a workshop, &ldquo;3D玩家出任務,&rdquo; at Xihu Senior High School (5/24).",
-            "Held a workshop, &ldquo;The Ultimate Code of Life,&rdquo; at Puyan Elementary School (5/25).",
+    "hp":  ["Held a workshop, &ldquo;3D玩家出任務,&rdquo; at " ~ go('education', 'session-xihu', 'Xihu Senior High School') ~ " (5/24).",
+            "Held a workshop, &ldquo;The Ultimate Code of Life,&rdquo; at " ~ go('education', 'session-puyan', 'Puyan Elementary School') ~ " (5/25).",
             "Communicated with 謝淑珠 (NCKU Dept. of Medical Laboratory Science and Biotechnology) about our ideas (5/27)."] },
 
   { "n": "5", "dates": "5/31~6/6",
@@ -91,53 +94,53 @@
             "Cloned pET28a/Ec67-Cb2 into <em>E. coli</em> TOP10."],
     "dry": ["Recorded the deployment and launch of the web tool together with the software.",
             "Ran the aptamer variant binding-strength prediction process."],
-    "hp":  ["Ran our public survey (7/6) &mdash; see " ~ lnk_survey ~ "."] },
+    "hp":  ["Ran our " ~ go('survey', 'what-it-told-us', 'public survey') ~ " (7/6)."] },
 
   { "n": "11", "dates": "7/12~7/18",
     "wet": ["Verified cloning by colony PCR of TOP10 pET28a/Ec67-Cb2."],
     "dry": ["ESP32 data reception and front-end display integration.",
             "Finished the analysis software; no data had been received at that point."],
     "hp":  ["Designed an SDGs-themed " ~ lnk_board ~ ".",
-            "Held a camp with STEAM from Seed at Xigang Elementary School (7/13&ndash;14).",
-            "Held a camp with STEAM from Seed at Dujia Elementary School (7/15&ndash;16)."] },
+            "Held a camp with STEAM from Seed at " ~ go('education', 'heading-xigang-1', 'Xigang Elementary School') ~ " (7/13&ndash;14).",
+            "Held a camp with STEAM from Seed at " ~ go('education', 'heading-dujia', 'Dujia Elementary School') ~ " (7/15&ndash;16)."] },
 
   { "n": "12", "dates": "7/19~7/25",
     "wet": ["Ran a swarming assay.",
             "Transformed pET28a/Ec67-Cb2 into <em>E. coli</em> BL21."],
     "dry": ["Completed the 3D model of prototype 2."],
     "hp":  ["Produced the SDGs-themed " ~ lnk_board ~ " as a physical set.",
-            "Held a camp with STEAM from Seed at Xigang Elementary School again (7/20&ndash;21).",
-            "Communicated and collaborated with the Lund University (Sweden) iGEM team.",
-            "Held a camp with STEAM from Seed at Huanya Elementary School (7/22&ndash;23)."] },
+            "Held a camp with STEAM from Seed at " ~ go('education', 'heading-xigang-2', 'Xigang Elementary School') ~ " again (7/20&ndash;21).",
+            "Communicated and collaborated with the Lund University (Sweden) iGEM team on a " ~ go('promotion', 'session-lund', 'podcast') ~ ".",
+            "Held a camp with STEAM from Seed at " ~ go('education', 'heading-huanya', 'Huanya Elementary School') ~ " (7/22&ndash;23)."] },
 
   { "n": "13", "dates": "7/26~8/1",
     "wet": ["Streak assay of <em>P. aeruginosa</em> against <em>E. coli</em> TOP10/ProD-LasR-pLasRV-sfGFP."],
     "dry": [],
-    "hp":  ["Took part in the iGEMers Meetup hosted by the NYCU-Taiwan iGEM team &mdash; see " ~ lnk_collab ~ ".",
-            "Held a camp with STEAM from Seed at Zhaigang Elementary School (7/30&ndash;31)."] },
+    "hp":  ["Took part in the " ~ go('collaboration', 'session-meetup', 'iGEMers Meetup') ~ " hosted by the NYCU-Taiwan iGEM team (7/27).",
+            "Held a camp with STEAM from Seed at " ~ go('education', 'heading-zhaigang', 'Zhaigang Elementary School') ~ " (7/30&ndash;31)."] },
 
   { "n": "14", "dates": "8/2~8/8",
     "wet": ["Extracted the Cb-2 aptamer from <em>E. coli</em> BL21/pET28a-Ec67-Cb2 with TRIzol."],
     "dry": ["Modularised the software&rsquo;s functions.",
             "Gave the SDGs " ~ lnk_board ~ " AI opponents, so it can be played against other players.",
             "Designed the final hardware, CAPTURE, and completed its prototype."],
-    "hp":  ["NCKU iGEM workshop, 2&ndash;3 August &mdash; see " ~ lnk_edu ~ ".",
-            "Little Sun Project, 5 August &mdash; see " ~ lnk_edu ~ ".",
-            "Held a camp with STEAM from Seed at Heshun Elementary School (8/6&ndash;7)."] },
+    "hp":  ["Held the " ~ go('education', 'session-ncku', 'NCKU iGEM workshop') ~ " (8/2&ndash;3).",
+            "Ran the " ~ go('education', 'session-littlesun', 'Little Sun Project') ~ " (8/5).",
+            "Held a camp with STEAM from Seed at " ~ go('education', 'heading-heshun-1', 'Heshun Elementary School') ~ " (8/6&ndash;7)."] },
 
   { "n": "15", "dates": "8/9~8/15",
     "wet": ["Ran a swimming assay.",
             "Quantitative fluorescence test of <em>E. coli</em> TOP10 and DH5&alpha;/ProD-LasR-pLasRV-sfGFP."],
     "dry": ["Integrated hardware and software, sending readings to the backend over the network.",
             "Refined the hardware using 3D modelling."],
-    "hp":  ["Held a camp with STEAM from Seed at Annei Elementary School (8/10&ndash;11).",
-            "Held a camp with STEAM from Seed at Heshun Elementary School again (8/13&ndash;14)."] },
+    "hp":  ["Held a camp with STEAM from Seed at " ~ go('education', 'heading-annei', 'Annei Elementary School') ~ " (8/10&ndash;11).",
+            "Held a camp with STEAM from Seed at " ~ go('education', 'heading-heshun-2', 'Heshun Elementary School') ~ " again (8/13&ndash;14)."] },
 
   { "n": "16", "dates": "8/16~8/22",
     "wet": ["Ran a pyocyanin assay."],
     "dry": ["Manufactured a rigid outer shell as a light shield, needed because the instrument is a precision one."],
-    "hp":  ["Held a camp with STEAM from Seed at Zhuqiao Elementary School (8/17&ndash;18).",
-            "Held a camp with STEAM from Seed at Sanci Elementary School (8/20&ndash;21)."] },
+    "hp":  ["Held a camp with STEAM from Seed at " ~ go('education', 'heading-zhuqiao', 'Zhuqiao Elementary School') ~ " (8/17&ndash;18).",
+            "Held a camp with STEAM from Seed at " ~ go('education', 'heading-sanci', 'Sanci Elementary School') ~ " (8/20&ndash;21)."] },
 
   { "n": "17", "dates": "8/23~8/29",
     "wet": ["Swarming assay of Cb-2 from <em>E. coli</em> BL21/Ec67-Cb2.",
@@ -152,11 +155,11 @@
             "Replaced the gene cluster ProD-LasR-pLasRV-sfGFP with J23101-LasR-pLasRV-E7."],
     "dry": ["Set up the LasReader software.",
             "Converted the hardware component GY-302 to the AS7341."],
-    "hp":  ["Promoted the project at the NCKU Undergraduate Research presentation."] },
+    "hp":  ["Promoted the project at the " ~ go('promotion', 'session-ncku-ur', 'NCKU Undergraduate Research presentation') ~ " (9/2)."] },
 
   { "n": "19", "dates": "9/6~9/12",
     "wet": ["Cloned pTwist/J23101-LasR-pLasRV-E7 into <em>E. coli</em> DH5&alpha;."],
-    "dry": ["Communicated with Ai Wei Li (laser engraving studio) about the hardware shell (9/10).",
+    "dry": ["Communicated with " ~ go('meet-with-experts', 'expert-aiweili', 'Ai Wei Li (laser engraving studio)') ~ " about the hardware shell (9/10).",
             "Finished building and assembling the hardware."],
     "hp":  [] },
 
@@ -165,27 +168,30 @@
             "Functional test of <em>E. coli</em> DH5&alpha;/pTwist/J23101-LasR-pLasRV-E7."],
     "dry": ["Tested the hardware using luminescent strains.",
             "Connected the hardware to Wi-Fi."],
-    "hp":  [] },
+    "hp":  ["Held a workshop at " ~ go('education', 'session-anping', 'Anping Junior High School') ~ " (9/13).",
+            "Held an online collaboration session with " ~ go('collaboration', 'session-wist', 'Team WiST') ~ " (9/17).",
+            "Met with the " ~ go('collaboration', 'session-ccu', 'CCU-Taiwan') ~ " team (9/19)."] },
 
   { "n": "21", "dates": "9/20~9/26",
     "wet": [],
     "dry": ["Started building the inhibition model.",
             "Took the hardware into the lab to test it, and calibrated it."],
-    "hp":  [] },
+    "hp":  ["Met with the " ~ go('collaboration', 'session-hia', 'HIA-Taiwan') ~ " team (9/20).",
+            "Held the " ~ go('promotion', 'session-qigu', 'Qigu District Clinical Promotion') ~ " with the NCKU Medical Service Team (9/20)."] },
 
   { "n": "22", "dates": "9/27~10/3",
     "wet": [],
     "dry": ["Started building the image-recognition model.",
             "Built 3D-printed build version 2."],
-    "hp":  ["Promotion at Tainan Girls&rsquo; Senior High School (9/30).",
-            "Education session at the NCKU non-profit preschool (10/1)."] },
+    "hp":  ["Promotion at " ~ go('promotion', 'session-tainan-girls', 'Tainan Girls&rsquo; Senior High School') ~ " (9/30).",
+            "Education session at the " ~ go('education', 'session-kindergarten', 'NCKU non-profit preschool') ~ " (10/1)."] },
 
   { "n": "23", "dates": "10/4~10/10",
     "wet": [],
     "dry": ["Tested the software and improved the instrument&rsquo;s precision.",
             "Handed it to the wet lab to use, and collected their feedback.",
             "Produced the theory video."],
-    "hp":  ["Participated in the Mini Jamboree (10/8).",
+    "hp":  ["Participated in the " ~ go('collaboration', 'session-mini-jamboree', 'Mini-Jamboree') ~ " (10/8).",
             "Practiced with Prof. Christine."] },
 
   { "n": "24", "dates": "10/11~10/17",
