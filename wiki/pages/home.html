@@ -8,17 +8,45 @@
 {% endblock %}
 
 {% block header %}
-<!-- 沉浸式 hero：分子粒子場 + kinetic type。Canvas 壞/無 JS 時退化為 CSS 漸層+靜態文字。 -->
-<header class="rx-hero" id="rxHeroStage">
-  <canvas id="rxHeroCanvas" aria-hidden="true"></canvas>
+{#
+  The opening is a dish you can put your hand in. P. aeruginosa drifts in it
+  and keeps releasing AHL; left alone, the signal builds until the population
+  reaches quorum and turns on swarming, virulence and the biofilm. The pointer
+  is Capture's two systems: in Capture it is the aptamer and takes the signal
+  out of circulation, in Detect it is the biosensor cell, which glows as the
+  signal around it rises.
+
+  Drawn by static/js/pages/home.js. The controls stay hidden until that script
+  has started the dish; without it, or with reduced motion, this is the same
+  title on the plain gradient it always had.
+#}
+<header class="rx-hero qs-hero" id="rxHeroStage" data-mode="capture">
+  <canvas id="qsCanvas" aria-hidden="true"></canvas>
   <div class="rx-hero-inner">
     <p class="rx-kicker rx-hero-kicker">NCKU-Tainan &middot; iGEM 2026</p>
     <h1 class="rx-hero-title" data-rx-split>Capture</h1>
     <p class="lead home-slogan rx-hero-slogan">Secure the future, <span class="home-slogan-accent">Capture</span> the cure.</p>
     <div class="rx-hero-cta">
       <a class="rx-btn rx-btn-glow rx-magnetic" href="{{ url_for('pages', page='description') }}">Discover the Project</a>
-      <a class="rx-btn rx-btn-ghost" href="#captureGame">Play Capture &darr;</a>
+      <a class="rx-btn rx-btn-ghost" href="#hx-systems">How it works &darr;</a>
     </div>
+  </div>
+
+  <div class="qs-hud" hidden>
+    <div class="qs-modes" role="group" aria-label="What your pointer does in the dish">
+      <button type="button" class="qs-mode is-on" data-mode="capture" aria-pressed="true"><span class="qs-mode-dot" aria-hidden="true"></span>Capture</button>
+      <button type="button" class="qs-mode" data-mode="detect" aria-pressed="false"><span class="qs-mode-dot" aria-hidden="true"></span>Detect</button>
+    </div>
+    <div class="qs-meter">
+      <span class="qs-meter-label">Quorum signal</span>
+      <span class="qs-meter-bar" aria-hidden="true"><span class="qs-meter-fill"></span><span class="qs-meter-mark"></span></span>
+      <span class="qs-meter-state" role="status">Building</span>
+    </div>
+    <p class="qs-hint"
+       data-hint-capture="Sweep through the dish: your pointer is the aptamer, and it takes the signal away."
+       data-hint-detect="Hover near the bacteria: your pointer is the biosensor, and it glows where the signal is."
+       data-hint-touch-capture="Tap the dish: each tap is an aptamer that takes the signal away."
+       data-hint-touch-detect="Tap near the bacteria: the biosensor glows where the signal is.">Sweep through the dish: your pointer is the aptamer, and it takes the signal away.</p>
   </div>
   <div class="rx-scroll-cue" aria-hidden="true"><span>Scroll</span><i></i></div>
 </header>
@@ -26,131 +54,379 @@
 
 {% block page_content %}
 
+{#
+  The home page tells the project in the order the promotion video does: the
+  problem, the two systems, the tools that turn the light into a number, the
+  year outside the lab. Then the game, the video, and a map of the wiki.
 
-<!--
-  The opening: how big the problem is, then the project in four beats, in the
-  order the promotion video tells it.
+  Nothing here is new. Every figure, name and claim restates one of our other
+  pages, in that page's wording, and links back to it; if a fact changes
+  there, change it here too. Where each one comes from is noted section by
+  section below.
+#}
 
-  Every figure and every claim here is one the Project Description page
-  already makes, and in that page's wording rather than the video's. The
-  video script is looser in two places and this deliberately is not:
-
-    * it puts "over 140,000 patients a year in Taiwan" on P. aeruginosa.
-      That figure is healthcare-associated infections of every kind;
-      P. aeruginosa is among the top three pathogens behind them.
+{#
+  ======================== 1. the problem ========================
+  From Project Description. Its wording rather than the promotion video's,
+  which is looser in two places and this deliberately is not:
+    * the video puts "over 140,000 patients a year in Taiwan" on
+      P. aeruginosa. That figure is healthcare-associated infections of
+      every kind; P. aeruginosa is among the top three pathogens behind them.
     * it says "20-40% mortality in ICU". The Description page is narrower:
       critically ill patients who go on to severe pneumonia or bacteraemia.
+  The citations are the Description page's to complete; it carries the same
+  figures behind the same pending badges, so there is one place to fix.
 
-  The citations are the Description page's to complete -- it carries these
-  same figures behind these same desc-pending badges, so there is one place
-  to fix rather than two. If that page changes, change this with it.
--->
-<section class="story" aria-labelledby="story-heading" data-rx-chapter>
-  <span class="rx-chapter-rail" aria-hidden="true"></span>
-  <div class="story-inner">
-    <p class="story-kicker" data-reveal>The organism we are after</p>
-    <h2 class="story-heading" id="story-heading">
-      <em>Pseudomonas aeruginosa</em> is hard to treat because its cells act
-      together
+  The 48-72 hours, "before anything has grown on a plate" and the shield
+  being up by the time a culture comes back are Description's too ("The
+  signal we are after", "Why the answer arrives too late"). The slider only
+  walks through those sentences; the shield filling up with the hours is a
+  picture of them, not a growth curve.
+#}
+<section class="hx hx-problem" id="hx-problem" aria-labelledby="hx-problem-title">
+  <div class="hx-inner">
+    <p class="hx-kicker" data-reveal>The organism we are after</p>
+    <h2 class="hx-title" id="hx-problem-title" data-reveal>
+      <em>Pseudomonas aeruginosa</em> is hard to treat because its cells act together
     </h2>
-    <p class="story-lead">
+    <p class="hx-lead" data-reveal>
       It does its worst in exactly the places medicine cannot avoid creating:
       ventilators, catheters and open wounds.
     </p>
 
-    <ul class="story-figures">
+    <ul class="hx-figures">
       <li data-reveal style="--rx-d:0">
-        <span class="story-figure"><span data-count-to="32000">32,000</span></span>
-        <span class="story-figure-note">infections a year attributed to it in the United States</span>
+        <span class="hx-figure"><span data-count-to="32000">32,000</span></span>
+        <span class="hx-figure-note">infections a year attributed to it in the United States</span>
       </li>
       <li data-reveal style="--rx-d:90">
-        <span class="story-figure"><span data-count-to="2700">2,700</span></span>
-        <span class="story-figure-note">deaths a year, in the same reporting</span>
+        <span class="hx-figure"><span data-count-to="2700">2,700</span></span>
+        <span class="hx-figure-note">deaths a year, in the same reporting</span>
       </li>
       <li data-reveal style="--rx-d:180">
-        <span class="story-figure"><span data-count-to="20">20</span>&ndash;<span data-count-to="40">40</span>%</span>
-        <span class="story-figure-note">reported mortality in critically ill patients who go on to severe pneumonia or bacteraemia</span>
+        <span class="hx-figure"><span data-count-to="20">20</span>&ndash;<span data-count-to="40">40</span>%</span>
+        <span class="hx-figure-note">reported mortality in critically ill patients who go on to severe pneumonia or bacteraemia</span>
       </li>
       <li data-reveal style="--rx-d:270">
-        <span class="story-figure"><span data-count-to="140000">140,000</span>+</span>
-        <span class="story-figure-note">healthcare-associated infections a year in Taiwan, of every kind &mdash; it is among the top three pathogens behind them</span>
+        <span class="hx-figure"><span data-count-to="140000">140,000</span>+</span>
+        <span class="hx-figure-note">healthcare-associated infections a year in Taiwan, of every kind &mdash; it is among the top three pathogens behind them</span>
       </li>
     </ul>
 
-    <h3 class="story-sub">Two things it does. Two things we do.</h3>
+    <div class="hx-wait" data-reveal style="--h:0">
+      <div class="hx-wait-head">
+        <h3 class="hx-wait-title">The answer arrives too late</h3>
+        <p class="hx-wait-sub">Drag along the hours after a sputum sample is taken.</p>
+      </div>
 
-    <ol class="story-beats">
-      <li class="story-beat">
-        <svg class="story-icon" viewBox="0 0 64 64" aria-hidden="true"
-             focusable="false"><rect x="5" y="24" width="30" height="16" rx="8"/><circle cx="46" cy="17" r="4"/><circle cx="56" cy="31" r="4.6"/><circle cx="47" cy="46" r="3.4"/></svg>
-        <div>
-          <h4 class="story-beat-title">It coordinates</h4>
-          <p>Cells release a quorum sensing signal, AHL, and read how much of it is around them. Those messages are there before anything has grown on a culture plate, and they are specific to the organism sending them.</p>
+      <div class="hx-wait-body">
+        <div class="hx-wait-track">
+          <div class="hx-wait-rail" aria-hidden="true">
+            <span class="hx-wait-fill"></span>
+            <span class="hx-wait-zone"><span>culture result</span></span>
+            <span class="hx-wait-signal"><span>AHL</span></span>
+          </div>
+          <input type="range" class="hx-wait-range" min="0" max="72" step="1" value="0"
+                 aria-label="Hours since the sample was taken" aria-describedby="hxWaitRead">
+          <ol class="hx-wait-ticks" aria-hidden="true">
+            <li>0&nbsp;h</li><li>24&nbsp;h</li><li>48&nbsp;h</li><li>72&nbsp;h</li>
+          </ol>
         </div>
-      </li>
-      <li class="story-beat">
-        <svg class="story-icon" viewBox="0 0 64 64" aria-hidden="true"
-             focusable="false"><path d="M4 49h56"/><path d="M9 49a23 23 0 0 1 46 0"/><path d="M17 49a15 15 0 0 1 30 0"/><path d="M25 49a7 7 0 0 1 14 0"/><circle cx="17" cy="14" r="3.2"/><circle cx="34" cy="8" r="3.2"/><circle cx="49" cy="14" r="3.2"/></svg>
-        <div>
-          <h4 class="story-beat-title">It shields itself</h4>
-          <p>Enough signal switches on virulence and builds a biofilm that antibiotics struggle to cross. By the time a culture comes back, 48 to 72 hours later, that shield is already up.</p>
-        </div>
-      </li>
-      <li class="story-beat">
-        <svg class="story-icon" viewBox="0 0 64 64" aria-hidden="true"
-             focusable="false"><rect x="17" y="25" width="30" height="16" rx="8"/><path d="M32 18v-8"/><path d="M12 20l-5-5"/><path d="M52 20l5-5"/><path d="M32 48v8"/><path d="M12 46l-5 5"/><path d="M52 46l5 5"/></svg>
-        <div>
-          <h4 class="story-beat-title">We read the message</h4>
-          <p>Engineered <em>E.&nbsp;coli</em> that fluoresces when it hears AHL, so the infection reports itself rather than waiting on sputum culture.</p>
-        </div>
-      </li>
-      <li class="story-beat">
-        <svg class="story-icon" viewBox="0 0 64 64" aria-hidden="true"
-             focusable="false"><path d="M47 12a22 22 0 1 0 0 40"/><circle cx="32" cy="32" r="8.5"/></svg>
-        <div>
-          <h4 class="story-beat-title">We take the message away</h4>
-          <p>An aptamer binds the signal, so the coordination it was carrying never arrives. Taking a signal away is a different kind of pressure from killing, which selects for the survivors that resisted.</p>
-        </div>
-      </li>
-    </ol>
 
+        <div class="hx-wait-read">
+          <svg class="hx-shield" viewBox="0 0 64 72" aria-hidden="true" focusable="false">
+            <defs>
+              <clipPath id="hxShieldClip"><path d="M32 3 59 13v21c0 17-12 29-27 35C17 63 5 51 5 34V13z"/></clipPath>
+            </defs>
+            <path class="hx-shield-shape" d="M32 3 59 13v21c0 17-12 29-27 35C17 63 5 51 5 34V13z"/>
+            <rect class="hx-shield-level" x="0" y="0" width="64" height="72" clip-path="url(#hxShieldClip)"/>
+          </svg>
+          <p class="hx-wait-out" id="hxWaitRead"
+             data-early="The signal is already there, before anything has grown on a plate. It is specific to the organism sending it."
+             data-wait="Still waiting on the culture. For those two or three days treatment has to be empirical, which is itself part of what drives resistance."
+             data-late="The culture comes back, roughly 48&ndash;72 hours later. By then the biofilm, the shield antibiotics struggle to cross, is already up."><span class="hx-wait-hours">0&nbsp;h</span> The signal is already there, before anything has grown on a plate. It is specific to the organism sending it.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<div class="container my-5">
+{#
+  ======================== 2. two systems, one signal ========================
+  Project Description, "Capture: two systems, one signal", step for step:
+  System 1 is LasR in E. coli BL21(DE3) switching on sfGFP from pLasRV when
+  3-oxo-C12-HSL binds; System 2 is the retron Ec67 on pET28a writing the
+  aptamer (msr-msd) as single-stranded DNA, released by lysis that the same
+  AHL triggers in the design, holding the signal away from its receptor.
+  The pictures are diagrams of those sentences, not data. The steps play on
+  their own while the section is in view; a click on a tab or a step takes
+  over (static/js/pages/home.js).
+#}
+<section class="hx hx-systems" id="hx-systems" aria-labelledby="hx-systems-title">
+  <div class="hx-inner">
+    <p class="hx-kicker" data-reveal>Capture</p>
+    <h2 class="hx-title" id="hx-systems-title" data-reveal>Two systems, one signal</h2>
+    <p class="hx-lead" data-reveal>
+      The two halves of the project read the same molecule and do opposite
+      things with it. System&nbsp;1 lets the signal through and reports it.
+      System&nbsp;2 takes the signal out of circulation.
+    </p>
 
-  <!-- bento：專案背景＋亮點（亮點區為既有佔位文字，未捏造內容） -->
-  <div class="rx-bento" data-reveal>
-    <div class="rx-card">
-      <p class="rx-kicker">Background</p>
-      <h3>Project Background</h3>
-      <p>
-        <em>Pseudomonas aeruginosa</em> is hard to treat not because any single
-        cell is formidable, but because the cells act together &mdash;
-        coordinating through quorum sensing chemicals that switch on virulence
-        and build a biofilm antibiotics struggle to cross. Those messages are
-        there before anything has grown on a culture plate, and they are
-        specific to the organism sending them, while diagnosis today still
-        waits 48&ndash;72 hours on sputum culture. <strong>Capture</strong>
-        goes after the messages rather than the bacteria: two systems and one
-        signal, where the first detects that signal and reports the infection,
-        and the second captures it, so the coordination it was carrying never
-        arrives. Taking a
-        signal away is a different kind of pressure from killing, which selects
-        for the survivors that resisted &mdash; that is our design rationale,
-        not a result we have measured.
-      </p>
-      <p>
-        <a class="rx-btn rx-btn-ghost" href="{{ url_for('pages', page='description') }}">Read the full
-        Project Description &rarr;</a>
-      </p>
+    <div class="hx-sys" data-sys="detect" data-step="1" data-reveal>
+      <div class="hx-sys-tabs" role="tablist" aria-label="The two systems">
+        <button type="button" role="tab" class="hx-sys-tab" id="hxTabDetect" data-sys-tab="detect"
+                aria-controls="hxPanelDetect" aria-selected="true"><span class="hx-sys-tab-k">System 1</span>Detect</button>
+        <button type="button" role="tab" class="hx-sys-tab" id="hxTabCapture" data-sys-tab="capture"
+                aria-controls="hxPanelCapture" aria-selected="false" tabindex="-1"><span class="hx-sys-tab-k">System 2</span>Capture</button>
+        <span class="hx-sys-ink" aria-hidden="true"></span>
+      </div>
+
+      <div class="hx-sys-stage">
+        <svg class="hx-sys-art" viewBox="0 0 640 320" aria-hidden="true" focusable="false">
+          <defs>
+            <radialGradient id="hxGfp" cx="50%" cy="50%" r="60%">
+              <stop offset="0" stop-color="#b8f57e" stop-opacity="0.85"/>
+              <stop offset="1" stop-color="#b8f57e" stop-opacity="0"/>
+            </radialGradient>
+            <g id="hxAhl"><circle r="7"/><path d="M7 0h12l5-4" fill="none"/></g>
+          </defs>
+
+          <!-- System 1: detect -->
+          <g class="art art-detect">
+            <g class="a-in">
+              <use href="#hxAhl" class="a-ahl" x="44" y="118"/>
+              <use href="#hxAhl" class="a-ahl" x="70" y="206"/>
+              <use href="#hxAhl" class="a-ahl a-ahl-dock" x="112" y="160"/>
+            </g>
+            <ellipse class="a-glow" cx="330" cy="160" rx="210" ry="120" fill="url(#hxGfp)"/>
+            <rect class="a-cell" x="170" y="78" width="320" height="164" rx="82"/>
+            <text class="a-label" x="330" y="104" text-anchor="middle">E. coli</text>
+            <g class="a-lasr">
+              <path d="M190 140v40M190 160h22M212 146v28" />
+              <text class="a-tag" x="222" y="132">LasR</text>
+            </g>
+            <g class="a-dna">
+              <path class="a-strand" d="M246 206h208"/>
+              <path class="a-prom" d="M264 206v-22h20l-6-6M284 184l-6 6"/>
+              <text class="a-tag" x="250" y="228">pLasRV</text>
+              <rect class="a-gene" x="300" y="196" width="104" height="20" rx="4"/>
+              <text class="a-gene-t" x="352" y="210" text-anchor="middle">sfGFP</text>
+            </g>
+            <g class="a-barrels">
+              <rect x="300" y="128" width="16" height="26" rx="5"/><rect x="342" y="136" width="16" height="26" rx="5"/>
+              <rect x="384" y="124" width="16" height="26" rx="5"/><rect x="424" y="140" width="16" height="26" rx="5"/>
+            </g>
+            <g class="a-rays">
+              <path d="M510 160h56M500 110l44-26M500 210l44 26M330 66V30M330 254v36"/>
+            </g>
+          </g>
+
+          <!-- System 2: capture -->
+          <g class="art art-capture">
+            <rect class="a-cell a-cell-open" x="40" y="78" width="300" height="164" rx="82"/>
+            <text class="a-label" x="190" y="104" text-anchor="middle">E. coli</text>
+            <g class="a-retron">
+              <circle cx="128" cy="168" r="38"/>
+              <path class="a-msd" d="M98 145a38 38 0 0 1 44-13"/>
+              <text class="a-tag" x="128" y="172" text-anchor="middle">Ec67</text>
+              <text class="a-tag a-tag-dim" x="128" y="222" text-anchor="middle">pET28a</text>
+            </g>
+            <path class="a-apt a-apt-in" d="M200 150c10-16 20 16 30 0s20 16 30 0 20 16 30 0"/>
+            <g class="a-out">
+              <path class="a-apt" d="M392 112c8-12 16 12 24 0s16 12 24 0"/>
+              <path class="a-apt" d="M380 214c8-12 16 12 24 0s16 12 24 0"/>
+            </g>
+            <g class="a-bound">
+              <use href="#hxAhl" class="a-ahl" x="478" y="162"/>
+              <path class="a-wrap" d="M458 146c14-14 34-14 46 0M458 178c14 14 34 14 46 0"/>
+            </g>
+            <g class="a-pa">
+              <rect class="a-pa-cell" x="540" y="104" width="80" height="112" rx="40"/>
+              <text class="a-tag" x="580" y="96" text-anchor="middle">P. aeruginosa</text>
+              <path class="a-pa-lasr" d="M556 150v24M556 162h-14"/>
+              <path class="a-none" d="M536 150l10 10M546 150l-10 10" transform="translate(-24 -4)"/>
+            </g>
+          </g>
+        </svg>
+
+        <div class="hx-sys-panels">
+          <div class="hx-sys-panel" role="tabpanel" id="hxPanelDetect" aria-labelledby="hxTabDetect">
+            <h3>Engineered <em>E.&nbsp;coli</em> that fluoresces when it hears AHL</h3>
+            <ol class="hx-steps">
+              <li data-step="1"><button type="button"><b>Hear</b><span>3-oxo-C12-HSL, the las system signal, reaches the cell.</span></button></li>
+              <li data-step="2"><button type="button"><b>Bind</b><span>LasR, the bacterium&rsquo;s own receptor protein, expressed in <em>E.&nbsp;coli</em> BL21(DE3), binds it.</span></button></li>
+              <li data-step="3"><button type="button"><b>Switch</b><span>Signal bound, the LasR-dependent promoter pLasRV turns on.</span></button></li>
+              <li data-step="4"><button type="button"><b>Glow</b><span>The cells make sfGFP, so the presence of <em>P.&nbsp;aeruginosa</em> becomes something you can see.</span></button></li>
+            </ol>
+            <a class="hx-more" href="{{ url_for('pages', page='description') }}">The design in full on Project Description &rarr;</a>
+          </div>
+
+          <div class="hx-sys-panel" role="tabpanel" id="hxPanelCapture" aria-labelledby="hxTabCapture" hidden>
+            <h3>Engineered <em>E.&nbsp;coli</em> that makes the aptamer and lets it out</h3>
+            <ol class="hx-steps">
+              <li data-step="1"><button type="button"><b>Write</b><span>The retron Ec67, carried on pET28a, holds the aptamer sequence in its msr&ndash;msd region.</span></button></li>
+              <li data-step="2"><button type="button"><b>Copy</b><span>The retron&rsquo;s own reverse transcriptase copies it into single-stranded DNA inside the cell.</span></button></li>
+              <li data-step="3"><button type="button"><b>Release</b><span>Lysis puts it where the signal is; in the design it is triggered by the same AHL System&nbsp;1 reads.</span></button></li>
+              <li data-step="4"><button type="button"><b>Hold</b><span>The aptamer binds the AHL, so the signal never reaches its receptor and the population never gets the instruction to coordinate.</span></button></li>
+            </ol>
+            <p class="hx-aside">Aptamers raised against AHLs are reported not to kill bacteria or slow their growth. That is the point: taking a signal away is a different kind of pressure from killing.</p>
+            <a class="hx-more" href="{{ url_for('pages', page='engineering') }}">How we built it, on Engineering &rarr;</a>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="rx-card">
-      <p class="rx-kicker">Highlights</p>
-      <h3>Key Achievements</h3>
-      <p>這裡可以放一些團隊最引以為傲的亮點。</p>
-      <span class="rx-todo rx-bento-todo">TODO: 內容待團隊提供</span>
+  </div>
+</section>
+
+{#
+  ======================== 3. from light to a number ========================
+  One line per tool, each in its own page's words: Parts (the detection
+  parts), Hardware (CAPTURE-Screen: 470 nm in, read at 90 degrees, ten
+  channels, two builds at US$54 and US$161 by our own costing), Software
+  (LasReader's lead: in the browser, nothing to install) and Model (its three
+  models, in the order its opening paragraph gives them).
+#}
+<section class="hx hx-pipe" id="hx-pipe" aria-labelledby="hx-pipe-title">
+  <div class="hx-inner">
+    <p class="hx-kicker" data-reveal>Wet lab to dry lab</p>
+    <h2 class="hx-title" id="hx-pipe-title" data-reveal>From light to a number</h2>
+    <p class="hx-lead" data-reveal>
+      A fluorescent biosensor reports its target as light. Getting from that
+      light to a concentration takes an instrument, a workflow and a model,
+      and we built all three.
+    </p>
+
+    <ol class="hx-pipe-track" data-reveal>
+      <li class="hx-stage" style="--k:0">
+        <a href="{{ url_for('pages', page='parts') }}">
+          <svg class="hx-stage-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="6" y="15" width="36" height="18" rx="9"/><path d="M16 24h16"/><circle cx="24" cy="24" r="16" class="hx-stage-halo"/></svg>
+          <span class="hx-stage-k">01 &middot; Biosensor</span>
+          <span class="hx-stage-name">Light from a signal</span>
+          <span class="hx-stage-text"><em>E.&nbsp;coli</em> that answers AHL with sfGFP. The parts behind it, grouped as they are used.</span>
+          <span class="hx-stage-go">Parts &rarr;</span>
+        </a>
+      </li>
+      <li class="hx-stage" style="--k:1">
+        <a href="{{ url_for('pages', page='hardware') }}">
+          <svg class="hx-stage-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="7" y="12" width="34" height="24" rx="4"/><path d="M15 24h8M30 17v14"/><circle cx="30" cy="24" r="3"/></svg>
+          <span class="hx-stage-k">02 &middot; Hardware</span>
+          <span class="hx-stage-name">CAPTURE-Screen</span>
+          <span class="hx-stage-text">A single-cuvette reader: 470&nbsp;nm in, read at 90&deg; on ten channels. Two builds, US$54 and US$161 by our own costing.</span>
+          <span class="hx-stage-go">Hardware &rarr;</span>
+        </a>
+      </li>
+      <li class="hx-stage" style="--k:2">
+        <a href="{{ url_for('pages', page='software') }}">
+          <svg class="hx-stage-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><rect x="6" y="9" width="36" height="30" rx="4"/><path d="M6 17h36M13 33l7-8 6 5 9-11"/></svg>
+          <span class="hx-stage-k">03 &middot; Software</span>
+          <span class="hx-stage-name">LasReader</span>
+          <span class="hx-stage-text">Standards, blanks, replicates and a curve, as one workflow in the browser, with nothing to install.</span>
+          <span class="hx-stage-go">Software &rarr;</span>
+        </a>
+      </li>
+      <li class="hx-stage" style="--k:3">
+        <a href="{{ url_for('pages', page='model') }}">
+          <svg class="hx-stage-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M8 40V8M8 40h32"/><path d="M12 36c6-1 9-4 12-11s7-11 14-12"/><circle cx="18" cy="32" r="2"/><circle cx="26" cy="22" r="2"/><circle cx="34" cy="15" r="2"/></svg>
+          <span class="hx-stage-k">04 &middot; Model</span>
+          <span class="hx-stage-name">Three models</span>
+          <span class="hx-stage-text">The inhibition, the inhibition zone on a plate, and what the reader&rsquo;s counts say about the culture.</span>
+          <span class="hx-stage-go">Model &rarr;</span>
+        </a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+{#
+  ======================== 4. out of the lab ========================
+  The question is Human Practices' own (its Overview). The figures: 17
+  sessions and 500+ students are Education's tiles; 376 is the Survey; 14 is
+  everyone on the Collaboration page's wall, each with their logo; 9 is the
+  SDGs page's count, as Human Practices has it. The five conversations are
+  Meet with Experts' lineup.
+#}
+<section class="hx hx-world" id="hx-world" aria-labelledby="hx-world-title">
+  <div class="hx-inner">
+    <p class="hx-kicker" data-reveal>Human practices</p>
+    <h2 class="hx-title" id="hx-world-title" data-reveal>Out of the lab</h2>
+    <p class="hx-lead" data-reveal>
+      One question stayed with us all year: how can our technology actually
+      serve society, and how can more people come to understand what we are
+      doing?
+    </p>
+
+    <ul class="hx-stats">
+      <li data-reveal style="--rx-d:0"><a href="{{ url_for('pages', page='education') }}">
+        <span class="hx-stat-n"><span data-count-to="17">17</span></span>
+        <span class="hx-stat-l">education sessions in schools and institutions</span></a></li>
+      <li data-reveal style="--rx-d:80"><a href="{{ url_for('pages', page='education') }}">
+        <span class="hx-stat-n"><span data-count-to="500">500</span>+</span>
+        <span class="hx-stat-l">students in those sessions</span></a></li>
+      <li data-reveal style="--rx-d:160"><a href="{{ url_for('pages', page='survey') }}">
+        <span class="hx-stat-n"><span data-count-to="376">376</span></span>
+        <span class="hx-stat-l">responses to our public survey</span></a></li>
+      <li data-reveal style="--rx-d:240"><a href="{{ url_for('pages', page='collaboration') }}">
+        <span class="hx-stat-n"><span data-count-to="14">14</span></span>
+        <span class="hx-stat-l">teams and schools we worked with</span></a></li>
+      <li data-reveal style="--rx-d:320"><a href="{{ url_for('pages', page='sustainability') }}">
+        <span class="hx-stat-n"><span data-count-to="9">9</span></span>
+        <span class="hx-stat-l">UN Sustainable Development Goals our work moves toward</span></a></li>
+    </ul>
+
+    <div class="hx-world-grid">
+      {% set partners = [
+        ("iGEM-NTHU", "1-nthu.webp"), ("NYCU", "nycu-team-logo.avif"), ("CAU-China", "2-cau-china.webp"),
+        ("TAU-Israel", "3-tau-israel.webp"), ("VIS", "vis-team-logo.avif"), ("Cell Forge", "4-cell-forge.webp"),
+        ("Okinawa", "okinawa-team-logo.avif"), ("iGEM-UA Alicante", "5-igem-ua-alicante.webp"), ("WiST", "wist-logo.avif"),
+        ("UFRGS-Brazil", "6-ufrgs-brazil.webp"), ("HIA-Taiwan", "hia-team-logo.avif"), ("AIS-China", "7-ais-china.webp"),
+        ("Mingdao High School", "mingdao-logo.avif"), ("CCU-Taiwan", "ccu-logo.avif"),
+      ] %}
+      <div class="hx-orbit-wrap" data-reveal>
+        <div class="hx-orbit" style="--n:{{ partners|length }}">
+          {% for name, logo in partners %}
+          <a class="hx-orbit-item" style="--i:{{ loop.index0 }}"
+             href="{{ url_for('pages', page='collaboration') }}" title="{{ name }}">
+            <span class="hx-orbit-face"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/{{ logo }}" alt="{{ name }}" loading="lazy" decoding="async"></span>
+          </a>
+          {% endfor %}
+        </div>
+        <a class="hx-orbit-core" href="{{ url_for('pages', page='collaboration') }}">
+          <span class="hx-orbit-core-n">14</span>
+          <span class="hx-orbit-core-l">partners, from Taiwan to Israel and Brazil</span>
+          <span class="hx-orbit-core-go">Collaboration &rarr;</span>
+        </a>
+      </div>
+
+      <div class="hx-world-side">
+        <div class="hx-voices" data-reveal>
+          <h3 class="hx-side-title">Voices that shaped it</h3>
+          <ol class="hx-voices-list">
+            <li><span class="hx-voice-when">Apr 10</span><span class="hx-voice-who">Dr. Xin Min Liao</span><span class="hx-voice-role">Clinician</span></li>
+            <li><span class="hx-voice-when">May 27</span><span class="hx-voice-who">Prof. Shu-Chu Shiesh</span><span class="hx-voice-role">Academic</span></li>
+            <li><span class="hx-voice-when">Sep 10</span><span class="hx-voice-who">Ai Wei Li Studio</span><span class="hx-voice-role">Industry</span></li>
+            <li><span class="hx-voice-when">Sep 22</span><span class="hx-voice-who">Prof. Nan Si Li</span><span class="hx-voice-role">Academic</span></li>
+            <li><span class="hx-voice-when">Sep 22</span><span class="hx-voice-who">Prof. Tsung Lin Liao</span><span class="hx-voice-role">Academic</span></li>
+          </ol>
+          <a class="hx-more" href="{{ url_for('pages', page='meet-with-experts') }}">Meet with Experts &rarr;</a>
+        </div>
+
+        <a class="hx-game-card" href="{{ url_for('pages', page='board-game') }}" data-reveal>
+          <span class="hx-game-k">Board game</span>
+          <span class="hx-game-name">The Green Cabinet</span>
+          <span class="hx-game-text">Rival factions in an international council race their SDG targets to the goal. Play it here, in the browser.</span>
+          <span class="hx-game-cards" aria-hidden="true"><i></i><i></i><i></i></span>
+        </a>
+      </div>
     </div>
+  </div>
+</section>
+
+<div class="container hx-play">
+
+  {# The game, unchanged; only this heading is new. #}
+  <div class="hx-play-head">
+    <p class="hx-kicker" data-reveal>Your turn</p>
+    <h2 class="hx-title" data-reveal>Catch the signal</h2>
   </div>
 
   <!--
@@ -326,6 +602,83 @@
       Cannot see it? <a href="{{ promo_watch }}" rel="noopener">Watch it on video.igem.org</a>.
     </p>
   </section>
+
+</div>
+
+{#
+  ======================== the map of the wiki ========================
+  Every page in the menu, in the menu's order, with one line on what is in
+  it. Each line restates that page (its lead, its headings or its own
+  figures); the pages still waiting on their content get a line on what they
+  are for and nothing more. Pointing at a page shows its line in the panel on
+  the right; on a narrow screen the lines sit under the links instead.
+#}
+{% set wiki_map = [
+  ("Project", "glow", [
+    ("description", "Description", "Why P. aeruginosa, the signal we are after, and Capture: two systems, one signal."),
+    ("engineering", "Engineering", "Design, build, test, learn: what we set out to make, what we made, what we measured and what changed next."),
+    ("contribution", "Contribution", "What we leave for the teams that come after us."),
+    ("notebook", "Notebook", "114 milestones across 26 weeks, week by week, for the wet lab, the dry lab and human practices."),
+  ]),
+  ("Wet Lab", "teal", [
+    ("lab-book", "Lab Book", "Every protocol we used, from DNA assembly to the P. aeruginosa assays."),
+    ("parts", "Parts", "The parts behind both systems, grouped the way they are used: detection, retron and lysis."),
+    ("results", "Result", "What our experiments showed."),
+    ("biosafety-and-security", "Biosafety and Security", "Where each step is done, who may do it, and what we have deliberately not built."),
+  ]),
+  ("Dry Lab", "mint", [
+    ("hardware", "Hardware", "CAPTURE-Screen, a single-cuvette fluorescence reader, in a 3D-printed and a laser-cut build."),
+    ("software", "Software", "LasReader: the wet-lab workflow of a fluorescent biosensor, from readings to concentrations."),
+    ("model", "Model", "Three models: the inhibition, the inhibition zone on a plate, and the reader."),
+  ]),
+  ("Human Practices", "amber", [
+    ("human-practices", "Human Practices", "Our year in four directions: what we heard, and what we did about it."),
+    ("meet-with-experts", "Meet with Experts", "Conversations with a clinician, academics and industry, and where their advice told us to improve."),
+    ("survey", "Survey", "376 responses on infection and on living therapeutics."),
+    ("education", "Education", "17 sessions in schools and institutions, and the handbook behind them."),
+    ("collaboration", "Collaboration", "14 teams and schools, from Taiwan to Israel and Brazil, and the Mini-Jamboree."),
+    ("promotion", "Promotion", "Sharing sessions, a Lund University podcast, and clinical promotion in Qigu District."),
+    ("board-game", "Board Game", "The Green Cabinet, our board game about the UN Sustainable Development Goals, playable here."),
+    ("sustainability", "SDGs", "The nine Sustainable Development Goals our work moves toward, and how."),
+  ]),
+  ("Team", "coral", [
+    ("team", "Team", "The people behind Capture."),
+    ("attributions", "Attributions", "Who did what, and everyone who helped us along the way."),
+  ]),
+] %}
+<section class="hx hx-explore" id="hx-explore" aria-labelledby="hx-explore-title">
+  <div class="hx-inner">
+    <p class="hx-kicker" data-reveal>The wiki</p>
+    <h2 class="hx-title" id="hx-explore-title" data-reveal>Find your way in</h2>
+    <p class="hx-lead" data-reveal>Five sections, every page. Point at one to see what is in it.</p>
+
+    <div class="hx-map" data-reveal>
+      <div class="hx-map-cols">
+        {% for section, tone, pages in wiki_map %}
+        <section class="hx-map-col tone-{{ tone }}">
+          <h3>{{ section }}</h3>
+          <ul>
+            {% for slug, name, line in pages %}
+            <li><a href="{{ url_for('pages', page=slug) }}" data-map-section="{{ section }}" data-map-tone="{{ tone }}">
+              <span class="hx-map-name">{{ name }}</span>
+              <span class="hx-map-desc">{{ line }}</span>
+            </a></li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endfor %}
+      </div>
+      <a class="hx-map-spot tone-glow" href="{{ url_for('pages', page='description') }}" tabindex="-1" aria-hidden="true">
+        <span class="hx-map-spot-k">Project</span>
+        <span class="hx-map-spot-name">Description</span>
+        <span class="hx-map-spot-text">Why P. aeruginosa, the signal we are after, and Capture: two systems, one signal.</span>
+        <span class="hx-map-spot-go">Open the page &rarr;</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="container">
 
   <!--
     The tour in the banner shows everything. This asks four questions instead
