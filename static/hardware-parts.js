@@ -30,6 +30,12 @@
  * A small WebGL 1 renderer, no library: flat-shaded triangles, the edges
  * where two faces meet at more than 25 degrees drawn over them, an orbit
  * camera, and picking by casting a ray at the triangles.
+ *
+ * "Take a reading" draws the light path through the assembly. The printed
+ * parts go to outline, a blue box grows from the LED into the light trap and
+ * a green one from the cuvette to the sensor board. Both boxes take their
+ * ends from where the assembly puts those parts, and the steps beside them
+ * are sentences from the page. It is a drawing, not a simulation.
  */
 (function () {
   "use strict";
@@ -128,6 +134,20 @@
     });
   } catch (e) { plan = null; }
 
+  /* The light trap, for "Take a reading": which file it is, and the three
+     numbers of its cavity that decide where the beam goes. In the file's own
+     frame, x from its entrance and z from the cuvette's base: the sloped end
+     wall from its foot to its top, the roof, and half the cavity's width. */
+  var LIGHT = null;
+  try {
+    var lt = plan && plan.light;
+    if (lt && byFile[lt.trap] && Array.isArray(lt.ramp) && lt.ramp.length === 4 &&
+        lt.ramp.concat([lt.roof, lt.half]).every(function (v) { return typeof v === "number" && isFinite(v); }) &&
+        lt.ramp[2] > lt.ramp[0] && lt.ramp[3] > lt.ramp[1] && lt.roof >= lt.ramp[3]) {
+      LIGHT = lt;
+    }
+  } catch (e) { LIGHT = null; }
+
   /* ------------------------------------------------------------------
      COLOUR, FROM THE STYLESHEET
      ------------------------------------------------------------------ */
@@ -142,6 +162,8 @@
     v1: colour("--hwp-v1", "66757f"),
     v2: colour("--hwp-v2", "49c5b6"),
     proxy: colour("--hwp-proxy", "5fb3e0"),
+    ex: colour("--hwp-ex", "5fb3e0"),
+    em: colour("--hwp-em", "55d98a"),
     absent: colour("--hwp-absent", "8fa5b0"),
     hot: colour("--hwp-hot", "e6b060"),
     bed: colour("--hwp-bed", "12222b"),
@@ -309,6 +331,8 @@
     "attribute vec3 aPos;uniform mat4 uProj;uniform mat4 uView;uniform mat3 uRot;uniform vec3 uOff;" +
     "void main(){gl_Position=uProj*(uView*vec4(uRot*aPos+uOff,1.0));}";
   var FS_FLAT = "precision mediump float;uniform vec3 uCol;void main(){gl_FragColor=vec4(uCol,1.0);}";
+  // the light and the cuvette it passes through: one colour, with its own alpha
+  var FS_GLOW = "precision mediump float;uniform vec4 uCol;void main(){gl_FragColor=uCol;}";
 
   function program(vs, fs) {
     function shader(type, src) {
@@ -338,7 +362,7 @@
     };
   }
 
-  var solid = null, flat = null;
+  var solid = null, flat = null, glow = null;
   function buffer(data) {
     var b = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, b);
@@ -353,7 +377,8 @@
   function setup() {
     solid = program(VS_SOLID, FS_SOLID);
     flat = program(VS_FLAT, FS_FLAT);
-    if (!solid || !flat) return false;
+    glow = program(VS_FLAT, FS_GLOW);
+    if (!solid || !flat || !glow) return false;
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.POLYGON_OFFSET_FILL);
     gl.polygonOffset(1, 1);
@@ -540,6 +565,94 @@
   }
 
   /* ------------------------------------------------------------------
+     A READING, DRAWN
+     One cycle of the firmware's dark, lit, dark, slowed down so that it can
+     be followed. Nothing is simulated. The blue box runs from the front of
+     the LED, along the excitation axis, to just short of the far end of the
+     light trap; the green one from that axis to the face of the sensor
+     board. Each end is read off the piece it belongs to, as the assembly
+     places it.
+     ------------------------------------------------------------------ */
+  var reading = null, unit = null, rod = null;
+  var READ = { az: -118, el: 44 };       // the whole path
+  var TRAP_VIEW = { az: -90, el: 7 };    // the trap from the side, nearly level, so its sloped wall is seen as a slope
+  // seconds: the dark read, the blue front reaching the sample, the green
+  // reaching the board, each reflection inside the trap, the LED held on
+  // after the last of them, its fade, and the dark read after
+  var T_DARK = 1.8, T_REACH = 1.3, T_GREEN = 1.5, T_BOUNCE = 0.45, T_HOLD = 2.6, T_FADE = 0.4, T_AFTER = 1.8;
+  var BEAM = 1.6;   // mm, the radius the beams are drawn at: they pass the 4 mm ports of version 2's cuvette holder
+
+  function lightPath() {
+    var at = {};
+    scene.items.forEach(function (it) {
+      if (it.part.standin) at[it.part.standin] = it;
+      else if (LIGHT && it.part.file === LIGHT.trap) at.trap = it;
+    });
+    // the trap's numbers are in its own frame, so it has to stand unturned
+    if (!at.led || !at.uvette || !at.board || !at.trap || at.trap.rows !== IDENT) return null;
+    var lo = function (it, k) { return it.lo[k] + it.base[k]; };
+    var hi = function (it, k) { return it.hi[k] + it.base[k]; };
+    var p = {
+      x0: hi(at.led, 0),
+      y: (lo(at.led, 1) + hi(at.led, 1)) / 2,
+      z: (lo(at.led, 2) + hi(at.led, 2)) / 2,
+      xc: (lo(at.uvette, 0) + hi(at.uvette, 0)) / 2,
+      y1: lo(at.board, 1),
+      cup: [0, 1, 2].map(function (k) { return lo(at.uvette, k); }),
+      cupSize: [0, 1, 2].map(function (k) { return hi(at.uvette, k) - lo(at.uvette, k); }),
+      trap: at.trap.part
+    };
+    /* The sloped end wall, in the vertical plane the beam travels in: a is
+       its foot, b its top, n points off it into the cavity. The axial ray
+       meets it at the beam's height, is turned up to the roof, and from the
+       roof comes back down onto the wall. Two ideal reflections and no more:
+       what the matte black walls absorb at each one was not measured. */
+    var ox = at.trap.base[0], oz = at.trap.base[2];
+    var a = [LIGHT.ramp[0] + ox, LIGHT.ramp[1] + oz], b = [LIGHT.ramp[2] + ox, LIGHT.ramp[3] + oz];
+    var roof = LIGHT.roof + oz, k = (b[1] - a[1]) / (b[0] - a[0]);
+    var len = Math.sqrt(Math.pow(b[0] - a[0], 2) + Math.pow(b[1] - a[1], 2));
+    var n = [-(b[1] - a[1]) / len, (b[0] - a[0]) / len];
+    var hit = [a[0] + (p.z - a[1]) / k, p.z];
+    if (!(hit[0] > hi(at.uvette, 0)) || !(p.cup[0] > p.x0) || !(p.y1 > p.y) || !(roof > p.z)) return null;
+    var d1 = [1 - 2 * n[0] * n[0], -2 * n[0] * n[1]];
+    var q1 = [hit[0] + d1[0] * (roof - hit[1]) / d1[1], roof];
+    var d2 = [d1[0], -d1[1]];
+    var s2 = (q1[1] - a[1] - k * (q1[0] - a[0])) / (k * d2[0] - d2[1]);
+    var q2 = [q1[0] + d2[0] * s2, q1[1] + d2[1] * s2];
+    p.x1 = hit[0];
+    p.wall = { a: a, b: b, n: n, half: LIGHT.half };
+    p.bounces = [{ from: hit, to: q1, a: 0.6, thin: 0.8 }, { from: q1, to: q2, a: 0.36, thin: 0.62 }];
+    // one speed for the blue front: it reaches the sample after T_REACH
+    p.tBlue = T_REACH * (p.x1 - p.x0) / (p.cup[0] - p.x0);
+    p.tCup = T_DARK + T_REACH;
+    p.tTrap = T_DARK + p.tBlue;
+    p.tOff = p.tTrap + 2 * T_BOUNCE + T_HOLD;
+    p.tEnd = p.tOff + T_FADE + T_AFTER;
+    return p;
+  }
+
+  /* What the light is doing t seconds into the cycle, and which of the
+     page's steps that is. Once the cycle is over the path stays drawn. */
+  function lightAt(p, t) {
+    if (t >= p.tEnd) return { blue: 1, green: 1, b1: 1, b2: 1, lit: 1, read: 0, focus: 0, step: -1, done: true };
+    var u = function (v) { return Math.max(0, Math.min(1, v)); };
+    var bump = function (from, to) { return t > from && t < to ? Math.sin(Math.PI * (t - from) / (to - from)) : 0; };
+    return {
+      blue: u((t - T_DARK) / p.tBlue),
+      green: u((t - p.tCup - 0.15) / T_GREEN),
+      b1: u((t - p.tTrap) / T_BOUNCE),
+      b2: u((t - p.tTrap - T_BOUNCE) / T_BOUNCE),
+      lit: t < T_DARK ? 0 : (t < p.tOff ? 1 : u(1 - (t - p.tOff) / T_FADE)),
+      // the detector reads with the LED off as well, before and after
+      read: Math.max(bump(0.3, T_DARK - 0.2), bump(p.tOff + T_FADE + 0.1, p.tEnd - 0.2)),
+      // while the light is in the trap the other parts' outlines step back
+      focus: u((t - p.tTrap) / 0.5) * (1 - u((t - p.tOff) / 0.5)),
+      step: t < T_DARK ? 0 : t < p.tCup + 0.15 ? 1 : t < p.tTrap ? 2 : t < p.tOff ? 3 : 4,
+      done: false
+    };
+  }
+
+  /* ------------------------------------------------------------------
      CAMERA
      Z is up. az and el are where the eye sits, seen from the target.
      ------------------------------------------------------------------ */
@@ -671,6 +784,17 @@
 
   function tint(it) {
     var c = COL[it.part.state] || COL.both;
+    if (reading && it.part.standin) {
+      // Grey, so that blue and green are the light and nothing else. The LED
+      // whitens while it is on. The board shows each of the cycle's three
+      // reads: pale for the two in the dark, green once the green has reached it.
+      var L = reading.light || { lit: 0, green: 0, read: 0, focus: 0 };
+      if (it.part.standin === "led") return mix(COL.both, [1, 1, 1], 0.8 * L.lit);
+      if (it.part.standin === "board") {
+        return L.green >= 1 && L.lit > 0 ? mix(COL.both, COL.em, 0.7 * L.lit) : mix(COL.both, [1, 1, 1], 0.55 * L.read);
+      }
+      return COL.both;
+    }
     if (selected) return it.part === selected ? COL.hot : mix(c, COL.bed, 0.74);
     if (hovered && hovered.part === it.part) return mix(c, [1, 1, 1], 0.3);
     return c;
@@ -679,6 +803,8 @@
      other part of the assembly while one is chosen, which is what lets a
      part buried inside it be seen. */
   function hollow(it) {
+    // during a reading every printed part is an outline, so the light inside shows
+    if (reading) return !it.part.standin;
     if (selected && it.part === selected) return false;
     return it.absent || (selected && scene.built);
   }
@@ -691,6 +817,21 @@
     if (!scene) return;
     step();
     var m = matrices();
+    if (reading) {
+      var L = lightAt(reading.path, reading.done ? Infinity : (performance.now() - reading.t0) / 1000);
+      reading.light = L;
+      if (L.done) reading.done = true;
+      if (L.step !== reading.step) {
+        reading.step = L.step;
+        tellStep();
+        // The view goes to the trap while the light is in it and comes back
+        // after, unless the reader has taken hold of the view.
+        if (!reading.manual && !calm) {
+          if (L.step === 3) travel(trapFrame(), false);
+          else if (L.step === 4 || L.done) travel(readFrame(), false);
+        }
+      }
+    }
 
     gl.useProgram(flat.id);
     gl.uniformMatrix4fv(flat.uProj, false, m.proj);
@@ -715,6 +856,7 @@
     gl.enableVertexAttribArray(solid.aNor);
     scene.items.forEach(function (it) {
       if (hollow(it)) return;
+      if (reading && it.part.standin === "uvette") return;   // drawn as glass, with the light
       var mesh = it.part.mesh;
       gl.bindBuffer(gl.ARRAY_BUFFER, mesh.bPos);
       gl.vertexAttribPointer(solid.aPos, 3, gl.FLOAT, false, 0, 0);
@@ -731,12 +873,99 @@
     gl.enableVertexAttribArray(flat.aPos);
     scene.items.forEach(function (it) {
       var col;
-      if (!hollow(it)) col = mix(tint(it), [0, 0, 0], 0.68);
+      if (reading) {
+        // the trap's outline takes the light's colour once the light is in it
+        var inTrap = reading.light.blue >= 1 ? reading.light.lit : 0, back = reading.manual ? 0 : reading.light.focus;
+        col = it.part.standin === "uvette" ? COL.both
+          : it.part.standin ? mix(tint(it), [0, 0, 0], 0.68)
+          : it.part === reading.path.trap ? mix(mix(COL.grid, COL.both, 0.62), COL.ex, 0.6 * inTrap)
+          : mix(COL.grid, COL.both, (it.absent ? 0.14 : 0.5) * (1 - 0.6 * back));
+      }
+      else if (!hollow(it)) col = mix(tint(it), [0, 0, 0], 0.68);
       else if (selected) col = scene.built ? mix(COL.grid, COL.both, it.absent ? 0.12 : 0.3) : null;
       else col = hovered && hovered.part === it.part ? [1, 1, 1] : COL.absent;
       if (!col) return;
       flatDraw(it.part.mesh.bLine, gl.LINES, it.part.mesh.lines.length / 3, col, it.rot, it.off);
     });
+
+    if (reading) {
+      drawLight(m, reading.path, reading.light);
+      if (!reading.done) invalidate();
+    }
+  }
+
+  /* The cuvette as glass, the trap's sloped wall, then the light. Drawn last
+     and blended, without writing depth, so the outlines behind stay. The
+     alpha is blended separately so the canvas stays opaque where a part
+     already is. Everything is one of two unit shapes, a cube and a rod,
+     with the rotation slot carrying its three edges. */
+  function drawLight(m, p, L) {
+    gl.useProgram(glow.id);
+    gl.uniformMatrix4fv(glow.uProj, false, m.proj);
+    gl.uniformMatrix4fv(glow.uView, false, m.view);
+    gl.enableVertexAttribArray(glow.aPos);
+    gl.enable(gl.BLEND);
+    gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(false);
+    function shape(buf, count, edges, off, col, a) {
+      if (a <= 0.004) return;
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.vertexAttribPointer(glow.aPos, 3, gl.FLOAT, false, 0, 0);
+      gl.uniformMatrix3fv(glow.uRot, false, edges);
+      gl.uniform3fv(glow.uOff, off);
+      gl.uniform4f(glow.uCol, col[0], col[1], col[2], a);
+      gl.drawArrays(gl.TRIANGLES, 0, count);
+    }
+    /* A beam from one point towards another, drawn `part` of the way: a core
+       of the beam's radius, and round it a wider, much fainter glow. What is
+       left after a reflection is drawn thinner as well as fainter. */
+    function beam(from, to, part, col, a, thin) {
+      var u = [(to[0] - from[0]) * part, (to[1] - from[1]) * part, (to[2] - from[2]) * part];
+      var len = Math.sqrt(dot3(u, u));
+      if (len < 0.01 || a <= 0.004) return;
+      var e = [u[0] / len, u[1] / len, u[2] / len];
+      var v = Math.abs(e[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0], d = dot3(v, e);
+      v = [v[0] - d * e[0], v[1] - d * e[1], v[2] - d * e[2]];
+      var vl = Math.sqrt(dot3(v, v));
+      v = [v[0] / vl, v[1] / vl, v[2] / vl];
+      var w = [e[1] * v[2] - e[2] * v[1], e[2] * v[0] - e[0] * v[2], e[0] * v[1] - e[1] * v[0]];
+      [[BEAM, a], [BEAM * 2.1, a * 0.16]].forEach(function (k) {
+        var r = k[0] * (thin || 1);
+        shape(rod.bPos, rod.count,
+          [u[0], u[1], u[2], v[0] * r, v[1] * r, v[2] * r, w[0] * r, w[1] * r, w[2] * r], from, col, k[1]);
+      });
+    }
+    var lit = 0.92 * L.lit, inTrap = L.blue >= 1 ? L.lit : 0, W = p.wall;
+
+    shape(unit.bPos, unit.tris * 3, [p.cupSize[0], 0, 0, 0, p.cupSize[1], 0, 0, 0, p.cupSize[2]], p.cup, COL.both, 0.13);
+    // The wall the beam ends on: a thin slab along the slope, across the
+    // cavity. It stays grey, a little brighter once it is lit, so that the
+    // only blue in the trap is the light itself.
+    shape(unit.bPos, unit.tris * 3,
+      [W.b[0] - W.a[0], 0, W.b[1] - W.a[1], 0, 2 * W.half, 0, -W.n[0] * 0.5, 0, -W.n[1] * 0.5],
+      [W.a[0], p.y - W.half, W.a[1]], mix(COL.both, [1, 1, 1], 0.35 * inTrap), 0.2 + 0.1 * inTrap);
+
+    beam([p.x0, p.y, p.z], [p.x1, p.y, p.z], L.blue, COL.ex, lit);
+    p.bounces.forEach(function (b, i) {
+      beam([b.from[0], p.y, b.from[1]], [b.to[0], p.y, b.to[1]], i ? L.b2 : L.b1, COL.ex, lit * b.a, b.thin);
+    });
+    beam([p.xc, p.y, p.z], [p.xc, p.y1, p.z], L.green, COL.em, lit);
+
+    gl.depthMask(true);
+    gl.disable(gl.BLEND);
+  }
+
+  /* A rod along +X, one long and one in radius, with its ends closed. */
+  function makeRod() {
+    var N = 20, q = [], i;
+    for (i = 0; i < N; i++) {
+      var a0 = i / N * Math.PI * 2, a1 = (i + 1) / N * Math.PI * 2;
+      var c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
+      q.push(0, c0, s0, 1, c0, s0, 1, c1, s1, 0, c0, s0, 1, c1, s1, 0, c1, s1);
+      q.push(0, 0, 0, 0, c1, s1, 0, c0, s0, 1, 0, 0, 1, c0, s0, 1, c1, s1);
+    }
+    var pos = new Float32Array(q);
+    return { pos: pos, count: pos.length / 3, bPos: buffer(pos) };
   }
 
   /* ------------------------------------------------------------------
@@ -857,6 +1086,15 @@
     { text: "Version 2", on: function () { return want.version === "v2"; },
       click: function () { want.version = "v2"; go(null); } }
   ]);
+  var readSeg = plan && LIGHT && seg("Light path", [
+    { text: "Take a reading", on: function () { return !!reading; },
+      click: function () {
+        if (reading) { stopReading(); return; }
+        want.built = true; want.pulled = false;
+        var mine = ticket + 1;
+        go(null).then(function () { if (mine === ticket) startReading(); });
+      } }
+  ]);
   var moduleSeg = seg("Module", groups.map(function (g) {
     return { text: g.name, on: function () { return want.group === g; },
              click: function () { want.group = g; go(null); } };
@@ -868,22 +1106,70 @@
     { text: "Reset view", click: function () {
         if (!scene) return;
         select(null);
-        travel(homeFrame(), false);
+        travel(reading ? readFrame() : homeFrame(), false);
       } }
   ]).box.classList.add("hwp-tools");
 
   function press() {
-    [viewSeg, versionSeg, moduleSeg].forEach(function (s) {
+    [viewSeg, versionSeg, readSeg, moduleSeg].forEach(function (s) {
       if (!s) return;
       s.options.forEach(function (o) { o.button.setAttribute("aria-pressed", String(o.on())); });
     });
     if (versionSeg) versionSeg.box.hidden = !want.built;
+    if (readSeg) readSeg.box.hidden = !want.built;
     moduleSeg.box.hidden = want.built;
     // the legend only names what the view on show can contain
-    var key = want.built ? want.version : "laid";
+    var key = reading ? "reading" : (want.built ? want.version : "laid");
     $$(".hwp-legend li", root).forEach(function (li) {
       li.hidden = (li.getAttribute("data-in") || key).split(" ").indexOf(key) < 0;
     });
+  }
+
+  /* Closer than the whole assembly, and centred on the light: the plate's
+     corners can leave the view, the two beams cannot. */
+  function readFrame() {
+    var f = frameOf(null, READ.az, READ.el), p = reading && reading.path;
+    f.az = READ.az; f.el = READ.el;
+    if (p) {
+      f.t = [(p.x0 + p.wall.b[0]) / 2, (p.y + p.y1) / 2, p.z];
+      f.dist *= 0.62;
+    }
+    return f;
+  }
+  /* The trap alone, from the side: the slope of its end wall is only a slope
+     seen from there. */
+  function trapFrame() {
+    var f = frameOf(reading.path.trap, TRAP_VIEW.az, TRAP_VIEW.el);
+    f.az = TRAP_VIEW.az; f.el = TRAP_VIEW.el;
+    // frameOf leaves a part half the view, measured over its flange as well;
+    // the cavity is what is to be seen, so come in closer than that
+    f.dist *= 0.72;
+    return f;
+  }
+  function startReading() {
+    if (!scene || !scene.built) return;
+    var path = lightPath();
+    if (!path) return;
+    if (!unit) { unit = standIn("box", [0, 0, 0], [1, 1, 1]); upload(unit); }
+    if (!rod) rod = makeRod();
+    if (selected) selected.li.classList.remove("is-on");
+    selected = null;
+    hovered = null;
+    hud.textContent = "";
+    // with reduced motion there is no cycle to watch: the path is simply drawn
+    reading = { path: path, t0: performance.now(), step: -2, done: calm, light: null, manual: false };
+    press();
+    tell();
+    travel(readFrame(), false);
+  }
+  /* Quietly when something else is about to redraw the panel anyway. */
+  function stopReading(quiet) {
+    if (!reading) return;
+    reading = null;
+    if (quiet) return;
+    press();
+    tell();
+    if (scene) travel(homeFrame(), false);
   }
 
   function homeFrame() {
@@ -896,15 +1182,61 @@
     if (!scene) return;
     var far = frameOf(null).dist * 1.8;
     goal = null;
+    if (reading) reading.manual = true;
     cam.dist = Math.max(18, Math.min(far, cam.dist * factor));
     invalidate();
   }
 
   /* What the panel says is the page's own: the sentence for each view, and
      for a chosen part its size, note and link, are copied from the markup. */
+  var readSteps = $$('.hwp-says [data-for="reading"] li', root).map(function (li) {
+    return li.textContent.replace(/\s+/g, " ").trim();
+  });
+  function tellReading() {
+    var head = el("div", "hwp-r-head");
+    head.appendChild(el("p", "hwp-r-name", "Taking a reading"));
+    var tools = el("span", "hwp-r-tools");
+    if (!calm) {
+      var again = el("button", "hwp-back", "Play again");
+      again.type = "button";
+      again.addEventListener("click", function () {
+        if (!reading) return;
+        reading.t0 = performance.now();
+        reading.done = false;
+        reading.manual = false;
+        travel(readFrame(), false);
+      });
+      tools.appendChild(again);
+    }
+    var back = el("button", "hwp-back", "Show the parts again");
+    back.type = "button";
+    back.addEventListener("click", function () {
+      stopReading();
+      canvas.focus({ preventScroll: true });
+    });
+    tools.appendChild(back);
+    head.appendChild(tools);
+    readout.appendChild(head);
+    var list = el("ol", "hwp-r-steps");
+    readSteps.forEach(function (s) { list.appendChild(el("li", null, s)); });
+    readout.appendChild(list);
+    var note = root.querySelector('.hwp-says [data-for="reading-note"]');
+    if (note) readout.appendChild(el("p", "hwp-r-lead", note.textContent.replace(/\s+/g, " ").trim()));
+    tellStep();
+  }
+  /* The step the light has reached is lit; the ones before it stay read. */
+  function tellStep() {
+    $$(".hwp-r-steps li", readout).forEach(function (li, i) {
+      var on = !!reading && !reading.done && i === reading.step;
+      li.classList.toggle("is-now", on);
+      li.classList.toggle("is-done", !!reading && (reading.done || i < reading.step));
+    });
+  }
+
   function tell() {
     readout.textContent = "";
     if (!shown) return;
+    if (reading) { tellReading(); return; }
     if (!selected) {
       var key = shown.built ? shown.version : "laid";
       var say = root.querySelector('.hwp-says [data-for="' + key + '"]');
@@ -938,6 +1270,8 @@
   }
 
   function select(part) {
+    // choosing a part ends the reading: the part is what is wanted now
+    if (part && reading) { reading = null; press(); }
     if (selected) selected.li.classList.remove("is-on");
     selected = part;
     if (part) part.li.classList.add("is-on");
@@ -952,6 +1286,7 @@
   function go(part) {
     var mine = ++ticket;
     var w = { built: want.built, pulled: want.pulled, version: want.version, group: want.group };
+    stopReading(true);
     press();
     var same = shown && shown.built === w.built &&
                (w.built ? shown.version === w.version : shown.group === w.group);
@@ -1180,6 +1515,7 @@
       drag.moved += Math.abs(dx) + Math.abs(dy);
       drag.x = e.clientX; drag.y = e.clientY;
       goal = null;
+      if (reading) reading.manual = true;
       cam.az -= dx * 0.4;
       cam.el = Math.max(4, Math.min(89, cam.el + dy * 0.3));
       invalidate();
@@ -1225,9 +1561,11 @@
     else if (k === "+" || k === "=") { zoom(0.88); e.preventDefault(); return; }
     else if (k === "-") { zoom(1.14); e.preventDefault(); return; }
     else if (k === "Escape" && selected) { select(null); return; }
+    else if (k === "Escape" && reading) { stopReading(); return; }
     else return;
     e.preventDefault();
     goal = null;
+    if (reading) reading.manual = true;
     invalidate();
   });
 
@@ -1239,6 +1577,8 @@
       g.parts.forEach(function (p) { if (p.mesh) upload(p.mesh); });
     });
     Object.keys(standIns).forEach(function (k) { upload(standIns[k].mesh); });
+    if (unit) upload(unit);
+    if (rod) rod.bPos = buffer(rod.pos);
     if (shown) {
       var keep = selected, built = scene.built;
       scene = null;
@@ -1256,7 +1596,7 @@
   function resized() {
     fitCanvas();
     var now = aspect();
-    if (scene && shape && Math.abs(now - shape) > 0.01) travel(frameOf(selected), true);
+    if (scene && shape && Math.abs(now - shape) > 0.01) travel(reading ? readFrame() : frameOf(selected), true);
     shape = now;
     invalidate();
   }
