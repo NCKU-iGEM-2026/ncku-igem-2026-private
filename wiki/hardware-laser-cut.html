@@ -86,6 +86,7 @@
   <nav class="hw-jump" aria-label="In the laser-cut build">
     <ul class="sw-links">
       <li><a href="#hardware-laser">The instrument</a></li>
+      <li><a href="#hardware-laser-advantages">Design advantages</a></li>
       <li><a href="#hardware-laser-reading">How a reading is made</a></li>
       <li><a href="#hardware-laser-sessions">Validation</a></li>
       <li><a href="#hardware-laser-channels">What ten channels add</a></li>
@@ -97,6 +98,9 @@
   <!-- ========================= the instrument ========================= -->
   <section id="hardware-laser">
     <h2>The instrument</h2>
+    <p class="hw-point">
+      A blue LED, a 90&deg; sensor and a light trap, in a plywood box cut from one sheet.
+    </p>
 
     <p>
       A blue LED lights a UVette from the side, and an AS7341 spectral sensor
@@ -181,9 +185,49 @@
     </div>
   </section>
 
+  <!-- ========================= design advantages ========================= -->
+  {# 四張卡片的數字都出自本頁：成本那一節（$53.54、$78.48）、產生器（2.8–3.2 mm）、開頭的關鍵數字（1.5%）。
+     「Easy to load」是濕實驗組同學使用時的回饋（硬體負責人確認，2026-10-09），開口已由 16 改成 25 mm。 #}
+  <section id="hardware-laser-advantages">
+    <h2>Design advantages</h2>
+    <p class="hw-point">
+      Cheap to make from one sheet of plywood, cut to whatever board you
+      have, steady in its readings, and easy to load.
+    </p>
+    <ul class="hw-gains">
+      <li class="hw-gain">
+        <span class="hw-gain-what">Low cost</span>
+        <span class="hw-gain-fig">$53.54</span>
+        <p>Against $78.48 with the enclosure printed instead; the jointed parts come from one 450&nbsp;&times;&nbsp;300&nbsp;mm sheet.</p>
+        <span class="hw-gain-basis">As costed below; the LED, resistor and UVette were not priced</span>
+      </li>
+      <li class="hw-gain">
+        <span class="hw-gain-what">Any 3&nbsp;mm board</span>
+        <span class="hw-gain-fig">2.8&ndash;3.2&nbsp;mm</span>
+        <p>The generator redraws every joint for the board's measured thickness, so the build does not depend on one batch of plywood.</p>
+        <span class="hw-gain-basis">Checked in the generator, below</span>
+      </li>
+      <li class="hw-gain">
+        <span class="hw-gain-what">Steady</span>
+        <span class="hw-gain-fig">1.5%</span>
+        <p>Eight batches of the same tube, from four placements across an hour, varied by 1.5% in F5/F3.</p>
+        <span class="hw-gain-basis">Linearity series</span>
+      </li>
+      <li class="hw-gain">
+        <span class="hw-gain-what">Easy to load</span>
+        <span class="hw-gain-fig"><span class="hw-gain-from">16</span><span class="hw-gain-arrow" aria-hidden="true">&rarr;</span><span class="visually-hidden">to </span>25&nbsp;mm</span>
+        <p>Wet-lab users found the lid's opening too small to lift the cuvette out, so it was enlarged from 16&nbsp;&times;&nbsp;16 to 25&nbsp;&times;&nbsp;25&nbsp;mm, with a matching lid.</p>
+        <span class="hw-gain-basis">From wet-lab use</span>
+      </li>
+    </ul>
+  </section>
+
   <!-- ========================= how a reading is made ========================= -->
   <section id="hardware-laser-reading">
     <h2>How a reading is made</h2>
+    <p class="hw-point">
+      Each reading subtracts LED-off from LED-on, and the result is the ratio F5/F3, which cancels changes in how much light reaches the sensor.
+    </p>
 
     <p>
       For each reading the firmware takes eight samples with the LED off,
@@ -209,6 +253,25 @@
     </p>
 
     <h3>Why F5, and not F4</h3>
+    <p>
+      F4, centred nearer the sfGFP peak, collects about 2.2 times as much
+      sfGFP light as F5, but it also collects about three times the
+      background from the blue LED, so its detection limit is slightly worse
+      (about 4.4% against 3.6%). On this build F5/F3 is the better measure of
+      sfGFP; F4/F3 supports the same conclusions with more noise.
+    </p>
+
+    <details class="hw-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">F5 against F4, in full</span>
+        <span class="hw-fold-meta">the same data, both ratios</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
     <p>
       sfGFP emits most strongly near 510&nbsp;nm. F4 and F5 each respond over
       a band 39&nbsp;nm wide at half maximum (AS7341 datasheet): F4 from about
@@ -258,6 +321,8 @@
       F3 are close in wavelength. On this build, F5/F3 is the better measure
       of sfGFP.
     </p>
+      </div>
+    </details>
 
     <details class="hw-fold">
       <summary class="hw-fold-head">
@@ -295,6 +360,9 @@
   <!-- ========================= four sessions ========================= -->
   <section id="hardware-laser-sessions">
     <h2>Validation</h2>
+    <p class="hw-point">
+      It sees the sample, its LED holds steady, the signal is sfGFP fluorescence, and it detects about 4% sfGFP culture.
+    </p>
 
     <p>
       Each test below asks one question about the reader: does it see the
@@ -370,10 +438,7 @@
       0, 0.5 and 1 of cells carrying sfGFP. The two stock cultures had nearly
       the same density (OD<sub>600</sub> 0.84 with sfGFP, 0.85 without), so
       the share of culture taken from the sfGFP stock is close to the share
-      of sfGFP cells. Each tube was read in at least two batches. A thirteenth
-      tube, a repeat of <em>d</em>&nbsp;0.5, <em>f</em>&nbsp;0.5, was read
-      first, and one grid tube was read again at the end; neither is part of
-      the grid analysis.
+      of sfGFP cells. Each tube was read in at least two batches.
     </p>
     <p>
       <em>Result.</em> Net F5/F3 rose in proportion to the amount of sfGFP,
@@ -385,6 +450,23 @@
       different from zero.
     </p>
     <p>
+      <em>Conclusion.</em> The signal behaves as sfGFP fluorescence: it is
+      proportional to the amount of sfGFP and has the spectral shape of its
+      emission.
+    </p>
+
+    <details class="hw-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Why this is not scattering</span>
+        <span class="hw-fold-meta">and the tubes left out</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
+    <p>
       A signal that rises with the amount of sfGFP does not on its own prove
       fluorescence. Each net value already compares tubes of the same
       density, so turbidity is subtracted, but the two strains could still
@@ -395,10 +477,12 @@
       of sfGFP fluorescence.
     </p>
     <p>
-      <em>Conclusion.</em> The signal behaves as sfGFP fluorescence: it is
-      proportional to the amount of sfGFP and has the spectral shape of its
-      emission.
+      A thirteenth tube, a repeat of <em>d</em>&nbsp;0.5, <em>f</em>&nbsp;0.5,
+      was read first, and one grid tube was read again at the end; neither is
+      part of the grid analysis.
     </p>
+      </div>
+    </details>
 
     <h3>The linearity series: a straight line and a detection limit</h3>
     <p>
@@ -411,7 +495,7 @@
       measured, from 1.30 (no sfGFP) to 1.45 (all sfGFP). Each tube was read
       in at least two batches. Three further low-<em>f</em> tubes (two at
       <em>f</em>&nbsp;=&nbsp;0.05, one at <em>f</em>&nbsp;=&nbsp;0.10) were
-      also read but are not part of the fit; see the low end below.
+      also read but are not part of the fit; see The low end, below.
     </p>
     <figure class="hw-figure">
       <div data-lc-chart="dose"></div>
@@ -435,8 +519,20 @@
       times the standard deviation of the blank tube over its four placements
       divided by the slope, is about 4% sfGFP culture (from F5/F3).
     </p>
+
+    <details class="hw-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">The low end</span>
+        <span class="hw-fold-meta">why the lowest shares scatter</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
     <p>
-      <em>The low end.</em> At the lowest shares the points scatter most
+      At the lowest shares the points scatter most
       relative to their size: the two lowest tubes in the fit are off by
       &minus;23% (<em>f</em>&nbsp;=&nbsp;0.10) and +48%
       (<em>f</em>&nbsp;=&nbsp;0.15), while from <em>f</em>&nbsp;=&nbsp;0.20 up
@@ -456,11 +552,16 @@
       does not change. Mixing low shares by serial dilution should reduce
       this scatter.
     </p>
+      </div>
+    </details>
   </section>
 
   <!-- ========================= ten channels ========================= -->
   <section id="hardware-laser-channels">
     <h2>What ten channels add</h2>
+    <p class="hw-point">
+      The extra channels confirm the signal is fluorescence and show where the ratio can and cannot be trusted.
+    </p>
 
     <p>
       Every reading records all ten channels, while the results above use
@@ -526,9 +627,19 @@
       and the data cannot tell whether the LED's position or its connection
       changed.
     </p>
-    <div class="hw-caution">
+    <details class="hw-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">The ratio's blind spot</span>
+        <span class="hw-fold-meta">and a check that needs no new hardware</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body">
       <p>
-        <em>The ratio's blind spot.</em> F5/F3 largely cancels where the
+        F5/F3 largely cancels where the
         cuvette sits, but not a change in the light path, and the reader gives
         no warning when that happens. A check needs no new hardware: the
         firmware already reports all ten channels, so a fixed reference, such
@@ -538,7 +649,8 @@
         of proportion suggests the light path changed, and the samples read
         since the last check should be read again.
       </p>
-    </div>
+      </div>
+    </details>
   </section>
 
   <!-- ========================= limits ========================= -->
