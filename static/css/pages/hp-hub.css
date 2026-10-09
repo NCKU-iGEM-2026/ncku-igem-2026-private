@@ -1124,3 +1124,175 @@ body.edu-nexus .hpx-event-what {
   .hpx-moments-track { animation: none; }
   .hpx-moments-set[aria-hidden="true"] { display: none; }
 }
+
+/* ---------- Meet with Experts, 2026-10-09: lineup, photo sets, flip advice ----------
+   Later in the file than the first .mx-* rules on purpose: these refine them. */
+
+/* the lineup: one stop per expert, in date order */
+.mx-lineup { margin: 0 0 2.75rem; }
+.mx-lineup ol {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+body.edu-nexus .mx-lineup a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  height: 100%;
+  padding: 1rem 0.6rem 0.9rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 16px;
+  background: var(--nx-panel);
+  color: var(--nx-text);
+  text-align: center;
+  text-decoration: none;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+body.edu-nexus .mx-lineup a:hover,
+body.edu-nexus .mx-lineup a:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--hpx-up);
+  box-shadow: 0 14px 28px -18px color-mix(in srgb, var(--hpx-up) 70%, #000);
+}
+body.edu-nexus .mx-lineup a.is-active {
+  border-color: var(--nx-lime);
+  background: color-mix(in srgb, var(--nx-lime) 9%, var(--nx-panel));
+}
+.mx-avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 0.45rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--hpx-up);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--hpx-up) 18%, transparent);
+  background: var(--nx-raised);
+  color: var(--hpx-up);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mx-lineup a:hover .mx-avatar { transform: scale(1.08) rotate(-4deg); }
+.mx-lineup a.is-active .mx-avatar { border-color: var(--nx-lime); }
+.mx-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.mx-avatar.is-logo { background: #fff; }
+.mx-avatar.is-logo img { object-fit: contain; padding: 8px; }
+.mx-avatar.is-icon svg { width: 60%; height: 60%; }
+.mx-lineup-when {
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--nx-warm);
+}
+.mx-lineup-who { font-family: "Changa", sans-serif; font-weight: 700; font-size: 0.92rem; line-height: 1.2; }
+.mx-lineup-tag {
+  margin-top: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-mint);
+}
+.mx-lineup-tag.is-industry { color: var(--nx-blue-up); }
+
+/* the card: a hint of its direction's colour along the top */
+.mx-card { position: relative; overflow: hidden; }
+.mx-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--hpx-up), var(--nx-lime), transparent);
+}
+.mx-head { align-items: start; }
+
+/* several photos: the first large, the rest as a row of thumbnails */
+.edu-gallery.mx-photo { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem; overflow: visible; }
+.edu-gallery.mx-photo img:first-child { grid-column: 1 / -1; }
+.edu-gallery.mx-photo img:not(:first-child) { aspect-ratio: 1 / 1; border-radius: 10px; opacity: 0.8; transition: opacity 0.25s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+.edu-gallery.mx-photo img:not(:first-child):hover { opacity: 1; }
+.edu-gallery.mx-photo img:only-child { grid-column: 1 / -1; }
+
+/* no photo: a drawing of a folding aptamer instead */
+.mx-illustration {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  border: 1px dashed color-mix(in srgb, var(--hpx-up) 55%, transparent);
+  background:
+    radial-gradient(70% 70% at 50% 45%, color-mix(in srgb, var(--hpx-up) 16%, transparent), transparent 70%),
+    var(--nx-ground);
+  color: var(--hpx-up);
+}
+.mx-illustration svg { width: 78%; height: auto; }
+.mx-strand { stroke-dasharray: 560; stroke-dashoffset: 0; animation: mx-fold 6s ease-in-out infinite alternate; }
+.mx-ion { color: var(--nx-warm); stroke: var(--nx-warm); animation: mx-ion 3.2s ease-in-out infinite alternate; }
+.mx-ion:nth-of-type(2) { animation-delay: -1.1s; }
+.mx-ion:nth-of-type(3) { animation-delay: -2.2s; }
+@keyframes mx-fold { from { stroke-dashoffset: 560; } to { stroke-dashoffset: 0; } }
+@keyframes mx-ion { from { transform: translateY(-4px); } to { transform: translateY(5px); } }
+.mx-illustration-cap {
+  position: absolute;
+  bottom: 0.7rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+.mx-tag-clinic { border-color: var(--nx-warm); color: var(--nx-warm); }
+
+/* the date, as the same chip on every card */
+body.edu-nexus .mx-meta-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 1rem 0 0;
+  padding: 0.28rem 0.8rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 999px;
+  background: var(--nx-ground);
+  font-size: 0.88rem;
+  color: var(--nx-text);
+}
+.mx-meta-date svg { width: 0.95em; height: 0.95em; color: var(--nx-mint); }
+
+/* key phrases in the story */
+body.edu-nexus .mx-body .mx-hl  { color: var(--nx-lime); font-weight: 600; }
+body.edu-nexus .mx-body .mx-key { color: var(--nx-blue-up); font-weight: 600; }
+
+.mx-kpis { margin: 1.5rem 0 0; }
+
+/* "In short", as three flip cards */
+.mx-flips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+.mx-flips .edx-flip { min-height: 168px; }
+.mx-flips .edx-flip-title { font-size: 1.02rem; }
+
+@media (max-width: 991.98px) {
+  .mx-lineup ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 767.98px) {
+  .mx-lineup ol { display: flex; overflow-x: auto; padding-bottom: 0.4rem; }
+  .mx-lineup li { flex: 0 0 9.5rem; }
+  .mx-flips { grid-template-columns: minmax(0, 1fr); }
+  .mx-flips .edx-flip { min-height: 140px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mx-strand, .mx-ion { animation: none; }
+  body.edu-nexus .mx-lineup a,
+  .mx-avatar { transition: none; }
+}
