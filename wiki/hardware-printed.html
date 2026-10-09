@@ -1439,11 +1439,15 @@
           115200：esp32_fluorescence_reader.ino 的 Serial.begin(115200)，擷取工具的預設值也是。
           AMBIENT_PRESENT 的例子：P02_LOW_R3_1.log 的 t4 c2，predark_NIR0 = 1；重讀 P02b 九列全乾淨（NOTES.md）。
           REFUSED 的例子：P1_V08_FIRST_READ_LOGS_2026-10-03/ 的 09、11 兩筆，各自在重置後恢復（SESSION_NOTE.md）。
+          十個通道、十二個值：感測器有十個通道（F1–F8、Clear、NIR），韌體一次讀取分兩半（各四個 F 通道加 Clear、NIR），
+            所以每次讀取有十二個值，欄位是 F1…F4、Clear0、NIR0、F5…F8、Clear、NIR（firmware/README.md 的 CSV schema）。
+            頁面上方共同的原理圖講「ten channels」，這裡講十二個值，圖下方的小字有說明。
           HW_ENABLE_COMPILED_OFF、REJECTED 的訊息文字出自韌體原始碼，不是出自紀錄；我們的紀錄裡沒有發生過，
             所以那兩格沒有寫 Seen。SATURATED 也沒有寫 Seen。
 
-        還沒有的：擷取工具 serial_read_tool.ps1 沒有放上 GitLab，所以頁面只說「我們用一支腳本」，沒有給連結。
-        放上去之後可以在小字那裡加連結。
+        2026-10-09：擷取工具 serial_read_tool.ps1 已放上 GitLab（capture-screen-hardware 的 firmware/host/，
+        commit 9cd096b；從 GitLab 取回的檔案 SHA-256 與硬體紀錄一致），圖下方的小字已加連結。
+        同一個 commit 也在那份 README 的編譯指令補上了 LED 閘門的旗標。
       #}
       <li class="hw-do-wide" id="hardware-run">
         <h3>Run</h3>
@@ -1529,9 +1533,13 @@
           </li>
         </ol>
         <p class="hw-run-foot">
-          <i>dark</i> is all twelve channels, read before and after each
-          flash; F4 is the three cycles with the LED on. Each cycle prints
-          one CSV row of 66 fields: keep the terminal's whole log.
+          <i>dark</i> is all twelve values of a read, before and after each
+          flash: the sensor's ten channels, with Clear and NIR read twice.
+          F4 is the three cycles with the LED on. Each cycle prints
+          one CSV row of 66 fields: keep the terminal's whole log. Ours was
+          kept by a script that stamps and stores every line; it is in the
+          repository as
+          <a href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware/-/blob/main/firmware/host/serial_read_tool.ps1"><code>firmware/host/serial_read_tool.ps1</code></a>.
         </p>
 
         <div class="hw-run-once">
