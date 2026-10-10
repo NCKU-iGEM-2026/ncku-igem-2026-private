@@ -40,6 +40,8 @@
 
 {# stage, its arrow's bearing on the ring, where its label sits, and the line
    under its heading. #}
+{# The heading over a stage, where it is longer than the ring's own label. #}
+{% set stage_titles = {'learn': 'Learning and future direction'} %}
 {% set stages = [
   ('design', 45,  306.07, 93.93,  'What we set out to make, and why'),
   ('build',  135, 306.07, 306.07, 'What we made, and how'),
@@ -151,7 +153,7 @@
       <section class="eng-dbtl-stage" id="eng-{{ part }}-{{ stage }}" data-stage="{{ stage }}">
         <header class="eng-dbtl-head">
           <span class="eng-dbtl-num" aria-hidden="true">0{{ loop.index }}</span>
-          <h2>{{ stage|capitalize }}</h2>
+          <h2>{{ stage_titles.get(stage, stage|capitalize) }}</h2>
           <p class="eng-dbtl-note">{{ note }}</p>
         </header>
         <div class="eng-dbtl-body">
@@ -265,6 +267,11 @@
               </figure>
             </section>
           </section>
+          {% elif part == 'inhibition' and stage == 'learn' %}
+          <p>Through these experiments, we learned that functional assays and molecular verification provide different levels of evidence. Although the swarming, pyocyanin, and biofilm assays showed changes consistent with the expected effect of Cb-2, our agarose gel results were not sufficient to directly confirm retron-derived Cb-2 ssDNA production.</p>
+          <p>We also found that experimental conditions strongly influenced assay performance. Factors such as plate moisture in the swarming assay and mixing efficiency during pyocyanin extraction had to be optimized before reliable results could be obtained.</p>
+          <p>In future, we would first improve the molecular verification of retron-derived Cb-2 using higher-resolution methods such as denaturing urea-PAGE or sequence-specific detection. We would also further optimize retron expression and quantify aptamer production to better connect the amount of produced ssDNA with its functional effects.</p>
+          <p>Ultimately, we hope to develop the retron system into a more reliable biological platform for continuous production of functional DNA aptamers in vivo.</p>
           {% else %}
           {# 內容待 wet lab 確認後寫在這裡，寫好後刪掉下面這個佔位框。
              寫某一部分的某一階段時，照上面 inhibition / design 的寫法加一個條件。 #}
