@@ -84,6 +84,12 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
   }
   .navbar .dropdown-item:hover::before,
   .navbar .dropdown-item:focus-visible::before { opacity: 1; transform: scale(1); }
+  /* Engineering 不是連結：游標移到它上面（或用鍵盤 focus）才展開 Detect / Inhibition */
+  .navbar .dropdown-parent { cursor: default; }
+  .navbar .dropdown-nest .dropdown-submenu { display: none; margin: 0; padding: 0; }
+  .navbar .dropdown-nest:hover .dropdown-submenu,
+  .navbar .dropdown-nest:focus-within .dropdown-submenu { display: block; }
+  .navbar .dropdown-subitem { font-size: 0.85em; font-weight: 500; padding-top: 0.35rem; padding-bottom: 0.35rem; }
   /* hover 時背景改用 glow tint（僅淺色模式；深夜模式有自己的 tint，見下）*/
   html:not([data-theme="dark"]) body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:hover,
   html:not([data-theme="dark"]) body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus) .navbar .dropdown-item:focus {
@@ -185,6 +191,9 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
   .navbar-collapse .dropdown-menu.show { display: block; max-height: none; }
   .navbar-collapse .dropdown-item { color: rgba(255,255,255,0.72) !important; justify-content: flex-start; text-align: left !important; font-size: 1.05rem; padding-left: 1rem; }
   .navbar-collapse .dropdown-item:hover { background: rgba(160,232,96,0.12) !important; color: #b8f57e !important; }
+  /* 手機選單沒有 hover，Engineering 底下的 Detect / Inhibition 直接列出來 */
+  .navbar .navbar-collapse .dropdown-nest .dropdown-submenu { display: block; margin: 0; padding: 0; }
+  .navbar .navbar-collapse .dropdown-subitem { color: #a0e860 !important; padding-left: 2rem; }
   /* burger 鈕轉 X 由 Bootstrap 處理，這裡只讓它更清晰 */
   .navbar-toggler { border-color: rgba(6,64,46,0.25); }
   html[data-theme="dark"] .navbar-toggler { border-color: rgba(160,232,96,0.35); }
@@ -222,6 +231,16 @@ body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.e
 .back-to-top { transition: transform var(--t-fast) var(--ease-spring), box-shadow var(--t-fast) ease; }
 .back-to-top:hover { transform: translateY(-3px) scale(1.06); box-shadow: var(--sh-glow); }
 
+
+/* ---- Project 選單：Engineering 與底下的 Detect / Inhibition ----
+   Engineering 跟其他項目同色；子頁用綠色：深色面板（深藍綠頁、深夜模式）用螢光綠，
+   一般頁淺色模式的白底面板用較深的綠，在白底上才讀得到。 */
+.navbar .dropdown-subitem { color: #2a7d1e !important; }
+html[data-theme="dark"] .navbar .dropdown-subitem,
+body.hw-nexus .navbar .dropdown-subitem,
+body.nb-nexus .navbar .dropdown-subitem,
+body.bg-nexus .navbar .dropdown-subitem,
+body.edu-nexus .navbar .dropdown-subitem { color: #a0e860 !important; }
 /* ---- print：保持黑白，不貢獻漸層 ---- */
 @media print {
   body:not(.engineering-page) .page-hero.bg-hero { background: none !important; background-color: #fff !important; color: #000 !important; }
