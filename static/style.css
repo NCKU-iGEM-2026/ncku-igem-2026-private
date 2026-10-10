@@ -1467,7 +1467,10 @@ body.team-bio-locked { overflow: hidden; }
   gap: 0.4rem;
   width: 130px;
   padding: 0.25rem 0.55rem;
-  border-radius: 999px;
+  /* A rounded rectangle, the same shape as the full card it grows into, so
+     the change reads as the card getting bigger rather than a pill turning
+     into a box. */
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px) saturate(160%);
   -webkit-backdrop-filter: blur(10px) saturate(160%);
@@ -1488,7 +1491,7 @@ body.team-bio-locked { overflow: hidden; }
      work and the card is not repainted. translate3d(x, y, 0) alone does not
      get it one -- with no depth, Chrome counts it as a flat transform. */
   will-change: transform;
-  transition: width 0.5s ease, border-radius 0.5s ease, padding 0.5s ease,
+  transition: width 0.8s ease, border-radius 0.8s ease, padding 0.8s ease,
               opacity 0.4s ease, box-shadow 0.4s ease;
 }
 
@@ -1496,9 +1499,9 @@ body.team-bio-locked { overflow: hidden; }
   flex: 0 0 auto;
   width: 24px;
   height: 24px;
-  border-radius: 50%;
+  border-radius: 6px;
   object-fit: cover;
-  transition: width 0.5s ease, height 0.5s ease, border-radius 0.5s ease;
+  transition: width 0.8s ease, height 0.8s ease, border-radius 0.8s ease;
 }
 
 .edu-map-orbit-item .edu-map-info-body { min-width: 0; }
@@ -3752,13 +3755,16 @@ body.edu-lightbox-locked {
   /* visibility, not just opacity: it takes the photo out of the accessibility
      tree as well, so a screen reader is not read all sixteen at once. */
   visibility: hidden;
-  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+  /* The outgoing photo leaves at once rather than fading out under the new
+     one: with contain, a portrait and a landscape photo letterbox differently,
+     and a cross-fade showed the old one's edges around the new one. */
+  transition: none;
 }
 
 .edu-gallery.is-carousel .edu-slide.is-current {
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.45s ease, visibility 0s;
+  transition: opacity 0.45s ease;
 }
 
 .edu-arrow {
@@ -3913,6 +3919,13 @@ body.edu-lightbox-locked {
    dropped below this width; the link underneath still opens it fine. */
 @media (max-width: 575.98px) {
   .edu-pdf-viewer { display: none; }
+}
+
+/* And the other way round: wherever the frame is showing, the link under it
+   only repeats it, so it is kept for phones. A link with no frame above it
+   (as on the Promotion page) is the only way to the file and always stays. */
+@media (min-width: 576px) {
+  .edu-pdf-viewer + .edu-pdf-link { display: none; }
 }
 
 .edu-podcast-media {

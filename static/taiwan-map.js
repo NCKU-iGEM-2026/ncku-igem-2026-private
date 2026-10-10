@@ -388,6 +388,8 @@
         var metaEl = item.querySelector('.edu-map-info-meta');
         var photo = pin.getAttribute('data-photo');
         photoEl.style.display = photo ? '' : 'none';
+        // Decoded off the main thread, so the ring keeps turning while it is.
+        photoEl.decoding = 'async';
         if (photo) photoEl.src = photo;
         titleEl.textContent = schoolNameFor(pin) || '';
         var meta = [countyLabel((SESSIONS[i] || {}).county), pin.getAttribute('data-date')]
@@ -414,7 +416,7 @@
       return d;
     }
 
-    var ROTATION_PERIOD_MS = 48000;
+    var ROTATION_PERIOD_MS = 40000;
     var ACTIVE_THRESHOLD = (10 * Math.PI) / 180;
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -491,24 +493,48 @@
     var rowVisible = true;
     var rafId = null, lastTs = null, elapsed = 0;
 
-    // The ring holds still while the pointer is on one of its cards (or one has
-    // keyboard focus), so it can be read and clicked. Asked of the browser, not
-    // remembered from enter/leave events: cards move under a still pointer, and
-    // a click that jumps the page leaves no "leave" behind. Asked every 120 ms
-    // rather than every frame -- each ask is a style recalculation -- so the
-    // ring stops within a tenth of a second of the pointer arriving.
-    var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
-    var heldAt = -1e9, held = false;
+    // The ring holds still while the mouse is on one of its cards (or one has
+    // keyboard focus), so it can be read and clicked.
+    //
+    // What holds it is the mouse moving onto a card, and what lets it go is the
+    // mouse moving off again -- both told by pointermove, not by :hover. A card
+    // drifting under a mouse that is resting on the page is not someone
+    // reaching for it, and stopping for that made the ring halt out of
+    // nowhere. And while the ring glides to a stop the card can slide a little
+    // way out from under the pointer; it stays held until the mouse moves.
+    var reached = false;
+    document.addEventListener('pointermove', function (e) {
+      reached = e.pointerType === 'mouse' && !!(e.target.closest &&
+                e.target.closest('.edu-map-orbit-item'));
+    }, { passive: true });
+    // Leaving the window sends no pointermove to say so.
+    document.addEventListener('mouseout', function (e) {
+      if (!e.relatedTarget) reached = false;
+    });
+    // Focus is asked every 120 ms rather than every frame: each ask is a style
+    // recalculation.
+    var focusAt = -1e9, focused = false;
     var orbitHeld = function (ts) {
-      if (ts - heldAt < 120) return held;
-      heldAt = ts;
-      var el = document.activeElement;
-      held = (canHover && !!orbitEl.querySelector('.edu-map-orbit-item:hover')) ||
-             !!(el && orbitEl.contains(el) && el.matches(':focus-visible'));
-      return held;
+      if (ts - focusAt >= 120) {
+        focusAt = ts;
+        var el = document.activeElement;
+        focused = !!(el && orbitEl.contains(el) && el.matches(':focus-visible'));
+      }
+      return reached || focused;
     };
+    // Speed eases between 0 and 1 rather than switching, so the ring glides to
+    // a stop and picks up again instead of jerking. It changes by the same
+    // amount every millisecond, so slowing down is an even, gentle brake over
+    // EASE_MS -- not a sharp drop at the start and a long crawl after.
+    var EASE_MS = 2000, speed = 1;
     var orbitTick = function (ts) {
-      if (lastTs !== null && !orbitHeld(ts)) elapsed += Math.min(ts - lastTs, 100);
+      if (lastTs !== null) {
+        var dt = Math.min(ts - lastTs, 100);
+        var goal = orbitHeld(ts) ? 0 : 1;
+        var step = dt / EASE_MS;
+        speed = goal > speed ? Math.min(goal, speed + step) : Math.max(goal, speed - step);
+        elapsed += dt * speed;
+      }
       lastTs = ts;
       layoutOrbit((elapsed / ROTATION_PERIOD_MS) * 2 * Math.PI, ts);
       rafId = requestAnimationFrame(orbitTick);
@@ -576,6 +602,7 @@
           img.className = 'edu-strip-photo';
           img.alt = '';
           img.loading = 'lazy';
+          img.decoding = 'async';
           img.src = photo;
           a.appendChild(img);
         }
