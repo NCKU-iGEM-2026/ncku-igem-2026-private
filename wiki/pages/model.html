@@ -19,7 +19,7 @@
 
   本頁分成三個 Part（2026-10-07 改版）：
     Part 1  Inhibition model          #model-inhibition   佔位，內容待補
-    Part 2  Inhibition zone imaging   #model-zone         佔位，內容待補
+    Part 2  Imaging model             #model-zone         骨架已搭，內容待補
     Part 3  Reader model              #model-reader       讀取器的量測模型（原本整頁的內容）
     Summary                           #model-impact       What modelling changed（三個 Part 的總表）
   Part 3 裡原本的 Model 1/2/3 已改成 3.2/3.3/3.4，其餘各節也編成 3.1–3.8；section 的 id 沒有改。
@@ -51,7 +51,8 @@
   Part 1、2 放內容之前請先確認：
     - 頁首卡片的一句話說明（md-parts-q）是暫定的，請改成該模型真正回答的問題，
       並拿掉卡片上的 In preparation（md-parts-state）與 Part 底下的 In preparation 段落。
-    - 頁首 hw-lead 那一段的描述（inhibition → inhibition zone → reader）是否正確。
+    - 頁首 hw-lead 那一段的描述已改過（2026-10-09）：原本寫「抑制 → 抑制圈 → 讀取器」
+      的因果鏈，但 Part 2 量的是菌落、是給 wet lab 的量測工具，那條鏈不成立。
     - 卡片下方「三個模型怎麼串起來」那一句（md-parts-link）要寫成真正的關係，
       這是科學內容，必須由團隊確認，不可推測。
     - 最後的 What modelling changed 總表：Part 1、2 那兩列要補；Part 3 那幾列是從本頁
@@ -116,10 +117,13 @@
 <div class="container my-4 hw sw md">
 
   <div class="hw-lead">
+    {# 這段原本寫的是「抑制 → 抑制圈 → 讀取器」的因果鏈。Part 2 實際上是給 wet lab
+       用的菌落量測工具（以量測模型的角度撰寫），不是抑制圈模型，那條鏈不成立，
+       因此改成只列出三個 Part。三者之間真正的關係寫在下面的 md-parts-link。 #}
     <p>
-      This page holds three models, in the order the project runs: the
-      inhibition itself, the inhibition zone that shows it on a plate, and the
-      reader that measures fluorescence. Each part can be read on its own.
+      This page holds three models: the inhibition itself, a measurement model
+      that turns a photograph of a plate into colony sizes, and the reader that
+      measures fluorescence. Each part can be read on its own.
     </p>
   </div>
 
@@ -139,8 +143,8 @@
     <li>
       <a href="#model-zone">
         <span class="md-parts-no">Part 2</span>
-        <span class="md-parts-name">Inhibition zone imaging</span>
-        <span class="md-parts-q">Turning a photograph of an inhibition zone into a number.</span>
+        <span class="md-parts-name">Imaging model</span>
+        <span class="md-parts-q">What a photograph of a plate says about colony size, in millimetres.</span>
         <span class="md-parts-state">In preparation</span>
       </a>
     </li>
@@ -186,18 +190,277 @@
     <p class="hw-aside">In preparation.</p>
   </section>
 
-  {# ======================================================================
-     Part 2：抑制圈影像辨識（佔位）
-     同 Part 1 的骨架，id 用 model-zone-…，標題用 2.1–2.8。
-     影像辨識的話，2.3 The model 寫處理流程（例如前處理 → 分割 → 量測），
-     2.6 Validation 寫跟人工量測的比對。照片請用 iGEM uploads 工具上傳後再引用（見 README）。
-     ====================================================================== #}
+
   <header class="md-part" id="model-zone" data-toc-group>
     <p class="md-part-no">Part 2</p>
-    <h2 data-toc-title="Part 2 · Inhibition zone">Inhibition zone imaging</h2>
+    <h2 data-toc-title="Part 2 · Imaging">Imaging model: from photograph to millimetres</h2>
   </header>
 
-  <section>
+  <section id="model-zone-question">
+    <h2 data-toc-title="2.1 The question">2.1 The question</h2>
+
+    <p>
+      Colony sizes are measured by hand, one colony at a time. The work is slow
+      and it has to be repeated for every plate. This part of the project is a
+      tool built for the wet lab: it takes one photograph of a plate and returns
+      every colony's size in millimetres, with each figure drawn across the
+      colony it belongs to, so a reading can always be checked against what it
+      was taken from.
+    </p>
+
+    <p>
+      It is not a model of the biology. What it models is the measurement — how
+      a count of pixels becomes a length in millimetres, what the picture itself
+      has to supply for that conversion to hold, and which of the bright things
+      on a plate are colonies and which are not.
+    </p>
+  </section>
+
+  <section id="model-zone-model">
+    <h2 data-toc-title="2.2 The model">2.2 The model</h2>
+
+
+    <ol class="md-pipe" aria-label="How a photograph becomes a set of measurements">
+      <li class="md-pipe-step">
+        <span class="md-pipe-no">1</span>
+        <span class="md-pipe-body">
+          <strong>Find the dish</strong>
+          <span>Circle transform on a downscaled copy; if that returns nothing,
+          the largest thresholded shape instead. Gives the scale and the
+          boundary in one step.</span>
+        </span>
+        <span class="md-pipe-out">dish &oslash; &divide; diameter in px &rarr; mm/px</span>
+      </li>
+
+      <li class="md-pipe-step">
+        <span class="md-pipe-no">2</span>
+        <span class="md-pipe-body">
+          <strong>Flatten the lighting</strong>
+          <span>A heavily blurred copy is taken as the background and
+          subtracted, removing the gradient across the plate.</span>
+        </span>
+      </li>
+
+      <li class="md-pipe-fork">
+        <span class="md-pipe-ask">Which light is this?</span>
+        <ul>
+          <li>
+            <span class="md-pipe-cond">White</span>
+            <strong>Brightness</strong>
+            <span>Otsu on the flattened image.</span>
+          </li>
+          <li>
+            <span class="md-pipe-cond">UV</span>
+            <strong>Colour</strong>
+            <span>Green-to-blue ratio: fluorescence is a question about hue,
+            not about being bright.</span>
+          </li>
+        </ul>
+      </li>
+
+      <li class="md-pipe-step">
+        <span class="md-pipe-no">3</span>
+        <span class="md-pipe-body">
+          <strong>Keep only what has a core</strong>
+          <span>A loose outline and a much stricter core. A region survives
+          only if it holds enough core pixels &mdash; a reflection is bright
+          but thin, a colony is bright all the way through.</span>
+        </span>
+      </li>
+
+      <li class="md-pipe-fork">
+        <span class="md-pipe-ask">Convex enough to be one colony?</span>
+        <ul>
+          <li>
+            <span class="md-pipe-cond">Yes</span>
+            <strong>Leave it alone</strong>
+            <span>Splitting a clean colony is the worse mistake.</span>
+          </li>
+          <li>
+            <span class="md-pipe-cond">No</span>
+            <strong>Watershed</strong>
+            <span>Seeded from the deepest point of each lobe.</span>
+          </li>
+        </ul>
+      </li>
+
+      <li class="md-pipe-step md-pipe-end">
+        <span class="md-pipe-no">4</span>
+        <span class="md-pipe-body">
+          <strong>Measure and annotate</strong>
+          <span>Longest span, equivalent diameter, area &mdash; drawn onto the
+          photograph with a scale bar.</span>
+        </span>
+      </li>
+    </ol>
+
+    {# 只留流程圖沒帶到的理由，並點名用到的 CV 技術。流程本身不要在這裡重述一次。 #}
+    <p>
+      The pipeline is OpenCV throughout. A <strong>Hough circle transform</strong>
+      finds the dish, run on a downscaled copy &mdash; the dish is the largest
+      thing in the frame, so the search does not need full resolution &mdash;
+      with <strong>Otsu thresholding</strong> as the fallback. Subtracting a
+      <strong>large-&sigma; Gaussian</strong> flattens the lighting. White light
+      and UV are then two problems rather than one with a switch: brightness
+      against the agar is a question of intensity, answered by Otsu; fluorescence
+      is a question of hue, answered by the <strong>green-to-blue channel
+      ratio</strong>, with the choice between them made from the blue-violet
+      fraction of the frame in <strong>HSV</strong>.
+    </p>
+
+    <p>
+      The hard part was never finding bright things. It was telling a colony
+      from a reflection off the agar or the lid, which can be just as bright.
+      Thresholding twice &mdash; a loose outline and a stricter core &mdash; and
+      keeping only the <strong>connected components</strong> that hold enough
+      core pixels settles it: a reflection is bright but thin, a colony is bright
+      all the way through. <strong>Solidity</strong> and aspect ratio remove what
+      is left. Touching colonies are split only where solidity says they need it,
+      by a <strong>marker-controlled watershed</strong> seeded from the
+      <strong>distance transform</strong>, because breaking a clean colony apart
+      is the worse error. The figure drawn on the photograph is the
+      <strong>Feret diameter</strong>.
+    </p>
+  </section>
+
+  <section id="model-zone-params">
+    <h2 data-toc-title="2.3 Data &amp; parameters">2.3 Data and parameters</h2>
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table">
+        <caption>What each measurement means</caption>
+        <thead><tr><th scope="col">Quantity</th><th scope="col">How it is obtained</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Maximum span</td>
+            <td>The longest distance between any two points on the colony's convex hull, converted to millimetres. This is the figure drawn on the picture.</td>
+          </tr>
+          <tr>
+            <td>Equivalent diameter</td>
+            <td>Take the colony's area and ask what a perfect circle of that area would measure across: that is this number, &radic;(4<var>A</var>/&pi;). It throws shape away on purpose, which is what makes it worth reading beside the maximum span &mdash; a round colony and a long thin one of the same area share an equivalent diameter but not a span, so the distance between the two figures is itself a reading of how irregular the colony is.</td>
+          </tr>
+          <tr>
+            <td>Area</td>
+            <td>Pixel count inside the outline, times the scale squared.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table">
+        <caption>Four thresholds worth explaining</caption>
+        <thead><tr><th scope="col">Threshold</th><th scope="col">What it decides</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>A loose outline at 1.1&times; Otsu, a core at Otsu&nbsp;+&nbsp;0.6&nbsp;of the way to white, and 30 core pixels</td>
+            <td>Whether a bright patch is a colony at all. The gap between the two thresholds is the whole reflection test: a reflection clears the loose one and fails the core one, because it is bright without being bright all the way through. Thirty pixels is what stops a few stray bright pixels from passing as a centre.</td>
+          </tr>
+          <tr>
+            <td>Solidity 0.80</td>
+            <td>Whether a region is left alone or sent to the watershed. Everything above it is taken as one colony on sight. The line sits high deliberately: splitting a clean colony invents a result, while failing to split two that touch only merges a real one, so the benefit of the doubt goes to not cutting.</td>
+          </tr>
+          <tr>
+            <td>Blue-violet over 0.35 of the frame</td>
+            <td>Which of the two measurement problems this is &mdash; brightness or hue. Not a tuning knob but a switch between two routes, so it only has to separate two cases that look nothing alike, and anything in the middle of that range would mean the photograph is lit in some third way the pipeline was not built for.</td>
+          </tr>
+          <tr>
+            <td>Detection region at 0.90 of the dish radius</td>
+            <td>How much of the plate is looked at. The outer tenth is given up on purpose: the rim and the meniscus are where reflections collect, and the colonies lost there cost less than the false ones gained.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <section id="model-zone-results">
+    <h2 data-toc-title="2.4 Results">2.4 Results</h2>
+
+    {# 四張不是四個範例，而是四個測試，由易到難：一般情況 → 不規則形狀加筆跡 →
+       眩光 → UV。圖說寫的是「這張證明了什麼」，不是「這是第幾張」。
+       圖說裡的毫米數都是圖上讀得到的，但團隊仍請核對一次。 #}
+    <p>
+      Each plate below is shown twice: the photograph as it was taken, and the
+      same photograph with what the program found drawn onto it. They are not
+      four examples of the same thing. Each one puts a different part of the
+      pipeline under load.
+    </p>
+
+    <figure class="hw-figure md-cv-figure">
+      <img src="https://static.igem.wiki/teams/6379/wiki/computervision/3.avif"
+           alt="A plate with three colonies, photographed under white light, beside the same photograph with each colony outlined in yellow and labelled with its longest span: 16.0, 21.8 and 27.8 millimetres. The dish rim is marked with a green circle and a 10 millimetre scale bar sits in the corner."
+           loading="lazy" decoding="async">
+      <figcaption>
+        <strong>The ordinary case.</strong> Three colonies, 16.0, 21.8 and
+        27.8&nbsp;mm across. The plate carries handwriting and a pen cross over
+        each colony. The writing is darker than the agar rather than brighter,
+        so it never reaches even the loose threshold; the crosses drawn across
+        the colonies would otherwise punch holes in their outlines, which is
+        what filling the contours is for.
+      </figcaption>
+    </figure>
+
+    <figure class="hw-figure md-cv-figure">
+      <img src="https://static.igem.wiki/teams/6379/wiki/computervision/4.avif"
+           alt="A plate with four colonies with branched, dendritic edges, divided into quadrants by heavy pen lines drawn on the dish. In the measured version each colony is outlined following its branches and labelled 24.5, 20.8, 18.0 and 17.4 millimetres."
+           loading="lazy" decoding="async">
+      <figcaption>
+        <strong>Irregular edges, and lines drawn across the plate.</strong>
+        Four colonies at 24.5, 20.8, 18.0 and 17.4&nbsp;mm. The outlines follow
+        the branches rather than rounding them off, which is what makes the gap
+        between the longest span and the equivalent diameter worth reading on a
+        colony shaped like this. The pen lines crossing the whole dish are
+        ignored: they are dark, and they are thin, which fails the shape test
+        as well as the brightness one.
+      </figcaption>
+    </figure>
+
+    <figure class="hw-figure md-cv-figure">
+      <img src="https://static.igem.wiki/teams/6379/wiki/computervision/1.avif"
+           alt="A plate with a single colony, photographed under white light with a broad band of glare across the upper left of the dish. In the measured version only the colony is outlined, at 21.7 millimetres; the glare is not marked."
+           loading="lazy" decoding="async">
+      <figcaption>
+        <strong>The reflection test, on a real plate.</strong> One colony at
+        21.7&nbsp;mm, with a band of glare lying across the lower right of the
+        dish that is as bright as the colony is, but t is not measured. This is the
+        case the two thresholds exist for: the glare clears the loose outline
+        and has no dense centre to clear the core.
+      </figcaption>
+    </figure>
+
+    <figure class="hw-figure md-cv-figure">
+      <img src="https://static.igem.wiki/teams/6379/wiki/computervision/uv1.avif"
+           alt="A plate photographed under UV, the agar lit blue-violet with one colony fluorescing green at the centre, beside the same photograph with the colony outlined and labelled 10.9 millimetres."
+           loading="lazy" decoding="async">
+      <figcaption>
+        <strong>The other light.</strong> The same pipeline under UV, reading
+        the green-to-blue ratio rather than brightness: one colony at
+        10.9&nbsp;mm. Fluorescence spreads past the colony that emits it, and
+        the outline here follows the colony rather than the halo around it
+        &mdash; where that edge falls is set by the threshold sitting partway
+        between the plate's median and its brightest few parts.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section id="model-zone-validation">
+    <h2 data-toc-title="2.5 Validation">2.5 Validation</h2>
+    {# 團隊填寫：跟人工（游標尺）量測的比對 —— 幾個菌落、差多少、有沒有系統性偏差。
+       這是評審在 Best Model 最看重的一節，沒有比對數據就只是一支程式。 #}
+    <p class="hw-aside">In preparation.</p>
+  </section>
+
+  <section id="model-zone-changed">
+    <h2 data-toc-title="2.6 What it changed">2.6 What it changed</h2>
+    {# 團隊填寫：wet lab 因此改了什麼做法，省下多少時間，或量到了原本量不到的東西。 #}
+    <p class="hw-aside">In preparation.</p>
+  </section>
+
+  <section id="model-zone-limits">
+    <h2 data-toc-title="2.7 Limits">2.7 Limits</h2>
+    {# 團隊填寫。以下三條是從程式碼看出來的，可直接用，也請一併確認。 #}
     <p class="hw-aside">In preparation.</p>
   </section>
 
@@ -217,8 +480,9 @@
       <li><a href="#model-across">3.3 Across sessions</a></li>
       <li><a href="#model-design">3.4 Design</a></li>
       <li><a href="#model-inverse">3.5 Inverse</a></li>
-      <li><a href="#model-limits">3.6 Limits</a></li>
-      <li><a href="#model-reproduce">3.7 Reproducing</a></li>
+      <li><a href="#model-rebuilt">3.6 After the rebuild</a></li>
+      <li><a href="#model-limits">3.7 Limits</a></li>
+      <li><a href="#model-reproduce">3.8 Reproducing</a></li>
     </ul>
   </nav>
 
@@ -244,7 +508,9 @@
       calibration curve. None of these cultures was induced with AHL: the
       samples are cultures reported to carry the sfGFP plasmid, cultures
       without it, and medium. A dose&ndash;response model of the biosensor
-      itself is not part of this model, because we have not measured one.
+      itself is not part of this model, because we have not measured one. The
+      one session on AHL plates, read on the rebuilt reader, is in
+      <a href="#model-rebuilt">3.6</a>.
     </p>
   </div>
 
@@ -258,7 +524,7 @@
       <div><dt>Model</dt><dd>A line through the origin within a session, a stock-density conversion across sessions, and a four-channel ridge regression in the other direction. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
       <div><dt>Validation</dt><dd>Every model is scored on tubes it was not fitted to: a left-out recipe, or a whole left-out session. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
       <div><dt>What it changed</dt><dd>How many pairs to make, whether to repeat a comparison, and which pipeline to keep. <a href="#model-design">3.4</a>, <a href="#model-impact">Summary</a></dd></div>
-      <div><dt>Limits</dt><dd>Relative readings only, three sessions, and a cross-session conversion found after the fact. <a href="#model-limits">3.6</a></dd></div>
+      <div><dt>Limits</dt><dd>Relative readings only, three sessions, and a cross-session conversion found after the fact. <a href="#model-limits">3.7</a></dd></div>
     </dl>
   </div>
 
@@ -332,7 +598,7 @@
     <h2 data-toc-title="3.1 Data">3.1 The data behind it</h2>
 
     <p>
-      Everything below comes from one instrument, <code>P1-PROTO-01</code>,
+      Sections 3.2 to 3.5 come from one instrument, <code>P1-PROTO-01</code>,
       read under an opaque shield with the UVette in the same orientation and
       the detector at the same settings throughout: gain 512&times;, ATIME 255,
       ASTEP 280. The models rest on three mixing sessions, in which a GFP
@@ -1076,9 +1342,92 @@
     </details>
   </section>
 
+  <!-- ========================= after the rebuild ========================= -->
+  {# 2026-10-10：模型在改版後的機台（P1-PROTO-02）上的兩件事，都是事後、探索性的。
+     來源（硬體資料夾 _AI_REFACTOR_WORK/）：
+       P1_AHL_EVIDENCE_2026-10-09/EVIDENCE.md revision 2 的 §7（模型、每一筆的拆分、已知答案的檢驗；表 T7a–T7f）；
+       P1_AHL_MODEL_FIT_2026-10-09/SUMMARY.md；同資料夾 ml_transfer/REPORT.md §1–§3（9-30 存下的三個不需要 OD 的
+       模型原封不動套到 10-05 的稀釋系列；那份報告由 subagent 產生，證據檔沒有重算，數字全部由程式算出）。
+     證據檔 §10 明定：背景模型不是校正、不能用來扣背景、不能說它已被驗證；不能說偵測極限或讀值代表多少 GFP；
+     不能說背景就是散射漏光；不能說濃菌液會放大螢光。這一節照這條線寫，限制只在最後一段寫一次。
+     用 OD 正規化的那個模型（8.24）沒有在新機台的資料上跑過（ml_transfer/REPORT.md §1：not run），所以這裡沒有說它。
+     表的第三列只列「目視有誘導」的六筆：目視沒有誘導的兩筆與不含報導基因的那一筆是用來定 c 的點，
+     它們接近 0 是擬合的結果，不是獨立的檢驗（證據檔 §7.2）。 #}
+  <section id="model-rebuilt">
+    <h2 data-toc-title="3.6 After the rebuild">3.6 After the rebuild: what carried over</h2>
+
+    <p>
+      The models above describe the first reader. It was rebuilt on
+      2026-10-03, and two sessions on the rebuilt reader, a dilution series
+      and a session on AHL plates, show what carries over. Both are on the
+      <a href="{{ url_for('pages', page='hardware') }}#hardware-v2-ahl">Hardware</a>
+      page, and everything in this section was worked out after their
+      readings were seen.
+    </p>
+
+    <h3>The inverse models did not carry over</h3>
+
+    <p>
+      The three models that need no OD, F4 alone, the four-channel ridge
+      and a random forest, were applied unchanged to the twelve tubes of
+      the dilution series, whose share of GFP culture is known. None did
+      better than always guessing the mean of the training tubes: the best
+      was off by 27.1 points on average against 27.8, and that only after
+      the counts were scaled down for the higher LED current. The stock of
+      that session gave more signal for the same share of culture than any
+      stock the models had seen. <var>G</var>, a share of one day's stock,
+      is not a scale that carries from one stock to the next.
+    </p>
+
+    <h3>A background that rises with scatter</h3>
+
+    <p>
+      The plate suspensions were far denser than any tube in 3.1, and in
+      them the emission channel was no longer zero without GFP. We
+      described that with the curve <var>R</var> that follows the dilution
+      series down at its faint end, and one new parameter: a background in
+      proportion to the scatter channel F2.
+    </p>
+
+    <div class="sw-eq sw-eq-key">
+      F4 = <var>R</var>(<var>S</var><sub>GFP</sub> + <var>c</var> &middot; F2), &nbsp;
+      <var>R</var>(<var>S</var>) = <var>S</var> / (1 + (<var>S</var><sub>0</sub> / <var>S</var>)<sup><var>n</var></sup>)
+    </div>
+
+    <p>
+      <var>S</var><sub>0</sub>&nbsp;=&nbsp;6.51 counts and
+      <var>n</var>&nbsp;=&nbsp;5.20 come from the dilution series and were
+      not refitted. <var>c</var>&nbsp;=&nbsp;0.0629 was fitted to thirteen
+      captures from the two sessions that held no GFP or were judged not
+      induced, of which three read above zero.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption>The description, checked against readings it was not fitted to</caption>
+        <thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+        <tbody>
+          <tr><td>Each of the thirteen captures, predicted from the other twelve</td><td>Off by 0.33 counts (root mean square). A straight line with one parameter is off by 1.15.</td></tr>
+          <tr><td>Each level of the dilution series, predicted from the others</td><td>25 to 100&nbsp;&micro;L of culture recovered at 0.87 to 1.21 of the true volume; 12.5&nbsp;&micro;L at 0.67 to 0.68.</td></tr>
+          <tr><td>Fluorescence left once the background is taken off</td><td>+65.78 counts for the sfGFP culture and +17.00 for the suspension with sfGFP added. &minus;0.59 to +0.22 for the six readings from plates judged induced.</td></tr>
+          <tr><td>The suspension with 20&nbsp;&micro;L of sfGFP culture added, predicted</td><td>19.68 counts predicted, 23.56 read.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      This is a description fitted after the fact, not a calibration. Three
+      readings above zero set its one parameter, and it does not say
+      whether the background is scattered light or the cells' own
+      fluorescence. It tells a cuvette with added sfGFP from one without;
+      it does not give an amount, and no suspension from an AHL plate
+      showed fluorescence for it to be tested on.
+    </p>
+  </section>
+
   <!-- ========================= limits ========================= -->
   <section id="model-limits">
-    <h2 data-toc-title="3.6 Limits">3.6 Assumptions and limits</h2>
+    <h2 data-toc-title="3.7 Limits">3.7 Assumptions and limits</h2>
 
     <div class="hw-figure">
       <table class="hw-table">
@@ -1086,13 +1435,14 @@
         <thead><tr><th scope="col">We do not say</th><th scope="col">What the data supports</th></tr></thead>
         <tbody>
           <tr><td>A calibration curve, an absolute GFP concentration, a limit of detection</td><td>Relative readings within one session, and a description of these three sessions.</td></tr>
-          <tr><td>Non-GFP cells do not affect F4</td><td>No difference was resolved at this precision; the nominal range is &minus;20&nbsp;% to +12&nbsp;% of A.</td></tr>
+          <tr><td>Non-GFP cells do not affect F4</td><td>No difference was resolved at this precision; the nominal range is &minus;20&nbsp;% to +12&nbsp;% of A. In a far denser suspension, a cuvette without the reporter read 1.78 (<a href="#model-rebuilt">3.6</a>).</td></tr>
           <tr><td>The instrument does not drift</td><td>After conversion the three sessions agree, with no sign of a large drift. Post hoc.</td></tr>
           <tr><td>OD is a cell count</td><td>A displayed OD that does not scale with dilution, for a reason not yet established.</td></tr>
-          <tr><td>The biosensor's dose&ndash;response to AHL</td><td>No AHL induction had been run on any of these samples.</td></tr>
+          <tr><td>The biosensor's dose&ndash;response to AHL</td><td>None of these samples was induced. The one session on AHL plates did not resolve induction (<a href="#model-rebuilt">3.6</a>).</td></tr>
           <tr><td>Every GFP sample is detected</td><td>35 of 38 tubes read above zero; the three that did not had the lowest density index.</td></tr>
           <tr><td>Four channels beat one</td><td>Not established either way on this data.</td></tr>
           <tr><td>Accurate to 8.24 points</td><td>A mean over all 50 tubes, with a worst tube at 29.37.</td></tr>
+          <tr><td>The models carry over to the rebuilt reader</td><td>The three that need no OD did no better than guessing the mean on its dilution series (<a href="#model-rebuilt">3.6</a>).</td></tr>
         </tbody>
       </table>
     </div>
@@ -1121,7 +1471,7 @@
 
   <!-- ========================= reproducing ========================= -->
   <section id="model-reproduce">
-    <h2 data-toc-title="3.7 Reproducing">3.7 How the numbers were produced</h2>
+    <h2 data-toc-title="3.8 Reproducing">3.8 How the numbers were produced</h2>
 
     <p>
       The tables behind sections 3.2 to 3.4 were not typed in by hand. Each is
@@ -1133,7 +1483,8 @@
       readings of zero and the tubes that were re-prepared. The four-channel
       study keeps a record of every model it fitted and refits its held-out
       predictions as a check. The three figures in 3.2 and 3.3 are drawn from the twenty tube means themselves, with their slopes and
-      held-out errors computed in the page.
+      held-out errors computed in the page. The numbers in 3.6 are computed
+      by scripts from the raw logs of the two later sessions.
     </p>
 
     <p class="hw-refs-note">
@@ -1149,6 +1500,7 @@
      總結：三個模型各改變了什麼。評審最看重「模型有沒有影響專案設計」，這張表一次回答。
      Part 1、2 的列等內容進來後補上（同樣只寫實際發生的決定）。
      Part 3 的四列是從 3.3–3.6 既有文字整理的，請團隊確認。
+     2026-10-10：加了第五列（3.6，改版後的機台）；原本的 3.6、3.7 改成 3.7、3.8。
      ====================================================================== #}
   <header class="md-part" id="model-impact" data-toc-group>
     <p class="md-part-no">Summary</p>
@@ -1195,6 +1547,11 @@
             <td><a href="#model-prediction">Part 3 &middot; 3.3</a></td>
             <td>How to turn the cross-session model into evidence.</td>
             <td>A prediction for a new stock was written into the closing report, with its verdict rule fixed in advance.</td>
+          </tr>
+          <tr>
+            <td><a href="#model-rebuilt">Part 3 &middot; 3.6</a></td>
+            <td>Whether the earlier models could read the rebuilt reader's sessions.</td>
+            <td>They could not, so the AHL plate session was read with a one-parameter background fitted to its own controls, and reported as a description.</td>
           </tr>
         </tbody>
       </table>

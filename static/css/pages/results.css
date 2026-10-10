@@ -1,0 +1,73 @@
+/* Results page -------------------------------------------------------- */
+
+/* Every figure is a framed card, so a chart on white and a photograph on
+   black sit on the page the same way.
+
+   A figure on its own lays its caption beside the picture: the picture keeps
+   to the left edge of the text, and a long caption has room to run.
+   Two figures in a pair are two equal cards. Each picture sits in a square of
+   the same size, so the two captions start on one line whatever the shapes of
+   the pictures. */
+.res-figure {
+  display: grid;
+  grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: center;
+  margin: 1.75rem 0;
+  padding: 1rem;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+/* A landscape photograph takes more of the row. */
+.res-figure--wide { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+
+.res-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* The charts are drawn on white: they keep near their own size, on a white
+   ground that runs to the edge of their place. */
+.res-figure img.res-chart {
+  max-width: 21rem;
+  margin: 0 auto;
+  background: #fff;
+}
+
+.res-figure figcaption {
+  font-size: 0.86rem;
+  line-height: 1.65;
+  color: var(--c-text-2);
+}
+.res-figure figcaption strong { display: block; margin-bottom: 0.3rem; color: var(--c-text); }
+
+/* Two figures side by side. */
+.res-figure-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin: 1.75rem 0;
+}
+.res-figure-pair .res-figure {
+  display: block;
+  margin: 0;
+}
+.res-figure-pair .res-figure img {
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  max-width: none;
+  background: #0b1418;
+}
+.res-figure-pair .res-figure img.res-chart { background: #fff; }
+.res-figure-pair .res-figure figcaption { padding-top: 0.8rem; }
+
+/* Narrow screens: one figure to a row, caption under its picture. */
+@media (max-width: 719.98px) {
+  .res-figure,
+  .res-figure--wide { grid-template-columns: minmax(0, 1fr); gap: 0.8rem; }
+  .res-figure-pair { grid-template-columns: minmax(0, 1fr); }
+}

@@ -1,11 +1,471 @@
 {% extends "layout.html" %}
-  
+
 {% block title %}Biosafety and Security{% endblock %}
-{# subtitle, not published -- replace with a real one when there is one:
-   特殊獎項 #}
 {% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/biosafety.avif{% endblock %}
-{% block lead %}{% endblock %}
+{% block lead %}Where each step is done, who may do it, and what we have deliberately not built{% endblock %}
 
 {% block page_content %}
+
+{#
+  === 給團隊的說明，發布前請讀 ===
+
+  本頁內容來自 wet lab 的「Wet wiki 文字草稿」，只做英文潤稿，沒有新增任何
+  事實、數字或引用。送審前請 wet lab 逐段再確認一次，特別是下面幾點：
+
+  1. Organisms & risk groups 表格是我們自己的草稿，risk group 與 containment
+     level 最終要以成大 IBC 的認定為準（原稿已自己註明，這裡保留）。
+  2. 緊急聯絡人的 e-mail 照原稿抄錄。其中 I-son Ng 老師對應的是
+     yswu@mail.ncku.edu.tw、ESH 林威振老師對應 wcnikelin@mail.ncku.edu.tw，
+     兩個都請本人確認後再發布——個人信箱一旦上 wiki 就是公開的。
+  3. 原稿 Reference 第 9 筆是空的，這裡沒有補，請補齊或刪掉編號。
+  4. Shipment 段寫「We exchanged samples with other teams this season」，
+     若本季實際上沒有寄送，請改掉。
+
+  版型沿用 Project Description 的 .desc 編輯式樣式（static/style.css），
+  所以這頁不需要自己的 CSS。
+#}
+
+<div class="container my-4 desc">
+
+  <!-- ======================== preface ======================== -->
+  {# 不用 .desc-lead：那個樣式會把第一段的第一個 <em> 放大 1.45 倍，
+     那是 Description 頁開頭特意放大菌名用的，這裡第一個 <em> 是句中的
+     E. coli，放大會像打錯字。 #}
+  <section>
+    <h2>Preface</h2>
+    <p>
+      Almost half a century ago, the geneticist Stanley Cohen and his
+      colleagues told the world that they had built a plasmid &mdash; a ring of
+      DNA &mdash; carrying a gene from another organism into an
+      <em>E.&nbsp;coli</em> cell. That was the birth of genetic engineering.
+      Since the first genetically modified organisms appeared they have drawn
+      curiosity and inspiration, and a growing unease along with them.
+    </p>
+    <p>
+      We still take that work, which undoubtedly carries some degree of risk,
+      as a vocation worth pursuing carefully. Winning broad acceptance for
+      synthetic biology in everyday life is part of the same task, and much of
+      that effort is still ahead of us. Biosafety has never mattered more as
+      the science grows: without it, science stays caged in the laboratory, and
+      any medical improvement built on biological products stays a dream that
+      never arrives.
+    </p>
+  </section>
+
+  <!-- ================ project overview & summary ================ -->
+  <section>
+    <h2>Project overview &amp; safety summary</h2>
+    <p>
+      Our project runs along two routes: it listens for the quorum sensing
+      signals (AHLs) of <em>Pseudomonas aeruginosa</em>, and it releases
+      aptamers that interrupt those signals. Detection comes first and acts as
+      navigation &mdash; it confirms that the target molecules are really there
+      before we try to quiet the bacteria down.
+    </p>
+  </section>
+
+  <!-- ============== general laboratory safety rules ============== -->
+  <section>
+    <h2>General laboratory safety rules</h2>
+    <p>
+      Our management rationale follows the Safe Laboratory Practices published
+      by National Cheng Kung University, used here as our reference.<sup>[1]</sup>
+    </p>
+
+    <figure class="desc-figure">
+      <table class="desc-table">
+        <caption>
+          Where each kind of work is done, and who supervises it.
+        </caption>
+        <thead>
+          <tr><th>Work</th><th>Where</th><th>Supervision</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              Cloning, <em>E.&nbsp;coli</em> transformation, fluorescence
+              readout, double-layer agar plates
+            </td>
+            <td>BSL-1 area</td>
+            <td>Advisors</td>
+          </tr>
+          <tr class="is-highlight">
+            <td>Any step involving live <em>P.&nbsp;aeruginosa</em></td>
+            <td>BSL-2 laboratory, biological safety cabinet</td>
+            <td>PIs and advisors</td>
+          </tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <h3>Training &amp; oversight</h3>
+    <p>
+      In accordance with the Taiwan Ministry of Health and Welfare&rsquo;s
+      <em>Regulations Governing the Management of Infectious Biological
+      Materials</em><sup>[4]</sup> and university policy, a specified number of
+      training hours must be completed before entering a BSL-2 laboratory. That
+      training typically includes:
+    </p>
+    <ul>
+      <li>3 hours of &ldquo;General Laboratory Safety and Health Training&rdquo;.</li>
+      <li>
+        3 hours of &ldquo;Hazardous Chemical Labeling and General
+        Awareness&rdquo;, as we use hazardous chemicals.
+      </li>
+      <li>4 hours of &ldquo;Biosafety and Biosecurity Training&rdquo;.</li>
+      <li>Completion of the &ldquo;Biosafety Knowledge Assessment&rdquo;.</li>
+    </ul>
+    <p>
+      Only members who have completed the additional BSL-2 training and been
+      authorised by the PI carry out steps involving the pathogen; other
+      members do not. Laboratory notebooks, the strain inventory, labelling and
+      storage locations are managed centrally by our safety officer.
+    </p>
+
+    <h3>Protective measures</h3>
+    <p>
+      Personal protective equipment, disinfection and the accidental-exposure
+      reporting procedure all follow the current rules of NCKU&rsquo;s
+      Environmental Protection and Safety Health Center.
+    </p>
+    <ul>
+      <li>
+        <strong>Personal protective equipment.</strong>
+        Lab coat, gloves and safety glasses in both work areas; gloves changed
+        and hands washed on leaving the bench; no food, drink or open shoes in
+        the laboratory.
+      </li>
+      <li>
+        <strong>Disinfection.</strong>
+        Benches wiped down before and after work; the biological safety cabinet
+        surface-disinfected on the laboratory&rsquo;s own schedule; a spill is
+        contained, disinfected and reported to the supervisor rather than
+        cleared up alone.
+      </li>
+      <li>
+        <strong>Accidental exposure.</strong>
+        Stop work, give first aid, tell the supervisor immediately, then report
+        through the NCKU ESH Center&rsquo;s incident procedure.
+      </li>
+      <li>
+        <strong>Access and storage.</strong>
+        The laboratory is locked when unattended, strains are stored in a
+        labelled, designated place, and only authorised members hold access.
+      </li>
+    </ul>
+
+    <h3>Waste</h3>
+    <ul>
+      <li>
+        <strong>Biological waste.</strong>
+        All plates, media, tips and consumables that have contacted bacteria
+        are collected under NCKU regulations, autoclaved, and then removed
+        through the university&rsquo;s authorised biomedical waste stream.
+      </li>
+      <li>
+        <strong>Chemical waste.</strong>
+        Fluorescent dyes, nucleic acid stains and similar reagents are
+        segregated and collected under NCKU&rsquo;s chemical waste categories.
+      </li>
+    </ul>
+
+    <h3>Shipment</h3>
+    <p>
+      We exchanged samples with other teams this season. We followed
+      iGEM&rsquo;s policies<sup>[2]</sup> and the relevant domestic and
+      international rules for biological material, and shipped only plasmid DNA
+      or laboratory <em>E.&nbsp;coli</em> strains &mdash; never the pathogen.
+    </p>
+
+    <h3>Emergency contacts</h3>
+
+    <figure class="desc-figure">
+      <table class="desc-table">
+        <caption>
+          Who to contact, and in what capacity.
+        </caption>
+        <thead>
+          <tr><th>Role</th><th>Name</th><th>E-mail</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              NCKU Environmental Protection and Safety Health Center &mdash;
+              Biosafety and Radiation Protection Group, group leader
+            </td>
+            <td>Lin, Wei-Chen, Ph.D.</td>
+            <td><a href="mailto:wcnikelin@mail.ncku.edu.tw">wcnikelin@mail.ncku.edu.tw</a></td>
+          </tr>
+          <tr>
+            <td>Laboratory supervision</td>
+            <td>Masayuki Hashimoto</td>
+            <td><a href="mailto:hashmate@mail.ncku.edu.tw">hashmate@mail.ncku.edu.tw</a></td>
+          </tr>
+          <tr>
+            <td>Laboratory supervision</td>
+            <td>I-son Ng</td>
+            <td><a href="mailto:yswu@mail.ncku.edu.tw">yswu@mail.ncku.edu.tw</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </figure>
+  </section>
+
+  <!-- ============ safety considerations for our project ============ -->
+  <section>
+    <h2>Safety considerations for our project</h2>
+
+    <h3>Organisms &amp; risk groups</h3>
+    <p>
+      The table below is our own draft. The risk group and containment level
+      must follow the determination of NCKU&rsquo;s Institutional Biosafety
+      Committee.
+    </p>
+
+    <figure class="desc-figure">
+      <table class="desc-table">
+        <caption>
+          The organisms we work with, and what each one is for.
+        </caption>
+        <thead>
+          <tr>
+            <th>Organism</th>
+            <th>Strain</th>
+            <th>Role in the project</th>
+            <th>Risk group</th>
+            <th>Containment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><em>Escherichia coli</em></td>
+            <td>
+              TOP10 and DH5&alpha; (K-12 derived laboratory strains);
+              BL21 (B-strain derivative)
+            </td>
+            <td>
+              Host for all engineered parts: the signal-sensing reporter and
+              aptamer production
+            </td>
+            <td>RG1</td>
+            <td>BSL-1</td>
+          </tr>
+          <tr>
+            <td><em>Pseudomonas aeruginosa</em></td>
+            <td>PAO1</td>
+            <td>Source of the signals, and the organism we assess against</td>
+            <td>RG2</td>
+            <td>BSL-2</td>
+          </tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <p>
+      The division of labour matters here. All genetic modification happens in
+      <em>E.&nbsp;coli</em>, which is both our detector and our synthetic
+      biology tool; <em>P.&nbsp;aeruginosa</em> is only an organism we test
+      against, and is never genetically modified. No toxin genes and no
+      virulence factors were introduced into our chassis. The only
+      antibiotic-resistance genes present are the standard plasmid selection
+      markers required for cloning &mdash; no resistance determinant from a
+      clinical isolate was cloned or transferred.
+    </p>
+
+    <h3>Chemical safety</h3>
+    <p>The chemicals below are the hazardous ones our protocols use.</p>
+
+    <figure class="desc-figure">
+      <table class="desc-table">
+        <caption>
+          Hazardous chemicals in our protocols, and the control we apply to
+          each.
+        </caption>
+        <thead>
+          <tr><th>Chemical</th><th>Main hazard</th><th>Control we apply</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Dimethyl sulfoxide (DMSO)</td>
+            <td>Absorbed through skin quickly, and carries dissolved chemicals in with it</td>
+            <td>
+              Nitrile gloves, changed at once if wetted; hazardous solutes
+              dissolved in the fume hood
+            </td>
+          </tr>
+          <tr>
+            <td>Ethyl acetate</td>
+            <td>Volatile and flammable</td>
+            <td>Fume hood, no ignition source nearby, containers kept closed</td>
+          </tr>
+          <tr>
+            <td>Ethanol</td>
+            <td>Highly flammable</td>
+            <td>
+              Kept away from ignition sources, small working volumes, stored in
+              the flammables cabinet
+            </td>
+          </tr>
+          <tr>
+            <td>Hydrochloric acid (HCl)</td>
+            <td>Corrosive</td>
+            <td>
+              Fume hood, goggles and apron, acid added to water (never the
+              reverse), spill kit within reach
+            </td>
+          </tr>
+          <tr>
+            <td>Chloroform</td>
+            <td>
+              Harmful vapour; dizziness and CNS depression at high levels, liver
+              and kidney damage on repeated exposure
+            </td>
+            <td>Fume hood only, smallest workable volume</td>
+          </tr>
+          <tr>
+            <td>Isopropanol</td>
+            <td>Flammable and irritant</td>
+            <td>Away from ignition sources, gloves, good ventilation</td>
+          </tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <p>
+      All of these go to the chemical waste stream described above, never down
+      the sink.
+    </p>
+
+    <h3>Four features that make this design safer by construction</h3>
+    <ol>
+      <li>
+        <strong>The engineered chassis are safe laboratory strains.</strong>
+        All cloning and expression is done in laboratory <em>E.&nbsp;coli</em>,
+        never in a pathogen.
+      </li>
+      <li>
+        <strong>We do not enhance anything the bacteria already do.</strong>
+        The design goal is to quiet bacterial coordination, rather than to kill
+        and so push virulence or resistance.
+      </li>
+      <li>
+        <strong>We measure molecules, not patients.</strong>
+        All experiments this season use purified or synthetic signal molecules,
+        or bacterial culture supernatants, in the laboratory. There are no human
+        samples and no clinical recruitment.
+      </li>
+      <li>
+        <strong>No environmental release.</strong>
+        Engineered strains stay inside the laboratory. There is no therapeutic
+        or environmental deployment, and no use on humans or animals.
+      </li>
+    </ol>
+  </section>
+
+  <!-- =================== limits and future work =================== -->
+  <section>
+    <h2>What we have not done</h2>
+    <p>
+      Our approach through the experiments and the rest of our work is a
+      conservative one, but we expect that the story could be extended, inside
+      synthetic biology or outside it. Those extensions would bring risks of
+      their own &mdash; during sample collection, during experiments, or on
+      contact with highly regulated strains.
+    </p>
+    <p>
+      Our results are an <em>in vitro</em> proof of concept. This is not a
+      diagnostic device and not a drug, and it has not been validated in real
+      clinical specimens such as sputum, bronchoalveolar lavage fluid or wound
+      exudate.
+    </p>
+    <p>
+      The following are not done, and we think it is better to say so plainly
+      for whoever picks the work up next:
+    </p>
+    <ul>
+      <li>
+        <strong>Biocontainment design.</strong>
+        Our current engineered strains carry no kill switch and no auxotrophic
+        dependency. If this ever moves toward real application, that is a
+        necessary next step.
+      </li>
+      <li>
+        <strong>Endotoxin, which a kill switch does not solve.</strong>
+        Even with a self-destruct design, the host&rsquo;s own endotoxin (LPS)
+        stays behind in the preparation, so killing the cells does not by itself
+        make an extracted aptamer safe to give to anyone. If this were ever
+        taken toward a drug, removing endotoxin physically or chemically during
+        purification would be the route we would recommend, rather than relying
+        on the kill switch.<sup>[6]</sup>
+      </li>
+      <li>
+        <strong>Moving to a cell-free system.</strong>
+        If the reporter reaction can run without cells, the question of live
+        strains escaping disappears entirely. We consider this the cleanest
+        long-term route.
+      </li>
+      <li>
+        <strong>Effect on commensal flora.</strong>
+        Other bacteria also communicate through AHLs, so interrupting these
+        signals could have unintended ecological
+        effects.<sup>[7][8]</sup> We have not tested this.
+      </li>
+      <li>
+        <strong>Clinical samples and their review.</strong>
+        Since our eventual target is a clinical one, collecting and testing
+        samples is an indispensable way to determine whether our system works.
+        If there is ever hospital collaboration or use of clinical isolates, the
+        provenance and the IRB or human-subjects review must be obtained and
+        recorded.
+      </li>
+    </ul>
+  </section>
+
+  <!-- ======================= references ======================= -->
+  <section class="desc-refs">
+    <h2>References</h2>
+    <ol>
+      <li id="ref1">
+        National Cheng Kung University. 實驗室安全操作規範 (Safe Laboratory
+        Practices).
+        <a href="https://oai.web2.ncku.edu.tw/p/404-1072-190160.php?Lang=zh-tw">oai.web2.ncku.edu.tw</a>
+      </li>
+      <li id="ref2">
+        iGEM Safety and Security Policies.
+        <a href="https://competition.igem.org/safety/policies">competition.igem.org/safety/policies</a>
+      </li>
+      <li id="ref3">
+        World Health Organization. <em>Laboratory Biosafety Manual</em>, 4th
+        edition. Geneva: WHO, 2020.
+        <a href="https://www.who.int/publications/i/item/9789240011311">who.int</a>
+      </li>
+      <li id="ref4">
+        衛生福利部，《感染性生物材料管理辦法》（最新修正版）。
+        <a href="https://www.mohw.gov.tw/">mohw.gov.tw</a>
+      </li>
+      <li id="ref5">
+        American Biological Safety Association (ABSA) Risk Group Database.
+        <a href="https://my.absa.org/RiskGroups">my.absa.org/RiskGroups</a>
+      </li>
+      <li id="ref6">
+        Current technologies for endotoxin detection and removal in
+        biopharmaceutical purification.
+        <a href="https://scholarsmine.mst.edu/che_bioeng_facwork/916">scholarsmine.mst.edu</a>
+      </li>
+      <li id="ref7">
+        Coquant G. <em>et al.</em> Impact of <em>N</em>-acyl-homoserine
+        lactones, quorum sensing molecules, on gut immunity.
+        <em>Frontiers in Immunology</em>, 2020.
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7484616/">pmc.ncbi.nlm.nih.gov</a>
+      </li>
+      <li id="ref8">
+        Making sense of quorum sensing at the intestinal mucosal interface.
+        <em>Cells</em>, 2022.
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9179481/">pmc.ncbi.nlm.nih.gov</a>
+      </li>
+    </ol>
+  </section>
+
+</div>
 
 {% endblock %}

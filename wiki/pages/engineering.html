@@ -40,6 +40,8 @@
 
 {# stage, its arrow's bearing on the ring, where its label sits, and the line
    under its heading. #}
+{# The heading over a stage, where it is longer than the ring's own label. #}
+{% set stage_titles = {'learn': 'Learning and future direction'} %}
 {% set stages = [
   ('design', 45,  306.07, 93.93,  'What we set out to make, and why'),
   ('build',  135, 306.07, 306.07, 'What we made, and how'),
@@ -47,7 +49,29 @@
   ('learn',  315, 93.93,  93.93,  'What it told us, and what changed next'),
 ] %}
 
+{# Two parts, each with its own DBTL cycle: Detect first, then Inhibition.
+   part: used in ids and links (#eng-detect-design ...); part_name: the
+   heading above the cycle and the word in its centre. Each part is a panel
+   in its own accent colour (style.css, .eng-part), with a jump bar at the top
+   so a reader sees from the start that the page has two parts. #}
+{% set parts = [('detect', 'Detect'), ('inhibition', 'Inhibition')] %}
+
 <div class="container my-4 hw eng">
+  <nav class="eng-parts-nav" aria-label="Engineering parts">
+    {% for part, part_name in parts %}
+    <a href="#eng-{{ part }}" data-part="{{ part }}">
+      <span class="eng-part-num">Part 0{{ loop.index }}</span>
+      <span class="eng-parts-nav-name">{{ part_name }}</span>
+    </a>
+    {% endfor %}
+  </nav>
+
+  {% for part, part_name in parts %}
+  <section class="eng-part" id="eng-{{ part }}" data-part="{{ part }}" aria-labelledby="eng-{{ part }}-title">
+  <header class="eng-part-head">
+    <span class="eng-part-num">Part 0{{ loop.index }}</span>
+    <h2 class="eng-part-title" id="eng-{{ part }}-title">{{ part_name }}</h2>
+  </header>
   <div class="eng-dbtl">
 
     {# The design-build-test-learn cycle, drawn here rather than uploaded. The
@@ -65,17 +89,17 @@
        sweep is a full circle, so every arrow shows lit, and the links still
        work. #}
     {% set arrow = "M 63.97 73.15 A 186 186 0 0 1 290.17 37.32 L 295.02 28.57 L 309.70 97.70 L 250.42 109.04 L 255.27 100.29 A 114 114 0 0 0 116.63 122.25 L 127.28 68.81 Z" %}
-    <nav class="eng-dbtl-rail" aria-label="Engineering cycle">
-      <figure class="eng-cycle" id="eng-cycle">
+    <nav class="eng-dbtl-rail" aria-label="{{ part_name }} engineering cycle">
+      <figure class="eng-cycle">
         <svg viewBox="0 0 400 400">
           <defs>
             {% for stage, bearing, x, y, note in stages %}
-            <linearGradient id="eng-cycle-fill-{{ stage }}" x1="0" y1="0" x2="1" y2="0">
+            <linearGradient id="eng-{{ part }}-fill-{{ stage }}" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0" class="eng-cycle-tail-{{ stage }}"/>
               <stop offset="1" class="eng-cycle-head-{{ stage }}"/>
             </linearGradient>
             {% endfor %}
-            <radialGradient id="eng-cycle-core">
+            <radialGradient id="eng-{{ part }}-core">
               <stop offset="0" class="eng-cycle-core-in"/>
               <stop offset="1" class="eng-cycle-core-out"/>
             </radialGradient>
@@ -87,37 +111,37 @@
                o'clock, hence the further -90). pathLength 360 makes the dash
                length read in degrees. #}
             {% for stage, bearing, x, y, note in stages %}
-            <mask id="eng-cycle-progress-{{ stage }}" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="400">
+            <mask id="eng-{{ part }}-progress-{{ stage }}" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="400">
               <circle class="eng-cycle-sweep" data-stage="{{ stage }}" cx="200" cy="200" r="150" fill="none" stroke="#fff" stroke-width="104"
                       pathLength="360" stroke-dasharray="360 0" transform="rotate(-137 200 200)"/>
             </mask>
             {% endfor %}
           </defs>
           <circle class="eng-cycle-track" cx="200" cy="200" r="198"/>
-          <circle class="eng-cycle-core" cx="200" cy="200" r="96" fill="url(#eng-cycle-core)"/>
+          <circle class="eng-cycle-core" cx="200" cy="200" r="96" fill="url(#eng-{{ part }}-core)"/>
           <g class="eng-cycle-base">
             {% for stage, bearing, x, y, note in stages %}
-            <a href="#eng-{{ stage }}" class="eng-cycle-link" data-stage="{{ stage }}" aria-label="{{ stage|capitalize }}">
-              <path class="eng-cycle-arrow" transform="rotate({{ bearing }} 200 200)" fill="url(#eng-cycle-fill-{{ stage }})" stroke="url(#eng-cycle-fill-{{ stage }})" d="{{ arrow }}"/>
+            <a href="#eng-{{ part }}-{{ stage }}" class="eng-cycle-link" data-stage="{{ stage }}" aria-label="{{ stage|capitalize }}">
+              <path class="eng-cycle-arrow" transform="rotate({{ bearing }} 200 200)" fill="url(#eng-{{ part }}-fill-{{ stage }})" stroke="url(#eng-{{ part }}-fill-{{ stage }})" d="{{ arrow }}"/>
             </a>
             {% endfor %}
           </g>
           <g class="eng-cycle-lit" aria-hidden="true">
             {% for stage, bearing, x, y, note in stages %}
-            <path class="eng-cycle-arrow" mask="url(#eng-cycle-progress-{{ stage }})" transform="rotate({{ bearing }} 200 200)" fill="url(#eng-cycle-fill-{{ stage }})" stroke="url(#eng-cycle-fill-{{ stage }})" d="{{ arrow }}"/>
+            <path class="eng-cycle-arrow" mask="url(#eng-{{ part }}-progress-{{ stage }})" transform="rotate({{ bearing }} 200 200)" fill="url(#eng-{{ part }}-fill-{{ stage }})" stroke="url(#eng-{{ part }}-fill-{{ stage }})" d="{{ arrow }}"/>
             {% endfor %}
           </g>
           {# The bright point rides the dotted outer track, level with the light's
              leading edge, where it shows against the ground rather than
              vanishing into a lit arrow. #}
-          <circle class="eng-cycle-spark" id="eng-cycle-spark" cx="200" cy="2" r="5.5" transform="rotate(-2 200 200)" aria-hidden="true"/>
+          <circle class="eng-cycle-spark" cx="200" cy="2" r="5.5" transform="rotate(-2 200 200)" aria-hidden="true"/>
           <g class="eng-cycle-labels" aria-hidden="true">
             {% for stage, bearing, x, y, note in stages %}
             <text class="eng-cycle-label" data-stage="{{ stage }}" x="{{ x }}" y="{{ y }}" text-anchor="middle" dominant-baseline="central">{{ stage|upper }}</text>
             {% endfor %}
           </g>
           <g aria-hidden="true">
-            <text class="eng-cycle-centre" x="200" y="198" text-anchor="middle">Engineering</text>
+            <text class="eng-cycle-centre" x="200" y="198" text-anchor="middle">{{ part_name }}</text>
             <text class="eng-cycle-kicker" x="200" y="226" text-anchor="middle">CYCLE</text>
           </g>
         </svg>
@@ -126,21 +150,145 @@
 
     <div class="eng-dbtl-stages">
       {% for stage, bearing, x, y, note in stages %}
-      <section class="eng-dbtl-stage" id="eng-{{ stage }}" data-stage="{{ stage }}">
+      <section class="eng-dbtl-stage" id="eng-{{ part }}-{{ stage }}" data-stage="{{ stage }}">
         <header class="eng-dbtl-head">
           <span class="eng-dbtl-num" aria-hidden="true">0{{ loop.index }}</span>
-          <h2>{{ stage|capitalize }}</h2>
+          <h2>{{ stage_titles.get(stage, stage|capitalize) }}</h2>
           <p class="eng-dbtl-note">{{ note }}</p>
         </header>
         <div class="eng-dbtl-body">
-          {# 內容待 wet lab 確認後寫在這裡，寫好後刪掉下面這個佔位框。 #}
+          {% if part == 'detect' and stage == 'design' %}
+          <p>To develop a system capable of detecting <i>Pseudomonas aeruginosa</i>, we designed a biosensor that responds to its quorum-sensing signals. We selected the LasR regulatory system, one of the major QS systems in <i>P. aeruginosa</i>, as the foundation of our biosensor.</p>
+          <p>LasR protein is able to bind the AHL, 3-oxo-C12-HSL, forming a dimer. Upon binding to the AHL, this active dimer can activate the LasR-responsive promoter, pLasRV, and consequently drive the transcription of the downstream sfGFP gene.</p>
+          <p>To further enhance the practical applicability of our biosensor, we designed it for integration with our <a href="{{ url_for('pages', page='hardware') }}">hardware</a> platform, enabling the fluorescence output to be detected and analyzed.</p>
+          {% elif part == 'inhibition' and stage == 'design' %}
+          <p>Aptamer is a short sequence of nucleic acid, which is able to bind with the AHL of <i>Pseudomonas aeruginosa</i>. We found a group of ssDNA aptamers, ALS-5, A-16-2 and Cb-2, which are able to bind with the AHL molecules of <i>Pseudomonas aeruginosa</i>——3-oxo-C12-HSL and C4-HSL. (Wu et al., 2025) While the AHL molecules are captured, biofilm formation and motility would be inhibited. Besides, we also found a system called retron, which is able to generate ssDNA inside <i>E. coli</i>. Currently, constructing aptamer by chemical synthesis is mainstream. However, they must be produced externally and supplied to the system as a pre-synthesized reagent. For applications requiring continuous aptamer availability, repeated supplementation may therefore be necessary. We chose Cb-2 aptamer to experiment, for its ability to bind two kinds of AHL simultaneously, while the other aptamers can only bind with one. We aimed to establish a biological production system that could generate the aptamer directly inside living cells. This strategy could reduce the dependence on repeated external addition of synthetic aptamers and provide a programmable platform for intracellular ssDNA production.</p>
+          <figure class="hw-figure eng-figure text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2.avif" alt="Cb-2 aptamer folding structure">
+            <figcaption>Fig. 1 Cb-2 aptamer folding structure</figcaption>
+          </figure>
+          <p>In order to synthesize the ssDNA, we utilize the system called retron. This system allows <i>E. coli</i> to generate the single-stranded DNA in vivo. The retron system mainly consists of three parts ——two regions of non-coding RNA msd and msr, and a reverse transcriptase (RT), which is able to reverse transcribe the RNA sequence of the msd to ssDNA. The msr is a conserved sequence, which forms stem structure for the reverse transcriptase to bind to the RNA. In addition, the msd is the sequence that the RT will reverse transcribe. (Vibhute et al., 2024)</p>
+          <figure class="hw-figure eng-figure text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2-msd.avif" alt="Cb-2 aptamer with the msd region">
+            <figcaption>Fig. 2 Cb-2 aptamer with the msd region</figcaption>
+          </figure>
+          {% elif part == 'inhibition' and stage == 'build' %}
+          <p>We constructed the engineered retron system in a pTwist vector, in which the Cb-2 aptamer sequence was incorporated into the msd region of the retron. The Ec67 retron system is driven by T7 promoter, consisting of msr, the engineered msd region carrying the Cb-2 sequence, and the Ec67 reverse transcriptase (RT) coding sequence.</p>
+          <figure class="hw-figure eng-figure text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/retron-gene.avif" alt="Ec67-retron gene map">
+            <figcaption>Fig. 3 Ec67-retron gene map</figcaption>
+          </figure>
+          <p>The purpose of this build was to create a bacterial platform capable of producing Cb-2-containing ssDNA intracellularly rather than supplying synthetic aptamer externally. First, we transformed the plasmid into <i>E. coli</i> TOP10 strain for propagation. Subsequently, we extracted the plasmid from TOP10, and transformed it into BL21(DE3). The transformed colonies were subsequently verified by colony PCR before the confirmed construct was used for further characterization.</p>
+          <div class="eng-figure-pair">
+            <figure class="hw-figure eng-figure eng-figure-half text-center">
+              <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/2026-10-10-17-57-33.avif" alt="TOP10 agarose gel electrophoresis of colony PCR product">
+              <figcaption>Fig. 4 TOP10 agarose gel electrophoresis of colony PCR product</figcaption>
+            </figure>
+            <figure class="hw-figure eng-figure eng-figure-half text-center">
+              <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/2026-10-10-17-57-28.avif" alt="BL21(DE3) agarose gel electrophoresis of colony PCR product">
+              <figcaption>Fig. 5 BL21(DE3) agarose gel electrophoresis of colony PCR product</figcaption>
+            </figure>
+          </div>
+          {% elif part == 'inhibition' and stage == 'test' %}
+          {# Two tests; the functional one has three assays under it. Each
+             body is a placeholder until the wet lab results are confirmed. #}
+          <section class="eng-sub">
+            <h3 class="eng-sub-title"><span class="eng-sub-num">1</span>Cb-2 Production</h3>
+            <p>In order to put the Cb-2 aptamer into function, we used a TRIzol-based extraction method to extract the intracellular nucleic acids.</p>
+            <figure class="hw-figure eng-figure eng-figure-float text-center">
+              <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2-1.avif" alt="Cb-2 agarose gel electrophoresis -1">
+              <figcaption>Fig. 6 Cb-2 agarose gel electrophoresis -1</figcaption>
+            </figure>
+            <p>At first, we intended to use gel electrophoresis to determine if the aptamer is indeed produced. The paper we referenced used urea-PAGE and SYBR-Gold. Nonetheless, our laboratory was not equipped to perform denaturing urea-PAGE during the project period; thus we initially used 2% agarose gel to analyze.</p>
+            <p>First, we cultured 2 ml of <i>E. coli</i> to extract, and it showed nothing on the gel after our first TRIzol extraction. We hypothesized that the production rate of the aptamer was too low to show on the gel. Consequently, we decided to culture 100 ml of the bacteria each time. After this modification, a low-molecular-weight signal became visible on the gel.</p>
+            <p>As Cb-2 is 93 nts, we initially interpreted this low-molecular-weight signal as a possible product of the Cb-2, and thus we subsequently designed the functional test. Since the Cb-2 aptamer was designed to interfere with quorum-sensing signaling, we selected three quorum-sensing-associated phenotypes for functional evaluation: swarming motility, pyocyanin production and biofilm inhibition, each of which is explained below.</p>
+            <figure class="hw-figure eng-figure eng-figure-float text-center">
+              <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2-2.avif" alt="Cb-2 agarose gel electrophoresis -2">
+              <figcaption>Fig. 7 Cb-2 agarose gel electrophoresis -2</figcaption>
+            </figure>
+            <p>However, we later thought the evidence from the agarose gel was not strong enough, as a result, we performed a further experiment. We compared the result with a BL21(DE3) strain without the plasmid. The result cast doubt on our initial interpretation.</p>
+            <p>The negative-control BL21(DE3) sample also showed a low-molecular-weight band. And after we applied RNase to the sample, the band disappeared. The disappearance of the band after RNase treatment suggested that RNA contributed substantially to the signal observed in our initial gel. Therefore, the band could not be regarded as direct evidence of retron-derived Cb-2 ssDNA production.</p>
+            <p>We realized that the evidence obtained from agarose gel electrophoresis was insufficient to confirm successful aptamer production. The conventional agarose gel electrophoresis might not be suitable for detecting and identifying short ssDNA molecules under our experimental conditions. Due to their small size and potential secondary structures, ssDNA is difficult to distinguish from other nucleic acids.</p>
+            <p>A denaturing urea-PAGE system would provide better resolution for short nucleic acids and reduce the influence of secondary structures by disrupting hydrogen bonds. (Wu et al., 2025) However, since this method was not available in our laboratory during the project period, further molecular verification of the Cb-2 ssDNA remains necessary.</p>
+          </section>
+          <section class="eng-sub">
+            <h3 class="eng-sub-title"><span class="eng-sub-num">2</span>Functional test</h3>
+            <p>In the functional assays, we compared three aptamers reported in the reference study: ALS-5, A-16-2, and Cb-2. ALS-5 and A-16-2 were chemically synthesized by IDT and used as reference aptamers, while the Cb-2 group was derived from our engineered retron-Cb-2 system.</p>
+            <section class="eng-sub eng-sub-2">
+              <h4 class="eng-sub-title"><span class="eng-sub-num">1</span>Swarming</h4>
+              <figure class="hw-figure eng-figure eng-figure-float text-center">
+                <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/swarming-1.avif" alt="Unsuccessful swarming result">
+                <figcaption>Fig. 8 Unsuccessful swarming result</figcaption>
+              </figure>
+              <p>Initially, swarming plates were prepared according to the formulation described in the original study, while the solidification and drying intervals followed the procedure used during our laboratory training. After autoclaving, the medium was allowed to solidify for 40 min, and the poured plates were air-dried for a further 30 min before inoculation. Plates were then incubated for 24 h. Under these conditions, the bacteria failed to spread across the agar surface and instead remained confined to compact, clustered colonies at the inoculation site (Fig. 8), in contrast to the extensive dendritic spreading reported in the original study.</p>
+              <p>We hypothesized that two factors contributed to this outcome. One was excessive evaporation during drying, which had left the surface too dry to support the hydrated interfacial film required for swarming migration. The other was insufficient ambient humidity during incubation, which would similarly accelerate surface desiccation over the 24 h culture period.</p>
+              <figure class="hw-figure eng-figure eng-figure-float text-center">
+                <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/swarming-2.avif" alt="Swarming test">
+                <figcaption>Fig. 9 Swarming test</figcaption>
+              </figure>
+              <p>These parameters were then adjusted iteratively. Extending the solidification time to 2 h, shortening the air-drying step to 10 min, and enclosing the plates in a sealed plastic bag to limit evaporative loss during incubation together restored the dendritic spreading pattern described in the original study (Fig. 9). Under these optimized conditions, the swarming radius was measured in ImageJ and compared between Cb-2–treated and control plates. An unpaired t-test confirmed a significant reduction in swarming radius. Cb-2 treatment reduced the swarming radius to 80.7 ± 5.15% of the control, corresponding to an approximately 19.3% reduction, which indicates that Cb-2 suppresses population-level surface motility. (Fig. 10)</p>
+              <figure class="hw-figure eng-figure eng-figure-small text-center">
+                <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/swarming.avif" alt="Swarming radius in the Cb-2 group compared with the control">
+                <figcaption>Fig. 10</figcaption>
+              </figure>
+            </section>
+            <section class="eng-sub eng-sub-2">
+              <h4 class="eng-sub-title"><span class="eng-sub-num">2</span>Pyocyanin</h4>
+              <figure class="hw-figure eng-figure eng-figure-float text-center">
+                <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/pyocyanin-2.avif" alt="The organic phase did not show blue">
+                <figcaption>Fig. 11 The organic phase didn&rsquo;t show blue.</figcaption>
+              </figure>
+              <p>Pyocyanin is a virulence-associated metabolite produced by <i>Pseudomonas aeruginosa</i>. To quantify pyocyanin production, chloroform was added to the bacterial supernatant for extraction. When pyocyanin partitions into the chloroform, the organic phase should turn blue.</p>
+              <p>Then, the chloroform extract was mixed with 0.2 M HCl, which would make the aqueous phase turn pink. We subsequently measured the absorbance at 520 nm using a 96-well plate reader. The result of the first time we conducted the experiment didn&rsquo;t go well. The statistics showed no evident inhibition. We examined our experimental procedures: the chloroform should turn blue after combining with the pyocyanin molecules. However, we didn&rsquo;t see this change at first. (Fig. 11)</p>
+              <p>We attributed this result to insufficient mixing of the chloroform and the sample. After refining our experiment method, we observed the colour change of pyocyanin partitioning into the chloroform (Fig. 12) and the aqueous phase turning pink when added with HCl. (Fig. 13) Reduction of pyocyanin is also observed. Compared with the untreated control, normalized pyocyanin production decreased to 73.30% in the Cb-2 group, corresponding to an inhibition rate of 26.70%. (Fig. 14) Detailed statistical analyses are presented on the <a href="{{ url_for('pages', page='results') }}">Results</a> page.</p>
+              <div class="eng-figure-pair eng-figure-pair-square">
+                <figure class="hw-figure eng-figure eng-figure-half text-center">
+                  <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/pyocyanin-1.avif" alt="The organic phase turned blue">
+                  <figcaption>Fig. 12</figcaption>
+                </figure>
+                <figure class="hw-figure eng-figure eng-figure-half text-center">
+                  <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/pyocyanin-3.avif" alt="The aqueous phase turned pink after adding HCl">
+                  <figcaption>Fig. 13</figcaption>
+                </figure>
+              </div>
+              <figure class="hw-figure eng-figure eng-figure-small text-center">
+                <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/pyocyanin.avif" alt="Pyocyanin production in the Cb-2 group compared with the untreated control">
+                <figcaption>Fig. 14</figcaption>
+              </figure>
+            </section>
+            <section class="eng-sub eng-sub-2">
+              <h4 class="eng-sub-title"><span class="eng-sub-num">3</span>Biofilm</h4>
+              <figure class="hw-figure eng-figure eng-figure-float text-center">
+                <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/biofilm-1.avif" alt="Crystal violet retained by the adherent biofilm, solubilized in acetic acid">
+                <figcaption>Fig. 15</figcaption>
+              </figure>
+              <p>Biofilm formation was quantified by crystal violet staining. Overnight cultures were adjusted to an OD<sub>600</sub> of 0.1, applied with aptamers and dispensed into 96-well plates and incubated statically for 48 hours.</p>
+              <p>After incubation, the planktonic supernatant was carefully aspirated, and the wells were washed twice with Milli-Q water to remove residual non-adherent cells. Adherent biofilm was stained with crystal violet, and the retained dye was solubilized in acetic acid (Fig. 15) before absorbance was recorded at 550 nm. Absorbance values were corrected by subtracting the mean of sterile medium-only wells processed in parallel, and the corrected values were normalized to the LB-treated control, set at 100%.</p>
+              <p>Cb-2 treatment reduced biofilm formation to 65.57 ± 10.53% of the control, corresponding to an inhibition of approximately 34% (Fig. 16), which suggests that Cb-2 suppresses biofilm development in addition to the population-level motility phenotype described above.</p>
+              <figure class="hw-figure eng-figure eng-figure-small text-center">
+                <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/biofilm.avif" alt="Biofilm formation in the Cb-2 group compared with the control">
+                <figcaption>Fig. 16</figcaption>
+              </figure>
+            </section>
+          </section>
+          {% elif part == 'inhibition' and stage == 'learn' %}
+          <p>Through these experiments, we learned that functional assays and molecular verification provide different levels of evidence. Although the swarming, pyocyanin, and biofilm assays showed changes consistent with the expected effect of Cb-2, our agarose gel results were not sufficient to directly confirm retron-derived Cb-2 ssDNA production.</p>
+          <p>We also found that experimental conditions strongly influenced assay performance. Factors such as plate moisture in the swarming assay and mixing efficiency during pyocyanin extraction had to be optimized before reliable results could be obtained.</p>
+          <p>In future, we would first improve the molecular verification of retron-derived Cb-2 using higher-resolution methods such as denaturing urea-PAGE or sequence-specific detection. We would also further optimize retron expression and quantify aptamer production to better connect the amount of produced ssDNA with its functional effects.</p>
+          <p>Ultimately, we hope to develop the retron system into a more reliable biological platform for continuous production of functional DNA aptamers in vivo.</p>
+          {% else %}
+          {# 內容待 wet lab 確認後寫在這裡，寫好後刪掉下面這個佔位框。
+             寫某一部分的某一階段時，照上面 inhibition / design 的寫法加一個條件。 #}
           <div class="eng-dbtl-empty" aria-hidden="true"></div>
+          {% endif %}
         </div>
       </section>
       {% endfor %}
     </div>
 
   </div>
+  </section>
+  {% endfor %}
 </div>
 
 {% endblock %}

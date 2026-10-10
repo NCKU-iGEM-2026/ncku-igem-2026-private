@@ -68,8 +68,8 @@
        無 GFP 的 12 列全為 0；12.5 µL 三管 27 個 cycle 全部讀到。
        （這一段講的是 2026-10-07 夜之前的開頭；現在的開頭見下方註解。） #}
     <p class="hw-point">
-      Quick to load, steady when the tube is put back, zero without GFP,
-      and cheap to build.
+      Quick to load, steady when the tube is put back, zero without GFP in
+      liquid culture, and cheap to build.
     </p>
 
     {# 2026-10-07（夜）：硬體負責人要這一台先講優勢（操作快、量得穩、便宜），不要照開發歷程先給第一版的數字。
@@ -90,7 +90,7 @@
     <dl class="hw-keys">
       <div><dt>3&ndash;5&nbsp;s</dt><dd><span class="hw-key-say">to load</span> Placing the cuvette, timed. Version 1 took 30&ndash;40&nbsp;s.</dd></div>
       <div><dt>0.76%</dt><dd><span class="hw-key-say">variation when put back</span> Standard deviation between <a href="#hw-doc-reinsert">five re-insertions of one tube</a>, at about 50 counts.</dd></div>
-      <div><dt>0</dt><dd><span class="hw-key-say">counts without GFP</span> On the emission channel: all 27 readings on version 1, all 4 tubes on version 2.</dd></div>
+      <div><dt>0</dt><dd><span class="hw-key-say">counts without GFP</span> On the emission channel, in liquid culture: all 27 readings on version 1, all 4 tubes on version 2. A <a href="#hardware-v2-ahl">far denser suspension</a> read 1.78.</dd></div>
       <div><dt>US$161</dt><dd><span class="hw-key-say">to build</span> Our estimate of <a href="#hardware-cost-printed">the cost as built</a>, with the printing bought from a shop.</dd></div>
     </dl>
     {# 2026-10-07：第四格原本是「4 sessions」，和上面那句 read over four sessions 重複。硬體負責人問價格是不是
@@ -98,7 +98,8 @@
        所以第四格換成估算的成本。數字出自 Parts and files 的成本表（合計 $160.62），是估算，格子裡寫明了。 #}
 
     <p class="hw-limit">
-      <b>Not yet</b> It has not read an AHL-induced culture, and it has not
+      <b>Not yet</b> Its one session on AHL plates
+      <a href="#hardware-v2-ahl">did not resolve induction</a>, and it has not
       been calibrated against a fluorescence standard.
     </p>
 
@@ -207,6 +208,10 @@
           <li class="hwp-k-v2" data-in="v2 laid">version 2</li>
           <li class="hwp-k-proxy" data-in="v1 v2">bought, not printed</li>
           <li class="hwp-k-absent" data-in="v1">specified, not on the instrument</li>
+          <li class="hwp-k-both" data-in="reading">LED, cuvette and sensor board</li>
+          <li class="hwp-k-absent" data-in="reading">printed parts, in outline</li>
+          <li class="hwp-k-ex" data-in="reading">470&nbsp;nm excitation</li>
+          <li class="hwp-k-em" data-in="reading">sfGFP emission</li>
         </ul>
         <div class="hwp-hud" aria-hidden="true"></div>
         <div class="hwp-hint" aria-hidden="true">drag to rotate &middot; click a part &middot; ctrl + scroll to zoom</div>
@@ -220,11 +225,30 @@
         <p data-for="v2">Version 2 as designed: 38 printed pieces. The five replacement parts are in green, and all five are fitted on our reader. Pick a part for its size and its file.</p>
         <p data-for="v1">Version 1 as designed: 45 printed pieces. The five in outline were specified but not on the instrument: a cap and a clip that never arrived, a second leaf that was never made, and two aperture disks that were never fitted. Pick a part for its size and its file.</p>
         <p data-for="laid">Every file of the module, side by side as it was exported. Pick a part for its size and its file.</p>
+        {# Take a reading（2026-10-09）：3D 圖畫出一個 cycle 的光路。五句照韌體的順序（暗、亮、暗），
+           程式依光走到哪裡點亮哪一句；句子改這裡就好，句數要維持五句。
+           來源：操作流程與 Acquisition timing（dark、lit、dark；LED 亮 551–552 ms；一次 run 三個 cycle）、
+           Measurement principle（2 mm／10 mm 光程、90°、光阱）、光阱模組的 README 與 geometry_validation.json
+           （末端斜面與光軸約 40.6°；軸向光第一次理想鏡面反射仍有正 X 分量，不直接返回 UVette）。
+           圖是示意，不是模擬，也沒有任何讀值；光阱裡只畫兩次理想反射，黑壁吸收多少沒有量過，圖下那句話有寫。 #}
+        <ol data-for="reading">
+          <li>Dark read. The LED is off and the detector reads: under the shield every channel must be zero, or the cycle is void.</li>
+          <li>LED on. Blue 470&nbsp;nm light passes the baffle and crosses the sample's 2&nbsp;mm path.</li>
+          <li>A sample with sfGFP gives off green. The detector collects it at 90&deg;, along the 10&nbsp;mm path.</li>
+          <li>The blue that passes straight through enters the light trap. Its end wall slopes at about 41&deg; to the beam and turns the light up into the roof, not back at the sample.</li>
+          <li>LED off after about 0.55&nbsp;s, then a second dark read. A run is three such cycles.</li>
+        </ol>
+        <p data-for="reading-note">A drawing, slowed down, not a measurement or a simulation. The path is placed from the parts' positions, and the two reflections in the trap are the ideal ones off its sloped wall and its roof; how much its matte black walls absorb was not measured.</p>
       </div>
 
       {# 每一件的位置（由 STEP 組裝檔讀出、逐點核對過）。f 檔名、t 位移、r 旋轉（沒有就是不轉）、
-         x 拉開時移動多少、a 表示當時不在機器上。p1／p2 是買來的零件，只有外框。 #}
-      <script type="application/json" id="hwPartsPlan">{% raw %}{"v1":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"uvette_datum_riser_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_LED_holder_v0_7.stl","t":[-37.5,0.0,8.5],"x":[0.0,0.0,28.8],"a":1},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"capture_screen_led_holder_v0_1_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"capture_screen_led_holder_v0_1_retainer_clip.stl","t":[-44.0,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,38.4],"a":1},{"f":"capture_screen_aperture_baffle_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-11.2,0.0,16.0]},{"f":"aperture_disk_2p5mm.stl","t":[-30.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"aperture_disk_4mm.stl","t":[-22.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"uvette_holder_common_body.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_orientation_gate_A.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,48.0]},{"f":"uvette_preload_leaf.stl","t":[6.45,0.0,13.0],"x":[0.0,0.0,40.0],"a":1},{"f":"uvette_preload_leaf.stl","t":[0.0,6.45,13.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,40.0]},{"f":"uvette_index_collar.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,58.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]}],"v2":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]},{"f":"uvette_holder_body_v0_3.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_seat_riser_v0_2.stl","t":[0.0,0.0,-11.5]},{"f":"led_holder_body_v0_3.stl","t":[-52.8,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"aperture_baffle_body_v0_2.stl","t":[-33.25,0.0,13.5],"r":[1,0,0,0,-1,0,0,0,-1],"x":[-11.2,0.0,16.0]},{"f":"excitation_cap_LED_holder_v0_7_roof_down.stl","t":[-37.5,0.0,20.95],"r":[1,0,0,0,-1,0,0,0,-1],"x":[0.0,0.0,28.8]}],"p1":[{"id":"led","shape":"cyl","lo":[-42.55,-2.9,5.6],"hi":[-33.75,2.9,11.4],"x":[-50.8,-11.2,22.4]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]}],"p2":[{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"led","shape":"cyl","lo":[-42.5,-2.9,5.6],"hi":[-33.7,2.9,11.4],"x":[-50.8,-11.2,22.4]}]}{% endraw %}</script>
+         x 拉開時移動多少、a 表示當時不在機器上。p1／p2 是買來的零件，只有外框。
+         light 是 Take a reading 用的光阱內腔（2026-10-09），數字是光阱模組自己的設計參數
+         （output/capture_screen_optical_light_trap_v0_1/geometry_validation.json）：以光阱檔案自己的座標，
+         x 從入口算、z 從比色管底面算。ramp 是末端斜壁的下緣到上緣（x 10.5, z 2.5 → x 24.5, z 14.5，
+         即 depth 27 − back_wall 2.5 − angled_wedge_run 14；與光軸夾 40.6°），roof 是內腔頂面 z 14.5，
+         half 是內腔半寬 7。程式用這幾個數字算出光打到斜壁的位置和兩次理想反射，沒有另外假設。 #}
+      <script type="application/json" id="hwPartsPlan">{% raw %}{"light":{"trap":"optical_light_trap_angled_wedge_v0_1.stl","ramp":[10.5,2.5,24.5,14.5],"roof":14.5,"half":7.0},"v1":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"uvette_datum_riser_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_LED_holder_v0_7.stl","t":[-37.5,0.0,8.5],"x":[0.0,0.0,28.8],"a":1},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"capture_screen_led_holder_v0_1_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"capture_screen_led_holder_v0_1_retainer_clip.stl","t":[-44.0,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,38.4],"a":1},{"f":"capture_screen_aperture_baffle_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-11.2,0.0,16.0]},{"f":"aperture_disk_2p5mm.stl","t":[-30.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"aperture_disk_4mm.stl","t":[-22.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"uvette_holder_common_body.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_orientation_gate_A.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,48.0]},{"f":"uvette_preload_leaf.stl","t":[6.45,0.0,13.0],"x":[0.0,0.0,40.0],"a":1},{"f":"uvette_preload_leaf.stl","t":[0.0,6.45,13.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,40.0]},{"f":"uvette_index_collar.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,58.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]}],"v2":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]},{"f":"uvette_holder_body_v0_3.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_seat_riser_v0_2.stl","t":[0.0,0.0,-11.5]},{"f":"led_holder_body_v0_3.stl","t":[-52.8,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"aperture_baffle_body_v0_2.stl","t":[-33.25,0.0,13.5],"r":[1,0,0,0,-1,0,0,0,-1],"x":[-11.2,0.0,16.0]},{"f":"excitation_cap_LED_holder_v0_7_roof_down.stl","t":[-37.5,0.0,20.95],"r":[1,0,0,0,-1,0,0,0,-1],"x":[0.0,0.0,28.8]}],"p1":[{"id":"led","shape":"cyl","lo":[-42.55,-2.9,5.6],"hi":[-33.75,2.9,11.4],"x":[-50.8,-11.2,22.4]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]}],"p2":[{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"led","shape":"cyl","lo":[-42.5,-2.9,5.6],"hi":[-33.7,2.9,11.4],"x":[-50.8,-11.2,22.4]}]}{% endraw %}</script>
 
       <details class="hwp-files">
         <summary class="hwp-files-head">
@@ -954,7 +978,7 @@
     </p>
 
     <p>
-      Use turned up five more problems, from room light getting in to a
+      Use turned up six more problems, from room light getting in to a
       detector that lost its settings.
     </p>
 
@@ -967,7 +991,7 @@
 
     <p class="hw-point">
       It tells a GFP culture from one without, and the reading rises with
-      the amount of GFP culture.
+      the amount of GFP culture. It has not yet resolved AHL induction.
     </p>
 
     {# 2026-10-07（夜）：這一節原本叫 Version 1: bench tests，排在 The instrument 之後、只放第一版。
@@ -1050,9 +1074,110 @@
       </figcaption>
     </figure>
 
+    {# 2026-10-10：這一行原本是本節最後的「Status of version 2」（橘色的框，獨立一個小標）。硬體負責人：
+       「有點醜且不知道放在這裡有什麼意義，可以讓它轉化一下嗎」。所以改成這一小節自己的 Not yet，和其他小節同一個寫法。
+       不能說的話都還在，各寫一次：不是偵測極限、線性範圍、重複性規格，不能說比第一版靈敏幾倍，在這一行；
+       第二版的配合度與對位沒有另外檢查，在 Design advantages 的 Limits。
+       拿掉的只有兩句已經過時的話：「讀過一場、一批菌」（現在還有 AHL 培養盤那一場）、
+       「這一節其餘的都是第一版讀的」（各小節的標題已經寫明是哪一版）。 #}
+    <p class="hw-limit">
+      <b>Not yet</b> One session with one batch of culture. It is not a
+      limit of detection, a linear range or a repeatability specification,
+      and it does not show how much more sensitive version 2 is than
+      version 1, because the culture changed along with the reader.
+    </p>
+
     <p class="hw-more">
       <a href="#hw-doc-session">The dilution series, tube by tube</a>
       <a href="#hardware-use">What the wet lab said</a>
+    </p>
+
+    {# 2026-10-10：第二版讀 AHL 培養盤的那一場（2026-10-09）。
+       來源：_AI_REFACTOR_WORK/P1_AHL_EVIDENCE_2026-10-09/EVIDENCE.md revision 2（Codex 審過兩次）：
+       §2 擷取清單、§5 登記的規則、§6 依散射排列的比較、§8 重插、§10 可以說與不能說。
+       給人讀的整理在 P1_AHL_REPORT_2026-10-09/REPORT.md；原始 log 在 P1_AHL_SESSION_LOGS_2026-10-09。
+       每個讀值是該杯 9 個有效 cycle 的平均。induced／not induced 一律是 wet lab 的目視判斷（由硬體負責人轉述），
+       不是這台機器量到的。
+       證據檔 §10 明定不能寫：那幾盤有或沒有被誘導、讀值隨 AHL 上升或不上升所以 AHL 有無效果、偵測極限或定量範圍、
+       劑量反應、背景就是散射漏光、濃菌液會放大螢光、背景模型是校正。這裡都沒有寫，請不要加。
+       限制只在這一小節下方的 Not yet 寫一次（硬體負責人 2026-10-10：不要為了強調限制而重複）；
+       頁面開頭的數字格與 Not yet 只連到這裡。
+       還不知道、所以沒有寫的：AHL 的種類與受體、wet lab 說的「舊」菌是哪一株、不含報導基因的是哪一株。
+       圖上每一個點與長條的位置由程式從證據檔的表 T6 算出，不是手畫的。 #}
+    <h3 id="hardware-v2-ahl">Version 2: the AHL plate session</h3>
+
+    <p class="hw-point hw-point-sub">
+      On suspensions scraped from AHL plates, the reading followed how much
+      culture was in the cuvette, not whether the wet lab saw the plate
+      glow. sfGFP added to a dense suspension was still read.
+    </p>
+
+    <p>
+      The wet lab grew culture on plates containing AHL at five
+      concentrations, 0.22 to 1.1&nbsp;&micro;M by its own estimate, scraped
+      each plate into suspension and gave us 200&nbsp;&micro;L of it. By eye
+      it judged every plate induced but the 1.1&nbsp;&micro;M one.
+    </p>
+
+    <figure class="hw-figure hw-chart" data-hw-anim>
+      <svg class="hw-vis" viewBox="0 0 640 366" role="img" aria-label="Above: F4 against the scatter channel F3 for nine suspensions from the AHL plate session. F4 rises with F3, from about 1 count near F3 57 to about 5 counts near F3 100. The plates judged induced by eye, the plate judged not induced and the culture without the reporter all lie along the same trend. Below: three bars. A dense suspension alone read 5.22, the same suspension with sfGFP culture added read 23.56, and sfGFP culture in medium read 66.56. The numbers are in the table under Data and documentation.">
+        <path class="hw-vis-rule" d="M58 190.0H622"></path>
+        <text x="50" y="193.5" text-anchor="end">0</text>
+        <path class="hw-vis-rule" d="M58 138.0H622"></path>
+        <text x="50" y="141.5" text-anchor="end">2</text>
+        <path class="hw-vis-rule" d="M58 86.0H622"></path>
+        <text x="50" y="89.5" text-anchor="end">4</text>
+        <path class="hw-vis-rule" d="M58 34.0H622"></path>
+        <text x="50" y="37.5" text-anchor="end">6</text>
+        <text x="58" y="12">F4, counts</text>
+        <circle class="hw-dot hw-v2" cx="262" cy="8.5" r="5"></circle><text x="272" y="12">induced, by eye</text>
+        <circle class="hw-dot hw-ring" cx="374" cy="8.5" r="4.5"></circle><text x="384" y="12">not induced, by eye</text>
+        <rect class="hw-dot hw-ring" x="499.5" y="4" width="9" height="9"></rect><text x="515" y="12">without the reporter</text>
+        <text x="152.0" y="206" text-anchor="middle">60</text>
+        <text x="340.0" y="206" text-anchor="middle">80</text>
+        <text x="528.0" y="206" text-anchor="middle">100</text>
+        <text x="340" y="224" text-anchor="middle">F3, counts: the blue light the suspension scatters</text>
+        <circle class="hw-dot hw-ring" style="--i:0" cx="121.7" cy="164.0" r="5" data-tip-t="1.1 &micro;M plate, the thinner scrape" data-tip="F4 1.00 at F3 56.78, judged not induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:1" cx="147.9" cy="161.1" r="5.5" data-tip-t="0.35 &micro;M plate, diluted by half" data-tip="F4 1.11 at F3 59.56, judged induced by eye"></circle>
+        <rect class="hw-dot hw-ring" style="--i:2" x="189.0" y="139.0" width="9.5" height="9.5" data-tip-t="Culture without the reporter" data-tip="F4 1.78 at F3 64.44, no reporter gene"></rect>
+        <circle class="hw-dot hw-v2" style="--i:3" cx="281.5" cy="126.6" r="5.5" data-tip-t="0.22 &micro;M plate" data-tip="F4 2.44 at F3 73.78, judged induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:4" cx="471.6" cy="74.6" r="5.5" data-tip-t="0.275 &micro;M plate" data-tip="F4 4.44 at F3 94.00, judged induced by eye"></circle>
+        <circle class="hw-dot hw-ring" style="--i:5" cx="508.2" cy="54.3" r="5" data-tip-t="1.1 &micro;M plate, the denser scrape" data-tip="F4 5.22 at F3 97.89, judged not induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:6" cx="547.8" cy="62.9" r="5.5" data-tip-t="0.55 &micro;M plate, first reading" data-tip="F4 4.89 at F3 102.11, judged induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:7" cx="560.3" cy="54.3" r="5.5" data-tip-t="0.35 &micro;M plate" data-tip="F4 5.22 at F3 103.44, judged induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:8" cx="569.7" cy="54.3" r="5.5" data-tip-t="0.55 &micro;M plate, read again" data-tip="F4 5.22 at F3 104.44, judged induced by eye"></circle>
+        <text class="hw-vis-strong" x="58" y="252">With sfGFP in the cuvette, F4</text>
+        <text x="58" y="270">A dense suspension, from the 1.1 &micro;M plate</text>
+        <rect class="hw-bar hw-v2 hw-on-soft" style="--i:0" x="58" y="275" width="37.6" height="14" rx="2" data-tip-t="A dense suspension, from the 1.1 &micro;M plate" data-tip="F4 5.22, the mean of nine cycles. 200 &micro;L of the suspension alone"></rect>
+        <text class="hw-vis-strong hw-late" style="--i:0" x="103.6" y="286">5.22</text>
+        <text x="58" y="302">The same suspension, 180 &micro;L, with 20 &micro;L of sfGFP culture</text>
+        <rect class="hw-bar hw-v2" style="--i:1" x="58" y="307" width="169.9" height="14" rx="2" data-tip-t="The same suspension, 180 &micro;L, with 20 &micro;L of sfGFP culture" data-tip="F4 23.56, the mean of nine cycles. 18.33 counts above the suspension alone"></rect>
+        <text class="hw-vis-strong hw-late" style="--i:1" x="235.9" y="318">23.56</text>
+        <text x="58" y="334">sfGFP culture, 100 &micro;L, in 100 &micro;L of medium</text>
+        <rect class="hw-bar hw-v2" style="--i:2" x="58" y="339" width="480.0" height="14" rx="2" data-tip-t="sfGFP culture, 100 &micro;L, in 100 &micro;L of medium" data-tip="F4 66.56, the mean of nine cycles. F3 22.89: far less scatter than the suspensions"></rect>
+        <text class="hw-vis-strong hw-late" style="--i:2" x="546.0" y="350">66.56</text>
+      </svg>
+      <figcaption>
+        Each mark is one cuvette, the mean of nine cycles. F3 is the blue
+        light the suspension scatters, a rough stand-in for how much culture
+        is in the cuvette. Induced and not induced are the wet lab's
+        judgement by eye. The 1.1&nbsp;&micro;M plate was scraped twice, and
+        0.55&nbsp;&micro;M was read twice.
+      </figcaption>
+    </figure>
+
+    <p class="hw-limit">
+      <b>Not yet</b> This session cannot say whether the plates were
+      induced, and gives no dose&ndash;response: there was one cuvette to a
+      condition, no plate without AHL, and how much was scraped was not
+      measured. In suspensions this dense the emission channel is not zero
+      without GFP, whether from scattered light or from the cells' own
+      fluorescence; the session does not tell which.
+    </p>
+
+    <p class="hw-more">
+      <a href="#hw-doc-ahl">The AHL plate session, cup by cup</a>
+      <a href="{{ url_for('pages', page='model') }}#model-rebuilt">The background, modelled</a>
     </p>
 
     <h3 id="hardware-bench-v1">Version 1: three mixing sessions</h3>
@@ -1336,25 +1461,6 @@
       Counts are raw sensor values. F4, outlined in green, is the emission
       channel: the sensor's 515&nbsp;nm band, where GFP emits.
     </p>
-
-    <h3>Status of version 2</h3>
-
-    {# 2026-10-06（晚）：原本這裡有兩個警語（One session, one batch 與 In use, not validated），併成一個。
-       每一項不能說的話都還在：不是偵測極限、線性範圍、重複性；不能說比第一版靈敏幾倍。
-       2026-10-07：五件都已裝上（硬體負責人確認），所以「組裝沒有紀錄」改成肯定句；配合度沒有量、對位沒有檢查，照舊。 #}
-    <div class="hw-caution">
-      <p>
-        <em>In use, not validated.</em> Version 2 has read an empty cuvette,
-        an empty seat and one session with one batch of culture. Those
-        readings are exploratory. They are not a limit of detection, a linear
-        range or a repeatability specification, and they do not measure how much
-        more sensitive version 2 is than version 1, because the culture batch
-        changed along with the reader. All five replacement parts are
-        fitted, but how closely they fit was not measured, and no check of
-        the alignment has been recorded. Everything else in this section
-        was read on version 1.
-      </p>
-    </div>
   </section>
 
   <!-- ========================= reproducing ========================= -->
@@ -1367,7 +1473,7 @@
 
     {# 2026-10-06（晚）：三張卡片只是下面 Data and documentation 的入口，每一句都出自那裡的表格與說明。
        38 件：CAD 圖下方那句 Version 2 as designed: 38 printed pieces。 #}
-    <ol class="hw-do">
+    <ol class="hw-do hw-do-two">
       <li>
         <h3>Print</h3>
         <p>
@@ -1391,18 +1497,199 @@
         </p>
         <p class="hw-more">
           <a href="#hardware-circuit">The circuit</a>
-          <a href="#hw-doc-timing">Timing</a>
         </p>
       </li>
-      <li>
+      {#
+        === 給團隊：Run 這一格（2026-10-09）===
+        原本「怎麼用」分在三處：這裡的三句話、收合的 Operating protocol（七個步驟加 row flag 表）、
+        以及只在硬體資料夾裡的操作卡。現在合成這一格，Operating protocol 那一列已拿掉，內容都在這裡。
+
+        每一句的出處：
+          步驟、規則、故障排除：_AI_REFACTOR_WORK/P1_BENCH_OPERATING_CARD_2026-09-15.md。
+          右欄「機器回什麼」：_AI_REFACTOR_WORK/P1_CAL_LOWEND_LOGS_2026-10-05/ 的原始序列埠紀錄。
+            # 開頭的行逐字照抄；dark／F4／flag 那一條是由程式從資料列讀出的（每一列有 66 個欄位）：
+            第 1 步 00_id.log；
+            第 2 步 01_G1_EMPTY_WM_noarm.log：1 列，predark、on、postdark 共 36 個值全 0，
+              NO_SIGNAL;LED_DISABLED、fault NOT_ARMED，cycle 1 後 abort（預期）；
+            第 3 步 02_G2_EMPTY_WM.log：F4 0, 0, 0，三個 cycle 的 predark、postdark 十二通道全 0；
+            第 4 步 P01_LOW_BLK_1.log：同上；
+            第 5 步 P06_LOW_D_1.log：F4 56, 57, 55，predark、postdark 全 0，
+              就是 The dilution series 表裡 100 µL 的 56.00 那一管。
+          「You type」那一欄是該步驟必要的指令，不是當天送出的全部：擷取工具 serial_read_tool.ps1 每一次擷取
+            都先送 id、sample、ahl、rep，再 arm、run、disarm。圖下方的小字有寫明。
+          燒錄指令：_AI_REFACTOR_WORK/P1_FIRMWARE_BUILD_EVIDENCE_2026-08-28.md 記錄的 gate 1 建置指令。
+            韌體的 CAPTURE_LED_HARDWARE_ENABLE 預設是 0（esp32_fluorescence_reader.ino 第 73–74 行）。
+          115200：esp32_fluorescence_reader.ino 的 Serial.begin(115200)，擷取工具的預設值也是。
+          AMBIENT_PRESENT 的例子：P02_LOW_R3_1.log 的 t4 c2，predark_NIR0 = 1；重讀 P02b 九列全乾淨（NOTES.md）。
+          REFUSED 的例子：P1_V08_FIRST_READ_LOGS_2026-10-03/ 的 09、11 兩筆，各自在重置後恢復（SESSION_NOTE.md）。
+          十個通道、十二個值：感測器有十個通道（F1–F8、Clear、NIR），韌體一次讀取分兩半（各四個 F 通道加 Clear、NIR），
+            所以每次讀取有十二個值，欄位是 F1…F4、Clear0、NIR0、F5…F8、Clear、NIR（firmware/README.md 的 CSV schema）。
+            頁面上方共同的原理圖講「ten channels」，這裡講十二個值，圖下方的小字有說明。
+          HW_ENABLE_COMPILED_OFF、REJECTED 的訊息文字出自韌體原始碼，不是出自紀錄；我們的紀錄裡沒有發生過，
+            所以那兩格沒有寫 Seen。SATURATED 也沒有寫 Seen。
+
+        2026-10-09：擷取工具 serial_read_tool.ps1 已放上 GitLab（capture-screen-hardware 的 firmware/host/，
+        commit 9cd096b；從 GitLab 取回的檔案 SHA-256 與硬體紀錄一致），圖下方的小字已加連結。
+        同一個 commit 也在那份 README 的編譯指令補上了 LED 閘門的旗標。
+      #}
+      <li class="hw-do-wide" id="hardware-run">
         <h3>Run</h3>
-        <p>
-          Over the serial port, one command per line, under an opaque shield.
-          One run reads three cycles of dark, lit, dark, and a dark read that
-          is not zero voids its cycle.
+        <p class="hw-run-lead">
+          Any serial terminal at 115&nbsp;200&nbsp;baud, one command per
+          line, under an opaque shield. This is one session from start to
+          finish; the reader's answers are from the log of the dilution
+          series on version 2, 2026-10-05.
         </p>
+
+        <div class="hw-run-cols" aria-hidden="true">
+          <span>On the bench</span><span>You type</span><span>The reader answers</span>
+        </div>
+        <ol class="hw-run">
+          <li>
+            <div class="hw-run-do">
+              <b>Shield on</b>
+              Box over the reader. Reset the controller once, now, and not
+              again.
+            </div>
+            <div class="hw-run-cmd"><kbd>id</kbd></div>
+            <div class="hw-run-say">
+              <pre class="hw-run-log"># hw_enable(compile)<b>1</b>
+# sensor_ready      <b>1</b>
+# settings_readback <b>1</b></pre>
+              <p class="hw-run-note">Go on only if all three read 1.</p>
+            </div>
+          </li>
+          <li>
+            <div class="hw-run-do">
+              <b>Empty cuvette, LED not armed</b>
+              The check that the shield is on.
+            </div>
+            <div class="hw-run-cmd"><kbd>run</kbd></div>
+            <div class="hw-run-say">
+              <p class="hw-run-strip"><span class="is-dark">dark <b>0</b></span><span class="is-off">LED off <b>0</b></span><span class="is-dark">dark <b>0</b></span><code>NO_SIGNAL;LED_DISABLED</code></p>
+              <p class="hw-run-note">It stops after one cycle, as it should. All 36 values must be 0.</p>
+            </div>
+          </li>
+          <li>
+            <div class="hw-run-do">
+              <b>Same cuvette, LED armed</b>
+              The day's empty reading, not a reference across days.
+            </div>
+            <div class="hw-run-cmd"><kbd>arm ARM-LED-P1</kbd><kbd>run</kbd></div>
+            <div class="hw-run-say">
+              <pre class="hw-run-log"># LED ARMED</pre>
+              <p class="hw-run-strip"><span class="is-dark">dark <b>0</b></span><span class="is-lit">F4 <b>0, 0, 0</b></span><span class="is-dark">dark <b>0</b></span><code>OK</code></p>
+            </div>
+          </li>
+          <li>
+            <div class="hw-run-do">
+              <b>Medium blank, 200&nbsp;&micro;L</b>
+              The day's zero.
+            </div>
+            <div class="hw-run-cmd"><kbd>sample LOW_BLK_1</kbd><kbd>run</kbd></div>
+            <div class="hw-run-say">
+              <pre class="hw-run-log"># sample_id=LOW_BLK_1</pre>
+              <p class="hw-run-strip"><span class="is-dark">dark <b>0</b></span><span class="is-lit">F4 <b>0, 0, 0</b></span><span class="is-dark">dark <b>0</b></span><code>OK</code></p>
+            </div>
+          </li>
+          <li class="is-hero">
+            <div class="hw-run-do">
+              <b>Each sample, 200&nbsp;&micro;L</b>
+              No bubble where the beam passes, 8.5&nbsp;mm above the floor.
+              Repeat for every tube.
+            </div>
+            <div class="hw-run-cmd"><kbd>sample LOW_D_1</kbd><kbd>run</kbd></div>
+            <div class="hw-run-say">
+              <p class="hw-run-strip"><span class="is-dark">dark <b>0</b></span><span class="is-lit">F4 <b>56, 57, 55</b></span><span class="is-dark">dark <b>0</b></span><code>OK</code></p>
+              <p class="hw-run-note">Three cycles of dark, lit, dark. This tube: 100&nbsp;&micro;L of GFP culture in its 200&nbsp;&micro;L.</p>
+            </div>
+          </li>
+          <li>
+            <div class="hw-run-do">
+              <b>Done</b>
+              A finished run does not disarm by itself.
+            </div>
+            <div class="hw-run-cmd"><kbd>disarm</kbd></div>
+            <div class="hw-run-say">
+              <pre class="hw-run-log"># LED DISARMED</pre>
+            </div>
+          </li>
+        </ol>
+        <p class="hw-run-foot">
+          <i>dark</i> is all twelve values of a read, before and after each
+          flash: the sensor's ten channels, with Clear and NIR read twice.
+          F4 is the three cycles with the LED on. Each cycle prints
+          one CSV row of 66 fields: keep the terminal's whole log. Ours was
+          kept by a script that stamps and stores every line; it is in the
+          repository as
+          <a href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware/-/blob/main/firmware/host/serial_read_tool.ps1"><code>firmware/host/serial_read_tool.ps1</code></a>.
+        </p>
+
+        <div class="hw-run-once">
+          <b>Once, before the first session</b>
+          <p>
+            The sketch ships with its LED gate off, and built that way the
+            LED never lights. Build it with the gate on, then upload it.
+          </p>
+          <pre class="hw-run-log">arduino-cli compile --fqbn esp32:esp32:esp32doit-devkit-v1 --build-property "compiler.cpp.extra_flags=-DCAPTURE_LED_HARDWARE_ENABLE=1" firmware/esp32_fluorescence_reader</pre>
+        </div>
+
+        <h4 class="hw-run-else-head" id="hw-run-else">When the reader says something else</h4>
+        <div class="hw-run-else">
+          <dl>
+            <div>
+              <dt><code>AMBIENT_PRESENT</code></dt>
+              <dd>
+                A dark read was not zero: light is getting in. Void the
+                cycle, fix the shield, read again. Do not subtract it, and
+                leave the voided row in the file.
+                <span class="hw-run-seen">Seen 2026-10-05, at 6.25&nbsp;&micro;L: one channel read 1 before one flash of nine. Read again, all nine cycles were clean.</span>
+              </dd>
+            </div>
+            <div>
+              <dt><code># REFUSED: ENABLE is not in a defined acquisition state</code></dt>
+              <dd>
+                The detector lost power or was reset, and <code>id</code>
+                shows <code>settings_readback&nbsp;0</code>. Reset the
+                controller once. If that fails, unplug the USB for five
+                seconds, then check the detector's wires: SDA on GPIO21,
+                SCL on GPIO22, and 3V3.
+                <span class="hw-run-seen">Seen three times on version 2, on 2026-10-03 and 2026-10-09. A reset cleared it each time.</span>
+              </dd>
+            </div>
+          </dl>
+          <dl>
+            <div>
+              <dt><code>NO_SIGNAL;LED_DISABLED</code></dt>
+              <dd>
+                The LED did not light. <code>fault=NOT_ARMED</code>: arm and
+                run again. <code>fault=HW_ENABLE_COMPILED_OFF</code>: the
+                sketch was built with its gate off.
+              </dd>
+            </div>
+            <div>
+              <dt><code># REJECTED sample_id: longer than 24 chars</code></dt>
+              <dd>
+                A name takes up to 24 letters, digits and
+                <code>.</code> <code>_</code> <code>-</code> <code>+</code>.
+                A rejected name leaves the last one in force: read the echo
+                before <code>run</code>.
+              </dd>
+            </div>
+            <div>
+              <dt><code>SATURATED</code></dt>
+              <dd>A channel reached full scale, 65&nbsp;535. Dilute the sample.</dd>
+            </div>
+            <div class="is-ok">
+              <dt><code>flag=OK</code> with F4 at 0</dt>
+              <dd>A valid reading. Keep it: medium has read zero every time.</dd>
+            </div>
+          </dl>
+        </div>
+
         <p class="hw-more">
-          <a href="#hw-doc-protocol">Operating protocol</a>
+          <a href="#hw-doc-timing">Acquisition timing</a>
+          <a href="#hw-doc-session">The dilution series, tube by tube</a>
         </p>
       </li>
     </ol>
@@ -1503,7 +1790,7 @@
       <details class="hw-fold hw-fold-wide" id="hw-doc-names">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">The experiments, by name</span>
-          <span class="hw-fold-meta">11 experiments and their dates</span>
+          <span class="hw-fold-meta">12 experiments and their dates</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -1539,6 +1826,7 @@
           <tr><td>Mixing session 3</td><td>Version 1</td><td>The same three liquids, laid out to test a recipe difference and proportionality.</td><td class="hw-nb">2026-09-29</td></tr>
           <tr><td>LED current test</td><td>Version 2</td><td>One empty cuvette, read before and after the current-limit resistor was changed.</td><td class="hw-nb">2026-10-03</td></tr>
           <tr><td>Dilution series</td><td>Version 2</td><td>One batch of GFP culture, undiluted and at five dilutions, with medium and a non-GFP culture as controls. Re-insertion test 3, one tube put back five times, was part of it.</td><td class="hw-nb">2026-10-05</td></tr>
+          <tr><td>AHL plate session</td><td>Version 2</td><td>Suspensions scraped from plates at five AHL concentrations, with medium, a culture without the reporter and an sfGFP culture as controls. Re-insertion test 4, one tube put back ten times, was part of it.</td><td class="hw-nb">2026-10-09</td></tr>
         </tbody>
       </table>
     </figure>
@@ -1619,7 +1907,7 @@
       <details class="hw-fold hw-fold-wide" id="hw-doc-oplog">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">What the operating log added</span>
-          <span class="hw-fold-meta">5 problems</span>
+          <span class="hw-fold-meta">6 problems</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -1638,14 +1926,15 @@
           <tr><td>A cuvette's number did not match what was in it, and one record had to be voided.</td><td>Mixing session 2</td><td>Confirm what is in the cuvette before starting a run.</td></tr>
           <tr><td>The stock's displayed OD did not scale with dilution.</td><td>Mixing sessions 1 and 3</td><td>Recommended: read the OD at one fixed dilution, 1:4. Not yet in the operating card.</td></tr>
           <tr><td>Washed and reused cuvettes tied &ldquo;which use of this cuvette&rdquo; to the order of reading.</td><td>Mixing session 3</td><td>Recommended: one cuvette per tube. Not yet in the operating card.</td></tr>
-          <tr><td>The firmware refused a run because the detector had lost its settings. A reset cleared it each time.</td><td>Mixing session 3, and twice on the day version 2 was fitted</td><td>Recommended: the card should say what to do after a refusal. Not yet written.</td></tr>
+          <tr><td>Suspensions scraped from plates were dense enough to raise the emission channel without GFP.</td><td>AHL plate session</td><td>Recommended: a ceiling on how dense a sample may be, with its OD recorded. Not yet in the operating card.</td></tr>
+          <tr><td>The firmware refused a run because the detector had lost its settings. A reset cleared it each time.</td><td>Mixing session 3, twice on the day version 2 was fitted, and once at the end of the AHL plate session</td><td>Recommended: the card should say what to do after a refusal. Not yet written.</td></tr>
         </tbody>
       </table>
     </div>
 
     <p class="hw-aside">
       The last row is the firmware doing its job: when its state is not known
-      it declines to measure. Three refusals point at a loose connection to
+      it declines to measure. Four refusals point at a loose connection to
       the detector board. The cause has not been found. In the 28 captures
       of the dilution series there was no such refusal; the firmware's only stop was
       an opening check left unarmed on purpose. That is an observation, not
@@ -1748,10 +2037,88 @@
     </p>
         </div>
       </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-ahl">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Version 2: the AHL plate session, cup by cup</span>
+          <span class="hw-fold-meta">12 readings, 2026-10-09</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    <p>
+      200&nbsp;&micro;L to a cuvette, nine cycles each, at the sensor
+      settings of the dilution series. Sorted by F3.
+    </p>
+
+    <figure class="hw-figure">
+      <table class="hw-table hw-keep">
+        <caption>F3 and F4 on version 2, the AHL plate session</caption>
+        <thead>
+          <tr>
+            <th scope="col">In the cuvette</th>
+            <th scope="col">By eye</th>
+            <th scope="col" class="hw-num">F3</th>
+            <th scope="col" class="hw-num">F4</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Medium, at the start and at the end</td><td>&ndash;</td><td class="hw-num">0, 0</td><td class="hw-num">0, 0</td></tr>
+          <tr><td>sfGFP culture, 100&nbsp;&micro;L, in 100&nbsp;&micro;L of medium</td><td>control</td><td class="hw-num">22.89</td><td class="hw-num">66.56</td></tr>
+          <tr><td>1.1&nbsp;&micro;M plate, the thinner scrape</td><td>not induced</td><td class="hw-num">56.78</td><td class="hw-num">1.00</td></tr>
+          <tr><td>0.35&nbsp;&micro;M plate, diluted by half</td><td>induced</td><td class="hw-num">59.56</td><td class="hw-num">1.11</td></tr>
+          <tr><td>Culture without the reporter</td><td>&ndash;</td><td class="hw-num">64.44</td><td class="hw-num">1.78</td></tr>
+          <tr><td>0.22&nbsp;&micro;M plate</td><td>induced</td><td class="hw-num">73.78</td><td class="hw-num">2.44</td></tr>
+          <tr><td>1.1&nbsp;&micro;M suspension, 180&nbsp;&micro;L, with 20&nbsp;&micro;L of sfGFP culture</td><td>control</td><td class="hw-num">85.89</td><td class="hw-num">23.56</td></tr>
+          <tr><td>0.275&nbsp;&micro;M plate</td><td>induced</td><td class="hw-num">94.00</td><td class="hw-num">4.44</td></tr>
+          <tr><td>1.1&nbsp;&micro;M plate, the denser scrape</td><td>not induced</td><td class="hw-num">97.89</td><td class="hw-num">5.22</td></tr>
+          <tr><td>0.55&nbsp;&micro;M plate, first reading</td><td>induced</td><td class="hw-num">102.11</td><td class="hw-num">4.89</td></tr>
+          <tr><td>0.35&nbsp;&micro;M plate</td><td>induced</td><td class="hw-num">103.44</td><td class="hw-num">5.22</td></tr>
+          <tr><td>0.55&nbsp;&micro;M plate, read again</td><td>induced</td><td class="hw-num">104.44</td><td class="hw-num">5.22</td></tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <p>
+      Medium read zero on the emission channel in all 18 cycles. The culture
+      without the reporter did not: 1.78, at a density no earlier session
+      had reached. Whether its cuvette had held culture before was not
+      recorded.
+    </p>
+
+    <p>
+      Set side by side after the readings were seen: among the five
+      readings with F3 from 94 to 104, the plate judged not induced read
+      5.22 and those judged induced 4.44 to 5.22. Among the three with F3
+      from 57 to 64, induced read 1.11, not induced 1.00, and the culture
+      without the reporter 1.78.
+    </p>
+
+    <p>
+      The sfGFP culture, at a quarter of that scatter, read 66.56. Twenty
+      microlitres of it in 180&nbsp;&micro;L of a dense suspension read
+      23.56, against 5.22 for that suspension alone: the dense culture did
+      not hide it.
+    </p>
+
+    <p>
+      One test was registered before the session: that F4 rises in the
+      order of the AHL concentrations. Read as registered, it does not hold
+      (<var>p</var>&nbsp;=&nbsp;0.64). Our script first reported that it did
+      (<var>p</var>&nbsp;=&nbsp;0.05), having used two repeat readings the
+      registration rules out: both were asked for after the first reading
+      was seen, and the 1.1&nbsp;&micro;M one was a second, denser scrape.
+      Neither outcome bears on AHL. The same test on F3 gives the same
+      <var>p</var> values, so what it ranks is how much was scraped.
+    </p>
+        </div>
+      </details>
       <details class="hw-fold hw-fold-wide" id="hw-doc-reinsert">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">Version 1 against version 2: putting one tube back</span>
-          <span class="hw-fold-meta">4 series</span>
+          <span class="hw-fold-meta">6 series</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -1789,6 +2156,8 @@
           <tr><td>Taken out and put back (re-insertion test 1)</td><td>Version 1</td><td class="hw-num">3</td><td class="hw-num">40.33</td><td class="hw-num">1.45</td><td class="hw-num">3.6&nbsp;%</td></tr>
           <tr><td>Taken out and put back (re-insertion test 2)</td><td>Version 1</td><td class="hw-num">3</td><td class="hw-num">33.00</td><td class="hw-num">2.08</td><td class="hw-num">6.3&nbsp;%</td></tr>
           <tr class="is-total"><td>Taken out and put back (re-insertion test 3)</td><td>Version 2</td><td class="hw-num">5</td><td class="hw-num">49.87</td><td class="hw-num">0.38</td><td class="hw-num">0.76&nbsp;%</td></tr>
+          <tr><td>Left in its seat, read 20 times (AHL plate session)</td><td>Version 2</td><td class="hw-num">20</td><td class="hw-num">62.95</td><td class="hw-num">1.13</td><td class="hw-num">1.8&nbsp;%</td></tr>
+          <tr><td>Taken out and put back (re-insertion test 4)</td><td>Version 2</td><td class="hw-num">10</td><td class="hw-num">68.37</td><td class="hw-num">1.84</td><td class="hw-num">2.7&nbsp;%</td></tr>
         </tbody>
       </table>
       <figcaption>
@@ -1813,6 +2182,15 @@
       In counts, putting a tube back on version 1 moved the reading five to
       seven times as much as leaving it alone. On version 2 it moved it little more than
       leaving it alone had: 0.38 counts on a mean of 49.87, or 0.76&nbsp;%.
+    </p>
+
+    <p>
+      Test 4, in the AHL plate session, put an sfGFP culture back ten times:
+      2.7&nbsp;%, against 1.8&nbsp;% for the same tube left alone. That
+      culture settles. Left alone its reading fell, and handling stirred it
+      up again, so the wider spread cannot be put down to the seat. A first
+      resting series, which the operator may have bumped, spread
+      3.3&nbsp;%.
     </p>
         </div>
       </details>
@@ -2523,66 +2901,6 @@
     </p>
         </div>
       </details>
-      <details class="hw-fold hw-fold-wide" id="hw-doc-protocol">
-        <summary class="hw-fold-head">
-          <span class="hw-fold-title">Operating protocol</span>
-          <span class="hw-fold-meta">7 steps</span>
-          <span class="hw-fold-state" aria-hidden="true">
-            <span class="hw-fold-verb" data-open="false">Show</span>
-            <span class="hw-fold-verb" data-open="true">Hide</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-          </span>
-        </summary>
-        <div class="hw-fold-body hw-fold-prose">
-    {# 來源：_AI_REFACTOR_WORK/P1_BENCH_OPERATING_CARD_2026-09-15.md（操作卡）。
-       收尾報告建議的兩條（一管一杯、原液 OD 固定在 1:4 下讀）還沒寫進操作卡，
-       所以這裡沒有列為步驟，而是放在 What using it taught us。 #}
-    <p>
-      The 3D-printed build is driven over the serial port, one command per
-      line, under its shield. One run reads three cycles of dark, lit, dark.
-    </p>
-
-    <p class="hw-aside">
-      Two rules first. The controller is reset once, at the start, and not
-      again: a sensor initialisation fault has followed a reset, for a
-      reason we have not found, and in that state the firmware refuses to
-      run. And a voided row stays in the file: it is left out of the
-      statistics, not deleted.
-    </p>
-
-    <ol class="hw-steps">
-      <li>Connect, power up, and put the opaque box over the instrument.</li>
-      <li><code>id</code>: go on only if the sensor reports ready and its
-        settings read back as written.</li>
-      <li>Empty cuvette, LED not armed, <code>run</code>: all twelve channels
-        must read zero in all three phases. This is the check that the shield
-        is on.</li>
-      <li>Empty cuvette again, <code>arm</code> and <code>run</code>: the
-        day's empty-cuvette reading. It is not used as a reference across
-        days.</li>
-      <li>A medium blank, 200&nbsp;&micro;L.</li>
-      <li>Each sample: check the cuvette against the light for bubbles, the
-        beam passing 8.5&nbsp;mm above its floor; name it with
-        <code>sample</code>; then <code>run</code>, which reads three cycles
-        of dark, lit, dark.</li>
-      <li><code>disarm</code> when done. A successful run does not disarm by
-        itself.</li>
-    </ol>
-
-    <div class="hw-figure">
-      <table class="hw-table">
-        <caption>How to read one row of data</caption>
-        <thead><tr><th scope="col">The row says</th><th scope="col">It means</th><th scope="col">Do</th></tr></thead>
-        <tbody>
-          <tr><td><code>flag=OK</code>, <code>fault=NONE</code></td><td>A valid reading, including when F4 is 0.</td><td>Keep it.</td></tr>
-          <tr><td><code>AMBIENT_PRESENT</code></td><td>The dark read before the flash was not zero.</td><td>Void the cycle, fix the shield, read again. Do not subtract.</td></tr>
-          <tr><td><code>SATURATED</code></td><td>A channel reached full scale, 65&nbsp;535.</td><td>Dilute the sample.</td></tr>
-          <tr><td><code>NOT_ARMED</code></td><td>The LED was not armed, so there is no signal.</td><td>For a sample, arm and run again. In the shield check it is expected.</td></tr>
-        </tbody>
-      </table>
-    </div>
-        </div>
-      </details>
     </div>
 
     <h3 id="hardware-history">History</h3>
@@ -2590,7 +2908,7 @@
       <details class="hw-fold hw-fold-wide" id="hw-doc-log">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">The development log</span>
-          <span class="hw-fold-meta">9 steps, 2026-08-14 to 10-05</span>
+          <span class="hw-fold-meta">10 steps, 2026-08-14 to 10-09</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -2617,7 +2935,7 @@
     <div class="hwx-rig hwx-log" id="hwxLog">
       <div class="hwx-rig-head">
         <h3>Development log</h3>
-        <p class="hwx-rig-sub">Nine steps, 2026-08-14 to 2026-10-05</p>
+        <p class="hwx-rig-sub">Ten steps, 2026-08-14 to 2026-10-09</p>
       </div>
 
       <div class="hwx-log-track" id="hwxLogTrack" role="group"
@@ -2761,6 +3079,21 @@
             Version 2 has culture readings of its own. They are one session
             with one batch, so they stand beside version 1's and are not yet a
             comparison with them.</p>
+        </li>
+        <li class="hwx-log-item" data-when="10-09" data-name="AHL plates">
+          <div class="hwx-log-date">2026-10-09</div>
+          <h4>The AHL plate session: the reading follows the culture</h4>
+          <p>
+            Suspensions scraped from plates at five AHL concentrations, with
+            medium, a culture without the reporter and an sfGFP culture as
+            controls. The reading rose with how much culture was in the
+            cuvette, whether or not the wet lab had seen the plate glow, and
+            sfGFP added to a dense suspension was still read.
+          </p>
+          <p class="hwx-log-change"><span>What it changed</span>
+            Zero without GFP now carries a condition: it holds in liquid
+            culture, not in a suspension this dense. Reading induction
+            needs samples of matched density and one without AHL.</p>
         </li>
       </ol>
 

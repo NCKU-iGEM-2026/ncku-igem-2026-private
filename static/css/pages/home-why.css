@@ -1,0 +1,676 @@
+/* ============================================================
+   HOME — the background beat inside section 1 (.hx-why)
+
+   Why the organism matters before any of the numbers do: the question the
+   project is named after, then the four ordinary places P. aeruginosa is
+   already living, threaded together by a line that draws itself as the
+   reader scrolls. It sits between the problem section's lead and its
+   figures, so the order is thesis -> where it actually lives -> the numbers
+   -> the 48-72 hour wait.
+
+   It is additive. Nothing in .hx is restyled and no existing markup moved;
+   every class here is new and the block drops out leaving section 1 exactly
+   as the dry lab wrote it. Kept in its own file for the same reason --
+   home.css is being worked on and this never has to touch it.
+
+   Palette, measure and type come from the .hx system rather than from
+   anything of its own: --c-glow for the line and the icons, #f2fff8 for
+   headings, --c-text-2 for prose.
+
+   Two artwork slots are still waiting on the team's drawings, both with a
+   fallback that stands on its own:
+     the colony behind the question is generated (see the gooey filter in
+     the markup), so the only artwork slots left are the four habitat icons,
+     which are inline SVG in the markup and replaced in place
+   ============================================================ */
+
+.hx-why {
+  /* The ground the icon discs are filled with, so the thread is hidden
+     where it passes behind them. Follows the page, so it is right in
+     either theme. */
+  --hxw-ground: var(--c-paper);
+  margin: 0 0 clamp(2.5rem, 6vw, 4rem);
+}
+
+/* ------------------------------------------------------- the question -- */
+
+/* A screen of its own, and then some: the extra height is the slack the
+   inner block sticks through, so the question holds still under the reader
+   for a beat before the spine and the habitats come up. */
+.hx-why-hook {
+  min-height: 150svh;
+}
+
+.hx-why-hook-inner {
+  position: sticky;
+  top: 0;
+  min-height: 100svh;
+  display: grid;
+  /* align-content, not just place-items: without it the implicit rows
+     stretch to fill the screen and the question and its line underneath get
+     pushed to opposite ends of it. place-items only centres each one inside
+     the row it was given. */
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  padding-block: clamp(3rem, 8vh, 6rem);
+}
+
+.hx-why-blobs {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: min(96vw, 58rem);
+  aspect-ratio: 1.08;
+  pointer-events: none;
+}
+
+.hx-why-blobs svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+.hxw-body,
+.hxw-lobe,
+.hxw-sat {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+
+/* The body only breathes. */
+.hxw-body { animation: hxw-body 9s ease-in-out infinite alternate; }
+@keyframes hxw-body {
+  to { scale: 1.07 0.93; }
+}
+
+/* The lobes wander, but never far enough to come off the body: the point of
+   them is the silhouette, not the drama. */
+.hxw-lobe { animation: 17s ease-in-out infinite alternate; }
+.hxw-lobe.l1 { animation-name: hxw-l1; animation-duration: 17s; animation-delay: -4s; }
+.hxw-lobe.l2 { animation-name: hxw-l2; animation-duration: 21s; animation-delay: -11s; }
+.hxw-lobe.l3 { animation-name: hxw-l3; animation-duration: 15s; animation-delay: -7s; }
+
+@keyframes hxw-l1 {
+  0%   { translate: 0 0;      scale: 1; }
+  100% { translate: -34% 26%; scale: 1.14; }
+}
+@keyframes hxw-l2 {
+  0%   { translate: 0 0;      scale: 1.1; }
+  100% { translate: 30% -22%; scale: 0.9; }
+}
+@keyframes hxw-l3 {
+  0%   { translate: 0 0;      scale: 0.92; }
+  100% { translate: 18% 30%;  scale: 1.16; }
+}
+
+/* One direction each, and never alternate: a satellite that has left is
+   gone. The cycle restarts at whichever end of its path is invisible -- the
+   centre of the body for an outbound one, off the frame for an inbound one
+   -- so the loop never shows. */
+.hxw-sat { animation: 13s ease-in infinite; }
+
+.hxw-sat.out-a { animation-name: hxw-out-a; animation-duration: 13s;   animation-delay: -2.2s; }
+.hxw-sat.in-b  { animation-name: hxw-in-b;  animation-duration: 10.5s; animation-delay: -6.4s; }
+.hxw-sat.out-c { animation-name: hxw-out-c; animation-duration: 16s;   animation-delay: -9.1s; }
+.hxw-sat.in-d  { animation-name: hxw-in-d;  animation-duration: 12s;   animation-delay: -3.7s; }
+.hxw-sat.out-e { animation-name: hxw-out-e; animation-duration: 9s;    animation-delay: -5.5s; }
+.hxw-sat.in-f  { animation-name: hxw-in-f;  animation-duration: 14.5s; animation-delay: -11.3s; }
+
+/* Leaving: a slow detach that pulls the neck thin, then away. */
+@keyframes hxw-out-a {        /* upper left */
+  0%   { translate: 0 0;          scale: 1; }
+  100% { translate: -262% -172%;  scale: 0.5; }
+}
+@keyframes hxw-out-c {        /* lower right */
+  0%   { translate: 0 0;          scale: 1; }
+  100% { translate: 352% 246%;    scale: 0.46; }
+}
+@keyframes hxw-out-e {        /* lower left, the quickest */
+  0%   { translate: 0 0;          scale: 1; }
+  100% { translate: -412% 384%;   scale: 0.42; }
+}
+
+/* Arriving: in from beyond the frame, growing as it comes, and absorbed. */
+@keyframes hxw-in-b {         /* from the right */
+  0%   { translate: 338% -58%;    scale: 0.52; }
+  100% { translate: 0 0;          scale: 1; }
+}
+@keyframes hxw-in-d {         /* from the upper right */
+  0%   { translate: 268% -236%;   scale: 0.48; }
+  100% { translate: 0 0;          scale: 1; }
+}
+@keyframes hxw-in-f {         /* from below */
+  0%   { translate: -96% 392%;    scale: 0.5; }
+  100% { translate: 0 0;          scale: 1; }
+}
+
+.hx-why-hook-inner > :not(.hx-why-blobs) { position: relative; z-index: 1; }
+
+.hx-why-q > span,
+.hx-why-sub > span { display: block; }
+
+.hx-why-q {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  /* Deliberately under .hx-title: section 1 already has its heading and this
+     is a beat inside it, not a competing one. */
+  font-size: clamp(2.3rem, 5.8vw, 4.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: #f2fff8;
+  /* The two halves are broken at the comma in the markup; each is a block so
+     the break holds, and the pair still wraps on its own when a narrow
+     screen needs it to. */
+  text-wrap: balance;
+  max-width: min(100%, 30ch);
+  margin: 0 auto 1.4rem;
+  text-wrap: balance;
+}
+
+/* Sits on the colony now, not on the page, so it is lifted off --c-text-2:
+   that grey-green reads at about 3:1 over the lighter half of the mass, and
+   at this size it needs 4.5. */
+.hx-why-sub {
+  font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+  line-height: 1.55;
+  color: rgba(234, 255, 242, 0.92);
+  max-width: 46ch;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------- the four habitats -- */
+
+.hx-why-weave {
+  position: relative;
+  /* Declared rather than left to a var() fallback: GSAP reads the computed
+     value to animate from, and an unset custom property gives it nothing to
+     start at. motion.js runs it 0 -> 100% across this block. */
+  --rx-chap: 0%;
+  /* The reader scrolls down a length of bare spine before the first habitat
+     comes into frame. The spine is absolutely positioned on this block, so
+     this padding is that run. */
+  padding-top: clamp(9rem, 32vh, 20rem);
+}
+
+/* The path out of the colony and round the icons. It was a straight spine
+   while every block was the same shape; now the icons alternate sides and it
+   has to reach each of them, which is only safe because the blocks are all
+   exactly 112svh and the gaps between them are in vh too -- the fractions
+   the path is drawn at therefore hold at any window height.
+
+   This is also why the blocks are no longer sticky. A sticky block slides
+   its own content up to several hundred pixels inside itself, and a path
+   drawn to fixed fractions cannot follow that; it would peel off the icons
+   the moment the reader scrolled. The screen-and-a-bit of height each block
+   has is what gives the scroll its pause now.
+
+   Revealed by clipping to how far down the reader has come, and faded at
+   both ends so it arrives and leaves rather than being cut. */
+.hx-why-thread {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  clip-path: inset(0 0 calc(100% - var(--rx-chap)) 0);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 4%, #000 96%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 4%, #000 96%, transparent 100%);
+}
+
+.hx-why-thread svg { width: 100%; height: 100%; display: block; }
+
+.hx-why-thread path {
+  fill: none;
+  stroke: var(--c-glow);
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 9px rgba(160, 232, 96, 0.45));
+}
+
+.hx-why-list {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(5rem, 12vh, 10rem);
+}
+
+/* One column of blocks, each as tall as its own copy needs. The bubble sits
+   on the spine and the text runs beside it.
+
+   Direct child only: the stages inside a block are an <ol> of their own, and
+   a descendant selector here laid each of those out as a 9rem column too,
+   which put every stage's bold label in a narrow gutter of its own. */
+.hx-why-list > li {
+  display: grid;
+  /* Equal halves: the text is given exactly the width the artwork has. */
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: stretch;
+  /* Nail and lens case put the drawing on the right, damp sink and
+     swimmer's ear on the left, so the path has something to swing between.
+     The markup order is always artwork first; order moves it. */
+  /* A screen and a bit each, so the next one is always a scroll away and
+     there is air around the one you are on. Every block must stay exactly
+     this tall: the path above is drawn to fractions that assume it. */
+  min-height: 112svh;
+  align-content: center;
+}
+
+/* A lit square frame rather than a disc. Hollow in the same sense the
+   bubble was: the fill is the page's own colour, so it reads as a window cut
+   in the page, and the rim and its glow are what hold the shape. */
+.hx-why-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* No padding and no height of its own: the frame takes the shape of
+     whatever is inside it, so the rim sits exactly on the edge of the
+     drawing. overflow clips the picture's corners to the same radius. */
+  padding: 0;
+  min-height: 0;
+  align-self: center;
+  overflow: hidden;
+  border-radius: 18px;
+  background:
+    linear-gradient(var(--hxw-ground), var(--hxw-ground)),
+    linear-gradient(145deg,
+      rgba(160, 232, 96, 0.14) 0%,
+      rgba(160, 232, 96, 0.05) 45%,
+      rgba(20, 179, 145, 0.10) 100%);
+  border: 2px solid rgba(160, 232, 96, 0.5);
+  box-shadow:
+    0 0 28px rgba(160, 232, 96, 0.20),
+    inset 0 0 26px rgba(160, 232, 96, 0.10);
+  /* Picks up the stagger its row already carries for the reveal, so the four
+     never drift or pulse in lockstep. */
+  animation:
+    hxw-float 5.5s ease-in-out infinite,
+    hxw-glow  4.5s ease-in-out infinite;
+  animation-delay: calc(var(--rx-d, 0) * 1ms);
+}
+
+@keyframes hxw-float {
+  50% { translate: 0 -6px; }
+}
+
+@keyframes hxw-glow {
+  0%, 100% {
+    border-color: rgba(160, 232, 96, 0.40);
+    box-shadow: 0 0 20px rgba(160, 232, 96, 0.14), inset 0 0 20px rgba(160, 232, 96, 0.08);
+  }
+  50% {
+    border-color: rgba(184, 245, 126, 0.80);
+    box-shadow: 0 0 40px rgba(160, 232, 96, 0.34), inset 0 0 30px rgba(160, 232, 96, 0.16);
+  }
+}
+
+.hx-why-icon { display: block; }
+
+
+/* A drawing carries its own weight where a line icon needs the room around
+   it, so it is given a little more of the disc. */
+/* A drawing has detail a line icon does not, so it is given most of the
+   bubble; at the old 3.2rem the nail illustration was unreadable. */
+/* auto/auto with both maxima: width:100% plus a max-height would have let
+   the box keep the full column width while the height was clamped, and the
+   drawing would sit letterboxed inside a box wider than itself. */
+/* The picture is what sizes the frame, so it takes the full column width and
+   keeps its own ratio. */
+img.hx-why-icon {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 767.98px) {
+}
+
+.hx-why-text { align-self: center; }
+
+.hx-why-name {
+  font-family: "Changa", sans-serif;
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  font-weight: 800;
+  color: var(--c-glow);
+  margin: 0 0 0.1rem;
+}
+
+/* The thematic label under the everyday name. Amber, which is what the
+   figures further down the section already use to mark a reading rather
+   than a heading, so the two read as the same kind of thing. */
+.hx-why-tag {
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-amber);
+  margin: 0 0 0.9rem;
+}
+
+.hx-why-note {
+  font-size: clamp(1rem, 1.35vw, 1.12rem);
+  line-height: 1.75;
+  color: var(--c-text-2);
+  margin: 0;
+}
+
+
+
+/* ------------------------------------------------------- the escalation */
+
+.hx-why-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 54ch;
+  margin: clamp(2.5rem, 7vw, 4.5rem) auto 0;
+  text-align: center;
+  font-size: var(--fs-lead);
+  line-height: 1.75;
+  color: var(--c-text-2);
+}
+
+.hx-why-copy strong { color: #f2fff8; font-weight: 700; }
+
+/* ------------------------------------------------------------- narrow -- */
+
+@media (max-width: 767.98px) {
+  /* Nothing left for the thread to weave between once the rows stop
+     alternating, and a line under left-aligned text reads as a mistake. */
+  /* The bubble goes over its text rather than beside it, and the spine with
+     it: a 3px line down the left of a single column is a margin, not a path. */
+  .hx-why-thread { display: none; }
+  .hx-why-list > li {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    /* Stacked, a block is already taller than the screen; forcing a screen
+       minimum on top of that only adds dead space, and sticky with no slack
+       left to travel does nothing but cost a repaint. */
+    min-height: 0;
+  }
+
+  .hx-why-hook { min-height: 0; }
+  .hx-why-hook-inner { position: static; min-height: 92svh; }
+  .hx-why-blobs { width: min(100%, 30rem); }
+}
+
+/* ----------------------------------------------------- reduced motion -- */
+
+@media (prefers-reduced-motion: reduce) {
+  .hxw-body,
+  .hxw-lobe,
+  .hxw-sat,
+  .hx-hais-bg,
+  .hx-why-art { animation: none; }
+  /* motion.js does not bind --rx-chap at all in this setting, so the thread
+     would otherwise stay clipped to nothing for the whole page. */
+  .hx-why-thread { clip-path: none; }
+}
+
+/* -------------------------------------------------------------- print -- */
+
+@media print {
+  .hx-why-blobs, .hx-why-thread { display: none !important; }
+  .hx-why-q, .hx-why-name { color: #075a3e !important; }
+  .hx-why-list > li { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------- sides and entrances -- */
+
+.hx-why-list > li:nth-child(odd)  .hx-why-art { order: 2; }   /* drawing right */
+.hx-why-list > li:nth-child(even) .hx-why-art { order: 0; }   /* drawing left */
+
+/* The text comes in from whichever side its own drawing is on, so the two
+   halves of a block read as one movement. Overrides the site's default
+   reveal, which lifts everything from below. */
+html.rx-js .hx-why-list > li:nth-child(odd)  .hx-why-text[data-reveal] { transform: translateX(52px); }
+html.rx-js .hx-why-list > li:nth-child(even) .hx-why-text[data-reveal] { transform: translateX(-52px); }
+html.rx-js .hx-why-list > li .hx-why-text[data-reveal].rx-in { transform: none; }
+
+@media (max-width: 767.98px) {
+  /* Stacked, there is no side for it to come from. */
+  html.rx-js .hx-why-list > li .hx-why-text[data-reveal] { transform: translateY(26px); }
+  html.rx-js .hx-why-list > li .hx-why-text[data-reveal].rx-in { transform: none; }
+  .hx-why-list > li:nth-child(odd) .hx-why-art { order: 0; }
+}
+
+/* ============================================================
+   The HAIs panel — the last beat before the team's own figures.
+
+   Full-bleed artwork with everything read off a glass plate laid over it.
+   The plate is what makes the type safe: the picture is cropped to cover
+   whatever shape the window happens to be, so there is no telling what ends
+   up behind any given line, and a blur plus a dark tint means it does not
+   matter what does.
+
+   It is allowed to be sticky where the habitats above are not. The path
+   that constrains them lives inside .hx-why-weave and ends well before
+   this, so there are no fixed fractions here to keep.
+   ============================================================ */
+
+.hx-hais {
+  /* Out of the measure and across the window, the way the rest of the site
+     does its full-bleed blocks.
+
+     This does overrun the content area by half the scrollbar's width -- vw
+     counts the gutter and the content box does not -- which on a 1340px
+     window is five pixels. There is no pure-CSS viewport unit that excludes
+     the scrollbar, and the block cannot be hoisted out of .hx-inner to get
+     a real 100% because it has to sit between the lead and the figures.
+     html's overflow-x: clip means those five pixels cannot be scrolled to
+     and raise no scrollbar; they are reported by scrollWidth and nowhere
+     else. */
+  margin-inline: calc(50% - 50vw);
+  /* One screen, no more: the stage no longer sticks, so there is no slack
+     for it to hold through and any extra here would just be empty page. */
+  min-height: 0;
+  margin-block: clamp(3rem, 9vh, 7rem) 0;
+}
+
+.hx-hais-stage {
+  min-height: 100svh;
+  /* Clips the drawing where it runs out past the window edge. */
+  overflow: hidden;
+  /* Two columns on one row, bottom-aligned, so the foot of the drawing and
+     the foot of the plate land on the same line. Absolute positioning could
+     not do that: the plate's height is its content's, and nothing in CSS
+     can hand that to an absolutely positioned sibling. */
+  --hais-pad: clamp(1.25rem, 6vw, 5rem);
+  display: grid;
+  /* minmax(0, 1fr), not 1fr: a plain fr keeps an automatic minimum of its
+     content, and the drawing is deliberately wider than its own column, so
+     the track grew to fit it and squeezed the plate down to a third of its
+     width. With a zero floor the track stays put and the drawing overflows
+     it, which is the whole idea. */
+  grid-template-columns: minmax(0, 34rem) minmax(0, 1fr);
+  column-gap: clamp(1rem, 2vw, 2rem);
+  align-content: center;
+  align-items: end;
+  padding-inline: var(--hais-pad);
+}
+
+/* The artwork is a cut-out with nothing behind it, so it is sized and
+   placed as an object on the page rather than stretched over the whole
+   stage. Anchored right, which keeps it clear of the plate; the quiet part
+   of its own canvas is the left quarter and the plate takes that. */
+.hx-hais-bg {
+  /* In the flow now, as the second column, but wider than that column: with
+     justify-self: end the extra runs back to the left, behind the plate,
+     and the negative margin takes it out through the stage's padding to the
+     window edge. z-index keeps it under the plate where they meet. */
+  position: relative;
+  z-index: 0;
+  /* Named, not left to auto-placement: the drawing comes first in the
+     markup, so on auto it took column one and the two swapped sides. */
+  grid-column: 2;
+  grid-row: 1;
+  align-self: end;
+  justify-self: end;
+  width: min(70vw, 66rem);
+  margin-right: calc(-1 * var(--hais-pad));
+  aspect-ratio: 1376 / 768;
+  background-image: url("https://static.igem.wiki/teams/6379/wiki/homepage-icon/hais-without-bg.avif");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  /* The drawing stops short of its own canvas; this drops it so what you
+     see sits on the plate's baseline rather than the empty margin doing. */
+  translate: 0 9%;
+  /* The drift. transform, not translate: the two are separate properties
+     and compose, so the baseline offset above survives untouched -- putting
+     the drift in translate would have overwritten it. */
+  animation: hais-float 7.5s ease-in-out infinite;
+  /* Top and bottom dissolve into the page instead of ending on a line. The
+     stops reach far enough in to catch the edge of the drawing itself --
+     the topmost cells and the foot of the bed -- because a fade that only
+     covers the canvas's own empty margin does nothing you can see. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 84%, transparent 100%);
+}
+
+@keyframes hais-float {
+  50% { transform: translateY(-15px); }
+}
+
+/* ---- the glass plate ---- */
+
+.hx-hais-panel {
+  position: relative;
+  z-index: 1;
+  /* Row as well as column. With only the columns named, auto-placement
+     put the plate on a second row -- the drawing comes first in the
+     markup and had already taken column two, so the cursor had moved
+     past column one by the time the plate was placed. */
+  grid-column: 1;
+  grid-row: 1;
+  width: 100%;
+  padding: clamp(1.5rem, 3.5vw, 2.75rem);
+  border-radius: 22px;
+  background: rgba(8, 26, 32, 0.55);
+  border: 1px solid rgba(160, 232, 96, 0.22);
+  box-shadow: 0 30px 70px -40px rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  backdrop-filter: blur(16px) saturate(120%);
+}
+
+/* Without backdrop-filter the tint is all that is holding the contrast, so
+   it goes nearly solid rather than leaving type over bare picture. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hx-hais-panel { background: rgba(8, 26, 32, 0.9); }
+}
+
+.hx-hais-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.45rem, 2.9vw, 2.3rem);
+  line-height: 1.18;
+  color: #f2fff8;
+  margin: 0 0 0.9rem;
+  text-wrap: balance;
+}
+
+.hx-hais-lead {
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  line-height: 1.7;
+  color: rgba(226, 255, 240, 0.86);
+  margin: 0 0 clamp(1.5rem, 3.5vh, 2.5rem);
+  max-width: 54ch;
+}
+
+/* ---- the three figures ---- */
+
+/* Stacked rather than three across. In a plate this narrow the columns came
+   out at about 190px, and ">$855 Billion" wrapped in its own while the
+   other two did not, which left the row looking broken. */
+.hx-hais-stats {
+  display: grid;
+  gap: clamp(0.85rem, 2vh, 1.35rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Label and figure share a line, the reading sits under them. The label
+   column is a set width rather than auto: each row is its own grid, so on
+   auto the three figures started at three different places. */
+.hx-hais-stats li {
+  display: grid;
+  grid-template-columns: 10.5rem 1fr;
+  column-gap: 0.85rem;
+  align-items: baseline;
+}
+.hx-hais-note { grid-column: 1 / -1; }
+
+.hx-hais-stats li {
+  /* The amber rule down the left is how a figure is marked everywhere else
+     in this section; these read as the same kind of thing. */
+  border-left: 3px solid var(--c-amber);
+  padding-left: 0.85rem;
+}
+
+.hx-hais-label {
+  font-family: "Changa", sans-serif;
+  font-size: var(--fs-kicker);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-amber);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.hx-hais-figure {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.45rem, 2.6vw, 2.1rem);
+  line-height: 1.12;
+  color: #b8f57e;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.hx-hais-note {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: rgba(226, 255, 240, 0.74);
+  margin: 0.15rem 0 0;
+}
+
+/* ---- narrow ---- */
+
+@media (max-width: 767.98px) {
+  /* Stacked, the plate is already taller than the screen; a screen minimum
+     on top of that is dead space, and sticky with no slack left to travel
+     costs a repaint and does nothing. */
+  .hx-hais-stage {
+    min-height: 0;
+    padding-block: clamp(3rem, 10vh, 5rem);
+    gap: clamp(1.25rem, 4vw, 2rem);
+  }
+  /* Out from behind the plate and above it. At this width the plate is the
+     full column, so left where it was the drawing was covered edge to edge
+     and never seen on a phone at all. */
+  .hx-hais-stage { grid-template-columns: 1fr; }
+  .hx-hais-panel { grid-column: 1; grid-row: 2; }
+  .hx-hais-bg { grid-column: 1; grid-row: 1; justify-self: stretch; }
+  .hx-hais-bg {
+    width: 100%;
+    margin-right: 0;
+    translate: none;
+    order: -1;
+  }
+  .hx-hais-panel { width: 100%; }
+  .hx-hais-stats li { grid-template-columns: 1fr; }
+  .hx-hais-figure { white-space: normal; }
+}
+
+@media print {
+  .hx-hais { min-height: 0; margin-inline: 0; }
+  .hx-hais-stage { position: static; height: auto; }
+  .hx-hais-bg { display: none !important; }
+  .hx-hais-panel { background: none; border-color: #999; backdrop-filter: none; }
+  .hx-hais-title, .hx-hais-lead, .hx-hais-note { color: #000 !important; }
+  .hx-hais-figure { color: #075a3e !important; }
+}

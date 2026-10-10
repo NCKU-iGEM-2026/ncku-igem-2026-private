@@ -165,11 +165,175 @@
   body.hw-nexus .page-toc-list li.page-toc-group > a { color: var(--nx-mint); }
   body.hw-nexus .page-toc-list li.page-toc-group > a.is-active,
   body.hw-nexus .page-toc-list li.page-toc-group > a:hover { color: var(--nx-lime); }
+
+  /* ---- Parts (data-toc-style="parts"; the Software page) ----
+     A numbered badge per part, filled for the part being read and outlined
+     once a part is behind the reader. The part being read opens its
+     sections, on a rail with a bar beside the one being read; each part also
+     has its own open / close button, and the title an Expand all. A thin bar on top shows how far down
+     the page the reader is. One accent (mint) and greys; the light theme's
+     greens are fallbacks for a page not on the deep-teal theme. */
+  .page-toc.is-parts .page-toc-progress {
+    height: 2px;
+    margin: 0 0 1rem;
+    background: var(--nx-line, #d9d2c3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .page-toc.is-parts .page-toc-progress > span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--nx-mint, #075a3e);
+  }
+
+  .page-toc.is-parts .page-toc-part + .page-toc-part { margin-top: 0.15rem; }
+  .page-toc.is-parts .page-toc-part.is-apart {
+    margin-top: 0.9rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--nx-line, #d9d2c3);
+  }
+
+  /* the part's own line: badge and name, no arrow */
+  .page-toc.is-parts a.page-toc-part-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.38rem 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--nx-muted, #6b6055);
+  }
+  .page-toc.is-parts a.page-toc-part-head::before { display: none; }
+  .page-toc.is-parts a.page-toc-part-head:hover,
+  .page-toc.is-parts a.page-toc-part-head:focus-visible {
+    transform: none;
+    color: var(--nx-text, #1f2a24);
+  }
+  .page-toc-no {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.45rem;
+    height: 1.45rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--nx-muted, #6b6055);
+    border: 1.5px solid var(--nx-line, #c9bfa8);
+    border-radius: 50%;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  /* a part already read: outlined in the accent */
+  .page-toc.is-parts .page-toc-part:not(.is-current) > a.is-passed .page-toc-no {
+    color: var(--nx-mint, #075a3e);
+    border-color: var(--nx-mint, #075a3e);
+  }
+  /* the part being read: filled */
+  body .page-toc.is-parts .page-toc-part.is-current > a.page-toc-part-head {
+    color: var(--nx-text, #1f2a24);
+    background: none;
+  }
+  .page-toc.is-parts .page-toc-part.is-current .page-toc-no {
+    color: var(--nx-ground, #fff);
+    background: var(--nx-mint, #075a3e);
+    border-color: var(--nx-mint, #075a3e);
+  }
+
+  /* "Expand all / Collapse all", at the end of the list's title */
+  .page-toc.is-parts .page-toc-title { display: flex; align-items: center; gap: 0.5rem; }
+  .page-toc-all {
+    margin-left: auto;
+    padding: 0.05rem 0.6rem;
+    font-family: "Changa", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--nx-muted, #6b6055);
+    background: none;
+    border: 1px solid var(--nx-line, #d9d2c3);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .page-toc-all:hover { color: var(--nx-text, #1f2a24); border-color: var(--nx-mint, #075a3e); }
+
+  /* the part's line: its link, then its own open / close button */
+  .page-toc-part-row { display: flex; align-items: center; }
+  .page-toc-part-row > a { flex: 1; min-width: 0; }
+  .page-toc-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    padding: 0;
+    color: var(--nx-muted, #6b6055);
+    background: none;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .page-toc-toggle:hover { color: var(--nx-text, #1f2a24); background: rgba(73, 197, 182, 0.1); }
+  .page-toc-toggle svg { transition: transform 0.2s ease; }
+  .page-toc-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .page-toc-all:focus-visible,
+  .page-toc-toggle:focus-visible { outline: 2px solid var(--nx-mint, #075a3e); outline-offset: 1px; }
+
+  /* its sections, on a rail under the badge; shown while the part is open
+     (the part being read, or one the reader opened) */
+  .page-toc.is-parts .page-toc-sub {
+    list-style: none;
+    margin: 0.1rem 0 0.45rem 1.2rem;
+    padding: 0 0 0 0.55rem;
+    border-left: 1px solid var(--nx-line, #d9d2c3);
+  }
+  .page-toc.is-parts .page-toc-part:not(.is-open) > .page-toc-sub { display: none; }
+  /* Muted until hovered or read: the site's dark theme colours every link
+     teal, which would leave no difference between a section and the one
+     being read. */
+  .page-toc.is-parts .page-toc-sub a {
+    display: flex;
+    gap: 0.45rem;
+    padding: 0.26rem 0.5rem 0.26rem 0.6rem;
+    font-size: 0.86rem;
+    color: var(--nx-muted, #6b6055);
+  }
+  .page-toc.is-parts .page-toc-sub a:hover,
+  .page-toc.is-parts .page-toc-sub a:focus-visible { color: var(--nx-text, #1f2a24); }
+  .page-toc.is-parts .page-toc-sub a.is-active {
+    color: var(--nx-text, #1f2a24);
+    font-weight: 600;
+    background: rgba(73, 197, 182, 0.1);
+  }
+  .page-toc-sec {
+    flex-shrink: 0;
+    min-width: 1.6rem;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    color: var(--nx-muted, #6b6055);
+  }
+  .page-toc.is-parts .page-toc-sub a.is-active .page-toc-sec { color: var(--nx-mint, #075a3e); }
+  .page-toc.is-parts .page-toc-sub a::before {
+    left: calc(-0.55rem - 1px);
+    top: 15%;
+    bottom: 15%;
+    width: 2px;
+    height: auto;
+    border: 0;
+    background: transparent;
+    transform: none;
+  }
+  .page-toc.is-parts .page-toc-sub a:hover::before,
+  .page-toc.is-parts .page-toc-sub a:focus-visible::before { transform: none; }
+  .page-toc.is-parts .page-toc-sub a.is-active::before { background: var(--nx-mint, #075a3e); }
 }
 
 @media (min-width: 1200px) and (prefers-reduced-motion: reduce) {
   .page-toc-list a,
-  .page-toc-list a::before { transition: none; }
+  .page-toc-list a::before,
+  .page-toc-no,
+  .page-toc-toggle svg { transition: none; }
   .page-toc-list a:hover,
   .page-toc-list a:focus-visible { transform: none; }
   .page-toc-list a:hover::before,

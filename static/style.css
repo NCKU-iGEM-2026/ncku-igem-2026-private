@@ -460,6 +460,19 @@ body.hw-nexus .page-hero-bg.hero-hardware { filter: blur(2px) saturate(1) bright
    colour, on phones as well. The petrol tint over it is the shared one, which
    is what keeps the graphic's own lettering behind the page title. */
 body.hw-nexus .page-hero-bg.hero-software { filter: blur(2px) saturate(1) brightness(0.75); }
+/* The whole graphic, never cropped: as wide as the banner, as tall as that
+   makes it, and centred. (The box runs 6px past the banner on each side for
+   the blur, hence the 12px off its width; no zoom, so nothing is cut.) The
+   space above and below is filled with the graphic's own top and bottom
+   edge colours (#edf5f6, #f2f6f7), so the join does not show. A new banner
+   with different edges needs these two colours changed to match. */
+.page-hero-bg.hero-software {
+  background-image: var(--hero-img), linear-gradient(#edf5f6, #f2f6f7);
+  background-size: calc(100% - 12px) auto, cover;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  transform: none;
+}
 
 /* 70% rather than the shared 60%: Lab Book, Description, Parts and the HP
    pages. Only the brightness moves -- the blur and the desaturation stay as
@@ -1894,6 +1907,11 @@ body.team-bio-locked { overflow: hidden; }
   border-bottom: 2px solid #075a3e;
 }
 
+/* An e-mail address or a URL has no spaces in it, so a narrow screen cannot
+   wrap it and the whole table is pushed wider than the viewport instead.
+   Same reason .desc-refs a carries this. */
+.desc-table a { word-break: break-word; }
+
 .desc-table .is-highlight {
   background: #ecffb5;
   font-weight: 700;
@@ -2102,6 +2120,82 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   align-items: start;
   margin-top: 1rem;
 }
+/* ---- the two parts: Detect and Inhibition ----
+   Each part is its own panel with its own accent (--part): a thick top edge,
+   a "Part 01" banner and the word in its cycle's centre all wear it, so the
+   two never read as one long run of stages. The jump bar at the top of the
+   page names both parts before the reader reaches either. */
+[data-part="detect"]     { --part: #49c5b6; }   /* --nx-mint */
+[data-part="inhibition"] { --part: #e6b060; }   /* --nx-warm */
+.eng-parts-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0 0 3rem;
+}
+body.hw-nexus .hw .eng-parts-nav a {
+  flex: 1 1 14rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1rem 1.4rem;
+  border: 1px solid color-mix(in srgb, var(--part) 40%, transparent);
+  border-left: 6px solid var(--part);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--part) 9%, transparent);
+  color: var(--part);
+  text-decoration: none;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+body.hw-nexus .hw .eng-parts-nav a:hover,
+body.hw-nexus .hw .eng-parts-nav a:focus-visible {
+  background: color-mix(in srgb, var(--part) 18%, transparent);
+  transform: translateY(-2px);
+}
+.eng-parts-nav-name {
+  font-family: "Changa", sans-serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.eng-part {
+  padding: 2.5rem 2.25rem 2rem;
+  border: 1px solid color-mix(in srgb, var(--part) 28%, transparent);
+  border-top: 6px solid var(--part);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--part) 4%, transparent);
+  scroll-margin-top: 100px;
+}
+.eng-part + .eng-part { margin-top: 6rem; }
+.eng-part-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 1.25rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--part) 35%, transparent);
+}
+.eng-part-num {
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--part);
+}
+body.hw-nexus .hw .eng-part-title {
+  margin: 0;
+  font-size: 3.2rem;
+  line-height: 1.05;
+  color: var(--part);
+}
+.eng-part .eng-cycle-centre,
+.eng-part .eng-cycle-kicker { fill: var(--part); }
+@media (max-width: 991.98px) {
+  .eng-part { padding: 1.75rem 1.1rem 1.25rem; }
+  body.hw-nexus .hw .eng-part-title { font-size: 2.4rem; }
+}
 .eng-dbtl-rail {
   position: sticky;
   top: calc(50vh - 6.25rem);
@@ -2146,6 +2240,94 @@ body.hw-nexus .hw .eng-dbtl-head h2 {
   font-size: 0.98rem;
 }
 body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
+/* Figures inside a DBTL stage: the structure diagrams are tall, so cap them at
+   a readable size instead of letting them fill the whole column. */
+.eng-figure img {
+  max-width: min(100%, 520px);
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+}
+/* Sub-sections inside a stage (Test: Cb-2 Production, then the three
+   functional assays), numbered and stepped in one level each. */
+.eng-sub + .eng-sub,
+.eng-sub > p + .eng-sub { margin-top: 2.25rem; }
+.eng-sub-2 {
+  margin-left: 1.25rem;
+  padding-left: 1.25rem;
+  border-left: 2px solid color-mix(in srgb, var(--stage) 30%, transparent);
+}
+body.hw-nexus .hw .eng-sub-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin: 0 0 1rem;
+  color: var(--stage);
+}
+body.hw-nexus .hw h3.eng-sub-title { font-size: 1.5rem; }
+body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
+.eng-sub-num {
+  flex: none;
+  min-width: 1.7em;
+  padding: 0.1em 0.45em;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stage) 16%, transparent);
+  font-family: "Changa", sans-serif;
+  font-size: 0.8em;
+  font-weight: 700;
+  text-align: center;
+}
+/* Paragraphs beside a floated figure sit a little further apart, so the
+   text column reaches the foot of the figures instead of ending short and
+   leaving a hole beside them. */
+.eng-sub > p { margin-bottom: 1.5rem; }
+/* Inside the narrower nested column a float would crowd the text, so it
+   keeps a little less of the width than at the top level. */
+.eng-sub-2 .eng-figure-float { width: min(38%, 250px); }
+.eng-sub .eng-dbtl-empty { min-height: 24vh; }
+.eng-sub-2 .eng-dbtl-empty { min-height: 18vh; }
+/* A figure the text runs around. Floated right, with the stage's body text
+   wrapping down its left; on a narrow screen it goes back to its own row,
+   because a column that short leaves no room to wrap. */
+.eng-figure-float {
+  float: right;
+  /* One width for every floated figure, so the text keeps a single left
+     column edge all the way down. clear: right stops two of them from
+     sitting side by side when the text between is short. */
+  clear: right;
+  width: min(42%, 290px);
+  margin: 0.35rem 0 1.5rem 1.75rem;
+}
+.eng-figure-float img { max-width: 100%; max-height: none; }
+.eng-figure-float figcaption { padding-top: 0.6rem; }
+.eng-sub:after, .eng-dbtl-body:after { content: ""; display: block; clear: both; }
+@media (max-width: 767.98px) {
+  .eng-figure-float { float: none; width: auto; margin: 1.5rem 0; }
+}
+/* Two figures side by side (the gels), stacking on a narrow screen. */
+.eng-figure-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 1.5rem;
+  align-items: end;
+  margin: 1.5rem 0;
+}
+.eng-figure-pair .eng-figure { margin: 0; }
+/* One shared box for the pair, so the two gels render at exactly the same
+   size; contain (not cover) keeps either from being cropped -- their shapes
+   differ by about 2%, so the letterboxing does not show. */
+.eng-figure-pair .eng-figure-half img {
+  width: 100%;
+  max-width: 100%;
+  max-height: none;
+  aspect-ratio: var(--pair-ratio, 7 / 5);
+  object-fit: contain;
+}
+/* A figure whose source is small to begin with: shown well under its own
+   pixel width, so it stays sharp rather than being stretched soft. */
+.eng-figure-small img { max-width: min(100%, 340px); }
+/* A pair whose two photographs are nearer square than the gels. */
+.eng-figure-pair-square { --pair-ratio: 1 / 1; }
 /* Where the stage's content will go: an empty frame in the stage's colour,
    so the layout can be judged before the text arrives. */
 .eng-dbtl-empty {
@@ -5168,259 +5350,6 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 }
 
 
-/* Site tour: a first look at the wiki, one section at a time ----------------
-   Modal by design. A visitor who wants none of it can leave at any step --
-   Skip, Escape, or the backdrop -- and the button in the banner brings it
-   back, so skipping costs nothing. */
-
-/* The banner button. Hidden in the markup and revealed by the script, so it
-   never appears where it would do nothing. */
-.tour-open {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  padding: 0.6rem 1.35rem;
-  font-family: "Changa", sans-serif;
-  font-size: 1rem;
-  color: #fff;
-  /* The banner is a gradient, so white text here is only as readable as
-     whatever the gradient happens to be doing behind it -- 5.8:1 over the
-     middle stop but 2.4:1 over the light end. A dark translucent fill of its
-     own puts the text above 9:1 anywhere on that band. Over the light end the
-     fill is what separates the button from the page (3.9:1); over the dark end
-     the fill nearly matches it, and the white ring does the separating
-     instead (11:1). One of the two always carries it. */
-  background: rgba(8, 34, 28, 0.7);
-  border: 2px solid #fff;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.tour-open:hover,
-.tour-open:focus-visible {
-  background: #fff;
-  color: #12474f;
-}
-
-.tour {
-  position: fixed;
-  inset: 0;
-  z-index: 1080;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Clear the fixed bar: the tour points at it, so it must stay visible. */
-  padding: 92px 16px 24px;
-}
-
-.tour[hidden] { display: none; }
-
-.tour-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 32, 22, 0.62);
-  cursor: pointer;
-}
-
-.tour-card {
-  position: relative;
-  width: 100%;
-  max-width: 700px;
-  max-height: calc(100vh - 116px);
-  overflow-y: auto;
-  background: #fffdf7;
-  border-radius: 16px;
-  box-shadow: 0 18px 48px rgba(15, 32, 22, 0.35);
-  padding: 1.25rem 1.6rem 1.4rem;
-}
-
-.tour-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.6rem;
-}
-
-.tour-count {
-  margin: 0;
-  font-family: "Changa", sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  color: #5f6e66;
-}
-
-.tour-skip {
-  padding: 0.3rem 0.7rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #075a3e;
-  background: none;
-  border: none;
-  border-radius: 7px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.tour-skip:hover,
-.tour-skip:focus-visible { background: #eaf7dd; }
-
-/* A floor, so the first step does not collapse to a couple of lines before the
-   second one opens out. */
-.tour-stage { min-height: 120px; }
-
-.tour-step[hidden] { display: none; }
-
-.tour-title {
-  font-family: "Changa", sans-serif;
-  font-size: 1.5rem;
-  color: #075a3e;
-  margin: 0 0 0.6rem;
-}
-
-/* The card takes focus when the tour opens. It is modal and unmissable, so a
-   ring is only drawn when the visitor is actually driving from the keyboard. */
-.tour-card:focus { outline: none; }
-
-.tour-card:focus-visible {
-  outline: 3px solid #60c028;
-  outline-offset: 3px;
-}
-
-.tour-step p {
-  margin: 0;
-  line-height: 1.7;
-  color: #33413a;
-}
-
-/* Five groups, twenty-one pages, on one screen: columns that reflow rather
-   than a fixed grid, so the shortest section does not leave a hole. */
-.tour-map {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
-  gap: 1.1rem 1.4rem;
-  margin-top: 1.25rem;
-}
-
-.tour-map h3 {
-  font-family: "Changa", sans-serif;
-  font-size: 0.82rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: #5f6e66;
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid #e6ddc8;
-}
-
-.tour-links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.tour-links a {
-  display: inline-block;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #075a3e;
-  text-decoration: none;
-  background: #eaf7dd;
-  border: 1px solid #c6e3a6;
-  border-radius: 999px;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.tour-links a:hover,
-.tour-links a:focus-visible {
-  background: #075a3e;
-  border-color: #075a3e;
-  color: #fffdf7;
-}
-
-.tour-foot {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.4rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e6ddc8;
-}
-
-.tour-actions {
-  display: flex;
-  gap: 0.55rem;
-}
-
-.tour-btn {
-  min-height: 40px;
-  padding: 0.45rem 1.15rem;
-  font-family: "Changa", sans-serif;
-  font-size: 0.95rem;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.tour-back {
-  color: #075a3e;
-  background: #fffdf7;
-  border: 2px solid #075a3e;
-}
-
-.tour-back:hover:not(:disabled),
-.tour-back:focus-visible { background: #eaf7dd; }
-
-/* WCAG exempts an inactive control from contrast, but that is permission to
-   ignore it, not a reason to make it unreadable. This still reads (4.9:1) and
-   is still plainly lighter than the enabled Back, which is #075a3e at 7.5:1. */
-.tour-back:disabled {
-  color: #5f6e66;
-  border-color: #c3cec7;
-  cursor: default;
-}
-
-.tour-next {
-  color: #fffdf7;
-  background: #075a3e;
-  border: 2px solid #075a3e;
-}
-
-.tour-next:hover,
-.tour-next:focus-visible { background: #04412c; border-color: #04412c; }
-
-/* While the tour runs the page behind it must not scroll away underneath.
-   Named for the state, not the control: .tour-open is the banner button, and a
-   body carrying that class would inherit its inline-flex. */
-body.tour-active { overflow: hidden; }
-
-/* While the step that lists the sections is up, the bar is lifted out of the
-   dimmed page, so the sentence about the menu and the menu itself are legible
-   at the same time. */
-.navbar.tour-above { z-index: 1085; }
-
-@media (max-width: 575.98px) {
-  .tour { padding: 78px 12px 16px; }
-  .tour-card { padding: 1.1rem 1.15rem 1.2rem; max-height: calc(100vh - 94px); }
-  .tour-title { font-size: 1.3rem; }
-  .tour-stage { min-height: 0; }
-  .tour-actions { justify-content: stretch; flex: 1; }
-  .tour-btn { flex: 1; }
-  .tour-map { gap: 0.9rem; }
-}
-
-@media print {
-  .tour, .tour-open { display: none !important; }
-}
-
-
 /* ===== Print: the lab book leaves the screen =========================
    A protocol is printed and carried to the bench. Two things decide whether
    it survives the trip. Browsers drop background colours when printing, so
@@ -5897,6 +5826,267 @@ body.tour-active { overflow: hidden; }
   margin-left: 0.7rem;
   color: #75b299;
   font-size: 1.1rem;
+}
+
+/* ---- the imaging pipeline on the Model page (Part 2) --------------------
+   A flow with two branches in it, which .hw-flow cannot carry -- that one is
+   a single row of boxes. Laid out downwards rather than across, because the
+   branches need room and a column survives a phone screen; the connectors
+   are drawn rather than written, so the markup stays an ordered list and a
+   screen reader gets the order and the two choices as list structure.
+
+   The blocks are tinted rather than left clear: over the page's starfield an
+   unfilled box reads as noise with a line round it, and the whole diagram
+   flattens. The four stages are deliberately not equal -- the one that does
+   the work the pipeline turns on carries the accent.
+
+   Only ever used inside body.hw-nexus, where the --nx-* palette is defined
+   for both themes, so there is no light/dark pair to keep in step here.
+   -------------------------------------------------------------------- */
+.md-pipe {
+  list-style: none;
+  margin: 1.75rem 0;
+  padding: 0;
+  display: grid;
+  gap: 1.4rem;
+  /* Labels only. The prose inside each block stays in the page face, the way
+     a schematic sets its callouts in the drawing face and its notes in text. */
+  --pipe-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  --pipe-edge: color-mix(in srgb, var(--nx-mint) 30%, var(--nx-line));
+}
+
+/* The run from one block down to the next, with a head on it so the direction
+   is read rather than inferred. Nothing hangs below the last. */
+.md-pipe > li { position: relative; }
+.md-pipe > li:not(:last-child)::before,
+.md-pipe > li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.md-pipe > li:not(:last-child)::before {
+  bottom: -1.4rem;
+  width: 2px;
+  height: 1.4rem;
+  background: linear-gradient(to bottom,
+    color-mix(in srgb, var(--nx-mint) 55%, transparent),
+    color-mix(in srgb, var(--nx-mint) 22%, transparent));
+}
+.md-pipe > li:not(:last-child)::after {
+  bottom: -1.4rem;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid color-mix(in srgb, var(--nx-mint) 55%, transparent);
+}
+
+.md-pipe-step {
+  display: grid;
+  grid-template-areas: "body out";
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0 1.5rem;
+  padding: 1rem 1.25rem;
+  background: color-mix(in srgb, var(--nx-panel) 72%, transparent);
+  border: 1px solid var(--pipe-edge);
+  border-radius: 3px;
+  transition: border-color var(--t-fast, 0.15s) ease,
+              box-shadow var(--t-fast, 0.15s) ease;
+}
+.md-pipe-step:hover { border-color: var(--nx-mint); }
+
+/* A reference designator, filled so the sequence can be followed at a glance
+   down the left edge without reading anything. */
+.md-pipe-no {
+  grid-area: body;
+  align-self: start;
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  font-family: var(--pipe-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--nx-ground);
+  background: var(--nx-mint);
+  border-radius: 3px;
+}
+
+.md-pipe-body { grid-area: body; display: grid; gap: 0.35rem; padding-left: 2.5rem; }
+.md-pipe-body strong {
+  font-family: var(--pipe-mono);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nx-text);
+}
+.md-pipe-body > span { font-size: 0.9rem; line-height: 1.6; color: var(--nx-muted); }
+
+/* A signal tapped off the block: a short lead, then the label. */
+.md-pipe-out {
+  grid-area: out;
+  justify-self: end;
+  font-family: var(--pipe-mono);
+  font-size: 0.76rem;
+  color: var(--nx-mint);
+  background: color-mix(in srgb, var(--nx-mint) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nx-mint) 28%, transparent);
+  border-radius: 3px;
+  padding: 0.3rem 0.6rem;
+  white-space: nowrap;
+}
+.md-pipe-out::before {
+  content: "\2500\25B8";
+  color: color-mix(in srgb, var(--nx-mint) 55%, transparent);
+  margin-right: 0.4rem;
+}
+
+/* Nothing marks out one processing step over another any more. What carries
+   the eye is the branches: the questions breathe, and so do the answers. */
+.md-pipe-end .md-pipe-no { background: var(--nx-lime); }
+
+/* ---- a branch ---- */
+.md-pipe-fork { display: grid; gap: 0.7rem; }
+
+/* Legend across the top of the branch, with a rule running out either side.
+   The two questions are the only places the pipeline decides anything, so they
+   are the only things on the diagram that move -- a slow breath on the same
+   5-second count the rest of the wiki uses (css/motion.css). */
+.md-pipe-ask {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-family: var(--pipe-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-mint);
+  justify-self: stretch;
+  animation: md-pipe-breathe 5s ease-in-out infinite;
+}
+
+@keyframes md-pipe-breathe {
+  0%, 100% {
+    text-shadow: 0 0 6px color-mix(in srgb, var(--nx-mint) 30%, transparent);
+  }
+  50% {
+    text-shadow: 0 0 10px color-mix(in srgb, var(--nx-mint) 70%, transparent),
+                 0 0 22px color-mix(in srgb, var(--nx-mint) 40%, transparent);
+  }
+}
+.md-pipe-ask::before,
+.md-pipe-ask::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent, color-mix(in srgb, var(--nx-mint) 45%, transparent));
+}
+.md-pipe-ask::after { background: linear-gradient(to left,
+    transparent, color-mix(in srgb, var(--nx-mint) 45%, transparent)); }
+
+.md-pipe-fork > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.7rem;
+}
+
+/* Dashed, and a step darker than the trunk: these are the side routes.
+   Their edges breathe, the two in a pair half a cycle apart, so the light
+   crosses from one answer to the other and back -- the figure keeps saying
+   that this is a choice, without either side being the one that is taken.
+   No hover state: an animated border wins the cascade over a hovered one,
+   so it would not have shown. */
+.md-pipe-fork > ul > li {
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+  padding: 0.9rem 1.1rem;
+  background: color-mix(in srgb, var(--nx-ground) 55%, transparent);
+  border: 1px dashed var(--pipe-edge);
+  border-radius: 3px;
+  animation: md-pipe-edge-breathe 5s ease-in-out infinite;
+}
+.md-pipe-fork > ul > li:nth-child(2) { animation-delay: 2.5s; }
+
+@keyframes md-pipe-edge-breathe {
+  0%, 100% {
+    border-color: var(--pipe-edge);
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    border-color: var(--nx-mint);
+    box-shadow: 0 0 16px -3px color-mix(in srgb, var(--nx-mint) 38%, transparent);
+  }
+}
+
+/* The condition, written on the wire rather than boxed. */
+.md-pipe-cond {
+  justify-self: start;
+  font-family: var(--pipe-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-blue-up);
+}
+.md-pipe-cond::after {
+  content: " \2500\2500";
+  color: color-mix(in srgb, var(--nx-blue-up) 45%, transparent);
+}
+
+.md-pipe-fork > ul > li strong {
+  font-family: var(--pipe-mono);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--nx-text);
+}
+.md-pipe-fork > ul > li > span:last-child {
+  font-size: 0.87rem;
+  line-height: 1.55;
+  color: var(--nx-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-pipe-step { transition: none; }
+  /* The breathing stops; the glow that marks the branches out stays, held at
+     its midpoint, so nothing is lost by turning the motion off. */
+  .md-pipe-ask {
+    animation: none;
+    text-shadow: 0 0 10px color-mix(in srgb, var(--nx-mint) 55%, transparent);
+  }
+  .md-pipe-fork > ul > li {
+    animation: none;
+    border-color: color-mix(in srgb, var(--nx-mint) 65%, var(--nx-line));
+  }
+}
+
+@media (max-width: 640px) {
+  /* The tapped signal drops under the text, and the branch stacks. */
+  .md-pipe-step { grid-template-areas: "body" "out"; grid-template-columns: 1fr; gap: 0.6rem; }
+  .md-pipe-out { justify-self: start; white-space: normal; margin-left: 2.5rem; }
+  .md-pipe-fork > ul { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .md-pipe-step,
+  .md-pipe-fork > ul > li { background: none; border-color: #999; box-shadow: none; }
+  .md-pipe-body strong,
+  .md-pipe-fork > ul > li strong { color: #000; }
+  .md-pipe-body > span,
+  .md-pipe-fork > ul > li > span:last-child { color: #333; }
+  .md-pipe-no { background: #ddd; color: #000; }
+  .md-pipe-out { background: none; border-color: #999; color: #000; }
+  .md-pipe-ask, .md-pipe-cond { color: #000; }
 }
 
 /* ---- the three kinds of note the page uses ---- */
@@ -6464,6 +6654,29 @@ body.tour-active { overflow: hidden; }
    narrow and 72% of it would be too little to hold three columns. */
 .hw-figure-table { margin-inline: auto; }
 
+/* Part 2's tables run to the left margin and across the full column, rather
+   than sitting centred at 72% like the Part 3 ones. Both of these are prose in
+   a table -- long sentences, not figures -- and at 72% with a narrow first
+   column they broke a short label across five lines. The first column is given
+   a floor and a ceiling so it can hold a phrase without taking the width the
+   explanation needs. */
+#model-zone-params .hw-figure-table { margin-inline: 0; max-width: none; }
+#model-zone-params .hw-table th:first-child,
+#model-zone-params .hw-table td:first-child { min-width: 11rem; width: 26%; }
+
+/* The result plates. Each image is already a pair -- the photograph and the
+   same photograph measured -- so they run the full width of the column and
+   stack; side by side would halve something that is half a picture already. */
+.md-cv-figure { margin: 2rem 0; }
+.md-cv-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--nx-line);
+  border-radius: 4px;
+  background: #fff;   /* the plots are drawn on white and keep it */
+}
+
 @media (min-width: 768px) {
   .hw-figure-table { max-width: 72%; }
   .hw-fold { max-width: 72%; }
@@ -6736,6 +6949,9 @@ body.hw-nexus .hw-vis {
 .hw-vis .hw-v2 { fill: var(--hw-v2); }
 .hw-vis .hw-dot { stroke: var(--hw-surf); stroke-width: 2; }
 .hw-vis .hw-dot:hover, .hw-vis .hw-bar:hover { filter: brightness(1.2); }
+/* A mark that is version 2's but stands for the other answer: a ring where
+   the dot is filled. Used in the AHL plate session's chart. */
+.hw-vis .hw-ring { fill: var(--hw-surf); stroke: var(--hw-v2); stroke-width: 2; }
 /* The session chart is wider than a phone: it scrolls inside its figure. */
 .hw-chart { margin: 1.2rem 0 1rem; }
 .hw-chart .hw-vis { min-width: 520px; }
@@ -7228,6 +7444,8 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   --hwp-v1: #66757f;
   --hwp-v2: #49c5b6;
   --hwp-proxy: #5fb3e0;
+  --hwp-ex: #5fb3e0;
+  --hwp-em: #55d98a;
   --hwp-absent: #8fa5b0;
   --hwp-hot: #e6b060;
   --hwp-bed: #12222b;
@@ -7296,6 +7514,8 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 .hwp-legend .hwp-k-v1::before { background: var(--hwp-v1); }
 .hwp-legend .hwp-k-v2::before { background: var(--hwp-v2); }
 .hwp-legend .hwp-k-proxy::before { background: var(--hwp-proxy); }
+.hwp-legend .hwp-k-ex::before { background: var(--hwp-ex); }
+.hwp-legend .hwp-k-em::before { background: var(--hwp-em); }
 /* Drawn the way the view draws it: an outline with nothing in it. */
 .hwp-legend .hwp-k-absent::before {
   background: none;
@@ -7362,6 +7582,22 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   cursor: pointer;
 }
 .hwp-back:hover { background: #1e313a; color: #dce9ee; }
+/* "Take a reading": the steps of one cycle, all on show, the current one lit. */
+.hwp-r-tools { display: inline-flex; flex-wrap: wrap; gap: 0.4rem; }
+.hw .hwp-readout .hwp-r-steps {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.35rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--hwx-dim);
+}
+.hw .hwp-readout .hwp-r-steps li { margin: 0; padding-left: 0.15rem; transition: color 0.2s ease; }
+.hw .hwp-readout .hwp-r-steps li.is-done { color: var(--hwx-ink); }
+.hw .hwp-readout .hwp-r-steps li.is-now { color: #fff; }
+.hw .hwp-readout .hwp-r-steps li.is-now::marker { color: var(--hwp-em); }
+@media (prefers-reduced-motion: reduce) {
+  .hw .hwp-readout .hwp-r-steps li { transition: none; }
+}
 .hwp-back:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
 
 /* ---- what a part's line is made of, in the list and in the readout ---- */
@@ -10333,6 +10569,400 @@ body.hw-nexus .sw .sw-inv-out {
   .sw-lab { display: none; }
 }
 
+/* ---- page structure ------------------------------------------------------
+   The page borrows the Model page's parts (md-parts cards, md-part banners;
+   its container carries .md for them). Four cards instead of three: stacked
+   on a phone, two by two on a tablet (no arrow into the second row), four
+   abreast once there is room. */
+@media (min-width: 768px) {
+  .sw .sw-parts { grid-template-columns: repeat(2, 1fr); }
+  .sw .sw-parts > li:nth-child(3)::before { display: none; }
+}
+@media (min-width: 1200px) {
+  .sw .sw-parts { grid-template-columns: repeat(4, 1fr); }
+  .sw .sw-parts > li:nth-child(3)::before { display: block; }
+}
+/* The one sentence under each part's banner: what a judge should take away. */
+body.hw-nexus .sw .sw-takeaway {
+  max-width: 50rem;
+  margin: 0.9rem 0 2.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--nx-mint);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--nx-text);
+}
+/* The Swarming Assay sits outside the workflow: a dashed rule, not the parts' solid one. */
+.sw .md-part.sw-apart {
+  margin-top: 6rem;
+  border-top: 2px dashed var(--nx-muted);
+}
+body.hw-nexus .sw .sw-apart .md-part-no { color: var(--nx-muted); }
+
+/* ---- screenshots -----------------------------------------------------------
+   Every shot sits in the same plain browser frame (a bar with three dots), so
+   screenshots of any size and crop read as one set. A shot with an image
+   opens full size on click (edu-lightbox.js). Until the image is uploaded the
+   frame is dashed in the caution colour and says so. */
+.sw-shot { display: flex; flex-direction: column; gap: 0.55rem; margin: 0; }
+.sw-frame {
+  overflow: hidden;
+  background: #0a1c24;
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+.sw-frame-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  background: var(--nx-raised);
+  border-bottom: 1px solid var(--nx-line);
+}
+.sw-frame-bar i { width: 7px; height: 7px; border-radius: 50%; background: var(--nx-line); }
+.sw-shot img { display: block; width: 100%; height: auto; }
+body.hw-nexus .sw .sw-shot figcaption { font-size: 0.8rem; line-height: 1.5; color: var(--nx-muted); }
+body.hw-nexus .sw .sw-shot figcaption strong { color: var(--nx-text); font-weight: 600; }
+.sw-shot.is-todo .sw-frame { border: 1.5px dashed var(--nx-warm); box-shadow: none; }
+.sw-shot-todo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--nx-warm);
+  background: rgba(230, 176, 96, 0.04);
+}
+.sw-todo-block .sw-shot-todo {
+  aspect-ratio: auto;
+  min-height: 8rem;
+  border: 1.5px dashed var(--nx-warm);
+  border-radius: 10px;
+}
+.sw-tools .sw-shot { margin-top: 1rem; }
+
+/* ---- the workflow ----------------------------------------------------------
+   Seven steps as tabs (software-workflow.js adds .is-live). Without the
+   script the panels simply stack. */
+.sw-flow { margin-top: 1.25rem; }
+.sw-flow-steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+@media (min-width: 768px) {
+  .sw-flow-steps { grid-template-columns: repeat(7, 1fr); }
+  /* a line joining the steps, behind the buttons */
+  .sw-flow-steps > li { position: relative; }
+  .sw-flow-steps > li + li::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    width: 0.5rem;
+    border-top: 2px solid var(--nx-line);
+  }
+}
+.sw-flow-steps button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.65rem 0.25rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.92rem;
+  color: var(--nx-muted);
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.sw-flow-steps button:hover { border-color: var(--nx-mint); color: var(--nx-text); }
+.sw-flow-steps button[aria-selected="true"] {
+  color: var(--nx-text);
+  background: var(--nx-raised);
+  border-color: var(--nx-mint);
+}
+.sw-flow-steps button:focus-visible,
+.sw-flow-nav .sw-btn:focus-visible {
+  outline: 3px solid var(--nx-warm);
+  outline-offset: 2px;
+}
+.sw-flow-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--nx-mint);
+  border: 2px solid var(--nx-mint);
+  border-radius: 50%;
+}
+.sw-flow-steps button.is-done .sw-flow-n { background: rgba(73, 197, 182, 0.18); }
+.sw-flow-steps button[aria-selected="true"] .sw-flow-n {
+  color: var(--nx-ground);
+  background: var(--nx-mint);
+}
+.sw-flow-panel { margin-bottom: 1.5rem; }
+.sw-flow.is-live .sw-flow-panel {
+  margin: 0;
+  padding: 1.25rem;
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 14px;
+}
+.sw-flow-panel[hidden] { display: none; }
+.sw-flow-panel:focus-visible { outline: 3px solid var(--nx-warm); outline-offset: 2px; }
+.sw .sw-flow-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+}
+.sw-flow-cols { display: grid; gap: 1.25rem; }
+@media (min-width: 768px) {
+  .sw-flow-cols { grid-template-columns: 1fr 1fr; }
+  .sw-flow-cols > .sw-shot { grid-column: 1 / -1; }
+}
+@media (min-width: 992px) {
+  .sw-flow-cols { grid-template-columns: 0.8fr 1.2fr 1.3fr; }
+  .sw-flow-cols > .sw-shot { grid-column: auto; }
+}
+.sw-flow-k {
+  margin: 0 0 0.4rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+body.hw-nexus .sw .sw-flow-bench .sw-flow-k { color: var(--nx-muted); }
+body.hw-nexus .sw .sw-flow-soft .sw-flow-k { color: var(--nx-mint); }
+.sw-flow-bench p:not(.sw-flow-k) { font-size: 1rem; }
+.sw-flow-soft ul { padding-left: 1.1rem; margin: 0 0 0.6rem; font-size: 0.93rem; }
+.sw-flow-soft li { margin-bottom: 0.4rem; line-height: 1.6; }
+body.hw-nexus .sw .sw-flow-where { margin: 0; font-size: 0.82rem; color: var(--nx-muted); }
+.sw-flow-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.9rem;
+}
+.sw-flow-nav[hidden] { display: none; }
+.sw-flow-nav .sw-btn:disabled { opacity: 0.4; cursor: default; }
+body.hw-nexus .sw .sw-flow-count { font-size: 0.85rem; color: var(--nx-muted); }
+.sw-flow-chips {
+  display: inline-block;
+  margin-left: 0.3rem;
+  padding: 0 0.55rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  color: var(--nx-mint);
+  border: 1px solid var(--nx-line);
+  border-radius: 999px;
+}
+
+/* ---- numbering ------------------------------------------------------------
+   Sections (1.1, 1.2 ...), figures, tables and equations are numbered so a
+   judge can point at any of them. */
+.sw h2 .sw-h-no {
+  display: inline-block;
+  margin-right: 0.55em;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--nx-muted);
+}
+/* equation numbers sit at the right edge; equal padding keeps the equation centred */
+.sw-idea .sw-eq { position: relative; padding-left: 3.5rem; padding-right: 3.5rem; }
+.sw-eq-no {
+  position: absolute;
+  right: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  font-style: normal;
+  color: var(--nx-muted);
+}
+/* table captions, visible and numbered, above the table (Software only: the
+   Model page shares .sw and keeps its own captions) */
+body.hw-nexus .sw-page .hw-table caption:not(.visually-hidden) {
+  caption-side: top;
+  padding: 0 0 0.6rem;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--nx-muted);
+}
+body.hw-nexus .sw-page .hw-table caption strong { color: var(--nx-text); font-weight: 600; }
+
+/* Prose at a readable measure (about 75 characters); tables, figures and the
+   panels keep the full width. */
+.sw-parts ~ section > p,
+.sw-parts ~ section > ul,
+.sw-parts ~ section > h3 + p,
+.sw-idea > p,
+.sw-parts ~ section .sw-swarm p { max-width: 46rem; }
+
+/* The cards on top follow the page's single accent. */
+body.hw-nexus .sw .sw-parts .md-parts-name { color: var(--nx-text); }
+.sw-parts a:hover,
+.sw-parts a:focus-visible { border-color: var(--nx-mint); }
+
+/* ---- the five ideas ---- */
+.sw-idea { margin: 0 0 2.4rem; }
+.sw .sw-idea h3 { display: flex; align-items: center; gap: 0.6rem; }
+.sw-idea-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.8rem;
+  height: 1.8rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--nx-mint);
+  border: 2px solid var(--nx-mint);
+  border-radius: 50%;
+}
+
+/* ---- who can use it ---- */
+.sw-yes, .sw-adapt, .sw-no {
+  display: inline-block;
+  padding: 0.05rem 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+.sw-yes { color: var(--nx-mint); }
+.sw-adapt { color: var(--nx-text); border-color: var(--nx-line); }
+.sw-no { color: var(--nx-warm); }
+
+/* ---- try it with your data ---- */
+.sw-try {
+  display: grid;
+  gap: 2rem;
+  padding: 1.25rem;
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-radius: 14px;
+}
+.sw-try-step[hidden] { display: none; }
+body.hw-nexus .sw .sw-try-k {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.08rem;
+  color: var(--nx-text);
+}
+body.hw-nexus .sw .sw-try-step > .sw-try-k ~ .sw-try-k { margin-top: 1.8rem; }
+.sw-try-table-wrap { overflow-x: auto; margin-top: 0.6rem; }
+.sw-try-table { width: 100%; min-width: 30rem; border-collapse: separate; border-spacing: 0.3rem; }
+body.hw-nexus .sw .sw-try-table th {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--nx-muted);
+  text-align: left;
+  padding: 0 0.2rem;
+}
+body.hw-nexus .sw .sw-try-table th:first-child { color: var(--nx-mint); }
+.sw-try input {
+  width: 100%;
+  color: var(--nx-text);
+  background: #0a1c24;
+  border: 1px solid var(--nx-line);
+  border-radius: 6px;
+  padding: 0.35rem 0.55rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88rem;
+}
+.sw-try-table td:first-child input { border-color: var(--nx-mint); }
+.sw-try input:focus-visible,
+.sw-try summary:focus-visible { outline: 3px solid var(--nx-warm); outline-offset: 1px; }
+.sw-try-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+body.hw-nexus .sw .sw-try-unit {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--nx-muted);
+}
+.sw-try-unit input { width: 6rem; }
+body.hw-nexus .sw .sw-try-msg { min-height: 1.5rem; margin: 0.7rem 0 0; font-size: 0.9rem; color: var(--nx-muted); }
+body.hw-nexus .sw .sw-try-msg.is-error { color: var(--nx-warm); }
+.sw-try-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+.sw-try-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.9rem 1rem;
+  background: var(--nx-raised);
+  border: 1px solid var(--nx-line);
+  border-radius: 10px;
+}
+.sw-try-stat-k {
+  font-family: "Changa", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+.sw-try-stat-v {
+  font-family: "Changa", sans-serif;
+  font-size: 1.35rem;
+  color: var(--nx-text);
+  font-variant-numeric: tabular-nums;
+}
+.sw-try-stat-s { font-size: 0.78rem; color: var(--nx-muted); }
+.sw-try-more { margin: 1rem 0 0; }
+.sw-try-more summary { cursor: pointer; font-family: "Changa", sans-serif; color: var(--nx-mint); }
+body.hw-nexus .sw .sw-try-result { min-height: 2rem; margin: 0.8rem 0 0; font-size: 0.95rem; color: var(--nx-muted); }
+body.hw-nexus .sw .sw-try-result.is-ok strong {
+  margin-right: 0.6rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.55rem;
+  color: var(--nx-mint);
+}
+body.hw-nexus .sw .sw-try-result.is-bound { color: var(--nx-warm); }
+
+/* ---- swarming ---- */
+.sw-swarm { display: grid; gap: 2rem; }
+@media (min-width: 992px) { .sw-swarm { grid-template-columns: 1.2fr 1fr; } }
+.sw-swarm-shots { display: grid; gap: 1rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sw-flow-steps button { transition: none; }
+}
+
 /* ===== Model: the reader's measurement model ================================
    The Model page wears the same deep-teal treatment as Hardware and Software
    (body.hw-nexus) and is built from their parts -- hw-lead, hw-flip, hw-flow,
@@ -11287,6 +11917,7 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 
 .parts-table .parts-composite td:first-child { font-weight: 700; }
 
+
 .parts-table code {
   font-size: 0.88em;
   color: #075a3e;
@@ -11388,6 +12019,34 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 }
 
 .parts-card--stub { border-left-color: #e0996a; }
+
+/* ---- the Registry ID links to its Registry entry ----
+   The accession carries the link, not the part name, so the name stays plain
+   text and the clickable thing is the ID a judge would look up. The chip
+   already has its own green on a pale ground, so an underline would just cut
+   across it and the global lime would fight it: the link keeps the chip's
+   colours and signals itself by deepening on hover instead. */
+.parts-table td > a,
+.parts-meta dd > a { text-decoration: none; }
+
+.parts-table td > a > code,
+.parts-meta dd > a > code {
+  border: 1px solid #cfe3d7;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.parts-table td > a:hover > code,
+.parts-table td > a:focus-visible > code,
+.parts-meta dd > a:hover > code,
+.parts-meta dd > a:focus-visible > code {
+  background: #dcefe3;
+  border-color: #075a3e;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parts-table td > a > code,
+  .parts-meta dd > a > code { transition: none; }
+}
 
 @media (max-width: 575.98px) {
   .parts-table { font-size: 0.86rem; }
@@ -12561,6 +13220,233 @@ body.hw-nexus .hw .hw-do .hw-more {
   margin: auto 0 0;
   padding-top: 0.65rem;
   border-top: 1px dashed var(--nx-line);
+}
+
+/* Run, the third step, as one session at the bench (2026-10-09). It takes
+   the full width under Print and Wire. Each row of the session is three
+   things side by side: what the hands do, what is typed, and what the reader
+   answers, taken from a log. What is typed is the largest thing in a row,
+   and one reading is drawn as it is taken: dark, lit, dark. No new type
+   size: 1.75rem, 1.12rem, 0.95rem, 0.9rem and 0.86rem are the page's own,
+   and the labels are the 0.72rem of .hw-limit. */
+body.hw-nexus .hw .hw-do.hw-do-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.hw-nexus .hw .hw-do > .hw-do-wide {
+  grid-column: 1 / -1;
+  padding: 1.25rem 1.5rem 1.2rem;
+  scroll-margin-top: 96px;
+}
+body.hw-nexus .hw .hw-do .hw-run-lead { max-width: 46rem; margin-bottom: 1.2rem; }
+
+body.hw-nexus .hw .hw-run-once > b,
+body.hw-nexus .hw .hw-run-cols span {
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+
+/* A line the reader printed, or a line typed at a shell: as it was. */
+body.hw-nexus .hw .hw-run-log {
+  margin: 0 0 0.4rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 8px;
+  background: var(--nx-ground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--nx-muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+body.hw-nexus .hw .hw-run-log b { font-weight: 700; color: var(--nx-lime); }
+
+/* The session. The numbered marks run down a rail on the left. */
+body.hw-nexus .hw .hw-run-cols,
+body.hw-nexus .hw .hw-run > li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(0, 1.35fr);
+  column-gap: 1.25rem;
+}
+body.hw-nexus .hw .hw-run-cols { padding-bottom: 0.5rem; border-bottom: 1px solid var(--nx-line); }
+body.hw-nexus .hw .hw-run-cols span:first-child { grid-column: 2; }
+body.hw-nexus .hw .hw-run {
+  list-style: none;
+  counter-reset: hw-run;
+  margin: 0;
+  padding: 0;
+}
+body.hw-nexus .hw .hw-run > li {
+  position: relative;
+  counter-increment: hw-run;
+  padding: 0.85rem 0 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+body.hw-nexus .hw .hw-run > li::before {
+  content: counter(hw-run);
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1.5px solid var(--nx-mint);
+  border-radius: 50%;
+  background: var(--nx-panel);
+  font-family: "Changa", sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--nx-mint);
+}
+body.hw-nexus .hw .hw-run > li::after {
+  content: "";
+  position: absolute;
+  left: calc(0.875rem - 0.5px);
+  top: 1rem;
+  bottom: -1rem;
+  width: 1px;
+  background: var(--nx-line);
+}
+body.hw-nexus .hw .hw-run > li:last-child::after { content: none; }
+body.hw-nexus .hw .hw-run > li.is-hero::before {
+  border-color: var(--nx-lime);
+  background: var(--nx-lime);
+  color: var(--nx-ground);
+}
+
+body.hw-nexus .hw .hw-run-do { color: var(--nx-muted); }
+body.hw-nexus .hw .hw-run-do > b {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #fff;
+}
+
+/* What is typed: the thing a reader of this page will copy. */
+body.hw-nexus .hw .hw-run-cmd { display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+body.hw-nexus .hw .hw-run-cmd kbd {
+  max-width: 100%;
+  padding: 0.22rem 0.65rem 0.26rem;
+  border: 1px solid var(--nx-mint);
+  border-radius: 8px;
+  background: var(--nx-ground);
+  box-shadow: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+body.hw-nexus .hw .hw-run-cmd kbd::before { content: ">\00a0"; color: var(--nx-mint); }
+body.hw-nexus .hw .hw-run > li.is-hero .hw-run-cmd kbd { border-color: var(--nx-lime); }
+body.hw-nexus .hw .hw-run > li.is-hero .hw-run-cmd kbd::before { color: var(--nx-lime); }
+
+/* One reading as it is taken: dark, lit, dark, then the flag. */
+body.hw-nexus .hw .hw-do .hw-run-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0;
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+body.hw-nexus .hw .hw-run-strip > span {
+  padding: 0.24rem 0.6rem;
+  border: 1px solid var(--nx-line);
+  background: var(--nx-ground);
+  color: var(--nx-muted);
+  white-space: nowrap;
+}
+body.hw-nexus .hw .hw-run-strip > span + span { border-left: 0; }
+body.hw-nexus .hw .hw-run-strip > span:first-child { border-radius: 8px 0 0 8px; }
+body.hw-nexus .hw .hw-run-strip > span:nth-child(3) { border-radius: 0 8px 8px 0; }
+body.hw-nexus .hw .hw-run-strip > span b { font-weight: 700; color: var(--nx-text); }
+body.hw-nexus .hw .hw-run-strip > .is-lit {
+  background: rgba(95, 179, 224, 0.16);
+  color: var(--nx-blue-up);
+}
+body.hw-nexus .hw .hw-run-strip > .is-lit b { color: #55d98a; }
+body.hw-nexus .hw .hw-run-strip > code { margin-left: 0.55rem; overflow-wrap: anywhere; }
+body.hw-nexus .hw .hw-run > li.is-hero .hw-run-strip > .is-lit b { font-size: 1.12rem; line-height: 1; }
+
+body.hw-nexus .hw .hw-do .hw-run-note,
+body.hw-nexus .hw .hw-do .hw-run-foot {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--nx-muted);
+}
+body.hw-nexus .hw .hw-do .hw-run-foot {
+  max-width: 46rem;
+  margin: 0.55rem 0 0 3.25rem;
+}
+body.hw-nexus .hw .hw-run-foot i { font-style: normal; color: var(--nx-text); }
+
+/* Flashing it: once, and so set apart from the session. */
+body.hw-nexus .hw .hw-run-once {
+  margin: 1.5rem 0 0;
+  padding: 0.8rem 1rem 0.9rem;
+  border: 1px dashed var(--nx-line);
+  border-radius: 10px;
+}
+body.hw-nexus .hw .hw-run-once > b { display: block; margin-bottom: 0.25rem; color: var(--nx-warm); }
+body.hw-nexus .hw .hw-run-once p { margin: 0 0 0.55rem; }
+body.hw-nexus .hw .hw-run-once .hw-run-log { margin: 0; color: var(--nx-text); }
+
+/* What else the reader can say, and what to do then. */
+body.hw-nexus .hw .hw-do .hw-run-else-head {
+  margin: 1.5rem 0 0.1rem;
+  font-size: 1.12rem;
+  color: #fff;
+}
+body.hw-nexus .hw .hw-run-else {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2rem;
+  margin: 0 0 0.6rem;
+}
+body.hw-nexus .hw .hw-run-else dl { margin: 0; }
+body.hw-nexus .hw .hw-run-else dl > div { padding: 0.7rem 0 0.15rem; }
+body.hw-nexus .hw .hw-run-else dt { margin-bottom: 0.2rem; font-size: 0.95rem; font-weight: 700; color: var(--nx-warm); }
+body.hw-nexus .hw .hw-run-else dt code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--nx-warm);
+  overflow-wrap: anywhere;
+}
+body.hw-nexus .hw .hw-run-else .is-ok dt,
+body.hw-nexus .hw .hw-run-else .is-ok dt code { color: var(--nx-lime); }
+body.hw-nexus .hw .hw-run-else dd { margin: 0; font-size: 0.95rem; line-height: 1.55; color: var(--nx-text); }
+body.hw-nexus .hw .hw-run-seen {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--nx-muted);
+}
+
+@media (max-width: 760px) {
+  body.hw-nexus .hw .hw-do.hw-do-two { grid-template-columns: minmax(0, 1fr); }
+  body.hw-nexus .hw .hw-do > .hw-do-wide { padding: 1.1rem 1rem 1.05rem; }
+  body.hw-nexus .hw .hw-run-cols { display: none; }
+  body.hw-nexus .hw .hw-run { border-top: 1px solid var(--nx-line); }
+  body.hw-nexus .hw .hw-run > li { grid-template-columns: 2rem minmax(0, 1fr); column-gap: 0.8rem; row-gap: 0.5rem; }
+  body.hw-nexus .hw .hw-run > li > div { grid-column: 2; }
+  body.hw-nexus .hw .hw-run > li::before { grid-row: 1 / span 3; }
+  body.hw-nexus .hw .hw-do .hw-run-foot { margin-left: 0; }
+  body.hw-nexus .hw .hw-run-else { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* Data and documentation: every folded table, in one list. The rows are
