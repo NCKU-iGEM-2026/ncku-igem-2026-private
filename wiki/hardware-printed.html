@@ -68,8 +68,8 @@
        無 GFP 的 12 列全為 0；12.5 µL 三管 27 個 cycle 全部讀到。
        （這一段講的是 2026-10-07 夜之前的開頭；現在的開頭見下方註解。） #}
     <p class="hw-point">
-      Quick to load, steady when the tube is put back, zero without GFP,
-      and cheap to build.
+      Quick to load, steady when the tube is put back, zero without GFP in
+      liquid culture, and cheap to build.
     </p>
 
     {# 2026-10-07（夜）：硬體負責人要這一台先講優勢（操作快、量得穩、便宜），不要照開發歷程先給第一版的數字。
@@ -90,7 +90,7 @@
     <dl class="hw-keys">
       <div><dt>3&ndash;5&nbsp;s</dt><dd><span class="hw-key-say">to load</span> Placing the cuvette, timed. Version 1 took 30&ndash;40&nbsp;s.</dd></div>
       <div><dt>0.76%</dt><dd><span class="hw-key-say">variation when put back</span> Standard deviation between <a href="#hw-doc-reinsert">five re-insertions of one tube</a>, at about 50 counts.</dd></div>
-      <div><dt>0</dt><dd><span class="hw-key-say">counts without GFP</span> On the emission channel: all 27 readings on version 1, all 4 tubes on version 2.</dd></div>
+      <div><dt>0</dt><dd><span class="hw-key-say">counts without GFP</span> On the emission channel, in liquid culture: all 27 readings on version 1, all 4 tubes on version 2. A <a href="#hardware-v2-ahl">far denser suspension</a> read 1.78.</dd></div>
       <div><dt>US$161</dt><dd><span class="hw-key-say">to build</span> Our estimate of <a href="#hardware-cost-printed">the cost as built</a>, with the printing bought from a shop.</dd></div>
     </dl>
     {# 2026-10-07：第四格原本是「4 sessions」，和上面那句 read over four sessions 重複。硬體負責人問價格是不是
@@ -98,7 +98,8 @@
        所以第四格換成估算的成本。數字出自 Parts and files 的成本表（合計 $160.62），是估算，格子裡寫明了。 #}
 
     <p class="hw-limit">
-      <b>Not yet</b> It has not read an AHL-induced culture, and it has not
+      <b>Not yet</b> Its one session on AHL plates
+      <a href="#hardware-v2-ahl">did not resolve induction</a>, and it has not
       been calibrated against a fluorescence standard.
     </p>
 
@@ -977,7 +978,7 @@
     </p>
 
     <p>
-      Use turned up five more problems, from room light getting in to a
+      Use turned up six more problems, from room light getting in to a
       detector that lost its settings.
     </p>
 
@@ -990,7 +991,7 @@
 
     <p class="hw-point">
       It tells a GFP culture from one without, and the reading rises with
-      the amount of GFP culture.
+      the amount of GFP culture. It has not yet resolved AHL induction.
     </p>
 
     {# 2026-10-07（夜）：這一節原本叫 Version 1: bench tests，排在 The instrument 之後、只放第一版。
@@ -1076,6 +1077,94 @@
     <p class="hw-more">
       <a href="#hw-doc-session">The dilution series, tube by tube</a>
       <a href="#hardware-use">What the wet lab said</a>
+    </p>
+
+    {# 2026-10-10：第二版讀 AHL 培養盤的那一場（2026-10-09）。
+       來源：_AI_REFACTOR_WORK/P1_AHL_EVIDENCE_2026-10-09/EVIDENCE.md revision 2（Codex 審過兩次）：
+       §2 擷取清單、§5 登記的規則、§6 依散射排列的比較、§8 重插、§10 可以說與不能說。
+       給人讀的整理在 P1_AHL_REPORT_2026-10-09/REPORT.md；原始 log 在 P1_AHL_SESSION_LOGS_2026-10-09。
+       每個讀值是該杯 9 個有效 cycle 的平均。induced／not induced 一律是 wet lab 的目視判斷（由硬體負責人轉述），
+       不是這台機器量到的。
+       證據檔 §10 明定不能寫：那幾盤有或沒有被誘導、讀值隨 AHL 上升或不上升所以 AHL 有無效果、偵測極限或定量範圍、
+       劑量反應、背景就是散射漏光、濃菌液會放大螢光、背景模型是校正。這裡都沒有寫，請不要加。
+       限制只在這一小節下方的 Not yet 寫一次（硬體負責人 2026-10-10：不要為了強調限制而重複）；
+       頁面開頭的數字格與 Not yet 只連到這裡。
+       還不知道、所以沒有寫的：AHL 的種類與受體、wet lab 說的「舊」菌是哪一株、不含報導基因的是哪一株。
+       圖上每一個點與長條的位置由程式從證據檔的表 T6 算出，不是手畫的。 #}
+    <h3 id="hardware-v2-ahl">Version 2: the AHL plate session</h3>
+
+    <p class="hw-point hw-point-sub">
+      On suspensions scraped from AHL plates, the reading followed how much
+      culture was in the cuvette, not whether the wet lab saw the plate
+      glow. sfGFP added to a dense suspension was still read.
+    </p>
+
+    <p>
+      The wet lab grew culture on plates containing AHL at five
+      concentrations, 0.22 to 1.1&nbsp;&micro;M by its own estimate, scraped
+      each plate into suspension and gave us 200&nbsp;&micro;L of it. By eye
+      it judged every plate induced but the 1.1&nbsp;&micro;M one.
+    </p>
+
+    <figure class="hw-figure hw-chart" data-hw-anim>
+      <svg class="hw-vis" viewBox="0 0 640 366" role="img" aria-label="Above: F4 against the scatter channel F3 for nine suspensions from the AHL plate session. F4 rises with F3, from about 1 count near F3 57 to about 5 counts near F3 100. The plates judged induced by eye, the plate judged not induced and the culture without the reporter all lie along the same trend. Below: three bars. A dense suspension alone read 5.22, the same suspension with sfGFP culture added read 23.56, and sfGFP culture in medium read 66.56. The numbers are in the table under Data and documentation.">
+        <path class="hw-vis-rule" d="M58 190.0H622"></path>
+        <text x="50" y="193.5" text-anchor="end">0</text>
+        <path class="hw-vis-rule" d="M58 138.0H622"></path>
+        <text x="50" y="141.5" text-anchor="end">2</text>
+        <path class="hw-vis-rule" d="M58 86.0H622"></path>
+        <text x="50" y="89.5" text-anchor="end">4</text>
+        <path class="hw-vis-rule" d="M58 34.0H622"></path>
+        <text x="50" y="37.5" text-anchor="end">6</text>
+        <text x="58" y="12">F4, counts</text>
+        <circle class="hw-dot hw-v2" cx="262" cy="8.5" r="5"></circle><text x="272" y="12">induced, by eye</text>
+        <circle class="hw-dot hw-ring" cx="374" cy="8.5" r="4.5"></circle><text x="384" y="12">not induced, by eye</text>
+        <rect class="hw-dot hw-ring" x="499.5" y="4" width="9" height="9"></rect><text x="515" y="12">without the reporter</text>
+        <text x="152.0" y="206" text-anchor="middle">60</text>
+        <text x="340.0" y="206" text-anchor="middle">80</text>
+        <text x="528.0" y="206" text-anchor="middle">100</text>
+        <text x="340" y="224" text-anchor="middle">F3, counts: the blue light the suspension scatters</text>
+        <circle class="hw-dot hw-ring" style="--i:0" cx="121.7" cy="164.0" r="5" data-tip-t="1.1 &micro;M plate, the thinner scrape" data-tip="F4 1.00 at F3 56.78, judged not induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:1" cx="147.9" cy="161.1" r="5.5" data-tip-t="0.35 &micro;M plate, diluted by half" data-tip="F4 1.11 at F3 59.56, judged induced by eye"></circle>
+        <rect class="hw-dot hw-ring" style="--i:2" x="189.0" y="139.0" width="9.5" height="9.5" data-tip-t="Culture without the reporter" data-tip="F4 1.78 at F3 64.44, no reporter gene"></rect>
+        <circle class="hw-dot hw-v2" style="--i:3" cx="281.5" cy="126.6" r="5.5" data-tip-t="0.22 &micro;M plate" data-tip="F4 2.44 at F3 73.78, judged induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:4" cx="471.6" cy="74.6" r="5.5" data-tip-t="0.275 &micro;M plate" data-tip="F4 4.44 at F3 94.00, judged induced by eye"></circle>
+        <circle class="hw-dot hw-ring" style="--i:5" cx="508.2" cy="54.3" r="5" data-tip-t="1.1 &micro;M plate, the denser scrape" data-tip="F4 5.22 at F3 97.89, judged not induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:6" cx="547.8" cy="62.9" r="5.5" data-tip-t="0.55 &micro;M plate, first reading" data-tip="F4 4.89 at F3 102.11, judged induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:7" cx="560.3" cy="54.3" r="5.5" data-tip-t="0.35 &micro;M plate" data-tip="F4 5.22 at F3 103.44, judged induced by eye"></circle>
+        <circle class="hw-dot hw-v2" style="--i:8" cx="569.7" cy="54.3" r="5.5" data-tip-t="0.55 &micro;M plate, read again" data-tip="F4 5.22 at F3 104.44, judged induced by eye"></circle>
+        <text class="hw-vis-strong" x="58" y="252">With sfGFP in the cuvette, F4</text>
+        <text x="58" y="270">A dense suspension, from the 1.1 &micro;M plate</text>
+        <rect class="hw-bar hw-v2 hw-on-soft" style="--i:0" x="58" y="275" width="37.6" height="14" rx="2" data-tip-t="A dense suspension, from the 1.1 &micro;M plate" data-tip="F4 5.22, the mean of nine cycles. 200 &micro;L of the suspension alone"></rect>
+        <text class="hw-vis-strong hw-late" style="--i:0" x="103.6" y="286">5.22</text>
+        <text x="58" y="302">The same suspension, 180 &micro;L, with 20 &micro;L of sfGFP culture</text>
+        <rect class="hw-bar hw-v2" style="--i:1" x="58" y="307" width="169.9" height="14" rx="2" data-tip-t="The same suspension, 180 &micro;L, with 20 &micro;L of sfGFP culture" data-tip="F4 23.56, the mean of nine cycles. 18.33 counts above the suspension alone"></rect>
+        <text class="hw-vis-strong hw-late" style="--i:1" x="235.9" y="318">23.56</text>
+        <text x="58" y="334">sfGFP culture, 100 &micro;L, in 100 &micro;L of medium</text>
+        <rect class="hw-bar hw-v2" style="--i:2" x="58" y="339" width="480.0" height="14" rx="2" data-tip-t="sfGFP culture, 100 &micro;L, in 100 &micro;L of medium" data-tip="F4 66.56, the mean of nine cycles. F3 22.89: far less scatter than the suspensions"></rect>
+        <text class="hw-vis-strong hw-late" style="--i:2" x="546.0" y="350">66.56</text>
+      </svg>
+      <figcaption>
+        Each mark is one cuvette, the mean of nine cycles. F3 is the blue
+        light the suspension scatters, a rough stand-in for how much culture
+        is in the cuvette. Induced and not induced are the wet lab's
+        judgement by eye. The 1.1&nbsp;&micro;M plate was scraped twice, and
+        0.55&nbsp;&micro;M was read twice.
+      </figcaption>
+    </figure>
+
+    <p class="hw-limit">
+      <b>Not yet</b> This session cannot say whether the plates were
+      induced, and gives no dose&ndash;response: there was one cuvette to a
+      condition, no plate without AHL, and how much was scraped was not
+      measured. In suspensions this dense the emission channel is not zero
+      without GFP, whether from scattered light or from the cells' own
+      fluorescence; the session does not tell which.
+    </p>
+
+    <p class="hw-more">
+      <a href="#hw-doc-ahl">The AHL plate session, cup by cup</a>
+      <a href="{{ url_for('pages', page='model') }}#model-rebuilt">The background, modelled</a>
     </p>
 
     <h3 id="hardware-bench-v1">Version 1: three mixing sessions</h3>
@@ -1571,7 +1660,7 @@
                 controller once. If that fails, unplug the USB for five
                 seconds, then check the detector's wires: SDA on GPIO21,
                 SCL on GPIO22, and 3V3.
-                <span class="hw-run-seen">Seen 2026-10-03, twice, during version 2's first readings. A reset cleared it both times.</span>
+                <span class="hw-run-seen">Seen three times on version 2, on 2026-10-03 and 2026-10-09. A reset cleared it each time.</span>
               </dd>
             </div>
           </dl>
@@ -1599,7 +1688,7 @@
             </div>
             <div class="is-ok">
               <dt><code>flag=OK</code> with F4 at 0</dt>
-              <dd>A valid reading. Keep it: every tube without GFP has read zero.</dd>
+              <dd>A valid reading. Keep it: medium has read zero every time.</dd>
             </div>
           </dl>
         </div>
@@ -1707,7 +1796,7 @@
       <details class="hw-fold hw-fold-wide" id="hw-doc-names">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">The experiments, by name</span>
-          <span class="hw-fold-meta">11 experiments and their dates</span>
+          <span class="hw-fold-meta">12 experiments and their dates</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -1743,6 +1832,7 @@
           <tr><td>Mixing session 3</td><td>Version 1</td><td>The same three liquids, laid out to test a recipe difference and proportionality.</td><td class="hw-nb">2026-09-29</td></tr>
           <tr><td>LED current test</td><td>Version 2</td><td>One empty cuvette, read before and after the current-limit resistor was changed.</td><td class="hw-nb">2026-10-03</td></tr>
           <tr><td>Dilution series</td><td>Version 2</td><td>One batch of GFP culture, undiluted and at five dilutions, with medium and a non-GFP culture as controls. Re-insertion test 3, one tube put back five times, was part of it.</td><td class="hw-nb">2026-10-05</td></tr>
+          <tr><td>AHL plate session</td><td>Version 2</td><td>Suspensions scraped from plates at five AHL concentrations, with medium, a culture without the reporter and an sfGFP culture as controls. Re-insertion test 4, one tube put back ten times, was part of it.</td><td class="hw-nb">2026-10-09</td></tr>
         </tbody>
       </table>
     </figure>
@@ -1823,7 +1913,7 @@
       <details class="hw-fold hw-fold-wide" id="hw-doc-oplog">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">What the operating log added</span>
-          <span class="hw-fold-meta">5 problems</span>
+          <span class="hw-fold-meta">6 problems</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -1842,14 +1932,15 @@
           <tr><td>A cuvette's number did not match what was in it, and one record had to be voided.</td><td>Mixing session 2</td><td>Confirm what is in the cuvette before starting a run.</td></tr>
           <tr><td>The stock's displayed OD did not scale with dilution.</td><td>Mixing sessions 1 and 3</td><td>Recommended: read the OD at one fixed dilution, 1:4. Not yet in the operating card.</td></tr>
           <tr><td>Washed and reused cuvettes tied &ldquo;which use of this cuvette&rdquo; to the order of reading.</td><td>Mixing session 3</td><td>Recommended: one cuvette per tube. Not yet in the operating card.</td></tr>
-          <tr><td>The firmware refused a run because the detector had lost its settings. A reset cleared it each time.</td><td>Mixing session 3, and twice on the day version 2 was fitted</td><td>Recommended: the card should say what to do after a refusal. Not yet written.</td></tr>
+          <tr><td>Suspensions scraped from plates were dense enough to raise the emission channel without GFP.</td><td>AHL plate session</td><td>Recommended: a ceiling on how dense a sample may be, with its OD recorded. Not yet in the operating card.</td></tr>
+          <tr><td>The firmware refused a run because the detector had lost its settings. A reset cleared it each time.</td><td>Mixing session 3, twice on the day version 2 was fitted, and once at the end of the AHL plate session</td><td>Recommended: the card should say what to do after a refusal. Not yet written.</td></tr>
         </tbody>
       </table>
     </div>
 
     <p class="hw-aside">
       The last row is the firmware doing its job: when its state is not known
-      it declines to measure. Three refusals point at a loose connection to
+      it declines to measure. Four refusals point at a loose connection to
       the detector board. The cause has not been found. In the 28 captures
       of the dilution series there was no such refusal; the firmware's only stop was
       an opening check left unarmed on purpose. That is an observation, not
@@ -1952,10 +2043,88 @@
     </p>
         </div>
       </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-ahl">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Version 2: the AHL plate session, cup by cup</span>
+          <span class="hw-fold-meta">12 readings, 2026-10-09</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    <p>
+      200&nbsp;&micro;L to a cuvette, nine cycles each, at the sensor
+      settings of the dilution series. Sorted by F3.
+    </p>
+
+    <figure class="hw-figure">
+      <table class="hw-table hw-keep">
+        <caption>F3 and F4 on version 2, the AHL plate session</caption>
+        <thead>
+          <tr>
+            <th scope="col">In the cuvette</th>
+            <th scope="col">By eye</th>
+            <th scope="col" class="hw-num">F3</th>
+            <th scope="col" class="hw-num">F4</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Medium, at the start and at the end</td><td>&ndash;</td><td class="hw-num">0, 0</td><td class="hw-num">0, 0</td></tr>
+          <tr><td>sfGFP culture, 100&nbsp;&micro;L, in 100&nbsp;&micro;L of medium</td><td>control</td><td class="hw-num">22.89</td><td class="hw-num">66.56</td></tr>
+          <tr><td>1.1&nbsp;&micro;M plate, the thinner scrape</td><td>not induced</td><td class="hw-num">56.78</td><td class="hw-num">1.00</td></tr>
+          <tr><td>0.35&nbsp;&micro;M plate, diluted by half</td><td>induced</td><td class="hw-num">59.56</td><td class="hw-num">1.11</td></tr>
+          <tr><td>Culture without the reporter</td><td>&ndash;</td><td class="hw-num">64.44</td><td class="hw-num">1.78</td></tr>
+          <tr><td>0.22&nbsp;&micro;M plate</td><td>induced</td><td class="hw-num">73.78</td><td class="hw-num">2.44</td></tr>
+          <tr><td>1.1&nbsp;&micro;M suspension, 180&nbsp;&micro;L, with 20&nbsp;&micro;L of sfGFP culture</td><td>control</td><td class="hw-num">85.89</td><td class="hw-num">23.56</td></tr>
+          <tr><td>0.275&nbsp;&micro;M plate</td><td>induced</td><td class="hw-num">94.00</td><td class="hw-num">4.44</td></tr>
+          <tr><td>1.1&nbsp;&micro;M plate, the denser scrape</td><td>not induced</td><td class="hw-num">97.89</td><td class="hw-num">5.22</td></tr>
+          <tr><td>0.55&nbsp;&micro;M plate, first reading</td><td>induced</td><td class="hw-num">102.11</td><td class="hw-num">4.89</td></tr>
+          <tr><td>0.35&nbsp;&micro;M plate</td><td>induced</td><td class="hw-num">103.44</td><td class="hw-num">5.22</td></tr>
+          <tr><td>0.55&nbsp;&micro;M plate, read again</td><td>induced</td><td class="hw-num">104.44</td><td class="hw-num">5.22</td></tr>
+        </tbody>
+      </table>
+    </figure>
+
+    <p>
+      Medium read zero on the emission channel in all 18 cycles. The culture
+      without the reporter did not: 1.78, at a density no earlier session
+      had reached. Whether its cuvette had held culture before was not
+      recorded.
+    </p>
+
+    <p>
+      Set side by side after the readings were seen: among the five
+      readings with F3 from 94 to 104, the plate judged not induced read
+      5.22 and those judged induced 4.44 to 5.22. Among the three with F3
+      from 57 to 64, induced read 1.11, not induced 1.00, and the culture
+      without the reporter 1.78.
+    </p>
+
+    <p>
+      The sfGFP culture, at a quarter of that scatter, read 66.56. Twenty
+      microlitres of it in 180&nbsp;&micro;L of a dense suspension read
+      23.56, against 5.22 for that suspension alone: the dense culture did
+      not hide it.
+    </p>
+
+    <p>
+      One test was registered before the session: that F4 rises in the
+      order of the AHL concentrations. Read as registered, it does not hold
+      (<var>p</var>&nbsp;=&nbsp;0.64). Our script first reported that it did
+      (<var>p</var>&nbsp;=&nbsp;0.05), having used two repeat readings the
+      registration rules out: both were asked for after the first reading
+      was seen, and the 1.1&nbsp;&micro;M one was a second, denser scrape.
+      Neither outcome bears on AHL. The same test on F3 gives the same
+      <var>p</var> values, so what it ranks is how much was scraped.
+    </p>
+        </div>
+      </details>
       <details class="hw-fold hw-fold-wide" id="hw-doc-reinsert">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">Version 1 against version 2: putting one tube back</span>
-          <span class="hw-fold-meta">4 series</span>
+          <span class="hw-fold-meta">6 series</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -1993,6 +2162,8 @@
           <tr><td>Taken out and put back (re-insertion test 1)</td><td>Version 1</td><td class="hw-num">3</td><td class="hw-num">40.33</td><td class="hw-num">1.45</td><td class="hw-num">3.6&nbsp;%</td></tr>
           <tr><td>Taken out and put back (re-insertion test 2)</td><td>Version 1</td><td class="hw-num">3</td><td class="hw-num">33.00</td><td class="hw-num">2.08</td><td class="hw-num">6.3&nbsp;%</td></tr>
           <tr class="is-total"><td>Taken out and put back (re-insertion test 3)</td><td>Version 2</td><td class="hw-num">5</td><td class="hw-num">49.87</td><td class="hw-num">0.38</td><td class="hw-num">0.76&nbsp;%</td></tr>
+          <tr><td>Left in its seat, read 20 times (AHL plate session)</td><td>Version 2</td><td class="hw-num">20</td><td class="hw-num">62.95</td><td class="hw-num">1.13</td><td class="hw-num">1.8&nbsp;%</td></tr>
+          <tr><td>Taken out and put back (re-insertion test 4)</td><td>Version 2</td><td class="hw-num">10</td><td class="hw-num">68.37</td><td class="hw-num">1.84</td><td class="hw-num">2.7&nbsp;%</td></tr>
         </tbody>
       </table>
       <figcaption>
@@ -2017,6 +2188,15 @@
       In counts, putting a tube back on version 1 moved the reading five to
       seven times as much as leaving it alone. On version 2 it moved it little more than
       leaving it alone had: 0.38 counts on a mean of 49.87, or 0.76&nbsp;%.
+    </p>
+
+    <p>
+      Test 4, in the AHL plate session, put an sfGFP culture back ten times:
+      2.7&nbsp;%, against 1.8&nbsp;% for the same tube left alone. That
+      culture settles. Left alone its reading fell, and handling stirred it
+      up again, so the wider spread cannot be put down to the seat. A first
+      resting series, which the operator may have bumped, spread
+      3.3&nbsp;%.
     </p>
         </div>
       </details>
@@ -2734,7 +2914,7 @@
       <details class="hw-fold hw-fold-wide" id="hw-doc-log">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">The development log</span>
-          <span class="hw-fold-meta">9 steps, 2026-08-14 to 10-05</span>
+          <span class="hw-fold-meta">10 steps, 2026-08-14 to 10-09</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -2761,7 +2941,7 @@
     <div class="hwx-rig hwx-log" id="hwxLog">
       <div class="hwx-rig-head">
         <h3>Development log</h3>
-        <p class="hwx-rig-sub">Nine steps, 2026-08-14 to 2026-10-05</p>
+        <p class="hwx-rig-sub">Ten steps, 2026-08-14 to 2026-10-09</p>
       </div>
 
       <div class="hwx-log-track" id="hwxLogTrack" role="group"
@@ -2905,6 +3085,21 @@
             Version 2 has culture readings of its own. They are one session
             with one batch, so they stand beside version 1's and are not yet a
             comparison with them.</p>
+        </li>
+        <li class="hwx-log-item" data-when="10-09" data-name="AHL plates">
+          <div class="hwx-log-date">2026-10-09</div>
+          <h4>The AHL plate session: the reading follows the culture</h4>
+          <p>
+            Suspensions scraped from plates at five AHL concentrations, with
+            medium, a culture without the reporter and an sfGFP culture as
+            controls. The reading rose with how much culture was in the
+            cuvette, whether or not the wet lab had seen the plate glow, and
+            sfGFP added to a dense suspension was still read.
+          </p>
+          <p class="hwx-log-change"><span>What it changed</span>
+            Zero without GFP now carries a condition: it holds in liquid
+            culture, not in a suspension this dense. Reading induction
+            needs samples of matched density and one without AHL.</p>
         </li>
       </ol>
 
