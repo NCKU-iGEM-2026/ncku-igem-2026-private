@@ -1,15 +1,330 @@
 {% extends "layout.html" %}
-  
+
 {% block title %}Contribution{% endblock %}
-{# subtitle, not published -- replace with a real one when there is one:
-   貢獻 #}
+
+{# The deep-teal ground of Hardware and Software: what this page hands over
+   is theirs, so it wears the same. #}
+{% block body_class %}hw-nexus{% endblock %}
+
 {% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/contribution.avif{% endblock %}
-{% block lead %}{% endblock %}
+{% block lead %}What we leave for the teams that come after us{% endblock %}
+
+{% block page_css %}
+<link href="{{ url_for('static', filename = 'css/pages/contribution.css') }}" rel="stylesheet">
+{% endblock %}
 
 {% block page_content %}
 
+{#
+  === 給團隊的說明 ===
 
+  這一頁是銅牌第 3 項「Contribution」的 Standard URL（2026.igem.wiki/<team>/contribution）。
+  iGEM 2026 的原文（competition.igem.org/judging/medals，2026-10-10 查）：
+    "Make a useful contribution for future iGEM teams."
+    Guidance: "Teams must document their contribution and explain why it is a
+    contribution to fellow iGEMers. There is no single definition: be creative
+    and generous with the knowledge, data, or tools you provide."
+    Examples: "Add new substantial documentation to an existing Part on the
+    Registry." / "Build on existing software or hardware." / "Document
+    troubleshooting useful to future teams."
+  評審看的是這一頁本身，所以貢獻要寫在這裡、說清楚為什麼對別隊有用，細節再連回 Hardware、Software。
+
+  內容全部是 Hardware 與 Software 兩頁已經寫的事（數字、檔案、步驟、日期都照那兩頁），
+  每一項都連到寫它的那一節。那兩頁改了，這裡要跟著改。
+  沒有寫進來的：Parts 頁的 Registry 紀錄（團隊要求這一頁先從硬體與軟體寫起）。
+#}
+
+<div class="hw-orbs" aria-hidden="true">
+  <span class="hw-orb hw-orb-a"><span></span></span>
+  <span class="hw-orb hw-orb-b"><span></span></span>
+  <span class="hw-orb hw-orb-c"><span></span></span>
+</div>
+
+<div class="container my-4 hw">
+
+  <div class="hw-lead">
+    <p>
+      Many iGEM teams build a fluorescent biosensor, and then have to measure
+      it: find a plate reader, turn its readings into concentrations, and work
+      out what went wrong when the numbers look odd. We built our own way
+      through all three for our AHL sensor, and this page hands it over: a
+      reader you can build for US$54 to US$161, the software that turns its
+      readings, or a plate reader&rsquo;s, into concentrations, and the
+      troubleshooting we wrote down along the way. The files are on
+      iGEM&rsquo;s GitLab under the MIT licence: free to use, change and pass
+      on, as long as the copyright notice goes with them.
+    </p>
+  </div>
+
+  <nav class="hw-jump" aria-label="On this page">
+    <ul class="sw-links">
+      <li><a href="#contribution-start">Where to start</a></li>
+      <li><a href="#contribution-reader">The reader</a></li>
+      <li><a href="#contribution-software">The software</a></li>
+      <li><a href="#contribution-troubleshooting">Troubleshooting</a></li>
+      <li><a href="#contribution-not-yet">Not done yet</a></li>
+    </ul>
+  </nav>
+
+  <!-- ========================= where to start ========================= -->
+  <section id="contribution-start">
+    <h2>Where to start</h2>
+
+    <p class="hw-point">
+      Start from what your team already has. Each row is a part of our work
+      you can take as it is, or with one change.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption><strong>Table 1.</strong> What to take, by what your team has</caption>
+        <thead><tr><th scope="col">If your team has</th><th scope="col">Take</th><th scope="col">Change</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>A fluorescent biosensor and a plate reader</td>
+            <td>LasReader&rsquo;s Plate Reader Assay: paste the plate, get a calibration curve and the concentrations of your samples</td>
+            <td>Nothing. Read its &ldquo;AHL&rdquo; labels as your own target</td>
+          </tr>
+          <tr>
+            <td>A fluorescent biosensor and no plate reader near the bench</td>
+            <td>CAPTURE-Screen, either build, and LasReader&rsquo;s pages for it</td>
+            <td>Nothing, for sfGFP</td>
+          </tr>
+          <tr>
+            <td>A different fluorescent protein on that reader</td>
+            <td>The same reader and software</td>
+            <td>One file: the signal channel in <code>frontend/config/unmix_basis.json</code>, F4 (515&nbsp;nm, for sfGFP) now</td>
+          </tr>
+          <tr>
+            <td>A low-cost reader of your own, built on an AS7341 sensor</td>
+            <td>The CAPTURE-Screen firmware, and LasReader&rsquo;s pages and data model</td>
+            <td>Nothing</td>
+          </tr>
+          <tr>
+            <td>A reader of your own design, on any sensor</td>
+            <td>The <a href="#contribution-troubleshooting">troubleshooting</a> below, and how and why we redrew ours</td>
+            <td>&mdash;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hw-aside">
+      The first four rows are the Software page&rsquo;s
+      <a href="{{ url_for('pages', page='software') }}#who">Who can use it</a>, which also says what a new analysis or another plate-reader export would take.
+    </p>
+  </section>
+
+  <!-- ========================= the reader ========================= -->
+  <section id="contribution-reader">
+    <h2>A fluorescence reader you can build</h2>
+
+    <p class="hw-point">
+      CAPTURE-Screen reads one cuvette at the bench: a 470&nbsp;nm LED lights
+      the sample, and a ten-channel spectral sensor reads it at 90&deg;. We
+      built it twice, and either build can be made from what we publish.
+    </p>
+
+    <p>
+      A shared plate reader is booked, scheduled and in one building; a
+      reader of your own can sit next to the incubator. Everything below is written up in full on the
+      <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page;
+      each line links to the section that holds it.
+    </p>
+
+    <div class="hw-modules">
+      <div class="hw-module">
+        <span class="hw-module-tag">3D-printed build</span>
+        <h3>Print it, wire it, run it</h3>
+        <ul class="ctb-list">
+          <li><strong>38 printed pieces</strong> in matte black PLA, each one saved as an STL file from the page&rsquo;s 3D view. On a printer other than ours, print the two fit coupons first.</li>
+          <li><strong>12 assembly steps</strong>, in the order the reader&rsquo;s builder checked.</li>
+          <li><strong>The circuit:</strong> an ESP32, the AS7341 detector on its I&sup2;C bus, and a 2N7000 MOSFET switching the LED at about 10&nbsp;mA through 217&nbsp;&Omega;.</li>
+          <li><strong>Run from any serial terminal</strong> at 115&nbsp;200 baud, one command per line, with a script in the repository that stamps and keeps every line of the log.</li>
+          <li><strong>About US$161</strong>, most of it printing bought from a shop; with a printer of your own, about US$38 and 180&nbsp;g of PLA.</li>
+        </ul>
+        <p class="ctb-links">
+          <a href="{{ url_for('pages', page='hardware') }}#hardware-reproduce">Construction and operation</a>
+          <a href="{{ url_for('pages', page='hardware') }}#hw-doc-parts">Parts and files</a>
+          <a href="{{ url_for('pages', page='hardware') }}#hw-doc-assembly">Assembly</a>
+          <a href="{{ url_for('pages', page='hardware') }}#hw-doc-bom">The cost, line by line</a>
+        </p>
+      </div>
+
+      <div class="hw-module">
+        <span class="hw-module-tag">Laser-cut build</span>
+        <h3>Cut it to your board</h3>
+        <ul class="ctb-list">
+          <li><strong>Parts generated in the browser</strong> from the measured thickness of your board. The optical layout stays fixed and thicker board makes the walls grow outward; the generator was checked across 2.80&ndash;3.20&nbsp;mm and refuses to make files at 3.25&nbsp;mm.</li>
+          <li><strong>One 450&nbsp;&times;&nbsp;300&nbsp;mm sheet</strong> for every jointed part, with 8&nbsp;mm tabs and slots made 0.1&nbsp;mm smaller a side for the laser&rsquo;s kerf.</li>
+          <li><strong>10 assembly steps and 6 operating steps</strong>, with an OLED display and a button on the reader itself.</li>
+          <li><strong>Run from LasReader</strong>, or from a serial monitor at 115&nbsp;200 baud.</li>
+          <li><strong>US$53.54 as costed</strong>, the enclosure included. The LED, its resistor and the cuvette were not priced, and we have not guessed at them.</li>
+        </ul>
+        <p class="ctb-links">
+          <a href="{{ url_for('pages', page='hardware') }}#lc-parts">The parts generator</a>
+          <a href="{{ url_for('pages', page='hardware') }}#lc-assembly">Assembly</a>
+          <a href="{{ url_for('pages', page='hardware') }}#lc-operating">Operating steps</a>
+          <a href="{{ url_for('pages', page='hardware') }}#hardware-cost">What it costs</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="ctb-repo">
+      <span class="ctb-repo-k">Repository &middot; MIT licence</span>
+      <a class="ctb-repo-name" href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware">gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware</a>
+      <span class="ctb-repo-what">The CAD sources and exports, the firmware and the parts list.</span>
+    </div>
+  </section>
+
+  <!-- ========================= the software ========================= -->
+  <section id="contribution-software">
+    <h2>Software that turns readings into concentrations</h2>
+
+    <p class="hw-point">
+      LasReader is the wet-lab workflow of a fluorescent biosensor in the
+      browser: standards, blanks, replicates and a curve, with nothing to
+      install.
+    </p>
+
+    <p>
+      We built it for our AHL sensor and our own reader, but the analysis
+      uses neither: it fits standards of known concentration to their
+      readings and converts samples through that curve. Any unit works, as
+      long as standards and samples share it. It keeps rules a team can rely
+      on: no concentration is given outside the range the curve can support,
+      and a reading left out of a fit stays in the run, on the plot and in
+      the export, with the reason.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption><strong>Table 2.</strong> Three ways to use LasReader</caption>
+        <thead><tr><th scope="col">To</th><th scope="col">You need</th><th scope="col">Where</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Try it on your own numbers</td>
+            <td>Nothing but this wiki: a panel on the Software page runs LasReader&rsquo;s own fitting code, unchanged. Paste a calibration from a spreadsheet and the curve appears. Nothing leaves the page.</td>
+            <td><a href="{{ url_for('pages', page='software') }}#try">Try it with your data</a></td>
+          </tr>
+          <tr>
+            <td>Run it yourself</td>
+            <td>Python 3.14 and Git. The frontend has no build step and needs no Node.js; setup and run scripts come for bash and PowerShell, and the 45 backend tests run with <code>pytest</code>.</td>
+            <td><a href="{{ url_for('pages', page='software') }}#run">Run it, build on it</a></td>
+          </tr>
+          <tr>
+            <td>Build on it</td>
+            <td>A new analysis is one folder under <code>backend/app/</code> with its own <code>router.py</code>; a new page is one HTML file and one script.</td>
+            <td><a href="{{ url_for('pages', page='software') }}#who">Who can use it</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ctb-repo">
+      <span class="ctb-repo-k">Repository &middot; MIT licence</span>
+      <a class="ctb-repo-name" href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader">gitlab.igem.org/2026/software/ncku-tainan/lasreader</a>
+      <span class="ctb-repo-what">A README for what it is, who it is for and how to install, run and reproduce it; every dependency pinned; about 1&nbsp;MB.</span>
+    </div>
+  </section>
+
+  <!-- ========================= troubleshooting ========================= -->
+  <section id="contribution-troubleshooting">
+    <h2>Troubleshooting we wrote down</h2>
+
+    <p class="hw-point">
+      What cost us time, so that it need not cost yours. Each problem is on
+      the Hardware page where it happened, most with the date it was seen.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption><strong>Table 3.</strong> Problems we met, and what fixed them</caption>
+        <thead><tr><th scope="col">What you see</th><th scope="col">What it means</th><th scope="col">What to do</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>A dark read is not zero (<code>AMBIENT_PRESENT</code>)</td>
+            <td>Light is getting in.</td>
+            <td>Void the cycle, fix the shield and read again. Do not subtract it, and leave the voided row in the file.</td>
+          </tr>
+          <tr>
+            <td>The reader refuses: <code>ENABLE is not in a defined acquisition state</code></td>
+            <td>The detector lost power or was reset.</td>
+            <td>Reset the controller once. If that fails, unplug the USB for five seconds and check the detector&rsquo;s wires: SDA on GPIO21, SCL on GPIO22, and 3V3.</td>
+          </tr>
+          <tr>
+            <td>The LED lights while the controller boots</td>
+            <td>Without a pulldown on the MOSFET&rsquo;s gate, the LED can light before the firmware takes charge of it.</td>
+            <td>Keep the gate pulldown in the circuit.</td>
+          </tr>
+          <tr>
+            <td>The LED never lights (<code>NO_SIGNAL;LED_DISABLED</code>)</td>
+            <td>It was not armed, or the sketch was built with its LED gate off, as it ships.</td>
+            <td>Arm and run again; build the sketch once with <code>CAPTURE_LED_HARDWARE_ENABLE=1</code>.</td>
+          </tr>
+          <tr>
+            <td>A channel reads 65&nbsp;535 (<code>SATURATED</code>)</td>
+            <td>It has reached full scale.</td>
+            <td>Dilute the sample.</td>
+          </tr>
+          <tr>
+            <td>The same tube reads differently each time it is put back</td>
+            <td>The cuvette&rsquo;s height and position were set by hand, with a collar, in four steps.</td>
+            <td>A seat that sets both by itself. Ours went from 3.6&ndash;6.3% of the tube&rsquo;s own mean to 0.76%.</td>
+          </tr>
+          <tr>
+            <td>Counts do not match from one session to the next</td>
+            <td>The reader was moved between sessions: an empty chamber read about 310 in one and 160 to 190 in another.</td>
+            <td>Read a tube with no sfGFP in every session and reference that session to it.</td>
+          </tr>
+          <tr>
+            <td>Tubes below about 20% sfGFP culture scatter by tens of percent</td>
+            <td>They are the most sensitive to how they were mixed.</td>
+            <td>Mixing them by serial dilution should reduce this; we have not tested it yet.</td>
+          </tr>
+          <tr>
+            <td>Culture density cannot be read off the fluorescence channels</td>
+            <td>A 90&deg; geometry suits fluorescence and does not track turbidity; no choice of channels recovers it.</td>
+            <td>Measure cell density separately, with a spectrophotometer.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hw-aside">
+      In full on the Hardware page:
+      <a href="{{ url_for('pages', page='hardware') }}#hw-run-else">When the reader says something else</a>,
+      <a href="{{ url_for('pages', page='hardware') }}#hardware-reproduce">Construction and operation</a>,
+      <a href="{{ url_for('pages', page='hardware') }}#hardware-v2">Design advantages</a> and the laser-cut build&rsquo;s
+      <a href="{{ url_for('pages', page='hardware') }}#hardware-laser-limits">Limits and next steps</a>.
+    </p>
+  </section>
+
+  <!-- ========================= not done yet ========================= -->
+  <section id="contribution-not-yet">
+    <h2>What is not done yet</h2>
+
+    <p class="hw-point">
+      So that nobody builds on more than is there.
+    </p>
+
+    <ul class="ctb-list ctb-list-plain">
+      <li>Nobody has yet built a second reader from our instructions; the assembly order was checked by the reader&rsquo;s own builder.</li>
+      <li>The reader has not been compared with a plate reader, and it has not read an AHL-induced culture.</li>
+      <li>A light-path check, reading a fixed reference such as the same blank tube at intervals, is not yet part of the firmware.</li>
+      <li>LasReader&rsquo;s Plate Reader Assay is yet to be checked against a full real dataset.</li>
+      <li>LasReader fits rising responses only: a sensor whose fluorescence falls as its target rises gives no curve.</li>
+    </ul>
+
+    <p>
+      The full lists are the Software page&rsquo;s
+      <a href="{{ url_for('pages', page='software') }}#limits">Limitations and next steps</a>
+      and the Hardware page&rsquo;s
+      <a href="{{ url_for('pages', page='hardware') }}#hardware-laser-limits">Limits and next steps</a>.
+      If you build a reader from these files, run LasReader on your data, or
+      meet a problem that is not here, the contact links at the foot of
+      every page reach us.
+    </p>
+  </section>
+
+</div>
 
 {% endblock %}
-
-//銅牌標準
