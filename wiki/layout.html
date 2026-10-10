@@ -128,9 +128,10 @@
   <!-- Bootstrap Bundle with Popper -->
   <script src="{{ url_for('static', filename = 'bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename = 'navbar-scroll.js') }}"></script>
-  <!-- Redesign motion: vendor GSAP/ScrollTrigger/Lenis（自架）+ 全站動態 -->
-  <script src="{{ url_for('static', filename = 'vendor/gsap.min.js') }}" defer></script>
-  <script src="{{ url_for('static', filename = 'vendor/ScrollTrigger.min.js') }}" defer></script>
+  <!-- Redesign motion: vendor Lenis（自架）+ 全站動態。GSAP/ScrollTrigger 只有首頁的
+       標題拆字用得到（motion.js 的 data-rx-split），所以只在需要的頁面由
+       block motion_vendor 載入，其他頁省下 116 KB 的解析。 -->
+  {% block motion_vendor %}{% endblock %}
   <script src="{{ url_for('static', filename = 'vendor/lenis.min.js') }}" defer></script>
   <script src="{{ url_for('static', filename = 'js/motion.js') }}" defer></script>
   <script src="{{ url_for('static', filename = 'js/editorial.js') }}" defer></script>
@@ -138,6 +139,8 @@
   <script src="{{ url_for('static', filename = 'js/pages/hp-mesh.js') }}" defer></script>
   <!-- 區塊級螢網：data-glow 元素内長出一層螢網（见 glow-mesh.js 檔頭規格）-->
   <script src="{{ url_for('static', filename = 'js/glow-mesh.js') }}" defer></script>
+  <!-- 永不停止的 CSS 動畫在畫面外暫停（見 anim-gate.js 檔頭）-->
+  <script src="{{ url_for('static', filename = 'js/anim-gate.js') }}" defer></script>
   <script src="{{ url_for('static', filename = 'page-toc.js') }}"></script>
   {% block extra_scripts %}{% endblock %}
 </body>

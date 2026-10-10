@@ -137,15 +137,19 @@ html[data-theme="dark"] body.hw-nexus::before { background-image: none; }
 /* ---- 自訂遊標（僅 pointer:fine）---- */
 @media (pointer: fine) {
   html.rx-cursor, html.rx-cursor a, html.rx-cursor button { cursor: none; }
+  /* Moved by transform (motion.js), so following the pointer is the
+     compositor's work: left/top would lay out and repaint on every move. */
   #rxCursor {
     position: fixed; z-index: 3000; pointer-events: none;
+    left: 0; top: 0;
     width: 12px; height: 12px; border-radius: 50%;
     background: var(--c-teal); mix-blend-mode: multiply;
-    transform: translate(-50%, -50%);
+    transform: translate3d(var(--cx, -100px), var(--cy, -100px), 0) translate(-50%, -50%);
+    will-change: transform;
     transition: width 0.25s var(--ease-out), height 0.25s var(--ease-out),
                 background 0.25s ease, opacity 0.3s ease;
   }
-  html[data-theme="dark"] #rxCursor { mix-blend-mode: screen; }
+  html[data-theme="dark"] #rxCursor { mix-blend-mode: normal; }
   #rxCursor.rx-big { width: 52px; height: 52px; background: rgba(20,179,145,0.22); border: 2px solid var(--c-teal); }
   /* 深夜系頁面一律螢光綠游標＋同色光暈（含 Nexus 三頁與全站深色模式）：
      深底上青點看不清，lime 一眼找到鼠標。 */
@@ -153,7 +157,7 @@ html[data-theme="dark"] body.hw-nexus::before { background-image: none; }
   body.hp-nexus #rxCursor,
   body.edu-nexus #rxCursor {
     background: #a0e860;
-    mix-blend-mode: screen;
+    mix-blend-mode: normal;
     box-shadow:
       0 0 12px rgba(160, 232, 96, 0.9),
       0 0 34px rgba(160, 232, 96, 0.45);
@@ -189,6 +193,9 @@ html[data-theme="dark"] body.hw-nexus::before { background-image: none; }
   to   { opacity: 1; filter: blur(0);
          clip-path: circle(78% at 50% 42%); }
 }
+
+/* ---- 畫面外的永不停止動畫：暫停（static/js/anim-gate.js 加上這個屬性）---- */
+[data-anim-off] { animation-play-state: paused !important; }
 
 /* ---- 首頁專屬 token 骨幹（home.css 使用）---- */
 :root { --hero-h: min(92svh, 860px); }
