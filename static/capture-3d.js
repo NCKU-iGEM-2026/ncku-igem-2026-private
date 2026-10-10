@@ -537,7 +537,7 @@
       var it = items[sel], txt;
       if (it.text) txt = it.text;
       else {
-        var paint = it.kind === 'box' ? 'Painted matte black inside; bare plywood outside.' : 'Painted matte black.';
+        var paint = it.kind === 'box' ? 'Matte black marker inside; bare plywood outside.' : 'Coloured with matte black marker.';
         var place = it.where === 'cut' ? 'Placed as in the drawing.' : 'Placed by its size; the drawing does not fix which way it faces or exactly where it sits.';
         if (it.kind === 'plate') place = 'Lies on top of the chambers; its 13 × 13 mm opening holds the cuvette upright.';
         if (it.kind === 'trap') place = 'Inside the light trap: the square\'s lower edge stands against the wall with the 8 mm opening and the square rises away from it at about 45°, carried on the 29.73 mm slopes of the two triangles. Placed from the builder\'s description; the drawing does not show it assembled.';
