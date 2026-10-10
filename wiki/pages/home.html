@@ -5,6 +5,7 @@
 {% block page_css %}
 <link href="{{ url_for('static', filename = 'css/motion.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename = 'css/pages/home.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename = 'css/pages/home-why.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block header %}
@@ -93,6 +94,253 @@
       It does its worst in exactly the places medicine cannot avoid creating:
       ventilators, catheters and open wounds.
     </p>
+
+    {#
+      The background beat: why the organism matters before the numbers do.
+      Section 1's lead has just put it in intensive care, so this steps back
+      to the ordinary places it is already living and escalates from there
+      into the figures below. Styles in static/css/pages/home-why.css; the
+      four icons and the colony behind the question are placeholders waiting
+      on the team's own drawings, each marked ARTWORK.
+
+      Everyday habitats and the AHL sentence are Project Description's
+      ("The signal we are after"); no figure or claim is added here that the
+      page below does not already carry.
+    #}
+    <div class="hx-why" id="hx-why">
+      <div class="hx-why-hook" data-reveal>
+        <div class="hx-why-hook-inner">
+        <!-- The colony: six circles drifting on their own clocks through a
+             gooey filter. The filter blurs the group, then throws the alpha
+             channel hard against a threshold, so where two circles overlap
+             the blurred edges clear the threshold together and they read as
+             one body; as they drift apart the bridge thins, falls under the
+             threshold and snaps. Nothing is drawn merging -- the merge is
+             what the threshold does to the blur. -->
+        <div class="hx-why-blobs" aria-hidden="true">
+          <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <!-- Generous region: the halo at the end of the chain reaches
+                   well past the shape, and the default -10%/120% box would
+                   cut it off square. -->
+              <filter id="hxwGoo" x="-35%" y="-35%" width="170%" height="170%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="27" result="blur"/>
+                <!-- alpha * 26 - 12: everything under about 0.46 alpha goes
+                     to nothing, everything over it goes solid. That cliff is
+                     the whole effect. -->
+                <feColorMatrix in="blur" mode="matrix" result="goo"
+                  values="1 0 0 0 0
+                          0 1 0 0 0
+                          0 0 1 0 0
+                          0 0 0 26 -12"/>
+                <!-- A last, much gentler blur. The threshold above gives a
+                     hard edge, which is what makes two circles snap apart
+                     cleanly; this takes the worst of that edge off again so
+                     the mass settles into the page instead of sitting on it
+                     as a cut-out. The merge still happens at the threshold,
+                     under the softening. Keep it small -- at 9 the shape
+                     lost its outline altogether. -->
+                <feGaussianBlur in="goo" stdDeviation="4.5"/>
+              </filter>
+              <!-- Radial, not a ramp across the mass: the colour has to come
+                   from the middle and disperse outwards. userSpaceOnUse so
+                   it is one gradient over the whole group rather than one
+                   per circle, which would show its seams through the goo. -->
+              <!-- Radial, not a ramp across the mass: the colour has to come
+                   from the middle and disperse outwards. The radius is
+                   deliberately smaller than the shape -- at 330 every dark
+                   stop fell outside the visible silhouette and the whole
+                   thing came out one flat teal. userSpaceOnUse so it is one
+                   gradient over the group rather than one per circle, which
+                   would show its seams through the goo. -->
+              <radialGradient id="hxwBlobFill" gradientUnits="userSpaceOnUse"
+                              cx="300" cy="288" r="248">
+                <stop offset="0"    stop-color="#4ec480"/>
+                <stop offset="0.30" stop-color="#2f9462"/>
+                <stop offset="0.62" stop-color="#1b5e5c"/>
+                <stop offset="0.85" stop-color="#143f4e"/>
+                <stop offset="1"    stop-color="#103542"/>
+              </radialGradient>
+            </defs>
+            <g filter="url(#hxwGoo)" fill="url(#hxwBlobFill)">
+              <!-- The body. It only breathes. -->
+              <circle class="hxw-body" cx="300" cy="300" r="128"/>
+              <!-- Lobes: part of the body, never off it. They are what keeps
+                   the silhouette irregular, which the satellites below used
+                   to do as a side effect of drifting half out. Now that each
+                   satellite is either all the way in or gone, something has
+                   to hold the shape off a plain circle, and this is it. -->
+              <circle class="hxw-lobe l1" cx="190" cy="240" r="92"/>
+              <circle class="hxw-lobe l2" cx="405" cy="355" r="84"/>
+              <circle class="hxw-lobe l3" cx="310" cy="430" r="74"/>
+              <!-- Satellites, and each one only goes one way. Three leave
+                   the body and keep going until they are off the frame;
+                   three arrive from beyond it and are absorbed. Nothing is
+                   ever pulled back the way it came.
+
+                   The loop seam is hidden by where it falls: one end of
+                   every path is the dead centre of the body, where a circle
+                   is inside the mass and contributes nothing the eye can
+                   pick out, and the other end is off the frame entirely.
+                   Both ends are invisible, so the jump between them is too.
+
+                   Distances are percentages of each circle's own box, which
+                   is why the small ones carry the larger numbers. -->
+              <circle class="hxw-sat out-a" cx="300" cy="300" r="87"/>
+              <circle class="hxw-sat in-b"  cx="300" cy="300" r="67"/>
+              <circle class="hxw-sat out-c" cx="300" cy="300" r="53"/>
+              <circle class="hxw-sat in-d"  cx="300" cy="300" r="76"/>
+              <circle class="hxw-sat out-e" cx="300" cy="300" r="42"/>
+              <circle class="hxw-sat in-f"  cx="300" cy="300" r="59"/>
+            </g>
+          </svg>
+        </div>
+        <h3 class="hx-why-q">
+          <span>Before it captures a life,</span>
+          <span>can we capture its message?</span>
+        </h3>
+        <p class="hx-why-sub">
+          <span>Long before any intensive care unit,</span>
+          <span>it is already somewhere far more ordinary.</span>
+        </p>
+        </div>
+      </div>
+
+      <!-- The stretch of spine above the first habitat is this block's
+           own top padding; the spine spans the whole of it. -->
+      <div class="hx-why-weave" data-rx-chapter>
+        <!-- The spine the bubbles are strung on; see home-why.css for why it
+             is a straight line and not the woven curve it started as. -->
+        <div class="hx-why-thread" aria-hidden="true">
+          <svg viewBox="0 0 240 1000" preserveAspectRatio="none">
+            <!-- Leaves the colony at dead centre, then swings to each icon in
+                 turn: x=183 is the centre of the right-hand column, x=57 the
+                 left-hand one. Both measured against this svg's own box
+                 rather than worked out from the grid: the box is not the
+                 same width as the column track it sits over, and deriving
+                 them put the line 25px inside each icon, and the y values are where the four blocks
+                 centre their content.
+
+                 Those y values hold at any window height because every part
+                 of the stack is sized in vh -- the blocks, the gaps and the
+                 run above them all scale together, so the fractions between
+                 them do not move. They do depend on the blocks staying equal
+                 height, which is why none of them may outgrow 112svh.
+
+                 non-scaling-stroke keeps the line an even weight; the box is
+                 stretched, though only slightly, since x and y here end up
+                 scaled within a few per cent of each other. -->
+            <path vector-effect="non-scaling-stroke"
+                  d="M120 0 L120 58
+                     C120 112 183 118 183 171
+                     C183 276 57 306 57 411
+                     C57 516 183 546 183 651
+                     C183 756 57 787 57 891
+                     C57 944 98 972 120 1000"/>
+          </svg>
+        </div>
+
+        <ul class="hx-why-list">
+          <li style="--rx-d:0">
+            <span class="hx-why-art" data-reveal>
+              <!-- The team's drawing. alt is empty on purpose: the heading
+                   beside it already says "Green nail", and repeating that to
+                   a screen reader only adds noise. -->
+              <img class="hx-why-icon" alt=""
+                   src="https://static.igem.wiki/teams/6379/wiki/homepage-icon/nail.avif"
+                   width="1376" height="768" loading="lazy" decoding="async">
+            </span>
+            <div class="hx-why-text" data-reveal>
+              <h4 class="hx-why-name">Green nail</h4>
+              <p class="hx-why-tag">Pigment secretion &amp; trapped moisture</p>
+              <p class="hx-why-note">
+                When moisture becomes trapped beneath micro-gaps in the nail plate,
+                <em>P.&nbsp;aeruginosa</em> secretes pyocyanin &mdash; a cytotoxic
+                blue-green pigment that diffuses directly into the keratin matrix,
+                leaving a stubborn stain that cannot be washed away.
+              </p>
+            </div>
+          </li>
+
+          <li style="--rx-d:90">
+            <span class="hx-why-art" data-reveal>
+              <!-- ARTWORK — placeholder. The team's drawing replaces this
+                   <svg> with an <img class="hx-why-icon">, as the green nail
+                   above already is. -->
+              <svg class="hx-why-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <path d="M10 34h44"/>
+                <path d="M15 34l3 16a7 7 0 0 0 7 6h14a7 7 0 0 0 7-6l3-16"/>
+                <path d="M32 34V16h8a6 6 0 0 1 6 6v3"/>
+                <circle cx="32" cy="43" r="2.4"/>
+              </svg>
+            </span>
+            <div class="hx-why-text" data-reveal>
+              <h4 class="hx-why-name">Damp sink</h4>
+              <p class="hx-why-tag">Quorum sensing &amp; aerosol spread</p>
+              <p class="hx-why-note">
+                Fueled by constant moisture and soap residues, bacteria release AHL
+                signals to coordinate a gelatinous biofilm matrix inside plumbing
+                drains. Water splashes then generate infectious aerosols,
+                contaminating surrounding surfaces.
+              </p>
+            </div>
+          </li>
+
+          <li style="--rx-d:180">
+            <span class="hx-why-art" data-reveal>
+              <!-- ARTWORK — placeholder. The team's drawing replaces this
+                   <svg> with an <img class="hx-why-icon">, as the green nail
+                   above already is. -->
+              <svg class="hx-why-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <rect x="8" y="28" width="22" height="24" rx="7"/>
+                <rect x="34" y="28" width="22" height="24" rx="7"/>
+                <path d="M8 34h22"/><path d="M34 34h22"/>
+                <path d="M19 28v-6"/><path d="M45 28v-6"/>
+              </svg>
+            </span>
+            <div class="hx-why-text" data-reveal>
+              <h4 class="hx-why-name">Lens case</h4>
+              <p class="hx-why-tag">Synthetic adhesion &amp; corneal virulence</p>
+              <p class="hx-why-note">
+                <em>P.&nbsp;aeruginosa</em> exhibits an exceptional affinity for synthetic
+                polymers in contact lenses and cases. Once attached, it secretes
+                destructive proteases that can breach the corneal barrier and cause
+                severe tissue damage within 24 hours.
+              </p>
+            </div>
+          </li>
+
+          <li style="--rx-d:270">
+            <span class="hx-why-art" data-reveal>
+              <!-- ARTWORK — placeholder. The team's drawing replaces this
+                   <svg> with an <img class="hx-why-icon">, as the green nail
+                   above already is. -->
+              <svg class="hx-why-icon" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <path d="M25 57c-1-8-11-13-11-25a16 16 0 0 1 32 0c0 9-10 10-10 17a6 6 0 0 1-11 3"/>
+                <path d="M26 27a7 7 0 0 1 13 3"/>
+              </svg>
+            </span>
+            <div class="hx-why-text" data-reveal>
+              <h4 class="hx-why-name">Swimmer&rsquo;s ear</h4>
+              <p class="hx-why-tag">Epithelial maceration &amp; opportunistic attack</p>
+              <p class="hx-why-note">
+                Stagnant water softens and macerates the delicate skin lining the outer
+                ear canal, stripping away protective earwax. <em>P.&nbsp;aeruginosa</em>
+                exploits this breached defense to colonize and trigger acute,
+                painful inflammation.
+              </p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <p class="hx-why-copy" data-reveal>
+        When these four powers &mdash; adhesion, quorum signaling, pigment
+        toxicity, and biofilm formation &mdash; combine inside an ICU, a minor
+        everyday nuisance escalates into a
+        <strong>life-threatening crisis</strong>.
+      </p>
+    </div>
 
     <ul class="hx-figures">
       <li data-reveal style="--rx-d:0">
@@ -386,7 +634,7 @@
           {% for name, logo in partners %}
           <a class="hx-orbit-item" style="--i:{{ loop.index0 }}"
              href="{{ url_for('pages', page='collaboration') }}" title="{{ name }}">
-            <span class="hx-orbit-face"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/{{ logo }}" alt="{{ name }}" loading="lazy" decoding="async"></span>
+            <span class="hx-orbit-face"><img src="https://static.igem.wiki/teams/6379/wiki/collaboration/{{ logo }}" alt="{{ name }}"></span>
           </a>
           {% endfor %}
         </div>
