@@ -2250,7 +2250,8 @@ body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
 }
 /* Sub-sections inside a stage (Test: Cb-2 Production, then the three
    functional assays), numbered and stepped in one level each. */
-.eng-sub + .eng-sub { margin-top: 2.25rem; }
+.eng-sub + .eng-sub,
+.eng-sub > p + .eng-sub { margin-top: 2.25rem; }
 .eng-sub-2 {
   margin-left: 1.25rem;
   padding-left: 1.25rem;
@@ -2280,6 +2281,9 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
    text column reaches the foot of the figures instead of ending short and
    leaving a hole beside them. */
 .eng-sub > p { margin-bottom: 1.5rem; }
+/* Inside the narrower nested column a float would crowd the text, so it
+   keeps a little less of the width than at the top level. */
+.eng-sub-2 .eng-figure-float { width: min(38%, 250px); }
 .eng-sub .eng-dbtl-empty { min-height: 24vh; }
 .eng-sub-2 .eng-dbtl-empty { min-height: 18vh; }
 /* A figure the text runs around. Floated right, with the stage's body text
@@ -2316,9 +2320,14 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
   width: 100%;
   max-width: 100%;
   max-height: none;
-  aspect-ratio: 7 / 5;
+  aspect-ratio: var(--pair-ratio, 7 / 5);
   object-fit: contain;
 }
+/* A figure whose source is small to begin with: shown well under its own
+   pixel width, so it stays sharp rather than being stretched soft. */
+.eng-figure-small img { max-width: min(100%, 340px); }
+/* A pair whose two photographs are nearer square than the gels. */
+.eng-figure-pair-square { --pair-ratio: 1 / 1; }
 /* Where the stage's content will go: an empty frame in the stage's colour,
    so the layout can be judged before the text arrives. */
 .eng-dbtl-empty {
@@ -5338,259 +5347,6 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
     word-break: break-all;
   }
   .labbook #appendix { break-before: page !important; }
-}
-
-
-/* Site tour: a first look at the wiki, one section at a time ----------------
-   Modal by design. A visitor who wants none of it can leave at any step --
-   Skip, Escape, or the backdrop -- and the button in the banner brings it
-   back, so skipping costs nothing. */
-
-/* The banner button. Hidden in the markup and revealed by the script, so it
-   never appears where it would do nothing. */
-.tour-open {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  padding: 0.6rem 1.35rem;
-  font-family: "Changa", sans-serif;
-  font-size: 1rem;
-  color: #fff;
-  /* The banner is a gradient, so white text here is only as readable as
-     whatever the gradient happens to be doing behind it -- 5.8:1 over the
-     middle stop but 2.4:1 over the light end. A dark translucent fill of its
-     own puts the text above 9:1 anywhere on that band. Over the light end the
-     fill is what separates the button from the page (3.9:1); over the dark end
-     the fill nearly matches it, and the white ring does the separating
-     instead (11:1). One of the two always carries it. */
-  background: rgba(8, 34, 28, 0.7);
-  border: 2px solid #fff;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.tour-open:hover,
-.tour-open:focus-visible {
-  background: #fff;
-  color: #12474f;
-}
-
-.tour {
-  position: fixed;
-  inset: 0;
-  z-index: 1080;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Clear the fixed bar: the tour points at it, so it must stay visible. */
-  padding: 92px 16px 24px;
-}
-
-.tour[hidden] { display: none; }
-
-.tour-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 32, 22, 0.62);
-  cursor: pointer;
-}
-
-.tour-card {
-  position: relative;
-  width: 100%;
-  max-width: 700px;
-  max-height: calc(100vh - 116px);
-  overflow-y: auto;
-  background: #fffdf7;
-  border-radius: 16px;
-  box-shadow: 0 18px 48px rgba(15, 32, 22, 0.35);
-  padding: 1.25rem 1.6rem 1.4rem;
-}
-
-.tour-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.6rem;
-}
-
-.tour-count {
-  margin: 0;
-  font-family: "Changa", sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  color: #5f6e66;
-}
-
-.tour-skip {
-  padding: 0.3rem 0.7rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #075a3e;
-  background: none;
-  border: none;
-  border-radius: 7px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.tour-skip:hover,
-.tour-skip:focus-visible { background: #eaf7dd; }
-
-/* A floor, so the first step does not collapse to a couple of lines before the
-   second one opens out. */
-.tour-stage { min-height: 120px; }
-
-.tour-step[hidden] { display: none; }
-
-.tour-title {
-  font-family: "Changa", sans-serif;
-  font-size: 1.5rem;
-  color: #075a3e;
-  margin: 0 0 0.6rem;
-}
-
-/* The card takes focus when the tour opens. It is modal and unmissable, so a
-   ring is only drawn when the visitor is actually driving from the keyboard. */
-.tour-card:focus { outline: none; }
-
-.tour-card:focus-visible {
-  outline: 3px solid #60c028;
-  outline-offset: 3px;
-}
-
-.tour-step p {
-  margin: 0;
-  line-height: 1.7;
-  color: #33413a;
-}
-
-/* Five groups, twenty-one pages, on one screen: columns that reflow rather
-   than a fixed grid, so the shortest section does not leave a hole. */
-.tour-map {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
-  gap: 1.1rem 1.4rem;
-  margin-top: 1.25rem;
-}
-
-.tour-map h3 {
-  font-family: "Changa", sans-serif;
-  font-size: 0.82rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: #5f6e66;
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid #e6ddc8;
-}
-
-.tour-links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.tour-links a {
-  display: inline-block;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #075a3e;
-  text-decoration: none;
-  background: #eaf7dd;
-  border: 1px solid #c6e3a6;
-  border-radius: 999px;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.tour-links a:hover,
-.tour-links a:focus-visible {
-  background: #075a3e;
-  border-color: #075a3e;
-  color: #fffdf7;
-}
-
-.tour-foot {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.4rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e6ddc8;
-}
-
-.tour-actions {
-  display: flex;
-  gap: 0.55rem;
-}
-
-.tour-btn {
-  min-height: 40px;
-  padding: 0.45rem 1.15rem;
-  font-family: "Changa", sans-serif;
-  font-size: 0.95rem;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.tour-back {
-  color: #075a3e;
-  background: #fffdf7;
-  border: 2px solid #075a3e;
-}
-
-.tour-back:hover:not(:disabled),
-.tour-back:focus-visible { background: #eaf7dd; }
-
-/* WCAG exempts an inactive control from contrast, but that is permission to
-   ignore it, not a reason to make it unreadable. This still reads (4.9:1) and
-   is still plainly lighter than the enabled Back, which is #075a3e at 7.5:1. */
-.tour-back:disabled {
-  color: #5f6e66;
-  border-color: #c3cec7;
-  cursor: default;
-}
-
-.tour-next {
-  color: #fffdf7;
-  background: #075a3e;
-  border: 2px solid #075a3e;
-}
-
-.tour-next:hover,
-.tour-next:focus-visible { background: #04412c; border-color: #04412c; }
-
-/* While the tour runs the page behind it must not scroll away underneath.
-   Named for the state, not the control: .tour-open is the banner button, and a
-   body carrying that class would inherit its inline-flex. */
-body.tour-active { overflow: hidden; }
-
-/* While the step that lists the sections is up, the bar is lifted out of the
-   dimmed page, so the sentence about the menu and the menu itself are legible
-   at the same time. */
-.navbar.tour-above { z-index: 1085; }
-
-@media (max-width: 575.98px) {
-  .tour { padding: 78px 12px 16px; }
-  .tour-card { padding: 1.1rem 1.15rem 1.2rem; max-height: calc(100vh - 94px); }
-  .tour-title { font-size: 1.3rem; }
-  .tour-stage { min-height: 0; }
-  .tour-actions { justify-content: stretch; flex: 1; }
-  .tour-btn { flex: 1; }
-  .tour-map { gap: 0.9rem; }
-}
-
-@media print {
-  .tour, .tour-open { display: none !important; }
 }
 
 
@@ -12160,6 +11916,7 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 }
 
 .parts-table .parts-composite td:first-child { font-weight: 700; }
+
 
 .parts-table code {
   font-size: 0.88em;
