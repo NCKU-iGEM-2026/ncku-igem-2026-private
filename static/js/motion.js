@@ -57,13 +57,25 @@
   bar.id = 'rxProgress';
   bar.setAttribute('aria-hidden', 'true');
   document.body.appendChild(bar);
+  /* Once per frame, not once per scroll event: a wheel or a trackpad can fire
+     several scroll events in one frame, and each read of scrollHeight right
+     after the last width was written made the browser lay the page out
+     again on the spot. The page's height is read once a frame, before the
+     bar is written. */
+  var progressQueued = false;
   function progress() {
+    progressQueued = false;
     var h = document.documentElement.scrollHeight - window.innerHeight;
     var p = h > 0 ? Math.min(1, window.scrollY / h) : 0;
     bar.style.width = (p * 100).toFixed(2) + '%';
   }
-  window.addEventListener('scroll', progress, { passive: true });
-  window.addEventListener('resize', progress);
+  function queueProgress() {
+    if (progressQueued) return;
+    progressQueued = true;
+    requestAnimationFrame(progress);
+  }
+  window.addEventListener('scroll', queueProgress, { passive: true });
+  window.addEventListener('resize', queueProgress);
   requestAnimationFrame(function () {
     document.body.classList.add('rx-ready');
     progress();
