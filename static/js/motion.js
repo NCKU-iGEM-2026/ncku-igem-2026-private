@@ -109,7 +109,11 @@
     document.body.appendChild(cur);
     root.classList.add('rx-cursor');
     var cx = -100, cy = -100, ticking = false;
-    function move() { cur.style.left = cx + 'px'; cur.style.top = cy + 'px'; ticking = false; }
+    function move() {
+      cur.style.setProperty('--cx', cx + 'px');
+      cur.style.setProperty('--cy', cy + 'px');
+      ticking = false;
+    }
     document.addEventListener('pointermove', function (ev) {
       cx = ev.clientX; cy = ev.clientY;
       if (!ticking) { ticking = true; requestAnimationFrame(move); }
@@ -144,8 +148,27 @@
   if (!skipLenis && !reduceMotion && typeof window.Lenis === 'function') {
     try {
       var lenis = new window.Lenis({ duration: 0.9, smoothWheel: true });
-      function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
-      requestAnimationFrame(raf);
+      /* Lenis needs a frame only while a scroll is under way. The loop starts
+         on the first wheel, touch, key or scroll, and stops once the page has
+         been still for a second, instead of running every frame for the
+         whole visit. */
+      var rafOn = false, stillSince = 0;
+      function raf(t) {
+        lenis.raf(t);
+        if (lenis.isScrolling) stillSince = t;
+        if (t - stillSince > 1000) { rafOn = false; return; }
+        requestAnimationFrame(raf);
+      }
+      function wake() {
+        if (rafOn) return;
+        rafOn = true;
+        stillSince = performance.now();
+        requestAnimationFrame(raf);
+      }
+      ['wheel', 'touchstart', 'keydown', 'pointerdown', 'scroll'].forEach(function (type) {
+        window.addEventListener(type, wake, { passive: true });
+      });
+      wake();
       if (window.ScrollTrigger) {
         lenis.on('scroll', window.ScrollTrigger.update);
       }
