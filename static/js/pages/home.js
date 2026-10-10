@@ -33,6 +33,10 @@
     if (!ctx) return;
 
     var hud = stage.querySelector('.qs-hud');
+    /* The meter and the hint line were taken off the banner; the mode buttons
+       stayed. These three are therefore optional, and everything that writes
+       to them below checks first -- the signal and the quorum state are still
+       computed, because the dish's own appearance is driven from them. */
     var fill = stage.querySelector('.qs-meter-fill');
     var stateEl = stage.querySelector('.qs-meter-state');
     var hint = stage.querySelector('.qs-hint');
@@ -304,13 +308,13 @@
     function hudUpdate(t, force) {
       if (!force && t - lastHud < 100) return;
       lastHud = t;
-      fill.style.transform = 'scaleX(' + Math.min(1, signal / 1.5).toFixed(3) + ')';
+      if (fill) fill.style.transform = 'scaleX(' + Math.min(1, signal / 1.5).toFixed(3) + ')';
       /* for a few seconds after the pointer has pulled the dish back out of
          quorum, say so; that is the moment the whole thing is about */
       var st = quorate ? 'Quorum reached' : (t - brokeAt < 3000 ? 'Quorum broken' : (signal > 0.5 ? 'Building' : 'Quiet'));
       if (st !== lastState) {
         lastState = st;
-        stateEl.textContent = st;
+        if (stateEl) stateEl.textContent = st;
         stage.classList.toggle('is-quorate', quorate);
         stage.classList.toggle('is-broken', st === 'Quorum broken');
       }
@@ -333,6 +337,7 @@
 
     /* ---- the controls ---- */
     function hintFor(m) {
+      if (!hint) return '';
       return hint.getAttribute('data-hint-' + (coarse ? 'touch-' : '') + m) || hint.getAttribute('data-hint-' + m);
     }
     function setMode(m) {
@@ -343,7 +348,7 @@
         btn.classList.toggle('is-on', on);
         btn.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
-      hint.textContent = hintFor(m);
+      if (hint) hint.textContent = hintFor(m);
       glow = 0;
     }
     modeBtns.forEach(function (btn) {
@@ -369,7 +374,7 @@
 
     /* ---- start ---- */
     size(); populate();
-    hint.textContent = hintFor('capture');
+    if (hint) hint.textContent = hintFor('capture');
 
     if (reduce) {
       /* a still dish: let it run a few seconds out of sight, then draw it once */
