@@ -106,9 +106,20 @@
 
   /* 節點 logo 圓盤的視覺中心（節點含名字標籤、disc 置頂）——每次回呼讀一次高度 */
   function discCenter(n) {
-    var disc = n.el.querySelector('.rx-node-disc');
-    var extra = (n.el.offsetHeight - (disc ? disc.offsetHeight : 0)) / 2;
+    var extra;
+    if (n.h != null) extra = (n.h - (n.discH || 0)) / 2;      /* measureAll() 的快取 */
+    else {
+      var disc = n.el.querySelector('.rx-node-disc');
+      extra = (n.el.offsetHeight - (disc ? disc.offsetHeight : 0)) / 2;
+    }
     return { x: n.x / 100 * W, y: n.y / 100 * H - extra };
+  }
+
+  /* 節點位置用 transform 寫：合成器就能搬，不必每幀重排版、重畫。
+     left/top 在動畫開始時歸零一次（init），之後只動 transform。 */
+  function place(n) {
+    n.el.style.transform = 'translate3d(' + (n.x / 100 * W).toFixed(1) + 'px,' +
+                           (n.y / 100 * H).toFixed(1) + 'px,0) translate(-50%,-50%)';
   }
 
   /* ---- 尺寸量測：節點框含名字標籤；盤徑另存做碰撞橢圓用。
@@ -346,8 +357,6 @@
         n.y += (hy - n.y) * ease;
       }
       clampNode(n);                           /* 絕對不出界（含名字標籤） */
-      n.el.style.left = n.x.toFixed(3) + '%';
-      n.el.style.top = n.y.toFixed(3) + '%';
       /* 歸位途中亮起張力光暈；拖曳／吸住中不亮 */
       var off = Math.abs(n.x - hx) + Math.abs(n.y - hy);
       var homing = !n.drag && !n.locked && off > 3.5;
@@ -358,12 +367,10 @@
     }
     separate();                              /* 彼此相碰：溫柔彈開，不重疊 */
     magnetPass();                            /* 磁鐵相吸：最近的一顆吸向游標 */
-    for (i = 0; i < nodes.length; i++) {    /* 彈開／吸附後再收一次邊界 */
+    for (i = 0; i < nodes.length; i++) {    /* 彈開／吸附後再收一次邊界，然後就位（每幀只寫一次） */
       n = nodes[i];
-      if (!n.hx) continue;
-      clampNode(n);
-      n.el.style.left = n.x.toFixed(3) + '%';
-      n.el.style.top = n.y.toFixed(3) + '%';
+      if (n.hx) clampNode(n);
+      place(n);
     }
 
     /* 粒子（原質感保留） */
@@ -436,8 +443,7 @@
         n.x = (e.clientX - r.left) / W2 * 100;
         n.y = (e.clientY - r.top) / H2 * 100;
         clampNode(n);                          /* 拖到邊也被框住（含標籤） */
-        el.style.left = n.x.toFixed(2) + '%';
-        el.style.top = n.y.toFixed(2) + '%';
+        place(n);
       });
       function end(e) {
         if (!n.drag) return;
@@ -499,9 +505,17 @@
       staticPaint();
       return;
     }
-    /* 開場：節點緊貼初始六邊形（仍細微順時針推進中） */
+    /* 開場：節點緊貼初始六邊形（仍細微順時針推進中）。從這裡起位置交給 transform */
+    nodes.forEach(function (n) { n.el.style.left = '0'; n.el.style.top = '0'; place(n); });
     bindDrag();
     running = true; start();
+    /* 畫面外就停：舞台捲出視窗後不再每幀計算、重畫 */
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) {
+        if (es[0].isIntersecting) { if (!document.hidden) { running = true; lastT = 0; start(); } }
+        else { running = false; stop(); }
+      }, { rootMargin: '120px 0px' }).observe(stage);
+    }
     clearTimeout(retargetTimer);
     retargetTimer = setTimeout(retarget, 6000 + Math.random() * 4000);
   }
