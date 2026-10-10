@@ -83,8 +83,10 @@
   }
 
   function size() {
-    var r = stage.getBoundingClientRect();
-    W = Math.max(80, r.width); H = Math.max(80, r.height);
+    /* 版面尺寸（clientWidth），不是 getBoundingClientRect：舞台進場時有
+       scale(0.92 → 1) 的縮放，量到的會小 8%；節點用 transform 定位，
+       用了縮過的尺寸就會整組往左上偏。 */
+    W = Math.max(80, stage.clientWidth); H = Math.max(80, stage.clientHeight);
     canvas.width = Math.round(W * DPR);
     canvas.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
