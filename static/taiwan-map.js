@@ -422,17 +422,33 @@
     // 寫入之前，避免「寫了又讀」逼瀏覽器每幀重排版；(2) 卡片位置改用
     // transform 移動（只需合成，不觸發 layout），不再改 left/top；
     // (3) class 與連線透明度只在狀態真的改變時才寫。
-    function layoutOrbit(rotation) {
+    // (4) 這一列的尺寸與每個圖釘相對這一列的位置，最多一秒量一次：圖釘
+    //     不會相對地圖移動，每幀都量就是每幀一次強制排版。一秒一次也接得住
+    //     地圖晚畫好、版面改變。
+    var geom = null, geomAt = -1e9;
+    function measureOrbit() {
+      var rr = row.getBoundingClientRect();
+      geom = {
+        w: rr.width, h: rr.height,
+        compact: row.classList.contains('is-orbit-compact'),
+        pins: orbitItems.map(function (it) {
+          var p = it.pin.getBoundingClientRect();
+          return { x: p.left + p.width / 2 - rr.left, y: p.top + p.height / 2 - rr.top };
+        })
+      };
+    }
+
+    function layoutOrbit(rotation, now) {
       if (!orbitItems.length) return;
-      var rowRect = row.getBoundingClientRect();
-      var cx = rowRect.width / 2;
-      var cy = rowRect.height / 2;
+      if (!geom || now === undefined || now - geomAt > 1000) { measureOrbit(); geomAt = now || 0; }
+      var cx = geom.w / 2;
+      var cy = geom.h / 2;
       // half a card plus a little air; compact mode uses narrower cards
-      var rx = Math.max(0, cx - (row.classList.contains('is-orbit-compact') ? 105 : 140));
+      var rx = Math.max(0, cx - (geom.compact ? 105 : 140));
       var ry = Math.max(0, cy - 24);
 
-      // 先讀：算出每張卡的位置與狀態，啟用中的卡才量它的圖釘位置
-      var frame = orbitItems.map(function (it) {
+      // 先算：每張卡的位置與狀態（不讀 DOM）
+      var frame = orbitItems.map(function (it, i) {
         var angle = it.baseAngle + rotation;
         var active = Math.abs(angleDiff(angle, 0)) < ACTIVE_THRESHOLD ||
                      Math.abs(angleDiff(angle, Math.PI)) < ACTIVE_THRESHOLD;
@@ -440,7 +456,7 @@
           x: cx + rx * Math.cos(angle),
           y: cy + ry * Math.sin(angle),
           active: active,
-          pinRect: active ? it.pin.getBoundingClientRect() : null
+          pin: geom.pins[i]
         };
       });
 
@@ -456,8 +472,8 @@
         }
         if (f.active) {
           // 從卡片中心拉到圖釘中心：長度給 width，方向給 rotate
-          var dx = f.pinRect.left + f.pinRect.width / 2 - rowRect.left - f.x;
-          var dy = f.pinRect.top + f.pinRect.height / 2 - rowRect.top - f.y;
+          var dx = f.pin.x - f.x;
+          var dy = f.pin.y - f.y;
           it.line.style.width = Math.sqrt(dx * dx + dy * dy).toFixed(1) + 'px';
           it.line.style.transform = 'translate(' + f.x.toFixed(1) + 'px,' + f.y.toFixed(1) + 'px) rotate(' +
                                     Math.atan2(dy, dx).toFixed(4) + 'rad)';
@@ -476,19 +492,25 @@
     var rafId = null, lastTs = null, elapsed = 0;
 
     // The ring holds still while the pointer is on one of its cards (or one has
-    // keyboard focus), so it can be read and clicked. Asked of the browser each
-    // frame, not remembered from enter/leave events: cards move under a still
-    // pointer, and a click that jumps the page leaves no "leave" behind.
+    // keyboard focus), so it can be read and clicked. Asked of the browser, not
+    // remembered from enter/leave events: cards move under a still pointer, and
+    // a click that jumps the page leaves no "leave" behind. Asked every 120 ms
+    // rather than every frame -- each ask is a style recalculation -- so the
+    // ring stops within a tenth of a second of the pointer arriving.
     var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
-    var orbitHeld = function () {
-      if (canHover && orbitEl.querySelector('.edu-map-orbit-item:hover')) return true;
+    var heldAt = -1e9, held = false;
+    var orbitHeld = function (ts) {
+      if (ts - heldAt < 120) return held;
+      heldAt = ts;
       var el = document.activeElement;
-      return !!(el && orbitEl.contains(el) && el.matches(':focus-visible'));
+      held = (canHover && !!orbitEl.querySelector('.edu-map-orbit-item:hover')) ||
+             !!(el && orbitEl.contains(el) && el.matches(':focus-visible'));
+      return held;
     };
     var orbitTick = function (ts) {
-      if (lastTs !== null && !orbitHeld()) elapsed += Math.min(ts - lastTs, 100);
+      if (lastTs !== null && !orbitHeld(ts)) elapsed += Math.min(ts - lastTs, 100);
       lastTs = ts;
-      layoutOrbit((elapsed / ROTATION_PERIOD_MS) * 2 * Math.PI);
+      layoutOrbit((elapsed / ROTATION_PERIOD_MS) * 2 * Math.PI, ts);
       rafId = requestAnimationFrame(orbitTick);
     };
     // 只在「環繞卡片有顯示＋地圖在畫面內」時才跑動畫，其餘時間整個停掉；
@@ -596,6 +618,7 @@
       if (mode !== 'strip') select(-1);
       orbitOn = mode !== 'strip' && orbitItems.length > 0;
       layoutPins();   // 地圖寬度變了，圖釘間距要重算
+      geom = null;    // 下一幀重量這一列與圖釘
       syncOrbit();
     }
 
