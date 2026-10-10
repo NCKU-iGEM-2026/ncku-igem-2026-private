@@ -33,6 +33,13 @@
     - 寬螢幕（≥1200px）左邊會自動出現 On this page 側邊目錄（static/page-toc.js），
       Part 的標題用 data-toc-group 標成分組，各節標題用 data-toc-title 給短名。
       新增一節時，h2 加上 data-toc-title="X.Y 短名" 即可，目錄會自己更新。
+      2026-10-11：container 加上 data-toc-style="parts"（與 Software 頁同一套），
+      目錄改成每個 Part 一列、只展開正在讀的那個 Part，上面有閱讀進度條。
+      原本 29 條連結同時攤開、在 1440x900 下會溢出內捲；現在同時只看到 11-13 列。
+      Part 的 data-toc-no 是左邊的圓形編號；Summary 用 ★ 並加 data-toc-apart，
+      讓它與三個 Part 之間隔一條虛線。
+      同一天把兩個沒編號的節補上編號，讓目錄每一列都對齊：
+      Part 1 的參考文獻改成 1.9 References，Part 3 開頭的 Three questions 改成 3.0。
     - Part 3 標題下另有各節捷徑（hw-jump），手機上用。
 
   評審（Best Model）看的是：假設、用到的數據、結果、任何人都看得懂的說明、
@@ -115,7 +122,7 @@
   <span class="hw-orb hw-orb-c"><span></span></span>
 </div>
 
-<div class="container my-4 hw sw md">
+<div class="container my-4 hw sw md" data-toc-style="parts">
 
   <div class="hw-lead">
     {# 這段原本寫的是「抑制 → 抑制圈 → 讀取器」的因果鏈。Part 2 實際上是給 wet lab
@@ -207,7 +214,7 @@
           那次（跳過掃描）。數字彼此一致，但 wiki freeze 前建議完整跑一次
           src/run_all.py，讓頁面上每個數字與每張圖出自同一次執行。
      ====================================================================== #}
-  <header class="md-part" id="model-inhibition" data-toc-group>
+  <header class="md-part" id="model-inhibition" data-toc-group data-toc-no="1">
     <p class="md-part-no">Part 1</p>
     <h2 data-toc-title="Part 1 · Inhibition">Inhibition model: a molar budget against a signal that regenerates</h2>
   </header>
@@ -1142,7 +1149,7 @@
 
   <!-- ========================= Part 1 references ========================= -->
   <section id="model-inhibition-refs">
-    <h2 data-toc-title="Part 1 references">References for Part 1</h2>
+    <h2 data-toc-title="1.9 References">1.9 References</h2>
 
     <p class="hw-refs-note">
       Entries marked <span class="desc-pending">citation to be completed</span>
@@ -1204,7 +1211,7 @@
 
 
 
-  <header class="md-part" id="model-zone" data-toc-group>
+  <header class="md-part" id="model-zone" data-toc-group data-toc-no="2">
     <p class="md-part-no">Part 2</p>
     <h2 data-toc-title="Part 2 · Imaging">Imaging model: from photograph to millimetres</h2>
   </header>
@@ -1480,7 +1487,7 @@
   {# ======================================================================
      Part 3：讀取器的量測模型（原本整頁的內容）
      ====================================================================== #}
-  <header class="md-part" id="model-reader" data-toc-group>
+  <header class="md-part" id="model-reader" data-toc-group data-toc-no="3">
     <p class="md-part-no">Part 3</p>
     <h2 data-toc-title="Part 3 · Reader">Reader model: from counts to culture</h2>
   </header>
@@ -1488,6 +1495,7 @@
   {# Part 3 的各節捷徑。每個連結對應一個 section 的 id，改了 id 要一起改。 #}
   <nav class="hw-jump" aria-label="Part 3 sections">
     <ul class="sw-links">
+      <li><a href="#model-questions">3.0 Three questions</a></li>
       <li><a href="#model-data">3.1 Data</a></li>
       <li><a href="#model-within">3.2 Within a session</a></li>
       <li><a href="#model-across">3.3 Across sessions</a></li>
@@ -1532,7 +1540,7 @@
   <div class="md-glance">
     <p class="md-glance-title">Part 3 at a glance</p>
     <dl class="hw-spec">
-      <div><dt>Question</dt><dd>How the reading scales with GFP culture, why sessions disagree, and when another experiment is worth running. <a href="#model-questions">Three questions</a></dd></div>
+      <div><dt>Question</dt><dd>How the reading scales with GFP culture, why sessions disagree, and when another experiment is worth running. <a href="#model-questions">3.0</a></dd></div>
       <div><dt>Data</dt><dd>50 tubes from three mixing sessions on one instrument, each tube the mean of its valid cycles. <a href="#model-data">3.1</a></dd></div>
       <div><dt>Model</dt><dd>A line through the origin within a session, a stock-density conversion across sessions, and a four-channel ridge regression in the other direction. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
       <div><dt>Validation</dt><dd>Every model is scored on tubes it was not fitted to: a left-out recipe, or a whole left-out session. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
@@ -1543,7 +1551,7 @@
 
   <!-- ========================= the questions ========================= -->
   <section id="model-questions">
-    <h2 data-toc-title="Three questions">Three questions</h2>
+    <h2 data-toc-title="3.0 Three questions">3.0 Three questions</h2>
 
     <p>
       The reader model had three questions put to it. Each card turns over
@@ -2518,7 +2526,7 @@
      Part 3 的四列是從 3.3–3.6 既有文字整理的，請團隊確認。
      2026-10-10：加了第五列（3.6，改版後的機台）；原本的 3.6、3.7 改成 3.7、3.8。
      ====================================================================== #}
-  <header class="md-part" id="model-impact" data-toc-group>
+  <header class="md-part" id="model-impact" data-toc-group data-toc-no="&#9733;" data-toc-apart>
     <p class="md-part-no">Summary</p>
     <h2 data-toc-title="Summary · What changed">What modelling changed</h2>
   </header>
