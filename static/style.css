@@ -2248,6 +2248,77 @@ body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
   width: auto;
   height: auto;
 }
+/* Sub-sections inside a stage (Test: Cb-2 Production, then the three
+   functional assays), numbered and stepped in one level each. */
+.eng-sub + .eng-sub { margin-top: 2.25rem; }
+.eng-sub-2 {
+  margin-left: 1.25rem;
+  padding-left: 1.25rem;
+  border-left: 2px solid color-mix(in srgb, var(--stage) 30%, transparent);
+}
+body.hw-nexus .hw .eng-sub-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin: 0 0 1rem;
+  color: var(--stage);
+}
+body.hw-nexus .hw h3.eng-sub-title { font-size: 1.5rem; }
+body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
+.eng-sub-num {
+  flex: none;
+  min-width: 1.7em;
+  padding: 0.1em 0.45em;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stage) 16%, transparent);
+  font-family: "Changa", sans-serif;
+  font-size: 0.8em;
+  font-weight: 700;
+  text-align: center;
+}
+/* Paragraphs beside a floated figure sit a little further apart, so the
+   text column reaches the foot of the figures instead of ending short and
+   leaving a hole beside them. */
+.eng-sub > p { margin-bottom: 1.5rem; }
+.eng-sub .eng-dbtl-empty { min-height: 24vh; }
+.eng-sub-2 .eng-dbtl-empty { min-height: 18vh; }
+/* A figure the text runs around. Floated right, with the stage's body text
+   wrapping down its left; on a narrow screen it goes back to its own row,
+   because a column that short leaves no room to wrap. */
+.eng-figure-float {
+  float: right;
+  /* One width for every floated figure, so the text keeps a single left
+     column edge all the way down. clear: right stops two of them from
+     sitting side by side when the text between is short. */
+  clear: right;
+  width: min(42%, 290px);
+  margin: 0.35rem 0 1.5rem 1.75rem;
+}
+.eng-figure-float img { max-width: 100%; max-height: none; }
+.eng-figure-float figcaption { padding-top: 0.6rem; }
+.eng-sub:after, .eng-dbtl-body:after { content: ""; display: block; clear: both; }
+@media (max-width: 767.98px) {
+  .eng-figure-float { float: none; width: auto; margin: 1.5rem 0; }
+}
+/* Two figures side by side (the gels), stacking on a narrow screen. */
+.eng-figure-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 1.5rem;
+  align-items: end;
+  margin: 1.5rem 0;
+}
+.eng-figure-pair .eng-figure { margin: 0; }
+/* One shared box for the pair, so the two gels render at exactly the same
+   size; contain (not cover) keeps either from being cropped -- their shapes
+   differ by about 2%, so the letterboxing does not show. */
+.eng-figure-pair .eng-figure-half img {
+  width: 100%;
+  max-width: 100%;
+  max-height: none;
+  aspect-ratio: 7 / 5;
+  object-fit: contain;
+}
 /* Where the stage's content will go: an empty frame in the stage's colour,
    so the layout can be judged before the text arrives. */
 .eng-dbtl-empty {
