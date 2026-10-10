@@ -260,6 +260,9 @@
       /* on a short page a click on an early entry can only scroll as far as the bottom: keep the one that was clicked */
       if (pinned && pinned.el.getBoundingClientRect().top < window.innerHeight - 40) current = pinned;
     }
+    /* read before the classes below are written, so the browser does not have
+       to lay the page out a second time within this frame */
+    var room = document.documentElement.scrollHeight - window.innerHeight;
     var at = items.indexOf(current);
     items.forEach(function (f, i) {
       var on = f === current;
@@ -274,7 +277,6 @@
         if (f.part) f.part.classList.toggle("is-current", f.part === current.part);
       });
       applyOpen();
-      var room = document.documentElement.scrollHeight - window.innerHeight;
       if (bar) bar.style.width = (room > 0 ? Math.min(100, Math.max(0, window.pageYOffset / room * 100)) : 100) + "%";
     }
     /* keep the active entry in view when the list is longer than the screen */
