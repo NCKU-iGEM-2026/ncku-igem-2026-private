@@ -32,7 +32,9 @@
   var ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  var DPR = Math.min(2, window.devicePixelRatio || 1);
+  /* Drawn at CSS pixels: faint lines on a dark ground look the same, and a
+     2x screen would otherwise fill four times the pixels every frame. */
+  var DPR = 1;
   var W = 0, H = 0;
   var pts = [];        /* 網格節點 */
   var rafId = null, running = false;
@@ -210,7 +212,7 @@
 
   /* 節點每秒只漂幾個像素，30fps 跟 60fps 看不出差別，但重畫成本減半，
      把主執行緒留給捲動與頁面上其他動畫 */
-  var FRAME_MS = 1000 / 30, lastPaint = 0;
+  var FRAME_MS = 1000 / 20, lastPaint = 0;     /* 節點每秒只漂幾像素，20fps 看不出差別 */
   function frame(t) {
     if (!running) { rafId = null; return; }
     rafId = requestAnimationFrame(frame);

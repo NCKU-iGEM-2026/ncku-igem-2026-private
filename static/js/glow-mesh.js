@@ -35,12 +35,16 @@
   var instances = [];
   var masterRaf = null;
   var pageHidden = false;
+  /* 20 frames a second is plenty for nodes that drift a few pixels a
+     second; the heartbeat still ticks every frame but paints one in three. */
+  var FRAME_MS = 1000 / 20, lastPaint = 0;
   function masterTick (t) {
     masterRaf = null;
     if (pageHidden) return;
-    var any = false;
+    var any = false, due = t - lastPaint >= FRAME_MS - 2;
+    if (due) lastPaint = t;
     for (var i = 0; i < instances.length; i++) {
-      if (instances[i].running) { instances[i].paint(t); any = true; }
+      if (instances[i].running) { if (due) instances[i].paint(t); any = true; }
     }
     if (any && !reduce) masterRaf = requestAnimationFrame(masterTick);
   }
@@ -97,7 +101,7 @@
 
     var mode = PRESETS[el.dataset.glow] !== undefined ? PRESETS[el.dataset.glow] : PRESETS[''];
     var rand = seededRand(location.pathname + '|' + (el.className || '') + '|' + mode.cell);
-    var DPR = Math.min(2, window.devicePixelRatio || 1);
+    var DPR = 1;                       /* CSS pixels: see hp-mesh.js */
     var W = 0, H = 0, pts = [], rafId = null, running = false, morphT = null;
 
     function size () {
@@ -286,7 +290,9 @@
       if (a < 0.4) return;                                    /* 透明底：全站 hp-mesh 已從底層透出，不重複疊 */
       if (lumOf(+m[0], +m[1], +m[2]) > 0.16) return;       /* 不夠深 */
       var r = el.getBoundingClientRect();
-      if (r.width < 260 || r.height < 170) return;           /* 太小不是「底圖」 */
+      /* 太小不是「底圖」：小卡片（如 Attributions 的人物卡）不掛，否則一頁
+         幾十張卡各自一張畫布、每幀都在重畫 */
+      if (r.width < 420 || r.height < 260) return;
       if (el.querySelector('canvas')) return;                 /* 已有自己動畫的舞台（六邊形浮盤等）*/
       if (/navbar|dish|swiper|carousel|toc|toggler/i.test(el.className || '')) return;
       if (el.parentElement && el.parentElement.closest('[data-glow]:not([data-glow="off"])')) return;  /* 父層已掛，不雙層疊圖 */
