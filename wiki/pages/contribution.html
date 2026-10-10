@@ -44,6 +44,13 @@
 
   <div class="hw-lead">
     <p>
+      Both of our systems act on the
+      same quorum-sensing signal &mdash; one reports it, one binds it &mdash;
+      and the second is built on a retron that writes its aptamer inside the
+      cell. A team that wants a different aptamer changes one insert in it.
+      Every part is on the Registry.
+    </p>
+    <p>
       Many iGEM teams build a fluorescent biosensor, and then have to measure
       it: find a plate reader, turn its readings into concentrations, and work
       out what went wrong when the numbers look odd. We built our own way
@@ -54,21 +61,14 @@
       iGEM&rsquo;s GitLab under the MIT licence: free to use, change and pass
       on, as long as the copyright notice goes with them.
     </p>
-    <p>
-      The wet lab&rsquo;s side is here too. Both of our systems act on the
-      same quorum-sensing signal &mdash; one reports it, one binds it &mdash;
-      and the second is built on a retron that writes its aptamer inside the
-      cell. A team that wants a different aptamer changes one insert in it.
-      Every part is on the Registry.
-    </p>
   </div>
 
   <nav class="hw-jump" aria-label="On this page">
     <ul class="sw-links">
       <li><a href="#contribution-start">Where to start</a></li>
+      <li><a href="#contribution-wetlab">The parts</a></li>
       <li><a href="#contribution-reader">The reader</a></li>
       <li><a href="#contribution-software">The software</a></li>
-      <li><a href="#contribution-wetlab">From the wet lab</a></li>
       <li><a href="#contribution-troubleshooting">Troubleshooting</a></li>
       <li><a href="#contribution-not-yet">Not done yet</a></li>
     </ul>
@@ -88,6 +88,20 @@
         <caption><strong>Table 1.</strong> What to take, by what your team has</caption>
         <thead><tr><th scope="col">If your team has</th><th scope="col">Take</th><th scope="col">Change</th></tr></thead>
         <tbody>
+          <tr class="ctb-group"><th colspan="3" scope="colgroup">The biology</th></tr>
+          <tr>
+            <td>An aptamer you want a cell to make for itself</td>
+            <td>The retron construct, <a href="https://registry.igem.org/parts/bba-26ldazw5">BBa_26LDAZW5</a> (Ec-67&ndash;Cb-2&ndash;retron)</td>
+            <td>One insert: the aptamer sequence in the retron&rsquo;s msr&ndash;msd region</td>
+          </tr>
+          <tr>
+            <td>A project on the quorum-sensing signal of <em>P.&nbsp;aeruginosa</em></td>
+            <td>The <a href="{{ url_for('pages', page='parts') }}">detection parts</a>: LasR under two promoters, and an sfGFP reporter on pLasRV</td>
+            <td>&mdash;</td>
+          </tr>
+        </tbody>
+        <tbody>
+          <tr class="ctb-group"><th colspan="3" scope="colgroup">Measuring it</th></tr>
           <tr>
             <td>A fluorescent biosensor and a plate reader</td>
             <td>LasReader&rsquo;s Plate Reader Assay: paste the plate, get a calibration curve and the concentrations of your samples</td>
@@ -117,9 +131,111 @@
       </table>
     </div>
     <p class="hw-aside">
-      The first four rows are the Software page&rsquo;s
+      Under Measuring it, the first four rows are the Software page&rsquo;s
       <a href="{{ url_for('pages', page='software') }}#who">Who can use it</a>, which also says what a new analysis or another plate-reader export would take.
     </p>
+  </section>
+
+  <!-- ========================= the parts ========================= -->
+  {#
+    兩段文字是 wet lab 自己寫的，照原文放，只做排版用的轉換（斜體、&mdash;、
+    &ndash;、&nbsp;）。Registry ID 與序列長度照 Parts 頁，連結回 Parts 與
+    Description 兩頁；那兩頁改了，這裡要跟著改。
+
+    2026-10-11：這一節原本排在 reader 與 software 之後、標題叫 From the wet lab，讀起來像附錄
+    （硬體負責人：「不覺得有點反而被 dry 當作主導，wet 像配角嗎? 如果要修的話不要改 wet 內文而是呈現的方式」）。
+    所以只改呈現：排到最前面；標題和另外兩節一樣用「交出去的東西」命名；兩張卡片加上和 build 卡片同一種標籤；
+    「The construct is built to be reused」那一段從 Aptamer 卡片裡移到卡片正下方、自己一個框，
+    和折疊圖、Registry 並排——那一段就是別隊能拿走的東西。
+    wet lab 的每一段文字都是原樣搬動，一個字都沒有改；段落的先後也沒有變。
+  #}
+  <section id="contribution-wetlab">
+    <h2>Biological parts you can build on</h2>
+
+    <p class="hw-point">
+      Two systems, one signal: the first reports it, the second takes it away.
+      Every part behind them is on the Registry, and the one that produces the
+      aptamer was built to be pointed at a different target.
+    </p>
+
+    <div class="hw-modules">
+      <div class="hw-module">
+        <span class="hw-module-tag">Reports the signal</span>
+        <h3>Detection</h3>
+        <p>
+          Diagnosing a <em>Pseudomonas aeruginosa</em> infection today means
+          culturing sputum, which takes 48 to 72 hours. For those two or three
+          days treatment has to be empirical &mdash; which is itself part of
+          what drives resistance &mdash; and by the time a culture comes back
+          the biofilm is already up. Our engineered <em>E.&nbsp;coli</em> reads
+          the quorum-sensing signal instead of waiting for the organism to
+          grow. The signal is present early, before anything has appeared on a
+          plate, and it is specific to the organism producing it, so the
+          infection reports itself while the bacteria are still coordinating
+          rather than after they have built their defence.
+        </p>
+        <p class="ctb-links">
+          <a href="{{ url_for('pages', page='parts') }}">The detection parts</a>
+          <a href="{{ url_for('pages', page='description') }}">How it works</a>
+        </p>
+      </div>
+
+      <div class="hw-module">
+        <span class="hw-module-tag">Binds the signal</span>
+        <h3>Aptamer</h3>
+        <p>
+          Rather than adding another compound that kills, we go after the
+          message. A DNA aptamer binds the AHL molecules themselves, so the
+          signal never reaches its receptor and the population never gets the
+          instruction to coordinate. Aptamers raised against AHLs are reported
+          not to kill bacteria or slow their growth; what they do is interfere
+          with quorum-sensing-coordinated behaviour, including biofilm
+          formation. If the biofilm is what keeps a drug out, weakening it is a
+          way of letting existing antibiotics work again rather than demanding
+          new ones. Taking a signal away is also a different kind of selective
+          pressure from killing, which selects for the survivors that resisted.
+          That is our design rationale, not a result we have measured.
+        </p>
+        <p class="ctb-links">
+          <a href="{{ url_for('pages', page='parts') }}">The retron parts</a>
+          <a href="{{ url_for('pages', page='description') }}">Why capturing beats killing</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="ctb-feature">
+      <div class="ctb-feature-text">
+        <span class="ctb-feature-k">What another team can take</span>
+        <p>
+          The construct is built to be reused. The aptamer sequence sits in the
+          retron&rsquo;s msr&ndash;msd region, so swapping the Cb-2 sequence for
+          another gives a cell that produces a different single-stranded DNA
+          aptamer &mdash; the same chassis, a different target. And the cell
+          manufactures the aptamer itself rather than having it chemically
+          synthesised, which is what makes producing a new one a matter of
+          changing a sequence rather than placing an order.
+        </p>
+        <div class="ctb-repo">
+          <span class="ctb-repo-k">Registry</span>
+          <a class="ctb-repo-name" href="https://registry.igem.org/parts/bba-26ldazw5">BBa_26LDAZW5 &middot; Ec-67&ndash;Cb-2&ndash;retron</a>
+          <span class="ctb-repo-what">The aptamer-producing construct, with its full 2&nbsp;164&nbsp;bp sequence and the msd region to swap. Built on <code>BBa_25DE2ASN</code>; the retron is from <a href="https://doi.org/10.7554/eLife.99554" target="_blank" rel="noopener">doi:10.7554/eLife.99554</a> and the aptamer from <a href="https://doi.org/10.1021/acs.analchem.5c03245" target="_blank" rel="noopener">doi:10.1021/acs.analchem.5c03245</a>.</span>
+        </div>
+      </div>
+
+      {# Engineering 頁 Fig. 1 已經上傳同一張圖，直接引用同一個檔案，不要重複上傳。
+         圖放在兩張卡片下方而不是卡片裡：93 個鹼基在半寬卡片裡會縮到看不清楚。 #}
+      <figure class="hw-figure ctb-figure text-center">
+        <img class="img-fluid"
+             src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2.avif"
+             alt="Predicted secondary structure of the Cb-2 aptamer: two stem-loop arms folded from a 93-nucleotide single strand, with the base pairs marked along each stem.">
+        <figcaption>
+          <strong>Fig. 1.</strong> Cb-2 aptamer folding structure, as predicted by
+          mfold (&Delta;G = &minus;22.86&nbsp;kcal&nbsp;mol<sup>&minus;1</sup>).
+          This is the sequence that sits in the retron&rsquo;s msd region; a team
+          swapping in another aptamer replaces this fold with its own.
+        </figcaption>
+      </figure>
+    </div>
   </section>
 
   <!-- ========================= the reader ========================= -->
@@ -232,94 +348,6 @@
       <span class="ctb-repo-k">Repository &middot; MIT licence</span>
       <a class="ctb-repo-name" href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader">gitlab.igem.org/2026/software/ncku-tainan/lasreader</a>
       <span class="ctb-repo-what">A README for what it is, who it is for and how to install, run and reproduce it; every dependency pinned; about 1&nbsp;MB.</span>
-    </div>
-  </section>
-
-  <!-- ========================= from the wet lab ========================= -->
-  {#
-    兩段文字是 wet lab 自己寫的，照原文放，只做排版用的轉換（斜體、&mdash;、
-    &ndash;、&nbsp;）。Registry ID 與序列長度照 Parts 頁，連結回 Parts 與
-    Description 兩頁；那兩頁改了，這裡要跟著改。
-  #}
-  <section id="contribution-wetlab">
-    <h2>From the wet lab</h2>
-
-    <p class="hw-point">
-      Two systems, one signal: the first reports it, the second takes it away.
-      Every part behind them is on the Registry, and the one that produces the
-      aptamer was built to be pointed at a different target.
-    </p>
-
-    <div class="hw-modules">
-      <div class="hw-module">
-        <h3>Detection</h3>
-        <p>
-          Diagnosing a <em>Pseudomonas aeruginosa</em> infection today means
-          culturing sputum, which takes 48 to 72 hours. For those two or three
-          days treatment has to be empirical &mdash; which is itself part of
-          what drives resistance &mdash; and by the time a culture comes back
-          the biofilm is already up. Our engineered <em>E.&nbsp;coli</em> reads
-          the quorum-sensing signal instead of waiting for the organism to
-          grow. The signal is present early, before anything has appeared on a
-          plate, and it is specific to the organism producing it, so the
-          infection reports itself while the bacteria are still coordinating
-          rather than after they have built their defence.
-        </p>
-        <p class="ctb-links">
-          <a href="{{ url_for('pages', page='parts') }}">The detection parts</a>
-          <a href="{{ url_for('pages', page='description') }}">How it works</a>
-        </p>
-      </div>
-
-      <div class="hw-module">
-        <h3>Aptamer</h3>
-        <p>
-          Rather than adding another compound that kills, we go after the
-          message. A DNA aptamer binds the AHL molecules themselves, so the
-          signal never reaches its receptor and the population never gets the
-          instruction to coordinate. Aptamers raised against AHLs are reported
-          not to kill bacteria or slow their growth; what they do is interfere
-          with quorum-sensing-coordinated behaviour, including biofilm
-          formation. If the biofilm is what keeps a drug out, weakening it is a
-          way of letting existing antibiotics work again rather than demanding
-          new ones. Taking a signal away is also a different kind of selective
-          pressure from killing, which selects for the survivors that resisted.
-          That is our design rationale, not a result we have measured.
-        </p>
-        <p>
-          The construct is built to be reused. The aptamer sequence sits in the
-          retron&rsquo;s msr&ndash;msd region, so swapping the Cb-2 sequence for
-          another gives a cell that produces a different single-stranded DNA
-          aptamer &mdash; the same chassis, a different target. And the cell
-          manufactures the aptamer itself rather than having it chemically
-          synthesised, which is what makes producing a new one a matter of
-          changing a sequence rather than placing an order.
-        </p>
-        <p class="ctb-links">
-          <a href="{{ url_for('pages', page='parts') }}">The retron parts</a>
-          <a href="{{ url_for('pages', page='description') }}">Why capturing beats killing</a>
-        </p>
-      </div>
-    </div>
-
-    {# Engineering 頁 Fig. 1 已經上傳同一張圖，直接引用同一個檔案，不要重複上傳。
-       圖放在兩張卡片下方而不是卡片裡：93 個鹼基在半寬卡片裡會縮到看不清楚。 #}
-    <figure class="hw-figure ctb-figure text-center">
-      <img class="img-fluid"
-           src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2.avif"
-           alt="Predicted secondary structure of the Cb-2 aptamer: two stem-loop arms folded from a 93-nucleotide single strand, with the base pairs marked along each stem.">
-      <figcaption>
-        <strong>Fig. 1.</strong> Cb-2 aptamer folding structure, as predicted by
-        mfold (&Delta;G = &minus;22.86&nbsp;kcal&nbsp;mol<sup>&minus;1</sup>).
-        This is the sequence that sits in the retron&rsquo;s msd region; a team
-        swapping in another aptamer replaces this fold with its own.
-      </figcaption>
-    </figure>
-
-    <div class="ctb-repo">
-      <span class="ctb-repo-k">Registry</span>
-      <a class="ctb-repo-name" href="https://registry.igem.org/parts/bba-26ldazw5">BBa_26LDAZW5 &middot; Ec-67&ndash;Cb-2&ndash;retron</a>
-      <span class="ctb-repo-what">The aptamer-producing construct, with its full 2&nbsp;164&nbsp;bp sequence and the msd region to swap. Built on <code>BBa_25DE2ASN</code>; the retron is from <a href="https://doi.org/10.7554/eLife.99554" target="_blank" rel="noopener">doi:10.7554/eLife.99554</a> and the aptamer from <a href="https://doi.org/10.1021/acs.analchem.5c03245" target="_blank" rel="noopener">doi:10.1021/acs.analchem.5c03245</a>.</span>
     </div>
   </section>
 
