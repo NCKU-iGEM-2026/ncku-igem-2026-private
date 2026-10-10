@@ -36,19 +36,20 @@
   var masterRaf = null;
   var pageHidden = false;
   /* 20 frames a second is plenty for nodes that drift a few pixels a
-     second; the heartbeat still ticks every frame but paints one in three. */
-  var FRAME_MS = 1000 / 20, lastPaint = 0;
+     second. 畫完一幀就睡到下一幀該畫的時候，中間不要任何畫面更新。若每幀都 rAF
+     再自己跳過，瀏覽器每一幀都得跑一次主執行緒，順帶把頁上其他（本來交給
+     合成器的）動畫元素的樣式也重算一遍。 */
+  var FRAME_MS = 1000 / 20, sleep = null;
   function masterTick (t) {
     masterRaf = null;
     if (pageHidden) return;
-    var any = false, due = t - lastPaint >= FRAME_MS - 2;
-    if (due) lastPaint = t;
+    var any = false;
     for (var i = 0; i < instances.length; i++) {
-      if (instances[i].running) { if (due) instances[i].paint(t); any = true; }
+      if (instances[i].running) { instances[i].paint(t); any = true; }
     }
-    if (any && !reduce) masterRaf = requestAnimationFrame(masterTick);
+    if (any && !reduce) sleep = setTimeout(function () { sleep = null; heartbeat(); }, FRAME_MS - 8);
   }
-  function heartbeat () { if (!masterRaf && !reduce && !pageHidden) masterRaf = requestAnimationFrame(masterTick); }
+  function heartbeat () { if (!masterRaf && !sleep && !reduce && !pageHidden) masterRaf = requestAnimationFrame(masterTick); }
   document.addEventListener('visibilitychange', function () {
     pageHidden = document.hidden;
     if (!pageHidden) heartbeat();

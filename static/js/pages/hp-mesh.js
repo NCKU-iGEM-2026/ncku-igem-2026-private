@@ -210,19 +210,25 @@
     mesh(t); dna(t);
   }
 
-  /* 節點每秒只漂幾個像素，30fps 跟 60fps 看不出差別，但重畫成本減半，
-     把主執行緒留給捲動與頁面上其他動畫 */
-  var FRAME_MS = 1000 / 20, lastPaint = 0;     /* 節點每秒只漂幾像素，20fps 看不出差別 */
+  /* 節點每秒只漂幾個像素，20fps 看不出差別。畫完一幀就睡到下一幀該畫的時候，中間不要任何畫面更新。若每幀都 rAF
+     再自己跳過，瀏覽器每一幀都得跑一次主執行緒，順帶把頁上其他（本來交給
+     合成器的）動畫元素的樣式也重算一遍。 */
+  var FRAME_MS = 1000 / 20, sleep = null;
   function frame(t) {
-    if (!running) { rafId = null; return; }
-    rafId = requestAnimationFrame(frame);
-    if (t - lastPaint < FRAME_MS - 2) return;
-    lastPaint = t;
+    rafId = null;
+    if (!running) return;
     paint(t);
+    sleep = setTimeout(function () {
+      sleep = null;
+      if (running) rafId = requestAnimationFrame(frame);
+    }, FRAME_MS - 8);
   }
 
-  function start() { if (!rafId && !reduce && running) rafId = requestAnimationFrame(frame); }
-  function stop() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
+  function start() { if (!rafId && !sleep && !reduce && running) rafId = requestAnimationFrame(frame); }
+  function stop() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    if (sleep) { clearTimeout(sleep); sleep = null; }
+  }
 
   function init() { size(); seed(); paint(0); if (!reduce && darkNow()) { running = true; start(); scheduleMorph(); } }
 
