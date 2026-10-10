@@ -11251,6 +11251,10 @@ body.hw-nexus .md .md-glance-title {
 /* A fold on this page holds a term list or a table that backs a finding up. */
 .md .md-fold { margin: 1.5rem 0; }
 .md .md-fold .hw-spec { margin: 0.4rem 0 0.6rem; }
+/* Part 1's "at a glance" lives in a fold, closed, so the part reaches 1.1
+   quickly. It keeps the glance's label column and the gap before 1.1. */
+.md .md-glance-fold { margin-bottom: 3rem; }
+.md .md-glance-fold .hw-spec > div { grid-template-columns: 8.5rem 1fr; }
 
 /* The summary table: a part still being written spans both columns. */
 body.hw-nexus .md .md-impact-pending { color: var(--nx-warm, #e6b060); }
@@ -11281,6 +11285,19 @@ body.hw-nexus .md .md-impact-pending { color: var(--nx-warm, #e6b060); }
   height: auto;
 }
 .md .md-plate + figcaption { padding-top: 0.85rem; }
+
+/* At the full column (~900px) a single-panel plot came out larger than it
+   needs to be read, and F1 alone was taller than the screen. The figure --
+   plate and caption together -- is capped and centred, like the tables. The
+   two-panel plates and the circuit diagram keep more room, because their
+   labels are drawn at a smaller scale per panel. Below tablet width the cap
+   does nothing; the plate scrolls instead (see below). */
+@media (min-width: 768px) {
+  .hw-figure:has(> .md-plate) { max-width: 640px; margin-inline: auto; }
+  .hw-figure:has(> .md-plate-tall) { max-width: 540px; }
+  .hw-figure:has(> .md-plate .md-dg) { max-width: 760px; }
+  .hw-figure:has(> .md-plate-wide) { max-width: 820px; }
+}
 
 /* A system of equations, not a single result: the lines are left-aligned so
    that reading down the left edge gives the quantity each one defines. */
