@@ -84,7 +84,73 @@
    crystal violet, and the blue of pyocyanin. The colour runs through the
    heading, the figure frames and the figure links of that part, so a reader
    who lands on a chart knows which assay it belongs to. */
-.desc { counter-reset: res-part; }
+/* ---- the two systems, as on Engineering ------------------------------
+
+   The page is Detection then Inhibition, the same two parts Engineering is
+   built from and in the same two colours, so a reader meets one identity
+   across both pages. Engineering's own --part values are tuned for its dark
+   ground; here each system carries a deep version for the light page and
+   those bright ones for the dark. */
+.res-system { --sys: #0f766e; }
+.res-system[data-part="inhibition"] { --sys: #9a5b00; }
+html[data-theme="dark"] .res-system { --sys: #49c5b6; }
+html[data-theme="dark"] .res-system[data-part="inhibition"] { --sys: #e6b060; }
+
+.res-systems-nav { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0 0 3.5rem; }
+.res-systems-nav a[data-part="detect"]     { --sys: #0f766e; }
+.res-systems-nav a[data-part="inhibition"] { --sys: #9a5b00; }
+html[data-theme="dark"] .res-systems-nav a[data-part="detect"]     { --sys: #49c5b6; }
+html[data-theme="dark"] .res-systems-nav a[data-part="inhibition"] { --sys: #e6b060; }
+.desc .res-systems-nav a {
+  flex: 1 1 14rem;
+  display: flex; flex-direction: column; gap: 0.2rem;
+  padding: 1rem 1.4rem; border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--sys) 40%, transparent);
+  border-left: 6px solid var(--sys);
+  background: color-mix(in srgb, var(--sys) 5%, transparent);
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+.desc .res-systems-nav a:hover,
+.desc .res-systems-nav a:focus-visible {
+  background: color-mix(in srgb, var(--sys) 12%, transparent);
+  border-color: var(--sys);
+}
+.res-systems-nav-name {
+  font-family: "Changa", sans-serif; font-weight: 800; font-size: 1.4rem;
+  line-height: 1.2; color: var(--sys);
+}
+
+.res-system { scroll-margin-top: 100px; }
+.res-system + .res-system { margin-top: 5.5rem; }
+.res-system-head { margin-bottom: 2.5rem; }
+.res-system-num {
+  display: block;
+  font-family: "Changa", sans-serif; font-weight: 700; font-size: 0.78rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--sys); opacity: 0.85;
+}
+/* editorial.css gives the first h2 of a section in .container its own lime
+   short line; the :not(#res-x) (no element has that id) outranks that chain
+   so a system keeps its own colour and no second rule above it. */
+.desc .res-system > .res-system-head .res-system-title:not(#res-x) {
+  margin: 0.15rem 0 0;
+  font-family: "Changa", sans-serif; font-weight: 800;
+  font-size: 2.6rem; line-height: 1.1;
+  color: var(--sys);
+}
+.desc .res-system > .res-system-head .res-system-title:not(#res-x)::before { content: none; }
+
+/* A system nobody has written yet says so, rather than reading as a system
+   with nothing in it. Delete the div once the sections are written. */
+.res-empty {
+  min-height: 14rem; border-radius: 14px;
+  border: 1.5px dashed color-mix(in srgb, var(--sys) 38%, transparent);
+  background: color-mix(in srgb, var(--sys) 4%, transparent);
+}
+
+/* Each system numbers its own sections from 01. */
+.res-system { counter-reset: res-part; }
 
 /* Light page: deep versions of the four colours, readable on paper. */
 .res-part {
@@ -106,7 +172,7 @@ html[data-theme="dark"] .res-part[data-assay="pyocyanin"] { --stage: #5bb6e6; }
    on the light page, its own short line in ::before, through a long chain of
    :not()s. The :not(#res-x) below (no element has that id) lifts these rules
    above that chain so the part keeps its number and colour in both themes. */
-.desc .res-part > h2:not(#res-x) {
+.desc .res-part > h3:not(#res-x) {
   position: relative;
   display: flex;
   align-items: baseline;
@@ -117,7 +183,7 @@ html[data-theme="dark"] .res-part[data-assay="pyocyanin"] { --stage: #5bb6e6; }
   font-size: 2rem;
   color: var(--stage);
 }
-.desc .res-part > h2:not(#res-x)::before {
+.desc .res-part > h3:not(#res-x)::before {
   content: counter(res-part, decimal-leading-zero);
   position: static;
   width: auto;
@@ -130,7 +196,7 @@ html[data-theme="dark"] .res-part[data-assay="pyocyanin"] { --stage: #5bb6e6; }
   opacity: 0.8;
 }
 /* A short bar of the part's colour over the start of the rule. */
-.desc .res-part > h2:not(#res-x)::after {
+.desc .res-part > h3:not(#res-x)::after {
   content: "";
   position: absolute;
   left: 0;
@@ -181,6 +247,6 @@ html[data-theme="dark"] .res-part[data-assay="pyocyanin"] { --stage: #5bb6e6; }
 }
 
 @media (max-width: 575.98px) {
-  .desc .res-part > h2:not(#res-x) { font-size: 1.6rem; }
+  .desc .res-part > h3:not(#res-x) { font-size: 1.6rem; }
   .res-part[data-assay="overview"] > p { padding-left: 1rem; padding-right: 1rem; }
 }
