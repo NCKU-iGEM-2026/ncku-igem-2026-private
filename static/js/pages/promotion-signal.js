@@ -56,6 +56,38 @@
 
   function addRing(x, y, max, t) { rings.push({ x: x, y: y, max: max, t0: t }); }
 
+  // Performance: each line used to be its own stroke() with its own colour
+  // string, a few hundred draw calls a frame. Lines are now sorted into
+  // buckets 0.01 of opacity apart and each bucket is drawn as one path. A
+  // line is drawn at most 0.005 of opacity off what it was, under one level
+  // of 255 in any colour channel -- not something an eye can tell apart.
+  var STEP = 0.01;
+  function buckets(rgb, maxAlpha) {
+    var n = Math.ceil(maxAlpha / STEP), b = { style: [], lines: [] };
+    for (var k = 0; k < n; k++) {
+      b.style.push('rgba(' + rgb + ',' + ((k + 0.5) * STEP).toFixed(3) + ')');
+      b.lines.push([]);
+    }
+    return b;
+  }
+  var BONDS = buckets('20,179,145', 0.3);
+  var POINTER = buckets('160,232,96', 0.5);
+  function addLine(b, alpha, x1, y1, x2, y2) {
+    if (alpha <= 0) return;                    // the colour was clamped to clear
+    b.lines[Math.min(b.lines.length - 1, (alpha / STEP) | 0)].push(x1, y1, x2, y2);
+  }
+  function strokeAll(b) {
+    for (var k = 0; k < b.lines.length; k++) {
+      var l = b.lines[k];
+      if (!l.length) continue;
+      ctx.strokeStyle = b.style[k];
+      ctx.beginPath();
+      for (var m = 0; m < l.length; m += 4) { ctx.moveTo(l[m], l[m + 1]); ctx.lineTo(l[m + 2], l[m + 3]); }
+      ctx.stroke();
+      l.length = 0;
+    }
+  }
+
   function draw(t) {
     var i, j, p, q, dx, dy, d2;
     ctx.clearRect(0, 0, W, H);
@@ -76,21 +108,19 @@
       for (j = i + 1; j < particles.length; j++) {
         q = particles[j];
         dx = p.x - q.x; dy = p.y - q.y; d2 = dx * dx + dy * dy;
-        if (d2 < 15000) {
-          ctx.strokeStyle = 'rgba(20,179,145,' + ((1 - d2 / 15000) * 0.3).toFixed(3) + ')';
-          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
-        }
+        if (d2 < 15000) addLine(BONDS, (1 - d2 / 15000) * 0.3, p.x, p.y, q.x, q.y);
       }
       if (mouse.on) {
         dx = p.x - mouse.x; dy = p.y - mouse.y; d2 = dx * dx + dy * dy;
         if (d2 < 22000) {
           var d = Math.sqrt(d2) || 1, f = (1 - d / 148) * 0.05;
           p.vx += (dx / d) * f; p.vy += (dy / d) * f;
-          ctx.strokeStyle = 'rgba(160,232,96,' + (0.5 * (1 - d / 148)).toFixed(3) + ')';
-          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
+          addLine(POINTER, 0.5 * (1 - d / 148), p.x, p.y, mouse.x, mouse.y);
         }
       }
     }
+    strokeAll(BONDS);
+    strokeAll(POINTER);
 
     // the waves themselves
     for (i = 0; i < rings.length; i++) {
