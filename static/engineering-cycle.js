@@ -5,8 +5,10 @@
    *
    * The ring never turns. Reading down the four stages lights it clockwise,
    * the way its arrows point: each arrow fills from its tail to its head while
-   * its stage is read, with a bright point at the leading edge, and the head
-   * of Learn is reached at the foot of its part. Progress is measured in
+   * its stage is read, and the head of Learn is reached at the foot of its
+   * part. (A bright point used to ride the leading edge; it was removed on
+   * 2026-10-11. This script still drives one if the markup has it.)
+   * Progress is measured in
    * stages -- 0 before Design, 1.5 halfway through Build, 4 at the end -- and
    * each stage runs from the moment its heading reaches the spot a click on
    * its arrow would scroll it to, until the next one does.
@@ -30,7 +32,8 @@
     var rail = block.querySelector(".eng-dbtl-rail");
     var stages = block.querySelector(".eng-dbtl-stages");
     var sections = Array.prototype.slice.call(block.querySelectorAll(".eng-dbtl-stage"));
-    if (!figure || !spark || !rail || !stages || !sections.length) return null;
+    /* The spark is optional: the ring works the same without it. */
+    if (!figure || !rail || !stages || !sections.length) return null;
     rail.classList.add("is-tracked");
 
     var sweeps = Array.prototype.slice.call(figure.querySelectorAll(".eng-cycle-sweep"));
@@ -68,7 +71,7 @@
       });
       var current = Math.min(sections.length - 1, Math.floor(p));
       var edge = 45 + 90 * current - SPAN / 2 + SPAN * clamp(p - current);
-      spark.setAttribute("transform", "rotate(" + edge + " 200 200)");
+      if (spark) spark.setAttribute("transform", "rotate(" + edge + " 200 200)");
       figure.classList.toggle("is-started", p > 0);
       figure.classList.toggle("is-complete", p >= sections.length);
 
