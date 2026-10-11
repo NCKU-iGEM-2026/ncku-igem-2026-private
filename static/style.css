@@ -1451,6 +1451,10 @@ body.team-bio-locked { overflow: hidden; }
   display: none;
   pointer-events: none;
   z-index: 6;
+  /* A card growing into its slot (width, padding and the photo's height are
+     transitioned) lays out only this layer, not the whole page. Not paint
+     containment: that would clip a card's hover glow near the edge. */
+  contain: size layout;
 }
 
 /* Liquid-glass chip, same frosted-glass language as .page-tag/.polaroid
@@ -1564,6 +1568,10 @@ body.team-bio-locked { overflow: hidden; }
   position: absolute;
   left: 0;
   top: 0;
+  /* A fixed length, cut to the distance with clip-path (taiwan-map.js,
+     LEADER_MAX): a width changed every frame lays the whole page out again. */
+  width: 1400px;
+  clip-path: inset(0 100% 0 0);
   height: 1.25px;
   margin-top: -0.625px;        /* centred on the line between the two points */
   transform-origin: 0 50%;
