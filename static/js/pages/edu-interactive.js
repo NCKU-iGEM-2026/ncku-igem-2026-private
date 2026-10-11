@@ -8,7 +8,7 @@
    that class.
 
    1. figures count up      [data-edx-to]         (decimals kept as written)
-   2. bars fill             .edx-bar               when scrolled into view
+   2. bars fill             .edx-bar, [data-edx-reveal]  get .is-in when scrolled into view
    3. tabs                  .edx-tabs              arrow keys move between them
    4. flip cards            .edx-flip              click / Enter / Space
    5. certificates          a[data-edx-cert]       opened in a <dialog> on wide
@@ -64,7 +64,7 @@
   });
 
   /* ---- 2. bars -------------------------------------------------------- */
-  onceVisible(all('.edx-bar'), function (el) { el.classList.add('is-in'); }, 0.5);
+  onceVisible(all('.edx-bar, [data-edx-reveal]'), function (el) { el.classList.add('is-in'); }, 0.5);
 
   /* ---- 3. tabs -------------------------------------------------------- */
   all('.edx-tabs').forEach(function (box) {

@@ -1,0 +1,105 @@
+/* ============================================================
+   AWARDS (title: Criteria) -- the medal tiers and the three Special
+   Awards. Everything structural is the Hardware page's own components
+   (style.css: .hw, .hw-lead, .hw-modules, .hw-module) on the same
+   deep-teal ground (body.hw-nexus); this file adds the tiers, the
+   quoted criteria and the rows of links.
+   ============================================================ */
+
+/* Each tier carries its own metal as --tier: the disc before its heading,
+   the rule down each criterion, the numbers, and in Gold the award names.
+   Copper, silver and a yellow gold -- the site's warm amber read as the
+   same orange as bronze. Each clears 4.5:1 on the ground, so the small
+   caption under each heading can be set in it. */
+.crit-tier { --tier: #d4864f; margin-bottom: 3.2rem; }
+.crit-tier[data-tier="silver"] { --tier: #c9d6dc; }
+.crit-tier[data-tier="gold"] { --tier: #f2c94c; }
+
+body.hw-nexus .crit-tier h2 { display: flex; align-items: center; gap: 0.7rem; }
+.crit-medal {
+  flex: none; width: 1.05em; height: 1.05em; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff8 0 18%, transparent 45%), var(--tier);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tier) 30%, transparent);
+}
+
+/* iGEM's one-line account of what the medal means, then the rule for it */
+.crit-meaning {
+  max-width: 62ch; margin: 0 0 1.4rem; font-size: 1.05rem; line-height: 1.7;
+  color: var(--nx-text);
+}
+
+/* ---- the criteria, numbered in the tier's metal ---- */
+.crit-list { list-style: none; counter-reset: crit; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.crit-item {
+  counter-increment: crit; position: relative;
+  padding: 1.1rem 1.3rem 1.1rem 3.6rem;
+  border: 1px solid var(--nx-line); border-left: 4px solid var(--tier); border-radius: 12px;
+  background: rgba(10, 26, 33, 0.55);
+}
+.crit-item::before {
+  content: counter(crit); position: absolute; left: 1.15rem; top: 1rem;
+  font-family: "Changa", sans-serif; font-weight: 800; font-size: 1.5rem; line-height: 1;
+  color: var(--tier);
+}
+body.hw-nexus .hw .crit-item h3 {
+  margin: 0 0 0.45rem; font-family: "Changa", sans-serif; font-weight: 800; font-size: 1.2rem;
+  color: #fff;
+}
+
+/* iGEM's wording, set apart as a quotation */
+.crit-quote {
+  margin: 0; padding: 0; font-size: 1rem; line-height: 1.65; color: var(--nx-text);
+}
+.crit-quote::before { content: "\201C"; }
+.crit-quote::after { content: "\201D"; }
+
+.crit-where-k,
+.crit-aspects-k {
+  font-family: "Changa", sans-serif; font-weight: 700; font-size: 0.72rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--nx-muted);
+}
+
+/* ---- where each one is documented: a row of links ---- */
+.crit-where { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin: 0.85rem 0 0; }
+.crit-links { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+/* body.hw-nexus in front, to outrank the site's colour for links on a dark
+   page (css/base.css: html[data-theme="dark"] a:not(.rx-btn)) */
+body.hw-nexus .crit-links a {
+  display: inline-block; padding: 0.3rem 0.8rem; border-radius: 999px;
+  font-size: 0.88rem; font-weight: 600; text-decoration: none;
+  color: var(--nx-lime); border: 1px solid var(--nx-line);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+body.hw-nexus .crit-links a:hover,
+body.hw-nexus .crit-links a:focus-visible { border-color: var(--nx-lime); background: rgba(160, 232, 96, 0.08); }
+
+/* ---- Gold: the three Special Awards ---- */
+/* The headings below carry .hw in front: the dark theme colours every .hw
+   h3 and h4 (style.css, body.hw-nexus .hw h4) one step more specifically
+   than a bare class would. */
+body.hw-nexus .hw .crit-sub {
+  margin: 2.2rem 0 0.4rem; font-family: "Changa", sans-serif; font-weight: 800; font-size: 1.25rem;
+  color: var(--nx-mint);
+}
+/* Three across where three fit, otherwise one per row -- never two and an
+   orphan. The cards hold lists of different lengths; each is a column, so
+   the row of links sits on the floor of every card and the three line up. */
+.crit-awards { grid-template-columns: 1fr; }
+@media (min-width: 1200px) {
+  .crit-awards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.crit-awards .hw-module { display: flex; flex-direction: column; }
+.crit-awards .crit-where { margin-top: auto; padding-top: 1rem; }
+body.hw-nexus .hw .crit-award-name {
+  margin: 0.35rem 0 0.4rem; font-family: "Changa", sans-serif; font-weight: 800; font-size: 1.3rem;
+  color: var(--tier);
+}
+.crit-aspects-k { margin: 0 0 0.35rem; }
+.crit-aspects { margin: 0; padding-left: 1.15rem; }
+.crit-aspects li { margin: 0 0 0.45rem; font-size: 0.92rem; line-height: 1.55; color: var(--nx-text); }
+.crit-aspects li::marker { color: var(--tier); font-weight: 700; }
+
+@media (max-width: 575.98px) {
+  .crit-item { padding: 1rem 1rem 1rem 2.9rem; }
+  .crit-item::before { left: 0.9rem; font-size: 1.3rem; }
+}

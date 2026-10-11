@@ -381,3 +381,122 @@ html.rx-js .rx-dish-stage.rx-in { opacity: 1; transform: scale(1); }
   .rx-node-disc { width: 42px; }
   .rx-node-name { font-size: 0.5rem; padding: 0.1rem 0.35rem; }
 }
+
+/* ---- Mini-Jamboree (October 8) ----
+   The host's logo carries a badge; every logo lifts on hover. The format
+   bar is drawn to scale (10 + 5 minutes) and fills in as it scrolls into
+   view; the closing wish is the section's last word, in the page's lime. */
+.mj-teams li {
+  position: relative;
+  transition: transform 0.3s ease;
+}
+.mj-teams li:hover { transform: translateY(-4px); }
+.mj-teams li.is-host img { box-shadow: 0 0 0 3px #e6b060, 0 0 18px rgba(230, 176, 96, 0.45); }
+.mj-host {
+  position: absolute;
+  top: -0.55rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: #e6b060;
+  color: #0e242e;
+  font-family: "Changa", sans-serif;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mj-format {
+  margin: 1.2rem 0 1.6rem;
+  padding: 1rem 1.15rem 1.15rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 14px;
+  background: var(--nx-panel);
+}
+.mj-format-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  margin-bottom: 0.75rem;
+  font-family: "Changa", sans-serif;
+}
+.mj-format-k {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nx-mint);
+}
+.mj-format-v { color: var(--nx-text); font-size: 0.95rem; }
+.mj-format-v b { color: var(--nx-lime); font-size: 1.25rem; }
+.mj-format-bar {
+  display: flex;
+  gap: 4px;
+  height: 46px;
+}
+.mj-seg {
+  position: relative;
+  flex: var(--w) 1 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 0.9rem;
+  overflow: hidden;
+  border-radius: 10px;
+  color: #0e242e;
+  font-family: "Changa", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: default;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.mj-seg b { font-weight: 800; }
+.mj-seg.is-talk { background: linear-gradient(90deg, #49c5b6, #a0e860); }
+.mj-seg.is-qa { background: linear-gradient(90deg, #e6b060, #f0cf8c); }
+.mj-seg:hover,
+.mj-seg:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px -12px rgba(0, 0, 0, 0.8);
+  outline: none;
+}
+/* the fill: a dark veil that slides away once the bar is on screen */
+.mj-seg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--nx-raised);
+  transform-origin: right;
+  transition: transform 1s cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+.mj-seg.is-qa::after { transition-delay: 0.8s; }
+html:not(.edx-js) .mj-seg::after,
+.mj-format.is-in .mj-seg::after { transform: scaleX(0); }
+
+body.hp-nexus .edu-session-block .mj-wish {
+  margin: 1.6rem 0 1.4rem;
+  padding: 1.1rem 1.3rem;
+  border-radius: 14px;
+  border: 1px dashed rgba(160, 232, 96, 0.5);
+  background: rgba(160, 232, 96, 0.07);
+  font-family: "Changa", sans-serif;
+  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: center;
+  color: #a0e860;
+}
+
+@media (max-width: 575.98px) {
+  .mj-seg { font-size: 0.72rem; padding: 0 0.55rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mj-teams li, .mj-seg, .mj-seg::after { transition: none; }
+  .mj-seg::after { transform: scaleX(0); }
+}

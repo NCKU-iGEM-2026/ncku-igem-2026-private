@@ -27,7 +27,17 @@
     }
   }
 
-  window.addEventListener('scroll', onScroll, { passive: true });
+  // Several scroll events can arrive in one frame; the classes only need
+  // setting once per frame, just before it is drawn.
+  var queued = false;
+  window.addEventListener('scroll', function () {
+    if (queued) return;
+    queued = true;
+    window.requestAnimationFrame(function () {
+      queued = false;
+      onScroll();
+    });
+  }, { passive: true });
   onScroll();
 
   var backToTop = document.getElementById('backToTop');

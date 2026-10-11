@@ -9,7 +9,7 @@
    * Left out on purpose:
    *   - pages that carry their own sidebar (.edu-sidebar), which is the same
    *     thing already;
-   *   - the home page, whose tour and quiz are its own way in, and any page
+   *   - the home page, whose map of the wiki is its own way in, and any page
    *     with a full-width band (see below);
    *   - a page with fewer than two headings, where a list has nothing to say.
    *
@@ -17,7 +17,7 @@
    * page-toc.css keeps it to wide screens, where there is room beside the page.
    */
   var host = document.querySelector("body > .container");
-  if (!host || document.getElementById("siteTour") || document.querySelector(".edu-sidebar")) return;
+  if (!host || document.getElementById("rxHeroStage") || document.querySelector(".edu-sidebar")) return;
   /* A band that runs the full width of the screen (the board game's story, the
      collaboration wall) would sit under the list, so those pages go without.
      Engineering's DBTL cycle stands in the same place and does the same job. */
@@ -60,7 +60,7 @@
          data-toc-group; its heading is listed as a group title even though it
          sits in a <header>. */
       var group = h.closest("[data-toc-group]");
-      if (h.closest("aside, nav, .modal, .tour, .quiz-pages")) return;
+      if (h.closest("aside, nav, .modal, .quiz-pages")) return;
       if (!group && h.closest("header")) return;
       /* data-toc-title gives a long heading a short name in the list */
       var t = h.getAttribute("data-toc-title") || titleOf(h);
@@ -260,6 +260,9 @@
       /* on a short page a click on an early entry can only scroll as far as the bottom: keep the one that was clicked */
       if (pinned && pinned.el.getBoundingClientRect().top < window.innerHeight - 40) current = pinned;
     }
+    /* read before the classes below are written, so the browser does not have
+       to lay the page out a second time within this frame */
+    var room = document.documentElement.scrollHeight - window.innerHeight;
     var at = items.indexOf(current);
     items.forEach(function (f, i) {
       var on = f === current;
@@ -274,7 +277,6 @@
         if (f.part) f.part.classList.toggle("is-current", f.part === current.part);
       });
       applyOpen();
-      var room = document.documentElement.scrollHeight - window.innerHeight;
       if (bar) bar.style.width = (room > 0 ? Math.min(100, Math.max(0, window.pageYOffset / room * 100)) : 100) + "%";
     }
     /* keep the active entry in view when the list is longer than the screen */
