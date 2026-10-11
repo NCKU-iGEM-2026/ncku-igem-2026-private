@@ -1555,7 +1555,8 @@
       without it, and medium. A dose&ndash;response model of the biosensor
       itself is not part of this model, because we have not measured one. The
       one session on AHL plates, read on the rebuilt reader, is in
-      <a href="#model-rebuilt">3.6</a>.
+      <a href="#model-rebuilt">3.6</a>, with the background measured two
+      days after it.
     </p>
   </div>
 
@@ -2403,8 +2404,9 @@
 
     <p>
       The models above describe the first reader. It was rebuilt on
-      2026-10-03, and two sessions on the rebuilt reader, a dilution series
-      and a session on AHL plates, show what carries over. Both are on the
+      2026-10-03, and three sessions on the rebuilt reader, a dilution
+      series, a session on AHL plates and one on how dense a culture can
+      be, show what carries over. All three are on the
       <a href="{{ url_for('pages', page='hardware') }}#hardware-v2-ahl">Hardware</a>
       page, and everything in this section was worked out after their
       readings were seen.
@@ -2460,13 +2462,52 @@
       </table>
     </div>
 
+
+    {# 2026-10-11：10-11 的濁度場次量了不含報導基因的菌，背景不必再靠 10-09 自己的三個點。
+       來源：_AI_REFACTOR_WORK/P1_TURBIDITY_BACKCAST_2026-10-11/BACKCAST.md（事後、探索性；Codex 審過，沒有意見）：
+       §1 參考曲線與留一誤差、§2 10-09 各杯的回推、§3 已知答案的檢驗、§4 可以說與不能說。
+       表的最後一列（其他三種背景的形式）出自同一資料夾 CODEX_REVIEW_REPORT.md 的 B 部分，是 Codex 審查時由兩張 CSV
+       手算的；BACKCAST.md §5 註明作者沒有重算。硬體負責人 2026-10-11 授權使用（「我授權用codex的計算」）。
+       寫進來之前用程式由同兩張 CSV 重算過一次核對：R 套在 F2 上，c 的最佳值 0.0638、誤差 0.163 counts
+       （Codex：約 0.0636、約 0.16）；F3 的折線 s 0.0864、F0 45.05、誤差 0.146（與 Codex 相同）。頁面上寫的是約數。
+       §4 明定不能寫：那些盤沒有被誘導、螢光低於某個量；這條曲線是校正、可以拿來扣背景；背景的成因；
+       兩天的儀器刻度相同、兩天的菌相同；任何關於 AHL 的結論。這裡都沒有寫，請不要加。 #}
+    <h3>Two days later, the background measured on its own</h3>
+
     <p>
-      This is a description fitted after the fact, not a calibration. Three
-      readings above zero set its one parameter, and it does not say
-      whether the background is scattered light or the cells' own
-      fluorescence. It tells a cuvette with added sfGFP from one without;
-      it does not give an amount, and no suspension from an AHL plate
-      showed fluorescence for it to be tested on.
+      That curve took its one parameter from three readings of the AHL
+      session itself. On 2026-10-11 a culture without the reporter was
+      diluted and read 21 times, from F3 5 to 89
+      (<a href="{{ url_for('pages', page='hardware') }}#hardware-v2-turbidity">Hardware</a>).
+      Joined into a curve that is only assumed never to fall as scatter
+      rises, those readings give the background at any scatter in that
+      range with no model behind it, and the AHL session can be read
+      against them.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption>The AHL plate session, read against a background measured two days later</caption>
+        <thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+        <tbody>
+          <tr><td>The measured curve: each of its 21 readings, predicted from the other twenty</td><td>Off by 0.20 counts (root mean square), 0.71 at most.</td></tr>
+          <tr><td>The two AHL-session readings without GFP that fall inside its range</td><td>+0.04 and +0.10 counts from the curve, with the two days' counts taken as they are. The empty cuvette scattered less on the second day.</td></tr>
+          <tr><td>Readings from plates judged induced, with that background taken off</td><td>&minus;0.11 and &minus;0.10 counts inside the range. The four densest lie beyond it: if the background does not fall there, at most +0.56 to +1.33 is left.</td></tr>
+          <tr><td>The suspension with 20&nbsp;&micro;L of sfGFP culture added</td><td>+19.76 counts.</td></tr>
+          <tr><td>Three other shapes for the background: a hinge on F3, a straight line cut off at zero, and <var>R</var> on F2 as above</td><td>Each lies within about 0.2 counts of the 21 readings, and with each what is left for the plates judged induced stays near zero or below. Refitted to these readings, <var>c</var> comes to about 0.064, against 0.0629 from the AHL session.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Both are descriptions made after the readings were seen, not
+      calibrations. Three readings above zero set the fitted curve's one
+      parameter; the measured one is a single culture on a single day and
+      stops at F3 89. Neither says whether the background is scattered
+      light or the cells' own fluorescence. They tell a cuvette with added
+      sfGFP from one without; they do not give an amount, and a reading
+      that sits on the background means the reader read nothing above it
+      there, not that the plate was not induced.
     </p>
   </section>
 
@@ -2480,7 +2521,7 @@
         <thead><tr><th scope="col">We do not say</th><th scope="col">What the data supports</th></tr></thead>
         <tbody>
           <tr><td>A calibration curve, an absolute GFP concentration, a limit of detection</td><td>Relative readings within one session, and a description of these three sessions.</td></tr>
-          <tr><td>Non-GFP cells do not affect F4</td><td>No difference was resolved at this precision; the nominal range is &minus;20&nbsp;% to +12&nbsp;% of A. In a far denser suspension, a cuvette without the reporter read 1.78 (<a href="#model-rebuilt">3.6</a>).</td></tr>
+          <tr><td>Non-GFP cells do not affect F4</td><td>No difference was resolved at this precision; the nominal range is &minus;20&nbsp;% to +12&nbsp;% of A. A culture without the reporter stops reading zero once it is dense enough (<a href="#model-rebuilt">3.6</a>).</td></tr>
           <tr><td>The instrument does not drift</td><td>After conversion the three sessions agree, with no sign of a large drift. Post hoc.</td></tr>
           <tr><td>OD is a cell count</td><td>A displayed OD that does not scale with dilution, for a reason not yet established.</td></tr>
           <tr><td>The biosensor's dose&ndash;response to AHL</td><td>None of these samples was induced. The one session on AHL plates did not resolve induction (<a href="#model-rebuilt">3.6</a>).</td></tr>
@@ -2620,7 +2661,7 @@
           <tr>
             <td><a href="#model-rebuilt">Part 3 &middot; 3.6</a></td>
             <td>Whether the earlier models could read the rebuilt reader's sessions.</td>
-            <td>They could not, so the AHL plate session was read with a one-parameter background fitted to its own controls, and reported as a description.</td>
+            <td>They could not, so the AHL plate session was read with a one-parameter background fitted to its own controls, then against a background measured two days later on a culture without the reporter. Both are reported as descriptions.</td>
           </tr>
         </tbody>
       </table>
