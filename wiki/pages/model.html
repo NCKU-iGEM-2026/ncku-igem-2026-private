@@ -105,6 +105,12 @@
      所以最後一節那句從「not published yet」改成「not published」。日後若要公開，
      上傳 iGEM GitLab 並決定授權後，把那句話換成連結。
 
+     2026-10-11 更新：Part 1（抑制模型）的程式已開源在
+     https://gitlab.igem.org/2026/software/ncku-tainan/inhibition-model（MIT），
+     Part 1 開頭已加上連結。原始數據仍不公開。
+     Part 3 的程式與原始紀錄維持不公開，3.8 不變。
+     （上面 2026-10-08 的紀錄保留；其中「最後一節那句」的處理已過時。）
+
   E. 與 Software 頁不一致的地方（Software 頁的團隊說明 C 也記著）：
      感測器設定本頁是 ATIME 255 / ASTEP 280（ANALYSIS.md §1.2：所有有效列同一組），
      Software 頁是 ATIME 59 / ASTEP 999。
@@ -173,7 +179,7 @@
   {# ======================================================================
      Part 1：抑制模型（2026-10-10 填入）
 
-     內容來源（全部在 C:\Users\user\Desktop\iGEM Code\inhibition_model\，本頁沒有
+     內容來源（全部在 https://gitlab.igem.org/2026/software/ncku-tainan/inhibition-model ，本頁沒有
      加入這些檔案以外的數據、結果或引用）：
        results/model_report.md      寫法與論述
        results/*.csv                每一個數字
@@ -196,8 +202,8 @@
           那是扣空白前的數字。
 
      發布前請確認或補上：
-       A. 程式與原始資料沒有公開，本頁沒有放連結，與 Part 3 第 3.8 節的決定一致。
-          草稿原本要求連 repo；若團隊改為公開，Part 3 那句也要一起改。
+       A. 2026-10-11 起程式已公開（連結在 Part 1 開頭）。
+          原始數據不公開。Part 3 的 3.8 不受影響。
        B. 參考文獻有幾筆在 params/parameters.csv 裡就不完整（LC-MS 2023 沒有作者、
           Zhao 2013 沒有期刊卷期）。本頁照 Description 頁的做法標上
           citation to be completed，請團隊自己核對出處後補齊，不可由 AI 代填。
@@ -210,9 +216,8 @@
           effect_sizes.csv 的混合模型估計略有不同（例如 ALS-5 swarming 0.784），
           兩者並存時容易被當成錯誤，所以表格標題寫明是哪一種。
        F. 這份分析用到 AI 工具的話，請寫進 Attributions（與 Part 3 的註記 G 同）。
-       G. sensitivity 的三個 CSV 與 F7 來自 15:46 那次完整執行，其餘來自 17:47
-          那次（跳過掃描）。數字彼此一致，但 wiki freeze 前建議完整跑一次
-          src/run_all.py，讓頁面上每個數字與每張圖出自同一次執行。
+       G. 已解決（2026-10-11）：GitLab CI 的完整執行重現了所有模型輸出，
+          含 sensitivity 的 CSV，與本頁使用的數字一致。
      ====================================================================== #}
   <header class="md-part" id="model-inhibition" data-toc-group data-toc-no="1">
     <p class="md-part-no">Part 1</p>
@@ -223,6 +228,10 @@
   <p class="sw-takeaway">
     An aptamer sponge is a molar budget, spent against a signal the cell keeps
     regenerating.
+  </p>
+  <p class="hw-aside">
+    Code: <a href="https://gitlab.igem.org/2026/software/ncku-tainan/inhibition-model"
+       target="_blank" rel="noopener noreferrer">GitLab</a> (MIT)
   </p>
 
   {# Part 1 的各節捷徑。每個連結對應一個 section 的 id，改了 id 要一起改。 #}
@@ -1546,7 +1555,8 @@
       without it, and medium. A dose&ndash;response model of the biosensor
       itself is not part of this model, because we have not measured one. The
       one session on AHL plates, read on the rebuilt reader, is in
-      <a href="#model-rebuilt">3.6</a>.
+      <a href="#model-rebuilt">3.6</a>, with the background measured two
+      days after it.
     </p>
   </div>
 
@@ -2394,8 +2404,9 @@
 
     <p>
       The models above describe the first reader. It was rebuilt on
-      2026-10-03, and two sessions on the rebuilt reader, a dilution series
-      and a session on AHL plates, show what carries over. Both are on the
+      2026-10-03, and three sessions on the rebuilt reader, a dilution
+      series, a session on AHL plates and one on how dense a culture can
+      be, show what carries over. All three are on the
       <a href="{{ url_for('pages', page='hardware') }}#hardware-v2-ahl">Hardware</a>
       page, and everything in this section was worked out after their
       readings were seen.
@@ -2451,13 +2462,52 @@
       </table>
     </div>
 
+
+    {# 2026-10-11：10-11 的濁度場次量了不含報導基因的菌，背景不必再靠 10-09 自己的三個點。
+       來源：_AI_REFACTOR_WORK/P1_TURBIDITY_BACKCAST_2026-10-11/BACKCAST.md（事後、探索性；Codex 審過，沒有意見）：
+       §1 參考曲線與留一誤差、§2 10-09 各杯的回推、§3 已知答案的檢驗、§4 可以說與不能說。
+       表的最後一列（其他三種背景的形式）出自同一資料夾 CODEX_REVIEW_REPORT.md 的 B 部分，是 Codex 審查時由兩張 CSV
+       手算的；BACKCAST.md §5 註明作者沒有重算。硬體負責人 2026-10-11 授權使用（「我授權用codex的計算」）。
+       寫進來之前用程式由同兩張 CSV 重算過一次核對：R 套在 F2 上，c 的最佳值 0.0638、誤差 0.163 counts
+       （Codex：約 0.0636、約 0.16）；F3 的折線 s 0.0864、F0 45.05、誤差 0.146（與 Codex 相同）。頁面上寫的是約數。
+       §4 明定不能寫：那些盤沒有被誘導、螢光低於某個量；這條曲線是校正、可以拿來扣背景；背景的成因；
+       兩天的儀器刻度相同、兩天的菌相同；任何關於 AHL 的結論。這裡都沒有寫，請不要加。 #}
+    <h3>Two days later, the background measured on its own</h3>
+
     <p>
-      This is a description fitted after the fact, not a calibration. Three
-      readings above zero set its one parameter, and it does not say
-      whether the background is scattered light or the cells' own
-      fluorescence. It tells a cuvette with added sfGFP from one without;
-      it does not give an amount, and no suspension from an AHL plate
-      showed fluorescence for it to be tested on.
+      That curve took its one parameter from three readings of the AHL
+      session itself. On 2026-10-11 a culture without the reporter was
+      diluted and read 21 times, from F3 5 to 89
+      (<a href="{{ url_for('pages', page='hardware') }}#hardware-v2-turbidity">Hardware</a>).
+      Joined into a curve that is only assumed never to fall as scatter
+      rises, those readings give the background at any scatter in that
+      range with no model behind it, and the AHL session can be read
+      against them.
+    </p>
+
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption>The AHL plate session, read against a background measured two days later</caption>
+        <thead><tr><th scope="col">Check</th><th scope="col">Result</th></tr></thead>
+        <tbody>
+          <tr><td>The measured curve: each of its 21 readings, predicted from the other twenty</td><td>Off by 0.20 counts (root mean square), 0.71 at most.</td></tr>
+          <tr><td>The two AHL-session readings without GFP that fall inside its range</td><td>+0.04 and +0.10 counts from the curve, with the two days' counts taken as they are. The empty cuvette scattered less on the second day.</td></tr>
+          <tr><td>Readings from plates judged induced, with that background taken off</td><td>&minus;0.11 and &minus;0.10 counts inside the range. The four densest lie beyond it: if the background does not fall there, at most +0.56 to +1.33 is left.</td></tr>
+          <tr><td>The suspension with 20&nbsp;&micro;L of sfGFP culture added</td><td>+19.76 counts.</td></tr>
+          <tr><td>Three other shapes for the background: a hinge on F3, a straight line cut off at zero, and <var>R</var> on F2 as above</td><td>Each lies within about 0.2 counts of the 21 readings, and with each what is left for the plates judged induced stays near zero or below. Refitted to these readings, <var>c</var> comes to about 0.064, against 0.0629 from the AHL session.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Both are descriptions made after the readings were seen, not
+      calibrations. Three readings above zero set the fitted curve's one
+      parameter; the measured one is a single culture on a single day and
+      stops at F3 89. Neither says whether the background is scattered
+      light or the cells' own fluorescence. They tell a cuvette with added
+      sfGFP from one without; they do not give an amount, and a reading
+      that sits on the background means the reader read nothing above it
+      there, not that the plate was not induced.
     </p>
   </section>
 
@@ -2471,7 +2521,7 @@
         <thead><tr><th scope="col">We do not say</th><th scope="col">What the data supports</th></tr></thead>
         <tbody>
           <tr><td>A calibration curve, an absolute GFP concentration, a limit of detection</td><td>Relative readings within one session, and a description of these three sessions.</td></tr>
-          <tr><td>Non-GFP cells do not affect F4</td><td>No difference was resolved at this precision; the nominal range is &minus;20&nbsp;% to +12&nbsp;% of A. In a far denser suspension, a cuvette without the reporter read 1.78 (<a href="#model-rebuilt">3.6</a>).</td></tr>
+          <tr><td>Non-GFP cells do not affect F4</td><td>No difference was resolved at this precision; the nominal range is &minus;20&nbsp;% to +12&nbsp;% of A. A culture without the reporter stops reading zero once it is dense enough (<a href="#model-rebuilt">3.6</a>).</td></tr>
           <tr><td>The instrument does not drift</td><td>After conversion the three sessions agree, with no sign of a large drift. Post hoc.</td></tr>
           <tr><td>OD is a cell count</td><td>A displayed OD that does not scale with dilution, for a reason not yet established.</td></tr>
           <tr><td>The biosensor's dose&ndash;response to AHL</td><td>None of these samples was induced. The one session on AHL plates did not resolve induction (<a href="#model-rebuilt">3.6</a>).</td></tr>
@@ -2611,17 +2661,11 @@
           <tr>
             <td><a href="#model-rebuilt">Part 3 &middot; 3.6</a></td>
             <td>Whether the earlier models could read the rebuilt reader's sessions.</td>
-            <td>They could not, so the AHL plate session was read with a one-parameter background fitted to its own controls, and reported as a description.</td>
+            <td>They could not, so the AHL plate session was read with a one-parameter background fitted to its own controls, then against a background measured two days later on a culture without the reporter. Both are reported as descriptions.</td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <p class="hw-refs-note">
-      How these decisions sit in our design&ndash;build&ndash;test&ndash;learn
-      cycle is on the
-      <a href="{{ url_for('pages', page='engineering') }}">Engineering</a> page.
-    </p>
   </section>
 
 </div>
