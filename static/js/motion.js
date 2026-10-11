@@ -8,7 +8,7 @@
    - .rx-magnetic 磁吸鈕
    - Lenis 平滑捲動（engineering/hardware 頁停用：
      dbtl 的滾輪翻頁與剖面圖有自己的 wheel 處理）
-   - GSAP ScrollTrigger：存在 [data-rx-chapter] 時綁章節軌道
+   - [data-rx-chapter] 章節軌道與 [data-rx-split] 拆字（不需 GSAP，見檔尾）
    ============================================================ */
 (function () {
   'use strict';
@@ -57,13 +57,25 @@
   bar.id = 'rxProgress';
   bar.setAttribute('aria-hidden', 'true');
   document.body.appendChild(bar);
+  /* Once per frame, not once per scroll event: a wheel or a trackpad can fire
+     several scroll events in one frame, and each read of scrollHeight right
+     after the last width was written made the browser lay the page out
+     again on the spot. The page's height is read once a frame, before the
+     bar is written. */
+  var progressQueued = false;
   function progress() {
+    progressQueued = false;
     var h = document.documentElement.scrollHeight - window.innerHeight;
     var p = h > 0 ? Math.min(1, window.scrollY / h) : 0;
     bar.style.width = (p * 100).toFixed(2) + '%';
   }
-  window.addEventListener('scroll', progress, { passive: true });
-  window.addEventListener('resize', progress);
+  function queueProgress() {
+    if (progressQueued) return;
+    progressQueued = true;
+    requestAnimationFrame(progress);
+  }
+  window.addEventListener('scroll', queueProgress, { passive: true });
+  window.addEventListener('resize', queueProgress);
   requestAnimationFrame(function () {
     document.body.classList.add('rx-ready');
     progress();
@@ -109,7 +121,11 @@
     document.body.appendChild(cur);
     root.classList.add('rx-cursor');
     var cx = -100, cy = -100, ticking = false;
-    function move() { cur.style.left = cx + 'px'; cur.style.top = cy + 'px'; ticking = false; }
+    function move() {
+      cur.style.setProperty('--cx', cx + 'px');
+      cur.style.setProperty('--cy', cy + 'px');
+      ticking = false;
+    }
     document.addEventListener('pointermove', function (ev) {
       cx = ev.clientX; cy = ev.clientY;
       if (!ticking) { ticking = true; requestAnimationFrame(move); }
@@ -144,28 +160,80 @@
   if (!skipLenis && !reduceMotion && typeof window.Lenis === 'function') {
     try {
       var lenis = new window.Lenis({ duration: 0.9, smoothWheel: true });
-      function raf(t) { lenis.raf(t); requestAnimationFrame(raf); }
-      requestAnimationFrame(raf);
+      /* Lenis needs a frame only while a scroll is under way. The loop starts
+         on the first wheel, touch, key or scroll, and stops once the page has
+         been still for a second, instead of running every frame for the
+         whole visit. */
+      var rafOn = false, stillSince = 0;
+      function raf(t) {
+        lenis.raf(t);
+        if (lenis.isScrolling) stillSince = t;
+        if (t - stillSince > 1000) { rafOn = false; return; }
+        requestAnimationFrame(raf);
+      }
+      function wake() {
+        if (rafOn) return;
+        rafOn = true;
+        stillSince = performance.now();
+        requestAnimationFrame(raf);
+      }
+      ['wheel', 'touchstart', 'keydown', 'pointerdown', 'scroll'].forEach(function (type) {
+        window.addEventListener(type, wake, { passive: true });
+      });
+      wake();
       if (window.ScrollTrigger) {
         lenis.on('scroll', window.ScrollTrigger.update);
       }
     } catch (e) { /* 平滑捲動是.decor bonus，壞了就裸跑原生捲動 */ }
   }
 
-  /* ---------- GSAP：章節軌道 + hero 拆字 ---------- */
-  if (window.gsap && window.ScrollTrigger && !reduceMotion) {
-    gsap.registerPlugin(ScrollTrigger);
-
-    /* [data-rx-chapter]：捲動綁定 --rx-chap 0→100%，CSS 軌道依此著色 */
-    document.querySelectorAll('[data-rx-chapter]').forEach(function (sec) {
-      gsap.to(sec, {
-        '--rx-chap': '100%',
-        ease: 'none',
-        scrollTrigger: { trigger: sec, start: 'top 75%', end: 'bottom 55%', scrub: 0.6 }
-      });
+  /* ---------- 章節軌道 + hero 拆字（不再用 GSAP）----------
+     兩件事原本靠 GSAP + ScrollTrigger（116 KB），而 ScrollTrigger 只要存在，
+     它的 ticker 就每一幀都要一次畫面更新，整頁跟著每幀重算。現在：
+     章節進度由一個捲動監聽算，只在捲動、或進度還在追上時跑；拆字由 CSS。 */
+  if (!reduceMotion) {
+    /* [data-rx-chapter]：捲動綁定 --rx-chap 0→100%，CSS 依此揭開。
+       起點＝區塊頂端到達視窗 75% 處，終點＝區塊底端到達視窗 55% 處（原
+       ScrollTrigger 的 start/end），進度以約 0.25 秒的時間常數追上捲動
+       （原 scrub: 0.6 的那點延遲）。 */
+    var chapters = Array.prototype.slice.call(document.querySelectorAll('[data-rx-chapter]')).map(function (el) {
+      return { el: el, cur: -1, top: 0, bottom: 0 };
     });
+    if (chapters.length) {
+      var chapRaf = null, chapLast = 0;
+      var measureChapters = function () {
+        var y = window.pageYOffset;
+        chapters.forEach(function (c) {
+          var r = c.el.getBoundingClientRect();
+          c.top = r.top + y; c.bottom = r.bottom + y;
+        });
+      };
+      var chapTick = function (t) {
+        chapRaf = null;
+        var dt = chapLast ? Math.min(0.1, (t - chapLast) / 1000) : 1;
+        chapLast = t;
+        var y = window.pageYOffset, vh = window.innerHeight, moving = false;
+        chapters.forEach(function (c) {
+          var start = c.top - 0.75 * vh, end = c.bottom - 0.55 * vh;
+          var target = Math.max(0, Math.min(1, (y - start) / Math.max(1, end - start)));
+          var next = c.cur < 0 ? target : c.cur + (target - c.cur) * (1 - Math.exp(-dt / 0.25));
+          if (Math.abs(target - next) < 0.0005) next = target; else moving = true;
+          if (next !== c.cur) { c.cur = next; c.el.style.setProperty('--rx-chap', (next * 100).toFixed(2) + '%'); }
+        });
+        if (moving) chapRaf = requestAnimationFrame(chapTick); else chapLast = 0;
+      };
+      var chapKick = function () { if (!chapRaf) chapRaf = requestAnimationFrame(chapTick); };
+      measureChapters(); chapKick();
+      window.addEventListener('scroll', chapKick, { passive: true });
+      var remeasure = function () { measureChapters(); chapKick(); };
+      window.addEventListener('resize', remeasure);
+      window.addEventListener('load', remeasure);
+      /* 圖片晚到、區塊長高時，章節的位置也會變 */
+      if ('ResizeObserver' in window) new ResizeObserver(remeasure).observe(document.body);
+    }
 
-    /* [data-rx-split]：kinetic typography，逐字升起 */
+    /* [data-rx-split]：kinetic typography，逐字升起（motion.css 的 rx-rise）。
+       延遲照原本：0.25 秒起，每字 0.035 秒、每詞 0.05 秒。 */
     document.querySelectorAll('[data-rx-split]').forEach(function (el) {
       var text = el.textContent;
       el.textContent = '';
@@ -177,22 +245,16 @@
           var c = document.createElement('span');
           c.className = 'rx-char';
           c.textContent = ch;
-          if (!reduceMotion) {
-            gsap.to(c, {
-              y: '0%',
-              duration: 0.9,
-              delay: 0.25 + wi * 0.05 + ci * 0.035,
-              ease: 'expo.out'
-            });
-          }
+          c.style.setProperty('--rx-d', (0.25 + wi * 0.05 + ci * 0.035).toFixed(3) + 's');
           w.appendChild(c);
         });
         w.appendChild(document.createTextNode(' '));
         el.appendChild(w);
       });
+      el.classList.add('rx-go');
     });
   } else {
-    /* 無 GSAP / 有 reduced-motion：拆字容器保持靜態可讀 */
+    /* reduced-motion：拆字容器保持靜態可讀 */
     document.querySelectorAll('[data-rx-split]').forEach(function (el) { el.classList.add('rx-done'); });
   }
 })();

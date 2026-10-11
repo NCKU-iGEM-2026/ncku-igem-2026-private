@@ -35,6 +35,11 @@
   var instances = [];
   var masterRaf = null;
   var pageHidden = false;
+  /* 20 frames a second is plenty for nodes that drift a few pixels a
+     second. 畫完一幀就睡到下一幀該畫的時候，中間不要任何畫面更新。若每幀都 rAF
+     再自己跳過，瀏覽器每一幀都得跑一次主執行緒，順帶把頁上其他（本來交給
+     合成器的）動畫元素的樣式也重算一遍。 */
+  var FRAME_MS = 1000 / 20, sleep = null;
   function masterTick (t) {
     masterRaf = null;
     if (pageHidden) return;
@@ -42,9 +47,9 @@
     for (var i = 0; i < instances.length; i++) {
       if (instances[i].running) { instances[i].paint(t); any = true; }
     }
-    if (any && !reduce) masterRaf = requestAnimationFrame(masterTick);
+    if (any && !reduce) sleep = setTimeout(function () { sleep = null; heartbeat(); }, FRAME_MS - 8);
   }
-  function heartbeat () { if (!masterRaf && !reduce && !pageHidden) masterRaf = requestAnimationFrame(masterTick); }
+  function heartbeat () { if (!masterRaf && !sleep && !reduce && !pageHidden) masterRaf = requestAnimationFrame(masterTick); }
   document.addEventListener('visibilitychange', function () {
     pageHidden = document.hidden;
     if (!pageHidden) heartbeat();
@@ -97,7 +102,7 @@
 
     var mode = PRESETS[el.dataset.glow] !== undefined ? PRESETS[el.dataset.glow] : PRESETS[''];
     var rand = seededRand(location.pathname + '|' + (el.className || '') + '|' + mode.cell);
-    var DPR = Math.min(2, window.devicePixelRatio || 1);
+    var DPR = 1;                       /* CSS pixels: see hp-mesh.js */
     var W = 0, H = 0, pts = [], rafId = null, running = false, morphT = null;
 
     function size () {
@@ -286,7 +291,9 @@
       if (a < 0.4) return;                                    /* 透明底：全站 hp-mesh 已從底層透出，不重複疊 */
       if (lumOf(+m[0], +m[1], +m[2]) > 0.16) return;       /* 不夠深 */
       var r = el.getBoundingClientRect();
-      if (r.width < 260 || r.height < 170) return;           /* 太小不是「底圖」 */
+      /* 太小不是「底圖」：小卡片（如 Attributions 的人物卡）不掛，否則一頁
+         幾十張卡各自一張畫布、每幀都在重畫 */
+      if (r.width < 420 || r.height < 260) return;
       if (el.querySelector('canvas')) return;                 /* 已有自己動畫的舞台（六邊形浮盤等）*/
       if (/navbar|dish|swiper|carousel|toc|toggler/i.test(el.className || '')) return;
       if (el.parentElement && el.parentElement.closest('[data-glow]:not([data-glow="off"])')) return;  /* 父層已掛，不雙層疊圖 */
