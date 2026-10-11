@@ -1775,6 +1775,127 @@ body.team-bio-locked { overflow: hidden; }
 }
 
 /* ---- the three approaches that fall short ---- */
+/* ---- the two mechanism diagrams ----
+   Held well under the text column. Both sources are wider than they are
+   shown either way, so the smaller box is not a loss of detail -- it puts
+   more source pixels behind each one on screen, which is what keeps the
+   small type in them from going soft. The caption is scoped to the same
+   width so the two stay together. */
+.desc-diagram { margin: 1.6rem auto 1.4rem; max-width: 560px; }
+.desc-diagram img { display: block; width: 100%; height: auto; }
+.desc-diagram figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--c-text-3);
+}
+
+/* ---- the numbers, as tiles ----
+   A value and what it counts, nothing else: no chart, because there is no
+   comparison to make and no trend to show -- each figure is a single
+   magnitude. The value carries the page's heading colour; the label stays in
+   text ink. Proportional figures, not tabular: these are standalone numbers,
+   and tabular widths make them look gappy at this size. */
+.desc-stats {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.75rem 1.5rem;
+  margin: 1.75rem 0 1rem;
+  padding: 0;
+}
+.desc-stats > li {
+  padding-left: 0.9rem;
+  border-left: 3px solid color-mix(in srgb, var(--c-teal-deep) 55%, transparent);
+}
+.desc .desc-stat-v {
+  font-family: "Changa", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--c-ink-2);
+  margin: 0 0 0.3rem;
+}
+.desc .desc-stat-l {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--c-text-2);
+  margin: 0;
+}
+.desc .desc-stat-src {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--c-text-3);
+  margin: 0 0 1.4rem;
+}
+@media (max-width: 767.98px) {
+  .desc-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem 1rem; }
+  .desc .desc-stat-v { font-size: 1.7rem; }
+}
+
+/* ---- the clinical problem, as one chain ----
+   Waiting, treating on a guess, and resistance are one causal run, so they
+   are set as three steps with a chevron between them rather than as prose.
+   Plain two-pixel line drawings in the theme's own colour: no fill, no
+   gradient, no shadow, so they read as diagram rather than decoration. */
+.desc-chain {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem 2.75rem;
+  margin: 2rem 0 2.25rem;
+  padding: 0;
+}
+.desc-chain-step { position: relative; }
+/* the chevron from one step to the next */
+.desc-chain-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 1.35rem;
+  right: -1.7rem;
+  width: 0.62rem;
+  height: 0.62rem;
+  border-top: 2px solid var(--c-teal-deep);
+  border-right: 2px solid var(--c-teal-deep);
+  transform: rotate(45deg);
+  opacity: 0.75;
+}
+.desc-chain-icon {
+  display: block;
+  width: 3.1rem;
+  height: 3.1rem;
+  fill: none;
+  stroke: var(--c-teal-deep);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.desc .desc-chain-head {
+  font-family: "Changa", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--c-ink-2);
+  margin: 0.85rem 0 0.4rem;
+}
+.desc .desc-chain-say {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--c-text-2);
+  margin: 0;
+}
+@media (max-width: 767.98px) {
+  .desc-chain { grid-template-columns: minmax(0, 1fr); gap: 2.4rem; }
+  /* stacked, so the chevron turns to point down the page */
+  .desc-chain-step:not(:last-child)::after {
+    top: auto;
+    bottom: -1.65rem;
+    right: auto;
+    left: 1.2rem;
+    transform: rotate(135deg);
+  }
+}
+
 .desc-methods {
   position: relative;
   margin-top: 1.75rem;
