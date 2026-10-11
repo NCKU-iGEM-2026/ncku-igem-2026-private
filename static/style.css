@@ -2104,12 +2104,19 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   letter-spacing: 0.32em;
   fill: #49c5b6;
 }
-/* With more than one round in a part, the line under the name is what tells
-   the rounds apart, so it is set as large as the name itself. */
-.eng-cycle-kicker.has-round {
-  font-size: 23px;
+/* With more than one round in a part, the round number is what tells the
+   rounds apart, so it is the largest thing in the hub: "CYCLE" small above,
+   the number big in lime, the part's name below. */
+.eng-cycle-round {
+  font-family: "Changa", sans-serif;
+  font-size: 76px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  fill: #a0e860;          /* --nx-lime */
+  filter: drop-shadow(0 0 10px rgba(160, 232, 96, 0.35));
+}
+.eng-cycle-centre.has-round {
+  font-size: 24px;
+  fill: #cfe3ea;
 }
 .eng-cycle-label { pointer-events: none; }
 /* A stage a later round did not repeat: its arrow stays on the ring so the
@@ -2176,7 +2183,12 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
      cycle then takes two of its own -- its band, then the ring and the stages
      side by side -- and engineering.html sets which pair. A fixed row here
      would stack a part's second round on top of its first. */
-  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; width: 10.5rem; margin-top: 1rem; }
+  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; justify-self: start; width: 10.5rem; margin-top: 1rem; }
+  /* With room to spare at the left, the ring grows and leans out into it, so
+     it stays clear of the text instead of crowding it. */
+  @media (min-width: 1300px) {
+    .eng-dbtl > .eng-dbtl-rail { justify-self: end; width: 11.5rem; margin-right: 1.5rem; }
+  }
   .eng-dbtl > .eng-dbtl-stages { grid-column: 2; margin-top: 1rem; }
   .eng-cycle-band { grid-column: 2; }
   .eng-future { grid-column: 2; }
@@ -2341,6 +2353,10 @@ body.hw-nexus .hw .eng-future-title {
   position: sticky;
   top: 110px;
 }
+/* Only the round being read shows its ring: two rings of one part would
+   otherwise sit on top of each other as one round hands over to the next. */
+.eng-dbtl-rail { transition: opacity 0.3s ease; }
+.eng-dbtl-rail.is-tracked:not(.is-in-view) { opacity: 0; pointer-events: none; }
 .eng-dbtl-stage {
   --stage: #a0e860;
   scroll-margin-top: 110px;
