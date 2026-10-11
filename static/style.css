@@ -810,7 +810,16 @@ footer a:hover { color: white; text-decoration: underline; }
   opacity: 0;
   transform: rotateY(-25deg) translateX(-12px);
   transform-origin: left center;
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  /* Performance: the five closed pages were only transparent, so the browser
+     still painted and composited every one of them -- each a page-sized 3D
+     layer full of 3D flip cards and glass tags. visibility:hidden keeps them
+     laid out (the shared grid cell still takes the tallest page) but nothing
+     in them is drawn. The 0.45s delay lets a page fade out completely before
+     it is hidden, so the page-turn looks exactly as before. It also takes
+     the closed pages' cards out of the Tab order, where they were reachable
+     while invisible. */
+  visibility: hidden;
+  transition: opacity 0.45s ease, transform 0.45s ease, visibility 0s linear 0.45s;
   pointer-events: none;
 }
 
@@ -822,6 +831,8 @@ footer a:hover { color: white; text-decoration: underline; }
 #page-advisor:checked   ~ .notebook-book #content-advisor {
   opacity: 1;
   transform: rotateY(0deg) translateX(0);
+  visibility: visible;
+  transition: opacity 0.45s ease, transform 0.45s ease, visibility 0s;
   pointer-events: auto;
 }
 
