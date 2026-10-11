@@ -5,8 +5,10 @@
    *
    * The ring never turns. Reading down the four stages lights it clockwise,
    * the way its arrows point: each arrow fills from its tail to its head while
-   * its stage is read, with a bright point at the leading edge, and the head
-   * of Learn is reached at the foot of its part. Progress is measured in
+   * its stage is read, and the head of Learn is reached at the foot of its
+   * part. (A bright point used to ride the leading edge; it was removed on
+   * 2026-10-11. This script still drives one if the markup has it.)
+   * Progress is measured in
    * stages -- 0 before Design, 1.5 halfway through Build, 4 at the end -- and
    * each stage runs from the moment its heading reaches the spot a click on
    * its arrow would scroll it to, until the next one does.
@@ -30,12 +32,22 @@
     var rail = block.querySelector(".eng-dbtl-rail");
     var stages = block.querySelector(".eng-dbtl-stages");
     var sections = Array.prototype.slice.call(block.querySelectorAll(".eng-dbtl-stage"));
-    if (!figure || !spark || !rail || !stages || !sections.length) return null;
+    /* The spark is optional: the ring works the same without it. */
+    if (!figure || !rail || !stages || !sections.length) return null;
     rail.classList.add("is-tracked");
 
-    var sweeps = Array.prototype.slice.call(figure.querySelectorAll(".eng-cycle-sweep"));
-    var links = Array.prototype.slice.call(figure.querySelectorAll(".eng-cycle-link"));
-    var labels = Array.prototype.slice.call(figure.querySelectorAll(".eng-cycle-label"));
+    /* A round that skipped a stage has fewer sweeps than the ring has arrows,
+       so each is matched to its section by stage name rather than by position,
+       and each stage lights from its own bearing on the ring. */
+    var steps = sections.map(function (section) {
+      var stage = section.getAttribute("data-stage");
+      return {
+        bearing: parseFloat(section.getAttribute("data-bearing")) || 0,
+        sweep: figure.querySelector('.eng-cycle-sweep[data-stage="' + stage + '"]'),
+        link: figure.querySelector('.eng-cycle-link[data-stage="' + stage + '"]'),
+        label: figure.querySelector('.eng-cycle-label[data-stage="' + stage + '"]')
+      };
+    });
     /* Each arrow spans 94deg, from its tail 47deg before its bearing to the tip
        of its head 47deg after; the bearings are a quarter turn apart, starting
        at 45deg for Design (engineering.html). */
@@ -62,28 +74,29 @@
 
     return function update() {
       var p = progress();
-      sweeps.forEach(function (sweep, index) {
+      steps.forEach(function (step, index) {
+        if (!step.sweep) return;
         var degrees = SPAN * clamp(p - index);
-        sweep.setAttribute("stroke-dasharray", degrees + " " + (360 - degrees));
+        step.sweep.setAttribute("stroke-dasharray", degrees + " " + (360 - degrees));
       });
       var current = Math.min(sections.length - 1, Math.floor(p));
-      var edge = 45 + 90 * current - SPAN / 2 + SPAN * clamp(p - current);
-      spark.setAttribute("transform", "rotate(" + edge + " 200 200)");
+      var edge = steps[current].bearing - SPAN / 2 + SPAN * clamp(p - current);
+      if (spark) spark.setAttribute("transform", "rotate(" + edge + " 200 200)");
       figure.classList.toggle("is-started", p > 0);
       figure.classList.toggle("is-complete", p >= sections.length);
 
       figure.setAttribute("data-active", sections[current].getAttribute("data-stage"));
-      links.forEach(function (link, index) {
-        if (index === current) link.setAttribute("aria-current", "step");
-        else link.removeAttribute("aria-current");
-      });
-      /* A label sits at the middle of its arrow, half a stage in. */
-      labels.forEach(function (label, index) {
-        label.classList.toggle("is-lit", p >= index + 0.5);
+      steps.forEach(function (step, index) {
+        if (step.link) {
+          if (index === current) step.link.setAttribute("aria-current", "step");
+          else step.link.removeAttribute("aria-current");
+        }
+        /* A label sits at the middle of its arrow, half a stage in. */
+        if (step.label) step.label.classList.toggle("is-lit", p >= index + 0.5);
       });
 
       var box = stages.getBoundingClientRect();
-      rail.classList.toggle("is-in-view", box.top < window.innerHeight * 0.75 && box.bottom > window.innerHeight * 0.25);
+      rail.classList.toggle("is-in-view", box.top < window.innerHeight * 0.5 && box.bottom > window.innerHeight * 0.5);
     };
   }
 

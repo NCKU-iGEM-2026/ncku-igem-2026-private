@@ -810,7 +810,16 @@ footer a:hover { color: white; text-decoration: underline; }
   opacity: 0;
   transform: rotateY(-25deg) translateX(-12px);
   transform-origin: left center;
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  /* Performance: the five closed pages were only transparent, so the browser
+     still painted and composited every one of them -- each a page-sized 3D
+     layer full of 3D flip cards and glass tags. visibility:hidden keeps them
+     laid out (the shared grid cell still takes the tallest page) but nothing
+     in them is drawn. The 0.45s delay lets a page fade out completely before
+     it is hidden, so the page-turn looks exactly as before. It also takes
+     the closed pages' cards out of the Tab order, where they were reachable
+     while invisible. */
+  visibility: hidden;
+  transition: opacity 0.45s ease, transform 0.45s ease, visibility 0s linear 0.45s;
   pointer-events: none;
 }
 
@@ -822,6 +831,8 @@ footer a:hover { color: white; text-decoration: underline; }
 #page-advisor:checked   ~ .notebook-book #content-advisor {
   opacity: 1;
   transform: rotateY(0deg) translateX(0);
+  visibility: visible;
+  transition: opacity 0.45s ease, transform 0.45s ease, visibility 0s;
   pointer-events: auto;
 }
 
@@ -1764,6 +1775,127 @@ body.team-bio-locked { overflow: hidden; }
 }
 
 /* ---- the three approaches that fall short ---- */
+/* ---- the two mechanism diagrams ----
+   Held well under the text column. Both sources are wider than they are
+   shown either way, so the smaller box is not a loss of detail -- it puts
+   more source pixels behind each one on screen, which is what keeps the
+   small type in them from going soft. The caption is scoped to the same
+   width so the two stay together. */
+.desc-diagram { margin: 1.6rem auto 1.4rem; max-width: 560px; }
+.desc-diagram img { display: block; width: 100%; height: auto; }
+.desc-diagram figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: var(--c-text-3);
+}
+
+/* ---- the numbers, as tiles ----
+   A value and what it counts, nothing else: no chart, because there is no
+   comparison to make and no trend to show -- each figure is a single
+   magnitude. The value carries the page's heading colour; the label stays in
+   text ink. Proportional figures, not tabular: these are standalone numbers,
+   and tabular widths make them look gappy at this size. */
+.desc-stats {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.75rem 1.5rem;
+  margin: 1.75rem 0 1rem;
+  padding: 0;
+}
+.desc-stats > li {
+  padding-left: 0.9rem;
+  border-left: 3px solid color-mix(in srgb, var(--c-teal-deep) 55%, transparent);
+}
+.desc .desc-stat-v {
+  font-family: "Changa", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--c-ink-2);
+  margin: 0 0 0.3rem;
+}
+.desc .desc-stat-l {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--c-text-2);
+  margin: 0;
+}
+.desc .desc-stat-src {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--c-text-3);
+  margin: 0 0 1.4rem;
+}
+@media (max-width: 767.98px) {
+  .desc-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem 1rem; }
+  .desc .desc-stat-v { font-size: 1.7rem; }
+}
+
+/* ---- the clinical problem, as one chain ----
+   Waiting, treating on a guess, and resistance are one causal run, so they
+   are set as three steps with a chevron between them rather than as prose.
+   Plain two-pixel line drawings in the theme's own colour: no fill, no
+   gradient, no shadow, so they read as diagram rather than decoration. */
+.desc-chain {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem 2.75rem;
+  margin: 2rem 0 2.25rem;
+  padding: 0;
+}
+.desc-chain-step { position: relative; }
+/* the chevron from one step to the next */
+.desc-chain-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 1.35rem;
+  right: -1.7rem;
+  width: 0.62rem;
+  height: 0.62rem;
+  border-top: 2px solid var(--c-teal-deep);
+  border-right: 2px solid var(--c-teal-deep);
+  transform: rotate(45deg);
+  opacity: 0.75;
+}
+.desc-chain-icon {
+  display: block;
+  width: 3.1rem;
+  height: 3.1rem;
+  fill: none;
+  stroke: var(--c-teal-deep);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.desc .desc-chain-head {
+  font-family: "Changa", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--c-ink-2);
+  margin: 0.85rem 0 0.4rem;
+}
+.desc .desc-chain-say {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--c-text-2);
+  margin: 0;
+}
+@media (max-width: 767.98px) {
+  .desc-chain { grid-template-columns: minmax(0, 1fr); gap: 2.4rem; }
+  /* stacked, so the chevron turns to point down the page */
+  .desc-chain-step:not(:last-child)::after {
+    top: auto;
+    bottom: -1.65rem;
+    right: auto;
+    left: 1.2rem;
+    transform: rotate(135deg);
+  }
+}
+
 .desc-methods {
   position: relative;
   margin-top: 1.75rem;
@@ -2093,7 +2225,25 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   letter-spacing: 0.32em;
   fill: #49c5b6;
 }
+/* With more than one round in a part, the round number is what tells the
+   rounds apart, so it is the largest thing in the hub: "CYCLE" small above,
+   the number big in lime, the part's name below. */
+.eng-cycle-round {
+  font-family: "Changa", sans-serif;
+  font-size: 76px;
+  font-weight: 700;
+  fill: #a0e860;          /* --nx-lime */
+  filter: drop-shadow(0 0 10px rgba(160, 232, 96, 0.35));
+}
+.eng-cycle-centre.has-round {
+  font-size: 24px;
+  fill: #cfe3ea;
+}
 .eng-cycle-label { pointer-events: none; }
+/* A stage a later round did not repeat: its arrow stays on the ring so the
+   cycle still reads as a cycle, but sits back and takes no clicks. */
+.eng-cycle-arrow-skipped { opacity: 0.25; pointer-events: none; }
+.eng-cycle-label-skipped { opacity: 0.4; }
 /* Progress: engineering-cycle.js lengthens the mask over the lit copy of the
    ring clockwise as the reader goes down the stages. Underneath, the arrows
    wait dimmed; the one being read stands a little clearer, so a reader who
@@ -2125,24 +2275,53 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   .eng-cycle .eng-cycle-arrow, .eng-cycle .eng-cycle-label, .eng-cycle .eng-cycle-spark { transition: none; }
 }
 
-/* ---- the DBTL layout: the cycle on the left, the four stages on the right ----
+/* ---- the DBTL layout: the cycle on the left, the four stages in the middle ----
    The cycle takes the place of the other .hw pages' "On this page" list,
-   out to the left of the text, so the page is widened by the cycle's column
-   and the text keeps the same 58rem measure as theirs. */
-.hw.eng { max-width: 73.5rem; }
-.eng-dbtl {
-  display: grid;
-  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
-  gap: 3rem;
-  align-items: start;
-  margin-top: 1rem;
+   out to the left of the text. The text keeps the same 58rem measure as
+   theirs and sits a little right of the page's centre (the left margin is
+   wider than the right), which balances the cycle hugging the far left edge.
+   The whole page shares one set of columns: the jump bar and each part's
+   heading sit in the text column too, so they line up with it. Each part is
+   a subgrid of the page, and its .eng-dbtl steps aside (display: contents)
+   so the cycle and the stages land straight in those columns. */
+.hw.eng { max-width: 86rem; }
+@media (min-width: 992px) {
+  .hw.eng {
+    display: grid;
+    grid-template-columns: minmax(10.5rem, 1.3fr) minmax(0, 58rem) minmax(6rem, 0.7fr);
+    column-gap: 2.5rem;
+  }
+  .hw.eng > .eng-parts-nav { grid-column: 2; }
+  .eng-part {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: start;
+  }
+  .eng-part::before, .eng-part-head { grid-column: 2; }
+  .eng-dbtl { display: contents; }
+  /* Rows 1 and 2 are the accent bar and the part heading; each round of the
+     cycle then takes two of its own -- its band, then the ring and the stages
+     side by side -- and engineering.html sets which pair. A fixed row here
+     would stack a part's second round on top of its first. */
+  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; justify-self: start; width: 10.5rem; margin-top: 1rem; }
+  /* With room to spare at the left, the ring grows and leans out into it, so
+     it stays clear of the text instead of crowding it. */
+  @media (min-width: 1300px) {
+    .eng-dbtl > .eng-dbtl-rail { justify-self: end; width: 11.5rem; margin-right: 1.5rem; }
+  }
+  .eng-dbtl > .eng-dbtl-stages { grid-column: 2; margin-top: 1rem; }
+  .eng-cycle-band { grid-column: 2; }
+  .eng-future { grid-column: 2; }
 }
-/* ---- the two parts: Detect and Inhibition ----
+/* ---- the three parts: Detect, Inhibition, Measurement ----
    Each part has its own accent (--part): a short thick bar over its heading,
    a "Part 01" banner and the word in its cycle's centre all wear it, so the
-   two never read as one long run of stages. No panel round it: the cycle
+   three never read as one long run of stages. No panel round it: the cycle
    sits straight on the page ground rather than boxed in a frame. The jump bar at the top of the
-   page names both parts before the reader reaches either. */
+   page names every part before the reader reaches any of them.
+   Adding a part needs one line here and one tuple in engineering.html;
+   everything else on the page is driven off --part. */
 [data-part="detect"]     { --part: #49c5b6; }   /* --nx-mint */
 [data-part="inhibition"] { --part: #e6b060; }   /* --nx-warm */
 .eng-parts-nav {
@@ -2212,13 +2391,93 @@ body.hw-nexus .hw .eng-part-title {
 }
 .eng-part .eng-cycle-centre,
 .eng-part .eng-cycle-kicker { fill: var(--part); }
+
+/* ---- rounds of the cycle within one part ----
+   A part that was engineered twice shows its rings one under the other, each
+   under a band naming the round. The band is a rule the width of the column
+   with the round's name at its left, so the eye reads "Cycle 02" as the start
+   of a new pass rather than as another stage of the first one. */
+/* ---- where a part goes next ----
+   Set outside the two-column cycle grid and across the full width of the
+   panel, because it is the one part of the page that is not another turn of
+   the ring. The graphic beside it unwinds the ring: most of a turn, then the
+   line leaves its orbit and runs straight off to the right. */
+.eng-future {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px dashed color-mix(in srgb, var(--part) 40%, transparent);
+}
+.eng-future-arrow {
+  display: block;
+  width: min(300px, 70%);
+  height: auto;
+  margin-bottom: 0.75rem;
+  overflow: visible;
+}
+.eng-future-arrow-loop,
+.eng-future-arrow-out,
+.eng-future-arrow-head {
+  stroke: var(--part);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* The turn it is leaving behind is drawn faintly; the way out is solid. */
+.eng-future-arrow-loop { opacity: 0.45; stroke-dasharray: 5 7; }
+body.hw-nexus .hw .eng-future-title {
+  margin: 0 0 1rem;
+  font-size: 1.9rem;
+  color: var(--part);
+}
+@media (max-width: 991.98px) {
+  .eng-future { margin-top: 2.5rem; }
+  .eng-future-arrow { width: 100%; }
+}
+
+.eng-cycle-band {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1.75rem;
+  scroll-margin-top: 100px;
+}
+/* The second and later rounds are set well clear of the one above, since the
+   ring of the previous round is sticky and would otherwise still be beside
+   the new heading. */
+.eng-dbtl + .eng-cycle-band { margin-top: 5rem; }
+.eng-cycle-band-num {
+  flex: none;
+  font-family: "Changa", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--part);
+}
+.eng-cycle-band-rule {
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(to right,
+    color-mix(in srgb, var(--part) 55%, transparent), transparent);
+}
+@media (max-width: 991.98px) {
+  .eng-dbtl + .eng-cycle-band { margin-top: 3rem; }
+}
+
 @media (max-width: 991.98px) {
   body.hw-nexus .hw .eng-part-title { font-size: 2.4rem; }
 }
+/* The ring rides along beside its stages, small and pinned to the top left
+   just under the navbar; the narrow-screen rule below puts it back in the
+   corner. */
 .eng-dbtl-rail {
   position: sticky;
-  top: calc(50vh - 7.5rem);
+  top: 110px;
 }
+/* Only the round being read shows its ring: two rings of one part would
+   otherwise sit on top of each other as one round hands over to the next. */
+.eng-dbtl-rail { transition: opacity 0.3s ease; }
+.eng-dbtl-rail.is-tracked:not(.is-in-view) { opacity: 0; pointer-events: none; }
 .eng-dbtl-stage {
   --stage: #a0e860;
   scroll-margin-top: 110px;
@@ -2342,6 +2601,9 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
   aspect-ratio: var(--pair-ratio, 7 / 5);
   object-fit: contain;
 }
+/* A two-panel figure: wider than the usual cap, so each panel is still
+   large enough to read the marks on it. */
+.eng-figure-wide img { max-width: min(100%, 760px); max-height: none; }
 /* A figure whose source is small to begin with: shown well under its own
    pixel width, so it stays sharp rather than being stretched soft. */
 .eng-figure-small img { max-width: min(100%, 340px); }
@@ -2361,10 +2623,11 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
    right), turning the same way. engineering-cycle.js shows it only while the
    stages are on screen; without the script it simply stays. */
 @media (max-width: 991.98px) {
-  .eng-dbtl { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .eng-dbtl { margin-top: 1rem; }
   .eng-dbtl-rail {
     position: fixed;
     top: auto;
+    margin-left: 0;
     left: 12px;
     bottom: 12px;
     z-index: 1010;
@@ -6262,6 +6525,8 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
 .hw-jump .sw-links { margin: 0 0 2.4rem; }
 .hw section[id],
 .hw h3[id] { scroll-margin-top: 90px; }
+/* a paragraph that other pages link to lands clear of the fixed bar, like a heading */
+.hw p[id] { scroll-margin-top: 110px; }
 
 /* ---- the two builds, one at a time ----
    Two readers share this page. A card stands for each and says what it is;
@@ -6340,7 +6605,9 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
   padding-top: 1.2rem;
   border-top: 2px solid #075a3e;
 }
-.hw .hw-build-title { font-size: 1.9rem; margin: 0 0 0.9rem; }
+/* The build's name stands over its sections (The instrument, Design advantages, ...), whose headings are the
+   site's h2, about 2rem on a desktop and less on a phone. It was 1.9rem, smaller than what it contains. */
+.hw .hw-build-title { font-size: clamp(1.9rem, 1.6rem + 1.1vw, 2.5rem); margin: 0 0 0.9rem; }
 .hw-build-head .sw-links { margin: 0; }
 .hw-build-end {
   display: flex;
@@ -6469,6 +6736,8 @@ body.hw-nexus .hw-vis {
 /* A mark that is version 2's but stands for the other answer: a ring where
    the dot is filled. Used in the AHL plate session's chart. */
 .hw-vis .hw-ring { fill: var(--hw-surf); stroke: var(--hw-v2); stroke-width: 2; }
+/* The same ring in the other series' colour: the AHL plate session's readings that were not judged induced. */
+.hw-vis .hw-ring-v1 { fill: var(--hw-surf); stroke: var(--hw-v1); stroke-width: 2; }
 /* The session chart is wider than a phone: it scrolls inside its figure. */
 .hw-chart { margin: 1.2rem 0 1rem; }
 .hw-chart .hw-vis { min-width: 520px; }
@@ -6980,6 +7249,9 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 .hwp-stage {
   position: relative;
   height: clamp(320px, 52vw, 540px);
+  /* On a short screen (a laptop at 200 % scaling shows about 630 px) the view
+     gives up height so that it and the row of buttons over it fit together. */
+  height: clamp(320px, min(52vw, 100vh - 130px), 540px);
   /* A drag that starts on the view and runs off it should not end up
      selecting the paragraph underneath. */
   -webkit-user-select: none;
@@ -12345,6 +12617,53 @@ body.hw-nexus .hw .hw-how > li > b::before {
 body.hw-nexus .hw .hw-build-head .hw-limit { margin: 0.9rem 0 1.7rem; }
 body.hw-nexus .hw #printed .hw-limit + p:not(.hw-more) { margin-top: 1.6rem; }
 
+/* The build-test-learn loop under the head of a build: one row to a turn, the
+   same three headings each time, so the eye reads it as going round twice.
+   Each step is the page's own card (the .hw-said and .hw-do one: same panel,
+   border, corner and label), three to a row like .hw-do, with the body text of
+   the improvement cards. Nothing here has a size of its own. */
+body.hw-nexus .hw .hw-loop { margin: 1.9rem 0 0.4rem; }
+body.hw-nexus .hw .hw-loop-who {
+  margin: 1.2rem 0 0.55rem; font-family: "Changa", sans-serif; font-weight: 700; font-size: 1rem; color: #fff;
+}
+body.hw-nexus .hw .hw-loop-turn {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem;
+  list-style: none; margin: 0; padding: 0;
+}
+body.hw-nexus .hw .hw-loop-turn > li {
+  position: relative; margin: 0; padding: 1.1rem 1.25rem 1.05rem;
+  border: 1px solid var(--nx-line); border-radius: 12px; background: var(--nx-panel);
+  font-size: 0.95rem; line-height: 1.6; color: var(--nx-text);
+}
+/* Build, Test, Learn are what makes it read as a loop, so they are set as the
+   card's heading (the size of a section's opening sentence, in the lime of the
+   other cards' headings), not as a small label. */
+body.hw-nexus .hw .hw-loop-turn > li > b {
+  display: block; margin-bottom: 0.35rem;
+  font-family: "Changa", sans-serif; font-size: 1.32rem; font-weight: 700; line-height: 1.2;
+  color: var(--nx-lime);
+}
+body.hw-nexus .hw .hw-loop-next > b {
+  font-family: "Changa", sans-serif; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--nx-mint);
+}
+/* the arrow from one step to the next sits in the gap between the two cards */
+body.hw-nexus .hw .hw-loop-turn > li + li::before {
+  content: "\2192"; position: absolute; left: -0.75rem; top: 50%; transform: translate(-50%, -50%);
+  color: var(--nx-lime); font-size: 1rem; line-height: 1;
+}
+/* the turn not yet taken: the same card, drawn in outline only */
+body.hw-nexus .hw .hw-loop-next {
+  margin: 1rem 0 0; padding: 1.1rem 1.25rem 1.05rem;
+  border: 1px dashed var(--nx-line); border-radius: 12px;
+  font-size: 0.95rem; line-height: 1.6; color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-loop-next > b { margin-right: 0.6rem; color: var(--nx-lime); }
+@media (max-width: 859.98px) {
+  body.hw-nexus .hw .hw-loop-turn { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; }
+  body.hw-nexus .hw .hw-loop-turn > li + li::before { content: none; }
+}
+
 /* What the wet lab said, and what followed: one card to a version. It is
    reported speech, so there are no quotation marks and none are drawn. */
 body.hw-nexus .hw .hw-said,
@@ -12768,7 +13087,7 @@ body.hw-nexus .hw .hw-run-foot i { font-style: normal; color: var(--nx-text); }
 
 /* Flashing it: once, and so set apart from the session. */
 body.hw-nexus .hw .hw-run-once {
-  margin: 1.5rem 0 0;
+  margin: 1.1rem 0 1.5rem;
   padding: 0.8rem 1rem 0.9rem;
   border: 1px dashed var(--nx-line);
   border-radius: 10px;
