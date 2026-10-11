@@ -32,7 +32,9 @@
   var ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  var DPR = Math.min(2, window.devicePixelRatio || 1);
+  /* Drawn at CSS pixels: faint lines on a dark ground look the same, and a
+     2x screen would otherwise fill four times the pixels every frame. */
+  var DPR = 1;
   var W = 0, H = 0;
   var pts = [];        /* 網格節點 */
   var rafId = null, running = false;
@@ -49,7 +51,8 @@
   function seed() {
     pts = [];
     var cell = 150;
-    var cols = Math.ceil(W / cell) + 1, rows = Math.ceil(H / cell) + 1;
+    /* 多撒兩列：視窗高度只變一點（手機網址列收合）時不必重撒，見 resize */
+    var cols = Math.ceil(W / cell) + 1, rows = Math.ceil(H / cell) + 2;
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c < cols; c++) {
         pts.push({
@@ -208,19 +211,26 @@
     mesh(t); dna(t);
   }
 
-  /* 節點每秒只漂幾個像素，30fps 跟 60fps 看不出差別，但重畫成本減半，
-     把主執行緒留給捲動與頁面上其他動畫 */
-  var FRAME_MS = 1000 / 30, lastPaint = 0;
+  /* 節點每秒只漂幾個像素，20fps 看不出差別。畫完一幀就睡到下一幀該畫的時候，中間不要任何畫面更新。若每幀都 rAF
+     再自己跳過，瀏覽器每一幀都得跑一次主執行緒，順帶把頁上其他（本來交給
+     合成器的）動畫元素的樣式也重算一遍。 */
+  var FRAME_MS = 1000 / 20, sleep = null;
   function frame(t) {
-    if (!running) { rafId = null; return; }
-    rafId = requestAnimationFrame(frame);
-    if (t - lastPaint < FRAME_MS - 2) return;
-    lastPaint = t;
+    rafId = null;
+    if (!running) return;
     paint(t);
+    sleep = setTimeout(function () {
+      sleep = null;
+      if (running) rafId = requestAnimationFrame(frame);
+    }, FRAME_MS - 8);
   }
 
-  function start() { if (!rafId && !reduce && running) rafId = requestAnimationFrame(frame); }
-  function stop() { if (rafId) { cancelAnimationFrame(rafId); rafId = null; } }
+  var scrolling = false, scrollT = null;
+  function start() { if (!rafId && !sleep && !reduce && running && !scrolling) rafId = requestAnimationFrame(frame); }
+  function stop() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    if (sleep) { clearTimeout(sleep); sleep = null; }
+  }
 
   function init() { size(); seed(); paint(0); if (!reduce && darkNow()) { running = true; start(); scheduleMorph(); } }
 
@@ -243,10 +253,28 @@
     canvas.style.opacity = darkNow() ? '1' : '0';
   }
 
-  var rsT = null;
+  /* 捲動中先停畫：網格疊在導覽列與玻璃卡片的 backdrop-filter 底下，畫布每重畫
+     一幀，上面每塊模糊就得跟著重算一次，捲動時正好和捲動本身搶同一幀。
+     停下 150ms 後接著畫；節點漂得極慢，停這一下看不出跳動。 */
+  window.addEventListener('scroll', function () {
+    if (!scrolling) { scrolling = true; stop(); }
+    clearTimeout(scrollT);
+    scrollT = setTimeout(function () { scrolling = false; start(); }, 150);
+  }, { passive: true });
+
+  /* 寬度改變或高度大幅改變才重撒節點：手機捲動時網址列收合會改變視窗高度、觸發 resize，
+     若每次都重配畫布、重新撒點，捲動會頓一下，網格也會整張換掉。
+     高度只變一點（網址列約 60–100px）時只改畫布大小，節點照舊——seed 撒點時
+     已多留兩列。 */
+  var rsT = null, lastW = window.innerWidth, lastH = window.innerHeight;
   window.addEventListener('resize', function () {
     clearTimeout(rsT);
-    rsT = setTimeout(function () { size(); seed(); paint(0); }, 220);
+    rsT = setTimeout(function () {
+      var reseed = window.innerWidth !== lastW || Math.abs(window.innerHeight - lastH) > 120;
+      size();
+      if (reseed) { seed(); lastW = W; lastH = H; }
+      paint(performance.now());
+    }, 220);
   });
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) { stop(); clearTimeout(morphTimer); }

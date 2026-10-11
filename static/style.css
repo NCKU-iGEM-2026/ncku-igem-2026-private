@@ -810,7 +810,16 @@ footer a:hover { color: white; text-decoration: underline; }
   opacity: 0;
   transform: rotateY(-25deg) translateX(-12px);
   transform-origin: left center;
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  /* Performance: the five closed pages were only transparent, so the browser
+     still painted and composited every one of them -- each a page-sized 3D
+     layer full of 3D flip cards and glass tags. visibility:hidden keeps them
+     laid out (the shared grid cell still takes the tallest page) but nothing
+     in them is drawn. The 0.45s delay lets a page fade out completely before
+     it is hidden, so the page-turn looks exactly as before. It also takes
+     the closed pages' cards out of the Tab order, where they were reachable
+     while invisible. */
+  visibility: hidden;
+  transition: opacity 0.45s ease, transform 0.45s ease, visibility 0s linear 0.45s;
   pointer-events: none;
 }
 
@@ -822,6 +831,8 @@ footer a:hover { color: white; text-decoration: underline; }
 #page-advisor:checked   ~ .notebook-book #content-advisor {
   opacity: 1;
   transform: rotateY(0deg) translateX(0);
+  visibility: visible;
+  transition: opacity 0.45s ease, transform 0.45s ease, visibility 0s;
   pointer-events: auto;
 }
 
@@ -913,8 +924,6 @@ footer a:hover { color: white; text-decoration: underline; }
 }
 
 .polaroid-photo img { width: 100%; height: 100%; object-fit: cover; }
-
-.photo-placeholder { font-size: 3rem; opacity: 0.5; }
 
 .polaroid-caption {
   text-align: center;
@@ -1136,14 +1145,16 @@ body.team-bio-locked { overflow: hidden; }
 */
    @media (min-width: 992px) {
     .custom-nav-width {
-      /* 180px x 5 plus Home is 1040px, which does not fit until ~1350px and
-         pushed "Team" off the right edge from 992px up. Scale down to 140px so
-         every section is reachable at every width.
-         The ceiling used to be 180px; it now reaches 200px at 1600px, which is
-         where the wider bar has the room for it. Everything at or below 1440px
-         is unchanged -- that end was tuned so "Team" stays on screen, and the
-         logo overhangs into the same 274px on the left whatever the width. */
-      width: clamp(140px, calc(140px + (100vw - 1122px) * 0.1255), 200px);
+      /* Seven items now -- five sections, Home, and Awards to the right of
+         Team -- and they have to fit beside the logo from 992px up. At the
+         old floor of 140px (110px for the two plain links) the row was
+         ~920px wide at 992px and slid "Home" under the logo, so both widths
+         now start smaller there and grow with the window: 112px at 992px,
+         ~155px at 1280px, ~180px at 1440px, 200px from 1600px. From ~1440px
+         up the bar is as it was with six items. Measured: every item clear
+         of the logo and on one line at 992, 1024, 1100, 1200, 1280, 1366,
+         1440, 1600 and 1920px. */
+      width: clamp(112px, calc(112px + (100vw - 992px) * 0.15), 200px);
       position: relative;
     }
   
@@ -1166,7 +1177,9 @@ body.team-bio-locked { overflow: hidden; }
 
   @media (min-width: 992px) {
     .custom-nav-short {
-      width: clamp(110px, calc(110px + (100vw - 1122px) * 0.0941), 155px);
+      /* Home and Awards: 84px at 992px, 140px at 1440px, 155px from 1560px.
+         See .custom-nav-width above. */
+      width: clamp(84px, calc(84px + (100vw - 992px) * 0.125), 155px);
       position: relative;
     }
   }
@@ -1449,6 +1462,10 @@ body.team-bio-locked { overflow: hidden; }
   display: none;
   pointer-events: none;
   z-index: 6;
+  /* A card growing into its slot (width, padding and the photo's height are
+     transitioned) lays out only this layer, not the whole page. Not paint
+     containment: that would clip a card's hover glow near the edge. */
+  contain: size layout;
 }
 
 /* Liquid-glass chip, same frosted-glass language as .page-tag/.polaroid
@@ -1467,7 +1484,10 @@ body.team-bio-locked { overflow: hidden; }
   gap: 0.4rem;
   width: 130px;
   padding: 0.25rem 0.55rem;
-  border-radius: 999px;
+  /* A rounded rectangle, the same shape as the full card it grows into, so
+     the change reads as the card getting bigger rather than a pill turning
+     into a box. */
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(10px) saturate(160%);
   -webkit-backdrop-filter: blur(10px) saturate(160%);
@@ -1488,7 +1508,7 @@ body.team-bio-locked { overflow: hidden; }
      work and the card is not repainted. translate3d(x, y, 0) alone does not
      get it one -- with no depth, Chrome counts it as a flat transform. */
   will-change: transform;
-  transition: width 0.5s ease, border-radius 0.5s ease, padding 0.5s ease,
+  transition: width 0.8s ease, border-radius 0.8s ease, padding 0.8s ease,
               opacity 0.4s ease, box-shadow 0.4s ease;
 }
 
@@ -1496,9 +1516,9 @@ body.team-bio-locked { overflow: hidden; }
   flex: 0 0 auto;
   width: 24px;
   height: 24px;
-  border-radius: 50%;
+  border-radius: 6px;
   object-fit: cover;
-  transition: width 0.5s ease, height 0.5s ease, border-radius 0.5s ease;
+  transition: width 0.8s ease, height 0.8s ease, border-radius 0.8s ease;
 }
 
 .edu-map-orbit-item .edu-map-info-body { min-width: 0; }
@@ -1552,6 +1572,10 @@ body.team-bio-locked { overflow: hidden; }
   display: none;
   pointer-events: none;
   z-index: 5;
+  /* The lines are a fixed 1400px, cut to length by clip-path; their whole box
+     would otherwise widen the page and let it scroll sideways. A line always
+     runs between a card and a pin inside this row, so nothing seen is cut. */
+  overflow: hidden;
 }
 
 .edu-map-leader-line {
@@ -1559,6 +1583,10 @@ body.team-bio-locked { overflow: hidden; }
   position: absolute;
   left: 0;
   top: 0;
+  /* A fixed length, cut to the distance with clip-path (taiwan-map.js,
+     LEADER_MAX): a width changed every frame lays the whole page out again. */
+  width: 1400px;
+  clip-path: inset(0 100% 0 0);
   height: 1.25px;
   margin-top: -0.625px;        /* centred on the line between the two points */
   transform-origin: 0 50%;
@@ -2119,25 +2147,45 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   .eng-cycle .eng-cycle-arrow, .eng-cycle .eng-cycle-label, .eng-cycle .eng-cycle-spark { transition: none; }
 }
 
-/* ---- the DBTL layout: the cycle on the left, the four stages on the right ----
+/* ---- the DBTL layout: the cycle on the left, the four stages in the middle ----
    The cycle takes the place of the other .hw pages' "On this page" list,
-   out to the left of the text, so the page is widened by the cycle's column
-   and the text keeps the same 58rem measure as theirs. */
-.hw.eng { max-width: 73.5rem; }
-.eng-dbtl {
-  display: grid;
-  grid-template-columns: minmax(0, 12.5rem) minmax(0, 1fr);
-  gap: 3rem;
-  align-items: start;
-  margin-top: 1rem;
+   out to the left of the text. The text keeps the same 58rem measure as
+   theirs and sits a little right of the page's centre (the left margin is
+   wider than the right), which balances the cycle hugging the far left edge.
+   The whole page shares one set of columns: the jump bar and each part's
+   heading sit in the text column too, so they line up with it. Each part is
+   a subgrid of the page, and its .eng-dbtl steps aside (display: contents)
+   so the cycle and the stages land straight in those columns. */
+.hw.eng { max-width: 86rem; }
+@media (min-width: 992px) {
+  .hw.eng {
+    display: grid;
+    grid-template-columns: minmax(10.5rem, 1.3fr) minmax(0, 58rem) minmax(6rem, 0.7fr);
+    column-gap: 2.5rem;
+  }
+  .hw.eng > .eng-parts-nav { grid-column: 2; }
+  .eng-part {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: start;
+  }
+  .eng-part::before, .eng-part-head { grid-column: 2; }
+  .eng-dbtl { display: contents; }
+  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; grid-row: 3; width: 10.5rem; margin-top: 1rem; }
+  .eng-dbtl > .eng-dbtl-stages { grid-column: 2; grid-row: 3; margin-top: 1rem; }
 }
-/* ---- the two parts: Detect and Inhibition ----
-   Each part is its own panel with its own accent (--part): a thick top edge,
+/* ---- the three parts: Detect, Inhibition, Measurement ----
+   Each part has its own accent (--part): a short thick bar over its heading,
    a "Part 01" banner and the word in its cycle's centre all wear it, so the
-   two never read as one long run of stages. The jump bar at the top of the
-   page names both parts before the reader reaches either. */
+   three never read as one long run of stages. No panel round it: the cycle
+   sits straight on the page ground rather than boxed in a frame. The jump bar at the top of the
+   page names every part before the reader reaches any of them.
+   Adding a part needs one line here and one tuple in engineering.html;
+   everything else on the page is driven off --part. */
 [data-part="detect"]     { --part: #49c5b6; }   /* --nx-mint */
 [data-part="inhibition"] { --part: #e6b060; }   /* --nx-warm */
+[data-part="measure"]    { --part: #a0e860; }   /* --nx-lime */
 .eng-parts-nav {
   display: flex;
   flex-wrap: wrap;
@@ -2169,13 +2217,15 @@ body.hw-nexus .hw .eng-parts-nav a:focus-visible {
   font-weight: 700;
   line-height: 1.1;
 }
-.eng-part {
-  padding: 2.5rem 2.25rem 2rem;
-  border: 1px solid color-mix(in srgb, var(--part) 28%, transparent);
-  border-top: 6px solid var(--part);
-  border-radius: 20px;
-  background: color-mix(in srgb, var(--part) 4%, transparent);
-  scroll-margin-top: 100px;
+.eng-part { scroll-margin-top: 100px; }
+.eng-part::before {
+  content: "";
+  display: block;
+  width: 4.5rem;
+  height: 6px;
+  margin-bottom: 1.4rem;
+  border-radius: 3px;
+  background: var(--part);
 }
 .eng-part + .eng-part { margin-top: 6rem; }
 .eng-part-head {
@@ -2277,12 +2327,14 @@ body.hw-nexus .hw .eng-future-title {
 }
 
 @media (max-width: 991.98px) {
-  .eng-part { padding: 1.75rem 1.1rem 1.25rem; }
   body.hw-nexus .hw .eng-part-title { font-size: 2.4rem; }
 }
+/* The ring rides along beside its stages, small and pinned to the top left
+   just under the navbar; the narrow-screen rule below puts it back in the
+   corner. */
 .eng-dbtl-rail {
   position: sticky;
-  top: calc(50vh - 6.25rem);
+  top: 110px;
 }
 .eng-dbtl-stage {
   --stage: #a0e860;
@@ -2426,10 +2478,11 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
    right), turning the same way. engineering-cycle.js shows it only while the
    stages are on screen; without the script it simply stays. */
 @media (max-width: 991.98px) {
-  .eng-dbtl { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .eng-dbtl { margin-top: 1rem; }
   .eng-dbtl-rail {
     position: fixed;
     top: auto;
+    margin-left: 0;
     left: 12px;
     bottom: 12px;
     z-index: 1010;
@@ -2473,33 +2526,6 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
   font-family: "Changa", sans-serif;
   color: #075a3e;
   margin-bottom: 1rem;
-}
-
-.attr-list { padding-left: 1.3rem; margin-bottom: 0; }
-
-.attr-list > li {
-  margin-bottom: 0.55rem;
-  line-height: 1.65;
-}
-
-.attr-list > li:last-child { margin-bottom: 0; }
-
-.attr-list b { color: #24352c; }
-
-/* The second level: what that person did, one line each. */
-.attr-list ul {
-  list-style: circle;
-  padding-left: 1.3rem;
-  margin: 0.3rem 0 0.9rem;
-}
-
-.attr-list ul li { margin-bottom: 0.2rem; line-height: 1.55; }
-
-/* Provisional, and reads as provisional: a section still waiting on its names
-   must not look like a finished credit list. */
-.attr-todo {
-  color: #8a978f;
-  font-style: italic;
 }
 
 /* ---- the people, one card each, two to a row ----
@@ -2556,14 +2582,6 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
   object-position: 50% 12%;
   transform: scale(var(--az, 2.2));
   transform-origin: var(--ox, 50%) var(--oy, 24%);
-}
-.attr-avatar.is-initials {
-  display: grid;
-  place-items: center;
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 1.3rem;
-  color: #075a3e;
 }
 
 .attr-card-name {
@@ -2980,242 +2998,7 @@ body.edu-cosmos-page .hero-sub {
   margin-top: 1rem;
 }
 
-/* ===== Collaboration: the wall of partner logos ======================
-   Full bleed, and the first thing on the page: fifty-four discs drawn from
-   six logos, so the teams repeat across it. Hovering one swells it and
-   shrinks the rest; clicking jumps to where that team is written up.
-
-   All of it is :hover and :focus-within, so it works from the keyboard and
-   needs no script.
-
-   The swell is a transform, never a width. Changing the size of a flex item
-   in a wrapped row of fifty-four re-flows the whole wall and throws discs
-   onto other rows, which reads as the page breaking rather than as a bubble
-   growing. A transform moves nothing: the layout is fixed and only the
-   paint changes.
-   -------------------------------------------------------------------- */
-.collab-wall {
-  /* Out of the page container and across the viewport. 100vw counts the
-     scrollbar, which is why the html rule at the top of this file carries
-     overflow-x: clip. */
-  margin-inline: calc(50% - 50vw);
-  padding: 2.6rem clamp(0.75rem, 4vw, 3rem) 3.3rem;
-  background:
-    radial-gradient(120% 140% at 50% -20%, #f4faf6 0%, #eef6f1 45%, #e9f2ec 100%);
-  border-block: 1px solid #e2ece6;
-  margin-bottom: 2.5rem;
-}
-
-.collab-wall-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: center;
-  /* No gap along the row: what separates neighbours is --lap, below, and it
-     is negative. The row gap is for when the row wraps. */
-  gap: 0.9rem 0;
-  /* Wide, so the discs can be: they are as big as nineteen fit across the
-     row, so the row is as wide as the screen allows. The cap is only for a
-     very large monitor, where the discs would otherwise stop at their own
-     size and leave the row a stripe in the middle. */
-  max-width: 2000px;
-  margin: 0 auto;
-}
-
-/* One line, because the line is the word: COLLABORATION has to read left to
-   right as a single run. A wrapping row stops being that -- it was tried, in
-   three lines, and rejected. The discs are not given a smaller size to fit;
-   each one may shrink (see .collab-bubble) and the aspect-ratio keeps it
-   round, so the row scales as a whole and the discs are as big as nineteen
-   can be across whatever width there is.
-
-   1100px, because below it nineteen discs on one line are too small to be
-   letters. Under that the row wraps and the word reads the way text does. */
-@media (min-width: 1100px) {
-  /* The overlap is a share of the viewport rather than a fixed length, so it
-     keeps its proportion to the discs, which are themselves sized from the
-     row's width: 0.8vw is about 12px a side at 1440 and 15px at 1920.
-
-     0.8 because it was measured against the alternatives. At 0.6vw a disc is
-     covered by at most 19% of its width by a neighbour and the discs average
-     78px at 1440; at 1.2vw they average 95px but a neighbour covers 37% of a
-     disc and the letters start to be eaten. Past 1.5vw the discs stop growing
-     at all, since each has a size it will not exceed. */
-  .collab-wall-inner { flex-wrap: nowrap; --lap: 0.8vw; }
-}
-
-.collab-bubble {
-  position: relative;
-  display: block;
-  /* The disc's own size, and the most it will be. The basis is that size and
-     the item may shrink, which is what lets nineteen discs fit one line at
-     any width. min-width: 0 because a flex item will not shrink below its
-     content otherwise. --d is declared first so the shorthand can read it. */
-  --d: var(--dbase, 80px);
-  flex: 0 1 var(--d);
-  min-width: 0;
-  /* Every disc carries its own drift and its own side spacing, so the wall
-     reads as a raft of bubbles rather than a grid of them. Both are static:
-     nothing about them changes on hover.
-
-     The drop is a margin, deliberately. It used to be a transform, which is
-     paint only and costs the wall no height -- so the skyline could be as
-     uneven as it liked and the wall stayed a thin strip. Now the unevenness
-     is meant to be big and the wall is meant to be tall, so each disc is let
-     down from the top of the row by its own distance, up to 290px, and the
-     row grows to hold the lowest. Below 1100px the row wraps and a drop that
-     size would make each line taller than the whole line is wide, so there it
-     is a fifth or so of that. Downward only: it is a margin, so a
-     negative one would pull a disc up out of the wall. */
-  margin-top: var(--dy, 0px);
-  /* --lap pulls a disc into its neighbours by that much on each side. It is
-     0 until the row is a single line (see below), because a wrapped row
-     has the room for its discs and no need to overlap them. */
-  margin-inline: calc(var(--mx, 0px) - var(--lap, 0px));
-  text-decoration: none;
-  color: inherit;
-  line-height: 0;
-}
-
-.collab-bubble-disc {
-  display: grid;
-  place-items: center;
-  /* The bubble's width, kept round by the ratio -- not var(--d) directly,
-     or a disc that has been shrunk would keep its old height. Also a size
-     container, so a letter can be sized against its own disc. */
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  container-type: inline-size;
-  border: 1px solid #e0e8e3;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 6px 16px -10px rgba(10, 40, 26, 0.35);
-  overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.3, 1),
-              box-shadow 0.3s ease, border-color 0.3s ease;
-  will-change: transform;
-}
-
-/* Four of the six logos sit on transparent or white ground, so the white
-   disc is already the right backing for them. Two carry their own opaque
-   square -- NYCU on navy, CCU on cream -- and inside a white circle that
-   square is exactly what you see. Each disc takes the colour sampled from
-   the edge pixels of its own logo, so the square edge disappears into the
-   bubble and no artwork has to be cropped to hide it. */
-.collab-bubble.is-nycu .collab-bubble-disc {
-  background: rgb(52, 100, 138);
-  border-color: rgb(52, 100, 138);
-}
-
-.collab-bubble.is-ccu .collab-bubble-disc {
-  background: rgb(246, 250, 223);
-  border-color: rgb(233, 238, 205);
-}
-
-/* A letter of the word. The ink green and the Changa face are the site's own,
-   and the disc is a soft mint rather than the white of a school badge, so a
-   badge is never mistaken for a letter at a glance.
-
-   cqw because the disc is a size container and a plain rem would be the same
-   size in a 50px disc and a 112px one. */
-.collab-bubble.is-letter .collab-bubble-disc {
-  background: #e7f1eb;
-  border-color: #cfe0d6;
-}
-
-.collab-letter {
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 56cqw;
-  line-height: 1;
-  color: #075a3e;
-  user-select: none;
-}
-
-.collab-bubble-disc img {
-  width: 72%;
-  height: 72%;
-  object-fit: contain;
-}
-
-/* The name rides under its disc, out of flow so that showing it cannot move
-   a single bubble. Only the hovered or focused one shows it.
-
-   Idle it is scaled to nothing, not merely transparent. A nowrap label is
-   wider than the disc it is centred on -- "Mingdao High School" is 129px --
-   so on a bubble near the right edge an invisible one still pushed the page
-   11px sideways at 390px. Scaling collapses the box it overflows with.
-
-   Scaled rather than display:none or visibility:hidden, because both of
-   those drop it out of the accessibility tree, and this span is where each
-   of the six real links gets its accessible name from. opacity and
-   transform leave it there to be read. */
-.collab-bubble-name {
-  position: absolute;
-  top: calc(100% + 0.3rem);
-  left: 50%;
-  transform: translateX(-50%) scale(0);
-  transform-origin: top center;
-  white-space: nowrap;
-  font-family: "Changa", sans-serif;
-  font-size: 0.76rem;
-  line-height: 1.3;
-  font-weight: 600;
-  color: #1f4a38;
-  background: rgba(255, 253, 247, 0.92);
-  padding: 0.1rem 0.45rem;
-  border-radius: 999px;
-  opacity: 0;
-  transition: opacity 0.22s ease, transform 0.22s ease;
-  pointer-events: none;
-}
-
-/* Anything hovered or focused in the wall shrinks every disc... */
-.collab-wall:hover .collab-bubble-disc,
-.collab-wall:focus-within .collab-bubble-disc {
-  transform: scale(0.84);
-  box-shadow: 0 4px 10px -8px rgba(10, 40, 26, 0.3);
-}
-
-/* ...and the one actually under the pointer, or focused, swells past full
-   size and comes to the front. Higher specificity, so it wins. */
-.collab-wall .collab-bubble:hover .collab-bubble-disc,
-.collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
-  transform: scale(1.55);
-  border-color: #a9cbb8;
-  box-shadow: 0 16px 34px -14px rgba(10, 40, 26, 0.5);
-}
-
-/* Discs overlap now, and later ones paint over earlier ones. A badge is a
-   link and a letter is decoration, so the badges sit one layer up and are
-   never covered by the letter next to them. A disc under the pointer or under
-   focus comes to the very front, over whatever it swells across. */
-.collab-bubble.is-lead { z-index: 1; }
-
-/* The overlap is between neighbours, so the two ends of the row have nothing
-   to overlap on their outer side. Left negative they poke out of the row by
-   --lap, past the wall's own edge. */
-.collab-bubble:first-child { margin-left: var(--mx, 0px); }
-.collab-bubble:last-child { margin-right: var(--mx, 0px); }
-
-.collab-bubble:hover,
-.collab-bubble:focus-visible { z-index: 4; }
-
-.collab-wall .collab-bubble:hover .collab-bubble-name,
-.collab-wall .collab-bubble:focus-visible .collab-bubble-name {
-  opacity: 1;
-  transform: translateX(-50%) scale(1);
-  /* Clear of the swollen disc rather than under its edge. */
-  top: calc(100% + 0.3rem + var(--d) * 0.28);
-}
-
-.collab-bubble:focus-visible {
-  outline: 3px solid #d8b26a;
-  outline-offset: 6px;
-  border-radius: 50%;
-}
-
-/* ---- the four teams at the Meetup ---- */
+/* ===== Collaboration: the four teams at the Meetup ===================== */
 /* That session has no single partner, so it gets a strip instead of the one
    logo the other headers carry. */
 .collab-teams {
@@ -3240,237 +3023,6 @@ body.edu-cosmos-page .hero-sub {
   font-family: "Changa", sans-serif;
   font-size: 0.82rem;
   color: #6b7a72;
-}
-
-/* No tiers that draw fewer. The wall used to cut fifty-four discs down to
-   thirty and then twenty-four on a narrow screen; it is nineteen now, and
-   each of them is spoken for -- thirteen letters of a word, and one badge for
-   each of six schools -- so hiding any would spell the word wrong or lose a
-   school's only link. */
-
-/* Everything below a desktop gets the second set of sizes, not just a phone.
-   Between 768 and 991 there used to be none, so a tablet drew the desktop
-   discs into a narrower row: five lines and a wall 1065px high, taller than
-   the screen it was on.
-
-   Below 1100px the nineteen cannot stay on one line and be legible, so the
-   row wraps; the word then reads across the lines the way text does. */
-@media (max-width: 1099.98px) {
-  .collab-wall { padding: 1.4rem 0.9rem 1.8rem; margin-bottom: 1.75rem; }
-  .collab-wall-inner { gap: 0.6rem 0.5rem; max-width: none; }
-  /* A phone is not this wall scaled down. Each bubble carries a second
-     size with the spread already squeezed toward the middle, because a disc
-     scaled from 148px would take over a third of a 390px screen and one
-     scaled from 84px would be too small to read. */
-  .collab-bubble {
-    --d: var(--dnarrow, 56px);
-    margin-top: calc(var(--dy, 0px) * 0.17);
-    margin-inline: calc(var(--mx, 0px) * 0.5);
-  }
-}
-
-/* A tablet is not a phone. Between a phone and a desktop the discs grow with
-   the window instead of sitting at the phone's size for three hundred pixels
-   and then jumping to the desktop's: --dnarrow is the phone size, and this
-   adds to it in proportion to how much wider the window is. Without it the
-   wall was 272px tall at 1000px -- shorter than on a phone, which is
-   backwards.
-
-   Written as the phone size plus a few vw rather than a ratio of two
-   lengths, (100vw - 600px) / 1000px, which only newer browsers can divide;
-   an older one would drop the whole declaration and leave every disc at
-   nothing. 1vw is a length, so adding it needs no division. */
-@media (min-width: 600px) and (max-width: 1099.98px) {
-  .collab-bubble {
-    --d: calc(var(--dnarrow, 56px) + (100vw - 600px) * 0.09);
-    margin-top: calc(var(--dy, 0px) * 0.22);
-  }
-}
-
-@media (max-width: 1099.98px) {
-  .collab-wall .collab-bubble:hover .collab-bubble-disc,
-  .collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
-    transform: scale(1.4);
-  }
-  .collab-wall .collab-bubble:hover .collab-bubble-disc,
-  .collab-wall .collab-bubble:focus-visible .collab-bubble-disc {
-    transform: scale(1.4);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .collab-bubble-disc,
-  .collab-bubble-name { transition: none; }
-}
-
-@media print {
-  /* On paper nothing is hoverable and fifty-four repeats of six logos is a
-     page of ink for no information. */
-  .collab-wall { display: none; }
-}
-
-/* ===== Home: the opening ==============================================
-   How big the problem is, then the project in four beats -- the first thing
-   under the welcome banner.
-
-   Line art in the wiki's green, one stroke weight, flat fills: the same
-   drawing style as the microphone on Promotion and the podcast artwork on
-   that page, rather than the illustration style of the wiki this was
-   modelled on.
-   -------------------------------------------------------------------- */
-.story {
-  /* Out of the page container and across the viewport, the same way the
-     collaboration wall is. The html rule at the top of this file carries the
-     overflow-x: clip that 100vw needs. */
-  margin-inline: calc(50% - 50vw);
-  padding: 3rem clamp(1rem, 5vw, 3rem) 3.25rem;
-  background:
-    radial-gradient(120% 130% at 50% -10%, #fffdf7 0%, #f6faf7 45%, #eef6f1 100%);
-  border-bottom: 1px solid #dfe8e2;
-}
-
-.story-inner {
-  max-width: 1080px;
-  margin: 0 auto;
-}
-
-.story-kicker {
-  font-family: "Changa", sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #4f8f74;
-  margin: 0 0 0.5rem;
-}
-
-.story-heading {
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: clamp(1.45rem, 3.2vw, 2.1rem);
-  line-height: 1.25;
-  color: #075a3e;
-  margin: 0 0 0.6rem;
-  max-width: 36ch;
-}
-
-.story-lead {
-  font-size: 1rem;
-  line-height: 1.7;
-  color: #4a5a51;
-  margin: 0 0 2rem;
-  max-width: 62ch;
-}
-
-/* ---- the figures ---- */
-.story-figures {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem 1.5rem;
-  /* The line that used to sit under these carried the gap down to the next
-     heading; it is gone, so the figures carry it now. */
-  margin: 0 0 2.9rem;
-  padding: 0;
-  list-style: none;
-}
-
-.story-figures li {
-  /* A rule down the left rather than four boxes: the figures are one set,
-     not four cards. */
-  border-left: 3px solid #d8b26a;
-  padding-left: 0.9rem;
-}
-
-.story-figure {
-  display: block;
-  font-family: "Changa", sans-serif;
-  /* Equal-width digits, so a figure counting up from zero does not wobble
-     as it goes. */
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  font-size: clamp(1.6rem, 3.6vw, 2.4rem);
-  line-height: 1.1;
-  color: #075a3e;
-}
-
-.story-figure-note {
-  display: block;
-  margin-top: 0.35rem;
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: #5f6e66;
-}
-
-/* ---- the four beats ---- */
-.story-sub {
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
-  color: #075a3e;
-  margin: 0 0 1.5rem;
-}
-
-.story-beats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem 2.25rem;
-  margin: 0 0 1.25rem;
-  padding: 0;
-  list-style: none;
-  /* The numbers would be a second numbering next to the figures above and
-     say nothing the order does not. */
-  counter-reset: none;
-}
-
-.story-beat {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.story-icon {
-  flex: none;
-  width: 4.4rem;
-  height: 4.4rem;
-  fill: none;
-  stroke: #075a3e;
-  stroke-width: 3.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.story-beat-title {
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 1.02rem;
-  color: #075a3e;
-  margin: 0.15rem 0 0.35rem;
-}
-
-.story-beat p {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.65;
-  color: #4a5a51;
-}
-
-@media (max-width: 991.98px) {
-  .story-figures { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 767.98px) {
-  .story { padding: 2rem 1rem 2.25rem; }
-  .story-figures { grid-template-columns: 1fr; gap: 1rem; }
-  .story-beats { grid-template-columns: 1fr; gap: 1.35rem; }
-  .story-icon { width: 3.4rem; height: 3.4rem; }
-}
-
-@media print {
-  .story {
-    margin-inline: 0;
-    padding: 0 0 1rem;
-    background: none;
-  }
 }
 
 /* ===== Promotion: the Tainan Girls' Q&A sticky wall =======================
@@ -3836,13 +3388,16 @@ body.edu-lightbox-locked {
   /* visibility, not just opacity: it takes the photo out of the accessibility
      tree as well, so a screen reader is not read all sixteen at once. */
   visibility: hidden;
-  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+  /* The outgoing photo leaves at once rather than fading out under the new
+     one: with contain, a portrait and a landscape photo letterbox differently,
+     and a cross-fade showed the old one's edges around the new one. */
+  transition: none;
 }
 
 .edu-gallery.is-carousel .edu-slide.is-current {
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.45s ease, visibility 0s;
+  transition: opacity 0.45s ease;
 }
 
 .edu-arrow {
@@ -3997,6 +3552,13 @@ body.edu-lightbox-locked {
    dropped below this width; the link underneath still opens it fine. */
 @media (max-width: 575.98px) {
   .edu-pdf-viewer { display: none; }
+}
+
+/* And the other way round: wherever the frame is showing, the link under it
+   only repeats it, so it is kept for phones. A link with no frame above it
+   (as on the Promotion page) is the only way to the file and always stays. */
+@media (min-width: 576px) {
+  .edu-pdf-viewer + .edu-pdf-link { display: none; }
 }
 
 .edu-podcast-media {
@@ -5434,259 +4996,6 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 }
 
 
-/* Site tour: a first look at the wiki, one section at a time ----------------
-   Modal by design. A visitor who wants none of it can leave at any step --
-   Skip, Escape, or the backdrop -- and the button in the banner brings it
-   back, so skipping costs nothing. */
-
-/* The banner button. Hidden in the markup and revealed by the script, so it
-   never appears where it would do nothing. */
-.tour-open {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  padding: 0.6rem 1.35rem;
-  font-family: "Changa", sans-serif;
-  font-size: 1rem;
-  color: #fff;
-  /* The banner is a gradient, so white text here is only as readable as
-     whatever the gradient happens to be doing behind it -- 5.8:1 over the
-     middle stop but 2.4:1 over the light end. A dark translucent fill of its
-     own puts the text above 9:1 anywhere on that band. Over the light end the
-     fill is what separates the button from the page (3.9:1); over the dark end
-     the fill nearly matches it, and the white ring does the separating
-     instead (11:1). One of the two always carries it. */
-  background: rgba(8, 34, 28, 0.7);
-  border: 2px solid #fff;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.tour-open:hover,
-.tour-open:focus-visible {
-  background: #fff;
-  color: #12474f;
-}
-
-.tour {
-  position: fixed;
-  inset: 0;
-  z-index: 1080;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Clear the fixed bar: the tour points at it, so it must stay visible. */
-  padding: 92px 16px 24px;
-}
-
-.tour[hidden] { display: none; }
-
-.tour-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 32, 22, 0.62);
-  cursor: pointer;
-}
-
-.tour-card {
-  position: relative;
-  width: 100%;
-  max-width: 700px;
-  max-height: calc(100vh - 116px);
-  overflow-y: auto;
-  background: #fffdf7;
-  border-radius: 16px;
-  box-shadow: 0 18px 48px rgba(15, 32, 22, 0.35);
-  padding: 1.25rem 1.6rem 1.4rem;
-}
-
-.tour-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.6rem;
-}
-
-.tour-count {
-  margin: 0;
-  font-family: "Changa", sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  color: #5f6e66;
-}
-
-.tour-skip {
-  padding: 0.3rem 0.7rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #075a3e;
-  background: none;
-  border: none;
-  border-radius: 7px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.tour-skip:hover,
-.tour-skip:focus-visible { background: #eaf7dd; }
-
-/* A floor, so the first step does not collapse to a couple of lines before the
-   second one opens out. */
-.tour-stage { min-height: 120px; }
-
-.tour-step[hidden] { display: none; }
-
-.tour-title {
-  font-family: "Changa", sans-serif;
-  font-size: 1.5rem;
-  color: #075a3e;
-  margin: 0 0 0.6rem;
-}
-
-/* The card takes focus when the tour opens. It is modal and unmissable, so a
-   ring is only drawn when the visitor is actually driving from the keyboard. */
-.tour-card:focus { outline: none; }
-
-.tour-card:focus-visible {
-  outline: 3px solid #60c028;
-  outline-offset: 3px;
-}
-
-.tour-step p {
-  margin: 0;
-  line-height: 1.7;
-  color: #33413a;
-}
-
-/* Five groups, twenty-one pages, on one screen: columns that reflow rather
-   than a fixed grid, so the shortest section does not leave a hole. */
-.tour-map {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
-  gap: 1.1rem 1.4rem;
-  margin-top: 1.25rem;
-}
-
-.tour-map h3 {
-  font-family: "Changa", sans-serif;
-  font-size: 0.82rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: #5f6e66;
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid #e6ddc8;
-}
-
-.tour-links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.tour-links a {
-  display: inline-block;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #075a3e;
-  text-decoration: none;
-  background: #eaf7dd;
-  border: 1px solid #c6e3a6;
-  border-radius: 999px;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.tour-links a:hover,
-.tour-links a:focus-visible {
-  background: #075a3e;
-  border-color: #075a3e;
-  color: #fffdf7;
-}
-
-.tour-foot {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.4rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e6ddc8;
-}
-
-.tour-actions {
-  display: flex;
-  gap: 0.55rem;
-}
-
-.tour-btn {
-  min-height: 40px;
-  padding: 0.45rem 1.15rem;
-  font-family: "Changa", sans-serif;
-  font-size: 0.95rem;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.tour-back {
-  color: #075a3e;
-  background: #fffdf7;
-  border: 2px solid #075a3e;
-}
-
-.tour-back:hover:not(:disabled),
-.tour-back:focus-visible { background: #eaf7dd; }
-
-/* WCAG exempts an inactive control from contrast, but that is permission to
-   ignore it, not a reason to make it unreadable. This still reads (4.9:1) and
-   is still plainly lighter than the enabled Back, which is #075a3e at 7.5:1. */
-.tour-back:disabled {
-  color: #5f6e66;
-  border-color: #c3cec7;
-  cursor: default;
-}
-
-.tour-next {
-  color: #fffdf7;
-  background: #075a3e;
-  border: 2px solid #075a3e;
-}
-
-.tour-next:hover,
-.tour-next:focus-visible { background: #04412c; border-color: #04412c; }
-
-/* While the tour runs the page behind it must not scroll away underneath.
-   Named for the state, not the control: .tour-open is the banner button, and a
-   body carrying that class would inherit its inline-flex. */
-body.tour-active { overflow: hidden; }
-
-/* While the step that lists the sections is up, the bar is lifted out of the
-   dimmed page, so the sentence about the menu and the menu itself are legible
-   at the same time. */
-.navbar.tour-above { z-index: 1085; }
-
-@media (max-width: 575.98px) {
-  .tour { padding: 78px 12px 16px; }
-  .tour-card { padding: 1.1rem 1.15rem 1.2rem; max-height: calc(100vh - 94px); }
-  .tour-title { font-size: 1.3rem; }
-  .tour-stage { min-height: 0; }
-  .tour-actions { justify-content: stretch; flex: 1; }
-  .tour-btn { flex: 1; }
-  .tour-map { gap: 0.9rem; }
-}
-
-@media print {
-  .tour, .tour-open { display: none !important; }
-}
-
-
 /* ===== Print: the lab book leaves the screen =========================
    A protocol is printed and carried to the bench. Two things decide whether
    it survives the trip. Browsers drop background colours when printing, so
@@ -6541,27 +5850,6 @@ body.tour-active { overflow: hidden; }
 .hw-beam-blue { fill: none; stroke: #2b6cb0; stroke-width: 3.5; }
 .hw-beam-green { fill: none; stroke: #2e9e5b; stroke-width: 3.5; }
 
-.hw-legend {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  padding: 0;
-  margin: 0.9rem 0 0;
-  font-size: 0.88rem;
-  color: #4a5a51;
-}
-.hw-legend li { display: flex; align-items: center; }
-.hw-key {
-  display: inline-block;
-  width: 22px;
-  height: 4px;
-  border-radius: 2px;
-  margin-right: 0.5rem;
-}
-.hw-key-blue { background: #2b6cb0; }
-.hw-key-green { background: #2e9e5b; }
-
 .hw-figure figcaption {
   padding-top: 0.85rem;
   font-size: 0.86rem;
@@ -7116,6 +6404,17 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
   overflow: hidden;
 }
 .hw-pick-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.hw-pick-card[data-build="laser-cut"] .hw-pick-photo { position: relative; }
+.hw-pick-card[data-build="laser-cut"] .hw-pick-photo img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 75%;
+  height: 133.333%;
+  max-width: none;
+  object-fit: contain;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
 .hw-pick-go {
   margin-top: auto;
   align-self: flex-start;
@@ -7274,7 +6573,6 @@ body.hw-nexus .hw-vis {
 .hw-vis text { font-family: inherit; font-size: 10.5px; fill: var(--hw-ink2); }
 .hw-vis .hw-vis-strong { fill: var(--hw-ink); font-weight: 600; }
 .hw-vis .hw-vis-rule { stroke: var(--hw-rule); stroke-width: 1; fill: none; }
-.hw-vis .hw-vis-band { fill: var(--hw-v1); opacity: 0.16; }
 .hw-vis .hw-vis-line { stroke: var(--hw-v1); stroke-width: 1.5; stroke-linecap: round; fill: none; }
 /* A fitted curve, and marks that are neither version: one accent, with a
    hollow twin for a reading of zero so the two differ by shape as well. */
@@ -8327,7 +7625,6 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 }
 
 /* ---- the channel map ---- */
-.hwx-spec { background: var(--hwx-dark); }
 .hwx-chan { cursor: help; }
 .hwx-chan:focus-visible { outline: 3px solid var(--hwx-amber); outline-offset: 2px; }
 .hwx-chan rect { transition: opacity 0.15s ease; }
@@ -8340,17 +7637,6 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   font-weight: 700;
   fill: #08141a;
 }
-
-.hwx-chan-nm {
-  text-anchor: middle;
-  font-family: var(--hwx-mono);
-  font-size: 10px;
-  fill: #7e959f;
-}
-
-.hwx-spec-cue { font-family: "Changa", sans-serif; font-size: 12px; }
-.hwx-cue-ex { fill: var(--hwx-blue); }
-.hwx-cue-em { fill: var(--hwx-green); }
 
 /* ---- the schematic ---- */
 .hwx-sch { background: var(--hwx-dark); }
@@ -8556,7 +7842,7 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
      viewport and stay readable, so below this width they scroll sideways
      inside their own panel instead of being squeezed. */
   .hwx-rig-figure { overflow-x: auto; overflow-y: hidden; }
-  .hwx-lab, .hwx-spec { min-width: 560px; }
+  .hwx-lab { min-width: 560px; }
 
 }
 
@@ -8584,7 +7870,7 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 
   .hwx-ctrls, .hwx-tip, .hwx-log-track, .hwx-log-nav { display: none !important; }
 
-  .hwx-lab, .hwx-spec { background: #fff; }
+  .hwx-lab { background: #fff; }
   .hwx-lab-solid rect { fill: #f2f2f2; stroke: #888; }
   .hwx-lab-label text { fill: #222; }
 
@@ -9436,11 +8722,6 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   .nb-hover-img { transition: none; }
 }
 
-/* The stretch of season still ahead: one line across the track columns rather
-   than three empty cells, because nothing has happened in any of them yet. */
-
-.nb-week-open { border-bottom: 0; }
-
 /* ---- narrow ---- */
 @media (max-width: 991.98px) {
   /* The header row names columns that are no longer side by side. */
@@ -9817,79 +9098,6 @@ body.quiz-active { overflow: hidden; }
   .home-video-frame { border-radius: 8px; }
 }
 
-/* ==========================================================================
-   Human Practices: the map of who we spoke to
-
-   The block under the overview: one card per kind of conversation, each with
-   its own mark, its heading, and the entries inside it. Every line is a link
-   down to the write-up, so it says what is on the page and takes you there --
-   the same job the sidebar does, for a reader who has just arrived.
-
-   The marks are drawn inline in the markup rather than fetched. They are flat
-   shapes in the site's own colours, so each card sets `color` and the drawing
-   follows it through currentColor; a remote file each would be three more
-   requests and three more things to break.
-   ========================================================================== */
-.hp-map {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
-  margin: 2.5rem 0 0;
-}
-
-.hp-map-card {
-  text-align: center;
-  color: #075a3e;                    /* the mark inherits this */
-}
-
-.hp-map-card-enterprise { color: #1c3a52; }
-.hp-map-card-survey     { color: #8a5524; }
-
-.hp-map-icon {
-  display: block;
-  width: 88px;
-  height: 88px;
-  margin: 0 auto 1.1rem;
-}
-
-.hp-map-title {
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 1.15rem;
-  color: inherit;
-  margin: 0 0 0.9rem;
-}
-
-.hp-map-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font-size: 0.95rem;
-  line-height: 1.45;
-}
-
-.hp-map-list li + li { margin-top: 0.6rem; }
-
-.hp-map-list a {
-  color: #4a5a51;
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-}
-
-.hp-map-list a:hover,
-.hp-map-list a:focus-visible {
-  color: inherit;
-  border-bottom-color: currentColor;
-}
-
-/* Provisional text: an entry we have but have not written up yet. It reads as
-   unfinished on purpose -- nothing here should look like a finished write-up
-   while it is still a blank. */
-.hp-todo {
-  color: #8a978f;
-  font-style: italic;
-}
-
 /* The Overview's slogan, straight under its heading. Coloured from the
    deep-teal palette when the page wears it, the site green otherwise. */
 .hp-slogan {
@@ -9903,14 +9111,6 @@ body.quiz-active { overflow: hidden; }
 }
 
 /* The four directions themselves are the compass in css/pages/hp-hub.css. */
-
-@media (max-width: 767.98px) {
-  .hp-map {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-  .hp-map-icon { width: 72px; height: 72px; }
-}
 
 /* Survey results, one Google Forms response chart per row with a caption
    naming which figure the prose means by "(Figure N)". Population Sample
@@ -10427,7 +9627,6 @@ body.hw-nexus .hw-ico { color: var(--nx-mint); }
 body.hw-nexus .hw-fold-head { color: var(--nx-text); }
 body.hw-nexus .hw-fold-meta,
 body.hw-nexus .hw-fold-state,
-body.hw-nexus .hw-legend,
 body.hw-nexus .hw-refs-note,
 body.hw-nexus .hw-figure figcaption { color: var(--nx-muted); }
 body.hw-nexus .hw-fold-title,
@@ -10490,8 +9689,6 @@ body.hw-nexus .hw-svg-blue-box { fill: rgba(95, 179, 224, 0.20); stroke: var(--n
 
 body.hw-nexus .hw-beam-blue  { stroke: var(--nx-blue-up); }
 body.hw-nexus .hw-beam-green { stroke: #55d98a; }
-body.hw-nexus .hw-key-blue   { background: var(--nx-blue-up); }
-body.hw-nexus .hw-key-green  { background: #55d98a; }
 
 /* ---- the instrument panels were already dark; only the hue moves ----------
    hwx-* and hw3d-* drive themselves from custom properties, so the whole
@@ -10733,12 +9930,6 @@ body.hw-nexus .sw .sw-small { color: var(--nx-muted); }
 .sw-eq-key { border-left: 3px solid var(--nx-mint); }
 .sw-eq var { font-style: italic; }
 .sw-eq sub, .sw-eq sup { font-size: 0.68em; }
-.sw-eq-stack {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.2rem 1.6rem;
-}
 .sw-sep { display: inline-block; width: 2.2em; }
 .sw-frac {
   display: inline-flex;
@@ -10751,9 +9942,6 @@ body.hw-nexus .sw .sw-small { color: var(--nx-muted); }
 .sw-frac > span { padding: 0 0.2em; }
 .sw-frac > span:first-child { border-bottom: 1px solid currentColor; }
 .sw-bar { text-decoration: overline; }
-.sw-big { font-size: 1.45em; vertical-align: -0.12em; margin-left: 0.1em; }
-.sw-lim { margin-left: -0.15em; }
-.sw-root > span { border-top: 1px solid currentColor; padding: 0 0.1em; }
 
 /* Prose symbols match the equations. */
 .sw p var, .sw li var, .sw td var, .sw label var { font-family: Cambria, Georgia, serif; }
@@ -10780,41 +9968,10 @@ body.hw-nexus .sw-svg-box { fill: var(--nx-raised); }
 body.hw-nexus .sw-svg-in { fill: var(--nx-text); }
 
 /* ---- Try the fit ---------------------------------------------------------- */
-.sw-lab {
-  display: grid;
-  gap: 1.5rem;
-  padding: 1.25rem;
-  background: var(--nx-panel);
-  border: 1px solid var(--nx-line);
-  border-radius: 14px;
-}
-.sw-lab-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--nx-muted);
-}
-.sw-lab textarea,
-.sw-lab input {
-  width: 100%;
-  color: var(--nx-text);
-  background: #0a1c24;
-  border: 1px solid var(--nx-line);
-  border-radius: 8px;
-  padding: 0.5rem 0.65rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.88rem;
-}
-.sw-lab textarea { resize: vertical; min-height: 10rem; }
-.sw-lab textarea::placeholder { color: #6f8e99; }
-.sw-lab textarea:focus-visible,
-.sw-lab input:focus-visible,
-.sw-btn:focus-visible,
-.sw-sim summary:focus-visible {
+.sw-btn:focus-visible {
   outline: 3px solid var(--nx-warm);
   outline-offset: 2px;
 }
-.sw-lab-actions { display: flex; gap: 0.6rem; margin-top: 0.75rem; }
 .sw-btn {
   font-family: "Changa", sans-serif;
   font-size: 0.92rem;
@@ -10833,26 +9990,7 @@ body.hw-nexus .sw-svg-in { fill: var(--nx-text); }
   font-weight: 600;
 }
 .sw-btn.is-primary:hover { background: var(--nx-lime); border-color: var(--nx-lime); }
-body.hw-nexus .sw .sw-lab-msg { min-height: 1.5rem; margin: 0.6rem 0 0; font-size: 0.9rem; color: var(--nx-muted); }
-body.hw-nexus .sw .sw-lab-msg.is-error { color: var(--nx-warm); }
 
-.sw-sim {
-  margin-top: 1rem;
-  border-top: 1px dashed var(--nx-line);
-  padding-top: 0.75rem;
-}
-.sw-sim summary {
-  cursor: pointer;
-  font-family: "Changa", sans-serif;
-  color: var(--nx-mint);
-}
-.sw-sim-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(10rem, 100%), 1fr));
-  gap: 0.6rem 0.9rem;
-  margin: 0.5rem 0 0.9rem;
-}
-.sw-sim-grid label,
 .sw-inv-row label {
   display: flex;
   flex-direction: column;
@@ -10860,10 +9998,7 @@ body.hw-nexus .sw .sw-lab-msg.is-error { color: var(--nx-warm); }
   font-size: 0.84rem;
   color: var(--nx-muted);
 }
-.sw-sim-grid .is-wide { grid-column: 1 / -1; }
 
-.sw-lab-out[hidden] { display: none; }
-.sw-lab-out { display: grid; gap: 1.25rem; }
 .sw-plot-wrap { margin: 0; }
 .sw-plot {
   display: block;
@@ -10892,19 +10027,8 @@ body.hw-nexus .sw .sw-lab-table th { color: var(--nx-text); font-weight: 400; wh
 body.hw-nexus .sw .sw-lab-table td { font-variant-numeric: tabular-nums; }
 body.hw-nexus .sw .sw-lab-table td.sw-lab-note { color: var(--nx-muted); font-size: 0.8rem; }
 
-.sw-inv h3 { margin-top: 0; }
 .sw-inv-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.75rem; }
 .sw-inv-row label { flex: 1 1 9rem; }
-body.hw-nexus .sw .sw-inv-out {
-  min-height: 1.6rem;
-  margin: 0.75rem 0 0;
-  font-weight: 600;
-  color: var(--nx-lime);
-}
-
-@media print {
-  .sw-lab { display: none; }
-}
 
 /* ---- page structure ------------------------------------------------------
    The page borrows the Model page's parts (md-parts cards, md-part banners;
@@ -11577,10 +10701,106 @@ body.hw-nexus .md .md-glance-title {
 /* A fold on this page holds a term list or a table that backs a finding up. */
 .md .md-fold { margin: 1.5rem 0; }
 .md .md-fold .hw-spec { margin: 0.4rem 0 0.6rem; }
+/* Part 1's "at a glance" lives in a fold, closed, so the part reaches 1.1
+   quickly. It keeps the glance's label column and the gap before 1.1. */
+.md .md-glance-fold { margin-bottom: 3rem; }
+.md .md-glance-fold .hw-spec > div { grid-template-columns: 8.5rem 1fr; }
 
 /* The summary table: a part still being written spans both columns. */
 body.hw-nexus .md .md-impact-pending { color: var(--nx-warm, #e6b060); }
 .md .md-impact td:first-child { white-space: nowrap; }
+
+/* ---- Part 1's plates -----------------------------------------------------
+   Part 1's figures were drawn for paper, on the surface #fcfcfb that
+   src/plotting.py renders every one of them on. Restyling a plot of that
+   density for a dark ground costs more than it buys, so each figure keeps
+   its own paper and the page gives it a plate to sit on. The plate is that
+   same #fcfcfb, so the image has no visible edge inside it: what a reader
+   sees is a sheet laid on the page, not a pale rectangle cut out of it.
+   The caption stays outside, in the page's own light-on-dark.
+
+   The circuit diagram in 1.3 is drawn here rather than rendered, but it
+   sits on the same plate and uses the same palette as the figures around
+   it, so the set reads as one. */
+.md-plate {
+  padding: 0.9rem;
+  border: 1px solid var(--nx-line, #24596b);
+  border-radius: 12px;
+  background: #fcfcfb;
+}
+.md-plate img,
+.md-plate svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.md .md-plate + figcaption { padding-top: 0.85rem; }
+
+/* At the full column (~900px) a single-panel plot came out larger than it
+   needs to be read, and F1 alone was taller than the screen. The figure --
+   plate and caption together -- is capped and centred, like the tables. The
+   two-panel plates and the circuit diagram keep more room, because their
+   labels are drawn at a smaller scale per panel. Below tablet width the cap
+   does nothing; the plate scrolls instead (see below). */
+@media (min-width: 768px) {
+  .hw-figure:has(> .md-plate) { max-width: 640px; margin-inline: auto; }
+  .hw-figure:has(> .md-plate-tall) { max-width: 540px; }
+  .hw-figure:has(> .md-plate .md-dg) { max-width: 760px; }
+  .hw-figure:has(> .md-plate-wide) { max-width: 820px; }
+}
+
+/* A system of equations, not a single result: the lines are left-aligned so
+   that reading down the left edge gives the quantity each one defines. */
+.md .sw-eq.md-eqset {
+  text-align: left;
+  line-height: 2.4;
+  padding: 1rem 1.4rem;
+}
+.md .sw-eq.md-eqset .md-eqnote {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: inherit;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  white-space: normal;
+  color: var(--nx-muted, #93b0bb);
+}
+
+/* ---- the circuit diagram ----
+   Ink and hues are the figure palette (src/plotting.py): the aptamer keeps
+   the colour it carries in every plot, so a reader coming from F5 to the
+   diagram does not have to relearn which line is which. */
+.md-dg { --dg-ink: #0b0b0b; --dg-ink2: #52514e; --dg-grid: #e5e4e0; }
+.md-dg text { font-family: inherit; fill: var(--dg-ink); }
+.md-dg .md-dg-lbl { font-size: 13px; font-weight: 600; }
+.md-dg .md-dg-sub { font-size: 11.5px; fill: var(--dg-ink2); font-weight: 400; }
+.md-dg .md-dg-box { fill: #fff; stroke: var(--dg-grid); stroke-width: 1.4; }
+.md-dg .md-dg-cell { fill: none; stroke: var(--dg-ink2); stroke-width: 1.4; stroke-dasharray: 6 5; }
+.md-dg .md-dg-arrow { fill: none; stroke: var(--dg-ink2); stroke-width: 1.6; }
+.md-dg .md-dg-fb { fill: none; stroke: #2a78d6; stroke-width: 1.6; stroke-dasharray: 5 4; }
+.md-dg .md-dg-sponge { fill: none; stroke: #eb6834; stroke-width: 2; }
+.md-dg .md-dg-head { fill: var(--dg-ink2); }
+.md-dg .md-dg-head-fb { fill: #2a78d6; }
+.md-dg .md-dg-head-sponge { fill: #eb6834; }
+.md-dg .md-dg-l1 { fill: #2a78d6; }
+.md-dg .md-dg-l2 { fill: #1baf7a; }
+.md-dg .md-dg-note { font-size: 11.5px; fill: var(--dg-ink2); }
+
+/* A plot drawn for a page 760px wide cannot be read at 330. Below the tablet
+   break the plate keeps its own width and scrolls the figure inside it, which
+   is what the Part 3 plots do (.md-scroll). The two-panel figures need more
+   room before they are worth reading at all, so they say so. */
+@media (max-width: 767.98px) {
+  .md-plate { overflow-x: auto; }
+  .md-plate img,
+  .md-plate svg { min-width: 560px; }
+  .md-plate-wide img { min-width: 760px; }
+}
+
+@media (max-width: 575.98px) {
+  .md-plate { padding: 0.5rem; border-radius: 9px; }
+  .md .sw-eq.md-eqset { padding: 0.8rem 0.9rem; }
+}
 
 /* ===== Education: the deep-teal treatment, content side =====================
    The shared half of this theme -- palette, ground, orbs, hero, navbar -- is
@@ -11628,8 +10848,6 @@ body.edu-nexus .edu-sidebar-link.active { color: var(--nx-lime); }
 body.edu-nexus .edu-sidebar-link::before { border-left-color: var(--nx-line); }
 body.edu-nexus .edu-sidebar-link:hover::before,
 body.edu-nexus .edu-sidebar-link.active::before { border-left-color: var(--nx-lime); }
-body.edu-nexus .edu-sidebar-track { background: var(--nx-line); }
-body.edu-nexus .edu-sidebar-indicator { border-left-color: rgba(20, 179, 145, 0.5); }
 
 /* ---- the map ---- */
 body.edu-nexus .edu-map-viewport { background: transparent; }   /* 島外全透明：只剩台灣島本身 */
@@ -12976,27 +12194,10 @@ body.edu-nexus .sdgp-stat-label { color: var(--nx-muted); }
 /* ===== Human Practices and Collaboration: the deep-teal treatment ==========
    Both pages are built on the Education layout, so body.edu-nexus already
    carries the sidebar, the session blocks, the galleries, the quotes and the
-   logo plates. What is left is each page's own furniture: the three category
-   cards and the survey figures on Human Practices, and the bubble wall on
-   Collaboration. Same rule as everywhere else in this theme -- additive, so
+   logo plates. What is left is each page's own furniture: the survey figures
+   on Human Practices and the Meetup roll-call on Collaboration. Same rule as everywhere else in this theme -- additive, so
    removing body_class from either template puts it back as it was.
    ========================================================================== */
-
-body.edu-nexus .hp-todo { color: var(--nx-muted); }
-
-/* The three marks are drawn with currentColor, so re-pointing the card's
-   colour re-draws the icon and its title together. The light-theme trio was
-   deep green, navy and brown -- all picked against cream, all far too dark
-   here, so each moves to the nearest token that clears AA on petrol. The
-   survey card keeps its warm hue because that is what separates it from the
-   other two at a glance. */
-body.edu-nexus .hp-map-card { color: var(--nx-mint); }
-body.edu-nexus .hp-map-card-enterprise { color: var(--nx-blue-up); }
-body.edu-nexus .hp-map-card-survey { color: var(--nx-warm); }
-
-/* The list links stay quiet until hovered; hover already resolves to the
-   card's own colour through `inherit`, so only the resting state moves. */
-body.edu-nexus .hp-map-list a { color: var(--nx-muted); }
 
 /* The survey charts are flat artwork on white. Framing them on the panel tint
    rather than on white keeps the figures sitting in the page instead of
@@ -13019,45 +12220,6 @@ body.edu-nexus .hp-pie-tip {
   color: var(--nx-text);
   border: 1px solid var(--nx-line);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-}
-
-/* ---- the Collaboration wall ---- */
-
-/* The band runs the full width of the viewport, so leaving it on its pale
-   green would put a lit panel across the top of a dark page. Same radial
-   shape, re-pitched: a lift at the top where the light-theme version is
-   lightest, falling to the page ground by the bottom edge, so the wall still
-   reads as its own zone without becoming a slab. */
-body.edu-nexus .collab-wall {
-  background:
-    radial-gradient(120% 140% at 50% -20%,
-                    var(--nx-raised) 0%,
-                    var(--nx-panel) 45%,
-                    var(--nx-ground) 100%);
-  border-block-color: var(--nx-line);
-}
-
-/* Four of the six logos are dark artwork on transparency, so the disc stays
-   white for the same reason .edu-logo does: a school's mark is drawn the way
-   that school draws it. Only the rim and the drop shadow are re-cut for the
-   darker bed -- a shadow tuned for cream reads as a smudge on petrol. */
-body.edu-nexus .collab-bubble-disc {
-  border-color: var(--nx-line);
-  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.65);
-}
-
-/* The letters of COLLABORATION are decoration, not links, and should read as
-   the quieter layer: panel tone with the heading accent as ink. */
-body.edu-nexus .collab-bubble.is-letter .collab-bubble-disc {
-  background: var(--nx-panel);
-  border-color: var(--nx-line);
-}
-body.edu-nexus .collab-letter { color: var(--nx-mint); }
-
-/* The name that rides under a hovered bubble: the cream pill would flare. */
-body.edu-nexus .collab-bubble-name {
-  color: var(--nx-text);
-  background: var(--nx-raised);
 }
 
 /* The meetup roll-call. Same white plate as .edu-logo, and border-box so the
@@ -13114,12 +12276,6 @@ body.nb-nexus .nb-entry { color: var(--nx-text); }
 body.nb-nexus .nb-entry a { color: var(--nx-lime); }
 body.nb-nexus .nb-entry em { color: var(--nx-text); }
 body.nb-nexus .nb-empty { color: #5c7d8a; }
-
-/* A week still to come, rather than one that came up empty. */
-body.nb-nexus .nb-week-open {
-  background: rgba(73, 197, 182, 0.06);
-  border-color: var(--nx-line);
-}
 
 /* ---- the sort control ---- */
 body.nb-nexus .nb-sort {
@@ -13981,9 +13137,6 @@ body.team-page .webcam-start:hover { background: var(--nx-line); color: #fff; }
 /* ---- Attributions ---- */
 body.hw-nexus.attr-page .container { color: var(--nx-text); }
 body.hw-nexus.attr-page .container h2 { color: var(--nx-mint); font-family: "Changa", sans-serif; font-weight: 700; }
-/* Bootstrap's .text-secondary is set !important; this is the one place it is
-   matched in kind, and only on this page. */
-body.hw-nexus.attr-page .text-secondary { color: var(--nx-muted) !important; }
 body.hw-nexus.attr-page .attr-ai {
   background: var(--nx-panel);
   border-left-color: var(--nx-mint);
@@ -13997,16 +13150,10 @@ body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
 /* The thank-you and the credit lists, on the deep-teal ground. */
 body.hw-nexus.attr-page .attr-thanks { color: var(--nx-text); }
 body.hw-nexus.attr-page .attr-people h2 { color: var(--nx-mint); }
-body.hw-nexus.attr-page .attr-list,
-body.hw-nexus.attr-page .attr-list li { color: var(--nx-text); }
-body.hw-nexus.attr-page .attr-list b { color: #fff; }
-body.hw-nexus.attr-page .attr-list ul li { color: var(--nx-muted); }
-body.hw-nexus.attr-page .attr-todo { color: var(--nx-muted); }
 /* the cards on the deep-teal ground: panel card, raised name bar, the darkest
    tone for the text panel */
 body.hw-nexus.attr-page .attr-card { background: var(--nx-panel); border-color: var(--nx-line); }
 body.hw-nexus.attr-page .attr-avatar { background: var(--nx-raised); box-shadow: 0 0 0 2px var(--nx-line); }
-body.hw-nexus.attr-page .attr-avatar.is-initials { color: var(--nx-mint); }
 body.hw-nexus.attr-page .attr-card-name { background: var(--nx-raised); color: #fff; }
 body.hw-nexus.attr-page .attr-card-body { background: #0a1a21; color: var(--nx-text); }
 body.hw-nexus.attr-page .attr-card-role { color: var(--nx-lime); }
