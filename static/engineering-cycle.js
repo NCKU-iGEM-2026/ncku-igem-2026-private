@@ -96,7 +96,7 @@
       });
 
       var box = stages.getBoundingClientRect();
-      rail.classList.toggle("is-in-view", box.top < window.innerHeight * 0.75 && box.bottom > window.innerHeight * 0.25);
+      rail.classList.toggle("is-in-view", box.top < window.innerHeight * 0.5 && box.bottom > window.innerHeight * 0.5);
     };
   }
 
