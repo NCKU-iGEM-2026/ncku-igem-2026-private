@@ -416,7 +416,7 @@
       return d;
     }
 
-    var ROTATION_PERIOD_MS = 48000;
+    var ROTATION_PERIOD_MS = 40000;
     var ACTIVE_THRESHOLD = (10 * Math.PI) / 180;
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
