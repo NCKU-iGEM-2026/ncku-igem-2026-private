@@ -31,12 +31,15 @@
         else t.setAttribute('data-anim-off', '');
       });
     });
-  }, { rootMargin: '200px 0px' });
+  }, { rootMargin: '120px 0px' });
 
-  /* The block whose visibility decides: the nearest section-like ancestor,
-     or failing that the element's parent. */
+  /* What is watched is the animated element itself -- or, for a shape inside
+     an SVG, that SVG, whose box does not move with the shape. Not the section
+     around it: a section can be several screens tall, and one that starts
+     just below the banner counts as on screen from the top of the page, so
+     everything in it went on animating. */
   function hostOf(el) {
-    return el.closest('footer, header, section, aside, figure, nav, li, article') || el.parentElement;
+    return (el instanceof SVGElement && el.ownerSVGElement) ? el.ownerSVGElement : el;
   }
   function fixed(el) {
     for (var n = el; n && n !== document.body; n = n.parentElement) {

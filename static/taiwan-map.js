@@ -428,6 +428,7 @@
     //     不會相對地圖移動，每幀都量就是每幀一次強制排版。一秒一次也接得住
     //     地圖晚畫好、版面改變。
     var geom = null, geomAt = -1e9;
+    var LEADER_MAX = 1400;   // 連線的固定寬度（px），與 CSS .edu-map-leader-line 一致
     function measureOrbit() {
       var rr = row.getBoundingClientRect();
       geom = {
@@ -473,10 +474,13 @@
           it.line.style.opacity = f.active ? '' : '0';
         }
         if (f.active) {
-          // 從卡片中心拉到圖釘中心：長度給 width，方向給 rotate
+          // 從卡片中心拉到圖釘中心：方向給 rotate，長度用 clip-path 裁。
+          // 不改 width：寬度一變就要排版，而且是整頁一起排、一起重畫；裁切
+          // 只重畫這條線自己那一小層。線本身固定 LEADER_MAX 寬（見 CSS）。
           var dx = f.pin.x - f.x;
           var dy = f.pin.y - f.y;
-          it.line.style.width = Math.sqrt(dx * dx + dy * dy).toFixed(1) + 'px';
+          var len = Math.sqrt(dx * dx + dy * dy);
+          it.line.style.clipPath = 'inset(0 ' + Math.max(0, LEADER_MAX - len).toFixed(1) + 'px 0 0)';
           it.line.style.transform = 'translate(' + f.x.toFixed(1) + 'px,' + f.y.toFixed(1) + 'px) rotate(' +
                                     Math.atan2(dy, dx).toFixed(4) + 'rad)';
         }
@@ -492,6 +496,7 @@
     var orbitOn = false;
     var rowVisible = true;
     var rafId = null, lastTs = null, elapsed = 0;
+    var ORBIT_FRAME_MS = 1000 / 30, orbitTimer = null;
 
     // The ring holds still while the mouse is on one of its cards (or one has
     // keyboard focus), so it can be read and clicked.
@@ -537,19 +542,28 @@
       }
       lastTs = ts;
       layoutOrbit((elapsed / ROTATION_PERIOD_MS) * 2 * Math.PI, ts);
-      rafId = requestAnimationFrame(orbitTick);
+      // 30 幀一秒，畫完就睡：一圈 48 秒的漂移用不著跟螢幕刷新（144 Hz 的
+      // 螢幕就是 144 次）一樣快；每一幀都要整頁跑一次樣式、排版與繪製。
+      rafId = null;
+      orbitTimer = setTimeout(function () {
+        orbitTimer = null;
+        rafId = requestAnimationFrame(orbitTick);
+      }, ORBIT_FRAME_MS - 8);
     };
     // 只在「環繞卡片有顯示＋地圖在畫面內」時才跑動畫，其餘時間整個停掉；
     // 旋轉角度以暫停前累積的進度接續，不會跳格。
     var syncOrbit = function () {
       if (reduceMotion) { if (orbitOn) layoutOrbit(0); return; }
       var shouldRun = orbitOn && rowVisible;
-      if (shouldRun && rafId === null) {
+      var running = rafId !== null || orbitTimer !== null;
+      if (shouldRun && !running) {
         lastTs = null;
         rafId = requestAnimationFrame(orbitTick);
-      } else if (!shouldRun && rafId !== null) {
-        cancelAnimationFrame(rafId);
+      } else if (!shouldRun && running) {
+        if (rafId !== null) cancelAnimationFrame(rafId);
+        if (orbitTimer !== null) clearTimeout(orbitTimer);
         rafId = null;
+        orbitTimer = null;
       }
     };
 
