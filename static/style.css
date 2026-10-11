@@ -2104,7 +2104,18 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   letter-spacing: 0.32em;
   fill: #49c5b6;
 }
+/* With more than one round in a part, the line under the name is what tells
+   the rounds apart, so it is set as large as the name itself. */
+.eng-cycle-kicker.has-round {
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
 .eng-cycle-label { pointer-events: none; }
+/* A stage a later round did not repeat: its arrow stays on the ring so the
+   cycle still reads as a cycle, but sits back and takes no clicks. */
+.eng-cycle-arrow-skipped { opacity: 0.25; pointer-events: none; }
+.eng-cycle-label-skipped { opacity: 0.4; }
 /* Progress: engineering-cycle.js lengthens the mask over the lit copy of the
    ring clockwise as the reader goes down the stages. Underneath, the arrows
    wait dimmed; the one being read stands a little clearer, so a reader who
@@ -2242,6 +2253,79 @@ body.hw-nexus .hw .eng-part-title {
 }
 .eng-part .eng-cycle-centre,
 .eng-part .eng-cycle-kicker { fill: var(--part); }
+
+/* ---- rounds of the cycle within one part ----
+   A part that was engineered twice shows its rings one under the other, each
+   under a band naming the round. The band is a rule the width of the column
+   with the round's name at its left, so the eye reads "Cycle 02" as the start
+   of a new pass rather than as another stage of the first one. */
+/* ---- where a part goes next ----
+   Set outside the two-column cycle grid and across the full width of the
+   panel, because it is the one part of the page that is not another turn of
+   the ring. The graphic beside it unwinds the ring: most of a turn, then the
+   line leaves its orbit and runs straight off to the right. */
+.eng-future {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px dashed color-mix(in srgb, var(--part) 40%, transparent);
+}
+.eng-future-arrow {
+  display: block;
+  width: min(300px, 70%);
+  height: auto;
+  margin-bottom: 0.75rem;
+  overflow: visible;
+}
+.eng-future-arrow-loop,
+.eng-future-arrow-out,
+.eng-future-arrow-head {
+  stroke: var(--part);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* The turn it is leaving behind is drawn faintly; the way out is solid. */
+.eng-future-arrow-loop { opacity: 0.45; stroke-dasharray: 5 7; }
+body.hw-nexus .hw .eng-future-title {
+  margin: 0 0 1rem;
+  font-size: 1.9rem;
+  color: var(--part);
+}
+@media (max-width: 991.98px) {
+  .eng-future { margin-top: 2.5rem; }
+  .eng-future-arrow { width: 100%; }
+}
+
+.eng-cycle-band {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1.75rem;
+  scroll-margin-top: 100px;
+}
+/* The second and later rounds are set well clear of the one above, since the
+   ring of the previous round is sticky and would otherwise still be beside
+   the new heading. */
+.eng-dbtl + .eng-cycle-band { margin-top: 5rem; }
+.eng-cycle-band-num {
+  flex: none;
+  font-family: "Changa", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--part);
+}
+.eng-cycle-band-rule {
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(to right,
+    color-mix(in srgb, var(--part) 55%, transparent), transparent);
+}
+@media (max-width: 991.98px) {
+  .eng-dbtl + .eng-cycle-band { margin-top: 3rem; }
+}
+
 @media (max-width: 991.98px) {
   body.hw-nexus .hw .eng-part-title { font-size: 2.4rem; }
 }

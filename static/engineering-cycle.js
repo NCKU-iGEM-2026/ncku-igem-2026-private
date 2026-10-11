@@ -36,9 +36,18 @@
     if (!figure || !rail || !stages || !sections.length) return null;
     rail.classList.add("is-tracked");
 
-    var sweeps = Array.prototype.slice.call(figure.querySelectorAll(".eng-cycle-sweep"));
-    var links = Array.prototype.slice.call(figure.querySelectorAll(".eng-cycle-link"));
-    var labels = Array.prototype.slice.call(figure.querySelectorAll(".eng-cycle-label"));
+    /* A round that skipped a stage has fewer sweeps than the ring has arrows,
+       so each is matched to its section by stage name rather than by position,
+       and each stage lights from its own bearing on the ring. */
+    var steps = sections.map(function (section) {
+      var stage = section.getAttribute("data-stage");
+      return {
+        bearing: parseFloat(section.getAttribute("data-bearing")) || 0,
+        sweep: figure.querySelector('.eng-cycle-sweep[data-stage="' + stage + '"]'),
+        link: figure.querySelector('.eng-cycle-link[data-stage="' + stage + '"]'),
+        label: figure.querySelector('.eng-cycle-label[data-stage="' + stage + '"]')
+      };
+    });
     /* Each arrow spans 94deg, from its tail 47deg before its bearing to the tip
        of its head 47deg after; the bearings are a quarter turn apart, starting
        at 45deg for Design (engineering.html). */
@@ -65,24 +74,25 @@
 
     return function update() {
       var p = progress();
-      sweeps.forEach(function (sweep, index) {
+      steps.forEach(function (step, index) {
+        if (!step.sweep) return;
         var degrees = SPAN * clamp(p - index);
-        sweep.setAttribute("stroke-dasharray", degrees + " " + (360 - degrees));
+        step.sweep.setAttribute("stroke-dasharray", degrees + " " + (360 - degrees));
       });
       var current = Math.min(sections.length - 1, Math.floor(p));
-      var edge = 45 + 90 * current - SPAN / 2 + SPAN * clamp(p - current);
+      var edge = steps[current].bearing - SPAN / 2 + SPAN * clamp(p - current);
       if (spark) spark.setAttribute("transform", "rotate(" + edge + " 200 200)");
       figure.classList.toggle("is-started", p > 0);
       figure.classList.toggle("is-complete", p >= sections.length);
 
       figure.setAttribute("data-active", sections[current].getAttribute("data-stage"));
-      links.forEach(function (link, index) {
-        if (index === current) link.setAttribute("aria-current", "step");
-        else link.removeAttribute("aria-current");
-      });
-      /* A label sits at the middle of its arrow, half a stage in. */
-      labels.forEach(function (label, index) {
-        label.classList.toggle("is-lit", p >= index + 0.5);
+      steps.forEach(function (step, index) {
+        if (step.link) {
+          if (index === current) step.link.setAttribute("aria-current", "step");
+          else step.link.removeAttribute("aria-current");
+        }
+        /* A label sits at the middle of its arrow, half a stage in. */
+        if (step.label) step.label.classList.toggle("is-lit", p >= index + 0.5);
       });
 
       var box = stages.getBoundingClientRect();
