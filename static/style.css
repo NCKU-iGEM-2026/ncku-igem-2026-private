@@ -2136,17 +2136,33 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   .eng-cycle .eng-cycle-arrow, .eng-cycle .eng-cycle-label, .eng-cycle .eng-cycle-spark { transition: none; }
 }
 
-/* ---- the DBTL layout: the cycle on the left, the four stages on the right ----
+/* ---- the DBTL layout: the cycle on the left, the four stages in the middle ----
    The cycle takes the place of the other .hw pages' "On this page" list,
-   out to the left of the text, so the page is widened by the cycle's column
-   and the text keeps the same 58rem measure as theirs. */
-.hw.eng { max-width: 73.5rem; }
-.eng-dbtl {
-  display: grid;
-  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
-  gap: 3rem;
-  align-items: start;
-  margin-top: 1rem;
+   out to the left of the text. The text keeps the same 58rem measure as
+   theirs and sits a little right of the page's centre (the left margin is
+   wider than the right), which balances the cycle hugging the far left edge.
+   The whole page shares one set of columns: the jump bar and each part's
+   heading sit in the text column too, so they line up with it. Each part is
+   a subgrid of the page, and its .eng-dbtl steps aside (display: contents)
+   so the cycle and the stages land straight in those columns. */
+.hw.eng { max-width: 86rem; }
+@media (min-width: 992px) {
+  .hw.eng {
+    display: grid;
+    grid-template-columns: minmax(10.5rem, 1.3fr) minmax(0, 58rem) minmax(6rem, 0.7fr);
+    column-gap: 2.5rem;
+  }
+  .hw.eng > .eng-parts-nav { grid-column: 2; }
+  .eng-part {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: start;
+  }
+  .eng-part::before, .eng-part-head { grid-column: 2; }
+  .eng-dbtl { display: contents; }
+  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; grid-row: 3; width: 10.5rem; margin-top: 1rem; }
+  .eng-dbtl > .eng-dbtl-stages { grid-column: 2; grid-row: 3; margin-top: 1rem; }
 }
 /* ---- the three parts: Detect, Inhibition, Measurement ----
    Each part has its own accent (--part): a short thick bar over its heading,
@@ -2229,13 +2245,12 @@ body.hw-nexus .hw .eng-part-title {
 @media (max-width: 991.98px) {
   body.hw-nexus .hw .eng-part-title { font-size: 2.4rem; }
 }
-/* The ring rides along beside its stages. It sits above the middle of the
-   viewport and a little outside its column, so it clears the text rather than
-   crowding it; the narrow-screen rule below puts it back in the corner. */
+/* The ring rides along beside its stages, small and pinned to the top left
+   just under the navbar; the narrow-screen rule below puts it back in the
+   corner. */
 .eng-dbtl-rail {
   position: sticky;
-  top: calc(50vh - 11.5rem);
-  margin-left: -2rem;
+  top: 110px;
 }
 .eng-dbtl-stage {
   --stage: #a0e860;
@@ -2379,7 +2394,7 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
    right), turning the same way. engineering-cycle.js shows it only while the
    stages are on screen; without the script it simply stays. */
 @media (max-width: 991.98px) {
-  .eng-dbtl { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .eng-dbtl { margin-top: 1rem; }
   .eng-dbtl-rail {
     position: fixed;
     top: auto;
