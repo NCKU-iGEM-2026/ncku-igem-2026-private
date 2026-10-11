@@ -8,7 +8,7 @@
    - .rx-magnetic 磁吸鈕
    - Lenis 平滑捲動（engineering/hardware 頁停用：
      dbtl 的滾輪翻頁與剖面圖有自己的 wheel 處理）
-   - GSAP ScrollTrigger：存在 [data-rx-chapter] 時綁章節軌道
+   - [data-rx-chapter] 章節軌道與 [data-rx-split] 拆字（不需 GSAP，見檔尾）
    ============================================================ */
 (function () {
   'use strict';
@@ -187,20 +187,53 @@
     } catch (e) { /* 平滑捲動是.decor bonus，壞了就裸跑原生捲動 */ }
   }
 
-  /* ---------- GSAP：章節軌道 + hero 拆字 ---------- */
-  if (window.gsap && window.ScrollTrigger && !reduceMotion) {
-    gsap.registerPlugin(ScrollTrigger);
-
-    /* [data-rx-chapter]：捲動綁定 --rx-chap 0→100%，CSS 軌道依此著色 */
-    document.querySelectorAll('[data-rx-chapter]').forEach(function (sec) {
-      gsap.to(sec, {
-        '--rx-chap': '100%',
-        ease: 'none',
-        scrollTrigger: { trigger: sec, start: 'top 75%', end: 'bottom 55%', scrub: 0.6 }
-      });
+  /* ---------- 章節軌道 + hero 拆字（不再用 GSAP）----------
+     兩件事原本靠 GSAP + ScrollTrigger（116 KB），而 ScrollTrigger 只要存在，
+     它的 ticker 就每一幀都要一次畫面更新，整頁跟著每幀重算。現在：
+     章節進度由一個捲動監聽算，只在捲動、或進度還在追上時跑；拆字由 CSS。 */
+  if (!reduceMotion) {
+    /* [data-rx-chapter]：捲動綁定 --rx-chap 0→100%，CSS 依此揭開。
+       起點＝區塊頂端到達視窗 75% 處，終點＝區塊底端到達視窗 55% 處（原
+       ScrollTrigger 的 start/end），進度以約 0.25 秒的時間常數追上捲動
+       （原 scrub: 0.6 的那點延遲）。 */
+    var chapters = Array.prototype.slice.call(document.querySelectorAll('[data-rx-chapter]')).map(function (el) {
+      return { el: el, cur: -1, top: 0, bottom: 0 };
     });
+    if (chapters.length) {
+      var chapRaf = null, chapLast = 0;
+      var measureChapters = function () {
+        var y = window.pageYOffset;
+        chapters.forEach(function (c) {
+          var r = c.el.getBoundingClientRect();
+          c.top = r.top + y; c.bottom = r.bottom + y;
+        });
+      };
+      var chapTick = function (t) {
+        chapRaf = null;
+        var dt = chapLast ? Math.min(0.1, (t - chapLast) / 1000) : 1;
+        chapLast = t;
+        var y = window.pageYOffset, vh = window.innerHeight, moving = false;
+        chapters.forEach(function (c) {
+          var start = c.top - 0.75 * vh, end = c.bottom - 0.55 * vh;
+          var target = Math.max(0, Math.min(1, (y - start) / Math.max(1, end - start)));
+          var next = c.cur < 0 ? target : c.cur + (target - c.cur) * (1 - Math.exp(-dt / 0.25));
+          if (Math.abs(target - next) < 0.0005) next = target; else moving = true;
+          if (next !== c.cur) { c.cur = next; c.el.style.setProperty('--rx-chap', (next * 100).toFixed(2) + '%'); }
+        });
+        if (moving) chapRaf = requestAnimationFrame(chapTick); else chapLast = 0;
+      };
+      var chapKick = function () { if (!chapRaf) chapRaf = requestAnimationFrame(chapTick); };
+      measureChapters(); chapKick();
+      window.addEventListener('scroll', chapKick, { passive: true });
+      var remeasure = function () { measureChapters(); chapKick(); };
+      window.addEventListener('resize', remeasure);
+      window.addEventListener('load', remeasure);
+      /* 圖片晚到、區塊長高時，章節的位置也會變 */
+      if ('ResizeObserver' in window) new ResizeObserver(remeasure).observe(document.body);
+    }
 
-    /* [data-rx-split]：kinetic typography，逐字升起 */
+    /* [data-rx-split]：kinetic typography，逐字升起（motion.css 的 rx-rise）。
+       延遲照原本：0.25 秒起，每字 0.035 秒、每詞 0.05 秒。 */
     document.querySelectorAll('[data-rx-split]').forEach(function (el) {
       var text = el.textContent;
       el.textContent = '';
@@ -212,22 +245,16 @@
           var c = document.createElement('span');
           c.className = 'rx-char';
           c.textContent = ch;
-          if (!reduceMotion) {
-            gsap.to(c, {
-              y: '0%',
-              duration: 0.9,
-              delay: 0.25 + wi * 0.05 + ci * 0.035,
-              ease: 'expo.out'
-            });
-          }
+          c.style.setProperty('--rx-d', (0.25 + wi * 0.05 + ci * 0.035).toFixed(3) + 's');
           w.appendChild(c);
         });
         w.appendChild(document.createTextNode(' '));
         el.appendChild(w);
       });
+      el.classList.add('rx-go');
     });
   } else {
-    /* 無 GSAP / 有 reduced-motion：拆字容器保持靜態可讀 */
+    /* reduced-motion：拆字容器保持靜態可讀 */
     document.querySelectorAll('[data-rx-split]').forEach(function (el) { el.classList.add('rx-done'); });
   }
 })();

@@ -321,19 +321,26 @@
     }
 
     /* ---- the loop: only while the banner is on screen and the tab is shown ---- */
-    var visible = true, rafId = null, last = 0, lastDraw = 0;
+    var visible = true, rafId = null, sleep = null, last = 0;
     function frame(t) {
       rafId = null;
       if (!visible || document.hidden) return;
-      rafId = requestAnimationFrame(frame);
-      if (t - lastDraw < 15.5) return;          /* about 60 a second, even on a 120 Hz screen */
       var dt = Math.min(0.05, (t - (last || t)) / 1000);
-      last = t; lastDraw = t;
+      last = t;
       step(dt, t);
       draw(t);
       hudUpdate(t);
+      /* About 60 a second. Sleep until the next frame is due rather than ask
+         for every one and skip: on a 120 or 144 Hz screen, asking every frame
+         wakes the whole page (style, layout, paint) twice as often as the dish
+         draws. Timed from this frame's start, so a slow frame does not halve
+         the rate. */
+      sleep = setTimeout(function () {
+        sleep = null;
+        if (visible && !document.hidden) rafId = requestAnimationFrame(frame);
+      }, Math.max(0, 12 - (performance.now() - t)));
     }
-    function run() { if (!rafId && visible && !document.hidden) { last = 0; rafId = requestAnimationFrame(frame); } }
+    function run() { if (!rafId && !sleep && visible && !document.hidden) { last = 0; rafId = requestAnimationFrame(frame); } }
 
     /* ---- the controls ---- */
     function hintFor(m) {
