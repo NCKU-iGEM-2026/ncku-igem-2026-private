@@ -106,7 +106,7 @@
   {% for cycle in range(1, cycles + 1) %}
   {% set shown = cycle_stages.get((part, cycle), ['design', 'build', 'test', 'learn']) %}
   {% if cycles > 1 %}
-  <header class="eng-cycle-band" id="eng-{{ part }}-c{{ cycle }}">
+  <header class="eng-cycle-band" id="eng-{{ part }}-c{{ cycle }}" style="grid-row: {{ cycle * 2 + 1 }}">
     <span class="eng-cycle-band-num">Cycle 0{{ cycle }}</span>
     <span class="eng-cycle-band-rule" aria-hidden="true"></span>
   </header>
@@ -128,7 +128,7 @@
        sweep is a full circle, so every arrow shows lit, and the links still
        work. #}
     {% set arrow = "M 63.97 73.15 A 186 186 0 0 1 290.17 37.32 L 295.02 28.57 L 309.70 97.70 L 250.42 109.04 L 255.27 100.29 A 114 114 0 0 0 116.63 122.25 L 127.28 68.81 Z" %}
-    <nav class="eng-dbtl-rail" aria-label="{{ part_name }} engineering cycle{% if cycles > 1 %} {{ cycle }}{% endif %}">
+    <nav class="eng-dbtl-rail" style="grid-row: {{ cycle * 2 + 2 }}" aria-label="{{ part_name }} engineering cycle{% if cycles > 1 %} {{ cycle }}{% endif %}">
       <figure class="eng-cycle">
         <svg viewBox="0 0 400 400">
           <defs>
@@ -190,7 +190,7 @@
       </figure>
     </nav>
 
-    <div class="eng-dbtl-stages">
+    <div class="eng-dbtl-stages" style="grid-row: {{ cycle * 2 + 2 }}">
       {% for stage, bearing, x, y, note in stages if stage in shown %}
       <section class="eng-dbtl-stage" id="eng-{{ part }}-c{{ cycle }}-{{ stage }}" data-stage="{{ stage }}" data-bearing="{{ bearing }}">
         <header class="eng-dbtl-head">
@@ -201,7 +201,12 @@
           <p class="eng-dbtl-note">{{ note }}</p>
         </header>
         <div class="eng-dbtl-body">
-          {% if part == 'detect' and cycle == 2 and stage == 'build' %}
+          {% if part == 'detect' and cycle == 2 and stage == 'test' %}
+          <p>To evaluate whether the promoter modification improved biosensor performance, we repeated the experimental approaches used in the first cycle, including direct supplementation with synthetic AHL, co-culture with PAO1, and agar diffusion assays.</p>
+          <p>However, the redesigned biosensor exhibited a similar response pattern to the original construct. Detectable fluorescence was still limited to the agar-based assay using PAO1 culture supernatant, while the other experimental conditions failed to produce the expected fluorescence response.</p>
+          <p>These results suggested that the genetic modifications were insufficient to overcome the limitations observed in our initial experiments.</p>
+          <p>To further analyze the fluorescence response, we collaborated with our Dry Lab team to integrate an image-processing software tool capable of identifying fluorescent regions on agar plates, LasReader&rsquo;s <a href="{{ url_for('pages', page='software') }}#swarming">Swarming Assay</a>. This approach allowed us to assess the spatial distribution of fluorescence and explore a more objective method for interpreting our biosensor&rsquo;s output, providing a foundation for future integration with our hardware detection platform.</p>
+          {% elif part == 'detect' and cycle == 2 and stage == 'build' %}
           <p>Following the redesigned genetic circuit, we constructed a new plasmid in which the original ProD promoter was replaced with J23101 and the LasR also modified to unoptimized one, while retaining the LasR-responsive pLasRV promoter and downstream sfGFP reporter. (Fig. D5)</p>
           <figure class="hw-figure eng-figure text-center">
             <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/lasr-gene.avif" alt="Gene map of the rebuilt plasmid: J23101 driving LasR, and pLasRV driving sfGFP">
@@ -399,7 +404,7 @@
   {% endfor %}
 
   {% if futures.get(part) %}
-  <section class="eng-future" id="eng-{{ part }}-future" aria-labelledby="eng-{{ part }}-future-title">
+  <section class="eng-future" id="eng-{{ part }}-future" style="grid-row: {{ cycles * 2 + 3 }}" aria-labelledby="eng-{{ part }}-future-title">
     <svg class="eng-future-arrow" viewBox="0 0 300 92" aria-hidden="true">
       {# the ring, opened: most of a turn that leaves its orbit and runs on #}
       <path class="eng-future-arrow-loop" d="M 70 20 A 26 26 0 1 0 72 56" fill="none"/>
