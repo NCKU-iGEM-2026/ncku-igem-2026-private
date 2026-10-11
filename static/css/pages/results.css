@@ -73,13 +73,114 @@
 }
 
 /* A "Figure 2A" link in the text lands on its figure clear of the fixed
-   navbar, and the figure's frame lights up for a moment so the eye finds it. */
+   navbar (the highlight on arrival is set per part, below). */
 .res-figure { scroll-margin-top: 100px; }
-.res-figure:target { animation: res-figure-found 1.6s ease-out; }
-@keyframes res-figure-found {
-  0%, 30% { border-color: var(--c-accent, #2f8f5b); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent, #2f8f5b) 30%, transparent); }
+
+
+/* ---- the four parts, in the same voice as Engineering ------------------
+
+   Each part is numbered (01-04) and carries one colour, taken from what the
+   wet lab sees at the bench: the green of the swarming plates, the purple of
+   crystal violet, and the blue of pyocyanin. The colour runs through the
+   heading, the figure frames and the figure links of that part, so a reader
+   who lands on a chart knows which assay it belongs to. */
+.desc { counter-reset: res-part; }
+
+/* Light page: deep versions of the four colours, readable on paper. */
+.res-part {
+  --stage: #3f7d1c;
+  counter-increment: res-part;
+  margin-bottom: 4.5rem;
+}
+.res-part[data-assay="swarming"]  { --stage: #1e8a55; }
+.res-part[data-assay="biofilm"]   { --stage: #6a4fb3; }
+.res-part[data-assay="pyocyanin"] { --stage: #1f72a8; }
+/* Dark page: the bright versions, as on Engineering. */
+html[data-theme="dark"] .res-part                          { --stage: #a0e860; }
+html[data-theme="dark"] .res-part[data-assay="swarming"]  { --stage: #4fd48f; }
+html[data-theme="dark"] .res-part[data-assay="biofilm"]   { --stage: #b39ddb; }
+html[data-theme="dark"] .res-part[data-assay="pyocyanin"] { --stage: #5bb6e6; }
+
+/* The heading: number, title, and a rule under both.
+   editorial.css gives the first heading of every section the ink colour and,
+   on the light page, its own short line in ::before, through a long chain of
+   :not()s. The :not(#res-x) below (no element has that id) lifts these rules
+   above that chain so the part keeps its number and colour in both themes. */
+.desc .res-part > h2:not(#res-x) {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0 0 0.9rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--c-line);
+  font-size: 2rem;
+  color: var(--stage);
+}
+.desc .res-part > h2:not(#res-x)::before {
+  content: counter(res-part, decimal-leading-zero);
+  position: static;
+  width: auto;
+  height: auto;
+  background: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--stage);
+  opacity: 0.8;
+}
+/* A short bar of the part's colour over the start of the rule. */
+.desc .res-part > h2:not(#res-x)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 3.5rem;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--stage);
+}
+
+/* The overview reads as the lead: its two paragraphs in a tinted panel. */
+.res-part[data-assay="overview"] > p {
+  margin: 0;
+  padding: 0 1.4rem;
+  border-left: 3px solid var(--stage);
+  background: color-mix(in srgb, var(--stage) 6%, transparent);
+  font-size: 1.04rem;
+}
+.res-part[data-assay="overview"] > p:first-of-type { padding-top: 1.2rem; border-top-right-radius: 12px; }
+.res-part[data-assay="overview"] > p:last-of-type  { padding-bottom: 1.2rem; border-bottom-right-radius: 12px; }
+.res-part[data-assay="overview"] > p + p { padding-top: 0.9rem; }
+
+/* Figures take the part's colour along their top edge and in their title. */
+.res-part .res-figure {
+  border-top: 3px solid color-mix(in srgb, var(--stage) 70%, transparent);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.res-part .res-figure:hover { box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22); }
+.res-part .res-figure figcaption strong { color: var(--stage); }
+
+/* "Figure 2A" in the text: the part's colour, no underline until hovered. */
+.desc .res-part a[href^="#fig-"] {
+  color: var(--stage);
+  text-decoration: none;
+  border-bottom: 1px dotted color-mix(in srgb, var(--stage) 60%, transparent);
+}
+.desc .res-part a[href^="#fig-"]:hover { border-bottom-style: solid; }
+
+/* Landing on a figure lights its frame in the part's colour. */
+.res-part .res-figure:target { animation: res-part-found 1.6s ease-out; }
+@keyframes res-part-found {
+  0%, 30% { border-color: var(--stage); box-shadow: 0 0 0 3px color-mix(in srgb, var(--stage) 35%, transparent); }
   100%    { box-shadow: 0 0 0 3px transparent; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .res-figure:target { animation: none; border-color: var(--c-accent, #2f8f5b); }
+  .res-part .res-figure:target { animation: none; border-color: var(--stage); }
+  .res-part .res-figure { transition: none; }
+}
+
+@media (max-width: 575.98px) {
+  .desc .res-part > h2:not(#res-x) { font-size: 1.6rem; }
+  .res-part[data-assay="overview"] > p { padding-left: 1rem; padding-right: 1rem; }
 }
