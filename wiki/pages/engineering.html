@@ -159,37 +159,65 @@
         <div class="eng-dbtl-body">
           {% if part == 'detect' and stage == 'design' %}
           <p>To develop a system capable of detecting <i>Pseudomonas aeruginosa</i>, we designed a biosensor that responds to its quorum-sensing signals. We selected the LasR regulatory system, one of the major QS systems in <i>P. aeruginosa</i>, as the foundation of our biosensor.</p>
-          <p>LasR protein is able to bind the AHL, 3-oxo-C12-HSL, forming a dimer. Upon binding to the AHL, this active dimer can activate the LasR-responsive promoter, pLasRV, and consequently drive the transcription of the downstream sfGFP gene.</p>
+          <p>LasR protein is able to bind the AHL, 3-oxo-C12-HSL, forming a dimer. Upon binding to the AHL, this active dimer can activate the LasR-responsive promoter, pLasRV, and consequently drive the transcription of the downstream sfGFP gene. (Wen et al., 2017)</p>
           <p>To further enhance the practical applicability of our biosensor, we designed it for integration with our <a href="{{ url_for('pages', page='hardware') }}">hardware</a> platform, enabling the fluorescence output to be detected and analyzed.</p>
           {% elif part == 'detect' and stage == 'build' %}
-          <p>Following our design, we constructed a plasmid containing the LasR-based biosensing system on pTwist vector. We used the ProD promoter to drive the LasR coding sequence, and pLasRV to drive the downstream sfGFP reporter gene.</p>
-          <p>The plasmid was introduced into <i>Escherichia coli</i> TOP10 to establish our engineered biosensor.</p>
+          <p>Following our design, we constructed a plasmid based on the original LasRV biosensor described by Wen et al. (2017). In our initial construct, we decided to replace J23101 with ProD, a strong insulated constitutive promoter characterized by Davis et al. (2011), expecting to get better LasR expression. (Fig. D1)</p>
+          <figure class="hw-figure eng-figure text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/prod-gene.avif" alt="pTwist-ProD-LasR; LasRV-sfGFP gene map">
+            <figcaption>Fig. D1 pTwist-ProD-LasR; LasRV-sfGFP gene map</figcaption>
+          </figure>
+          <p>The redesigned genetic circuit retained the LasR-responsive promoter pLasRV and the downstream sfGFP reporter gene. The new plasmid was subsequently introduced into <i>E. coli</i> TOP10 for further fluorescence testing. (Fig. D2)</p>
+          <p>Through this construction, we aimed to create a bacterial platform capable of converting AHL signals into detectable fluorescence, allowing us to evaluate the functionality of our biosensing system in subsequent experiments. Our goal is to combine this with the <a href="{{ url_for('pages', page='hardware') }}">hardware</a> designed by our dry lab team members.</p>
+          <figure class="hw-figure eng-figure text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/prod-cut.avif" alt="Enzyme digestion">
+            <figcaption>Fig. D2 Enzyme digestion</figcaption>
+          </figure>
+          {% elif part == 'detect' and stage == 'test' %}
+          <p>To evaluate the performance of our biosensor, we initially ordered chemically synthesized 3-oxo-C12-HSL from Sigma. Overnight cultures of engineered <i>E. coli</i> were diluted to an OD<sub>600</sub> of 0.3, followed by the addition of AHL. Fluorescence was then monitored over time. However, no detectable fluorescence was observed.</p>
+          <p>Following this unsuccessful attempt, we explored an alternative approach by co-culturing our engineered <i>E. coli</i> with <i>Pseudomonas aeruginosa</i> PAO1, a natural producer of quorum-sensing signals. Although a visible green coloration appeared in the culture (Fig. D3), no detectable fluorescence was observed, indicating that the color change could not be confidently attributed to sfGFP expression.</p>
+          <figure class="hw-figure eng-figure text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/co-culture.avif" alt="Three culture tubes: PAO1 co-cultured with engineered TOP10 with and without chloramphenicol, both green, beside PAO1 alone, which stayed pale">
+            <figcaption>Fig. D3 PAO1 co-cultured with the engineered <i>E. coli</i> TOP10 (left, middle), beside PAO1 alone (right)</figcaption>
+          </figure>
+          <p>We then switched to an agar diffusion assay. Engineered <i>E. coli</i> was mixed with soft agar and overlaid onto an LB agar plate. A well was created in the center of the plate, and synthetic AHL was introduced into the well. Unfortunately, this approach still failed to produce the expected fluorescence response.</p>
+          <p>Finally, we replaced synthetic AHL with PAO1 culture supernatant, which was filtered through a 0.22 &micro;m membrane filter before being applied to the agar well. Under these conditions, observable fluorescence was successfully detected. (Fig. D4) However, function of fluorescence differed from our initial expectations, suggesting that the biosensor&rsquo;s response was not yet fully understood.</p>
+          <figure class="hw-figure eng-figure eng-figure-small text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/soft-agar-p.avif" alt="Soft agar plate on a UV transilluminator: a green halo surrounds the central well and fades with distance from it">
+            <figcaption>Fig. D4 Soft-agar overlay with PAO1 supernatant in the central well, under UV</figcaption>
+          </figure>
+          {% elif part == 'detect' and stage == 'learn' %}
+          <p>As this was our first experience in synthetic biology, we initially underestimated the complexity of engineering biological systems. We construct the plasmid, and subsequently apply AHL molecules to it. Then we expected it will show the result we want.</p>
+          <p>Although fluorescence was observed in the agar diffusion assay using PAO1 supernatant, the lack of detectable fluorescence in other experimental conditions raised concerns about the performance of our genetic circuit.</p>
+          <p>In the reference (Wen et al., 2017) design, LasR expression was regulated by the constitutive promoter BBa_J23101. However, we had replaced J23101 with ProD, an insulated promoter previously reported to exhibit higher expression activity than J23101 under the conditions examined by Davis et al. (2011). This modification was intended to enhance LasR expression and potentially improve the sensitivity of our biosensor. Nevertheless, we realized that stronger promoter activity does not necessarily guarantee better biosensor performance, as excessive expression may introduce additional metabolic burdens or affect the balance of the regulatory system.</p>
+          <p>In addition, we performed codon optimization on the LasR coding sequence to improve its expression in <i>E. coli</i>. However, sequence blast revealed an unexpected amino acid substitution relative to the reference LasR protein. We hypothesized that this substitution might have affected its structure or regulatory activity.</p>
+          <p>Unideal experiment result raised our concerns about the reliability and consistency of the biosensor&rsquo;s response. After further discussion, we decided to construct a new plasmid, carefully reviewing the genetic circuit to identify potential design issues.</p>
           {% elif part == 'inhibition' and stage == 'design' %}
           <p>Aptamer is a short sequence of nucleic acid, which is able to bind with the AHL of <i>Pseudomonas aeruginosa</i>. We found a group of ssDNA aptamers, ALS-5, A-16-2 and Cb-2, which are able to bind with the AHL molecules of <i>Pseudomonas aeruginosa</i>——3-oxo-C12-HSL and C4-HSL. (Wu et al., 2025) While the AHL molecules are captured, biofilm formation and motility would be inhibited. Besides, we also found a system called retron, which is able to generate ssDNA inside <i>E. coli</i>. Currently, constructing aptamer by chemical synthesis is mainstream. However, they must be produced externally and supplied to the system as a pre-synthesized reagent. For applications requiring continuous aptamer availability, repeated supplementation may therefore be necessary. We chose Cb-2 aptamer to experiment, for its ability to bind two kinds of AHL simultaneously, while the other aptamers can only bind with one. We aimed to establish a biological production system that could generate the aptamer directly inside living cells. This strategy could reduce the dependence on repeated external addition of synthetic aptamers and provide a programmable platform for intracellular ssDNA production.</p>
           <figure class="hw-figure eng-figure text-center">
             <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2.avif" alt="Cb-2 aptamer folding structure">
-            <figcaption>Fig. 1 Cb-2 aptamer folding structure</figcaption>
+            <figcaption>Fig. I1 Cb-2 aptamer folding structure</figcaption>
           </figure>
           <p>In order to synthesize the ssDNA, we utilize the system called retron. This system allows <i>E. coli</i> to generate the single-stranded DNA in vivo. The retron system mainly consists of three parts ——two regions of non-coding RNA msd and msr, and a reverse transcriptase (RT), which is able to reverse transcribe the RNA sequence of the msd to ssDNA. The msr is a conserved sequence, which forms stem structure for the reverse transcriptase to bind to the RNA. In addition, the msd is the sequence that the RT will reverse transcribe. (Vibhute et al., 2024)</p>
           <figure class="hw-figure eng-figure text-center">
             <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2-msd.avif" alt="Cb-2 aptamer with the msd region">
-            <figcaption>Fig. 2 Cb-2 aptamer with the msd region</figcaption>
+            <figcaption>Fig. I2 Cb-2 aptamer with the msd region</figcaption>
           </figure>
           {% elif part == 'inhibition' and stage == 'build' %}
           <p>We constructed the engineered retron system in a pTwist vector, in which the Cb-2 aptamer sequence was incorporated into the msd region of the retron. The Ec67 retron system is driven by T7 promoter, consisting of msr, the engineered msd region carrying the Cb-2 sequence, and the Ec67 reverse transcriptase (RT) coding sequence.</p>
           <figure class="hw-figure eng-figure text-center">
             <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/retron-gene.avif" alt="Ec67-retron gene map">
-            <figcaption>Fig. 3 Ec67-retron gene map</figcaption>
+            <figcaption>Fig. I3 Ec67-retron gene map</figcaption>
           </figure>
           <p>The purpose of this build was to create a bacterial platform capable of producing Cb-2-containing ssDNA intracellularly rather than supplying synthetic aptamer externally. First, we transformed the plasmid into <i>E. coli</i> TOP10 strain for propagation. Subsequently, we extracted the plasmid from TOP10, and transformed it into BL21(DE3). The transformed colonies were subsequently verified by colony PCR before the confirmed construct was used for further characterization.</p>
           <div class="eng-figure-pair eng-figure-pair-square">
             <figure class="hw-figure eng-figure eng-figure-half text-center">
               <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2-top-10-pcr.avif" alt="TOP10 agarose gel electrophoresis of colony PCR product">
-              <figcaption>Fig. 4 TOP10 agarose gel electrophoresis of colony PCR product</figcaption>
+              <figcaption>Fig. I4 TOP10 agarose gel electrophoresis of colony PCR product</figcaption>
             </figure>
             <figure class="hw-figure eng-figure eng-figure-half text-center">
               <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb-2-bl21-pcr.avif" alt="BL21(DE3) agarose gel electrophoresis of colony PCR product">
-              <figcaption>Fig. 5 BL21(DE3) agarose gel electrophoresis of colony PCR product</figcaption>
+              <figcaption>Fig. I5 BL21(DE3) agarose gel electrophoresis of colony PCR product</figcaption>
             </figure>
           </div>
           {% elif part == 'inhibition' and stage == 'test' %}
@@ -200,14 +228,14 @@
             <p>In order to put the Cb-2 aptamer into function, we used a TRIzol-based extraction method to extract the intracellular nucleic acids.</p>
             <figure class="hw-figure eng-figure eng-figure-float text-center">
               <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb2-1.avif" alt="Cb-2 agarose gel electrophoresis -1">
-              <figcaption>Fig. 6 Cb-2 agarose gel electrophoresis -1</figcaption>
+              <figcaption>Fig. I6 Cb-2 agarose gel electrophoresis -1</figcaption>
             </figure>
             <p>At first, we intended to use gel electrophoresis to determine if the aptamer is indeed produced. The paper we referenced used urea-PAGE and SYBR-Gold. Nonetheless, our laboratory was not equipped to perform denaturing urea-PAGE during the project period; thus we initially used 2% agarose gel to analyze.</p>
             <p>First, we cultured 2 ml of <i>E. coli</i> to extract, and it showed nothing on the gel after our first TRIzol extraction. We hypothesized that the production rate of the aptamer was too low to show on the gel. Consequently, we decided to culture 100 ml of the bacteria each time. After this modification, a low-molecular-weight signal became visible on the gel.</p>
             <p>As Cb-2 is 93 nts, we initially interpreted this low-molecular-weight signal as a possible product of the Cb-2, and thus we subsequently designed the functional test. Since the Cb-2 aptamer was designed to interfere with quorum-sensing signaling, we selected three quorum-sensing-associated phenotypes for functional evaluation: swarming motility, pyocyanin production and biofilm inhibition, each of which is explained below.</p>
             <figure class="hw-figure eng-figure eng-figure-float text-center">
               <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/cb2-2.avif" alt="Cb-2 agarose gel electrophoresis -2">
-              <figcaption>Fig. 7 Cb-2 agarose gel electrophoresis -2</figcaption>
+              <figcaption>Fig. I7 Cb-2 agarose gel electrophoresis -2</figcaption>
             </figure>
             <p>However, we later thought the evidence from the agarose gel was not strong enough, as a result, we performed a further experiment. We compared the result with a BL21(DE3) strain without the plasmid. The result cast doubt on our initial interpretation.</p>
             <p>The negative-control BL21(DE3) sample also showed a low-molecular-weight band. And after we applied RNase to the sample, the band disappeared. The disappearance of the band after RNase treatment suggested that RNA contributed substantially to the signal observed in our initial gel. Therefore, the band could not be regarded as direct evidence of retron-derived Cb-2 ssDNA production.</p>
@@ -221,56 +249,56 @@
               <h4 class="eng-sub-title"><span class="eng-sub-num">1</span>Swarming</h4>
               <figure class="hw-figure eng-figure eng-figure-float text-center">
                 <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/swarming-1.avif" alt="Unsuccessful swarming result">
-                <figcaption>Fig. 8 Unsuccessful swarming result</figcaption>
+                <figcaption>Fig. I8 Unsuccessful swarming result</figcaption>
               </figure>
-              <p>Initially, swarming plates were prepared according to the formulation described in the original study, while the solidification and drying intervals followed the procedure used during our laboratory training. After autoclaving, the medium was allowed to solidify for 40 min, and the poured plates were air-dried for a further 30 min before inoculation. Plates were then incubated for 24 h. Under these conditions, the bacteria failed to spread across the agar surface and instead remained confined to compact, clustered colonies at the inoculation site (Fig. 8), in contrast to the extensive dendritic spreading reported in the original study.</p>
+              <p>Initially, swarming plates were prepared according to the formulation described in the original study, while the solidification and drying intervals followed the procedure used during our laboratory training. After autoclaving, the medium was allowed to solidify for 40 min, and the poured plates were air-dried for a further 30 min before inoculation. Plates were then incubated for 24 h. Under these conditions, the bacteria failed to spread across the agar surface and instead remained confined to compact, clustered colonies at the inoculation site (Fig. I8), in contrast to the extensive dendritic spreading reported in the original study.</p>
               <p>We hypothesized that two factors contributed to this outcome. One was excessive evaporation during drying, which had left the surface too dry to support the hydrated interfacial film required for swarming migration. The other was insufficient ambient humidity during incubation, which would similarly accelerate surface desiccation over the 24 h culture period.</p>
               <figure class="hw-figure eng-figure eng-figure-float text-center">
                 <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/swarming-2.avif" alt="Swarming test">
-                <figcaption>Fig. 9 Swarming test</figcaption>
+                <figcaption>Fig. I9 Swarming test</figcaption>
               </figure>
-              <p>These parameters were then adjusted iteratively. Extending the solidification time to 2 h, shortening the air-drying step to 10 min, and enclosing the plates in a sealed plastic bag to limit evaporative loss during incubation together restored the dendritic spreading pattern described in the original study (Fig. 9). Under these optimized conditions, the swarming radius was measured in ImageJ and compared between Cb-2–treated and control plates. An unpaired t-test confirmed a significant reduction in swarming radius. Cb-2 treatment reduced the swarming radius to 80.7 ± 5.15% of the control, corresponding to an approximately 19.3% reduction, which indicates that Cb-2 suppresses population-level surface motility. (Fig. 10)</p>
+              <p>These parameters were then adjusted iteratively. Extending the solidification time to 2 h, shortening the air-drying step to 10 min, and enclosing the plates in a sealed plastic bag to limit evaporative loss during incubation together restored the dendritic spreading pattern described in the original study (Fig. I9). Under these optimized conditions, the swarming radius was measured in ImageJ and compared between Cb-2–treated and control plates. An unpaired t-test confirmed a significant reduction in swarming radius. Cb-2 treatment reduced the swarming radius to 80.7 ± 5.15% of the control, corresponding to an approximately 19.3% reduction, which indicates that Cb-2 suppresses population-level surface motility. (Fig. I10)</p>
               <figure class="hw-figure eng-figure eng-figure-small text-center">
                 <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/swarming.avif" alt="Swarming radius in the Cb-2 group compared with the control">
-                <figcaption>Fig. 10</figcaption>
+                <figcaption>Fig. I10 Swarming radius of PAO1 treated with A16-2, ALS-5 or Cb-2, as a percentage of the untreated control</figcaption>
               </figure>
             </section>
             <section class="eng-sub eng-sub-2">
               <h4 class="eng-sub-title"><span class="eng-sub-num">2</span>Pyocyanin</h4>
               <figure class="hw-figure eng-figure eng-figure-float text-center">
                 <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/pyocyanin-2.avif" alt="The organic phase did not show blue">
-                <figcaption>Fig. 11 The organic phase didn&rsquo;t show blue.</figcaption>
+                <figcaption>Fig. I11 The organic phase didn&rsquo;t show blue.</figcaption>
               </figure>
               <p>Pyocyanin is a virulence-associated metabolite produced by <i>Pseudomonas aeruginosa</i>. To quantify pyocyanin production, chloroform was added to the bacterial supernatant for extraction. When pyocyanin partitions into the chloroform, the organic phase should turn blue.</p>
-              <p>Then, the chloroform extract was mixed with 0.2 M HCl, which would make the aqueous phase turn pink. We subsequently measured the absorbance at 520 nm using a 96-well plate reader. The result of the first time we conducted the experiment didn&rsquo;t go well. The statistics showed no evident inhibition. We examined our experimental procedures: the chloroform should turn blue after combining with the pyocyanin molecules. However, we didn&rsquo;t see this change at first. (Fig. 11)</p>
-              <p>We attributed this result to insufficient mixing of the chloroform and the sample. After refining our experiment method, we observed the colour change of pyocyanin partitioning into the chloroform (Fig. 12) and the aqueous phase turning pink when added with HCl. (Fig. 13) Reduction of pyocyanin is also observed. Compared with the untreated control, normalized pyocyanin production decreased to 73.30% in the Cb-2 group, corresponding to an inhibition rate of 26.70%. (Fig. 14) Detailed statistical analyses are presented on the <a href="{{ url_for('pages', page='results') }}">Results</a> page.</p>
+              <p>Then, the chloroform extract was mixed with 0.2 M HCl, which would make the aqueous phase turn pink. We subsequently measured the absorbance at 520 nm using a 96-well plate reader. The result of the first time we conducted the experiment didn&rsquo;t go well. The statistics showed no evident inhibition. We examined our experimental procedures: the chloroform should turn blue after combining with the pyocyanin molecules. However, we didn&rsquo;t see this change at first. (Fig. I11)</p>
+              <p>We attributed this result to insufficient mixing of the chloroform and the sample. After refining our experiment method, we observed the colour change of pyocyanin partitioning into the chloroform (Fig. I12) and the aqueous phase turning pink when added with HCl. (Fig. I13) Reduction of pyocyanin is also observed. Compared with the untreated control, normalized pyocyanin production decreased to 73.30% in the Cb-2 group, corresponding to an inhibition rate of 26.70%. (Fig. I14) Detailed statistical analyses are presented on the <a href="{{ url_for('pages', page='results') }}">Results</a> page.</p>
               <div class="eng-figure-pair eng-figure-pair-square">
                 <figure class="hw-figure eng-figure eng-figure-half text-center">
                   <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/pyocyanin-1.avif" alt="The organic phase turned blue">
-                  <figcaption>Fig. 12</figcaption>
+                  <figcaption>Fig. I12 The chloroform layer after the extraction was repeated with more thorough mixing</figcaption>
                 </figure>
                 <figure class="hw-figure eng-figure eng-figure-half text-center">
                   <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/pyocyanin-3.avif" alt="The aqueous phase turned pink after adding HCl">
-                  <figcaption>Fig. 13</figcaption>
+                  <figcaption>Fig. I13 The aqueous phase after acidification with 0.2 M HCl</figcaption>
                 </figure>
               </div>
               <figure class="hw-figure eng-figure eng-figure-small text-center">
                 <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/pyocyanin.avif" alt="Pyocyanin production in the Cb-2 group compared with the untreated control">
-                <figcaption>Fig. 14</figcaption>
+                <figcaption>Fig. I14 Pyocyanin content of PAO1 treated with A16-2, ALS-5 or Cb-2, as a percentage of the untreated control</figcaption>
               </figure>
             </section>
             <section class="eng-sub eng-sub-2">
               <h4 class="eng-sub-title"><span class="eng-sub-num">3</span>Biofilm</h4>
               <figure class="hw-figure eng-figure eng-figure-float text-center">
                 <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/biofilm-1.avif" alt="Crystal violet retained by the adherent biofilm, solubilized in acetic acid">
-                <figcaption>Fig. 15</figcaption>
+                <figcaption>Fig. I15 Crystal violet retained by the biofilm in a 96-well plate: the untreated control (left) beside wells treated with ALS-5, A16-2 and Cb-2 (right)</figcaption>
               </figure>
               <p>Biofilm formation was quantified by crystal violet staining. Overnight cultures were adjusted to an OD<sub>600</sub> of 0.1, applied with aptamers and dispensed into 96-well plates and incubated statically for 48 hours.</p>
-              <p>After incubation, the planktonic supernatant was carefully aspirated, and the wells were washed twice with Milli-Q water to remove residual non-adherent cells. Adherent biofilm was stained with crystal violet, and the retained dye was solubilized in acetic acid (Fig. 15) before absorbance was recorded at 550 nm. Absorbance values were corrected by subtracting the mean of sterile medium-only wells processed in parallel, and the corrected values were normalized to the LB-treated control, set at 100%.</p>
-              <p>Cb-2 treatment reduced biofilm formation to 65.57 ± 10.53% of the control, corresponding to an inhibition of approximately 34% (Fig. 16), which suggests that Cb-2 suppresses biofilm development in addition to the population-level motility phenotype described above.</p>
+              <p>After incubation, the planktonic supernatant was carefully aspirated, and the wells were washed twice with Milli-Q water to remove residual non-adherent cells. Adherent biofilm was stained with crystal violet, and the retained dye was solubilized in acetic acid (Fig. I15) before absorbance was recorded at 550 nm. Absorbance values were corrected by subtracting the mean of sterile medium-only wells processed in parallel, and the corrected values were normalized to the LB-treated control, set at 100%.</p>
+              <p>Cb-2 treatment reduced biofilm formation to 65.57 ± 10.53% of the control, corresponding to an inhibition of approximately 34% (Fig. I16), which suggests that Cb-2 suppresses biofilm development in addition to the population-level motility phenotype described above.</p>
               <figure class="hw-figure eng-figure eng-figure-small text-center">
                 <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/biofilm.avif" alt="Biofilm formation in the Cb-2 group compared with the control">
-                <figcaption>Fig. 16</figcaption>
+                <figcaption>Fig. I16 Biofilm content of PAO1 treated with ALS-5, A16-2 or Cb-2, as a percentage of the untreated control</figcaption>
               </figure>
             </section>
           </section>
