@@ -674,3 +674,296 @@ html.rx-js .hx-why-list > li .hx-why-text[data-reveal].rx-in { transform: none; 
   .hx-hais-title, .hx-hais-lead, .hx-hais-note { color: #000 !important; }
   .hx-hais-figure { color: #075a3e !important; }
 }
+
+/* ---- the figures rolling into place ---- */
+
+/* Built by static/js/pages/hais-reels.js, which turns every character of a
+   figure into a cell of the same height and spins the digits to their
+   value. Nothing here applies until it has run: without it the figure is
+   plain text and reads exactly as written. */
+
+.hais-reel {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.15em;
+  vertical-align: top;
+}
+
+.hais-strip {
+  display: block;
+  will-change: transform;
+}
+
+.hais-cell {
+  display: block;
+  height: 1.15em;
+  line-height: 1.15em;
+  /* The spaces between "4.9" and "Million" are cells too, and a cell is a
+     block: without this they would collapse to nothing. */
+  white-space: pre;
+}
+
+/* ============================================================
+   Where medicine creates moisture — the four figures, the ward imagery,
+   and the hand-over to the 48-72 hour slider.
+
+   These are the section's own four figures, which used to sit here as a
+   bare list. They keep hx-figure and hx-figure-note so the type and the
+   amber rule come from the dry lab's own styles; only the arrangement and
+   what surrounds them is new.
+   ============================================================ */
+
+.hx-strike {
+  position: relative;
+  margin: clamp(3rem, 9vh, 7rem) 0 clamp(2.5rem, 7vh, 5rem);
+}
+
+.hx-strike-title {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 3.2vw, 2.5rem);
+  line-height: 1.16;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #f2fff8;
+  max-width: 24ch;
+  margin: 0 auto 0.9rem;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* Upper case is set here rather than typed into the markup, so the species
+   name can still be marked up as one and read as one. */
+.hx-strike-title em { font-style: italic; color: var(--c-glow); }
+
+.hx-strike-sub {
+  font-size: var(--fs-lead);
+  line-height: 1.7;
+  color: var(--c-text-2);
+  max-width: 54ch;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* ---- the figures, and what floats around them ---- */
+
+.hx-strike-stage {
+  position: relative;
+  margin-top: clamp(2.5rem, 7vh, 4.5rem);
+}
+
+.hx-strike-figures {
+  /* Two by two, and held well inside the stage: the gap either side is
+     where the cut-outs float. */
+  position: relative;
+  z-index: 1;
+  width: min(100%, 44rem);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  padding: 0;
+  list-style: none;
+}
+
+.hx-strike-figures li {
+  border-left: 3px solid var(--c-amber);
+  padding-left: 1rem;
+}
+
+.hx-strike-floats { display: contents; }
+
+.hx-strike-float {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  /* The width/height attributes on the img are presentational hints, which
+     behave as a CSS declaration of their own. Setting only width left the
+     intrinsic height in force and the cut-outs came out as tall ribbons. */
+  height: auto;
+  /* editorial.css gives every image inside .container a radius and a drop
+     shadow unless its class is on a long :not() list. These are cut-outs:
+     that shadow is cast by the rectangle, not by the drawing, and the glow
+     below is applied after it -- so the pair came out as a lit rounded box
+     floating behind each one. The rule it is beating runs to a specificity
+     of fifteen classes, which is past anything a sane selector here could
+     reach, and widening the list means editing a stylesheet the whole site
+     shares. */
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  /* The images are cut-outs, so drop-shadow follows the drawn edge and the
+     glow sits round the object rather than round a box. Two passes: a tight
+     one to read as light coming off it, a wide one for the bloom. */
+  filter:
+    drop-shadow(0 0 14px rgba(160, 232, 96, 0.5))
+    drop-shadow(0 0 44px rgba(160, 232, 96, 0.25));
+  animation: strike-bob 6s ease-in-out infinite alternate;
+}
+
+
+@keyframes strike-bob {
+  to { transform: translateY(-14px); }
+}
+
+/* ---- the hand-over ---- */
+
+.hx-strike-bridge {
+  max-width: 60ch;
+  margin: clamp(3rem, 8vh, 5rem) auto 0;
+  text-align: center;
+  font-size: var(--fs-lead);
+  line-height: 1.75;
+  color: var(--c-text-2);
+}
+
+.hx-strike-bridge strong { color: #f2fff8; font-weight: 700; }
+
+/* ---- narrow ---- */
+
+@media (max-width: 991.98px) {
+  .hx-strike-figures { width: 100%; }
+  /* No margin left either side for anything to float in, so the three come
+     out from behind the figures and sit in a row of their own underneath. */
+  .hx-strike-floats {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: center;
+    gap: clamp(1rem, 4vw, 2rem);
+    margin-top: clamp(2rem, 6vw, 3rem);
+  }
+  .hx-strike-float {
+    position: static;
+    translate: none;
+    width: auto;
+    height: auto;
+    max-height: 7.5rem;
+    max-width: 40%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .hx-strike-figures { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hx-strike-float { animation: none; }
+}
+
+@media print {
+  .hx-strike-float { display: none !important; }
+  .hx-strike-title, .hx-strike-sub, .hx-strike-bridge { color: #000 !important; }
+}
+
+/* ============================================================
+   Later pass: where the three cut-outs sit, how they arrive, and the
+   weight of the two blocks around them.
+   ============================================================ */
+
+/* The floats are placed against the whole section, not just the figures:
+   the dish sits up beside the heading and the wound reaches down past the
+   last row, and neither is inside the figures' own box. */
+.hx-strike-stage { position: static; }
+
+/* One block, each with every edge it needs stated. An earlier version
+   layered corrections on top of the first placement and a later
+   `.hx-strike-float { right: auto }` quietly cancelled the ventilator's
+   own `right` -- same specificity, and it came afterwards. */
+/* calc(50% - 50vw) is the distance from this block's edge out to the
+   window's: half the measure less half the viewport. The ventilator and
+   the wound are pinned there so they sit flush against the screen rather
+   than against the column. vw counts the scrollbar, so they overhang it by
+   a few pixels -- which is the right way round for something meant to run
+   off the edge, and html's overflow-x: clip takes care of the rest. */
+.f-ps {
+  left: 0;
+  top: -2%;
+  width: min(26%, 19rem);
+  animation-duration: 5.5s;
+  animation-delay: -3.4s;
+}
+.f-vent {
+  right: calc(50% - 50vw);
+  top: 0;
+  width: min(21%, 16rem);
+  animation-duration: 7s;
+  animation-delay: -1.2s;
+}
+.f-wound {
+  left: calc(50% - 50vw);
+  top: 58%;
+  width: min(30%, 22rem);
+  animation-duration: 8s;
+  animation-delay: -5.1s;
+}
+
+/* Further than before, and each on its own clock so the three never rise
+   and fall together. */
+@keyframes strike-bob {
+  to { transform: translateY(-26px); }
+}
+
+/* Down into place as they fade up, rather than the site's default lift from
+   below. The arrival is on translate and the drift is on transform: they
+   are separate properties and compose, so one does not overwrite the other
+   -- putting both on transform would have the bob cancel the entrance. */
+html.rx-js .hx-strike-float[data-reveal] {
+  opacity: 0;
+  translate: 0 -58px;
+  transition: opacity 0.8s var(--ease-out), translate 0.8s var(--ease-out);
+  transition-delay: calc(var(--rx-d, 0) * 1ms);
+}
+html.rx-js .hx-strike-float[data-reveal].rx-in {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* The hand-over carries the weight of the section's last word. */
+.hx-strike-bridge {
+  font-size: clamp(1.15rem, 2.1vw, 1.6rem);
+  line-height: 1.65;
+  max-width: 52ch;
+}
+
+/* ---- the HAIs drawing arrives the same way ---- */
+
+/* The 9% is the baseline offset that lines the foot of the bed up with the
+   foot of the plate; it has to survive the entrance, so both ends of the
+   transition carry it. */
+html.rx-js .hx-hais-bg[data-reveal] {
+  opacity: 0;
+  translate: 0 calc(9% - 58px);
+  transition: opacity 0.9s var(--ease-out), translate 0.9s var(--ease-out);
+}
+html.rx-js .hx-hais-bg[data-reveal].rx-in {
+  opacity: 1;
+  translate: 0 9%;
+}
+
+@keyframes hais-float {
+  50% { transform: translateY(-24px); }
+}
+
+/* ---- the 48-72 hour slider, given more room ---- */
+
+/* The dry lab's block, scaled up from here rather than in home.css, which
+   is theirs and still being worked on. Only sizes change; nothing about how
+   it works is touched. */
+.hx-wait { padding: clamp(1.75rem, 3.5vw, 2.75rem); }
+.hx-wait-title { font-size: clamp(1.45rem, 2.8vw, 2.1rem); }
+.hx-wait-sub { font-size: 1rem; }
+.hx-wait-rail { height: 18px; }
+.hx-wait-track { padding-top: 2.8rem; }
+.hx-wait-out { font-size: clamp(1rem, 1.5vw, 1.15rem); line-height: 1.7; }
+.hx-wait-hours { font-size: 1.35em; }
+.hx-shield { width: clamp(4.5rem, 8vw, 6.5rem); height: auto; }
+.hx-wait-ticks { font-size: 0.9rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hx-strike-float, .hx-hais-bg { animation: none; }
+  /* base.css forces transform off in this setting but says nothing about
+     translate, and the entrance above is on translate: left alone the
+     three would sit stranded 58px above where they belong. */
+  html.rx-js .hx-strike-float[data-reveal] { translate: none; opacity: 1; }
+  html.rx-js .hx-hais-bg[data-reveal] { translate: 0 9%; opacity: 1; }
+}

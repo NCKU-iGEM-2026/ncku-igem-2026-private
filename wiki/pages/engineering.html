@@ -49,8 +49,8 @@
   ('learn',  315, 93.93,  93.93,  'What it told us, and what changed next'),
 ] %}
 
-{# Three parts, each with its own DBTL cycle: Detect, Inhibition, then the
-   instrument that reads them. Each part is a panel in its own accent colour
+{# Two parts, each with its own DBTL cycle: Detect, then Inhibition.
+   Each part is a panel in its own accent colour
    (style.css, .eng-part), with a jump bar at the top so a reader sees from
    the start how many parts the page has.
 
@@ -60,14 +60,8 @@
    round reads as a continuation of the first rather than a separate topic.
 
    part: used in ids and links (#eng-detect-c1-design ...); part_name: the
-   heading above the cycle and the word in its centre.
-
-   2026-10-11：加了 Part 03 Measurement（量測）。它的 Design 與 Build 取自
-   Hardware 與 Software 兩頁，只做濃縮並連回原頁，沒有新的數字或結論。
-   它的 Test 與 Learn 的素材在 Model 頁 Part 3（reader model），但 Model 頁
-   Part 1 的 biofilm 數字目前與 Results／Engineering 這邊不一致，團隊決定先
-   不把 Model 的內容搬進這一頁，所以那兩格暫時維持佔位框。 #}
-{% set parts = [('detect', 'Detect', 2), ('inhibition', 'Inhibition', 1), ('measure', 'Measurement', 1)] %}
+   heading above the cycle and the word in its centre. #}
+{% set parts = [('detect', 'Detect', 2), ('inhibition', 'Inhibition', 1)] %}
 
 {# A later round does not always start from scratch. cycle_stages says which
    stages that round actually ran; the ones it skipped keep their arrow on the
@@ -183,8 +177,14 @@
             {% endfor %}
           </g>
           <g aria-hidden="true">
+            {% if cycles > 1 %}
+            <text class="eng-cycle-kicker" x="200" y="152" text-anchor="middle">CYCLE</text>
+            <text class="eng-cycle-round" x="200" y="214" text-anchor="middle">0{{ cycle }}</text>
+            <text class="eng-cycle-centre has-round" x="200" y="248" text-anchor="middle">{{ part_name }}</text>
+            {% else %}
             <text class="eng-cycle-centre" x="200" y="198" text-anchor="middle">{{ part_name }}</text>
-            <text class="eng-cycle-kicker{% if cycles > 1 %} has-round{% endif %}" x="200" y="{% if cycles > 1 %}230{% else %}226{% endif %}" text-anchor="middle">CYCLE{% if cycles > 1 %} 0{{ cycle }}{% endif %}</text>
+            <text class="eng-cycle-kicker" x="200" y="226" text-anchor="middle">CYCLE</text>
+            {% endif %}
           </g>
         </svg>
       </figure>
@@ -320,7 +320,7 @@
                 <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/swarming-2.avif" alt="Swarming test">
                 <figcaption>Fig. I9 Swarming test</figcaption>
               </figure>
-              <p>These parameters were then adjusted iteratively. Extending the solidification time to 2 h, shortening the air-drying step to 10 min, and enclosing the plates in a sealed plastic bag to limit evaporative loss during incubation together restored the dendritic spreading pattern described in the original study (Fig. I9). Under these optimized conditions, the swarming radius was measured in ImageJ and compared between Cb-2–treated and control plates. An unpaired t-test confirmed a significant reduction in swarming radius. Cb-2 treatment reduced the swarming radius to 80.7 ± 5.15% of the control, corresponding to an approximately 19.3% reduction, which indicates that Cb-2 suppresses population-level surface motility. (Fig. I10)</p>
+              <p>These parameters were then adjusted iteratively. Extending the solidification time to 2 h, shortening the air-drying step to 10 min, and enclosing the plates in a sealed plastic bag to limit evaporative loss during incubation together restored the dendritic spreading pattern described in the original study (Fig. I9). Under these optimized conditions, the swarming radius was measured in ImageJ and compared between Cb-2–treated and control plates. The same plates were also measured with LasReader&rsquo;s <a href="{{ url_for('pages', page='software') }}#swarming">Swarming Assay</a>, built by our Dry Lab team, as a cross-check on the manual ImageJ measurement. An unpaired t-test confirmed a significant reduction in swarming radius. Cb-2 treatment reduced the swarming radius to 80.7 ± 5.15% of the control, corresponding to an approximately 19.3% reduction, which indicates that Cb-2 suppresses population-level surface motility. (Fig. I10)</p>
               <figure class="hw-figure eng-figure eng-figure-small text-center">
                 <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/swarming.avif" alt="Swarming radius in the Cb-2 group compared with the control">
                 <figcaption>Fig. I10 Swarming radius of PAO1 treated with A16-2, ALS-5 or Cb-2, as a percentage of the untreated control</figcaption>
@@ -334,7 +334,7 @@
               </figure>
               <p>Pyocyanin is a virulence-associated metabolite produced by <i>Pseudomonas aeruginosa</i>. To quantify pyocyanin production, chloroform was added to the bacterial supernatant for extraction. When pyocyanin partitions into the chloroform, the organic phase should turn blue.</p>
               <p>Then, the chloroform extract was mixed with 0.2 M HCl, which would make the aqueous phase turn pink. We subsequently measured the absorbance at 520 nm using a 96-well plate reader. The result of the first time we conducted the experiment didn&rsquo;t go well. The statistics showed no evident inhibition. We examined our experimental procedures: the chloroform should turn blue after combining with the pyocyanin molecules. However, we didn&rsquo;t see this change at first. (Fig. I11)</p>
-              <p>We attributed this result to insufficient mixing of the chloroform and the sample. After refining our experiment method, we observed the colour change of pyocyanin partitioning into the chloroform (Fig. I12) and the aqueous phase turning pink when added with HCl. (Fig. I13) Reduction of pyocyanin is also observed. Compared with the untreated control, normalized pyocyanin production decreased to 73.30% in the Cb-2 group, corresponding to an inhibition rate of 26.70%. (Fig. I14) Detailed statistical analyses are presented on the <a href="{{ url_for('pages', page='results') }}">Results</a> page.</p>
+              <p>We attributed this result to insufficient mixing of the chloroform and the sample. After refining our experiment method, we observed the color change of pyocyanin partitioning into the chloroform (Fig. I12) and the aqueous phase turning pink when added with HCl. (Fig. I13) Reduction of pyocyanin is also observed. Compared with the untreated control, normalized pyocyanin production decreased to 73.30% in the Cb-2 group, corresponding to an inhibition rate of 26.70%. (Fig. I14) Detailed statistical analyses are presented on the <a href="{{ url_for('pages', page='results') }}">Results</a> page.</p>
               <div class="eng-figure-pair eng-figure-pair-square">
                 <figure class="hw-figure eng-figure eng-figure-half text-center">
                   <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/pyocyanin-1.avif" alt="The organic phase turned blue">
@@ -370,29 +370,6 @@
           <p>We also found that experimental conditions strongly influenced assay performance. Factors such as plate moisture in the swarming assay and mixing efficiency during pyocyanin extraction had to be optimized before reliable results could be obtained.</p>
           <p>In future, we would first improve the molecular verification of retron-derived Cb-2 using higher-resolution methods such as denaturing urea-PAGE or sequence-specific detection. We would also further optimize retron expression and quantify aptamer production to better connect the amount of produced ssDNA with its functional effects.</p>
           <p>Ultimately, we hope to develop the retron system into a more reliable biological platform for continuous production of functional DNA aptamers in vivo.</p>
-          {% elif part == 'measure' and stage == 'design' %}
-          {# 全部濃縮自 Hardware 頁的 Background 與 Measurement principle 兩節，
-             並連回去。數字（200 µL、485/510 nm、成本）都是那一頁上既有的。 #}
-          <p>Both of the cycles above end in the same place: a number. Detect reports AHL by making sfGFP, and the assays under Inhibition are read as absorbances. Getting those numbers off the bench is its own engineering problem, and this part is the cycle we ran on it.</p>
-          <p>Reading our biosensor takes 200&nbsp;&micro;L of sfGFP culture per reaction, measured every hour for six hours at 37&nbsp;&deg;C. The shared plate reader that would do this is booked, scheduled and in one building, which does not fit an hourly reading. We set out to build a reader cheap enough to rebuild and small enough to sit next to the incubator.</p>
-          <p>Two requirements followed from the measurement itself. The blue light that excites the sample has to be kept apart from the green the sample gives off &mdash; we do this twice over, by angle and by colour. And the instrument has to be honest about what it is: ours excites at 470&nbsp;nm against the plate reader's 485&nbsp;/&nbsp;510&nbsp;nm benchmark, so its geometry, drive current, integration time and dark baseline are all ours to state rather than inherit.</p>
-          <p>The full background and the optical principle, with the plan view and the detector's channels, are on the <a href="{{ url_for('pages', page='hardware') }}#hardware-background">Hardware</a> page.</p>
-          {% elif part == 'measure' and stage == 'build' %}
-          {# 兩台機器濃縮自 Hardware 頁 The two builds；三個工具濃縮自 Software 頁 1.3。
-             Cross-Validation 在這裡只算「我們做了這個工具」，不是「我們驗證過了」——
-             Software 頁 4.1 Results 目前還沒有真實數據，4.2 第一列寫的是 Validation
-             pending。寫這一格時不要把它說成已完成的驗證結果。 #}
-          <p>We built two readers on that principle and the software that drives them.</p>
-          <section class="eng-sub">
-            <h3 class="eng-sub-title"><span class="eng-sub-num">1</span>Two readers</h3>
-            <p>The two share the light path and the spectral sensing, and differ in how they are made and run. The <a href="{{ url_for('pages', page='hardware') }}#printed">3D-printed build</a> is a printed optical core on a base plate with the electronics on a breadboard beside it, driven by serial commands; the version we used is the second, built 2026-10-03. The <a href="{{ url_for('pages', page='hardware') }}#laser-cut">laser-cut build</a> puts the same principle in its own enclosure, made from laser-cut parts, and is run from our own software through an OLED display and a single button.</p>
-            <p class="hw-aside">Counts from the two readers are not interchangeable: they run different firmware and integrate for different times.</p>
-          </section>
-          <section class="eng-sub">
-            <h3 class="eng-sub-title"><span class="eng-sub-num">2</span>LasReader</h3>
-            <p>Our <a href="{{ url_for('pages', page='software') }}#tools">software</a> is three tools on one workflow. <strong>Plate Reader Assay</strong> turns standards and samples read on any plate reader into a standard curve, giving each sample a concentration and a 95&nbsp;% confidence interval. <strong>CAPTURE-Screen</strong> is the control software for our own reader, and shows all ten spectral channels live while the device is on. <strong>Cross-Validation</strong> pairs the same samples measured on both instruments by name and reports a geometric mean ratio with limits of agreement.</p>
-            <p>The third tool is the one that would let a low-cost reader be compared against a commercial one. It is built; what it has not yet been given is a full real dataset to run on, and the agreement thresholds it would be judged against are not set. Both are listed as open items on the <a href="{{ url_for('pages', page='software') }}#limits">Software</a> page.</p>
-          </section>
           {% else %}
           {# 內容待 wet lab 確認後寫在這裡，寫好後刪掉下面這個佔位框。
              寫某一部分的某一階段時，照上面 inhibition / design 的寫法加一個條件。 #}

@@ -2225,12 +2225,19 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   letter-spacing: 0.32em;
   fill: #49c5b6;
 }
-/* With more than one round in a part, the line under the name is what tells
-   the rounds apart, so it is set as large as the name itself. */
-.eng-cycle-kicker.has-round {
-  font-size: 23px;
+/* With more than one round in a part, the round number is what tells the
+   rounds apart, so it is the largest thing in the hub: "CYCLE" small above,
+   the number big in lime, the part's name below. */
+.eng-cycle-round {
+  font-family: "Changa", sans-serif;
+  font-size: 76px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  fill: #a0e860;          /* --nx-lime */
+  filter: drop-shadow(0 0 10px rgba(160, 232, 96, 0.35));
+}
+.eng-cycle-centre.has-round {
+  font-size: 24px;
+  fill: #cfe3ea;
 }
 .eng-cycle-label { pointer-events: none; }
 /* A stage a later round did not repeat: its arrow stays on the ring so the
@@ -2297,7 +2304,12 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
      cycle then takes two of its own -- its band, then the ring and the stages
      side by side -- and engineering.html sets which pair. A fixed row here
      would stack a part's second round on top of its first. */
-  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; width: 10.5rem; margin-top: 1rem; }
+  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; justify-self: start; width: 10.5rem; margin-top: 1rem; }
+  /* With room to spare at the left, the ring grows and leans out into it, so
+     it stays clear of the text instead of crowding it. */
+  @media (min-width: 1300px) {
+    .eng-dbtl > .eng-dbtl-rail { justify-self: end; width: 11.5rem; margin-right: 1.5rem; }
+  }
   .eng-dbtl > .eng-dbtl-stages { grid-column: 2; margin-top: 1rem; }
   .eng-cycle-band { grid-column: 2; }
   .eng-future { grid-column: 2; }
@@ -2312,7 +2324,6 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
    everything else on the page is driven off --part. */
 [data-part="detect"]     { --part: #49c5b6; }   /* --nx-mint */
 [data-part="inhibition"] { --part: #e6b060; }   /* --nx-warm */
-[data-part="measure"]    { --part: #a0e860; }   /* --nx-lime */
 .eng-parts-nav {
   display: flex;
   flex-wrap: wrap;
@@ -2463,6 +2474,10 @@ body.hw-nexus .hw .eng-future-title {
   position: sticky;
   top: 110px;
 }
+/* Only the round being read shows its ring: two rings of one part would
+   otherwise sit on top of each other as one round hands over to the next. */
+.eng-dbtl-rail { transition: opacity 0.3s ease; }
+.eng-dbtl-rail.is-tracked:not(.is-in-view) { opacity: 0; pointer-events: none; }
 .eng-dbtl-stage {
   --stage: #a0e860;
   scroll-margin-top: 110px;
@@ -6510,6 +6525,8 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
 .hw-jump .sw-links { margin: 0 0 2.4rem; }
 .hw section[id],
 .hw h3[id] { scroll-margin-top: 90px; }
+/* a paragraph that other pages link to lands clear of the fixed bar, like a heading */
+.hw p[id] { scroll-margin-top: 110px; }
 
 /* ---- the two builds, one at a time ----
    Two readers share this page. A card stands for each and says what it is;
@@ -6588,7 +6605,9 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
   padding-top: 1.2rem;
   border-top: 2px solid #075a3e;
 }
-.hw .hw-build-title { font-size: 1.9rem; margin: 0 0 0.9rem; }
+/* The build's name stands over its sections (The instrument, Design advantages, ...), whose headings are the
+   site's h2, about 2rem on a desktop and less on a phone. It was 1.9rem, smaller than what it contains. */
+.hw .hw-build-title { font-size: clamp(1.9rem, 1.6rem + 1.1vw, 2.5rem); margin: 0 0 0.9rem; }
 .hw-build-head .sw-links { margin: 0; }
 .hw-build-end {
   display: flex;
@@ -6717,6 +6736,8 @@ body.hw-nexus .hw-vis {
 /* A mark that is version 2's but stands for the other answer: a ring where
    the dot is filled. Used in the AHL plate session's chart. */
 .hw-vis .hw-ring { fill: var(--hw-surf); stroke: var(--hw-v2); stroke-width: 2; }
+/* The same ring in the other series' colour: the AHL plate session's readings that were not judged induced. */
+.hw-vis .hw-ring-v1 { fill: var(--hw-surf); stroke: var(--hw-v1); stroke-width: 2; }
 /* The session chart is wider than a phone: it scrolls inside its figure. */
 .hw-chart { margin: 1.2rem 0 1rem; }
 .hw-chart .hw-vis { min-width: 520px; }
@@ -7228,6 +7249,9 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 .hwp-stage {
   position: relative;
   height: clamp(320px, 52vw, 540px);
+  /* On a short screen (a laptop at 200 % scaling shows about 630 px) the view
+     gives up height so that it and the row of buttons over it fit together. */
+  height: clamp(320px, min(52vw, 100vh - 130px), 540px);
   /* A drag that starts on the view and runs off it should not end up
      selecting the paragraph underneath. */
   -webkit-user-select: none;
@@ -12593,6 +12617,53 @@ body.hw-nexus .hw .hw-how > li > b::before {
 body.hw-nexus .hw .hw-build-head .hw-limit { margin: 0.9rem 0 1.7rem; }
 body.hw-nexus .hw #printed .hw-limit + p:not(.hw-more) { margin-top: 1.6rem; }
 
+/* The build-test-learn loop under the head of a build: one row to a turn, the
+   same three headings each time, so the eye reads it as going round twice.
+   Each step is the page's own card (the .hw-said and .hw-do one: same panel,
+   border, corner and label), three to a row like .hw-do, with the body text of
+   the improvement cards. Nothing here has a size of its own. */
+body.hw-nexus .hw .hw-loop { margin: 1.9rem 0 0.4rem; }
+body.hw-nexus .hw .hw-loop-who {
+  margin: 1.2rem 0 0.55rem; font-family: "Changa", sans-serif; font-weight: 700; font-size: 1rem; color: #fff;
+}
+body.hw-nexus .hw .hw-loop-turn {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem;
+  list-style: none; margin: 0; padding: 0;
+}
+body.hw-nexus .hw .hw-loop-turn > li {
+  position: relative; margin: 0; padding: 1.1rem 1.25rem 1.05rem;
+  border: 1px solid var(--nx-line); border-radius: 12px; background: var(--nx-panel);
+  font-size: 0.95rem; line-height: 1.6; color: var(--nx-text);
+}
+/* Build, Test, Learn are what makes it read as a loop, so they are set as the
+   card's heading (the size of a section's opening sentence, in the lime of the
+   other cards' headings), not as a small label. */
+body.hw-nexus .hw .hw-loop-turn > li > b {
+  display: block; margin-bottom: 0.35rem;
+  font-family: "Changa", sans-serif; font-size: 1.32rem; font-weight: 700; line-height: 1.2;
+  color: var(--nx-lime);
+}
+body.hw-nexus .hw .hw-loop-next > b {
+  font-family: "Changa", sans-serif; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--nx-mint);
+}
+/* the arrow from one step to the next sits in the gap between the two cards */
+body.hw-nexus .hw .hw-loop-turn > li + li::before {
+  content: "\2192"; position: absolute; left: -0.75rem; top: 50%; transform: translate(-50%, -50%);
+  color: var(--nx-lime); font-size: 1rem; line-height: 1;
+}
+/* the turn not yet taken: the same card, drawn in outline only */
+body.hw-nexus .hw .hw-loop-next {
+  margin: 1rem 0 0; padding: 1.1rem 1.25rem 1.05rem;
+  border: 1px dashed var(--nx-line); border-radius: 12px;
+  font-size: 0.95rem; line-height: 1.6; color: var(--nx-text);
+}
+body.hw-nexus .hw .hw-loop-next > b { margin-right: 0.6rem; color: var(--nx-lime); }
+@media (max-width: 859.98px) {
+  body.hw-nexus .hw .hw-loop-turn { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; }
+  body.hw-nexus .hw .hw-loop-turn > li + li::before { content: none; }
+}
+
 /* What the wet lab said, and what followed: one card to a version. It is
    reported speech, so there are no quotation marks and none are drawn. */
 body.hw-nexus .hw .hw-said,
@@ -13016,7 +13087,7 @@ body.hw-nexus .hw .hw-run-foot i { font-style: normal; color: var(--nx-text); }
 
 /* Flashing it: once, and so set apart from the session. */
 body.hw-nexus .hw .hw-run-once {
-  margin: 1.5rem 0 0;
+  margin: 1.1rem 0 1.5rem;
   padding: 0.8rem 1rem 0.9rem;
   border: 1px dashed var(--nx-line);
   border-radius: 10px;
