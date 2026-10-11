@@ -1233,6 +1233,307 @@
     </ol>
   </section>
 
+  <!-- ========================= 1.6 validation ========================= -->
+  <section id="model-inhibition-validation">
+    <h2 data-toc-title="1.6 Validation">1.6 Validation</h2>
+
+    <p>
+      A model fitted to data it then explains has not been tested. Ours was
+      fitted on two numbers; two further treatments were held out entirely and
+      predicted with nothing adjusted.
+    </p>
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table md-keep">
+        <caption>Held-out predictions against measurements the model never saw</caption>
+        <thead>
+          <tr>
+            <th scope="col">Treatment</th><th scope="col">Role</th>
+            <th scope="col" class="md-n">Model</th>
+            <th scope="col" class="md-n">Measured [95&nbsp;% CI]</th>
+            <th scope="col">Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>ALS-5</td><td>fitted</td><td class="md-n">0.750</td><td class="md-n">0.750</td><td>&mdash;</td></tr>
+          <tr><td>A16-2</td><td>fitted</td><td class="md-n">0.601</td><td class="md-n">0.601</td><td>&mdash;</td></tr>
+          <tr><td>ALS-5&nbsp;+&nbsp;A16-2</td><td><strong>held out</strong></td><td class="md-n">0.562 / 0.579</td><td class="md-n">0.714 [0.563, 0.894]</td><td><strong>inside the interval</strong>, at its lower edge</td></tr>
+          <tr><td>Cb-2</td><td><strong>held out</strong></td><td class="md-n">0.991 / 0.469</td><td class="md-n">0.767 [0.625, 0.865]</td><td><strong>outside both</strong>; the measurement falls between them</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      The two model values are the equal-mass and the equal-molar dosing
+      convention. Which of the two the experiment actually used is not
+      recorded, which is the point of what follows.
+    </p>
+
+    <figure class="hw-figure">
+      <div class="md-plate">
+        <img src="https://static.igem.wiki/teams/6379/wiki/model/f8-held-out-predictions.avif"
+             alt="Four rows, each with a coloured band for the measured 95 percent interval and two open markers for the model's two dosing conventions. For the two fitted treatments the markers sit on the measurement. For the held-out mixture both markers sit just inside the band. For held-out Cb-2 the two markers sit far apart, one at 0.47 and one at 0.99, with the measured band between them."
+             loading="lazy" decoding="async" width="1680" height="960">
+      </div>
+      <figcaption>
+        <strong>One prediction succeeded; one did not.</strong> The mixture
+        landed inside the measured interval with nothing fitted to it. Cb-2 did
+        not: the two dosing conventions bracket the observation instead of
+        hitting it.
+      </figcaption>
+    </figure>
+
+    <p>
+      That failure is diagnostic rather than fatal, and it points at a single
+      missing measurement. Inverting the model on the Cb-2 observation, either
+      a dose of <strong>8.6&nbsp;ng/&micro;L</strong> &mdash; 1.1&times; the
+      equal-mass assumption &mdash; or a Cb-2 affinity for C4-HSL of
+      <strong><var>K</var><sub>d</sub>&nbsp;&asymp;&nbsp;126&nbsp;nM</strong>,
+      39&times; tighter than A16-2's fitted value, reproduces the measured
+      0.767 exactly. Both are plausible, and they cannot be told apart without
+      knowing what was actually applied to the plate &mdash; which our records
+      do not state. The sensitivity sweep agrees that this is the model's least
+      constrained output: across parameter draws the held-out Cb-2 prediction
+      spans 0.22 to 0.98 (90&nbsp;% interval). So we do not present it as a
+      success.
+    </p>
+
+    <h3>Which parameters matter</h3>
+
+    <p>
+      Two hundred Latin hypercube samples were drawn across the full literature
+      range of every uncertain parameter, each re-calibrated to the same two
+      observations; 169 calibrated successfully. Influence is ranked by partial
+      rank correlation with the dose required for 90&nbsp;% inhibition.
+    </p>
+
+    <figure class="hw-figure">
+      <div class="md-plate md-plate-wide">
+        <img src="https://static.igem.wiki/teams/6379/wiki/model/f7-sensitivity.avif"
+             alt="Two panels. On the left, a bar chart of partial rank correlations: beta at minus 0.58 and L2 steady state at minus 0.43 are the long bars, h at plus 0.32 is next, and the remaining six parameters including K2 are near zero. On the right, two histograms of the required fold increase in yield: the 50 percent requirement is a narrow spike at about 1.5, the 90 percent requirement a broad distribution centred near 10."
+             loading="lazy" decoding="async" width="2320" height="980">
+      </div>
+      <figcaption>
+        <strong>The narrow histogram is the usable prediction.</strong> The
+        50&nbsp;% requirement holds its shape across the whole parameter space;
+        the 90&nbsp;% requirement does not, which is why only the first is
+        quoted as advice.
+      </figcaption>
+    </figure>
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table md-keep">
+        <caption>Partial rank correlation with the dose required for 90&nbsp;% inhibition</caption>
+        <thead><tr><th scope="col">Parameter</th><th scope="col" class="md-n">PRCC</th><th scope="col">&nbsp;</th></tr></thead>
+        <tbody>
+          <tr><td>&beta;, occupancy&nbsp;&rarr;&nbsp;radius</td><td class="md-n">&minus;0.58</td><td>significant</td></tr>
+          <tr><td><var>L</var><sub>2,ss</sub>, uninhibited C4-HSL</td><td class="md-n">&minus;0.43</td><td>significant</td></tr>
+          <tr><td><var>h</var>, autoinduction cooperativity</td><td class="md-n">+0.32</td><td>significant</td></tr>
+          <tr><td><var>e</var><sub>2</sub>, <var>K</var><sub>1</sub>, <var>K</var><sub>d</sub>(ALS-5), <var>e</var><sub>1</sub>, <var>L</var><sub>1,ss</sub>, <var>K</var><sub>2</sub></td><td class="md-n">&le;&nbsp;0.14</td><td>not significant</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The most useful finding here is which parameter <em>does not</em> matter.
+      <strong><var>K</var><sub>2</sub>, the RhlR activation constant, has
+      essentially no influence (PRCC&nbsp;+0.03)</strong> &mdash; and
+      <var>K</var><sub>2</sub> is the one parameter for which no measured
+      equilibrium value exists in the literature at all. Anchoring the model to
+      the measured steady-state AHL level, rather than to per-cell synthesis
+      rates, is what makes it insensitive to that gap.
+    </p>
+
+    <p>
+      The parameter that matters most, &beta;, is the phenotype mapping rather
+      than the biochemistry: how a change in <em>rhl</em> output becomes a
+      change in swarm radius. It was fixed at 1 so that two observations could
+      determine two parameters. Measuring it &mdash; rhamnolipid quantification
+      alongside swarm radius &mdash; is the cheapest single way to tighten
+      every dose prediction on this page.
+    </p>
+  </section>
+
+  <!-- ========================= 1.7 what it changed ========================= -->
+  <section id="model-inhibition-changed">
+    <h2 data-toc-title="1.7 What it changed">1.7 What it changed</h2>
+
+    <p>
+      Six things went back to the wet lab, in the order they can be acted on.
+    </p>
+
+    <ol class="hw-steps">
+      <li>
+        <strong>Raise the aptamer yield by about 1.5&times; and expect to cross
+        50&nbsp;% swarming inhibition.</strong> The most robust prediction here
+        (90&nbsp;% range 1.0&ndash;1.7&times;). Full suppression is a different
+        problem: median 10&times;, reaching 32&times;.
+      </li>
+      <li>
+        <strong>Use the C4-HSL arm for anti-swarming work.</strong> A
+        3-oxo-C12-HSL-only aptamer saturates below 50&nbsp;% at any dose in 158
+        of 169 parameter draws.
+      </li>
+      <li>
+        <strong>Record and compare aptamer dose in mol/L, not
+        ng/&micro;L.</strong> Cb-2's entire deficit is a molar-budget artefact
+        of its length &mdash; and this is also the one missing number that
+        would turn our failed prediction into a real test.
+      </li>
+      <li>
+        <strong>Re-run biofilm with control wells above OD590&nbsp;1.1.</strong>
+        At OD&nbsp;0.9 the assay needs 9 wells per group to see a 20&nbsp;%
+        effect; at OD&nbsp;2.8 it needs 1.
+      </li>
+      <li>
+        <strong>Pyocyanin needs about 14 independent batches</strong>, or a
+        protocol that puts the control OD520 clearly above 0.1.
+      </li>
+      <li>
+        <strong>The experiment that would most improve the model</strong> is an
+        A16-2 dose series on swarm plates (0, 0.25&times;, 1&times;, 4&times;,
+        same plate). The model predicts a steep transition between 1&times; and
+        2&times; &mdash; a falsifiable shape, not just a number &mdash; and it
+        would independently fix &beta; and the A16-2 affinity, currently the
+        two weakest links.
+      </li>
+    </ol>
+  </section>
+
+  <!-- ========================= 1.8 limits ========================= -->
+  <section id="model-inhibition-limits">
+    <h2 data-toc-title="1.8 Limits">1.8 Assumptions and limits</h2>
+
+    <ul class="hw-steps">
+      <li>
+        <strong>The applied aptamer concentration on a swarm plate was never
+        recorded.</strong> We use the one measured ssDNA concentration
+        (7.797&nbsp;ng/&micro;L) as the nominal dose. This is the dominant
+        uncertainty in everything above, and it is a record-keeping gap rather
+        than a modelling choice.
+      </li>
+      <li>
+        <strong>No dose&ndash;response data exist</strong>, so the A16-2
+        affinity is inferred from a single effect size rather than measured.
+        Its fitted value (<var>K</var><sub>d</sub>&nbsp;&asymp;&nbsp;5&nbsp;&micro;M)
+        is weak for an aptamer and should be read as an effective parameter
+        that also absorbs error in the assumed dose.
+      </li>
+      <li>
+        <strong>&beta; is assumed, not measured</strong> &mdash; and it is the
+        most influential parameter in the model.
+      </li>
+      <li>
+        <strong>The swarm plate is treated as one well-mixed compartment.</strong>
+        A real swarm is a spreading front with gradients in cell density and
+        signal; the model replaces that with a single effective concentration.
+      </li>
+      <li>
+        <strong>Whether the aptamer acts inside or outside the cell is not
+        resolved.</strong> The model places the sponge in the same compartment
+        as the signal. If sequestration happens in the engineered
+        <em>E.&nbsp;coli</em> cytoplasm, the two AHLs would have to cross a
+        membrane first and would be affected differently. That term is absent
+        here.
+      </li>
+      <li>
+        <strong>Cb-2's affinities are assumed equal to the
+        specialists'.</strong> No measurement exists. This is the optimistic
+        case, so the predicted length penalty is a lower bound on the real one.
+      </li>
+      <li>
+        <strong>&theta;<sub>las</sub>&nbsp;=&nbsp;14 places the system close to
+        the switching threshold.</strong> The qualitative consequences &mdash;
+        partial inhibition, steep dose&ndash;response, amplified response
+        &mdash; are robust across the sweep. Individual point predictions near
+        the threshold are not, and are not presented as such.
+      </li>
+      <li>
+        <strong>ALS-5-1 appears in the early batches as a construct distinct
+        from ALS-5</strong> and our records do not say what it is. It is
+        reported in the statistics and excluded from the mechanistic
+        calibration.
+      </li>
+      <li>
+        <strong>Two outlying plates are retained, not removed.</strong> The
+        2026-09-04 biofilm plate (control OD590 0.036) and the 2026-08-27
+        pyocyanin plate (A16-2 ratio 2.18) stay in the data, where the
+        precision weighting handles them automatically, rather than being
+        excluded by a rule chosen after seeing them.
+      </li>
+    </ul>
+
+    <p class="hw-aside">
+      The analysis code and the raw workbook behind this part are not
+      published, on the same footing as
+      <a href="#model-reproduce">3.8</a>. Every number quoted above is produced
+      by that code from the workbook, and each row of the tidy tables it reads
+      carries the spreadsheet cell it came from.
+    </p>
+  </section>
+
+  <!-- ========================= Part 1 references ========================= -->
+  <section id="model-inhibition-refs">
+    <h2 data-toc-title="1.9 References">1.9 References</h2>
+
+    <p class="hw-refs-note">
+      Entries marked <span class="desc-pending">citation to be completed</span>
+      still need their full bibliographic details before the wiki freeze.
+    </p>
+
+    <ol class="hw-refs">
+      <li id="mdref1">
+        Zhao et al. (2013). Screening and anti-virulent study of N-acyl
+        homoserine lactones DNA aptamers against <em>Pseudomonas aeruginosa</em>
+        quorum sensing. <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="mdref2">
+        Zhao et al. (2019). C4-HSL aptamers for blocking quorum sensing and
+        inhibiting biofilm formation in <em>Pseudomonas aeruginosa</em> and its
+        structure prediction and analysis. <em>PLoS ONE</em>.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="mdref3">
+        Pearson, J. P., et al. (1999). Active efflux and diffusion are involved
+        in transport of <em>Pseudomonas aeruginosa</em> cell-to-cell signals.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="mdref4">
+        LC-MS quantification of acyl-homoserine lactones in a
+        <em>Pseudomonas aeruginosa</em> monoculture (2023).
+        <em>Frontiers in Microbiology</em>.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="mdref5">
+        Dockery, J. D., &amp; Keener, J. P. (2001). A mathematical model for
+        quorum sensing in <em>Pseudomonas aeruginosa</em>; and Fagerlind,
+        M. G., et al. (2003). The role of regulators in the expression of
+        quorum-sensing signals in <em>Pseudomonas aeruginosa</em>.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="mdref6">
+        Paczkowski, J. E., et al. (2017). Flavonoids suppress
+        <em>Pseudomonas aeruginosa</em> virulence through allosteric inhibition
+        of quorum-sensing receptors.
+        <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="mdref7">
+        Ventre, I., et al. (2003); and Mukherjee, S., et al. (2017), on
+        C4-HSL-dependent RhlR multimerisation and <em>rhl</em> reporter
+        activation. <span class="desc-pending">citation to be completed</span>
+      </li>
+      <li id="mdref8">
+        Yates, E. A., et al. (2002). N-acylhomoserine lactones undergo
+        lactonolysis in a pH-, temperature-, and acyl chain length-dependent
+        manner during growth of <em>Yersinia pseudotuberculosis</em> and
+        <em>Pseudomonas aeruginosa</em>. <em>Infection and Immunity</em>,
+        70(10), 5635&ndash;5646.
+        <a href="https://doi.org/10.1128/IAI.70.10.5635-5646.2002"
+           target="_blank" rel="noopener noreferrer">https://doi.org/10.1128/IAI.70.10.5635-5646.2002</a>
+      </li>
+    </ol>
+  </section>
+
 
 
   <header class="md-part" id="model-zone" data-toc-group data-toc-no="2">
