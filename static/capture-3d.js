@@ -143,12 +143,13 @@
      ------------------------------------------------------------------ */
   var COL = {
     core: [0.20, 0.23, 0.245, 1], coreEdge: [0.56, 0.65, 0.69, 0.75],
-    rail: [0.20, 0.23, 0.245, 1], railEdge: [0.56, 0.65, 0.69, 0.75],
+    // the electronics layer is bare plywood: rails and the plate under the sensor slot are drawn as wood
+    rail: [0.72, 0.58, 0.40, 1], railEdge: [0.89, 0.77, 0.57, 0.7],
     // the cuvette plate covers the whole optical layer, so it is drawn as glass: there, but not in the way
     plate: [0.55, 0.64, 0.68, 0.10], plateEdge: [0.70, 0.79, 0.83, 0.85],
     cap: [0.20, 0.23, 0.245, 1], capEdge: [0.56, 0.65, 0.69, 0.75],
     trap: [0.20, 0.23, 0.245, 1], trapEdge: [0.56, 0.65, 0.69, 0.75],
-    under: [0.20, 0.23, 0.245, 1], underEdge: [0.56, 0.65, 0.69, 0.75],
+    under: [0.72, 0.58, 0.40, 1], underEdge: [0.89, 0.77, 0.57, 0.7],
     box: [0.78, 0.63, 0.42, 0.16], boxEdge: [0.89, 0.77, 0.57, 0.55],
     proxy: [0.36, 0.45, 0.50, 1], proxyEdge: [0.62, 0.72, 0.77, 0.7],
     cuvette: [0.80, 0.89, 0.94, 0.28], cuvetteEdge: [0.86, 0.93, 0.97, 0.75],
@@ -203,9 +204,13 @@
       'Stands upright in the slot beside the cuvette, facing it at 90°, on the plate glued under the deck. ' + BOARD, [0.22, 0.34, 0.46, 1]);
     part('AS7341 sensor chip', 'sensor', boxMesh(SX - 1.6, SY - 1.2, 4, SX + 1.6, SY - 0.8, 7.2),
       'The ten-channel spectral sensor, on the side of the board that faces the cuvette. ' + BOARD, [0.1, 0.1, 0.12, 1]);
-    part('ESP32 DevKit (ESP32-WROOM-32)', 'elec', boxMesh(22, 30, zf, 73, 58, zf + 1.6),
-      'The controller, in the lower layer under the deck. Its spot there is illustrative. ' + BOARD, [0.13, 0.17, 0.22, 1]);
-    part('ESP32-WROOM-32 module', 'elec', boxMesh(52, 35, zf + 1.6, 70, 53, zf + 4.6),
+    // the ESP32 is plugged into a half-size breadboard, taped to the base; zE is the top of the breadboard
+    var zE = zf + 9.5;
+    part('Breadboard', 'elec', boxMesh(20, 22, zf, 102.5, 76.6, zE),
+      'Half-size breadboard, taped to the base, with the ESP32 plugged into it. ' + BOARD, [0.88, 0.88, 0.86, 1]);
+    part('ESP32 DevKit (ESP32-WROOM-32)', 'elec', boxMesh(22, 30, zE, 73, 58, zE + 1.6),
+      'The controller, plugged into the breadboard in the lower layer. Its spot there is illustrative. ' + BOARD, [0.13, 0.17, 0.22, 1]);
+    part('ESP32-WROOM-32 module', 'elec', boxMesh(52, 35, zE + 1.6, 70, 53, zE + 4.6),
       'The ESP32 module on the controller board. ' + BOARD, [0.62, 0.64, 0.66, 1]);
     part('Blue LED (Cree C503B, 470 nm)', 'led', ballMesh([K.cuvL - t - 2.6, K.LED_HOLE.s, K.LED_HOLE.z], 2.5, 8),
       'Behind the 4 mm hole in the cuvette wall, shining straight at the cuvette. ' + BOARD, [0.55, 0.75, 1, 1]);
@@ -220,7 +225,7 @@
       'Fixed to the outside of the long side, over its opening, beside the display. One press records a batch of five readings. ' + BOARD, [0.3, 0.3, 0.33, 1]);
     part('Push button cap', 'elec', boxMesh(fx1 + 2.5, fy + 2.6, fzc - 2.5, fx1 + 7.5, fy + 5.6, fzc + 2.5), 'The button itself. ' + BOARD, [0.85, 0.25, 0.2, 1]);
     // the reader is to run on a battery; which one is not decided, so this is a placeholder of no particular size
-    part('Battery (not decided yet)', 'elec', boxMesh(80, 62, zf, 118, 92, zf + 15),
+    part('Battery (not decided yet)', 'elec', boxMesh(104, 30, zf, 123, 90, zf + 15),
       'Placeholder: the reader is to run on a battery, which has not been chosen yet. Its size and spot here mean nothing.', [0.32, 0.3, 0.22, 1]);
     // a resistor in the LED line, on the stretch that drops through the LED chamber's wire hole
     part('220 Ω resistor', 'elec', boxMesh(WH.x - 1.2, WH.y - 1.2, -16, WH.x + 1.2, WH.y + 1.2, -9),
@@ -245,23 +250,23 @@
     }
     // LED: up through the LED chamber's wire hole, across the chamber to the LED behind its hole in the cuvette wall
     var ledX = K.cuvL - t - 2.5;
-    wire('LED wire (GPIO25)', 'led', [[30, 31, zf + 1.6], [30, 31, zf + 8], [WH.x, 31, zf + 8], [WH.x, WH.y, zf + 8], [WH.x, WH.y, 1.2], [ledX, WH.y, 1.2], [ledX, K.LED_HOLE.s + 0.9, 1.2], [ledX, K.LED_HOLE.s + 0.9, K.LED_HOLE.z]]);
-    wire('LED ground wire', 'g', [[27, 31, zf + 1.6], [27, 31, zf + 10], [WH.x - 1.6, 31, zf + 10], [WH.x - 1.6, WH.y, zf + 10], [WH.x - 1.6, WH.y, 2.6], [ledX, WH.y, 2.6], [ledX, K.LED_HOLE.s - 0.9, 2.6], [ledX, K.LED_HOLE.s - 0.9, K.LED_HOLE.z]]);
+    wire('LED wire (GPIO25)', 'led', [[30, 31, zE + 1.6], [30, 31, zf + 8], [WH.x, 31, zf + 8], [WH.x, WH.y, zf + 8], [WH.x, WH.y, 1.2], [ledX, WH.y, 1.2], [ledX, K.LED_HOLE.s + 0.9, 1.2], [ledX, K.LED_HOLE.s + 0.9, K.LED_HOLE.z]]);
+    wire('LED ground wire', 'g', [[27, 31, zE + 1.6], [27, 31, zf + 10], [WH.x - 1.6, 31, zf + 10], [WH.x - 1.6, WH.y, zf + 10], [WH.x - 1.6, WH.y, 2.6], [ledX, WH.y, 2.6], [ledX, K.LED_HOLE.s - 0.9, 2.6], [ledX, K.LED_HOLE.s - 0.9, K.LED_HOLE.z]]);
     // sensor: from the top of the board along the detection chamber, down through its wire hole, to the controller
     [['Sensor 3.3 V wire', 'v', -2.4], ['Sensor ground wire', 'g', -0.8], ['Sensor SDA wire', 'sda', 0.8], ['Sensor SCL wire', 'scl', 2.4]].forEach(function (w, i) {
       var x = SX + w[2];
-      wire(w[0], w[1], [[x, SY, 17], [x, SY, 19 + i * 0.01], [x, TW.y, 19], [x, TW.y, zf + 12 + i * 1.3], [x, 56, zf + 12 + i * 1.3], [x, 56, zf + 1.6]]);
+      wire(w[0], w[1], [[x, SY, 17], [x, SY, 19 + i * 0.01], [x, TW.y, 19], [x, TW.y, zf + 12 + i * 1.3], [x, 56, zf + 12 + i * 1.3], [x, 56, zE + 1.6]]);
     });
     // display and button: from the controller out through the long side's opening to the back of each
     var portZ = fzc;
     [['OLED 3.3 V wire', 'v', 0], ['OLED ground wire', 'g', 1], ['OLED SDA wire', 'sda', 2], ['OLED SCL wire', 'scl', 3],
      ['Button wire (GPIO13)', 'btn', 15], ['Button ground wire', 'g', 16.4]].forEach(function (w, i) {
       var x0 = 60 + i * 1.4, x = fx0 + 6 + w[2] * 1.4, z = portZ - 3 + (i % 4) * 1.6;
-      wire(w[0], w[1], [[x0, 57, zf + 1.6], [x0, 57, z], [x, 57, z], [x, fy + 0.2, z]]);
+      wire(w[0], w[1], [[x0, 57, zE + 1.6], [x0, 57, z], [x, 57, z], [x, fy + 0.2, z]]);
     });
     // battery: two leads to the controller, drawn only to show that it powers it
     [['Battery lead (+)', 'bv', 0], ['Battery lead (−)', 'bg', 1.6]].forEach(function (w) {
-      wire(w[0], w[1], [[80, 70 + w[2], zf + 5], [74 + w[2], 70 + w[2], zf + 5], [74 + w[2], 52, zf + 5], [72, 52, zf + 5], [72, 52, zf + 1.6]]);
+      wire(w[0], w[1], [[104, 60 + w[2], zf + 12], [74 + w[2], 60 + w[2], zf + 12], [74 + w[2], 52, zf + 12], [72, 52, zf + 12], [72, 52, zE + 1.6]]);
     });
 
     /* --- the light, for "Take a reading": each piece has a start, a duration, and either grows along `dir`
@@ -537,7 +542,7 @@
       var it = items[sel], txt;
       if (it.text) txt = it.text;
       else {
-        var paint = it.kind === 'box' ? 'Matte black marker inside; bare plywood outside.' : 'Coloured with matte black marker.';
+        var paint = it.kind === 'box' ? 'Bare plywood outside; inside, matte black marker on the optical layer only.' : (it.kind === 'rail' || it.kind === 'under') ? 'Bare plywood: the electronics layer is not coloured.' : 'Coloured with matte black marker.';
         var place = it.where === 'cut' ? 'Placed as in the drawing.' : 'Placed by its size; the drawing does not fix which way it faces or exactly where it sits.';
         if (it.kind === 'plate') place = 'Lies on top of the chambers; its 13 × 13 mm opening holds the cuvette upright.';
         if (it.kind === 'trap') place = 'Inside the light trap: the square\'s lower edge stands against the wall with the 8 mm opening and the square rises away from it at about 45°, carried on the 29.73 mm slopes of the two triangles. Placed from the builder\'s description; the drawing does not show it assembled.';
