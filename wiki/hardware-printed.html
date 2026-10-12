@@ -70,11 +70,20 @@
     {# 2026-10-12（硬體負責人同意；Codex 複審與我都建議）：開頭先講它做得到什麼（讀得到 GFP），再講好用在哪裡。
        原本四個子句都是「好用」（快、穩、無 GFP 讀 0、便宜），評審第三項要看的「功能」要捲到 Functional testing 才有。
        下面四格是同樣的四格，只是把無 GFP 讀 0 那一格排到最前面；「隨 GFP 的量上升」連到 dilution series。 #}
+    {# 2026-10-13（硬體負責人：「那個 0 什麼 gfp 的有點不直觀」；也要強調不用濾光片就分得開、以及模組化）：
+       第一句改成講它分得開什麼，第一格改成同一天、密度相近的兩管對照（86 對 0），不再只給一個 0。
+       86.44 與 0：2026-10-12 和 SpectraMax M3 並排那一場的 100% sfGFP 管與不含 GFP 的對照，
+       OD600（扣空白）0.861 與 0.721，各 9 個 cycle（P1_PR_COMPARE_EVIDENCE_2026-10-12/WIKI_EVIDENCE.md 表 1）。
+       原本這一格的「第一版 27 個讀值、第二版 4 管都是 0」仍在 Functional testing 兩個小節的重點句。
+       「不用發射濾光片」只寫在這一台：雷切機的空白不是 0，它用的是比值再減去無 GFP 的管子。
+       最後一個子句（模組）沒有自己的一格，依據在 The instrument 的 Built to be changed。 #}
     <p class="hw-point">
-      It reads GFP: zero without it in liquid culture, and a reading that
+      It tells a culture with GFP from one without, using no emission
+      filter, and its reading
       <a href="#hardware-v2-session">rises with the amount of GFP culture</a>.
-      It is quick to load, steady when the tube is put back, and cheap to
-      build.
+      It is quick to load, steady when the tube is put back, cheap to
+      build, and made of <a href="#hardware-modules">parts that can be
+      changed one at a time</a>.
     </p>
 
     {# 2026-10-07（夜）：硬體負責人要這一台先講優勢（操作快、量得穩、便宜），不要照開發歷程先給第一版的數字。
@@ -93,7 +102,7 @@
        用的是頁面上卡片內陳述句本來的字級（1.12rem），沒有新增字級；條件與出處留在最下面的小字，內容沒有變。
        四行白話和開頭那一句的四個優勢一一對應。 #}
     <dl class="hw-keys">
-      <div><dt>0</dt><dd><span class="hw-key-say">counts without GFP</span> On the emission channel, in liquid culture: all 27 readings on version 1, all 4 tubes on version 2. Dense suspensions <a href="#hardware-v2-turbidity">read above zero</a>.</dd></div>
+      <div><dt>86 vs 0</dt><dd><span class="hw-key-say">counts, with GFP and without</span> <a href="#hardware-v2-m3">Two cultures of similar density</a>, read the same day with no emission filter. Dense suspensions <a href="#hardware-v2-turbidity">read above zero</a>.</dd></div>
       <div><dt>3&ndash;5&nbsp;s</dt><dd><span class="hw-key-say">to load</span> Placing the cuvette, timed. Version 1 took 30&ndash;40&nbsp;s.</dd></div>
       <div><dt>0.76%</dt><dd><span class="hw-key-say">variation when put back</span> Standard deviation between <a href="#hw-doc-reinsert">five re-insertions of one tube</a>, at about 50 counts.</dd></div>
       <div><dt>US$161</dt><dd><span class="hw-key-say">to build</span> Our estimate of <a href="#hardware-cost-printed">the cost as built</a>, with the printing bought from a shop.</dd></div>
@@ -656,6 +665,109 @@
 
 
     {# PHOTO: 量測時的樣子（3D 列印機構與遮光紙箱），上傳到 static.igem.wiki 後插在這裡 #}
+
+    {# 2026-10-13（硬體負責人：要強調模組化，讓之後的人可以在這個架構上改，例如換感測器或激發 LED）。
+       這一小節只寫頁面別處已經有依據的事，排成一張表：換過的、留了位置但沒用過的、還沒試過的。
+         四組零件與底板：上面 3D 檢視的分組（Excitation end、Cuvette seat、Detection side、Light trap、Base plate）。
+         定位銷與鍵：Assembly, step by step 的 Pins and keys（兩個 riser 各兩支圓銷、偵測框兩支窄銷、cradle 兩個方鍵）。
+         第二版換五件與一顆電阻、底板／偵測端／光阱／韌體沒動：Version 1 against version 2: part by part 的表與說明。
+         四個夾片：Assembly 的 Cuvette holder。5.55 → 約 10 mA：The LED current。
+         濾光片抽屜與 insert（圓 12.5 mm、方 6 mm）：3D 檢視的零件清單；沒放過濾光片。
+         十個通道：Measurement principle；每一列都記全部通道（Run 卡片的說明）。只讀過 sfGFP：Background。
+         LED 座照 5 mm 圓形 LED 畫：Decisions 的 470 nm 那一則與參考資料 3（Cree 5-mm Round LED）；第二版的夾持量是試配件定的。
+         感測器板的 carrier 是獨立的一件：零件清單 as7341_pcb_carrier.stl；韌體自己帶 AS7341 驅動：Parts and files 的 The files。
+       沒試過的兩列寫的是「要做什麼」，不是「做得到」：換 LED、換感測器都沒有做過。 #}
+    <h3 id="hardware-modules">Built to be changed</h3>
+
+    <p class="hw-point hw-point-sub">
+      Version 2 was made by changing five printed parts and one resistor
+      on the same base plate. The rest is built to be changed the same
+      way.
+    </p>
+
+    {# 2026-10-13（同一天，硬體負責人：「感覺有點過多文字敘述，可以有點視覺化」）：原本的一段字與六列的表
+       改成一張俯視示意圖，內容相同：每一塊用外框標出狀態（第二版換過／在機器上但沒用過／沒試過／沒動），
+       狀態同時寫成字，不只靠顏色。配置照 Measurement principle 那張圖：LED 在左、光束往右進光阱、
+       偵測器在比色管的側邊（圖上方）。不是按比例畫的。八個色塊是 AS7341 八個濾色通道的標稱中心波長，
+       顏色只是示意。 #}
+    <figure class="hw-figure hw-chart">
+      <svg class="hw-vis hw-mod" viewBox="0 0 640 300" role="img" aria-label="Plan view of the reader's parts on its base plate, marked by what has been changed. Changed for version 2: the excitation end, whose LED holder, baffle and cap were redrawn; the cuvette seat; and the LED's current, set by one resistor and raised from 5.55 to about 10 milliamps. On the reader but not yet used: the filter drawer in front of the detector, which is empty and takes a 12.5 millimetre round or a 6 millimetre square filter; and the detector's ten channels, all recorded on every read, of which only sfGFP has been read. Not tried: another LED, for which the holder is drawn around a 5 millimetre round LED; and another detector board, which would need a new carrier and a new driver in the firmware. Unchanged from version 1: the base plate and the light trap.">
+        <rect class="hw-mod-same" x="24" y="20" width="592" height="244" rx="10"/>
+        <text x="38" y="38">Base plate &#183; unchanged</text>
+
+        <!-- the two light paths -->
+        <path class="hw-mod-ex" d="M200 190H285M355 190H436"/>
+        <path class="hw-mod-ex-head" d="M436 185l9 5l-9 5z"/>
+        <path class="hw-mod-em" d="M320 155V110"/>
+        <path class="hw-mod-em-head" d="M315 110l5 -9l5 9z"/>
+
+        <!-- excitation end -->
+        <rect class="hw-mod-changed" x="50" y="160" width="150" height="60" rx="6"/>
+        <circle class="hw-mod-untried" cx="72" cy="190" r="10"/>
+        <text class="hw-vis-strong" x="92" y="186">Excitation end</text>
+        <text class="hw-mod-tag" x="92" y="200">changed for version 2</text>
+        <path class="hw-vis-rule" d="M72 180V152"/>
+        <text x="50" y="134"><tspan class="hw-vis-strong">The LED</tspan> &#183; holder drawn for a 5 mm round LED</text>
+        <text x="50" y="147">another LED not tried</text>
+        <rect class="hw-mod-changed" x="50" y="231" width="9" height="9" rx="2"/>
+        <text x="65" y="239"><tspan class="hw-vis-strong">LED current</tspan> &#183; one resistor</text>
+        <text class="hw-mod-tag" x="65" y="252">changed, 5.55 to about 10 mA</text>
+
+        <!-- cuvette seat -->
+        <rect class="hw-mod-changed" x="285" y="155" width="70" height="70" rx="6"/>
+        <text class="hw-vis-strong" x="320" y="187" text-anchor="middle">Cuvette</text>
+        <text class="hw-vis-strong" x="320" y="200" text-anchor="middle">seat</text>
+        <text class="hw-mod-tag" x="320" y="241" text-anchor="middle">changed for version 2</text>
+
+        <!-- light trap -->
+        <rect class="hw-mod-same" x="446" y="164" width="140" height="52" rx="6"/>
+        <text class="hw-vis-strong" x="516" y="187" text-anchor="middle">Light trap</text>
+        <text x="516" y="201" text-anchor="middle">unchanged</text>
+
+        <!-- filter drawer -->
+        <rect class="hw-mod-ready" x="285" y="119" width="70" height="16" rx="3"/>
+        <text x="372" y="124"><tspan class="hw-vis-strong">Filter drawer</tspan> &#183; <tspan class="hw-mod-tag">on the reader, empty</tspan></text>
+        <text x="372" y="137">for a 12.5 mm round or 6 mm square filter</text>
+
+        <!-- detector -->
+        <rect class="hw-mod-untried" x="275" y="40" width="90" height="62" rx="6"/>
+        <text class="hw-vis-strong" x="320" y="75" text-anchor="middle">Detector</text>
+        <text x="380" y="58"><tspan class="hw-vis-strong">The board</tspan> &#183; in a carrier of its own</text>
+        <text x="380" y="71">another board: a new carrier, a new driver</text>
+        <text x="380" y="84">not tried</text>
+
+        <!-- the detector's channels -->
+        <g class="hw-mod-bands">
+          <rect x="148" y="56" width="12" height="12" rx="2" fill="#7a4fd6"/>
+          <rect x="163" y="56" width="12" height="12" rx="2" fill="#3f5fe0"/>
+          <rect x="178" y="56" width="12" height="12" rx="2" fill="#2f9bd8"/>
+          <rect x="193" y="56" width="12" height="12" rx="2" fill="#2fbf6b"/>
+          <rect x="208" y="56" width="12" height="12" rx="2" fill="#a6cf3a"/>
+          <rect x="223" y="56" width="12" height="12" rx="2" fill="#e8b530"/>
+          <rect x="238" y="56" width="12" height="12" rx="2" fill="#ef7a35"/>
+          <rect x="253" y="56" width="12" height="12" rx="2" fill="#d94a3a"/>
+        </g>
+        <path class="hw-vis-rule" d="M268 62H275"/>
+        <text x="265" y="84" text-anchor="end"><tspan class="hw-vis-strong">Ten channels</tspan> &#183; all recorded on every read</text>
+        <text class="hw-mod-tag" x="265" y="97" text-anchor="end">only sfGFP read so far</text>
+
+        <!-- legend -->
+        <rect class="hw-mod-changed" x="24" y="279" width="12" height="12" rx="2"/>
+        <text x="42" y="289">Changed for version 2</text>
+        <rect class="hw-mod-ready" x="176" y="279" width="12" height="12" rx="2"/>
+        <text x="194" y="289">On the reader, not yet used</text>
+        <rect class="hw-mod-untried" x="356" y="279" width="12" height="12" rx="2"/>
+        <text x="374" y="289">Not tried</text>
+        <rect class="hw-mod-same" x="446" y="279" width="12" height="12" rx="2"/>
+        <text x="464" y="289">Unchanged</text>
+      </svg>
+      <figcaption>
+        Seen from above, not to scale. The CAD source is parametric and
+        kept
+        <a href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware">module by module</a>
+        in the repository, so one part can be redrawn without the others.
+      </figcaption>
+    </figure>
 
   </section>
 
