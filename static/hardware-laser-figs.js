@@ -60,7 +60,7 @@
 
   var charts = {
 
-    /* 0917_逐筆.csv: the stability test, chamber empty, sensor still in its original low position, nothing moved for an hour. Each point is the mean F3 of readings
+    /* 0917_逐筆.csv: the LED stability test, chamber empty, sensor still in its original low position, nothing moved for an hour. Each point is the mean F3 of readings
        2–5 of a batch (the first reading of each batch is discarded, as in every other result),
        relative to the first batch. Minutes since the first batch. */
     drift: function (host) {
@@ -91,7 +91,7 @@
       var W = 680, H = 280, L = 52, R = 16, T = 14, B = 46, pw = W - L - R, ph = H - T - B;
       function X(v) { return L + (v - 0.5) / 29 * pw; }
       function Y(v) { return T + ph - (v - 0.4) / 0.75 * ph; }
-      var s = svg(host, W, H, 'Density-corrected blue channel in the first culture test. It sits near 100% for the first seven batches, then drops by about 40% to near 60% and stays there.');
+      var s = svg(host, W, H, 'Density-corrected blue channel in the density test. It sits near 100% for the first seven batches, then drops by about 40% to near 60% and stays there.');
       [0.4, 0.6, 0.8, 1.0].forEach(function (v) {
         el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 1 ? '' : '3 4' }, s);
         text(s, Math.round(v * 100) + '%', L - 8, Y(v) + 4, { anchor: 'end', size: 10 });
@@ -133,7 +133,7 @@
       text(s, 'r² ≈ 0.97', X(0.04), Y(50), { anchor: 'start', size: 12, fill: C.ink, weight: 600 });
     },
 
-    /* 0920_逐筆.csv, the grid, readings 2–5 of each adopted batch (same batches as the grid fit).
+    /* 0920_逐筆.csv, the fluorescence test, readings 2–5 of each adopted batch (same batches as its fit).
        For each culture density d: (F/F3 of the f = 1 tube) − (F/F3 of the f = 0 tube), then the
        whole curve divided by its own F4 value. F3 is zero by construction. F2 sits next to the
        excitation and is not read: it is drawn as hollow grey markers and left out of the lines.
@@ -177,27 +177,24 @@
       text(s, 'Channel (centre wavelength, nm)', L + pw / 2, H - 4, { size: 10 });
     },
 
-    /* Per-channel change in two events, each divided by the mean change across the nine channels.
-       Cuvette: 0920_逐筆.csv, the same blank lifted out and put back (batches 22–23 vs 26–27).
-       LED: 0922_逐筆.csv, the first batch after the LED was disturbed and the board restarted, vs the next batch. */
+    /* Per-channel change when the same blank was lifted out and put back, divided by the mean change across
+       the nine channels. 0920_逐筆.csv, batches 22–23 vs 26–27. */
     flatness: function (host) {
       var lbl = ['F1','F2','F3','F4','F5','F6','F7','F8','Clear'], wl = ['415','445','480','515','555','590','630','680',''];
       var cuvPct = [20.38,14.38,14.05,14.82,17.35,18.96,18.16,16.11,15.91];
-      var led = [0.12,0.30,0.30,0.19,0.17,0.12,0.17,0.23,0.30];
       function norm(a) { var m = a.reduce(function (s, v) { return s + v; }, 0) / a.length; return a.map(function (v) { return v / m; }); }
-      var A = norm(cuvPct.map(function (p) { return 1 + p / 100; })), Bv = norm(led);
-      legend(host, [[C.green, 'Blank taken out and put back (grid session)'], [C.amber, 'LED disturbed, board restarted (linearity series)']]);
+      var A = norm(cuvPct.map(function (p) { return 1 + p / 100; }));
+      legend(host, [[C.green, 'Blank taken out and put back (fluorescence test)']]);
       var W = 680, H = 304, L = 52, R = 16, T = 14, B = 66, pw = W - L - R, ph = H - T - B;
       function X(i) { return L + pw * (i + 0.5) / 9; }
-      function Y(v) { return T + ph - (v - 0.4) / 1.2 * ph; }
-      var s = svg(host, W, H, 'Change in each channel relative to the nine-channel mean. Putting the blank back moves every channel together within five percent; after the LED was disturbed the channels changed by different amounts, a factor of 2.5 apart.');
+      function Y(v) { return T + ph - (v - 0.9) / 0.2 * ph; }
+      var s = svg(host, W, H, 'Change in each channel when a blank was taken out and put back, relative to the nine-channel mean. Every channel lies within five percent of the mean: the channels moved together.');
       el('rect', { x: L, y: Y(1.05), width: pw, height: Y(0.95) - Y(1.05), fill: C.green, opacity: 0.1 }, s);
-      [0.5, 0.75, 1, 1.25, 1.5].forEach(function (v) {
+      [0.9, 0.95, 1, 1.05, 1.1].forEach(function (v) {
         el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 1 ? '' : '3 4' }, s);
         text(s, v.toFixed(2), L - 8, Y(v) + 4, { anchor: 'end', size: 10 });
       });
-      var a = A.map(function (v, i) { return [i, v]; }), b = Bv.map(function (v, i) { return [i, v]; });
-      path(s, b, X, Y, C.amber, 2); dots(s, b, X, Y, C.amber, 3.4);
+      var a = A.map(function (v, i) { return [i, v]; });
       path(s, a, X, Y, C.green, 2); dots(s, a, X, Y, C.green, 3.4);
       lbl.forEach(function (c, i) {
         text(s, c, X(i), T + ph + 20, { size: 10.5, fill: C.ink });

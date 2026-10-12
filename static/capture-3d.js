@@ -297,7 +297,7 @@
 
     /* the display, as the batch firmware (v5.5) draws it while a batch runs: the tube's ID in large type with
        "n/5" and a progress bar, and "DONE" with the batch's means once all five readings are in (the first is
-       not counted, so n = 4). The numbers are one real batch from the linearity series: tube H100, the
+       not counted, so n = 4). The numbers are one real batch from the linearity test: tube H100, the
        undiluted sfGFP culture, batch 6 in 0922_summary.csv, F3 800.8 and SIG 55.34 (SIG = F5 − k5·F3, the
        value the screen shows). That file keeps the batch means only, so the screen here leaves out the
        firmware's "+- SD" and the single readings, rather than make them up. */
