@@ -4321,6 +4321,55 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 @media (min-width: 821px) {
   .board-game-page #gameScreen .log-panel { padding-top: 46px; }
 }
+/* ---- pause ----------------------------------------------------------------
+   Pinned to the bottom left of the board's own box -- the corner no other
+   control uses, clear of the language switcher above and of the page's own
+   back-to-top button on the other side -- and above the pop-ups (9999), so
+   it can be pressed while one of them is up. Only the cursor is higher. */
+.board-game-page .tgc-pause {
+  position: fixed;
+  left: calc(var(--tgc-ov-left, 0px) + 14px);
+  bottom: calc(var(--tgc-ov-bottom, 0px) + 14px);
+  z-index: 10000;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 15px; border-radius: 999px;
+  font-size: 0.82rem; font-weight: 700;
+  background: var(--paper); color: var(--ink);
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+.board-game-page .tgc-pause[hidden] { display: none; }
+.board-game-page .tgc-pause:hover { border-color: var(--positive); }
+/* Two bars for pause, one triangle for resume: the shape says which it is
+   without reading, and the label says it for everyone else. */
+.board-game-page .tgc-pause-mark {
+  width: 10px; height: 12px; flex: 0 0 auto;
+  border-left: 3px solid currentColor; border-right: 3px solid currentColor;
+}
+.board-game-page .tgc-pause.is-paused { background: var(--positive); color: #fff; border-color: var(--positive-edge); }
+.board-game-page .tgc-pause.is-paused .tgc-pause-mark {
+  border: 0;
+  width: 0; height: 0;
+  border-left: 11px solid currentColor;
+  border-top: 7px solid transparent; border-bottom: 7px solid transparent;
+}
+
+/* Held: the board is dimmed and out of reach, the pop-ups with it. The
+   button is a sibling of all of them, so it stays live. The open states
+   carry the same weight as these, so .show is named here too. */
+.board-game-page.is-paused .screen,
+.board-game-page.is-paused #card-play-modal,
+.board-game-page.is-paused #card-play-modal.show,
+.board-game-page.is-paused #modal,
+.board-game-page.is-paused #modal.show,
+.board-game-page.is-paused #ai-notice,
+.board-game-page.is-paused #ai-notice.show { pointer-events: none; }
+.board-game-page.is-paused .screen { filter: grayscale(0.4) brightness(0.62); }
+.board-game-page.is-paused .tgc-torn-page,
+.board-game-page.is-paused .tgc-dialog,
+.board-game-page.is-paused .ai-notice-box { filter: grayscale(0.4) brightness(0.62); }
+
 /* While one of the game's overlays is waiting for an answer the page does
    not move: the padding stands in for the scrollbar that goes with it. */
 html.tgc-overlay-open, html.tgc-overlay-open body { overflow: hidden; }
@@ -12011,7 +12060,8 @@ body.bg-nexus .board-game-page .lang-bar select {
   color: var(--nx-text);
 }
 /* Gold stays gold, so what sits on it has to be dark. */
-body.bg-nexus .board-game-page .sdg-badge.goal { color: #10272f; }
+body.bg-nexus .board-game-page .sdg-badge.goal,
+body.bg-nexus .board-game-page .tgc-pause.is-paused { color: #10272f; }
 body.bg-nexus .board-game-page .card-announce-player.reveal {
   background: rgba(230, 176, 96, 0.14);
   border-color: var(--gold);

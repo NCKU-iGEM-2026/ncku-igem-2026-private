@@ -43,6 +43,7 @@ var translations = {
     gameStart: "SDG 選牌完成，遊戲開始！", pleaseStart: "請開始行動。",
     reshuffle: "牌堆已用盡，重新洗牌。", discarded: "棄掉了", played: "打出了",
     forward: "前進", backward: "後退", special: "特殊效果",
+    pause: "暫停", resume: "繼續", paused: "已暫停", resumed: "繼續遊戲",
     historyEvent: "歷史事件", specialCard: "特殊功能", sanctioned: "制裁中", goal: "達標",
     selectTarget: "選擇目標玩家", selectOwnSDG: "選擇自己的 SDG",
     selectFromDiscard: "從棄牌堆選一張",
@@ -93,6 +94,7 @@ var translations = {
     gameStart: "Draft complete. Game start!", pleaseStart: "Please take action.",
     reshuffle: "Deck empty. Reshuffled.", discarded: "discarded", played: "played",
     forward: "Forward", backward: "Backward", special: "Special",
+    pause: "Pause", resume: "Resume", paused: "Paused", resumed: "Resumed",
     historyEvent: "Event", specialCard: "Special", sanctioned: "Sanctioned", goal: "GOAL",
     selectTarget: "Select target player", selectOwnSDG: "Select your SDG",
     selectFromDiscard: "Pick from discard",
@@ -921,7 +923,7 @@ var state = {
   players: [], currentPlayer: 0, phase: "action",
   deck: [], discard: [], unusedSDGs: [],
   selectedCards: [], modeAction: null, maxPlay: 2,
-  capacityActive: false, isAIThinking: false,
+  capacityActive: false, isAIThinking: false, paused: false,
   stage: "lobby",   // lobby | draft | game — drives which screen every device shows
   draftCounts: {}, draftCurrentPlayer: 0, draftSelected: [], aiDraftPending: false,
   previewDeltas: {},
@@ -1003,18 +1005,44 @@ function viewerIndex() {
 function viewerPlayer() { return state.players[viewerIndex()]; }
 function isViewersTurn() { return viewerIndex() === state.currentPlayer; }
 
+/* Every wait the game makes goes through here -- a bot thinking, a card on
+   screen, the step between two turns -- which is what lets the game be held:
+   a pause clears what is pending and keeps how much of each was left, and
+   resuming sets them again for that much. A timer set while held waits for
+   the resume rather than starting its own clock. */
 function trackTimeout(fn, ms) {
   if (state.isGameOver) return null;
-  var id = setTimeout(function() {
-    state.timers = state.timers.filter(function(x) { return x !== id; });
+  var rec = { fn: fn, ms: ms, start: Date.now(), id: null };
+  rec.fire = function() {
+    state.timers = state.timers.filter(function(x) { return x !== rec; });
     if (!state.isGameOver) fn();
-  }, ms);
-  state.timers.push(id);
-  return id;
+  };
+  if (state.paused) rec.left = ms;
+  else rec.id = setTimeout(rec.fire, ms);
+  state.timers.push(rec);
+  return rec.id;
 }
 function clearAllTimers() {
-  state.timers.forEach(function(id) { clearTimeout(id); });
+  state.timers.forEach(function(r) { if (r.id) clearTimeout(r.id); });
   state.timers = [];
+}
+function holdTimers() {
+  var now = Date.now();
+  state.timers.forEach(function(r) {
+    if (!r.id) return;
+    clearTimeout(r.id);
+    r.id = null;
+    r.left = Math.max(0, r.start + r.ms - now);
+  });
+}
+function releaseTimers() {
+  state.timers.forEach(function(r) {
+    if (r.id) return;
+    r.ms = typeof r.left === "number" ? r.left : r.ms;
+    r.left = null;
+    r.start = Date.now();
+    r.id = setTimeout(r.fire, r.ms);
+  });
 }
 function shuffle(a) {
   for (var i = a.length - 1; i > 0; i--) {
@@ -1047,7 +1075,48 @@ function trackLabelsHtml() {
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });
   document.getElementById(id).classList.add("active");
+  syncPauseButton();
 }
+
+/* ========== PAUSE ==========
+   The button is pinned over the board and sits above the pop-ups, because the
+   moment you most want to stop the game is while one of them is waiting for
+   you. Holding the game stops its clock and takes the board out of reach;
+   the button itself stays live. Local games only: an online table runs on
+   the host's clock, and one player's pause would only stall their own
+   screen while the rest of the table moved on. */
+function syncPauseButton() {
+  var btn = document.getElementById("btnPause");
+  if (!btn) return;
+  var playing = document.getElementById("gameScreen").classList.contains("active");
+  /* online is declared further down; before it is assigned this reads as
+     undefined, which is the right answer for a game that has not started. */
+  btn.hidden = !playing || !!(online && online.active);
+  if (btn.hidden && state.paused) setPaused(false);
+}
+
+function setPaused(on) {
+  var btn = document.getElementById("btnPause");
+  var page = document.querySelector(".board-game-page");
+  if (state.paused === on) return;
+  state.paused = on;
+  if (on) holdTimers(); else releaseTimers();
+  if (page) page.classList.toggle("is-paused", on);
+  if (btn) {
+    btn.classList.toggle("is-paused", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    var label = btn.querySelector(".tgc-pause-label");
+    /* The label is the action; applyI18n() reads the key back off it. */
+    label.setAttribute("data-i18n", on ? "resume" : "pause");
+    label.textContent = tgcT(on ? "resume" : "pause");
+  }
+  log(tgcT(on ? "paused" : "resumed"), "sys");
+}
+
+document.getElementById("btnPause").onclick = function() {
+  if (state.isGameOver) return;
+  setPaused(!state.paused);
+};
 function getCurrentPlayer() { return state.players[state.currentPlayer]; }
 function delay(ms) { return new Promise(function(r) { trackTimeout(r, ms); }); }
 function randChoice(a) { return a[Math.floor(Math.random() * a.length)]; }
@@ -2272,13 +2341,20 @@ function tgcShown(sel) {
 function tgcPinOverlays() {
   var page = tgcBoard();
   if (!page) return;
+  /* clientWidth/clientHeight, not innerWidth/innerHeight: a fixed box is laid
+     out against the viewport without its scrollbar, which is the same frame
+     getBoundingClientRect() reports in. */
+  var vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
   var r = page.getBoundingClientRect();
-  var left = Math.max(0, r.left), right = Math.min(window.innerWidth, r.right);
-  var top = Math.max(0, r.top), bottom = Math.min(window.innerHeight, r.bottom);
+  var left = Math.max(0, r.left), right = Math.min(vw, r.right);
+  var top = Math.max(0, r.top), bottom = Math.min(vh, r.bottom);
   page.style.setProperty('--tgc-ov-left', Math.round(left) + 'px');
   page.style.setProperty('--tgc-ov-top', Math.round(top) + 'px');
   page.style.setProperty('--tgc-ov-width', Math.round(Math.max(0, right - left)) + 'px');
   page.style.setProperty('--tgc-ov-height', Math.round(Math.max(0, bottom - top)) + 'px');
+  /* From the other two edges, for anything pinned to the board's corners. */
+  page.style.setProperty('--tgc-ov-right', Math.round(Math.max(0, vw - right)) + 'px');
+  page.style.setProperty('--tgc-ov-bottom', Math.round(Math.max(0, vh - bottom)) + 'px');
 }
 
 function tgcPinSoon() {
