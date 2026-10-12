@@ -2248,6 +2248,104 @@ function updateUI() {
   });
 }
 
+/* ========== OVERLAYS STAY ON THE BOARD ==========
+   The card announcement, the choice dialog and the bot notice are fixed
+   elements. Fixed to the window they covered the whole wiki, and a wheel
+   scroll while one was up carried the page away under them. Each is now
+   pinned to the part of this widget that is on screen, written into
+   --tgc-ov-* and read by the rules in style.css, and while one of the two
+   that want an answer is open the page is held still.
+
+   Watched with a MutationObserver rather than hooked into each show/hide:
+   the online game opens the same overlays down other paths. */
+var tgcOverlayLocked = false;
+var tgcOverlayPad = '';
+var tgcPinRaf = null;
+
+function tgcBoard() { return document.querySelector('.board-game-page'); }
+
+function tgcShown(sel) {
+  var el = document.querySelector(sel);
+  return !!(el && el.classList.contains('show'));
+}
+
+function tgcPinOverlays() {
+  var page = tgcBoard();
+  if (!page) return;
+  var r = page.getBoundingClientRect();
+  var left = Math.max(0, r.left), right = Math.min(window.innerWidth, r.right);
+  var top = Math.max(0, r.top), bottom = Math.min(window.innerHeight, r.bottom);
+  page.style.setProperty('--tgc-ov-left', Math.round(left) + 'px');
+  page.style.setProperty('--tgc-ov-top', Math.round(top) + 'px');
+  page.style.setProperty('--tgc-ov-width', Math.round(Math.max(0, right - left)) + 'px');
+  page.style.setProperty('--tgc-ov-height', Math.round(Math.max(0, bottom - top)) + 'px');
+}
+
+function tgcPinSoon() {
+  if (tgcPinRaf) return;
+  tgcPinRaf = requestAnimationFrame(function () { tgcPinRaf = null; tgcPinOverlays(); });
+}
+
+function tgcSyncOverlays() {
+  var page = tgcBoard();
+  if (!page) return;
+  var waiting = tgcShown('#card-play-modal') || tgcShown('#modal');
+  var root = document.documentElement;
+  if (waiting && !tgcOverlayLocked) {
+    /* Asked for an answer while the board is nearly off screen: bring it
+       back first, so the question is put where the player is looking. At
+       once, not smoothly, because the box measured next is the box that
+       then stays put. */
+    var r = page.getBoundingClientRect();
+    var seen = Math.min(window.innerHeight, r.bottom) - Math.max(0, r.top);
+    if (seen < Math.min(r.height, window.innerHeight * 0.6)) {
+      window.scrollTo(0, Math.max(0, window.pageYOffset + r.top -
+        Math.max(0, (window.innerHeight - Math.min(r.height, window.innerHeight)) / 2)));
+    }
+    tgcOverlayPad = root.style.paddingRight;
+    var gap = window.innerWidth - root.clientWidth;
+    if (gap > 0) root.style.paddingRight = gap + 'px';
+    root.classList.add('tgc-overlay-open');
+    tgcOverlayLocked = true;
+  } else if (!waiting && tgcOverlayLocked) {
+    root.classList.remove('tgc-overlay-open');
+    root.style.paddingRight = tgcOverlayPad;
+    tgcOverlayLocked = false;
+  }
+  tgcPinOverlays();
+}
+
+/* overflow: hidden holds a wheel the reader turns, but not a scroll a script
+   asks for, and the site's smooth scrolling (Lenis) answers the wheel by
+   scrolling the page itself. So the event is taken at the window, before it
+   reaches that listener. A tall announcement still scrolls inside itself. */
+function tgcBlockScroll(e) {
+  if (!tgcOverlayLocked) return;
+  var inner = e.target && e.target.closest &&
+    e.target.closest('#card-play-modal .tgc-torn-page, #modal .tgc-dialog, #modal .modal-list');
+  if (inner && inner.scrollHeight > inner.clientHeight) { e.stopPropagation(); return; }
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+(function () {
+  if (window.MutationObserver) {
+    var mo = new MutationObserver(tgcSyncOverlays);
+    ['#card-play-modal', '#modal', '#ai-notice'].forEach(function (sel) {
+      var el = document.querySelector(sel);
+      if (el) mo.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+  /* Whatever moves the page -- the bot notice is up and not holding it, or a
+     smooth scroll already under way when the hold began -- the box follows. */
+  window.addEventListener('scroll', tgcPinSoon, { passive: true });
+  window.addEventListener('wheel', tgcBlockScroll, { capture: true, passive: false });
+  window.addEventListener('touchmove', tgcBlockScroll, { capture: true, passive: false });
+  window.addEventListener('resize', tgcPinSoon);
+  window.addEventListener('load', tgcPinOverlays);
+  tgcPinOverlays();
+})();
+
 /* ========== ACTIONS ========== */
 document.getElementById("btnDiscardMode").onclick = function() {
   if (state.inputLocked || state.isGameOver) return;

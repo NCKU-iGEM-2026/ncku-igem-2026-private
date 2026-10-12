@@ -4321,6 +4321,10 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 @media (min-width: 821px) {
   .board-game-page #gameScreen .log-panel { padding-top: 46px; }
 }
+/* While one of the game's overlays is waiting for an answer the page does
+   not move: the padding stands in for the scrollbar that goes with it. */
+html.tgc-overlay-open, html.tgc-overlay-open body { overflow: hidden; }
+
 /* ---- Online rooms: join form and lobby ---- */
 .board-game-page .online-block { margin: 14px 0 6px; text-align: left; }
 .board-game-page .online-label {
@@ -4476,9 +4480,18 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 .board-game-page .log-entry.up { color: var(--positive); }
 .board-game-page .log-entry.down { color: #a3382c; }
 .board-game-page .log-entry.special { color: #8b6914; }
-.board-game-page .modal-overlay { position: fixed; inset: 0; background: rgba(61,50,41,0.45); display: none; align-items: center; justify-content: center; z-index: 2000; }
+/* ---- the overlays sit on the board, not on the window --------------------
+   All three were fixed to the viewport with inset: 0, so they covered the
+   whole wiki -- menu bar, the pages above and below -- and a wheel scroll
+   while one was up slid the page out from under it, leaving the dialog
+   hanging over whatever came next. board-game.js measures the part of the
+   widget that is on screen into --tgc-ov-*, and holds the page still while
+   one of them is waiting for an answer. The fallbacks are the old
+   behaviour, for a browser that never runs the script. */
+.board-game-page .modal-overlay { position: fixed; top: var(--tgc-ov-top, 0px); left: var(--tgc-ov-left, 0px); width: var(--tgc-ov-width, 100%); height: var(--tgc-ov-height, 100%); background: rgba(61,50,41,0.45); display: none; align-items: center; justify-content: center; z-index: 2000; }
 .board-game-page .modal-overlay.show { display: flex; }
-.board-game-page .tgc-dialog { display: block; position: static; opacity: 1; pointer-events: auto; background: var(--paper); border-radius: 12px; padding: 22px; max-width: 480px; width: 92%; max-height: 85vh; overflow-y: auto; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+.board-game-page .tgc-dialog { display: block; position: static; opacity: 1; pointer-events: auto; background: var(--paper); border-radius: 12px; padding: 22px; max-width: 480px; width: 92%;
+  max-height: min(85vh, calc(var(--tgc-ov-height, 100vh) - 26px)); overflow-y: auto; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
 .board-game-page .tgc-dialog h3 { margin-bottom: 12px; color: var(--positive); }
 .board-game-page .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
 .board-game-page .modal-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; max-height: 280px; overflow-y: auto; }
@@ -4489,7 +4502,7 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 
 /* Notebook torn-page card announcement modal */
 .board-game-page #card-play-modal {
-  position: fixed; inset: 0; background: rgba(61,50,41,0.42);
+  position: fixed; top: var(--tgc-ov-top, 0px); left: var(--tgc-ov-left, 0px); width: var(--tgc-ov-width, 100%); height: var(--tgc-ov-height, 100%); background: rgba(61,50,41,0.42);
   display: flex; align-items: center; justify-content: center;
   z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
 }
@@ -4506,7 +4519,7 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   max-width: 480px; width: 92%;
   /* Sticky notes make this page tall; keep it inside the viewport so the
      Next button below is always reachable. */
-  max-height: 88vh; overflow-y: auto;
+  max-height: min(88vh, calc(var(--tgc-ov-height, 100vh) - 22px)); overflow-y: auto;
   box-shadow: 5px 5px 15px rgba(0,0,0,0.15), inset 0 0 40px rgba(255,255,255,0.3);
   transform: rotate(-0.6deg) scale(0.94);
   transition: transform 0.35s cubic-bezier(0.34,1.3,0.64,1);
@@ -4632,7 +4645,7 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 .board-game-page .hand-owner { font-size: 0.85rem; color: var(--gold); font-weight: 700; }
 
 .board-game-page #ai-notice {
-  position: fixed; inset: 0; background: rgba(61,50,41,0.32);
+  position: fixed; top: var(--tgc-ov-top, 0px); left: var(--tgc-ov-left, 0px); width: var(--tgc-ov-width, 100%); height: var(--tgc-ov-height, 100%); background: rgba(61,50,41,0.32);
   display: none; align-items: center; justify-content: center; z-index: 9000;
 }
 .board-game-page #ai-notice.show { display: flex; }
