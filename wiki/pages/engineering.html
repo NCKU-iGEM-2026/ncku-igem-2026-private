@@ -61,7 +61,7 @@
 
    part: used in ids and links (#eng-detect-c1-design ...); part_name: the
    heading above the cycle and the word in its centre. #}
-{% set parts = [('detect', 'Detect', 2), ('inhibition', 'Inhibition', 1)] %}
+{% set parts = [('detect', 'Detect', 3), ('inhibition', 'Inhibition', 1)] %}
 
 {# A later round does not always start from scratch. cycle_stages says which
    stages that round actually ran; the ones it skipped keep their arrow on the
@@ -69,6 +69,7 @@
    reader can see at a glance what was carried over. #}
 {% set cycle_stages = {
   ('detect', 2): ['build', 'test', 'learn'],
+  ('detect', 3): ['design', 'test'],
 } %}
 {# the stage's place in the full cycle, so a round that skipped one still
    lines up with the ring beside it #}
@@ -236,6 +237,23 @@
             <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/wet-experiment-photo/sds-page-uninduced-styled.avif" alt="SDS-PAGE gel flanked by marker lanes: three ProD-LasR lanes beside three J23101-LasR lanes, with an arrow marking a band between the 25 and 35 kDa markers as LasR, expected at about 27 kDa">
             <figcaption>Fig. D9 SDS-PAGE of uninduced whole-cell lysates (no AHL): ProD&ndash;LasR (lanes 1&ndash;3) beside J23101&ndash;LasR (lanes 1&ndash;3), the arrow marking LasR, expected at about 27&nbsp;kDa, between the 25 and 35&nbsp;kDa markers (M, marker)</figcaption>
           </figure>
+          {% elif part == 'detect' and cycle == 3 and stage == 'design' %}
+          <p>Based on the findings from our previous engineering cycles, we decided to revisit our initial experimental approach using synthetic 3-oxo-C12-HSL. Rather than introducing further modifications to the genetic circuit, we focused on controlling experimental conditions that might affect AHL stability and biosensor performance.</p>
+          <p>Previous research has demonstrated that AHL molecules can undergo pH-dependent lactonolysis, potentially reducing their biological activity (Yates et al., 2002). Therefore, we paid particular attention to pH control and minimized unnecessary light exposure during AHL handling and preparation.</p>
+          {% elif part == 'detect' and cycle == 3 and stage == 'test' %}
+          <p>We repeated the liquid-culture fluorescence assay by directly adding synthetic 3-oxo-C12-HSL to engineered <i>E. coli</i>. Both versions of our biosensor, containing either the ProD or J23101 promoter, were tested under the same experimental conditions. Following the fluorescence measurement approach described by Chappell et al. (2013), we used a 96-well plate reader to monitor fluorescence over time. Negative controls and constitutively fluorescent positive controls were included for comparison. (Fig. D11)</p>
+          <figure class="hw-figure eng-figure eng-figure-small text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/time-course.avif" alt="A 96-well plate seen from above, most of its wells filled with culture, seated in the holder of the plate reader">
+            <figcaption>Fig. D11 The 96-well plate loaded for the time-course reading</figcaption>
+          </figure>
+          <p>Through this experiment, we aimed to investigate whether improved control of experimental conditions could enable a detectable AHL-induced fluorescence response and to compare the performance of our two genetic constructs. (Fig. D12)</p>
+          <figure class="hw-figure eng-figure eng-figure-wide text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/reading.avif" alt="Line chart on a log scale: the positive control falls from about 6,000 to 2,819, the two biosensor constructs rise from about 100 to 154 and 168, and the empty-vector line falls to 64">
+            <figcaption>Fig. D12 Blank-subtracted RFU/OD600 across successive readings, averaged over the six AHL rows of one plate. The empty vector did not grow (OD600 0.009&ndash;0.021), so its line is a small-denominator estimate and is not comparable with the others</figcaption>
+          </figure>
+          {# 待補：這一輪的時間序列曲線和它的讀法。放圖時記得圖說要寫清楚
+             error bar 是 SD 還是 SEM、n 是幾、生物重複還是技術重複，
+             檢定只跑事先選定的那一個比較，p 值照實寫出來。 #}
           {% elif part == 'detect' and cycle == 1 and stage == 'design' %}
           <p>To develop a system capable of detecting <i>Pseudomonas aeruginosa</i>, we designed a biosensor that responds to its quorum-sensing signals. We selected the LasR regulatory system, one of the major QS systems in <i>P. aeruginosa</i>, as the foundation of our biosensor.</p>
           <p>LasR protein is able to bind the AHL, 3-oxo-C12-HSL, forming a dimer. Upon binding to the AHL, this active dimer can activate the LasR-responsive promoter, pLasRV, and consequently drive the transcription of the downstream sfGFP gene. (Wen et al., 2017)</p>
