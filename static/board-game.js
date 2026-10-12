@@ -43,6 +43,7 @@ var translations = {
     gameStart: "SDG 選牌完成，遊戲開始！", pleaseStart: "請開始行動。",
     reshuffle: "牌堆已用盡，重新洗牌。", discarded: "棄掉了", played: "打出了",
     forward: "前進", backward: "後退", special: "特殊效果",
+    pause: "暫停", resume: "繼續", paused: "已暫停", resumed: "繼續遊戲",
     historyEvent: "歷史事件", specialCard: "特殊功能", sanctioned: "制裁中", goal: "達標",
     selectTarget: "選擇目標玩家", selectOwnSDG: "選擇自己的 SDG",
     selectFromDiscard: "從棄牌堆選一張",
@@ -93,6 +94,7 @@ var translations = {
     gameStart: "Draft complete. Game start!", pleaseStart: "Please take action.",
     reshuffle: "Deck empty. Reshuffled.", discarded: "discarded", played: "played",
     forward: "Forward", backward: "Backward", special: "Special",
+    pause: "Pause", resume: "Resume", paused: "Paused", resumed: "Resumed",
     historyEvent: "Event", specialCard: "Special", sanctioned: "Sanctioned", goal: "GOAL",
     selectTarget: "Select target player", selectOwnSDG: "Select your SDG",
     selectFromDiscard: "Pick from discard",
@@ -136,7 +138,9 @@ var SDG_NAMES = {
 // English by default: the wiki is written in English and the judges read
 // it first. A reader who switches is remembered from then on.
 var currentLang = localStorage.getItem("tgc_lang") || "en";
-function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.zh[key] || key; }
+/* Named for this widget, not t(): a global single letter is the first
+   thing a bundled vendor script overwrites. */
+function tgcT(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.zh[key] || key; }
 function sdgName(id) { return (SDG_NAMES[currentLang] && SDG_NAMES[currentLang][id]) || id; }
 function cardTitle(c) { return currentLang === "en" ? (c.title_en || c.title_zh) : (c.title_zh || c.title_en); }
 function cardSub(c) { return currentLang === "en" ? (c.subtitle_en || "") : (c.subtitle_zh || ""); }
@@ -919,7 +923,7 @@ var state = {
   players: [], currentPlayer: 0, phase: "action",
   deck: [], discard: [], unusedSDGs: [],
   selectedCards: [], modeAction: null, maxPlay: 2,
-  capacityActive: false, isAIThinking: false,
+  capacityActive: false, isAIThinking: false, paused: false,
   stage: "lobby",   // lobby | draft | game — drives which screen every device shows
   draftCounts: {}, draftCurrentPlayer: 0, draftSelected: [], aiDraftPending: false,
   previewDeltas: {},
@@ -1001,18 +1005,44 @@ function viewerIndex() {
 function viewerPlayer() { return state.players[viewerIndex()]; }
 function isViewersTurn() { return viewerIndex() === state.currentPlayer; }
 
+/* Every wait the game makes goes through here -- a bot thinking, a card on
+   screen, the step between two turns -- which is what lets the game be held:
+   a pause clears what is pending and keeps how much of each was left, and
+   resuming sets them again for that much. A timer set while held waits for
+   the resume rather than starting its own clock. */
 function trackTimeout(fn, ms) {
   if (state.isGameOver) return null;
-  var id = setTimeout(function() {
-    state.timers = state.timers.filter(function(x) { return x !== id; });
+  var rec = { fn: fn, ms: ms, start: Date.now(), id: null };
+  rec.fire = function() {
+    state.timers = state.timers.filter(function(x) { return x !== rec; });
     if (!state.isGameOver) fn();
-  }, ms);
-  state.timers.push(id);
-  return id;
+  };
+  if (state.paused) rec.left = ms;
+  else rec.id = setTimeout(rec.fire, ms);
+  state.timers.push(rec);
+  return rec.id;
 }
 function clearAllTimers() {
-  state.timers.forEach(function(id) { clearTimeout(id); });
+  state.timers.forEach(function(r) { if (r.id) clearTimeout(r.id); });
   state.timers = [];
+}
+function holdTimers() {
+  var now = Date.now();
+  state.timers.forEach(function(r) {
+    if (!r.id) return;
+    clearTimeout(r.id);
+    r.id = null;
+    r.left = Math.max(0, r.start + r.ms - now);
+  });
+}
+function releaseTimers() {
+  state.timers.forEach(function(r) {
+    if (r.id) return;
+    r.ms = typeof r.left === "number" ? r.left : r.ms;
+    r.left = null;
+    r.start = Date.now();
+    r.id = setTimeout(r.fire, r.ms);
+  });
 }
 function shuffle(a) {
   for (var i = a.length - 1; i > 0; i--) {
@@ -1045,7 +1075,48 @@ function trackLabelsHtml() {
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(function(s) { s.classList.remove("active"); });
   document.getElementById(id).classList.add("active");
+  syncPauseButton();
 }
+
+/* ========== PAUSE ==========
+   The button is pinned over the board and sits above the pop-ups, because the
+   moment you most want to stop the game is while one of them is waiting for
+   you. Holding the game stops its clock and takes the board out of reach;
+   the button itself stays live. Local games only: an online table runs on
+   the host's clock, and one player's pause would only stall their own
+   screen while the rest of the table moved on. */
+function syncPauseButton() {
+  var btn = document.getElementById("btnPause");
+  if (!btn) return;
+  var playing = document.getElementById("gameScreen").classList.contains("active");
+  /* online is declared further down; before it is assigned this reads as
+     undefined, which is the right answer for a game that has not started. */
+  btn.hidden = !playing || !!(online && online.active);
+  if (btn.hidden && state.paused) setPaused(false);
+}
+
+function setPaused(on) {
+  var btn = document.getElementById("btnPause");
+  var page = document.querySelector(".board-game-page");
+  if (state.paused === on) return;
+  state.paused = on;
+  if (on) holdTimers(); else releaseTimers();
+  if (page) page.classList.toggle("is-paused", on);
+  if (btn) {
+    btn.classList.toggle("is-paused", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    var label = btn.querySelector(".tgc-pause-label");
+    /* The label is the action; applyI18n() reads the key back off it. */
+    label.setAttribute("data-i18n", on ? "resume" : "pause");
+    label.textContent = tgcT(on ? "resume" : "pause");
+  }
+  log(tgcT(on ? "paused" : "resumed"), "sys");
+}
+
+document.getElementById("btnPause").onclick = function() {
+  if (state.isGameOver) return;
+  setPaused(!state.paused);
+};
 function getCurrentPlayer() { return state.players[state.currentPlayer]; }
 function delay(ms) { return new Promise(function(r) { trackTimeout(r, ms); }); }
 function randChoice(a) { return a[Math.floor(Math.random() * a.length)]; }
@@ -1112,7 +1183,7 @@ function renderAnnouncement(playerName, card, options) {
   options = options || {};
   {
     var whoEl = document.getElementById("announcePlayer");
-    whoEl.textContent = options.reveal ? t("revealHeading") : playerName + " " + t("played");
+    whoEl.textContent = options.reveal ? tgcT("revealHeading") : playerName + " " + tgcT("played");
     whoEl.className = "card-announce-player" + (options.reveal ? " reveal" : "");
     var nameEl = document.getElementById("announceCardName");
     var wikiUrl = cardLink(card);
@@ -1124,15 +1195,15 @@ function renderAnnouncement(playerName, card, options) {
       wikiLink.href = wikiUrl;
       wikiLink.target = "_blank";
       wikiLink.rel = "noopener noreferrer";
-      wikiLink.title = t("readMore");
+      wikiLink.title = tgcT("readMore");
       wikiLink.textContent = cardTitle(card);
       nameEl.appendChild(wikiLink);
     } else {
       nameEl.textContent = cardTitle(card);
     }
     document.getElementById("announceSub").textContent = options.reveal
-      ? t("revealNote")
-      : (cardSub(card) || (card.kind === "event" ? t("historyEvent") : t("specialCard")));
+      ? tgcT("revealNote")
+      : (cardSub(card) || (card.kind === "event" ? tgcT("historyEvent") : tgcT("specialCard")));
     document.getElementById("announceDesc").textContent = cardDesc(card);
 
     var effectsEl = document.getElementById("announceEffects");
@@ -1152,7 +1223,7 @@ function renderAnnouncement(playerName, card, options) {
     } else {
       var tag = document.createElement("span");
       tag.className = "sticky-note special plain";
-      tag.textContent = t("special");
+      tag.textContent = tgcT("special");
       effectsEl.appendChild(tag);
     }
     if (options.targetName) {
@@ -1242,22 +1313,22 @@ function openOnlineMenu() {
   showScreen("onlineMenu");
   document.getElementById("onlineCode").value = "";
   var nameInput = document.getElementById("onlineName");
-  if (!nameInput.value) nameInput.value = t("player") + Math.floor(Math.random() * 90 + 10);
+  if (!nameInput.value) nameInput.value = tgcT("player") + Math.floor(Math.random() * 90 + 10);
 
   var create = document.getElementById("btnCreateRoom");
   var join = document.getElementById("btnJoinRoom");
   create.disabled = true; join.disabled = true;
 
   if (!Net.configured()) {
-    setStatus("onlineStatus", t("onlineNotConfigured"), "error");
+    setStatus("onlineStatus", tgcT("onlineNotConfigured"), "error");
     return;
   }
-  setStatus("onlineStatus", t("onlineChecking"));
+  setStatus("onlineStatus", tgcT("onlineChecking"));
   Net.ping().then(function() {
-    setStatus("onlineStatus", t("onlineReady"), "ok");
+    setStatus("onlineStatus", tgcT("onlineReady"), "ok");
     create.disabled = false; join.disabled = false;
   }).catch(function() {
-    setStatus("onlineStatus", t("onlineUnreachable"), "error");
+    setStatus("onlineStatus", tgcT("onlineUnreachable"), "error");
   });
 }
 
@@ -1268,7 +1339,7 @@ function myName() {
 }
 
 document.getElementById("btnCreateRoom").onclick = function() {
-  if (!myName()) { setStatus("onlineStatus", t("needName"), "error"); return; }
+  if (!myName()) { setStatus("onlineStatus", tgcT("needName"), "error"); return; }
   var code = makeRoomCode();
   online.playerId = localPlayerId();
   var room = {
@@ -1283,21 +1354,21 @@ document.getElementById("btnCreateRoom").onclick = function() {
     online.isHost = true;
     enterLobby();
   }).catch(function() {
-    setStatus("onlineStatus", t("onlineUnreachable"), "error");
+    setStatus("onlineStatus", tgcT("onlineUnreachable"), "error");
   });
 };
 
 document.getElementById("btnJoinRoom").onclick = function() {
-  if (!myName()) { setStatus("onlineStatus", t("needName"), "error"); return; }
+  if (!myName()) { setStatus("onlineStatus", tgcT("needName"), "error"); return; }
   var code = (document.getElementById("onlineCode").value || "").trim().toUpperCase();
-  if (code.length !== 4) { setStatus("onlineStatus", t("needCode"), "error"); return; }
+  if (code.length !== 4) { setStatus("onlineStatus", tgcT("needCode"), "error"); return; }
   online.playerId = localPlayerId();
   Net.get("rooms/" + code).then(function(room) {
-    if (!room) { setStatus("onlineStatus", t("roomNotFound"), "error"); return; }
+    if (!room) { setStatus("onlineStatus", tgcT("roomNotFound"), "error"); return; }
     var players = room.players || {};
     var already = players[online.playerId];
-    if (room.phase !== "lobby" && !already) { setStatus("onlineStatus", t("roomStarted"), "error"); return; }
-    if (!already && Object.keys(players).length >= 8) { setStatus("onlineStatus", t("roomFull"), "error"); return; }
+    if (room.phase !== "lobby" && !already) { setStatus("onlineStatus", tgcT("roomStarted"), "error"); return; }
+    if (!already && Object.keys(players).length >= 8) { setStatus("onlineStatus", tgcT("roomFull"), "error"); return; }
     var seat = already ? already.seat : Object.keys(players).length;
     return Net.put("rooms/" + code + "/players/" + online.playerId,
                    { name: myName(), seat: seat, joinedAt: Date.now() }).then(function() {
@@ -1306,7 +1377,7 @@ document.getElementById("btnJoinRoom").onclick = function() {
       enterLobby();
     });
   }).catch(function() {
-    setStatus("onlineStatus", t("onlineUnreachable"), "error");
+    setStatus("onlineStatus", tgcT("onlineUnreachable"), "error");
   });
 };
 
@@ -1343,7 +1414,7 @@ function enterLobby() {
     if (state.isGameOver) checkWin();
   }, function(err) {
     if (err && err.message === "stream-interrupted") {
-      setStatus("lobbyStatus", t("connectionLost"), "error");
+      setStatus("lobbyStatus", tgcT("connectionLost"), "error");
     }
   });
 }
@@ -1483,7 +1554,7 @@ function renderLobby(room) {
     if (room && room.host === p.id) {
       var tag = document.createElement("span");
       tag.className = "lobby-host-tag";
-      tag.textContent = t("hostTag");
+      tag.textContent = tgcT("hostTag");
       li.appendChild(tag);
     }
     list.appendChild(li);
@@ -1493,8 +1564,8 @@ function renderLobby(room) {
   var enough = roster.length >= 4;
   startBtn.style.display = online.isHost ? "" : "none";
   startBtn.disabled = !enough;
-  if (!online.isHost) setStatus("lobbyStatus", t("lobbyWaitHost"));
-  else setStatus("lobbyStatus", enough ? t("lobbyHostHint") : t("lobbyNeedMore"), enough ? "" : "error");
+  if (!online.isHost) setStatus("lobbyStatus", tgcT("lobbyWaitHost"));
+  else setStatus("lobbyStatus", enough ? tgcT("lobbyHostHint") : tgcT("lobbyNeedMore"), enough ? "" : "error");
 }
 
 /* ---- Synchronised "everyone presses Next" barrier ----
@@ -1530,7 +1601,7 @@ function hostPublishStep(playerName, card, options) {
 function sendAck() {
   if (!online.code || !online.stepId) return;
   document.getElementById("btnCardNext").disabled = true;
-  document.getElementById("ackStatus").textContent = t("ackedYou") + " · " + t("waitingOthers");
+  document.getElementById("ackStatus").textContent = tgcT("ackedYou") + " · " + tgcT("waitingOthers");
   Net.put("rooms/" + online.code + "/acks/" + online.stepId + "/" + online.playerId, true)
     .catch(function() {});
 }
@@ -1539,7 +1610,7 @@ function renderAckStatus(count) {
   var total = (state.players || []).length || online.order.length;
   var el = document.getElementById("ackStatus");
   if (!el || !online.active) return;
-  el.textContent = t("ackProgress") + " " + count + " / " + total;
+  el.textContent = tgcT("ackProgress") + " " + count + " / " + total;
 }
 
 /* Called on every room update: drives the announcement for guests, keeps the
@@ -1570,8 +1641,8 @@ function syncStep(room) {
   if (acks[online.playerId]) {
     document.getElementById("btnCardNext").disabled = true;
     document.getElementById("ackStatus").textContent =
-      count >= total ? t("ackProgress") + " " + count + " / " + total
-                     : t("ackedYou") + " · " + t("waitingOthers");
+      count >= total ? tgcT("ackProgress") + " " + count + " / " + total
+                     : tgcT("ackedYou") + " · " + tgcT("waitingOthers");
   }
 
   if (online.isHost && total > 0 && count >= total && online.pendingStep &&
@@ -1628,19 +1699,19 @@ function renderNameInputs(mode) {
     var div = document.createElement("div");
     div.className = "player-setup";
     if (mode === "pvp") {
-      div.innerHTML = "<label for=\"pname" + i + "\">" + t("player") + " " + (i+1) + "</label>" +
-        "<input type=\"text\" id=\"pname" + i + "\" value=\"" + t("player") + (i+1) + "\" maxlength=\"12\">" +
-        "<select id=\"ptype" + i + "\" aria-label=\"" + t("player") + " " + (i+1) + " " + t("playerType")
-          + "\" disabled><option value=\"human\" selected>" + t("human") + "</option></select>";
+      div.innerHTML = "<label for=\"pname" + i + "\">" + tgcT("player") + " " + (i+1) + "</label>" +
+        "<input type=\"text\" id=\"pname" + i + "\" value=\"" + tgcT("player") + (i+1) + "\" maxlength=\"12\">" +
+        "<select id=\"ptype" + i + "\" aria-label=\"" + tgcT("player") + " " + (i+1) + " " + tgcT("playerType")
+          + "\" disabled><option value=\"human\" selected>" + tgcT("human") + "</option></select>";
     } else {
       var def = i === 0 ? "human" : "basic";
-      div.innerHTML = "<label for=\"pname" + i + "\">" + t("player") + " " + (i+1) + "</label>" +
-        "<input type=\"text\" id=\"pname" + i + "\" value=\"" + (i===0 ? t("player")+"1" : "Bot"+i) + "\" maxlength=\"12\">" +
-        "<select id=\"ptype" + i + "\" aria-label=\"" + t("player") + " " + (i+1) + " " + t("playerType") + "\">" +
-        "<option value=\"human\"" + (def==="human"?" selected":"") + ">" + t("human") + "</option>" +
-        "<option value=\"easy\">" + t("easyBot") + "</option>" +
-        "<option value=\"basic\"" + (def==="basic"?" selected":"") + ">" + t("basicBot") + "</option>" +
-        "<option value=\"advance\">" + t("advanceBot") + "</option></select>";
+      div.innerHTML = "<label for=\"pname" + i + "\">" + tgcT("player") + " " + (i+1) + "</label>" +
+        "<input type=\"text\" id=\"pname" + i + "\" value=\"" + (i===0 ? tgcT("player")+"1" : "Bot"+i) + "\" maxlength=\"12\">" +
+        "<select id=\"ptype" + i + "\" aria-label=\"" + tgcT("player") + " " + (i+1) + " " + tgcT("playerType") + "\">" +
+        "<option value=\"human\"" + (def==="human"?" selected":"") + ">" + tgcT("human") + "</option>" +
+        "<option value=\"easy\">" + tgcT("easyBot") + "</option>" +
+        "<option value=\"basic\"" + (def==="basic"?" selected":"") + ">" + tgcT("basicBot") + "</option>" +
+        "<option value=\"advance\">" + tgcT("advanceBot") + "</option></select>";
     }
     box.appendChild(div);
   }
@@ -1654,7 +1725,7 @@ function startDraft() {
   var count = parseInt(document.getElementById("playerCount").value, 10);
   var names = [], types = [];
   for (var i = 0; i < count; i++) {
-    names.push(document.getElementById("pname"+i).value.trim() || (t("player")+(i+1)));
+    names.push(document.getElementById("pname"+i).value.trim() || (tgcT("player")+(i+1)));
     types.push(document.getElementById("ptype"+i).value);
   }
   state.players = names.map(function(n, i) {
@@ -1884,8 +1955,8 @@ function renderDraft() {
   // this the host would draft alone while everyone else stayed on seat 0.
   if (online.active && online.isHost) publishState();
   var p = state.players[state.draftCurrentPlayer];
-  document.getElementById("draftStatus").textContent = t("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "") + " - " + t("select2");
-  document.getElementById("draftCount").textContent = t("selected") + " " + state.draftSelected.length + " / 2";
+  document.getElementById("draftStatus").textContent = tgcT("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "") + " - " + tgcT("select2");
+  document.getElementById("draftCount").textContent = tgcT("selected") + " " + state.draftSelected.length + " / 2";
   var grid = document.getElementById("draftGrid");
   grid.innerHTML = "";
   for (var id = 1; id <= 17; id++) {
@@ -1894,8 +1965,8 @@ function renderDraft() {
     var sel = state.draftSelected.indexOf(id) !== -1;
     var div = document.createElement("div");
     div.className = "sdg-pick" + (full && !sel ? " disabled" : "") + (sel ? " selected" : "");
-    div.innerHTML = "<strong>SDG " + id + "</strong><br><span style=\"font-size:0.72rem;color:#8a7a6a;\">" + sdgName(id) + "</span>" +
-      "<div class=\"pick-count\">" + (full ? t("max2") : cnt + " " + t("picks")) + "</div>";
+    div.innerHTML = "<strong>SDG " + id + "</strong><br><span style=\"font-size:0.72rem;color:var(--muted);\">" + sdgName(id) + "</span>" +
+      "<div class=\"pick-count\">" + (full ? tgcT("max2") : cnt + " " + tgcT("picks")) + "</div>";
     // Online, only the device whose seat is drafting may touch the grid.
     if (!full && !p.isAI && (!online.active || state.draftCurrentPlayer === viewerIndex())) {
       (function(sid) { div.onclick = function() { toggleDraftSelect(sid); }; })(id);
@@ -1912,8 +1983,8 @@ function renderDraft() {
   // timer once per bot — otherwise a stale one fires after the draft moved on.
   if (p.isAI && !state.aiDraftPending) {
     state.aiDraftPending = true;
-    showAINotice("[" + p.name + "] " + t("aiDraft"));
-    log("[" + p.name + "] " + t("aiDraft"), "ai");
+    showAINotice("[" + p.name + "] " + tgcT("aiDraft"));
+    log("[" + p.name + "] " + tgcT("aiDraft"), "ai");
     trackTimeout(function() { hideAINotice(); aiDraftPick(); }, 1000);
   }
 }
@@ -2051,8 +2122,8 @@ function startGame() {
   state.previewDeltas = {};
   state.isGameOver = false;
   showScreen("gameScreen");
-  log(t("gameStart"), "sys");
-  log(getCurrentPlayer().name + ": " + t("pleaseStart"), "sys");
+  log(tgcT("gameStart"), "sys");
+  log(getCurrentPlayer().name + ": " + tgcT("pleaseStart"), "sys");
   updateUI();
   maybeTriggerAI();
 }
@@ -2111,7 +2182,7 @@ function reshuffle() {
   if (!state.discard.length) return;
   state.deck = state.discard.splice(0);
   shuffle(state.deck);
-  log(t("reshuffle"), "sys");
+  log(tgcT("reshuffle"), "sys");
 }
 
 /* ========== UI ========== */
@@ -2153,19 +2224,19 @@ function updateUI() {
   // that reliably mirrors the authoritative state out to the other devices.
   if (online.active && online.isHost) publishState();
   var viewer = viewerPlayer() || p;
-  document.getElementById("turnInfo").textContent = t("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "");
+  document.getElementById("turnInfo").textContent = tgcT("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "");
   document.getElementById("deckCount").textContent = state.deck.length;
   document.getElementById("discardCount").textContent = state.discard.length;
   document.getElementById("handCount").textContent = "(" + viewer.hand.length + "/" + HAND_LIMIT + ")";
   // Online, the hand shown is always this device's own, so label it.
   var handOwner = document.getElementById("handOwner");
   if (handOwner) handOwner.textContent = online.active ? "· " + viewer.name : "";
-  var phaseText = t("actionPhase");
-  if (state.isAIThinking) phaseText = t("botThinking");
-  else if (state.phase === "flip") phaseText = t("flipPhase");
-  else if (state.phase === "draw") phaseText = t("drawPhase");
-  else if (state.modeAction === "discard") phaseText = t("discardPhase");
-  else if (state.modeAction === "play") phaseText = t("playPhase") + " " + state.maxPlay + " " + t("cards");
+  var phaseText = tgcT("actionPhase");
+  if (state.isAIThinking) phaseText = tgcT("botThinking");
+  else if (state.phase === "flip") phaseText = tgcT("flipPhase");
+  else if (state.phase === "draw") phaseText = tgcT("drawPhase");
+  else if (state.modeAction === "discard") phaseText = tgcT("discardPhase");
+  else if (state.modeAction === "play") phaseText = tgcT("playPhase") + " " + state.maxPlay + " " + tgcT("cards");
   document.getElementById("phaseLabel").textContent = phaseText;
   document.getElementById("phaseLabel").className = "phase-label" + (state.isAIThinking ? " ai-thinking" : "");
 
@@ -2194,14 +2265,14 @@ function updateUI() {
     var div = document.createElement("div");
     div.className = "player-card" + (idx === state.currentPlayer ? " current" : "") +
       (pl.sanctioned ? " sanctioned" : "") + (pl.isAI ? " ai-tag" : "");
-    div.setAttribute("data-sanction", t("sanctioned"));
+    div.setAttribute("data-sanction", tgcT("sanctioned"));
     if (online.active && idx === viewerIndex()) div.className += " viewer";
     var html = "<div class=\"player-name\">" + pl.name + (idx === state.currentPlayer ? " (current)" : "") +
       (pl.isAI ? " [" + pl.difficulty + "]" : "") +
-      (online.active && idx === viewerIndex() ? " <span class=\"you-tag\">" + t("youTag") + "</span>" : "") +
+      (online.active && idx === viewerIndex() ? " <span class=\"you-tag\">" + tgcT("youTag") + "</span>" : "") +
       // Hands stay hidden online; only the size is public.
       (online.active && idx !== viewerIndex()
-        ? " <span class=\"hand-count-tag\">" + t("handsLabel") + " " + pl.hand.length + "</span>" : "") +
+        ? " <span class=\"hand-count-tag\">" + tgcT("handsLabel") + " " + pl.hand.length + "</span>" : "") +
       "</div>";
     pl.sdgs.forEach(function(s, si) {
       var cur = s.progress;
@@ -2212,10 +2283,10 @@ function updateUI() {
       html += "<div class=\"sdg-row\"><div class=\"sdg-badge " + (cur >= GOAL ? "goal" : "") + "\">SDG " + s.id + "</div>" +
         "<div class=\"sdg-progress-bar\"><div class=\"progress-fill " + (cur < 0 ? "negative" : "") + "\" style=\"width:" + pct + "%\"></div>" +
         (delta !== 0 ? "<div class=\"progress-preview " + (delta < 0 ? "negative" : "") + "\" style=\"left:0;width:" + Math.max(pct, previewPct) + "%;\"></div>" : "") +
-        "<div class=\"progress-text\">" + (cur >= GOAL ? t("goal") : cur) + (delta ? " -> " + preview : "") +
+        "<div class=\"progress-text\">" + (cur >= GOAL ? tgcT("goal") : cur) + (delta ? " -> " + preview : "") +
         (s.immune ? " [immune]" : "") + "</div></div></div>" +
         "<div class=\"progress-labels\">" + trackLabelsHtml() + "</div>" +
-        "<div style=\"font-size:0.66rem;color:#8a7a6a;margin-bottom:2px;\">" + sdgName(s.id) + "</div>";
+        "<div style=\"font-size:0.66rem;color:var(--muted);margin-bottom:2px;\">" + sdgName(s.id) + "</div>";
     });
     div.innerHTML = html;
     grid.appendChild(div);
@@ -2232,12 +2303,12 @@ function updateUI() {
       (state.selectedCards.indexOf(idx) !== -1 ? " selected" : "") + (cannot ? " disabled-card" : "");
     var effect = "";
     if (card.kind === "event") {
-      effect = "<div class=\"card-fwd\">" + (card.forward.length ? t("forward") + ":" + card.forward.join(",") : "") + "</div>" +
-               "<div class=\"card-bwd\">" + (card.backward.length ? t("backward") + ":" + card.backward.join(",") : "") + "</div>";
+      effect = "<div class=\"card-fwd\">" + (card.forward.length ? tgcT("forward") + ":" + card.forward.join(",") : "") + "</div>" +
+               "<div class=\"card-bwd\">" + (card.backward.length ? tgcT("backward") + ":" + card.backward.join(",") : "") + "</div>";
     } else {
       effect = "<div class=\"card-effect\">" + cardDesc(card) + "</div>";
     }
-    div.innerHTML = "<div class=\"hand-card-header\">" + (card.kind === "event" ? t("historyEvent") : t("specialCard")) + "</div>" +
+    div.innerHTML = "<div class=\"hand-card-header\">" + (card.kind === "event" ? tgcT("historyEvent") : tgcT("specialCard")) + "</div>" +
       "<div class=\"hand-card-body\"><div class=\"card-name\">" + cardTitle(card) + "</div>" + effect + "</div>";
     if (!p.isAI && isViewersTurn() && !cannot && !state.inputLocked && !state.isGameOver) {
       (function(i) { div.onclick = function() { onCardClick(i); }; })(idx);
@@ -2246,17 +2317,122 @@ function updateUI() {
   });
 }
 
+/* ========== OVERLAYS STAY ON THE BOARD ==========
+   The card announcement, the choice dialog and the bot notice are fixed
+   elements. Fixed to the window they covered the whole wiki, and a wheel
+   scroll while one was up carried the page away under them. Each is now
+   pinned to the part of this widget that is on screen, written into
+   --tgc-ov-* and read by the rules in style.css, and while one of the two
+   that want an answer is open the page is held still.
+
+   Watched with a MutationObserver rather than hooked into each show/hide:
+   the online game opens the same overlays down other paths. */
+var tgcOverlayLocked = false;
+var tgcOverlayPad = '';
+var tgcPinRaf = null;
+
+function tgcBoard() { return document.querySelector('.board-game-page'); }
+
+function tgcShown(sel) {
+  var el = document.querySelector(sel);
+  return !!(el && el.classList.contains('show'));
+}
+
+function tgcPinOverlays() {
+  var page = tgcBoard();
+  if (!page) return;
+  /* clientWidth/clientHeight, not innerWidth/innerHeight: a fixed box is laid
+     out against the viewport without its scrollbar, which is the same frame
+     getBoundingClientRect() reports in. */
+  var vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
+  var r = page.getBoundingClientRect();
+  var left = Math.max(0, r.left), right = Math.min(vw, r.right);
+  var top = Math.max(0, r.top), bottom = Math.min(vh, r.bottom);
+  page.style.setProperty('--tgc-ov-left', Math.round(left) + 'px');
+  page.style.setProperty('--tgc-ov-top', Math.round(top) + 'px');
+  page.style.setProperty('--tgc-ov-width', Math.round(Math.max(0, right - left)) + 'px');
+  page.style.setProperty('--tgc-ov-height', Math.round(Math.max(0, bottom - top)) + 'px');
+  /* From the other two edges, for anything pinned to the board's corners. */
+  page.style.setProperty('--tgc-ov-right', Math.round(Math.max(0, vw - right)) + 'px');
+  page.style.setProperty('--tgc-ov-bottom', Math.round(Math.max(0, vh - bottom)) + 'px');
+}
+
+function tgcPinSoon() {
+  if (tgcPinRaf) return;
+  tgcPinRaf = requestAnimationFrame(function () { tgcPinRaf = null; tgcPinOverlays(); });
+}
+
+function tgcSyncOverlays() {
+  var page = tgcBoard();
+  if (!page) return;
+  var waiting = tgcShown('#card-play-modal') || tgcShown('#modal');
+  var root = document.documentElement;
+  if (waiting && !tgcOverlayLocked) {
+    /* Asked for an answer while the board is nearly off screen: bring it
+       back first, so the question is put where the player is looking. At
+       once, not smoothly, because the box measured next is the box that
+       then stays put. */
+    var r = page.getBoundingClientRect();
+    var seen = Math.min(window.innerHeight, r.bottom) - Math.max(0, r.top);
+    if (seen < Math.min(r.height, window.innerHeight * 0.6)) {
+      window.scrollTo(0, Math.max(0, window.pageYOffset + r.top -
+        Math.max(0, (window.innerHeight - Math.min(r.height, window.innerHeight)) / 2)));
+    }
+    tgcOverlayPad = root.style.paddingRight;
+    var gap = window.innerWidth - root.clientWidth;
+    if (gap > 0) root.style.paddingRight = gap + 'px';
+    root.classList.add('tgc-overlay-open');
+    tgcOverlayLocked = true;
+  } else if (!waiting && tgcOverlayLocked) {
+    root.classList.remove('tgc-overlay-open');
+    root.style.paddingRight = tgcOverlayPad;
+    tgcOverlayLocked = false;
+  }
+  tgcPinOverlays();
+}
+
+/* overflow: hidden holds a wheel the reader turns, but not a scroll a script
+   asks for, and the site's smooth scrolling (Lenis) answers the wheel by
+   scrolling the page itself. So the event is taken at the window, before it
+   reaches that listener. A tall announcement still scrolls inside itself. */
+function tgcBlockScroll(e) {
+  if (!tgcOverlayLocked) return;
+  var inner = e.target && e.target.closest &&
+    e.target.closest('#card-play-modal .tgc-torn-page, #modal .tgc-dialog, #modal .modal-list');
+  if (inner && inner.scrollHeight > inner.clientHeight) { e.stopPropagation(); return; }
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+(function () {
+  if (window.MutationObserver) {
+    var mo = new MutationObserver(tgcSyncOverlays);
+    ['#card-play-modal', '#modal', '#ai-notice'].forEach(function (sel) {
+      var el = document.querySelector(sel);
+      if (el) mo.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+  /* Whatever moves the page -- the bot notice is up and not holding it, or a
+     smooth scroll already under way when the hold began -- the box follows. */
+  window.addEventListener('scroll', tgcPinSoon, { passive: true });
+  window.addEventListener('wheel', tgcBlockScroll, { capture: true, passive: false });
+  window.addEventListener('touchmove', tgcBlockScroll, { capture: true, passive: false });
+  window.addEventListener('resize', tgcPinSoon);
+  window.addEventListener('load', tgcPinOverlays);
+  tgcPinOverlays();
+})();
+
 /* ========== ACTIONS ========== */
 document.getElementById("btnDiscardMode").onclick = function() {
   if (state.inputLocked || state.isGameOver) return;
   var p = getCurrentPlayer();
-  if (p.sanctioned) { log(p.name + " " + t("sanctioned")); return; }
+  if (p.sanctioned) { log(p.name + " " + tgcT("sanctioned")); return; }
   state.modeAction = "discard"; state.selectedCards = []; updateUI();
 };
 document.getElementById("btnPlayMode").onclick = function() {
   if (state.inputLocked || state.isGameOver) return;
   var p = getCurrentPlayer();
-  if (p.sanctioned) { log(p.name + " " + t("sanctioned")); return; }
+  if (p.sanctioned) { log(p.name + " " + tgcT("sanctioned")); return; }
   state.modeAction = "play";
   state.maxPlay = 2;
   state.selectedCards = []; updateUI();
@@ -2298,7 +2474,7 @@ function executeDiscard() {
   state.selectedCards.slice().sort(function(a,b){return b-a;}).forEach(function(i) {
     var c = p.hand.splice(i, 1)[0];
     state.discard.push(c);
-    log(p.name + " " + t("discarded") + ": " + cardTitle(c));
+    log(p.name + " " + tgcT("discarded") + ": " + cardTitle(c));
   });
   state.selectedCards = []; state.modeAction = null;
   endActionPhase();
@@ -2327,7 +2503,7 @@ async function executePlay() {
       (card.backward || []).forEach(function(id) { affected.push({id:id, delta:-1}); });
     }
     await showCardAnnouncement(p.name, card, { affectedSDGs: affected });
-    log(p.name + " " + t("played") + ": " + cardTitle(card), card.kind === "event" ? "up" : "special");
+    log(p.name + " " + tgcT("played") + ": " + cardTitle(card), card.kind === "event" ? "up" : "special");
     updateUI();
     await new Promise(function(r) { resolveCard(card, false, r); });
   }
@@ -2350,7 +2526,7 @@ function askVeto(card, caster) {
       }
     });
     if (advanceHolder) {
-      showAINotice("[" + advanceHolder.pl.name + "] " + t("aiTarget"));
+      showAINotice("[" + advanceHolder.pl.name + "] " + tgcT("aiTarget"));
       trackTimeout(function() {
         hideAINotice();
         advanceHolder.pl.hand.splice(advanceHolder.idx, 1);
@@ -2367,14 +2543,14 @@ function askVeto(card, caster) {
       var pl = holders[i++].pl;
       var idx = pl.hand.findIndex(function(c) { return c.type === "veto"; });
       if (idx < 0) { askNext(); return; }
-      showModal(t("useVeto"), "<p>" + pl.name + ": " + cardTitle(card) + "</p>", [
-        { label: t("yes"), class: "success", fn: function() {
+      showModal(tgcT("useVeto"), "<p>" + pl.name + ": " + cardTitle(card) + "</p>", [
+        { label: tgcT("yes"), class: "success", fn: function() {
           pl.hand.splice(idx, 1);
           state.discard.push({ type: "veto", title_zh: "否決權", title_en: "Veto", kind: "special" });
           log(pl.name + " Veto!", "special");
           resolve(true);
         }},
-        { label: t("no"), class: "danger", fn: askNext }
+        { label: tgcT("no"), class: "danger", fn: askNext }
       ]);
     })();
   });
@@ -2405,7 +2581,7 @@ async function doFlipPhase() {
     var affected = [];
     (card.forward || []).forEach(function(id) { affected.push({id:id, delta:1}); });
     (card.backward || []).forEach(function(id) { affected.push({id:id, delta:-1}); });
-    log(t("flipReveal") + ": " + cardTitle(card), "sys");
+    log(tgcT("flipReveal") + ": " + cardTitle(card), "sys");
     await showCardAnnouncement("", card, { affectedSDGs: affected, reveal: true });
     await new Promise(function(r) { resolveEvent(card, false, r); });
     break;
@@ -2433,7 +2609,7 @@ function doDrawPhase() {
       p.hand = p.hand.concat(drawn);
       finishTurn();
     } else {
-      askChoice(state.currentPlayer, t("capacityChoose"), drawn.map(function(c, i) {
+      askChoice(state.currentPlayer, tgcT("capacityChoose"), drawn.map(function(c, i) {
         return { label: cardTitle(c), value: i };
       }), function(i) {
         state.discard.push(drawn.splice(i, 1)[0]);
@@ -2458,7 +2634,7 @@ function finishTurn() {
   state.players[next].sdgs.forEach(function(s) { s.immune = false; });
   state.phase = "action";
   state.modeAction = null;
-  log("--- " + t("turnOf") + " " + getCurrentPlayer().name + " ---", "sys");
+  log("--- " + tgcT("turnOf") + " " + getCurrentPlayer().name + " ---", "sys");
   checkWin();
   if (!state.isGameOver) { updateUI(); maybeTriggerAI(); }
 }
@@ -2472,8 +2648,8 @@ async function maybeTriggerAI() {
   // them to take — skip straight to the reveal phase. Without this a sanctioned
   // human is stuck: both action buttons refuse, and nothing ends the turn.
   if (p.sanctioned) {
-    log(p.name + " " + t("sanctionSkip"), p.isAI ? "ai" : "sys");
-    showAINotice(p.name + " " + t("sanctionSkip"));
+    log(p.name + " " + tgcT("sanctionSkip"), p.isAI ? "ai" : "sys");
+    showAINotice(p.name + " " + tgcT("sanctionSkip"));
     await delay(1200);
     hideAINotice();
     if (!state.isGameOver) endActionPhase();
@@ -2482,8 +2658,8 @@ async function maybeTriggerAI() {
   if (!p.isAI) return;
   state.isAIThinking = true;
   updateUI();
-  showAINotice("[" + p.name + "] " + t("aiPlay"));
-  log("[" + p.name + "] " + t("aiPlay"), "ai");
+  showAINotice("[" + p.name + "] " + tgcT("aiPlay"));
+  log("[" + p.name + "] " + tgcT("aiPlay"), "ai");
   await delay(1000);
   hideAINotice();
   if (state.isGameOver) return;
@@ -2510,7 +2686,7 @@ async function maybeTriggerAI() {
         (card.backward || []).forEach(function(id) { affected.push({id:id, delta:-1}); });
       }
       await showCardAnnouncement(p.name, card, { affectedSDGs: affected });
-      log(p.name + " " + t("played") + ": " + cardTitle(card), "ai");
+      log(p.name + " " + tgcT("played") + ": " + cardTitle(card), "ai");
       await new Promise(function(r) { resolveCard(card, true, r); });
     }
   } else {
@@ -2518,7 +2694,7 @@ async function maybeTriggerAI() {
     for (var j = 0; j < n2; j++) {
       var c = p.hand.pop();
       state.discard.push(c);
-      log(p.name + " " + t("discarded") + ": " + cardTitle(c), "ai");
+      log(p.name + " " + tgcT("discarded") + ": " + cardTitle(c), "ai");
     }
   }
   state.isAIThinking = false;
@@ -2572,7 +2748,7 @@ function resolveSpecial(card, isAI, done) {
       log(p.name + " Immunity", "ai");
       done();
     } else {
-      pickSDG(p, t("selectOwnSDG"), function(si) {
+      pickSDG(p, tgcT("selectOwnSDG"), function(si) {
         p.sdgs[si].immune = true;
         log(p.name + " SDG " + p.sdgs[si].id + " immune", "special");
         done();
@@ -2583,7 +2759,7 @@ function resolveSpecial(card, isAI, done) {
 
   if (card.type === "reset") {
     if (isAI) {
-      showAINotice("[" + p.name + "] " + t("aiTarget"));
+      showAINotice("[" + p.name + "] " + tgcT("aiTarget"));
       trackTimeout(function() {
         hideAINotice();
         var best = null;
@@ -2596,16 +2772,16 @@ function resolveSpecial(card, isAI, done) {
         });
         if (best) {
           best.s.progress = 0;
-          log("[" + p.name + "] -> [" + best.pl.name + "] " + t("resetCard") + " SDG " + best.s.id, "special");
-        } else log(t("noValid"));
+          log("[" + p.name + "] -> [" + best.pl.name + "] " + tgcT("resetCard") + " SDG " + best.s.id, "special");
+        } else log(tgcT("noValid"));
         done();
       }, 1000);
     } else {
-      pickAnySDG(t("resetCard"), function(pl, si) {
+      pickAnySDG(tgcT("resetCard"), function(pl, si) {
         var s = pl.sdgs[si];
-        if (!isValidNeg(s)) { log(pl.name + " SDG " + s.id + " " + t("immuneBlocked"), "special"); done(); return; }
+        if (!isValidNeg(s)) { log(pl.name + " SDG " + s.id + " " + tgcT("immuneBlocked"), "special"); done(); return; }
         s.progress = 0;
-        log("[" + p.name + "] -> [" + pl.name + "] " + t("resetCard") + " SDG " + s.id, "special");
+        log("[" + p.name + "] -> [" + pl.name + "] " + tgcT("resetCard") + " SDG " + s.id, "special");
         done();
       }, done);
     }
@@ -2614,7 +2790,7 @@ function resolveSpecial(card, isAI, done) {
 
   if (card.type === "reverse") {
     if (isAI) {
-      showAINotice("[" + p.name + "] " + t("aiTarget"));
+      showAINotice("[" + p.name + "] " + tgcT("aiTarget"));
       trackTimeout(function() {
         hideAINotice();
         var best = null;
@@ -2627,16 +2803,16 @@ function resolveSpecial(card, isAI, done) {
         });
         if (best) {
           best.s.progress = clamp(-best.s.progress, -2, GOAL);
-          log("[" + p.name + "] -> [" + best.pl.name + "] " + t("reverseCard") + " SDG " + best.s.id, "special");
-        } else log(t("noValid"));
+          log("[" + p.name + "] -> [" + best.pl.name + "] " + tgcT("reverseCard") + " SDG " + best.s.id, "special");
+        } else log(tgcT("noValid"));
         done();
       }, 1000);
     } else {
-      pickAnySDG(t("reverseCard"), function(pl, si) {
+      pickAnySDG(tgcT("reverseCard"), function(pl, si) {
         var s = pl.sdgs[si];
-        if (!isValidNeg(s)) { log(pl.name + " SDG " + s.id + " " + t("immuneBlocked"), "special"); done(); return; }
+        if (!isValidNeg(s)) { log(pl.name + " SDG " + s.id + " " + tgcT("immuneBlocked"), "special"); done(); return; }
         s.progress = clamp(-s.progress, -2, GOAL);
-        log("[" + p.name + "] -> [" + pl.name + "] " + t("reverseCard") + " SDG " + s.id + " -> " + s.progress, "special");
+        log("[" + p.name + "] -> [" + pl.name + "] " + tgcT("reverseCard") + " SDG " + s.id + " -> " + s.progress, "special");
         done();
       }, done);
     }
@@ -2646,7 +2822,7 @@ function resolveSpecial(card, isAI, done) {
   if (card.type === "sanction") {
     var opps = state.players.filter(function(pl) { return pl !== p; });
     if (isAI) {
-      showAINotice("[" + p.name + "] " + t("aiTarget"));
+      showAINotice("[" + p.name + "] " + tgcT("aiTarget"));
       trackTimeout(function() {
         hideAINotice();
         var bestP = null, max = -99;
@@ -2658,7 +2834,7 @@ function resolveSpecial(card, isAI, done) {
         done();
       }, 1000);
     } else {
-      pickPlayer(opps, t("selectTarget"), function(target) {
+      pickPlayer(opps, tgcT("selectTarget"), function(target) {
         target.sanctioned = true;
         log("[" + p.name + "] -> [" + target.name + "] Sanction", "special");
         done();
@@ -2669,9 +2845,9 @@ function resolveSpecial(card, isAI, done) {
 
   if (card.type === "history") {
     var top = state.discard.slice(-5);
-    if (!top.length) { log(t("noValid")); done(); return; }
+    if (!top.length) { log(tgcT("noValid")); done(); return; }
     if (isAI) {
-      showAINotice("[" + p.name + "] " + t("aiTarget"));
+      showAINotice("[" + p.name + "] " + tgcT("aiTarget"));
       trackTimeout(function() {
         hideAINotice();
         var c = state.discard.pop();
@@ -2683,7 +2859,7 @@ function resolveSpecial(card, isAI, done) {
       // Remember the offered cards themselves, not their positions: the pile
       // can grow between showing this list and the player choosing, and a
       // stale index would then take the wrong card.
-      askChoice(state.currentPlayer, t("selectFromDiscard"), top.map(function(c, i) {
+      askChoice(state.currentPlayer, tgcT("selectFromDiscard"), top.map(function(c, i) {
         return { label: cardTitle(c), value: i };
       }), function(i) {
         var picked = top[i];
@@ -2712,18 +2888,18 @@ function resolveSpecial(card, isAI, done) {
     var swapGoal = function(si) {
       var old = p.sdgs[si];
       var newId = takeUnused(p);
-      if (newId === null) { log(t("noValid")); done(); return; }
+      if (newId === null) { log(tgcT("noValid")); done(); return; }
       state.unusedSDGs.unshift(old.id);
       p.sdgs[si] = { id: newId, progress: old.progress, immune: old.immune };
       log(p.name + " " + cardTitle(card) + ": SDG " + old.id + " -> SDG " + newId + " (" + old.progress + ")", "special");
       done();
     };
-    if (!state.unusedSDGs.length) { log(t("noValid")); done(); return; }
+    if (!state.unusedSDGs.length) { log(tgcT("noValid")); done(); return; }
     if (isAI) {
-      showAINotice("[" + p.name + "] " + t("aiTarget"));
+      showAINotice("[" + p.name + "] " + tgcT("aiTarget"));
       trackTimeout(function() { hideAINotice(); swapGoal(0); }, 1000);
     } else {
-      pickSDG(p, t("selectSDGSwap"), swapGoal);
+      pickSDG(p, tgcT("selectSDGSwap"), swapGoal);
     }
     return;
   }
@@ -2774,7 +2950,7 @@ function showChoiceModal(title, options, cb) {
 /* Everyone who is not choosing sees who they are waiting on. */
 function showWaitingForChoice(title, seat) {
   var who = (state.players[seat] && state.players[seat].name) || "";
-  showModal(title, "<p>" + t("waitingChoice") + "<br><strong>" + who + "</strong></p>", []);
+  showModal(title, "<p>" + tgcT("waitingChoice") + "<br><strong>" + who + "</strong></p>", []);
 }
 
 function answerChoice(value, cb) {
@@ -2847,7 +3023,7 @@ function pickAnySDG(title, cb, onNoTarget) {
       options.push({ label: pl.name + " SDG " + s.id + " (" + s.progress + ")", value: pi + ":" + si });
     });
   });
-  if (!options.length) { log(t("noValid")); (onNoTarget || function() {})(); return; }
+  if (!options.length) { log(tgcT("noValid")); (onNoTarget || function() {})(); return; }
   askChoice(state.currentPlayer, title, options, function(v) {
     var parts = String(v).split(":");
     cb(state.players[Number(parts[0])], Number(parts[1]));
@@ -2857,7 +3033,7 @@ function pickAnySDG(title, cb, onNoTarget) {
    last name is its own string because the two languages disagree about it. */
 function joinNames(names) {
   if (names.length <= 1) return names[0] || "";
-  return names.slice(0, -1).join(t("winJoin")) + t("winJoinLast") + names[names.length - 1];
+  return names.slice(0, -1).join(tgcT("winJoin")) + tgcT("winJoinLast") + names[names.length - 1];
 }
 
 /* A single card can push more than one player over the line at once -- a
@@ -2879,8 +3055,8 @@ function checkWin() {
 
   var names = joinNames(winners.map(function(pl) { return pl.name; }));
   document.getElementById("winnerText").textContent =
-    names + t(winners.length > 1 ? "winSuffixMulti" : "winSuffix");
-  log(names + " " + t(winners.length > 1 ? "winLogMulti" : "winLog"), "win");
+    names + tgcT(winners.length > 1 ? "winSuffixMulti" : "winSuffix");
+  log(names + " " + tgcT(winners.length > 1 ? "winLogMulti" : "winLog"), "win");
 }
 
 /* Play Again was an inline onclick. Wiring it here keeps every handler in
