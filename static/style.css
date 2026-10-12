@@ -3134,6 +3134,21 @@ body.edu-cosmos-page .hero-sub {
   scroll-margin-top: 90px;
 }
 
+/* The first block has nothing above it to be separated from, and that 2rem
+   pushed its title below the first link of the sidebar beside it -- the two
+   columns are items of the same flex row and otherwise start together.
+   :first-child, so Promotion is untouched: the cards are the first element in
+   its column, not a session block. */
+.edu-sessions > .edu-session-block:first-child { padding-top: 0; }
+
+/* The overview sits outside the two-column layout now, so its bottom border --
+   there to divide one session from the next -- was drawing a rule across the
+   whole page just above the first session's title, with nothing above it that
+   needed dividing. It keeps .edu-session-block for the padding and the type;
+   only the border goes. */
+.edu-overview-block { border-bottom: none; }
+
+
 .edu-overview-block {
   padding-top: 0;
 }
@@ -13720,12 +13735,19 @@ body.promotion-page .page-hero {
   padding-bottom: 104px;
 }
 
-/* Promotion's group photo has the same treatment, but there the people fill
-   the middle of the banner and hold a sign across it just below their faces,
-   so the title goes to the bottom, over their legs, instead. */
+/* Promotion's title is centred on its banner rather than following the rule
+   above. That one is written for the team photo: it pads the top far heavier
+   than the bottom so the centre lands about 100px low, clear of the faces.
+   This photo does not need it, so the padding is evened up and the centre is
+   the real centre. The top still carries enough to clear the floating navbar. */
 body.promotion-page .page-hero {
-  align-items: flex-end;
-  padding-bottom: 48px;
+  align-items: center;
+  /* 50px below centre, not on it: dead centre laid the title across the face
+     of the person on the left of the group. Centring happens inside the
+     content box, so the offset is HALF the difference between these two --
+     204 against 104 is 50px down. Change the difference to move the title. */
+  padding-top: 204px !important;
+  padding-bottom: 104px;
 }
 
 /* .container is a flex item here, and would otherwise shrink to its text. */
