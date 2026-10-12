@@ -37,13 +37,19 @@
 /* A screen of its own, and then some: the extra height is the slack the
    inner block sticks through, so the question holds still under the reader
    for a beat before the spine and the habitats come up. */
+/* One screen, and it does not hold: the inner block used to stick through
+   the extra 50svh, and that pause is gone. */
 .hx-why-hook {
-  min-height: 150svh;
+  min-height: 100svh;
 }
 
 .hx-why-hook-inner {
-  position: sticky;
-  top: 0;
+  /* The colony behind the question is absolutely positioned and centres on
+     this box. That worked while this was sticky, which is positioned; with
+     the sticky gone it has to say so itself, or the colony falls back to
+     .hx (position: relative in home.css) and centres on the whole of
+     section one instead -- several thousand pixels away. */
+  position: relative;
   min-height: 100svh;
   display: grid;
   /* align-content, not just place-items: without it the implicit rows
@@ -211,8 +217,29 @@
   z-index: 0;
   pointer-events: none;
   clip-path: inset(0 0 calc(100% - var(--rx-chap)) 0);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 4%, #000 96%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 4%, #000 96%, transparent 100%);
+  /* Both ends fade, and so does every stretch where the line would run
+     across a drawing: the four windows are centred on the icons (187, 424,
+     661 and 897 per mille of this box, measured, not guessed), so the
+     thread arrives at each one, goes out, and picks up again past it.
+
+     Each window opens before its icon's box begins (that box is 15.7% of
+     this one, so it starts 7.8% above the centre) and closes just inside
+     the far edge. Reaching the full height on both sides would leave no
+     line at all between one icon and the next -- a drawing takes about two
+     thirds of the gap -- so the extra room is given to the approach, where
+     the line is actually seen to run into the artwork. */
+  --thread-mask: linear-gradient(to bottom,
+    transparent 0,       #000 4%,
+    #000 8.7%,           transparent 11.7%,
+    transparent 25.5%,   #000 28%,
+    #000 32.4%,          transparent 35.4%,
+    transparent 49.2%,   #000 51.7%,
+    #000 56.1%,          transparent 59.1%,
+    transparent 72.9%,   #000 75.4%,
+    #000 78%,            transparent 81%,
+    transparent 100%);
+  -webkit-mask-image: var(--thread-mask);
+  mask-image: var(--thread-mask);
 }
 
 .hx-why-thread svg { width: 100%; height: 100%; display: block; }
@@ -250,10 +277,11 @@
   /* Nail and lens case put the drawing on the right, damp sink and
      swimmer's ear on the left, so the path has something to swing between.
      The markup order is always artwork first; order moves it. */
-  /* A screen and a bit each, so the next one is always a scroll away and
-     there is air around the one you are on. Every block must stay exactly
-     this tall: the path above is drawn to fractions that assume it. */
-  min-height: 112svh;
+  /* Still a screen each, so the next is always a scroll away, but with far
+     less air than before so the drawing and its words fill most of it.
+     Every block must stay exactly this tall: the path is drawn to
+     fractions that assume it. */
+  min-height: 78svh;
   align-content: center;
 }
 
@@ -294,6 +322,68 @@
   50% { translate: 0 -6px; }
 }
 
+/* A cut-out carries its own edge, so it gets no frame: the glow goes round
+   the drawing instead of round a box, and it drifts further than a framed
+   one would. All four habitats are cut-outs now, so the framed styling
+   above only still applies to anything that is not one. */
+.hx-why-art.is-bare {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  animation: hxw-float-far 6s ease-in-out infinite;
+  animation-delay: calc(var(--rx-d, 0) * 1ms);
+}
+
+@keyframes hxw-float-far {
+  50% { translate: 0 -22px; }
+}
+
+/* Wider than the column on purpose. The box already matches the text
+   block exactly, but each drawing sits in the middle of a canvas with a
+   lot of empty alpha around it, so at 100% the thing you actually see is
+   half the width of the words beside it. Nothing clips it now the frame is
+   gone, so the overflow runs into the gutter. */
+.hx-why-art.is-bare .hx-why-icon {
+  width: 175%;
+  margin-inline: -37.5%;
+  /* drop-shadow follows the alpha, so the light sits on the drawn edge. */
+  filter:
+    drop-shadow(0 0 16px rgba(160, 232, 96, 0.5))
+    drop-shadow(0 0 48px rgba(160, 232, 96, 0.26));
+  /* editorial.css gives every image inside .container a radius and a box
+     shadow; that shadow is the rectangle's, and the glow above would light
+     it up. The frame used to hide it behind overflow: hidden -- without the
+     frame it has to be turned off outright. Its selector runs to fifteen
+     classes, past anything a sane one here could reach. */
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* The hand is drawn much smaller inside its canvas than the other two, so
+   at the shared width it reads as a thumbnail with a gulf between it and
+   its words. Scale is on transform, not width: width would make this one
+   block taller than the rest, and the path's y values hold only while all
+   four are the same height. The nudge closes that gulf. */
+.hx-why-list > li:nth-child(1) .hx-why-icon {
+  transform: translateX(9%) scale(1.34);
+}
+
+/* The sink and the lens case fill far more of their canvas than the hand
+   does, so at the shared width they crowd the words beside them. Pulled
+   down a little and pushed away from the text -- outwards means right for
+   the second block, whose drawing is on the right, and left for the third,
+   whose drawing is on the left. On transform again, so the four blocks keep
+   the identical height the path's y values depend on. */
+.hx-why-list > li:nth-child(2) .hx-why-icon { transform: translateX(7%) scale(0.86); }
+.hx-why-list > li:nth-child(3) .hx-why-icon { transform: translateX(-7%) scale(0.86); }
+/* The ear sits between the two extremes -- its drawing takes about four
+   tenths of its canvas against the hand's three and the other two's six --
+   so it needs a smaller lift than the hand and none of their reduction.
+   Its drawing is on the right, so outwards is right. */
+.hx-why-list > li:nth-child(4) .hx-why-icon { transform: translateX(6%) scale(1.15); }
+
 @keyframes hxw-glow {
   0%, 100% {
     border-color: rgba(160, 232, 96, 0.40);
@@ -330,7 +420,7 @@ img.hx-why-icon {
 
 .hx-why-name {
   font-family: "Changa", sans-serif;
-  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
   font-weight: 800;
   color: var(--c-glow);
   margin: 0 0 0.1rem;
@@ -341,7 +431,7 @@ img.hx-why-icon {
    than a heading, so the two read as the same kind of thing. */
 .hx-why-tag {
   font-family: "Changa", sans-serif;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -350,7 +440,7 @@ img.hx-why-icon {
 }
 
 .hx-why-note {
-  font-size: clamp(1rem, 1.35vw, 1.12rem);
+  font-size: clamp(1.08rem, 1.7vw, 1.35rem);
   line-height: 1.75;
   color: var(--c-text-2);
   margin: 0;
@@ -418,21 +508,21 @@ img.hx-why-icon {
 
 /* ------------------------------------------------- sides and entrances -- */
 
-.hx-why-list > li:nth-child(odd)  .hx-why-art { order: 2; }   /* drawing right */
-.hx-why-list > li:nth-child(even) .hx-why-art { order: 0; }   /* drawing left */
+.hx-why-list > li:nth-child(odd)  .hx-why-art { order: 0; }   /* drawing left */
+.hx-why-list > li:nth-child(even) .hx-why-art { order: 2; }   /* drawing right */
 
 /* The text comes in from whichever side its own drawing is on, so the two
    halves of a block read as one movement. Overrides the site's default
    reveal, which lifts everything from below. */
-html.rx-js .hx-why-list > li:nth-child(odd)  .hx-why-text[data-reveal] { transform: translateX(52px); }
-html.rx-js .hx-why-list > li:nth-child(even) .hx-why-text[data-reveal] { transform: translateX(-52px); }
+html.rx-js .hx-why-list > li:nth-child(odd)  .hx-why-text[data-reveal] { transform: translateX(-52px); }
+html.rx-js .hx-why-list > li:nth-child(even) .hx-why-text[data-reveal] { transform: translateX(52px); }
 html.rx-js .hx-why-list > li .hx-why-text[data-reveal].rx-in { transform: none; }
 
 @media (max-width: 767.98px) {
   /* Stacked, there is no side for it to come from. */
   html.rx-js .hx-why-list > li .hx-why-text[data-reveal] { transform: translateY(26px); }
   html.rx-js .hx-why-list > li .hx-why-text[data-reveal].rx-in { transform: none; }
-  .hx-why-list > li:nth-child(odd) .hx-why-art { order: 0; }
+  .hx-why-list > li:nth-child(even) .hx-why-art { order: 0; }
 }
 
 /* ============================================================

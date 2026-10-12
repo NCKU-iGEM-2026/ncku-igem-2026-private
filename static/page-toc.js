@@ -51,9 +51,17 @@
     return id;
   }
 
+  /* h3s are listed too on a page that asks for them with data-toc-depth="3".
+     Only Safety and Security does: its subsections are h3s inside the same
+     section as their h2, rather than h2s in sections of their own the way the
+     Model page writes them, and promoting them to h2 to get them listed would
+     have misstated the document's outline. Every other page is unaffected --
+     without the attribute this still collects h2 alone. */
+  var depth3 = !!host.querySelector('[data-toc-depth="3"]');
+
   function collect() {
     var taken = {}, out = [];
-    Array.prototype.forEach.call(host.querySelectorAll("h2"), function (h) {
+    Array.prototype.forEach.call(host.querySelectorAll(depth3 ? "h2, h3" : "h2"), function (h) {
       /* a heading you cannot see (a closed fold, a build that is not showing) is not one to jump to */
       if (!h.getClientRects().length) return;
       /* A page split into parts (the Model page) marks each part's banner with
@@ -78,11 +86,21 @@
         apart: !!(group && group.hasAttribute("data-toc-apart")) });
     });
     /* Headings that sit side by side (the team's columns) are not a sequence to
-       jump along; a page laid out that way goes without. */
-    var tops = out.map(function (f) { return f.el.getBoundingClientRect().top + window.pageYOffset; })
-      .sort(function (x, y) { return x - y; });
-    for (var i = 1; i < tops.length; i++) {
-      if (tops[i] - tops[i - 1] < 60) return [];
+       jump along; a page laid out that way goes without. Compared within a
+       level only: a section heading followed immediately by its first
+       subheading is a handful of pixels away and perfectly ordinary, and
+       measured across levels it used to read as a column layout and take the
+       whole list away. */
+    var levels = {};
+    out.forEach(function (f) {
+      var k = f.el.tagName;
+      (levels[k] = levels[k] || []).push(f.el.getBoundingClientRect().top + window.pageYOffset);
+    });
+    for (var k in levels) {
+      var tops = levels[k].sort(function (x, y) { return x - y; });
+      for (var i = 1; i < tops.length; i++) {
+        if (tops[i] - tops[i - 1] < 60) return [];
+      }
     }
     return out;
   }
@@ -117,9 +135,13 @@
     // long contents list -- the Lab Book's, for one -- cannot be scrolled at
     // all: the page scrolls instead and the tail of the list is unreachable.
     nav.setAttribute("data-lenis-prevent", "");
+    /* No visible label. The list is plainly a list of this page's headings and
+       did not need telling. The element stays because on a grouped list it is
+       the row the All control sits in, and page-toc.css hides it while it is
+       empty. The aside keeps aria-label="On this page", so the landmark is
+       still named for anyone navigating by landmark. */
     var p = document.createElement("p");
     p.className = "page-toc-title";
-    p.textContent = "On this page";
     list = document.createElement("ol");
     list.className = "page-toc-list";
     if (parts) buildParts(); else items.forEach(function (f) {

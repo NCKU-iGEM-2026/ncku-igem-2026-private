@@ -8,7 +8,7 @@
 
   現在裡面只有 Hardware 頁上原本就寫過的東西，原樣搬過來：
     What it is      原本「Which build is which」第三張卡的文字與五列規格
-    What it costs   原本在 Building one 裡的成本表（$53.54）與它下面的兩段
+    What it costs   原本在 Building one 裡的成本表（$53.70）與它下面的附註
 
   ⚠ 請你確認或改掉的地方：
     - What it costs 最後那段 aside 列的是 3D 列印機電路上的零件（電阻、2N7000、Cree 470 nm LED、
@@ -71,7 +71,7 @@
       Measured on <em>E.&nbsp;coli</em> cultures with and without sfGFP, this
       build's green-to-blue ratio rose in a straight line with the amount of
       sfGFP (r&sup2;&nbsp;&asymp;&nbsp;0.97), with a 3&sigma; detection limit
-      of about 4% sfGFP culture; across four placements over an hour, eight
+      of about 4% sfGFP culture; eight
       batches of the same tube varied by 1.5% in that ratio. Across its eight
       colour channels the added signal has the spectral shape of
       fluorescence, not of scattering.
@@ -80,13 +80,14 @@
   <dl class="hw-keys">
     <div><dt>r&sup2; &asymp; 0.97</dt><dd>signal against the amount of sfGFP, seven tubes</dd></div>
     <div><dt>&asymp; 4%</dt><dd>sfGFP culture, the 3&sigma; detection limit</dd></div>
-    <div><dt>1.5%</dt><dd>variation in F5/F3 of one tube over eight batches, from four placements across an hour of the linearity series</dd></div>
+    <div><dt>1.5%</dt><dd>variation in F5/F3 of one tube over eight batches in the linearity test</dd></div>
   </dl>
 
   <nav class="hw-jump" aria-label="In the laser-cut build">
     <ul class="sw-links">
       <li><a href="#hardware-laser">The instrument</a></li>
       <li><a href="#hardware-laser-advantages">Design advantages</a></li>
+      <li><a href="#hardware-laser-feedback">User feedback</a></li>
       <li><a href="#hardware-laser-reading">How a reading is made</a></li>
       <li><a href="#hardware-laser-sessions">Validation</a></li>
       <li><a href="#hardware-laser-channels">What ten channels add</a></li>
@@ -104,22 +105,25 @@
 
     <p>
       A blue LED lights a UVette from the side, and an AS7341 spectral sensor
-      looks at it from 90&deg;. Everything sits in a laser-cut plywood enclosure,
-      blackened inside with matte black marker, in two layers: the optics above, the ESP32 and its
-      wiring below, with a deck between them. An OLED shows each
+      looks at it from 90&deg;. Everything sits in a laser-cut plywood enclosure
+      in two layers: the optics above, blackened with matte black marker,
+      and the ESP32 and its wiring below, with a deck between them. An OLED shows each
       result and one button starts a measurement.
     </p>
-    {# PHOTO: 下面兩格是照片的空位。照片用 iGEM uploads tool 上傳（轉成 .webp 或 .avif），網址是
-       https://static.igem.wiki/teams/6379/wiki/hardware/<檔名>。拿到網址後，把整個 <div class="lc-photo-slot">
-       換成 <img src="網址" alt="照片內容的描述" loading="lazy">，圖說留著。 #}
+    {# 照片：第一格是整機照（2026-10-12）；第二格（拿掉頂蓋的光學層）等硬體負責人補，拿到網址後把 div 換成
+       <img src="網址" alt="照片內容的描述" loading="lazy" style="display:block;width:100%;height:auto;border-radius:8px;">。
+       組裝過程的照片在 Building one 的 Assembly, step by step 裡。 #}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;margin:1.25rem 0;">
       <figure class="hw-figure" style="margin:0">
-        <div class="lc-photo-slot" style="aspect-ratio:4/3;border:2px dashed #cfdcd5;border-radius:8px;background:#f6f9f7;"></div>
+        {# 2026-10-12：硬體負責人上傳。要換照片請換檔名，static.igem.wiki 的快取很久。 #}
+        <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/with-buttom.avif" loading="lazy"
+             style="display:block;width:100%;height:auto;border-radius:8px;"
+             alt="The laser-cut reader closed, on a wooden table: a bare plywood box with finger-jointed edges and a small square cover on its lid. Wires come out of an opening low on the front panel to a lit OLED display and a button module.">
         <figcaption>The laser-cut build, closed, with the OLED and button.</figcaption>
       </figure>
       <figure class="hw-figure" style="margin:0">
         <div class="lc-photo-slot" style="aspect-ratio:4/3;border:2px dashed #cfdcd5;border-radius:8px;background:#f6f9f7;"></div>
-        <figcaption>The optical layer with the lid off: LED, UVette, light trap and sensor.</figcaption>
+        <figcaption>The optical layer with the roofs off: LED chamber, cuvette pocket, light trap and sensor.</figcaption>
       </figure>
     </div>
 
@@ -138,7 +142,7 @@
           aria-label="Three-dimensional view of the laser-cut reader, built from the generator's own outlines. A deck carries three chambers around the cuvette pocket: the LED chamber on one side, the light trap straight across, and the detection chamber at right angles. Drag to rotate, or use the arrow keys."></canvas>
         <ul class="lc3d-legend">
           <li class="lc3d-k-black">matte black marker</li>
-          <li class="lc3d-k-box">enclosure: black inside, bare outside</li>
+          <li class="lc3d-k-box">bare plywood</li>
           <li class="lc3d-k-proxy">bought parts, plain shapes</li>
         </ul>
         <div class="lc3d-hint" aria-hidden="true">drag to rotate &middot; click a part &middot; ctrl + scroll to zoom</div>
@@ -155,10 +159,10 @@
       <div><dt>Detector</dt><dd>AS7341, ten channels (DFRobot Gravity SEN0364 board), I&sup2;C 0x39</dd></div>
       <div><dt>Sensor settings</dt><dd>Gain 512&times;, ATIME 59, ASTEP 999: 166.8&nbsp;ms per integration, full scale 60,000 counts. Unchanged throughout</dd></div>
       <div><dt>Cuvette</dt><dd>Eppendorf UVette, 200&nbsp;&micro;L. The 2&nbsp;mm path faces the LED, the 10&nbsp;mm path faces the sensor</dd></div>
-      <div><dt>Emission filter</dt><dd>None. Blue is kept out by the 90&deg; geometry and the light trap</dd></div>
+      
       <div><dt>Light trap</dt><dd>A deep, dark chamber straight across from the LED, entered through an 8&nbsp;mm hole in the wall of the cuvette holder</dd></div>
       <div><dt>Controller</dt><dd>ESP32 DevKit (ESP32-WROOM-32), with an SSD1306 OLED and a push button</dd></div>
-      <div><dt>Enclosure</dt><dd>Laser-cut 3&nbsp;mm plywood, matte black marker inside; two layers</dd></div>
+      <div><dt>Enclosure</dt><dd>Laser-cut 3&nbsp;mm plywood, matte black marker inside the optical layer; two layers</dd></div>
     </dl>
 
     <p>
@@ -170,8 +174,7 @@
     <p>
       The data show the sensor sits to the side of the beam. With no cuvette
       in place, the blue channel F3 (480&nbsp;nm) read about 312 counts; with
-      a cuvette of plain medium it rose to about 730 (both in the grid
-      session). A reading that goes up
+      a cuvette of plain medium it rose to about 730 (both in the fluorescence test). A reading that goes up
       when the sample goes in is consistent with a sensor collecting light
       scattered sideways out of the sample.
     </p>
@@ -186,20 +189,19 @@
   </section>
 
   <!-- ========================= design advantages ========================= -->
-  {# 四張卡片的數字都出自本頁：成本那一節（$53.54、$78.48）、產生器（2.8–3.2 mm）、開頭的關鍵數字（1.5%）。
-     「Easy to load」是濕實驗組同學使用時的回饋（硬體負責人確認，2026-10-09），開口已由 16 改成 25 mm。 #}
+  {# 三張卡片的數字都出自本頁：成本那一節（$53.70）、產生器（2.8–3.2 mm）、開頭的關鍵數字（1.5%）。
+     原本的「Easy to load」移到下一節 User feedback。 #}
   <section id="hardware-laser-advantages">
     <h2>Design advantages</h2>
     <p class="hw-point">
-      Cheap to make from one sheet of plywood, cut to whatever board you
-      have, steady in its readings, and easy to load.
+      Cheap to make from one sheet of plywood, cut to whatever board you have, and steady in its readings.
     </p>
     <ul class="hw-gains">
       <li class="hw-gain">
         <span class="hw-gain-what">Low cost</span>
-        <span class="hw-gain-fig">$53.54</span>
-        <p>Against $78.48 with the enclosure printed instead; the jointed parts come from one 450&nbsp;&times;&nbsp;300&nbsp;mm sheet.</p>
-        <span class="hw-gain-basis">As costed below; the LED, resistor and UVette were not priced</span>
+        <span class="hw-gain-fig">$53.70</span>
+        <p>Everything as costed below; the jointed parts come from one 450&nbsp;&times;&nbsp;300&nbsp;mm sheet.</p>
+        <span class="hw-gain-basis">As costed below; the UVette was not priced</span>
       </li>
       <li class="hw-gain">
         <span class="hw-gain-what">Any 3&nbsp;mm board</span>
@@ -210,13 +212,33 @@
       <li class="hw-gain">
         <span class="hw-gain-what">Steady</span>
         <span class="hw-gain-fig">1.5%</span>
-        <p>Eight batches of the same tube, from four placements across an hour, varied by 1.5% in F5/F3.</p>
-        <span class="hw-gain-basis">Linearity series</span>
+        <p>Eight batches of the same tube varied by 1.5% in F5/F3.</p>
+        <span class="hw-gain-basis">Linearity test</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ========================= user feedback ========================= -->
+  {# 2026-10-12（硬體負責人）：做法是先做初版，給濕實驗組的同學用、收集建議，改出終版，再用終版做實驗。
+     所以本頁的數據都是在終版上量的：25 × 25 開口與定位板都已經在。 #}
+  <section id="hardware-laser-feedback">
+    <h2>User feedback</h2>
+    <p class="hw-point">
+      Wet-lab members used a first version, and two changes came from what
+      they found; every measurement on this page was taken on the version
+      that followed.
+    </p>
+    <ul class="hw-gains">
+      <li class="hw-gain">
+        <span class="hw-gain-what">The lid's opening</span>
+        <span class="hw-gain-fig"><span class="hw-gain-from">16</span><span class="hw-gain-arrow" aria-hidden="true">&rarr;</span><span class="visually-hidden">to </span>25&nbsp;mm</span>
+        <p><b>They told us</b> it was too small to lift the cuvette out. <b>What followed:</b> it was enlarged from 16&nbsp;&times;&nbsp;16 to 25&nbsp;&times;&nbsp;25&nbsp;mm, with a matching lid.</p>
+        <span class="hw-gain-basis">From wet-lab use</span>
       </li>
       <li class="hw-gain">
-        <span class="hw-gain-what">Easy to load</span>
-        <span class="hw-gain-fig"><span class="hw-gain-from">16</span><span class="hw-gain-arrow" aria-hidden="true">&rarr;</span><span class="visually-hidden">to </span>25&nbsp;mm</span>
-        <p>Wet-lab users found the lid's opening too small to lift the cuvette out, so it was enlarged from 16&nbsp;&times;&nbsp;16 to 25&nbsp;&times;&nbsp;25&nbsp;mm, with a matching lid.</p>
+        <span class="hw-gain-what">Placing the cuvette</span>
+        <span class="hw-gain-fig">13&nbsp;&times;&nbsp;13&nbsp;mm</span>
+        <p><b>They told us</b> that with nothing to hold it, the cuvette had to be placed with care, watching where it sat and keeping clear of the chamber walls. <b>What followed:</b> a plain plate with a 13&nbsp;&times;&nbsp;13&nbsp;mm opening now lies on top of the chambers and holds the cuvette in place.</p>
         <span class="hw-gain-basis">From wet-lab use</span>
       </li>
     </ul>
@@ -235,18 +257,13 @@
       which removes ambient light and the sensor's dark current; averaging
       eight samples also lowers the sensor's own noise by about &radic;8, or
       2.8 times. One press of the button records a batch of five readings,
-      about 22 seconds each. The first is discarded for two reasons. The
-      signal is highest at the start of each batch and falls by about 4%
-      over its five readings, even with nothing moved, which is consistent
-      with the LED dimming as it warms; and readings taken right after a
-      cuvette goes in are less stable. The other four are averaged.
+      about 22 seconds each. The first is discarded and the other four are averaged.
     </p>
     <p>
       The figure we report is <strong>F5/F3</strong>: the green channel at
       555&nbsp;nm divided by the blue channel at 480&nbsp;nm. Dividing by the
       blue channel largely cancels changes in how much light reaches the sensor,
-      whether from where the cuvette sits or from the LED dimming within a
-      batch: over readings two to five, F3 and F5 each fall by about 2.7%,
+      whether from where the cuvette sits or from changes within a batch: over readings two to five, F3 and F5 each fall by about 2.7%,
       while F5/F3 changes by less than 0.1% on average. Net signal is the
       F5/F3 of a tube
       minus that of a tube with no sfGFP cells, measured in the same session.
@@ -286,21 +303,16 @@
     <figure class="hw-figure hw-figure-table">
       <table class="hw-table">
         <caption>
-          Both ratios from the same readings. The linearity series is eight
-          tubes at nearly the same culture density: seven with different shares of
-          sfGFP culture, used for the fit, and one with none, which sets the
-          zero and gives the background row. The grid varies both culture
-          density and sfGFP fraction over twelve tubes. The last row is a
-          culture-medium blank measured in the grid session, lifted out and put
-          back.
+          Both ratios from the same readings and the same method; the
+          experiments are those described under Validation.
         </caption>
         <thead>
           <tr><th scope="col">Measure</th><th scope="col">F5/F3</th><th scope="col">F4/F3</th></tr>
         </thead>
         <tbody>
-          <tr><td>Detection limit, share of sfGFP culture (3&sigma;), linearity series</td><td>&asymp; 0.036</td><td>&asymp; 0.044</td></tr>
-          <tr><td>Linearity r&sup2;, linearity series</td><td>0.97</td><td>0.96</td></tr>
-          <tr><td>Dose response r&sup2;, grid</td><td>0.90</td><td>0.82</td></tr>
+          <tr><td>Detection limit, share of sfGFP culture (3&sigma;), linearity test</td><td>&asymp; 0.036</td><td>&asymp; 0.044</td></tr>
+          <tr><td>Linearity r&sup2;, linearity test</td><td>0.97</td><td>0.96</td></tr>
+          <tr><td>Dose response r&sup2;, fluorescence test</td><td>0.90</td><td>0.82</td></tr>
           <tr><td>Background relative to F3, tube with no sfGFP cells</td><td>0.055</td><td>0.160</td></tr>
           <tr><td>Shift when a blank is lifted out and put back</td><td>2.9%</td><td>0.7%</td></tr>
         </tbody>
@@ -308,18 +320,11 @@
     </figure>
 
     <p>
-      F4 does collect more sfGFP light, about 2.2 times as much as F5. But it
-      sits next to the 470&nbsp;nm excitation and also collects its long-wave
-      tail, so its background is about three times that of F5, and the
-      scatter of the blank tube between placements is about 2.7 times larger
-      in absolute terms. The extra signal and the extra noise nearly cancel:
-      F4's detection limit is slightly worse than F5's (about 4.4% against
-      3.6%), so it brings no gain in sensitivity. F4/F3 supports the same
-      conclusions, linear and with an intercept indistinguishable from zero,
-      only with more noise. Where it does better is stability: it shifts less
-      when the cuvette is moved and drifts less over an hour, because F4 and
-      F3 are close in wavelength. On this build, F5/F3 is the better measure
-      of sfGFP.
+      F4/F3 supports the same conclusions, linear and with an intercept
+      indistinguishable from zero. Where it does better is stability: it
+      shifts less when the same tube is taken out and put back, and drifts
+      less over an hour, because F4 and F3 are close in wavelength. For
+      sensitivity, F5/F3 is the better measure on this build.
     </p>
       </div>
     </details>
@@ -345,12 +350,7 @@
           stored in the ESP32's flash.
         </p>
         <p>
-          k5 was 0.05358, the firmware default, in the first culture test and
-          the stability test. At the start of the grid session it was reset
-          twice, to 0.05085 and then 0.07772, before any grid tube was
-          measured; it was 0.05756 in the linearity series. Because it
-          changes between experiments and even within one, SIG5 cannot be
-          compared across batches. Every result on this page uses F5/F3, which does not
+          k5 changes from one experiment to the next, so SIG5 is not compared across batches. Every result on this page uses F5/F3, which does not
           depend on k5.
         </p>
       </div>
@@ -361,27 +361,21 @@
   <section id="hardware-laser-sessions">
     <h2>Validation</h2>
     <p class="hw-point">
-      It sees the sample, its LED holds steady, the signal is sfGFP fluorescence, and it detects about 4% sfGFP culture.
+      The LED holds steady, and once the sensor was aligned with the cuvette,
+      the signal behaved as sfGFP fluorescence and the reader detected about
+      4% sfGFP culture.
     </p>
 
+    <h3>The density test: does the reading follow the sample?</h3>
     <p>
-      Each test below asks one question about the reader: does it see the
-      sample, does the LED hold steady, is the signal sfGFP fluorescence,
-      and how small a share of sfGFP culture can it detect.
-    </p>
-
-    <h3>The first culture test: a problem found</h3>
-    <p>
-      <em>Aim.</em> Check that the reading responds to what is in the
-      cuvette, using cultures of different density (OD<sub>600</sub> 0.15 to
-      1.53) as the variable.
-      <em>Method.</em> 32 batches: 28 with an OD<sub>600</sub> record, from 22
-      different tubes (some read more than once), plus 3 blanks and one batch with no
-      OD<sub>600</sub> recorded. The 28 were compared with their
+      <span class="lc-tag">Aim</span> Check that the reading follows what is in the cuvette.<br>
+      <span class="lc-tag">Method</span> Cultures of different density (OD<sub>600</sub> 0.15 to
+      1.53) were read one after another, and the blue channel F3 of the 28
+      batches with an OD<sub>600</sub> record was compared with their
       OD<sub>600</sub>.
     </p>
     <p>
-      <em>Result.</em> Culture density explained almost none of the variation
+      <span class="lc-tag">Result</span> Culture density explained almost none of the variation
       in the blue channel F3 (R&sup2;&nbsp;=&nbsp;0.01): the reading was not
       following what was in the cuvette, consistent with a sensor mounted too
       low to see the sample well. The reading also fell by about 40% in a
@@ -391,24 +385,23 @@
       The cause of the step was not identified, but a sudden change like this
       is more consistent with the sensor shifting than with the LED fading.
       The test gave no usable culture data. The next test checked whether
-      the LED was at fault; after that, the sensor was raised, in line with
-      the cuvette, for all later tests.
+      the LED was at fault; after that, the sensor was aligned with the cuvette's measuring window and fixed in place for all later tests.
     </p>
     <figure class="hw-figure">
       <div data-lc-chart="step"></div>
       <figcaption>
-        The blue channel F3 in the first culture test, for the 28 batches
+        The blue channel F3 in the density test, for the 28 batches
         with an OD<sub>600</sub> record, in the order they were measured and
         corrected for culture density. The line is the best single-step fit:
         a drop of about 40% between the seventh and eighth batches.
       </figcaption>
     </figure>
 
-    <h3>The stability test: the LED holds steady</h3>
+    <h3>The LED stability test: an hour with nothing moved</h3>
     <p>
-      <em>Aim.</em> Find out whether the LED itself fades, which could have
-      caused the fall seen in the first culture test.
-      <em>Method.</em> With the sensor still in its original position and the
+      <span class="lc-tag">Aim</span> Find out whether the LED itself fades, which could have
+      caused the fall seen in the density test.<br>
+      <span class="lc-tag">Method</span> With the sensor still in its original position and the
       chamber empty, the firmware repeated batches automatically for an
       hour: five readings taking about two minutes, then a one-minute pause
       with the LED off. Twenty-one batches in all.
@@ -422,17 +415,15 @@
       </figcaption>
     </figure>
     <p>
-      <em>Result and conclusion.</em> Over an hour the reading stayed within
-      a 1% range. The LED and electronics are stable, so the fall in the
-      first culture test was not the LED fading. The sensor was then raised
-      for every test that followed.
+      <span class="lc-tag">Result and conclusion</span> Over an hour the reading stayed within
+      a 1% range. The LED and electronics are stable, so the fall in the density test was not the LED fading. The sensor was then aligned with the cuvette's measuring window and fixed in place for every test that followed.
     </p>
 
-    <h3>The grid: the signal is sfGFP fluorescence</h3>
+    <h3>The fluorescence test: is the signal sfGFP?</h3>
     <p>
-      <em>Aim.</em> Show that the signal comes from sfGFP fluorescence and
-      scales with the amount of sfGFP.
-      <em>Method.</em> Twelve tubes of 200&nbsp;&micro;L in a grid: culture
+      <span class="lc-tag">Aim</span> Show that the signal comes from sfGFP fluorescence and
+      scales with the amount of sfGFP.<br>
+      <span class="lc-tag">Method</span> Twelve tubes of 200&nbsp;&micro;L in a grid: culture
       density <em>d</em> of 0.25, 0.5, 0.75 and 1 (the fraction of each tube
       that is culture, the rest medium) crossed with a fraction <em>f</em> of
       0, 0.5 and 1 of cells carrying sfGFP. The two stock cultures had nearly
@@ -441,7 +432,7 @@
       of sfGFP cells. Each tube was read in at least two batches.
     </p>
     <p>
-      <em>Result.</em> Net F5/F3 rose in proportion to the amount of sfGFP,
+      <span class="lc-tag">Result</span> Net F5/F3 rose in proportion to the amount of sfGFP,
       <em>d</em>&nbsp;&times;&nbsp;<em>f</em> (r&sup2;&nbsp;&asymp;&nbsp;0.90 over
       the eight tubes with sfGFP; the four tubes with <em>f</em>&nbsp;=&nbsp;0
       are each row's zero and are not part of the fit). Without forcing the
@@ -450,7 +441,7 @@
       different from zero.
     </p>
     <p>
-      <em>Conclusion.</em> The signal behaves as sfGFP fluorescence: it is
+      <span class="lc-tag">Conclusion</span> The signal behaves as sfGFP fluorescence: it is
       proportional to the amount of sfGFP and has the spectral shape of its
       emission.
     </p>
@@ -476,26 +467,19 @@
       difference between tubes with and without sfGFP has the shape expected
       of sfGFP fluorescence.
     </p>
-    <p>
-      A thirteenth tube, a repeat of <em>d</em>&nbsp;0.5, <em>f</em>&nbsp;0.5,
-      was read first, and one grid tube was read again at the end; neither is
-      part of the grid analysis.
-    </p>
       </div>
     </details>
 
-    <h3>The linearity series: a straight line and a detection limit</h3>
+    <h3>The linearity test: a straight line and a detection limit</h3>
     <p>
-      <em>Aim.</em> Keep the total culture density nearly constant, vary only
-      the share of sfGFP culture, and measure the detection limit.
-      <em>Method.</em> Tubes of 200&nbsp;&micro;L mixed to shares <em>f</em> of
+      <span class="lc-tag">Aim</span> Keep the total culture density nearly constant, vary only
+      the share of sfGFP culture, and measure the detection limit.<br>
+      <span class="lc-tag">Method</span> Tubes of 200&nbsp;&micro;L mixed to shares <em>f</em> of
       0, 0.10, 0.15, 0.20, 0.30, 0.50, 0.75 and 1, where <em>f</em> is the share
       of the volume taken from the sfGFP culture, which is proportional to the
       number of sfGFP cells. The OD<sub>600</sub> of every tube in the fit was
       measured, from 1.30 (no sfGFP) to 1.45 (all sfGFP). Each tube was read
-      in at least two batches. Three further low-<em>f</em> tubes (two at
-      <em>f</em>&nbsp;=&nbsp;0.05, one at <em>f</em>&nbsp;=&nbsp;0.10) were
-      also read but are not part of the fit; see The low end, below.
+      in at least two batches.
     </p>
     <figure class="hw-figure">
       <div data-lc-chart="dose"></div>
@@ -510,7 +494,7 @@
       </figcaption>
     </figure>
     <p>
-      <em>Result.</em> Signal and the share of sfGFP culture are linear.
+      <span class="lc-tag">Result</span> Signal and the share of sfGFP culture are linear.
       Without forcing the line through the origin, the intercept is
       1.6&nbsp;&plusmn;&nbsp;2.6 (standard error, in net F5/F3 &times; 1000),
       not different from zero,
@@ -560,7 +544,7 @@
   <section id="hardware-laser-channels">
     <h2>What ten channels add</h2>
     <p class="hw-point">
-      The extra channels confirm the signal is fluorescence and show where the ratio can and cannot be trusted.
+      The extra channels confirm that the signal is fluorescence, and that the ratio cancels where the cuvette sits.
     </p>
 
     <p>
@@ -573,7 +557,7 @@
 
     <h3>The added signal has the shape of fluorescence</h3>
     <p>
-      For each culture density in the grid we took the tube with all cells
+      For each culture density in the fluorescence test we took the tube with all cells
       carrying sfGFP and the tube with none, divided each by its own F3 to
       remove brightness differences, and subtracted. What is left is the
       spectrum that sfGFP adds. Because every channel is divided by F3, the
@@ -583,7 +567,7 @@
     <figure class="hw-figure">
       <div data-lc-chart="spectrum"></div>
       <figcaption>
-        The grid. Difference spectra, each scaled to its own F4 value; F3 is
+        The fluorescence test. Difference spectra, each scaled to its own F4 value; F3 is
         zero by construction. Across the four densities F5 to F8 agree to a
         standard deviation of 0.03 or less. F2 (445&nbsp;nm, shown hollow) sits
         next to the excitation and is very sensitive to turbidity (standard
@@ -598,16 +582,12 @@
       the same way; neither would produce this curve.
     </p>
 
-    <h3>What the ratio protects against, and what it does not</h3>
+    <h3>The ratio cancels where the cuvette sits</h3>
     <p>
       If only the amount of light reaching the sensor changes, all channels
-      change in proportion and the ratio is unaffected. If the light path
-      itself changes, for example in where the LED points, the channels can
-      change by different amounts and the ratio moves with them. The figure
-      compares two real events. In the grid session, before the grid tubes,
-      a blank was read, taken out while another tube was read, then put back
-      and read again. During the linearity series, the LED was disturbed and
-      the board restarted.
+      change in proportion and the ratio is unaffected. The figure shows a
+      real case from the fluorescence test: a blank was read, taken out while
+      another tube was read, then put back and read again.
     </p>
     <figure class="hw-figure">
       <div data-lc-chart="flatness"></div>
@@ -620,37 +600,9 @@
     </figure>
     <p>
       When the blank went back in, the nine channels rose together by 14 to
-      20%, at most 6% apart, and F5/F3 moved by 2.9%: that jump came from
-      where the cuvette sat, and the ratio largely cancelled it. After the LED
-      was disturbed, the channels changed by amounts a factor of 2.5 apart,
-      and F5/F3 read 44% low. This is the only such event we have recorded,
-      and the data cannot tell whether the LED's position or its connection
-      changed.
+      20%, at most 6% apart, while F5/F3 moved by 2.9%: the jump came from
+      where the cuvette sat, and the ratio largely cancelled it.
     </p>
-    <details class="hw-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The ratio's blind spot</span>
-        <span class="hw-fold-meta">and a check that needs no new hardware</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body">
-      <p>
-        F5/F3 largely cancels where the
-        cuvette sits, but not a change in the light path, and the reader gives
-        no warning when that happens. A check needs no new hardware: the
-        firmware already reports all ten channels, so a fixed reference, such
-        as the same blank tube, can be read at intervals and
-        compared with its previous reading. A change in proportion suggests
-        only the cuvette's position changed and the data stand; a change out
-        of proportion suggests the light path changed, and the samples read
-        since the last check should be read again.
-      </p>
-      </div>
-    </details>
   </section>
 
   <!-- ========================= limits ========================= -->
@@ -665,22 +617,13 @@
       </li>
       <li>
         <strong>Low shares scatter more.</strong> Below about 20% sfGFP
-        culture, tubes lie further from the line, by tens of percent, because
-        they are the most sensitive to how they were mixed (see The low end).
-        Mixing them by serial dilution should reduce this; it has not yet been
-        tested.
-      </li>
-      <li>
-        <strong>A light-path check is still to be added.</strong> Reading a
-        fixed reference, such as the same blank tube, at intervals, as
-        described above, is not yet part of the firmware or the measuring
-        routine.
+        culture, tubes lie further from the line (see The low end); mixing
+        them by serial dilution should help but has not been tested.
       </li>
       <li>
         <strong>Experiments are not directly comparable.</strong> The reader
         was moved between sessions, so absolute counts differ from one
-        experiment to the next (an empty chamber read about 310 in the grid
-        session and 160 to 190 in the linearity series). Each experiment is
+        experiment to the next (an empty chamber read about 310 in the fluorescence test and 160 to 190 in the linearity test). Each experiment is
         therefore referenced to its own tube with no sfGFP, measured in the
         same session.
       </li>
@@ -704,10 +647,10 @@
         <p>
           Generate the parts below for your board's thickness and cut the
           jointed parts from one 450&nbsp;&times;&nbsp;300&nbsp;mm sheet of the
-          same board. Colour every part with a matte black marker, the
-          enclosure on the inside only; fit the chamber walls into the deck
-          and the roofs onto the walls by their tabs, and set the deck on its rails
-          inside the enclosure.
+          same board. Colour the parts that face the optical
+          layer with a matte black marker; fit the chamber walls into the deck by their
+          tabs, set the deck on its rails inside the enclosure, and fit the roofs
+          onto the walls.
         </p>
         <p class="hw-more"><a href="#lc-parts">The laser-cut parts</a> <a href="#lc-assembly">Assembly, step by step</a></p>
       </li>
@@ -753,18 +696,9 @@
     <script src="{{ url_for('static', filename='capture-generator.js') }}"></script>
     <script>CaptureGen.mount('#capture-generator');</script>
 
-    <p class="hw-aside">
-      Checked before publishing: across 2.80&ndash;3.20&nbsp;mm every check
-      passes and all jointed parts fit one sheet; at 3.25&nbsp;mm the
-      generator refuses to produce files. The six enclosure panels, assembled
-      in 3D from the generated outlines, close with no gaps and no overlaps
-      at zero fit offset for every thickness from 2.8 to 3.2&nbsp;mm; the
-      default 0.1&nbsp;mm per side is there to take up the laser's kerf, as
-      described above.
-    </p>
 
     {# 組裝步驟：每一步都由硬體負責人逐條確認過（2026-10-09）：先塗再組；牆與頂蓋只靠卡榫；
-       光陷阱的三角形與方片、感測器支撐板、支撐條、外殼指接榫用膠；LED 卡在 4 mm 孔裡；
+       光陷阱的三角形與方片、感測器支撐板、支撐條、外殼指接榫用膠；LED 卡在 4 mm 孔裡，再用膠帶固定位置；
        ESP32、OLED、按鈕用雙面膠；所有線先接好再放甲板；固定板只是放著，上蓋可拿下。 #}
     <details class="hw-fold" id="lc-assembly">
       <summary class="hw-fold-head">
@@ -781,9 +715,10 @@
           <li>
             <b>1 &middot; Cut and colour.</b>
             Generate the parts for your board's thickness and cut them, the
-            jointed parts from one sheet of the same board. Colour every part with
-            a matte black marker before anything is put together; on the enclosure
-            panels, colour the inside face only.
+            jointed parts from one sheet of the same board. Before anything is put
+            together, colour every surface that faces the optical layer with a
+            matte black marker: the chambers, the deck's top, and the enclosure's
+            inside above the deck. The electronics layer below can stay bare.
           </li>
           <li>
             <b>2 &middot; Chambers.</b>
@@ -800,13 +735,21 @@
             against the wall with the opening. The square rises away from the
             opening at about 45&deg;, so light coming straight through meets a
             sloped black surface instead of a wall facing it.
+            {# 2026-10-12：硬體負責人上傳（innerbroad.avif）。替代文字與圖說相同。 #}
+            <figure class="hw-figure lc-step-photo" style="margin:0.8rem 0 0;">
+              <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/innerbroad.avif" loading="lazy"
+                   style="display:block;width:100%;max-width:26rem;height:auto;border-radius:8px;"
+                   alt="The deck with its chambers pressed in, roofs off. Left, the light trap with its sloped square; right, the LED chamber; bottom, the detection chamber; centre, the cuvette pocket.">
+              <figcaption>The deck with its chambers pressed in, roofs off. Left, the light trap with its sloped square; right, the LED chamber; bottom, the detection chamber; centre, the cuvette pocket.</figcaption>
+            </figure>
           </li>
           <li>
             <b>4 &middot; LED.</b>
             From inside the LED chamber, push the LED's dome into the 4&nbsp;mm hole
             in the cuvette wall so that it points at the cuvette; the 5&nbsp;mm LED
-            is slightly larger than the hole and wedges in it. Take its two leads
-            down through the round wire hole in the deck.
+            is slightly larger than the hole and wedges in it; tape it to the wall
+            to hold it there. Take its two leads down through the round wire hole
+            in the deck.
           </li>
           <li>
             <b>5 &middot; Sensor.</b>
@@ -817,33 +760,48 @@
             rectangular wire hole in the deck.
           </li>
           <li>
-            <b>6 &middot; Roofs.</b>
-            With the light trap, the LED and the sensor in place, press the three
-            roofs into the notches along the tops of their walls. Like the walls,
-            they are held by friction, not glue.
-          </li>
-          <li>
-            <b>7 &middot; Enclosure and rails.</b>
+            <b>6 &middot; Enclosure and rails.</b>
             Glue the enclosure's base and four sides together at their finger
             joints. Glue the four rails to the inside of the walls at about half
             the enclosure's height: the two long ones along the long sides, the
-            two short ones across the ends. Fix the ESP32 to the base with double-
-            sided tape.
+            two short ones across the ends. Fix the breadboard, with the ESP32
+            plugged into it, to the base with double-sided tape.
           </li>
           <li>
-            <b>8 &middot; Deck.</b>
+            <b>7 &middot; Deck.</b>
             Connect the LED, sensor, OLED and button wires to the ESP32 as in the
             <a href="#lc-wiring">wiring table</a>, leading the OLED and button
             wires out through the opening in the long side. Then lower the deck,
             chambers and all, onto the rails.
           </li>
           <li>
-            <b>9 &middot; Display and button.</b>
+            <b>8 &middot; Display and button.</b>
             Their wires are connected at the ESP32 end first, with the other ends
             led out through the opening in the long side, on the detection
             chamber's side. Connect the OLED and the button to those ends outside,
             then fix them to the outside of that wall with double-sided tape, side
             by side, so that together they cover the opening.
+            {# 2026-10-12：硬體負責人上傳（inner-line.avif；圖說照照片內容改寫，沒有提支撐板，照片上看不清楚）。替代文字與圖說相同。 #}
+            <figure class="hw-figure lc-step-photo" style="margin:0.8rem 0 0;">
+              <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/inner-line.avif" loading="lazy"
+                   style="display:block;width:100%;max-width:26rem;height:auto;border-radius:8px;"
+                   alt="The electronics layer, with the deck lifted out and stood up behind it, underside facing out: the ESP32 on its breadboard, the bare-wood rails around the walls, and the OLED and button led out through the opening in the long side. The sensor's four wires and the LED's two come down through the deck to the breadboard.">
+              <figcaption>The electronics layer, with the deck lifted out and stood up behind it, underside facing out: the ESP32 on its breadboard, the bare-wood rails around the walls, and the OLED and button led out through the opening in the long side. The sensor's four wires and the LED's two come down through the deck to the breadboard.</figcaption>
+            </figure>
+          </li>
+          <li>
+            <b>9 &middot; Roofs.</b>
+            With the deck in the enclosure and everything inside the chambers in
+            place, press the three roofs into the notches along the tops of their
+            walls. Like the walls,
+            they are held by friction, not glue.
+            {# 2026-10-12：硬體負責人上傳（front.avif，同一張也在上方的雷切選擇卡片）。替代文字與圖說相同。 #}
+            <figure class="hw-figure lc-step-photo" style="margin:0.8rem 0 0;">
+              <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/front.avif" loading="lazy"
+                   style="display:block;width:100%;max-width:26rem;height:auto;border-radius:8px;"
+                   alt="The deck in the enclosure with the three roofs on, before the plate and the lid.">
+              <figcaption>The deck in the enclosure with the three roofs on, before the plate and the lid.</figcaption>
+            </figure>
           </li>
           <li>
             <b>10 &middot; Plate and lid.</b>
@@ -854,6 +812,13 @@
             square under the 27&nbsp;&times;&nbsp;27&nbsp;mm one: this small cover
             drops into the lid's opening, and the cuvette goes in and out through
             that opening.
+            {# 2026-10-12：硬體負責人上傳（with.avif）。替代文字與圖說相同。 #}
+            <figure class="hw-figure lc-step-photo" style="margin:0.8rem 0 0;">
+              <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/with.avif" loading="lazy"
+                   style="display:block;width:100%;max-width:26rem;height:auto;border-radius:8px;"
+                   alt="The plate with the 13&nbsp;&times;&nbsp;13&nbsp;mm opening resting on the chambers, before the lid goes on.">
+              <figcaption>The plate with the 13&nbsp;&times;&nbsp;13&nbsp;mm opening resting on the chambers, before the lid goes on.</figcaption>
+            </figure>
           </li>
         </ol>
         <p class="hw-aside">
@@ -896,7 +861,7 @@
           <li>
             <b>3 &middot; Calibrate.</b>
             Start each session with a tube with no sfGFP. Load it and run one
-            batch to warm the LED, then type <b>k</b> into the serial monitor. The
+            batch first, then type <b>k</b> into the serial monitor. The
             display shows CAL OK with k5, the share of the blue signal that
             reaches the green channel. This only sets the on-screen SIG; it does
             not affect F5/F3.
@@ -987,6 +952,8 @@
       之後要驗算或用別的匯率重算時用。
       小計是「上面那幾列四捨五入後相加」的結果，不是原始台幣總額再換算：
       電子零件那欄逐列相加是 $42.18，1336 元直接換算是 $42.17，差一分錢。
+      2026-10-12：LED 與 220 Ω 電阻合併一列，硬體負責人估約 NT$5（÷ 31.68 ≈ $0.16），小計改為 $42.34、總計 $53.70；
+      列印外殼的比較（$36.30、$78.48）依硬體負責人要求拿掉。
       台幣欄還在時看不出來，現在讀者會自己加那一欄，所以取能加得起來的那個。
 
       下面「not in this costing」列的是電路上有、但試算表沒有計價的零件
@@ -996,7 +963,7 @@
     <details class="hw-fold">
       <summary class="hw-fold-head">
         <span class="hw-fold-title">Cost of one laser-cut build</span>
-        <span class="hw-fold-meta">$53.54 as costed</span>
+        <span class="hw-fold-meta">$53.70 as costed</span>
         <span class="hw-fold-state" aria-hidden="true">
           <span class="hw-fold-verb" data-open="false">Show</span>
           <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -1021,29 +988,23 @@
             <tr><td>OLED display</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$4.73</td></tr>
             <tr><td>Breadboard</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$1.42</td></tr>
             <tr><td>Jumper wires</td><td class="hw-cost-n">several</td><td class="hw-cost-n">$1.58</td></tr>
-            <tr class="hw-cost-sub"><td>Electronics subtotal</td><td></td><td class="hw-cost-n">$42.18</td></tr>
+            <tr><td>LED and 220&nbsp;&Omega; resistor</td><td class="hw-cost-n">1 each</td><td class="hw-cost-n">$0.16</td></tr>
+            <tr class="hw-cost-sub"><td>Electronics subtotal</td><td></td><td class="hw-cost-n">$42.34</td></tr>
             <tr class="hw-cost-head"><th scope="rowgroup" colspan="3">Enclosure, laser-cut</th></tr>
             <tr><td>Wood board</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$1.89</td></tr>
             <tr><td>Laser cutting</td><td class="hw-cost-n">1</td><td class="hw-cost-n">$9.47</td></tr>
             <tr class="hw-cost-sub"><td>Enclosure subtotal</td><td></td><td class="hw-cost-n">$11.36</td></tr>
-            <tr class="is-total"><td>Total, as costed</td><td></td><td class="hw-cost-n">$53.54</td></tr>
+            <tr class="is-total"><td>Total, as costed</td><td></td><td class="hw-cost-n">$53.70</td></tr>
           </tbody>
         </table>
       </div>
       </div>
     </details>
 
-    <p>
-      Printing that enclosure instead of laser-cutting it replaces the
-      $11.36 enclosure step with <strong>$36.30</strong> and brings the build to
-      <strong>$78.48</strong>.
-    </p>
+    
 
     <p class="hw-aside">
-      Not in the costing, because the sheet never priced them: the
-      <strong>220&nbsp;&Omega; resistor</strong>, the <strong>Cree
-      470&nbsp;nm LED</strong> and the <strong>Eppendorf UVette</strong>. We
-      have not guessed at them.
+      Not in the costing: the <strong>Eppendorf UVette</strong>, which the sheet never priced. We have not guessed at it.
     </p>
   </section>
 

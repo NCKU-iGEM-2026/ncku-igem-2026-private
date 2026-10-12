@@ -2609,6 +2609,14 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
 .eng-figure-small img { max-width: min(100%, 340px); }
 /* A pair whose two photographs are nearer square than the gels. */
 .eng-figure-pair-square { --pair-ratio: 1 / 1; }
+/* Photographs framed differently from one another: fill the shared box
+   rather than being letterboxed into it, so the two render at the same
+   height and width. Only safe where the subject sits well inside the frame
+   -- both UV plate photographs have margin on every side. */
+.eng-figure-pair-fill .eng-figure-half img { object-fit: cover; }
+/* A pair held well under the column width, so each panel sits nearer the
+   size a single figure gets on this page rather than filling the measure. */
+.eng-figure-pair-narrow { max-width: 720px; margin-inline: auto; }
 /* Where the stage's content will go: an empty frame in the stage's colour,
    so the layout can be judged before the text arrives. */
 .eng-dbtl-empty {
@@ -2811,9 +2819,11 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
 
 .attr-ai ul { margin-bottom: 0; }
 .attr-ai li { margin-bottom: 0.5rem; line-height: 1.6; }
-/* The list is the last thing in the panel now, so the final item's gap has
-   nothing below it to collapse into and would sit on top of the padding. */
+/* The last item's gap would otherwise double up with the closing line's own
+   margin below it. */
 .attr-ai li:last-child { margin-bottom: 0; }
+/* The line closing the panel: that every output was reviewed and validated. */
+.attr-ai-close { margin: 1.3rem 0 0; line-height: 1.6; }
 
 @media (max-width: 575.98px) {
   .attr-ai { padding: 1.15rem 1.15rem; }
@@ -3123,6 +3133,21 @@ body.edu-cosmos-page .hero-sub {
   border-bottom: 1px solid #e0d6c0;
   scroll-margin-top: 90px;
 }
+
+/* The first block has nothing above it to be separated from, and that 2rem
+   pushed its title below the first link of the sidebar beside it -- the two
+   columns are items of the same flex row and otherwise start together.
+   :first-child, so Promotion is untouched: the cards are the first element in
+   its column, not a session block. */
+.edu-sessions > .edu-session-block:first-child { padding-top: 0; }
+
+/* The overview sits outside the two-column layout now, so its bottom border --
+   there to divide one session from the next -- was drawing a rule across the
+   whole page just above the first session's title, with nothing above it that
+   needed dividing. It keeps .edu-session-block for the padding and the type;
+   only the border goes. */
+.edu-overview-block { border-bottom: none; }
+
 
 .edu-overview-block {
   padding-top: 0;
@@ -4314,6 +4339,66 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
     margin: 0 0 10px auto;
   }
 }
+
+/* Wider than that it floats, and on the game screen the top right corner is
+   the log's heading -- the sweep above was run against the title, which the
+   menus put in the middle. Give the log column the switcher's height back. */
+@media (min-width: 821px) {
+  .board-game-page #gameScreen .log-panel { padding-top: 46px; }
+}
+/* ---- pause ----------------------------------------------------------------
+   Pinned to the bottom left of the board's own box -- the corner no other
+   control uses, clear of the language switcher above and of the page's own
+   back-to-top button on the other side -- and above the pop-ups (9999), so
+   it can be pressed while one of them is up. Only the cursor is higher. */
+.board-game-page .tgc-pause {
+  position: fixed;
+  left: calc(var(--tgc-ov-left, 0px) + 14px);
+  bottom: calc(var(--tgc-ov-bottom, 0px) + 14px);
+  z-index: 10000;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 15px; border-radius: 999px;
+  font-size: 0.82rem; font-weight: 700;
+  background: var(--paper); color: var(--ink);
+  border: 2px solid var(--border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+.board-game-page .tgc-pause[hidden] { display: none; }
+.board-game-page .tgc-pause:hover { border-color: var(--positive); }
+/* Two bars for pause, one triangle for resume: the shape says which it is
+   without reading, and the label says it for everyone else. */
+.board-game-page .tgc-pause-mark {
+  width: 10px; height: 12px; flex: 0 0 auto;
+  border-left: 3px solid currentColor; border-right: 3px solid currentColor;
+}
+.board-game-page .tgc-pause.is-paused { background: var(--positive); color: #fff; border-color: var(--positive-edge); }
+.board-game-page .tgc-pause.is-paused .tgc-pause-mark {
+  border: 0;
+  width: 0; height: 0;
+  border-left: 11px solid currentColor;
+  border-top: 7px solid transparent; border-bottom: 7px solid transparent;
+}
+
+/* Held: the board is dimmed and out of reach, the pop-ups with it. The
+   button is a sibling of all of them, so it stays live. The open states
+   carry the same weight as these, so .show is named here too. */
+.board-game-page.is-paused .screen,
+.board-game-page.is-paused #card-play-modal,
+.board-game-page.is-paused #card-play-modal.show,
+.board-game-page.is-paused #modal,
+.board-game-page.is-paused #modal.show,
+.board-game-page.is-paused #ai-notice,
+.board-game-page.is-paused #ai-notice.show { pointer-events: none; }
+.board-game-page.is-paused .screen { filter: grayscale(0.4) brightness(0.62); }
+.board-game-page.is-paused .tgc-torn-page,
+.board-game-page.is-paused .tgc-dialog,
+.board-game-page.is-paused .ai-notice-box { filter: grayscale(0.4) brightness(0.62); }
+
+/* While one of the game's overlays is waiting for an answer the page does
+   not move: the padding stands in for the scrollbar that goes with it. */
+html.tgc-overlay-open, html.tgc-overlay-open body { overflow: hidden; }
+
 /* ---- Online rooms: join form and lobby ---- */
 .board-game-page .online-block { margin: 14px 0 6px; text-align: left; }
 .board-game-page .online-label {
@@ -4469,9 +4554,18 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 .board-game-page .log-entry.up { color: var(--positive); }
 .board-game-page .log-entry.down { color: #a3382c; }
 .board-game-page .log-entry.special { color: #8b6914; }
-.board-game-page .modal-overlay { position: fixed; inset: 0; background: rgba(61,50,41,0.45); display: none; align-items: center; justify-content: center; z-index: 2000; }
+/* ---- the overlays sit on the board, not on the window --------------------
+   All three were fixed to the viewport with inset: 0, so they covered the
+   whole wiki -- menu bar, the pages above and below -- and a wheel scroll
+   while one was up slid the page out from under it, leaving the dialog
+   hanging over whatever came next. board-game.js measures the part of the
+   widget that is on screen into --tgc-ov-*, and holds the page still while
+   one of them is waiting for an answer. The fallbacks are the old
+   behaviour, for a browser that never runs the script. */
+.board-game-page .modal-overlay { position: fixed; top: var(--tgc-ov-top, 0px); left: var(--tgc-ov-left, 0px); width: var(--tgc-ov-width, 100%); height: var(--tgc-ov-height, 100%); background: rgba(61,50,41,0.45); display: none; align-items: center; justify-content: center; z-index: 2000; }
 .board-game-page .modal-overlay.show { display: flex; }
-.board-game-page .tgc-dialog { display: block; position: static; opacity: 1; pointer-events: auto; background: var(--paper); border-radius: 12px; padding: 22px; max-width: 480px; width: 92%; max-height: 85vh; overflow-y: auto; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+.board-game-page .tgc-dialog { display: block; position: static; opacity: 1; pointer-events: auto; background: var(--paper); border-radius: 12px; padding: 22px; max-width: 480px; width: 92%;
+  max-height: min(85vh, calc(var(--tgc-ov-height, 100vh) - 26px)); overflow-y: auto; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
 .board-game-page .tgc-dialog h3 { margin-bottom: 12px; color: var(--positive); }
 .board-game-page .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
 .board-game-page .modal-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; max-height: 280px; overflow-y: auto; }
@@ -4482,7 +4576,7 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 
 /* Notebook torn-page card announcement modal */
 .board-game-page #card-play-modal {
-  position: fixed; inset: 0; background: rgba(61,50,41,0.42);
+  position: fixed; top: var(--tgc-ov-top, 0px); left: var(--tgc-ov-left, 0px); width: var(--tgc-ov-width, 100%); height: var(--tgc-ov-height, 100%); background: rgba(61,50,41,0.42);
   display: flex; align-items: center; justify-content: center;
   z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
 }
@@ -4499,7 +4593,7 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   max-width: 480px; width: 92%;
   /* Sticky notes make this page tall; keep it inside the viewport so the
      Next button below is always reachable. */
-  max-height: 88vh; overflow-y: auto;
+  max-height: min(88vh, calc(var(--tgc-ov-height, 100vh) - 22px)); overflow-y: auto;
   box-shadow: 5px 5px 15px rgba(0,0,0,0.15), inset 0 0 40px rgba(255,255,255,0.3);
   transform: rotate(-0.6deg) scale(0.94);
   transition: transform 0.35s cubic-bezier(0.34,1.3,0.64,1);
@@ -4625,7 +4719,7 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
 .board-game-page .hand-owner { font-size: 0.85rem; color: var(--gold); font-weight: 700; }
 
 .board-game-page #ai-notice {
-  position: fixed; inset: 0; background: rgba(61,50,41,0.32);
+  position: fixed; top: var(--tgc-ov-top, 0px); left: var(--tgc-ov-left, 0px); width: var(--tgc-ov-width, 100%); height: var(--tgc-ov-height, 100%); background: rgba(61,50,41,0.32);
   display: none; align-items: center; justify-content: center; z-index: 9000;
 }
 .board-game-page #ai-notice.show { display: flex; }
@@ -4947,7 +5041,7 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   .labbook .protocol-viewer { display: none; }
 }
 
-/* Twenty-one protocols is too many to scroll past looking for one, so the
+/* Twenty-three protocols is too many to scroll past looking for one, so the
    page opens on an index grouped by stage of the work, and each group gets a
    heading the index can jump to. */
 /* No panel behind it: the index reads as part of the page, not a card on top
@@ -5004,6 +5098,18 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   text-decoration: underline;
 }
 
+/* Wide enough for the contents list beside the page (static/page-toc.css draws
+   it from 1200px up, and data-toc-style="parts" gives it these same groups,
+   opening one at a time), and this block is the same twenty-three names a
+   second time -- a page of them to read past before the first protocol. The
+   list in the margin stays put while you scroll; this one has to be scrolled
+   back to. So it gives way to it, and keeps the narrow screens, where there
+   is no margin to put a list in and this is the only way to reach a protocol
+   by name. */
+@media (min-width: 1200px) {
+  .labbook .protocol-index { display: none; }
+}
+
 /* Tokens, not fixed greens: these headings sit on the page ground, and the
    fixed #075a3e left them at about 1.9:1 once that ground went dark -- which
    reads worst of all right above a white PDF. Light mode is unchanged, since
@@ -5018,7 +5124,13 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
   scroll-margin-top: 90px;
 }
 
-.labbook .protocol-index + .protocol-group { margin-top: 0; }
+/* The group headings are wrapped in <header data-toc-group> so the contents
+   list can draw them as groups (static/page-toc.js), which means the index's
+   next sibling is that header rather than the h2 itself. Both are matched so
+   the rule holds whichever way the markup is written. */
+.labbook .protocol-index + .protocol-group,
+.labbook .protocol-index + .protocol-group-head > .protocol-group { margin-top: 0; }
+.labbook .protocol-group-head { margin: 0; }
 
 .labbook .protocol,
 .labbook .protocol-embed { scroll-margin-top: 90px; }
@@ -6551,17 +6663,6 @@ body.hw-nexus .hw .hw-table caption { color: var(--nx-mint); }
   overflow: hidden;
 }
 .hw-pick-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.hw-pick-card[data-build="laser-cut"] .hw-pick-photo { position: relative; }
-.hw-pick-card[data-build="laser-cut"] .hw-pick-photo img {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 75%;
-  height: 133.333%;
-  max-width: none;
-  object-fit: contain;
-  transform: translate(-50%, -50%) rotate(-90deg);
-}
 .hw-pick-go {
   margin-top: auto;
   align-self: flex-start;
@@ -6739,6 +6840,21 @@ body.hw-nexus .hw-vis {
 /* The same ring in the other series' colour: the AHL plate session's readings that were not judged induced. */
 .hw-vis .hw-ring-v1 { fill: var(--hw-surf); stroke: var(--hw-v1); stroke-width: 2; }
 /* The session chart is wider than a phone: it scrolls inside its figure. */
+/* Built to be changed: the reader's parts seen from above, each outlined by
+   what has happened to it. The outline says it and so does the word beside
+   it: solid and tinted = changed for version 2, dashed = on the reader but
+   not yet used, dotted = not tried, plain = unchanged. */
+.hw-vis.hw-mod { --hw-ex: #2f6fb0; }
+body.hw-nexus .hw-vis.hw-mod { --hw-ex: var(--nx-blue-up); }
+.hw-vis .hw-mod-changed { fill: color-mix(in srgb, var(--hw-v2) 20%, transparent); stroke: var(--hw-v2); stroke-width: 1.5; }
+.hw-vis .hw-mod-ready { fill: none; stroke: var(--hw-v2); stroke-width: 1.5; stroke-dasharray: 5 3; }
+.hw-vis .hw-mod-untried { fill: none; stroke: var(--hw-v1); stroke-width: 1.5; stroke-dasharray: 1.5 3; stroke-linecap: round; }
+.hw-vis .hw-mod-same { fill: none; stroke: var(--hw-rule); stroke-width: 1.5; }
+.hw-vis .hw-mod-ex { fill: none; stroke: var(--hw-ex); stroke-width: 2; }
+.hw-vis .hw-mod-ex-head { fill: var(--hw-ex); }
+.hw-vis .hw-mod-em { fill: none; stroke: var(--hw-accent); stroke-width: 2; }
+.hw-vis .hw-mod-em-head { fill: var(--hw-accent); }
+.hw-vis .hw-mod-tag { fill: var(--hw-v2); }
 .hw-chart { margin: 1.2rem 0 1rem; }
 .hw-chart .hw-vis { min-width: 520px; }
 body.hw-nexus .hw-chart .hw-vis { --hw-surf: var(--nx-ground, #0d2630); }
@@ -11698,15 +11814,15 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
   border-radius: 3px;
 }
 
-/* ---- a sequence ---- */
-.parts-seq-label {
-  font-family: "Changa", sans-serif;
-  font-size: 0.82rem !important;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #5f6e66 !important;
-  margin-bottom: 0.4rem !important;
+/* ---- a sequence, folded behind its own header ---- */
+/* Same <details> disclosure as the model page's parameter tables: no JS
+   needed, keyboard-reachable, and a long sequence no longer pushes the
+   card open by default. */
+.parts-card .hw-fold.parts-seq-fold {
+  margin: 0.9rem 0 0;
+  max-width: none;
 }
+.parts-card .hw-fold-body { padding: 0.7rem 0.15rem 0.15rem; }
 
 /* A 93 nt sequence has no spaces to break at, so it is wrapped explicitly
    rather than allowed to push the page sideways. */
@@ -11905,6 +12021,9 @@ body.bg-nexus .board-game-page {
   --brand: #49c5b6; --brand-soft: #a0e860; --brand-tint: rgba(73, 197, 182, 0.14);
   --neutral: #1c4352; --neutral-edge: #14323d; --neutral-drop: #0c2029;
   --red: #e0705f; --gold: #e6b060; --muted: #93b0bb;
+  /* Lifted so they clear AA as text on the panels, the way --nx-blue-up
+     lifts the reference blue. --red and --positive stay as fills. */
+  --red-up: #f49c8d;
   --sticky-y: #5a4a1e; --sticky-p: #5a2740; --sticky-g: #1d5244;
 
   background: linear-gradient(160deg, var(--wood-light), var(--wood-mid), var(--wood-dark));
@@ -11952,6 +12071,60 @@ body.bg-nexus .board-game-page .lang-bar {
   border: 1px solid var(--nx-line);
 }
 
+/* The board, the lobby and the walkthrough: the surfaces the retune above did
+   not reach. Each was a hardcoded paper tint from the light build, and the
+   ink tokens on them are now light, so player names, SDG badges, track
+   numbers, the phase label and the room code were reading light-on-cream.
+   Tinted ink that was mixed for cream (the bot log, a backward step) moves to
+   the token that carries the same meaning on a dark bed. */
+body.bg-nexus .board-game-page .player-card,
+body.bg-nexus .board-game-page .hand-area,
+body.bg-nexus .board-game-page .phase-bar,
+body.bg-nexus .board-game-page .lobby-player {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+body.bg-nexus .board-game-page .room-code-display {
+  background: var(--nx-panel);
+  border-color: var(--gold);
+}
+body.bg-nexus .board-game-page .sdg-badge,
+body.bg-nexus .board-game-page .sdg-progress-bar,
+body.bg-nexus .board-game-page .lobby-seat,
+body.bg-nexus .board-game-page .tutorial-dot,
+body.bg-nexus .board-game-page .hand-count-tag {
+  background: var(--nx-raised);
+  border-color: var(--nx-line);
+}
+body.bg-nexus .board-game-page .sdg-pick,
+body.bg-nexus .board-game-page input,
+body.bg-nexus .board-game-page select,
+body.bg-nexus .board-game-page .lang-bar select {
+  border-color: var(--nx-line);
+}
+body.bg-nexus .board-game-page .lang-bar select {
+  background: var(--nx-raised);
+  color: var(--nx-text);
+}
+/* Gold stays gold, so what sits on it has to be dark. */
+body.bg-nexus .board-game-page .sdg-badge.goal,
+body.bg-nexus .board-game-page .tgc-pause.is-paused { color: #10272f; }
+body.bg-nexus .board-game-page .card-announce-player.reveal {
+  background: rgba(230, 176, 96, 0.14);
+  border-color: var(--gold);
+}
+body.bg-nexus .board-game-page .card-announce-player { color: var(--nx-muted); }
+body.bg-nexus .board-game-page .log-entry { border-bottom-color: var(--nx-line); }
+body.bg-nexus .board-game-page .log-entry.sys,
+body.bg-nexus .board-game-page .log-entry.ai { color: var(--nx-muted); }
+body.bg-nexus .board-game-page .log-entry.down,
+body.bg-nexus .board-game-page .card-bwd { color: var(--red-up); }
+body.bg-nexus .board-game-page .phase-label { color: var(--brand); }
+body.bg-nexus .board-game-page .log-entry.special { color: var(--gold); }
+body.bg-nexus .board-game-page .log-entry.up,
+body.bg-nexus .board-game-page .card-fwd { color: var(--brand); }
+body.bg-nexus .board-game-page .ai-thinking { color: var(--nx-warm); }
+
 /* The two the retune did not reach: the stop markers, whose ring and halo
    were drawn for a pale page, and the playtest table's header band. */
 body.bg-nexus .sgd-node {
@@ -11984,7 +12157,8 @@ body.bg-nexus .board-game-page button.danger {
   color: var(--nx-ground);
 }
 body.bg-nexus .board-game-page .tutorial-lang-tag {
-  color: var(--nx-mint);
+  /* Mint on its own tint comes to 4.1:1, under AA for text this size. */
+  color: var(--nx-text);
   background: rgba(73, 197, 182, 0.12);
   border-color: var(--nx-line);
 }
@@ -12742,6 +12916,10 @@ body.hw-nexus .hw .hw-shots {
   gap: 1rem;
   margin: 1.5rem 0 1.6rem;
 }
+/* six photographs of one session: three to a row, two on a tablet, one on a phone */
+body.hw-nexus .hw .hw-shots.is-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 859.98px) { body.hw-nexus .hw .hw-shots.is-three { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { body.hw-nexus .hw .hw-shots.is-three { grid-template-columns: minmax(0, 1fr); } }
 body.hw-nexus .hw .hw-shot { margin: 0; }
 body.hw-nexus .hw .hw-shot img {
   display: block;
@@ -13347,6 +13525,7 @@ body.hw-nexus.attr-page .attr-ai h2 { color: var(--nx-mint); }
 body.hw-nexus.attr-page .attr-ai h4 { color: var(--nx-muted); }
 body.hw-nexus.attr-page .attr-ai strong { color: #fff; }
 body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
+body.hw-nexus.attr-page .attr-ai .attr-ai-close { color: var(--nx-text); }
 
 /* The thank-you and the credit lists, on the deep-teal ground. */
 body.hw-nexus.attr-page .attr-thanks { color: var(--nx-text); }
@@ -13571,12 +13750,19 @@ body.promotion-page .page-hero {
   padding-bottom: 104px;
 }
 
-/* Promotion's group photo has the same treatment, but there the people fill
-   the middle of the banner and hold a sign across it just below their faces,
-   so the title goes to the bottom, over their legs, instead. */
+/* Promotion's title is centred on its banner rather than following the rule
+   above. That one is written for the team photo: it pads the top far heavier
+   than the bottom so the centre lands about 100px low, clear of the faces.
+   This photo does not need it, so the padding is evened up and the centre is
+   the real centre. The top still carries enough to clear the floating navbar. */
 body.promotion-page .page-hero {
-  align-items: flex-end;
-  padding-bottom: 48px;
+  align-items: center;
+  /* 50px below centre, not on it: dead centre laid the title across the face
+     of the person on the left of the group. Centring happens inside the
+     content box, so the offset is HALF the difference between these two --
+     204 against 104 is 50px down. Change the difference to move the title. */
+  padding-top: 204px !important;
+  padding-bottom: 104px;
 }
 
 /* .container is a flex item here, and would otherwise shrink to its text. */

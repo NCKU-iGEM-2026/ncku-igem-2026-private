@@ -70,11 +70,20 @@
     {# 2026-10-12（硬體負責人同意；Codex 複審與我都建議）：開頭先講它做得到什麼（讀得到 GFP），再講好用在哪裡。
        原本四個子句都是「好用」（快、穩、無 GFP 讀 0、便宜），評審第三項要看的「功能」要捲到 Functional testing 才有。
        下面四格是同樣的四格，只是把無 GFP 讀 0 那一格排到最前面；「隨 GFP 的量上升」連到 dilution series。 #}
+    {# 2026-10-13（硬體負責人：「那個 0 什麼 gfp 的有點不直觀」；也要強調不用濾光片就分得開、以及模組化）：
+       第一句改成講它分得開什麼，第一格改成同一天、密度相近的兩管對照（86 對 0），不再只給一個 0。
+       86.44 與 0：2026-10-12 和 SpectraMax M3 並排那一場的 100% sfGFP 管與不含 GFP 的對照，
+       OD600（扣空白）0.861 與 0.721，各 9 個 cycle（P1_PR_COMPARE_EVIDENCE_2026-10-12/WIKI_EVIDENCE.md 表 1）。
+       原本這一格的「第一版 27 個讀值、第二版 4 管都是 0」仍在 Functional testing 兩個小節的重點句。
+       「不用發射濾光片」只寫在這一台：雷切機的空白不是 0，它用的是比值再減去無 GFP 的管子。
+       最後一個子句（模組）沒有自己的一格，依據在 The instrument 的 Built to be changed。 #}
     <p class="hw-point">
-      It reads GFP: zero without it in liquid culture, and a reading that
+      It tells a culture with GFP from one without, using no emission
+      filter, and its reading
       <a href="#hardware-v2-session">rises with the amount of GFP culture</a>.
-      It is quick to load, steady when the tube is put back, and cheap to
-      build.
+      It is quick to load, steady when the tube is put back, cheap to
+      build, and made of <a href="#hardware-modules">parts that can be
+      changed one at a time</a>.
     </p>
 
     {# 2026-10-07（夜）：硬體負責人要這一台先講優勢（操作快、量得穩、便宜），不要照開發歷程先給第一版的數字。
@@ -93,7 +102,7 @@
        用的是頁面上卡片內陳述句本來的字級（1.12rem），沒有新增字級；條件與出處留在最下面的小字，內容沒有變。
        四行白話和開頭那一句的四個優勢一一對應。 #}
     <dl class="hw-keys">
-      <div><dt>0</dt><dd><span class="hw-key-say">counts without GFP</span> On the emission channel, in liquid culture: all 27 readings on version 1, all 4 tubes on version 2. Dense suspensions <a href="#hardware-v2-turbidity">read above zero</a>.</dd></div>
+      <div><dt>86 vs 0</dt><dd><span class="hw-key-say">counts, with GFP and without</span> <a href="#hardware-v2-m3">Two cultures of similar density</a>, read the same day with no emission filter. Dense suspensions <a href="#hardware-v2-turbidity">read above zero</a>.</dd></div>
       <div><dt>3&ndash;5&nbsp;s</dt><dd><span class="hw-key-say">to load</span> Placing the cuvette, timed. Version 1 took 30&ndash;40&nbsp;s.</dd></div>
       <div><dt>0.76%</dt><dd><span class="hw-key-say">variation when put back</span> Standard deviation between <a href="#hw-doc-reinsert">five re-insertions of one tube</a>, at about 50 counts.</dd></div>
       <div><dt>US$161</dt><dd><span class="hw-key-say">to build</span> Our estimate of <a href="#hardware-cost-printed">the cost as built</a>, with the printing bought from a shop.</dd></div>
@@ -107,9 +116,8 @@
     <p class="hw-limit">
       <b>Not yet</b> It has
       <a href="#hardware-v2-ahl">not resolved AHL induction</a>, and it has
-      not been tested with <a href="#hardware-v2-next">an emission filter</a>,
-      compared with a plate reader or calibrated against a fluorescence
-      standard.
+      not been tested with <a href="#hardware-v2-next">an emission filter</a>
+      or calibrated against a fluorescence standard.
     </p>
 
     {# 這一台各節的捷徑。每個連結對應一節的 id，改了 id 要一起改。 #}
@@ -150,7 +158,7 @@
       <p class="hw-loop-who">Version&nbsp;2</p>
       <ol class="hw-loop-turn">
         <li><b>Build</b> <a href="#hardware-v2">A seat</a> that takes the cuvette in one step.</li>
-        <li><b>Test</b> <a href="#hardware-v2-session">A dilution series</a>, then dense suspensions from plates.</li>
+        <li><b>Test</b> <a href="#hardware-v2-session">A dilution series</a>, <a href="#hardware-v2-m3">a plate reader beside it</a>, then dense suspensions.</li>
         <li><b>Learn</b> <a href="#hardware-v2-ahl">Dense suspensions</a> read above zero without GFP.</li>
       </ol>
       <p class="hw-loop-next"><b>Next turn</b> <a href="#hardware-v2-next">An emission filter</a>, in the drawer already on the reader.</p>
@@ -658,6 +666,109 @@
 
     {# PHOTO: 量測時的樣子（3D 列印機構與遮光紙箱），上傳到 static.igem.wiki 後插在這裡 #}
 
+    {# 2026-10-13（硬體負責人：要強調模組化，讓之後的人可以在這個架構上改，例如換感測器或激發 LED）。
+       這一小節只寫頁面別處已經有依據的事，排成一張表：換過的、留了位置但沒用過的、還沒試過的。
+         四組零件與底板：上面 3D 檢視的分組（Excitation end、Cuvette seat、Detection side、Light trap、Base plate）。
+         定位銷與鍵：Assembly, step by step 的 Pins and keys（兩個 riser 各兩支圓銷、偵測框兩支窄銷、cradle 兩個方鍵）。
+         第二版換五件與一顆電阻、底板／偵測端／光阱／韌體沒動：Version 1 against version 2: part by part 的表與說明。
+         四個夾片：Assembly 的 Cuvette holder。5.55 → 約 10 mA：The LED current。
+         濾光片抽屜與 insert（圓 12.5 mm、方 6 mm）：3D 檢視的零件清單；沒放過濾光片。
+         十個通道：Measurement principle；每一列都記全部通道（Run 卡片的說明）。只讀過 sfGFP：Background。
+         LED 座照 5 mm 圓形 LED 畫：Decisions 的 470 nm 那一則與參考資料 3（Cree 5-mm Round LED）；第二版的夾持量是試配件定的。
+         感測器板的 carrier 是獨立的一件：零件清單 as7341_pcb_carrier.stl；韌體自己帶 AS7341 驅動：Parts and files 的 The files。
+       沒試過的兩列寫的是「要做什麼」，不是「做得到」：換 LED、換感測器都沒有做過。 #}
+    <h3 id="hardware-modules">Built to be changed</h3>
+
+    <p class="hw-point hw-point-sub">
+      Version 2 was made by changing five printed parts and one resistor
+      on the same base plate. The rest is built to be changed the same
+      way.
+    </p>
+
+    {# 2026-10-13（同一天，硬體負責人：「感覺有點過多文字敘述，可以有點視覺化」）：原本的一段字與六列的表
+       改成一張俯視示意圖，內容相同：每一塊用外框標出狀態（第二版換過／在機器上但沒用過／沒試過／沒動），
+       狀態同時寫成字，不只靠顏色。配置照 Measurement principle 那張圖：LED 在左、光束往右進光阱、
+       偵測器在比色管的側邊（圖上方）。不是按比例畫的。八個色塊是 AS7341 八個濾色通道的標稱中心波長，
+       顏色只是示意。 #}
+    <figure class="hw-figure hw-chart">
+      <svg class="hw-vis hw-mod" viewBox="0 0 640 300" role="img" aria-label="Plan view of the reader's parts on its base plate, marked by what has been changed. Changed for version 2: the excitation end, whose LED holder, baffle and cap were redrawn; the cuvette seat; and the LED's current, set by one resistor and raised from 5.55 to about 10 milliamps. On the reader but not yet used: the filter drawer in front of the detector, which is empty and takes a 12.5 millimetre round or a 6 millimetre square filter; and the detector's ten channels, all recorded on every read, of which only sfGFP has been read. Not tried: another LED, for which the holder is drawn around a 5 millimetre round LED; and another detector board, which would need a new carrier and a new driver in the firmware. Unchanged from version 1: the base plate and the light trap.">
+        <rect class="hw-mod-same" x="24" y="20" width="592" height="244" rx="10"/>
+        <text x="38" y="38">Base plate &#183; unchanged</text>
+
+        <!-- the two light paths -->
+        <path class="hw-mod-ex" d="M200 190H285M355 190H436"/>
+        <path class="hw-mod-ex-head" d="M436 185l9 5l-9 5z"/>
+        <path class="hw-mod-em" d="M320 155V110"/>
+        <path class="hw-mod-em-head" d="M315 110l5 -9l5 9z"/>
+
+        <!-- excitation end -->
+        <rect class="hw-mod-changed" x="50" y="160" width="150" height="60" rx="6"/>
+        <circle class="hw-mod-untried" cx="72" cy="190" r="10"/>
+        <text class="hw-vis-strong" x="92" y="186">Excitation end</text>
+        <text class="hw-mod-tag" x="92" y="200">changed for version 2</text>
+        <path class="hw-vis-rule" d="M72 180V152"/>
+        <text x="50" y="134"><tspan class="hw-vis-strong">The LED</tspan> &#183; holder drawn for a 5 mm round LED</text>
+        <text x="50" y="147">another LED not tried</text>
+        <rect class="hw-mod-changed" x="50" y="231" width="9" height="9" rx="2"/>
+        <text x="65" y="239"><tspan class="hw-vis-strong">LED current</tspan> &#183; one resistor</text>
+        <text class="hw-mod-tag" x="65" y="252">changed, 5.55 to about 10 mA</text>
+
+        <!-- cuvette seat -->
+        <rect class="hw-mod-changed" x="285" y="155" width="70" height="70" rx="6"/>
+        <text class="hw-vis-strong" x="320" y="187" text-anchor="middle">Cuvette</text>
+        <text class="hw-vis-strong" x="320" y="200" text-anchor="middle">seat</text>
+        <text class="hw-mod-tag" x="320" y="241" text-anchor="middle">changed for version 2</text>
+
+        <!-- light trap -->
+        <rect class="hw-mod-same" x="446" y="164" width="140" height="52" rx="6"/>
+        <text class="hw-vis-strong" x="516" y="187" text-anchor="middle">Light trap</text>
+        <text x="516" y="201" text-anchor="middle">unchanged</text>
+
+        <!-- filter drawer -->
+        <rect class="hw-mod-ready" x="285" y="119" width="70" height="16" rx="3"/>
+        <text x="372" y="124"><tspan class="hw-vis-strong">Filter drawer</tspan> &#183; <tspan class="hw-mod-tag">on the reader, empty</tspan></text>
+        <text x="372" y="137">for a 12.5 mm round or 6 mm square filter</text>
+
+        <!-- detector -->
+        <rect class="hw-mod-untried" x="275" y="40" width="90" height="62" rx="6"/>
+        <text class="hw-vis-strong" x="320" y="75" text-anchor="middle">Detector</text>
+        <text x="380" y="58"><tspan class="hw-vis-strong">The board</tspan> &#183; in a carrier of its own</text>
+        <text x="380" y="71">another board: a new carrier, a new driver</text>
+        <text x="380" y="84">not tried</text>
+
+        <!-- the detector's channels -->
+        <g class="hw-mod-bands">
+          <rect x="148" y="56" width="12" height="12" rx="2" fill="#7a4fd6"/>
+          <rect x="163" y="56" width="12" height="12" rx="2" fill="#3f5fe0"/>
+          <rect x="178" y="56" width="12" height="12" rx="2" fill="#2f9bd8"/>
+          <rect x="193" y="56" width="12" height="12" rx="2" fill="#2fbf6b"/>
+          <rect x="208" y="56" width="12" height="12" rx="2" fill="#a6cf3a"/>
+          <rect x="223" y="56" width="12" height="12" rx="2" fill="#e8b530"/>
+          <rect x="238" y="56" width="12" height="12" rx="2" fill="#ef7a35"/>
+          <rect x="253" y="56" width="12" height="12" rx="2" fill="#d94a3a"/>
+        </g>
+        <path class="hw-vis-rule" d="M268 62H275"/>
+        <text x="265" y="84" text-anchor="end"><tspan class="hw-vis-strong">Ten channels</tspan> &#183; all recorded on every read</text>
+        <text class="hw-mod-tag" x="265" y="97" text-anchor="end">only sfGFP read so far</text>
+
+        <!-- legend -->
+        <rect class="hw-mod-changed" x="24" y="279" width="12" height="12" rx="2"/>
+        <text x="42" y="289">Changed for version 2</text>
+        <rect class="hw-mod-ready" x="176" y="279" width="12" height="12" rx="2"/>
+        <text x="194" y="289">On the reader, not yet used</text>
+        <rect class="hw-mod-untried" x="356" y="279" width="12" height="12" rx="2"/>
+        <text x="374" y="289">Not tried</text>
+        <rect class="hw-mod-same" x="446" y="279" width="12" height="12" rx="2"/>
+        <text x="464" y="289">Unchanged</text>
+      </svg>
+      <figcaption>
+        Seen from above, not to scale. The CAD source is parametric and
+        kept
+        <a href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware">module by module</a>
+        in the repository, so one part can be redrawn without the others.
+      </figcaption>
+    </figure>
+
   </section>
 
   <!-- =====================================================================
@@ -1027,7 +1138,8 @@
 
     <p class="hw-point">
       It tells a GFP culture from one without, and the reading rises with
-      the amount of GFP culture. Without GFP it read zero in liquid
+      the amount of GFP culture; a plate reader beside it ranked the same
+      tubes the same way. Without GFP it read zero in liquid
       culture, and a few counts in dense suspensions. It has not yet
       resolved AHL induction.
     </p>
@@ -1128,6 +1240,86 @@
     <p class="hw-more">
       <a href="#hw-doc-session">The dilution series, tube by tube</a>
       <a href="#hardware-use">What the wet lab said</a>
+    </p>
+
+    {# 2026-10-12：第二版與 plate reader 的對照（同一天量的；SpectraMax M3）。
+       來源：_AI_REFACTOR_WORK/P1_PR_COMPARE_EVIDENCE_2026-10-12/EVIDENCE.md 第 2 版（Codex 審過一次，PASS WITH CONDITIONS，
+       一項 MINOR 已改）：§1 本機的擷取、§3 一張表、§4 照登記的判定、§5.1 F4 對 OD600、§6 可以說、§7 不能說。
+       相關係數出自同資料夾 ADDENDUM_1.md：事後、描述性，硬體負責人看過資料後要求的，沒有送審。
+       同資料夾 WIKI_EVIDENCE.md 列了寫 wiki 時可以寫與不要寫的。事前登記在 P1_PR_COMPARE_PREREG_2026-10-11。
+       兩層都要在頁面上：(1) 照登記，「兩台的螢光讀值是否成比例」沒有得到判定（M3 的較濃樣品是稀釋後才讀的，
+       只有三管可比，而這三管之間不成比例）；(2) 事後來看，F4 與 M3 的 OD600 高度相關，25% 到 100% 三管每單位 OD 的 F4
+       相差不到 10%。第 (1) 層寫在下面的 Not yet 與收合的那一段，沒有因為第 (2) 層好看就拿掉。
+       不要寫（WIKI_EVIDENCE.md 與 EVIDENCE.md §7）：已校正；經 plate reader 驗證；與 plate reader 的螢光成比例；
+       可以換算成絕對濃度；偵測極限；線性範圍的規格；對其他菌株或報導基因也成立；任何重複性的數字。
+       M3 的數值是操作者抄錄的，沒有匯出檔，孔數與 gain 沒有紀錄；寫在收合的那一段。
+       圖上的點由程式從證據檔 §3 的表算出；虛線是三管的平均比例（104 counts／OD），不是校正線，圖說寫明了。 #}
+    <h3 id="hardware-v2-m3">Version 2: beside a plate reader</h3>
+
+    <p class="hw-point hw-point-sub">
+      Read beside a plate reader on the same tubes, it ranked them the same
+      way, and over the three denser tubes its reading per unit of OD held
+      within 10%.
+    </p>
+
+    <p>
+      One batch of the sfGFP test culture at five dilutions, 6.25% to 100%,
+      with medium and a culture without GFP. Each tube was read on our
+      reader and on a SpectraMax M3 plate reader, for OD600 and for green
+      fluorescence. F4 rose from 2.44 to 86.44 counts and followed the
+      M3's OD600 closely (<var>r</var><sup>2</sup>&nbsp;=&nbsp;0.993, five
+      tubes). The culture without GFP, at an OD600 of 0.72, read zero on
+      ours and near background on the M3.
+    </p>
+
+    <figure class="hw-figure hw-chart">
+      <svg class="hw-vis" viewBox="0 0 640 230" role="img" aria-label="F4 on our reader against OD600 on a SpectraMax M3 plate reader, blank taken off, for five dilutions of one sfGFP culture. The points rise from 2.44 counts at OD 0.069 to 86.44 at OD 0.861. The three denser tubes lie along one line through the origin, about 104 counts per unit OD; the two thinnest lie below it. A culture without GFP at OD 0.721 read 0. The numbers are in the table under Data and documentation.">
+        <path class="hw-vis-rule" d="M58 190.0H622"></path>
+        <text x="50" y="193.5" text-anchor="end">0</text>
+        <path class="hw-vis-rule" d="M58 150.0H622"></path>
+        <text x="50" y="153.5" text-anchor="end">25</text>
+        <path class="hw-vis-rule" d="M58 110.0H622"></path>
+        <text x="50" y="113.5" text-anchor="end">50</text>
+        <path class="hw-vis-rule" d="M58 70.0H622"></path>
+        <text x="50" y="73.5" text-anchor="end">75</text>
+        <path class="hw-vis-rule" d="M58 30.0H622"></path>
+        <text x="50" y="33.5" text-anchor="end">100</text>
+        <text x="58" y="12">F4 on our reader, counts</text>
+        <circle class="hw-dot hw-v2" cx="262" cy="8.5" r="5"></circle><text x="273" y="12">sfGFP culture</text>
+        <circle class="hw-dot hw-ring" cx="372" cy="8.5" r="4.5"></circle><text x="383" y="12">culture without GFP</text>
+        <path class="hw-vis-line" stroke-dasharray="5 4" d="M58.0 190.0L576.9 36.8"></path>
+        <text x="509.2" y="42.8" text-anchor="end">the three denser tubes: 104 counts per unit OD</text>
+        <text x="58.0" y="206" text-anchor="middle">0.0</text>
+        <text x="170.8" y="206" text-anchor="middle">0.2</text>
+        <text x="283.6" y="206" text-anchor="middle">0.4</text>
+        <text x="396.4" y="206" text-anchor="middle">0.6</text>
+        <text x="509.2" y="206" text-anchor="middle">0.8</text>
+        <text x="622.0" y="206" text-anchor="middle">1.0</text>
+        <text x="340" y="224" text-anchor="middle">OD600 on the plate reader, blank taken off</text>
+        <circle class="hw-dot hw-ring" cx="464.6" cy="190.0" r="5" data-tip-t="Culture without GFP" data-tip="F4 0.00 at OD600 0.721, all nine cycles zero"></circle>
+        <circle class="hw-dot hw-v2" cx="96.9" cy="186.1" r="5.5" data-tip-t="sfGFP culture, 6.25%" data-tip="F4 2.44 at OD600 0.069: 35 counts per unit OD"></circle>
+        <circle class="hw-dot hw-v2" cx="128.5" cy="178.1" r="5.5" data-tip-t="sfGFP culture, 12.5%" data-tip="F4 7.44 at OD600 0.125: 60 counts per unit OD"></circle>
+        <circle class="hw-dot hw-v2" cx="228.3" cy="136.8" r="5.5" data-tip-t="sfGFP culture, 25%" data-tip="F4 33.22 at OD600 0.302: 110 counts per unit OD"></circle>
+        <circle class="hw-dot hw-v2" cx="325.9" cy="112.7" r="5.5" data-tip-t="sfGFP culture, 50%" data-tip="F4 48.33 at OD600 0.475: 102 counts per unit OD"></circle>
+        <circle class="hw-dot hw-v2" cx="543.6" cy="51.7" r="5.5" data-tip-t="sfGFP culture, 100%" data-tip="F4 86.44 at OD600 0.861: 100 counts per unit OD"></circle>
+      </svg>
+      <figcaption>
+        Each dot is one tube: F4 on our reader, the mean of nine cycles,
+        against OD600 on the M3. The dashed line is the mean ratio of the
+        three denser tubes. It is not a calibration line.
+      </figcaption>
+    </figure>
+
+    <p class="hw-limit">
+      <b>Not yet</b> One culture, one day. The question registered
+      beforehand, whether the two fluorescence readings are in proportion,
+      was not settled: the M3 read the denser tubes only after diluting
+      them. The two thinnest tubes read low on ours, and none of this is a
+      calibration.
+    </p>
+
+    <p class="hw-more">
+      <a href="#hw-doc-m3">Beside the plate reader, tube by tube</a>
     </p>
 
     <h3 id="hardware-bench-v1">Version 1: three mixing sessions</h3>
@@ -1857,6 +2049,44 @@
       </li>
     </ol>
 
+    {# 2026-10-12（硬體負責人）：實機操作的照片，當天在實驗台上拍的，六張。用途是讓讀者看到這台機器實際被操作的樣子
+       （評審第三題；之前頁面上只有零件和放比色管的照片）。版型是 Design advantages 那兩張整機照的同一個元件（hw-shots），
+       一列三張。照片中的人是隊員，本人同意公開（負責人確認）；說明與替代文字都沒有寫名字。
+       說明只寫畫面上看得到的事：
+         第 4 張的螢幕上是一次讀取，樣品名稱是 PHOTO-GFP，三列的綠光通道是 0、藍光散射是 8。說明沒有說讀的是什麼樣品，
+         請不要把它寫成「GFP 的讀值」；畫面上兩行 REFUSED 是指令打錯被韌體拒絕，說明照實寫了。
+         第 2 張寫成操作示範，沒有寫成使用者測試：這次是不是只照文件獨立操作，沒有紀錄。
+       這幾張拍攝前，板子重新燒錄過同一份韌體原始碼（LED 閘門以編譯旗標打開；ESP32 核心 3.3.12，紀錄裡的正式建置是 3.3.8）。
+       另有兩張沒有用（printed-run-x1-arm-command、printed-run-x2-two-commands）：畫面上是打錯的指令。 #}
+    <h3 id="hardware-run-photos">A session, in photographs</h3>
+
+    <div class="hw-shots is-three">
+      <figure class="hw-shot">
+        <img src="https://static.igem.wiki/teams/6379/wiki/hardware/printed-run-1-cuvette-in.avif" loading="lazy" decoding="async" alt="Two gloved hands at the reader: one lowers a clear cuvette into the square black seat, the other steadies the base plate. The LED holder is in front, the breadboard and its wires behind.">
+        <figcaption><b>1 &middot; Cuvette in</b> The cuvette goes straight into the seat.</figcaption>
+      </figure>
+      <figure class="hw-shot">
+        <img src="https://static.igem.wiki/teams/6379/wiki/hardware/printed-run-2-operator.avif" loading="lazy" decoding="async" alt="A person in a lab coat and gloves sits at a bench and lowers a cuvette into the reader with one hand while holding the base with the other. An open laptop stands behind it, connected by a cable.">
+        <figcaption><b>At the bench</b> A team member seats the cuvette, with the laptop beside the reader.</figcaption>
+      </figure>
+      <figure class="hw-shot">
+        <img src="https://static.igem.wiki/teams/6379/wiki/hardware/printed-run-3-shield-on.avif" loading="lazy" decoding="async" alt="An upturned tray of moulded pulp covers the reader on the bench, a cable running out from under it to an open laptop whose screen shows a serial monitor.">
+        <figcaption><b>2 &middot; Shield on</b> The shield goes over the reader before any read.</figcaption>
+      </figure>
+      <figure class="hw-shot">
+        <img src="https://static.igem.wiki/teams/6379/wiki/hardware/printed-run-4-serial-output.avif" loading="lazy" decoding="async" alt="A laptop screen showing a serial monitor at 115200 baud. The firmware prints its identity, with hw_enable, sensor_ready and settings_readback at 1, then two refusal lines, LED ARMED, a sample name, a header row, three rows of comma-separated values and the line timepoint complete.">
+        <figcaption><b>3 &middot; Read</b> One read as the serial monitor shows it: the reader's identity, then one row to a cycle. Two mistyped commands are refused above it.</figcaption>
+      </figure>
+      <figure class="hw-shot">
+        <img src="https://static.igem.wiki/teams/6379/wiki/hardware/printed-run-5-shield-lifted.avif" loading="lazy" decoding="async" alt="A hand lifts the pulp tray to show what is under it: the black printed reader on its base plate with a cuvette in the seat, and beside it a breadboard carrying the controller, its indicator lights on.">
+        <figcaption><b>The shield, lifted</b> Under it, the reader and the breadboard it is wired to.</figcaption>
+      </figure>
+      <figure class="hw-shot">
+        <img src="https://static.igem.wiki/teams/6379/wiki/hardware/printed-run-6-bench-overview.avif" loading="lazy" decoding="async" alt="The bench from above and to one side: an open laptop showing the serial monitor, a USB cable, and to its right the breadboard and the printed reader with a cuvette in the seat. A rack with culture tubes stands behind.">
+        <figcaption><b>The whole bench</b> A laptop, one cable and the reader.</figcaption>
+      </figure>
+    </div>
+
     {# 2026-10-07：檔案已公開。CAD 原始碼與匯出檔、韌體、零件清單放在隊伍的 iGEM GitLab 程式庫（MIT 授權），
        所以原本 Not yet 那句「檔案尚未公開」換成連結；還沒有的只剩完整的組裝步驟。
        核對過：3D 圖兩個版本用到的每一個 STL 檔（第一版 31 個、第二版 25 個）都在程式庫裡，
@@ -1953,7 +2183,7 @@
       <details class="hw-fold hw-fold-wide" id="hw-doc-names">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">The experiments, by name</span>
-          <span class="hw-fold-meta">13 experiments and their dates</span>
+          <span class="hw-fold-meta">14 experiments and their dates</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -1991,6 +2221,7 @@
           <tr><td>Dilution series</td><td>Version 2</td><td>One batch of GFP culture, undiluted and at five dilutions, with medium and a non-GFP culture as controls. Re-insertion test 3, one tube put back five times, was part of it.</td><td class="hw-nb">2026-10-05</td></tr>
           <tr><td>AHL plate session</td><td>Version 2</td><td>Suspensions scraped from plates at five AHL concentrations, with medium, a culture without the reporter and an sfGFP culture as controls. Re-insertion test 4, one tube put back ten times, was part of it.</td><td class="hw-nb">2026-10-09</td></tr>
           <tr><td>Density session</td><td>Version 2</td><td>A culture without the reporter, two suspensions scraped from one plate, diluted in LB: 21 readings, with LB as the blank.</td><td class="hw-nb">2026-10-11</td></tr>
+          <tr><td>Plate reader comparison</td><td>Version 2</td><td>One batch of the sfGFP test culture at five dilutions, with medium and a culture without GFP, read on our reader and on a SpectraMax M3.</td><td class="hw-nb">2026-10-12</td></tr>
         </tbody>
       </table>
     </figure>
@@ -2199,6 +2430,87 @@
       of 0.38 counts between them: about the third of a count that a
       three-cycle mean can resolve. With the seat empty, every channel read
       zero.
+    </p>
+        </div>
+      </details>
+      <details class="hw-fold hw-fold-wide" id="hw-doc-m3">
+        <summary class="hw-fold-head">
+          <span class="hw-fold-title">Version 2: beside the plate reader, tube by tube</span>
+          <span class="hw-fold-meta">7 tubes, 2026-10-12</span>
+          <span class="hw-fold-state" aria-hidden="true">
+            <span class="hw-fold-verb" data-open="false">Show</span>
+            <span class="hw-fold-verb" data-open="true">Hide</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+          </span>
+        </summary>
+        <div class="hw-fold-body hw-fold-prose">
+    <p>
+      The sfGFP test culture, <i>E.&nbsp;coli</i> TOP10 with a plasmid that
+      makes sfGFP without induction, diluted in medium. On our reader,
+      200&nbsp;&micro;L to a cuvette and nine cycles each, at the sensor
+      settings of the dilution series; no tube was read twice. On the
+      SpectraMax M3, OD600 and fluorescence at 485&nbsp;/&nbsp;515&nbsp;nm.
+    </p>
+
+    <figure class="hw-figure">
+      <table class="hw-table hw-keep">
+        <caption>Our reader and the SpectraMax M3 on the same tubes</caption>
+        <thead>
+          <tr>
+            <th scope="col">In the tube</th>
+            <th scope="col" class="hw-num">F4, ours</th>
+            <th scope="col" class="hw-num">Cycles</th>
+            <th scope="col" class="hw-num">OD600, M3</th>
+            <th scope="col" class="hw-num">F4 per OD</th>
+            <th scope="col" class="hw-num">M3 fluorescence, undiluted</th>
+            <th scope="col" class="hw-num">M3 fluorescence, diluted 20&times;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Medium, at the start and at the end</td><td class="hw-num">0, 0</td><td class="hw-num">0&ndash;0</td><td class="hw-num">0</td><td class="hw-num">&ndash;</td><td class="hw-num">0</td><td class="hw-num">&ndash;</td></tr>
+          <tr><td>Culture without GFP</td><td class="hw-num">0.00</td><td class="hw-num">0&ndash;0</td><td class="hw-num">0.721</td><td class="hw-num">&ndash;</td><td class="hw-num">249</td><td class="hw-num">&ndash;</td></tr>
+          <tr><td>sfGFP culture, 6.25&nbsp;%</td><td class="hw-num">2.44</td><td class="hw-num">2&ndash;3</td><td class="hw-num">0.069</td><td class="hw-num">35</td><td class="hw-num">8,216</td><td class="hw-num">not read</td></tr>
+          <tr><td>sfGFP culture, 12.5&nbsp;%</td><td class="hw-num">7.44</td><td class="hw-num">7&ndash;8</td><td class="hw-num">0.125</td><td class="hw-num">60</td><td class="hw-num">13,249</td><td class="hw-num">326.5</td></tr>
+          <tr><td>sfGFP culture, 25&nbsp;%</td><td class="hw-num">33.22</td><td class="hw-num">33&ndash;34</td><td class="hw-num">0.302</td><td class="hw-num">110</td><td class="hw-num">25,249</td><td class="hw-num">1,147.6</td></tr>
+          <tr><td>sfGFP culture, 50&nbsp;%</td><td class="hw-num">48.33</td><td class="hw-num">47&ndash;49</td><td class="hw-num">0.475</td><td class="hw-num">102</td><td class="hw-num">not obtained</td><td class="hw-num">1,746.2</td></tr>
+          <tr><td>sfGFP culture, 100&nbsp;%</td><td class="hw-num">86.44</td><td class="hw-num">84&ndash;89</td><td class="hw-num">0.861</td><td class="hw-num">100</td><td class="hw-num">not obtained</td><td class="hw-num">3,802.1</td></tr>
+        </tbody>
+      </table>
+      <figcaption>
+        OD600 and the undiluted fluorescence have the medium blank taken
+        off; the diluted reading had no blank and is as read. The two
+        fluorescence columns were read under different conditions and
+        cannot be joined into one.
+      </figcaption>
+    </figure>
+
+    <p>
+      One question was registered before the session: is our F4 in
+      proportion to the M3's fluorescence, each tube's ratio within 20% of
+      their mean? It could not be judged. The M3 could not read the denser
+      tubes undiluted, so only 6.25%, 12.5% and 25% have a fluorescence
+      reading of the registered kind. Across those three the ratio ran
+      0.298, 0.562 and 1.316 (&times;10<sup>&minus;3</sup>): not in
+      proportion, the thinner tubes reading low on ours, as the dilution
+      series had led us to write down beforehand.
+    </p>
+
+    <p>
+      Worked out afterwards: F4 against the M3's OD600 gives
+      <var>r</var><sup>2</sup>&nbsp;=&nbsp;0.993 over five tubes, against
+      its diluted fluorescence 0.982 over four, against its undiluted
+      fluorescence 0.981 over three, and the tubes rank the same each time.
+      These are a few points of one dilution series, where
+      <var>r</var><sup>2</sup> runs high: they show one trend, not
+      accuracy.
+    </p>
+
+    <p>
+      The M3's values were copied down by the operator; there is no export
+      file, the number of wells and the gain were not recorded, and some
+      values have two significant figures. The two instruments excite at
+      different wavelengths, 470 and 485&nbsp;nm, so only the trend can be
+      compared, not the size of the numbers.
     </p>
         </div>
       </details>
@@ -3179,7 +3491,7 @@
       <details class="hw-fold hw-fold-wide" id="hw-doc-log">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">The development log</span>
-          <span class="hw-fold-meta">11 steps, 2026-08-14 to 10-11</span>
+          <span class="hw-fold-meta">12 steps, 2026-08-14 to 10-12</span>
           <span class="hw-fold-state" aria-hidden="true">
             <span class="hw-fold-verb" data-open="false">Show</span>
             <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -3206,7 +3518,7 @@
     <div class="hwx-rig hwx-log" id="hwxLog">
       <div class="hwx-rig-head">
         <h3>Development log</h3>
-        <p class="hwx-rig-sub">Eleven steps, 2026-08-14 to 2026-10-11</p>
+        <p class="hwx-rig-sub">Twelve steps, 2026-08-14 to 2026-10-12</p>
       </div>
 
       <div class="hwx-log-track" id="hwxLogTrack" role="group"
@@ -3378,6 +3690,19 @@
             A few counts on the emission channel can be set against the
             scatter channel of the same read. An emission filter remains
             untested.</p>
+        </li>
+        <li class="hwx-log-item" data-when="10-12" data-name="Plate reader">
+          <div class="hwx-log-date">2026-10-12</div>
+          <h4>Beside a plate reader</h4>
+          <p>
+            Five dilutions of the sfGFP test culture, read on our reader and
+            on a SpectraMax M3. The two ranked the tubes alike, and over the
+            three denser tubes our reading per unit of OD held within 10%.
+          </p>
+          <p class="hwx-log-change"><span>What it changed</span>
+            The reader has now been set beside a plate reader once. Whether
+            the two fluorescence readings are in proportion is still open:
+            the plate reader needs every tube read undiluted.</p>
         </li>
       </ol>
 

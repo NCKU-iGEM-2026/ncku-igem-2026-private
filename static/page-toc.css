@@ -74,7 +74,12 @@
     font-family: "Changa", sans-serif;
     font-size: 0.95rem;
     line-height: 1.3;
-    color: #6b6055;
+    /* A token, not the warm #6b6055 this started as. That brown was picked for
+       the paper background the wiki used to have; on the dark ground it reads
+       at 2.62:1, under the 4.5 floor, and it reads brown next to the cool grey
+       the nexus pages override it with. --c-text-2 follows the theme: the same
+       7.45:1 in light, 8.51:1 in dark. */
+    color: var(--c-text-2);
     text-decoration: none;
     transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
   }
@@ -176,7 +181,7 @@
   .page-toc.is-parts .page-toc-progress {
     height: 2px;
     margin: 0 0 1rem;
-    background: var(--nx-line, #d9d2c3);
+    background: var(--nx-line, var(--c-line));
     border-radius: 2px;
     overflow: hidden;
   }
@@ -184,14 +189,14 @@
     display: block;
     width: 0;
     height: 100%;
-    background: var(--nx-mint, #075a3e);
+    background: var(--nx-mint, var(--c-teal-deep));
   }
 
   .page-toc.is-parts .page-toc-part + .page-toc-part { margin-top: 0.15rem; }
   .page-toc.is-parts .page-toc-part.is-apart {
     margin-top: 0.9rem;
     padding-top: 0.8rem;
-    border-top: 1px dashed var(--nx-line, #d9d2c3);
+    border-top: 1px dashed var(--nx-line, var(--c-line));
   }
 
   /* the part's own line: badge and name, no arrow */
@@ -202,13 +207,13 @@
     padding: 0.38rem 0.5rem;
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--nx-muted, #6b6055);
+    color: var(--nx-muted, var(--c-text-2));
   }
   .page-toc.is-parts a.page-toc-part-head::before { display: none; }
   .page-toc.is-parts a.page-toc-part-head:hover,
   .page-toc.is-parts a.page-toc-part-head:focus-visible {
     transform: none;
-    color: var(--nx-text, #1f2a24);
+    color: var(--nx-text, var(--c-text));
   }
   .page-toc-no {
     display: inline-flex;
@@ -220,28 +225,46 @@
     font-size: 0.75rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    color: var(--nx-muted, #6b6055);
-    border: 1.5px solid var(--nx-line, #c9bfa8);
+    color: var(--nx-muted, var(--c-text-2));
+    border: 1.5px solid var(--nx-line, var(--c-line));
     border-radius: 50%;
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
   /* a part already read: outlined in the accent */
   .page-toc.is-parts .page-toc-part:not(.is-current) > a.is-passed .page-toc-no {
-    color: var(--nx-mint, #075a3e);
-    border-color: var(--nx-mint, #075a3e);
+    color: var(--nx-mint, var(--c-teal-deep));
+    border-color: var(--nx-mint, var(--c-teal-deep));
   }
   /* the part being read: filled */
   body .page-toc.is-parts .page-toc-part.is-current > a.page-toc-part-head {
-    color: var(--nx-text, #1f2a24);
+    color: var(--nx-text, var(--c-text));
     background: none;
   }
   .page-toc.is-parts .page-toc-part.is-current .page-toc-no {
-    color: var(--nx-ground, #fff);
-    background: var(--nx-mint, #075a3e);
-    border-color: var(--nx-mint, #075a3e);
+    color: var(--nx-ground, var(--c-dark));
+    background: var(--nx-mint, var(--c-teal-deep));
+    border-color: var(--nx-mint, var(--c-teal-deep));
   }
 
   /* "Expand all / Collapse all", at the end of the list's title */
+  /* The "On this page" label is gone (static/page-toc.js). On an ungrouped
+     list that leaves the row with nothing in it, so it goes; on a grouped one
+     the All control is still a child, so the row is not :empty and stays --
+     without the left padding and the marker that were there for the text. */
+  .page-toc-title:empty { display: none; }
+  .page-toc.is-parts .page-toc-title { padding-left: 0; }
+  .page-toc.is-parts .page-toc-title::before { display: none; }
+
+  /* The grouped list reads --nx-* first and falls back to the global tokens.
+     The nexus pages declare --nx-* on the body, so they keep their own palette;
+     a page without one of those classes -- Lab Book, which is grouped too --
+     gets the --c-* equivalents, which flip with the theme. The fallbacks used
+     to be fixed light-mode values (#6b6055, #1f2a24, #075a3e, #fff), so Lab
+     Book's contents list came out brown and dark green on the dark ground while
+     Model's, two clicks away, was mint and cool grey. In dark the pairs are all
+     but the same colour: --nx-mint and --c-teal-deep are both #49c5b6, and
+     --nx-ground and --c-dark are both #0e242e. Keep any new fallback a token. */
+
   .page-toc.is-parts .page-toc-title { display: flex; align-items: center; gap: 0.5rem; }
   .page-toc-all {
     margin-left: auto;
@@ -249,13 +272,13 @@
     font-family: "Changa", sans-serif;
     font-size: 0.72rem;
     font-weight: 400;
-    color: var(--nx-muted, #6b6055);
+    color: var(--nx-muted, var(--c-text-2));
     background: none;
-    border: 1px solid var(--nx-line, #d9d2c3);
+    border: 1px solid var(--nx-line, var(--c-line));
     border-radius: 999px;
     cursor: pointer;
   }
-  .page-toc-all:hover { color: var(--nx-text, #1f2a24); border-color: var(--nx-mint, #075a3e); }
+  .page-toc-all:hover { color: var(--nx-text, var(--c-text)); border-color: var(--nx-mint, var(--c-teal-deep)); }
 
   /* the part's line: its link, then its own open / close button */
   .page-toc-part-row { display: flex; align-items: center; }
@@ -268,17 +291,17 @@
     width: 1.6rem;
     height: 1.6rem;
     padding: 0;
-    color: var(--nx-muted, #6b6055);
+    color: var(--nx-muted, var(--c-text-2));
     background: none;
     border: 0;
     border-radius: 6px;
     cursor: pointer;
   }
-  .page-toc-toggle:hover { color: var(--nx-text, #1f2a24); background: rgba(73, 197, 182, 0.1); }
+  .page-toc-toggle:hover { color: var(--nx-text, var(--c-text)); background: rgba(73, 197, 182, 0.1); }
   .page-toc-toggle svg { transition: transform 0.2s ease; }
   .page-toc-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
   .page-toc-all:focus-visible,
-  .page-toc-toggle:focus-visible { outline: 2px solid var(--nx-mint, #075a3e); outline-offset: 1px; }
+  .page-toc-toggle:focus-visible { outline: 2px solid var(--nx-mint, var(--c-teal-deep)); outline-offset: 1px; }
 
   /* its sections, on a rail under the badge; shown while the part is open
      (the part being read, or one the reader opened) */
@@ -286,7 +309,7 @@
     list-style: none;
     margin: 0.1rem 0 0.45rem 1.2rem;
     padding: 0 0 0 0.55rem;
-    border-left: 1px solid var(--nx-line, #d9d2c3);
+    border-left: 1px solid var(--nx-line, var(--c-line));
   }
   .page-toc.is-parts .page-toc-part:not(.is-open) > .page-toc-sub { display: none; }
   /* Muted until hovered or read: the site's dark theme colours every link
@@ -297,12 +320,12 @@
     gap: 0.45rem;
     padding: 0.26rem 0.5rem 0.26rem 0.6rem;
     font-size: 0.86rem;
-    color: var(--nx-muted, #6b6055);
+    color: var(--nx-muted, var(--c-text-2));
   }
   .page-toc.is-parts .page-toc-sub a:hover,
-  .page-toc.is-parts .page-toc-sub a:focus-visible { color: var(--nx-text, #1f2a24); }
+  .page-toc.is-parts .page-toc-sub a:focus-visible { color: var(--nx-text, var(--c-text)); }
   .page-toc.is-parts .page-toc-sub a.is-active {
-    color: var(--nx-text, #1f2a24);
+    color: var(--nx-text, var(--c-text));
     font-weight: 600;
     background: rgba(73, 197, 182, 0.1);
   }
@@ -311,9 +334,9 @@
     min-width: 1.6rem;
     font-weight: 400;
     font-variant-numeric: tabular-nums;
-    color: var(--nx-muted, #6b6055);
+    color: var(--nx-muted, var(--c-text-2));
   }
-  .page-toc.is-parts .page-toc-sub a.is-active .page-toc-sec { color: var(--nx-mint, #075a3e); }
+  .page-toc.is-parts .page-toc-sub a.is-active .page-toc-sec { color: var(--nx-mint, var(--c-teal-deep)); }
   .page-toc.is-parts .page-toc-sub a::before {
     left: calc(-0.55rem - 1px);
     top: 15%;
@@ -326,7 +349,7 @@
   }
   .page-toc.is-parts .page-toc-sub a:hover::before,
   .page-toc.is-parts .page-toc-sub a:focus-visible::before { transform: none; }
-  .page-toc.is-parts .page-toc-sub a.is-active::before { background: var(--nx-mint, #075a3e); }
+  .page-toc.is-parts .page-toc-sub a.is-active::before { background: var(--nx-mint, var(--c-teal-deep)); }
 }
 
 @media (min-width: 1200px) and (prefers-reduced-motion: reduce) {
