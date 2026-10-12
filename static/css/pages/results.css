@@ -161,11 +161,13 @@ html[data-theme="dark"] .res-systems-nav a[data-part="inhibition"] { --sys: #e6b
 .res-part[data-assay="swarming"]  { --stage: #1e8a55; }
 .res-part[data-assay="biofilm"]   { --stage: #6a4fb3; }
 .res-part[data-assay="pyocyanin"] { --stage: #1f72a8; }
+.res-part[data-assay="overall"]   { --stage: #a8571f; }
 /* Dark page: the bright versions, as on Engineering. */
 html[data-theme="dark"] .res-part                          { --stage: #a0e860; }
 html[data-theme="dark"] .res-part[data-assay="swarming"]  { --stage: #4fd48f; }
 html[data-theme="dark"] .res-part[data-assay="biofilm"]   { --stage: #b39ddb; }
 html[data-theme="dark"] .res-part[data-assay="pyocyanin"] { --stage: #5bb6e6; }
+html[data-theme="dark"] .res-part[data-assay="overall"]   { --stage: #e8a05b; }
 
 /* The heading: number, title, and a rule under both.
    editorial.css gives the first heading of every section the ink colour and,
@@ -206,6 +208,14 @@ html[data-theme="dark"] .res-part[data-assay="pyocyanin"] { --stage: #5bb6e6; }
   border-radius: 2px;
   background: var(--stage);
 }
+
+/* The overview and the closing summary frame the assays rather than being
+   assays themselves: neither takes a number nor advances the count, so the
+   three between them run 01, 02, 03. */
+.res-part[data-assay="overview"],
+.res-part[data-assay="overall"] { counter-increment: none; }
+.desc .res-part[data-assay="overview"] > h3:not(#res-x)::before,
+.desc .res-part[data-assay="overall"] > h3:not(#res-x)::before { content: none; }
 
 /* The overview reads as the lead: its two paragraphs in a tinted panel. */
 .res-part[data-assay="overview"] > p {
@@ -249,4 +259,62 @@ html[data-theme="dark"] .res-part[data-assay="pyocyanin"] { --stage: #5bb6e6; }
 @media (max-width: 575.98px) {
   .desc .res-part > h3:not(#res-x) { font-size: 1.6rem; }
   .res-part[data-assay="overview"] > p { padding-left: 1rem; padding-right: 1rem; }
+}
+
+/* ---------------------------------------------------------------------------
+   The readout: the numbers a judge should be able to take in without reading
+   the prose around them. Cb-2 is the subject of the page, so it takes the
+   wide tile and the part's colour; the two reference aptamers sit beside it
+   at a smaller size, there to give its value a scale. The prose no longer
+   repeats these figures.
+   --------------------------------------------------------------------------- */
+.res-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.75rem 0;
+  padding: 0;
+  list-style: none;
+}
+.res-readout > li {
+  flex: 1 1 8rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--c-line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--stage) 4%, transparent);
+}
+.res-readout > li.res-readout-lead {
+  flex: 1.7 1 15rem;
+  border-color: color-mix(in srgb, var(--stage) 55%, transparent);
+  background: color-mix(in srgb, var(--stage) 10%, transparent);
+}
+.res-readout-k {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-text-2);
+}
+.res-readout-lead .res-readout-k { color: var(--stage); }
+.res-readout-v {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--c-text);
+  font-variant-numeric: tabular-nums;
+}
+.res-readout-lead .res-readout-v { font-size: 2.1rem; color: var(--stage); }
+.res-readout-n {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--c-text-2);
+}
+@media (max-width: 575.98px) {
+  .res-readout > li, .res-readout > li.res-readout-lead { flex: 1 1 100%; }
+  .res-readout-lead .res-readout-v { font-size: 1.8rem; }
 }
