@@ -57,7 +57,28 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-timeline-title {
   height: 2px;
   border-radius: 2px;
 }
-.edx-timeline ol::before { right: 6px; background: var(--nx-line); }
+/* 一道光沿著軌道在各站之間跑。做在軌道自己的背景上，不另外加元素或偽元素：
+   ol 的 ::before 與 ::after 已經分別是軌道和進度條，而 <ol> 只能放 <li>。
+   進度條（::after）疊在軌道之上，所以光條走在「還沒讀到」的那一段，像在指路；
+   在頁面頂端時 --edx-progress 是 0，整條軌道都看得到它。
+   這是無限動畫，離開畫面時 static/js/anim-gate.js 會自動暫停。 */
+.edx-timeline ol::before {
+  right: 6px;
+  background-color: var(--nx-line);
+  background-image: linear-gradient(90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--nx-mint) 55%, transparent) 32%,
+    var(--nx-lime) 50%,
+    color-mix(in srgb, var(--nx-mint) 55%, transparent) 68%,
+    transparent 100%);
+  background-repeat: no-repeat;
+  background-size: 170px 100%;
+  animation: edx-tl-spark 5.5s linear infinite;
+}
+@keyframes edx-tl-spark {
+  from { background-position: -170px 0; }
+  to   { background-position: calc(100% + 170px) 0; }
+}
 .edx-timeline ol::after {
   width: calc((100% - 12px) * var(--edx-progress) * 0.94);
   background: linear-gradient(90deg, var(--nx-mint), var(--nx-lime));
@@ -766,6 +787,9 @@ body:is(.edu-nexus, .hp-nexus) .edx-finale .edx-finale-note {
   .edx-kg-badge svg,
   .edx-hb-count,
   .edx-hb-relay i { animation: none; }
+  /* The track goes back to a plain line: the travelling light carried no
+     information the dots and the progress fill do not already give. */
+  .edx-timeline ol::before { animation: none; background-image: none; }
   .edx-flip-face,
   .edx-bar > i,
   .edx-cert,
