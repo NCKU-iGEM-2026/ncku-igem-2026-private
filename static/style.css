@@ -4314,6 +4314,13 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
     margin: 0 0 10px auto;
   }
 }
+
+/* Wider than that it floats, and on the game screen the top right corner is
+   the log's heading -- the sweep above was run against the title, which the
+   menus put in the middle. Give the log column the switcher's height back. */
+@media (min-width: 821px) {
+  .board-game-page #gameScreen .log-panel { padding-top: 46px; }
+}
 /* ---- Online rooms: join form and lobby ---- */
 .board-game-page .online-block { margin: 14px 0 6px; text-align: left; }
 .board-game-page .online-label {
@@ -11905,6 +11912,9 @@ body.bg-nexus .board-game-page {
   --brand: #49c5b6; --brand-soft: #a0e860; --brand-tint: rgba(73, 197, 182, 0.14);
   --neutral: #1c4352; --neutral-edge: #14323d; --neutral-drop: #0c2029;
   --red: #e0705f; --gold: #e6b060; --muted: #93b0bb;
+  /* Lifted so they clear AA as text on the panels, the way --nx-blue-up
+     lifts the reference blue. --red and --positive stay as fills. */
+  --red-up: #f49c8d;
   --sticky-y: #5a4a1e; --sticky-p: #5a2740; --sticky-g: #1d5244;
 
   background: linear-gradient(160deg, var(--wood-light), var(--wood-mid), var(--wood-dark));
@@ -11952,6 +11962,59 @@ body.bg-nexus .board-game-page .lang-bar {
   border: 1px solid var(--nx-line);
 }
 
+/* The board, the lobby and the walkthrough: the surfaces the retune above did
+   not reach. Each was a hardcoded paper tint from the light build, and the
+   ink tokens on them are now light, so player names, SDG badges, track
+   numbers, the phase label and the room code were reading light-on-cream.
+   Tinted ink that was mixed for cream (the bot log, a backward step) moves to
+   the token that carries the same meaning on a dark bed. */
+body.bg-nexus .board-game-page .player-card,
+body.bg-nexus .board-game-page .hand-area,
+body.bg-nexus .board-game-page .phase-bar,
+body.bg-nexus .board-game-page .lobby-player {
+  background: var(--nx-panel);
+  border-color: var(--nx-line);
+}
+body.bg-nexus .board-game-page .room-code-display {
+  background: var(--nx-panel);
+  border-color: var(--gold);
+}
+body.bg-nexus .board-game-page .sdg-badge,
+body.bg-nexus .board-game-page .sdg-progress-bar,
+body.bg-nexus .board-game-page .lobby-seat,
+body.bg-nexus .board-game-page .tutorial-dot,
+body.bg-nexus .board-game-page .hand-count-tag {
+  background: var(--nx-raised);
+  border-color: var(--nx-line);
+}
+body.bg-nexus .board-game-page .sdg-pick,
+body.bg-nexus .board-game-page input,
+body.bg-nexus .board-game-page select,
+body.bg-nexus .board-game-page .lang-bar select {
+  border-color: var(--nx-line);
+}
+body.bg-nexus .board-game-page .lang-bar select {
+  background: var(--nx-raised);
+  color: var(--nx-text);
+}
+/* Gold stays gold, so what sits on it has to be dark. */
+body.bg-nexus .board-game-page .sdg-badge.goal { color: #10272f; }
+body.bg-nexus .board-game-page .card-announce-player.reveal {
+  background: rgba(230, 176, 96, 0.14);
+  border-color: var(--gold);
+}
+body.bg-nexus .board-game-page .card-announce-player { color: var(--nx-muted); }
+body.bg-nexus .board-game-page .log-entry { border-bottom-color: var(--nx-line); }
+body.bg-nexus .board-game-page .log-entry.sys,
+body.bg-nexus .board-game-page .log-entry.ai { color: var(--nx-muted); }
+body.bg-nexus .board-game-page .log-entry.down,
+body.bg-nexus .board-game-page .card-bwd { color: var(--red-up); }
+body.bg-nexus .board-game-page .phase-label { color: var(--brand); }
+body.bg-nexus .board-game-page .log-entry.special { color: var(--gold); }
+body.bg-nexus .board-game-page .log-entry.up,
+body.bg-nexus .board-game-page .card-fwd { color: var(--brand); }
+body.bg-nexus .board-game-page .ai-thinking { color: var(--nx-warm); }
+
 /* The two the retune did not reach: the stop markers, whose ring and halo
    were drawn for a pale page, and the playtest table's header band. */
 body.bg-nexus .sgd-node {
@@ -11984,7 +12047,8 @@ body.bg-nexus .board-game-page button.danger {
   color: var(--nx-ground);
 }
 body.bg-nexus .board-game-page .tutorial-lang-tag {
-  color: var(--nx-mint);
+  /* Mint on its own tint comes to 4.1:1, under AA for text this size. */
+  color: var(--nx-text);
   background: rgba(73, 197, 182, 0.12);
   border-color: var(--nx-line);
 }
