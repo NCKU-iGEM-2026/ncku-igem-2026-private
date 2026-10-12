@@ -117,9 +117,13 @@
     // long contents list -- the Lab Book's, for one -- cannot be scrolled at
     // all: the page scrolls instead and the tail of the list is unreachable.
     nav.setAttribute("data-lenis-prevent", "");
+    /* No visible label. The list is plainly a list of this page's headings and
+       did not need telling. The element stays because on a grouped list it is
+       the row the All control sits in, and page-toc.css hides it while it is
+       empty. The aside keeps aria-label="On this page", so the landmark is
+       still named for anyone navigating by landmark. */
     var p = document.createElement("p");
     p.className = "page-toc-title";
-    p.textContent = "On this page";
     list = document.createElement("ol");
     list.className = "page-toc-list";
     if (parts) buildParts(); else items.forEach(function (f) {

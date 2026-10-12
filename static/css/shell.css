@@ -203,6 +203,24 @@ body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.e
 body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.edu-cosmos-page) .page-hero .hero-title { color: #eafff3; text-shadow: 0 4px 24px rgba(0,0,0,0.4); }
 body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.edu-cosmos-page) .page-hero .hero-sub { color: #d7f5b8; }
 
+/* Banner titles are one colour across the wiki. The nexus pages set theirs to
+   --nx-mint (static/style.css); the rule above left every other page on a
+   near-white, so description, results, parts, lab-book, measurement and
+   safety-and-security read differently from model and software for no reason
+   -- and notebook and board-game, which style.css does set to mint, lost it
+   here: this selector is more specific and loads later, and nb-nexus and
+   bg-nexus were never added to its exclusion list.
+
+   --c-teal-deep rather than --nx-mint: the two are the same #49c5b6 in dark,
+   but --nx-mint is only declared under the nexus body classes, so a page
+   without one would get nothing. Scoped to dark because the light theme puts a
+   near-white tint over these banners, where a mint title would disappear; the
+   switch is off and fixed to dark today (wiki/layout.html), and this keeps
+   light mode from breaking if it is ever turned back on. */
+html[data-theme="dark"] body:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.edu-cosmos-page) .page-hero .hero-title {
+  color: var(--c-teal-deep);
+}
+
 /* ---- hero 底部漸層淡出：照片橫幅融進下面的網頁，不再有一條顏色落差的硬邊 ----
    整個 .page-hero（照片、色罩、底色一起）用遮罩在最後 --hero-fade 的高度淡成透明，
    露出下面真正的頁面背景；各頁底色不同也都接得上，不必逐頁猜顏色。
