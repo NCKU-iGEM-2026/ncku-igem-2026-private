@@ -5026,7 +5026,7 @@ html.tgc-overlay-open, html.tgc-overlay-open body { overflow: hidden; }
   .labbook .protocol-viewer { display: none; }
 }
 
-/* Twenty-one protocols is too many to scroll past looking for one, so the
+/* Twenty-three protocols is too many to scroll past looking for one, so the
    page opens on an index grouped by stage of the work, and each group gets a
    heading the index can jump to. */
 /* No panel behind it: the index reads as part of the page, not a card on top
@@ -5081,6 +5081,18 @@ html.tgc-overlay-open, html.tgc-overlay-open body { overflow: hidden; }
 .labbook .protocol-index a:hover,
 .labbook .protocol-index a:focus-visible {
   text-decoration: underline;
+}
+
+/* Wide enough for the contents list beside the page (static/page-toc.css draws
+   it from 1200px up, and data-toc-style="parts" gives it these same groups,
+   opening one at a time), and this block is the same twenty-three names a
+   second time -- a page of them to read past before the first protocol. The
+   list in the margin stays put while you scroll; this one has to be scrolled
+   back to. So it gives way to it, and keeps the narrow screens, where there
+   is no margin to put a list in and this is the only way to reach a protocol
+   by name. */
+@media (min-width: 1200px) {
+  .labbook .protocol-index { display: none; }
 }
 
 /* Tokens, not fixed greens: these headings sit on the page ground, and the
@@ -12874,6 +12886,10 @@ body.hw-nexus .hw .hw-shots {
   gap: 1rem;
   margin: 1.5rem 0 1.6rem;
 }
+/* six photographs of one session: three to a row, two on a tablet, one on a phone */
+body.hw-nexus .hw .hw-shots.is-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 859.98px) { body.hw-nexus .hw .hw-shots.is-three { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { body.hw-nexus .hw .hw-shots.is-three { grid-template-columns: minmax(0, 1fr); } }
 body.hw-nexus .hw .hw-shot { margin: 0; }
 body.hw-nexus .hw .hw-shot img {
   display: block;
