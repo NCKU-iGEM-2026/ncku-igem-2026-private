@@ -74,7 +74,12 @@
     font-family: "Changa", sans-serif;
     font-size: 0.95rem;
     line-height: 1.3;
-    color: #6b6055;
+    /* A token, not the warm #6b6055 this started as. That brown was picked for
+       the paper background the wiki used to have; on the dark ground it reads
+       at 2.62:1, under the 4.5 floor, and it reads brown next to the cool grey
+       the nexus pages override it with. --c-text-2 follows the theme: the same
+       7.45:1 in light, 8.51:1 in dark. */
+    color: var(--c-text-2);
     text-decoration: none;
     transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
   }
@@ -242,6 +247,14 @@
   }
 
   /* "Expand all / Collapse all", at the end of the list's title */
+  /* The "On this page" label is gone (static/page-toc.js). On an ungrouped
+     list that leaves the row with nothing in it, so it goes; on a grouped one
+     the All control is still a child, so the row is not :empty and stays --
+     without the left padding and the marker that were there for the text. */
+  .page-toc-title:empty { display: none; }
+  .page-toc.is-parts .page-toc-title { padding-left: 0; }
+  .page-toc.is-parts .page-toc-title::before { display: none; }
+
   .page-toc.is-parts .page-toc-title { display: flex; align-items: center; gap: 0.5rem; }
   .page-toc-all {
     margin-left: auto;
