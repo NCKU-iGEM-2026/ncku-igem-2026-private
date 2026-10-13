@@ -317,6 +317,73 @@
         vals: { F2: 0, F3: 0, F4: 0, Clear: 0 }, tone: "ok",
         text: "Medium alone at the start of the session: all four reported channels zero. The blank read again at the end gave Clear = 0.33 and zero on the other three.",
         src: "Mixing session 3, BLANK_MEDIUM_OPEN · closing blank BLANK_MEDIUM_CLOSE"
+      },
+
+      /* Version 2, from 2026-10-03. The same three reference samples a
+         session, and here all ten channels: each figure is the mean of the
+         lit read over every row of that acquisition, worked out from the raw
+         log. In every one of these rows the dark reads before and after the
+         flash were zero on all twelve values. */
+      "off-gfp@1005-dark": {
+        zero: true, tone: "ok",
+        text: "Dark reads before and after each flash were zero on all twelve values in every cycle of this acquisition.",
+        src: "Dilution series, EXT_GFP200_1 · version 2"
+      },
+      "off-ctrl@1005-dark": {
+        zero: true, tone: "ok",
+        text: "Dark reads before and after each flash were zero on all twelve values in every cycle of this acquisition.",
+        src: "Dilution series, LOW_F_1 · version 2"
+      },
+      "off-med@1005-dark": {
+        zero: true, tone: "ok",
+        text: "Dark reads before and after each flash were zero on all twelve values in every cycle of this acquisition.",
+        src: "Dilution series, LOW_BLK_1 · version 2"
+      },
+      "on-gfp@1005-dark": {
+        vals: { F1: 0, F2: 25.00, F3: 37.00, F4: 98.33, F5: 33.00, F6: 8.00, F7: 3.33, F8: 0.67, Clear: 135.00, NIR: 0 }, tone: "ok",
+        text: "Undiluted GFP culture, 200 µL, read at the end of the session. The green falls away from the emission channel: 98 at F4, 33 at F5, 8 at F6. At half this amount two tubes read 56.00 and 50.33 on F4.",
+        src: "Dilution series, EXT_GFP200_1, three cycles · version 2 · session evidence, not a change of project status"
+      },
+      "on-ctrl@1005-dark": {
+        vals: { F1: 0, F2: 31.00, F3: 23.00, F4: 0, F5: 0, F6: 0, F7: 0, F8: 0, Clear: 44.00, NIR: 0 }, tone: "ok",
+        text: "Undiluted non-GFP culture, displayed OD 1.63. The two blue channels see the cells, and every channel from F4 on reads zero. Its second tube read F2 = 40.33 and F3 = 29.33, with F4 at zero as well.",
+        src: "Dilution series, LOW_F_1, three cycles · replicate LOW_F_2 · version 2"
+      },
+      "on-med@1005-dark": {
+        vals: { F1: 0, F2: 2.33, F3: 1.00, F4: 0, F5: 0, F6: 0, F7: 0, F8: 0, Clear: 5.00, NIR: 0 }, tone: "ok",
+        text: "Medium alone at the start of the session. A little shows beside the source; the emission channel reads zero. The blank read again at the end gave zero on F2, F3 and F4.",
+        src: "Dilution series, LOW_BLK_1, three cycles · closing blank LOW_BLK_2 · version 2"
+      },
+
+      "off-gfp@1012-dark": {
+        zero: true, tone: "ok",
+        text: "Dark reads before and after each flash were zero on all twelve values in every cycle of this acquisition.",
+        src: "Plate reader comparison, XC_G100 · version 2"
+      },
+      "off-ctrl@1012-dark": {
+        zero: true, tone: "ok",
+        text: "Dark reads before and after each flash were zero on all twelve values in every cycle of this acquisition.",
+        src: "Plate reader comparison, XC_NEG · version 2"
+      },
+      "off-med@1012-dark": {
+        zero: true, tone: "ok",
+        text: "Dark reads before and after each flash were zero on all twelve values in every cycle of this acquisition.",
+        src: "Plate reader comparison, XC_BLK_1 · version 2"
+      },
+      "on-gfp@1012-dark": {
+        vals: { F1: 0, F2: 21.44, F3: 31.56, F4: 86.44, F5: 29.11, F6: 6.89, F7: 2.22, F8: 0.11, Clear: 117.22, NIR: 0 }, tone: "ok",
+        text: "Undiluted sfGFP test culture, at an OD600 of 0.86 on the plate reader beside it. The green falls away from the emission channel: 86 at F4, 29 at F5, 7 at F6. There is no emission filter in the reader.",
+        src: "Plate reader comparison, XC_G100, nine cycles · version 2 · session evidence, not a change of project status"
+      },
+      "on-ctrl@1012-dark": {
+        vals: { F1: 0, F2: 21.67, F3: 16.56, F4: 0, F5: 0, F6: 0, F7: 0, F8: 0, Clear: 31.56, NIR: 0 }, tone: "ok",
+        text: "A culture without GFP, at an OD600 of 0.72: nearly as dense as the GFP culture. The two blue channels see the cells, and every channel from F4 on reads zero.",
+        src: "Plate reader comparison, XC_NEG, nine cycles · version 2"
+      },
+      "on-med@1012-dark": {
+        vals: { F1: 0, F2: 0, F3: 0, F4: 0, F5: 0, F6: 0, F7: 0, F8: 0, Clear: 0, NIR: 0 }, tone: "ok",
+        text: "Medium alone at the start of the session: every channel reads zero.",
+        src: "Plate reader comparison, XC_BLK_1, nine cycles · version 2"
       }
     };
 
@@ -326,7 +393,8 @@
 
     var SESSION = {
       "0904": "first fluorescence", "0916": "mixing session 1",
-      "0921": "mixing session 2", "0929": "mixing session 3"
+      "0921": "mixing session 2", "0929": "mixing session 3",
+      "1005": "dilution series, version 2", "1012": "beside the plate reader, version 2"
     };
 
     var LABEL = {
@@ -380,13 +448,17 @@
         id: "fluor", name: "Fluorescence", hint: "a GFP culture against one without",
         ask: "Does the emission channel tell a culture with GFP from one without? Every reading in this test was taken shielded, at 200 µL.",
         scale: 40,
+        /* Version 2 runs the LED at about twice the current and reads higher,
+           so its sessions get a scale of their own. Bars still compare within
+           a session, which is the comparison that means something. */
+        scaleFor: { "1005": 140, "1012": 140 },
         fixed: { light: "dark" },
         groups: [
           LED,
           ["sample", "In the cuvette", [["gfp", "GFP culture", "hwx-lit"], ["ctrl", "Control culture"], ["med", "Medium blank"]]],
-          ["session", "Session", [["0904", "First fluorescence"], ["0916", "Mixing 1"], ["0921", "Mixing 2"], ["0929", "Mixing 3"]]]
+          ["session", "Session", [["1012", "Plate reader, v2"], ["1005", "Dilution series, v2"], ["0929", "Mixing 3, v1"], ["0921", "Mixing 2, v1"], ["0916", "Mixing 1, v1"], ["0904", "First fluorescence, v1"]]]
         ],
-        state: { led: "on", sample: "gfp", session: "0929" }
+        state: { led: "on", sample: "gfp", session: "1012" }
       },
       {
         id: "path", name: "Light path", hint: "the excitation, and where it ends up",
@@ -508,6 +580,7 @@
       var rec = REC[keyOf(s)];
       var culture = !!CULTURE[s.sample];
       var blanks = false;
+      var scale = (test.scaleFor && test.scaleFor[s.session]) || test.scale;
 
       syncControls();
 
@@ -529,7 +602,7 @@
         }
         if (v !== undefined) {
           val.textContent = v;
-          bar.style.width = Math.min(100, v / test.scale * 100) + "%";
+          bar.style.width = Math.min(100, v / scale * 100) + "%";
           return;
         }
         /* Not a zero. The record has no figure for this channel, and a dash
@@ -544,7 +617,7 @@
         note.textContent =
           (blanks ? "A dash is a channel this record does not report. " : "") +
           (rec && rec.changed ? "“Moved” is a channel the record says changed along with F4, without giving a figure. " : "") +
-          "Bars are drawn against " + test.scale + " counts in this test.";
+          "Bars are drawn against " + scale + " counts" + (test.scaleFor ? " for this session." : " in this test.");
       }
 
       var title = LABEL.led[s.led] + " · " + LABEL.sample[s.sample] +
