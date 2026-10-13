@@ -6297,6 +6297,76 @@ html.tgc-overlay-open, html.tgc-overlay-open body { overflow: hidden; }
   font-size: 1.1rem;
 }
 
+/* ---- Part 2's validation, read at a glance ------------------------------
+   The three questions a reader has here are how far off it is, whether that
+   is a real offset, and whether it is good enough. They used to be answerable
+   only by reading two tables, so the answers are now four figures across the
+   top and the tables are folded underneath.
+
+   .is-null marks the tile whose good news is an absence -- no detectable bias
+   -- so it is set in the body colour rather than the accent: a large mint
+   "None" reads as a result, which it is not.
+   -------------------------------------------------------------------- */
+.md-val-verdict {
+  /* No measure cap: this one paragraph is read as the heading of the section
+     and lines up with the four figures under it, so it runs the full width of
+     the column rather than breaking several words short of them. The prose
+     further down keeps the page's usual measure. */
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+.md-val-verdict strong { color: var(--nx-lime); font-weight: 700; }
+
+.md-val-kpis {
+  list-style: none;
+  margin: 1.5rem 0 1.75rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.75rem;
+}
+.md-val-kpis > li {
+  display: grid;
+  gap: 0.2rem;
+  align-content: start;
+  padding: 1rem 1.1rem;
+  background: color-mix(in srgb, var(--nx-panel) 72%, transparent);
+  border: 1px solid var(--nx-line);
+  border-radius: 4px;
+  /* The accent runs down the edge rather than round the box: four outlined
+     cards in a row read as a table trying to be a diagram. */
+  border-left: 3px solid var(--nx-mint);
+}
+.md-val-kpis > li.is-null { border-left-color: var(--nx-line); }
+
+.md-val-n {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.7rem, 1.2rem + 1.5vw, 2.3rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--nx-lime);
+}
+.md-val-kpis > li.is-null .md-val-n { color: var(--nx-text); }
+.md-val-u { font-size: 0.5em; font-weight: 700; margin-left: 0.15em; }
+
+.md-val-k {
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--nx-text);
+  margin-top: 0.15rem;
+}
+.md-val-s { font-size: 0.82rem; line-height: 1.45; color: var(--nx-muted); }
+
+@media print {
+  .md-val-kpis > li { background: none; border-color: #999; border-left-color: #555; }
+  .md-val-n, .md-val-k { color: #000; }
+  .md-val-s { color: #333; }
+  .md-val-verdict strong { color: #000; }
+}
+
 /* ---- the imaging pipeline on the Model page (Part 2) --------------------
    A flow with two branches in it, which .hw-flow cannot carry -- that one is
    a single row of boxes. Laid out downwards rather than across, because the
