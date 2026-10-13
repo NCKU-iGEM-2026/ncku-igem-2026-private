@@ -2241,6 +2241,25 @@
       <a href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware">capture-screen-hardware</a>.
     </p>
 
+    {# 2026-10-13：3D 列印機也接得上 LasReader。韌體在 lasreader repo 的 firmware/capture_screen_3d
+       （capture_screen_3d.ino，883 行；開頭的註解寫明它和雷切機的韌體講同一套通訊協定、送出的是未處理的原始計數）。
+       硬體負責人同一天的說明：
+         腳位：這一頁所有的數據都是用 GPIO25 量的（10-12 的 log 仍印 LED gate pin GPIO25）。之後換了一台，
+           確定那一台的腳位 25 不能用，才改用 26（負責人原話：「在這台所有的數據當時都是用 25，是換一台後確定
+           腳位 25 不能使用才換為 26」）。所以這份韌體的 LED 閘極在 GPIO26；序列埠韌體與這一頁的接線仍是 GPIO25。
+           照這一頁接線的人要燒這份韌體，得改線或改 LED_PIN。「換一台」換的是什麼（控制板或整台），頁面上沒有寫。
+         讀值：「是真的有讀取到數據的，但主要問題是讀值都是零，因為樣本的螢光低於儀器下限且散射程度不高，故沒有保留數據」。
+           所以只寫「連上並回傳讀值」，沒有寫量到什麼；這一頁的數據沒有一筆是用它量的。 #}
+    <p>
+      A second sketch runs the same reader from
+      <a href="{{ url_for('pages', page='software') }}">LasReader</a>, our
+      software, over Wi-Fi, in the protocol the laser-cut build uses:
+      <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader/-/tree/main/firmware/capture_screen_3d">firmware/capture_screen_3d</a>.
+      It drives the LED gate from GPIO26, not GPIO25: move the gate wire, or
+      change <code>LED_PIN</code>. It has connected and returned reads;
+      every reading on this page was taken with the serial firmware.
+    </p>
+
     <p class="hw-limit">
       <b>Not yet</b> The assembly order was checked by the reader's
       builder. Nobody has yet built a second reader from it.
