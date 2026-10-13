@@ -2193,16 +2193,22 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
 .eng-cycle-head-learn  { stop-color: #5bb6e6; }
 /* The stroke in the arrow's own paint rounds every corner of the shape. */
 .eng-cycle-arrow { stroke-width: 6; stroke-linejoin: round; }
+/* The ring's own furniture -- the dotted track, the core's edge and the wash
+   inside it -- takes the part's accent. The four arrows do not: their colours
+   mean design, build, test and learn, and those mean the same thing in every
+   part. So what changes between Detect and Inhibition is the ring the stages
+   sit in, not the stages, and the warm part reads as warm without the orange
+   ever landing on a large area. */
 .eng-cycle-track {
   fill: none;
-  stroke: rgba(73, 197, 182, 0.35);
+  stroke: color-mix(in srgb, var(--part) 35%, transparent);
   stroke-width: 1.2;
   stroke-dasharray: 1.5 7;
   stroke-linecap: round;
 }
-.eng-cycle-core { stroke: rgba(73, 197, 182, 0.22); stroke-width: 1; }
-.eng-cycle-core-in  { stop-color: #1c4352; stop-opacity: 0.9; }   /* --nx-raised */
-.eng-cycle-core-out { stop-color: #16323f; stop-opacity: 0.6; }   /* --nx-panel */
+.eng-cycle-core { stroke: color-mix(in srgb, var(--part) 30%, transparent); stroke-width: 1; }
+.eng-cycle-core-in  { stop-color: color-mix(in srgb, var(--part) 14%, #1c4352); stop-opacity: 0.9; }
+.eng-cycle-core-out { stop-color: color-mix(in srgb, var(--part) 8%, #16323f); stop-opacity: 0.6; }
 /* Type sizes are in the drawing's units: the ring is drawn 400 across and
    shown about half that, so these read at roughly half size on screen. */
 .eng-cycle-label {
@@ -2313,6 +2319,8 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   .eng-dbtl > .eng-dbtl-stages { grid-column: 2; margin-top: 1rem; }
   .eng-cycle-band { grid-column: 2; }
   .eng-future { grid-column: 2; }
+  .hw.eng > .eng-closing { grid-column: 2; }
+  .hw.eng > .eng-sep { grid-column: 1 / -1; }
 }
 /* ---- the three parts: Detect, Inhibition, Measurement ----
    Each part has its own accent (--part): a short thick bar over its heading,
@@ -2329,6 +2337,452 @@ html[data-theme="dark"] .labbook .protocol-body a { color: var(--c-teal); }
   flex-wrap: wrap;
   gap: 1rem;
   margin: 0 0 3rem;
+}
+
+/* ---- the stage strip under each round's heading ----
+   A round opens with its four stages laid out left to right, an arrow between
+   them, and one line in each box on what that stage actually did. The page is
+   long and nearly all prose, so this gives the shape of the round before any
+   of it, and each box is a link to the stage it stands for -- which is what
+   makes the strip a way in rather than a picture. The letter wears its
+   stage's colour and the arrows the part's, the same two codes the ring
+   beside it uses. */
+.eng-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.9rem;
+  margin: 0 0 3.5rem;
+  padding: 0;
+  list-style: none;
+}
+.eng-flow > li { position: relative; min-width: 0; }
+/* The arrow is drawn in the gap, so the markup carries only the stages. */
+.eng-flow > li + li::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -1.33rem;
+  width: 9px;
+  height: 9px;
+  border-top: 2px solid color-mix(in srgb, var(--part) 70%, transparent);
+  border-right: 2px solid color-mix(in srgb, var(--part) 70%, transparent);
+  transform: translateY(-50%) rotate(45deg);
+}
+.eng-flow-cell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.6rem;
+  height: 100%;
+  padding: 0.95rem 1rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--stage) 30%, transparent);
+  background: color-mix(in srgb, var(--stage) 7%, transparent);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.eng-flow-cell[data-stage="design"] { --stage: #a0e860; }
+.eng-flow-cell[data-stage="build"]  { --stage: #4fd48f; }
+.eng-flow-cell[data-stage="test"]   { --stage: #49c5b6; }
+.eng-flow-cell[data-stage="learn"]  { --stage: #5bb6e6; }
+.eng-flow-letter {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--stage) 22%, transparent);
+  font-family: "Changa", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--stage);
+}
+/* Names such as LasR-pLasRV-sfGFP have nowhere to break, so they are allowed
+   to break anywhere rather than run out of the box. */
+.eng-flow-note {
+  min-width: 0;
+  padding-top: 0.2rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--nx-text, #d7e3e6);
+  overflow-wrap: anywhere;
+}
+a.eng-flow-cell:hover,
+a.eng-flow-cell:focus-visible {
+  border-color: var(--stage);
+  background: color-mix(in srgb, var(--stage) 15%, transparent);
+  transform: translateY(-1px);
+}
+/* A round that skipped a stage keeps its box, so the four columns line up
+   from round to round, but drains it: the same thing the ring does with that
+   stage's arrow. */
+.eng-flow-cell.is-skipped {
+  border-style: dashed;
+  border-color: color-mix(in srgb, currentColor 18%, transparent);
+  background: none;
+  opacity: 0.45;
+}
+.eng-flow-cell.is-skipped .eng-flow-letter {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: inherit;
+}
+.eng-flow-cell.is-skipped .eng-flow-note { font-style: italic; }
+@media (max-width: 991.98px) {
+  .eng-flow { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; margin-bottom: 2.5rem; }
+  /* Stacked, the arrow turns to point the way the reading now runs. */
+  .eng-flow > li + li::before {
+    top: -1.1rem;
+    left: 50%;
+    transform: translateX(-50%) rotate(135deg);
+  }
+}
+.eng-parts-nav { grid-column: 2; }
+  .eng-part {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: start;
+  }
+  .eng-part::before, .eng-part-head { grid-column: 2; }
+  .eng-dbtl { display: contents; }
+  /* Rows 1 and 2 are the accent bar and the part heading; each round of the
+     cycle then takes two of its own -- its band, then the ring and the stages
+     side by side -- and engineering.html sets which pair. A fixed row here
+     would stack a part's second round on top of its first. */
+  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; justify-self: start; width: 10.5rem; margin-top: 1rem; }
+  /* With room to spare at the left, the ring grows and leans out into it, so
+     it stays clear of the text instead of crowding it. */
+  @media (min-width: 1300px) {
+    .eng-dbtl > .eng-dbtl-rail { justify-self: end; width: 11.5rem; margin-right: 1.5rem; }
+  }
+  .eng-dbtl > .eng-dbtl-stages { grid-column: 2; margin-top: 1rem; }
+  .eng-cycle-band { grid-column: 2; }
+  .eng-future { grid-column: 2; }
+  .hw.eng > .eng-closing { grid-column: 2; }
+  .hw.eng > .eng-sep { grid-column: 1 / -1; }
+}
+/* ---- the three parts: Detect, Inhibition, Measurement ----
+   Each part has its own accent (--part): a short thick bar over its heading,
+   a "Part 01" banner and the word in its cycle's centre all wear it, so the
+   three never read as one long run of stages. No panel round it: the cycle
+   sits straight on the page ground rather than boxed in a frame. The jump bar at the top of the
+   page names every part before the reader reaches any of them.
+   Adding a part needs one line here and one tuple in engineering.html;
+   everything else on the page is driven off --part. */
+[data-part="detect"]     { --part: #49c5b6; }   /* --nx-mint */
+[data-part="inhibition"] { --part: #e6b060; }   /* --nx-warm */
+.eng-parts-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0 0 3rem;
+}
+
+/* ---- the map at the top of the page ----
+   The page is long and almost all of it is prose, so before any of it the
+   reader gets the whole thing as four flows: one round per block, its four
+   stages left to right with an arrow between them, and one line in each box
+   saying what that stage actually did. Each round carries its own heading
+   rather than sharing one grid with the others, which buys the boxes the
+   width their sentences need. The letter wears its stage's colour and the
+   heading its part's, the same two codes the rings below use, so the map
+   teaches the colours it will then be read by. Boxes are links, which is
+   what makes this a contents page rather than a picture of one. */
+.eng-map { margin: 0 0 4.5rem; }
+body.hw-nexus .hw .eng-map-title { margin: 0 0 0.5rem; font-size: 1.6rem; }
+.eng-map-lead {
+  margin: 0 0 2rem;
+  max-width: 60ch;
+  font-size: 0.95rem;
+  color: var(--nx-muted, #93a7ad);
+}
+.eng-map-round + .eng-map-round { margin-top: 2.25rem; }
+.eng-map-roundhead {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+  text-decoration: none;
+}
+.eng-map-part {
+  font-family: "Changa", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--part);
+}
+.eng-map-cycle {
+  flex: none;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--part) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--part) 40%, transparent);
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--part);
+}
+.eng-map-rule {
+  flex: 1 1 auto;
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(to right,
+    color-mix(in srgb, var(--part) 60%, transparent), transparent);
+}
+a.eng-map-roundhead:hover .eng-map-part,
+a.eng-map-roundhead:focus-visible .eng-map-part { text-decoration: underline; }
+
+/* The four stages of one round, with the arrow between them drawn in the gap
+   so nothing has to be added to the markup for it. */
+.eng-map-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.eng-map-flow > li { position: relative; min-width: 0; }
+.eng-map-flow > li + li::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -1.33rem;
+  width: 9px;
+  height: 9px;
+  border-top: 2px solid color-mix(in srgb, var(--part) 70%, transparent);
+  border-right: 2px solid color-mix(in srgb, var(--part) 70%, transparent);
+  transform: translateY(-50%) rotate(45deg);
+}
+.eng-map-cell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.6rem;
+  height: 100%;
+  padding: 0.95rem 1rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--stage) 30%, transparent);
+  background: color-mix(in srgb, var(--stage) 7%, transparent);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.eng-map-cell[data-stage="design"] { --stage: #a0e860; }
+.eng-map-cell[data-stage="build"]  { --stage: #4fd48f; }
+.eng-map-cell[data-stage="test"]   { --stage: #49c5b6; }
+.eng-map-cell[data-stage="learn"]  { --stage: #5bb6e6; }
+.eng-map-letter {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--stage) 22%, transparent);
+  font-family: "Changa", sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--stage);
+}
+/* Long names such as LasR-pLasRV-sfGFP have nowhere to break, so they are
+   allowed to break anywhere rather than run out of the box. */
+.eng-map-note {
+  min-width: 0;
+  padding-top: 0.2rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--nx-text, #d7e3e6);
+  overflow-wrap: anywhere;
+}
+a.eng-map-cell:hover,
+a.eng-map-cell:focus-visible {
+  border-color: var(--stage);
+  background: color-mix(in srgb, var(--stage) 15%, transparent);
+  transform: translateY(-1px);
+}
+/* A round that skipped a stage keeps its box, so the four columns still line
+   up from round to round, but drains it: the same thing the ring does with
+   that stage's arrow. */
+.eng-map-cell.is-skipped {
+  border-style: dashed;
+  border-color: color-mix(in srgb, currentColor 18%, transparent);
+  background: none;
+  opacity: 0.45;
+}
+.eng-map-cell.is-skipped .eng-map-letter {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: inherit;
+}
+.eng-map-cell.is-skipped .eng-map-note { font-style: italic; }
+@media (max-width: 991.98px) {
+  .eng-map-flow { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; }
+  /* Stacked, the arrow turns to point the way the reading now runs. */
+  .eng-map-flow > li + li::before {
+    top: -1.1rem;
+    left: 50%;
+    transform: translateX(-50%) rotate(135deg);
+  }
+  .eng-map-round + .eng-map-round { margin-top: 2.75rem; }
+}
+.eng-parts-nav { grid-column: 2; }
+  .eng-part {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: start;
+  }
+  .eng-part::before, .eng-part-head { grid-column: 2; }
+  .eng-dbtl { display: contents; }
+  /* Rows 1 and 2 are the accent bar and the part heading; each round of the
+     cycle then takes two of its own -- its band, then the ring and the stages
+     side by side -- and engineering.html sets which pair. A fixed row here
+     would stack a part's second round on top of its first. */
+  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; justify-self: start; width: 10.5rem; margin-top: 1rem; }
+  /* With room to spare at the left, the ring grows and leans out into it, so
+     it stays clear of the text instead of crowding it. */
+  @media (min-width: 1300px) {
+    .eng-dbtl > .eng-dbtl-rail { justify-self: end; width: 11.5rem; margin-right: 1.5rem; }
+  }
+  .eng-dbtl > .eng-dbtl-stages { grid-column: 2; margin-top: 1rem; }
+  .eng-cycle-band { grid-column: 2; }
+  .eng-future { grid-column: 2; }
+  .hw.eng > .eng-closing { grid-column: 2; }
+  .hw.eng > .eng-sep { grid-column: 1 / -1; }
+}
+/* ---- the three parts: Detect, Inhibition, Measurement ----
+   Each part has its own accent (--part): a short thick bar over its heading,
+   a "Part 01" banner and the word in its cycle's centre all wear it, so the
+   three never read as one long run of stages. No panel round it: the cycle
+   sits straight on the page ground rather than boxed in a frame. The jump bar at the top of the
+   page names every part before the reader reaches any of them.
+   Adding a part needs one line here and one tuple in engineering.html;
+   everything else on the page is driven off --part. */
+[data-part="detect"]     { --part: #49c5b6; }   /* --nx-mint */
+[data-part="inhibition"] { --part: #e6b060; }   /* --nx-warm */
+.eng-parts-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0 0 3rem;
+}
+
+/* ---- the map at the top of the page ----
+   The page is long and almost all of it is prose, so before any of it the
+   reader gets the whole thing as a grid: a row per round, a column per
+   stage, one line in each cell saying what that stage actually did. The
+   letter wears its stage's colour and the row its part's, the same two
+   codes the rings below use, so the map teaches the colours it will then
+   be read by. Cells are links, which is what makes this a contents page
+   rather than a picture of one. */
+.eng-map { margin: 0 0 4rem; }
+body.hw-nexus .hw .eng-map-title { margin: 0 0 0.5rem; font-size: 1.6rem; }
+.eng-map-lead {
+  margin: 0 0 1.5rem;
+  max-width: 54ch;
+  font-size: 0.95rem;
+  color: var(--nx-muted, #93a7ad);
+}
+.eng-map-grid { display: grid; gap: 0.5rem; }
+.eng-map-colhead,
+.eng-map-row {
+  display: grid;
+  grid-template-columns: 8.5rem repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.eng-map-colhead > span {
+  padding: 0 0.2rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nx-muted, #93a7ad);
+}
+.eng-map-rowlabel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--part) 40%, transparent);
+  border-left: 5px solid var(--part);
+  background: color-mix(in srgb, var(--part) 9%, transparent);
+  text-decoration: none;
+}
+.eng-map-part {
+  font-family: "Changa", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--part);
+}
+.eng-map-cycle {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted, #93a7ad);
+}
+.eng-map-cell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.55rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--stage) 30%, transparent);
+  background: color-mix(in srgb, var(--stage) 7%, transparent);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.eng-map-cell[data-stage="design"] { --stage: #a0e860; }
+.eng-map-cell[data-stage="build"]  { --stage: #4fd48f; }
+.eng-map-cell[data-stage="test"]   { --stage: #49c5b6; }
+.eng-map-cell[data-stage="learn"]  { --stage: #5bb6e6; }
+.eng-map-letter {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--stage) 22%, transparent);
+  font-family: "Changa", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--stage);
+}
+.eng-map-note {
+  padding-top: 0.15rem;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--nx-text, #d7e3e6);
+}
+a.eng-map-cell:hover,
+a.eng-map-cell:focus-visible,
+a.eng-map-rowlabel:hover,
+a.eng-map-rowlabel:focus-visible {
+  border-color: var(--stage, var(--part));
+  background: color-mix(in srgb, var(--stage, var(--part)) 15%, transparent);
+  transform: translateY(-1px);
+}
+/* A round that skipped a stage keeps the cell, so the four columns still
+   line up across every row, but drains it: this is the same thing the ring
+   does with that stage's arrow. */
+.eng-map-cell.is-skipped {
+  border-style: dashed;
+  border-color: color-mix(in srgb, currentColor 18%, transparent);
+  background: none;
+  opacity: 0.45;
+}
+.eng-map-cell.is-skipped .eng-map-letter {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: inherit;
+}
+.eng-map-cell.is-skipped .eng-map-note { font-style: italic; }
+@media (max-width: 991.98px) {
+  .eng-map-colhead { display: none; }
+  .eng-map-row { grid-template-columns: minmax(0, 1fr); }
+  .eng-map-rowlabel { flex-direction: row; align-items: baseline; gap: 0.6rem; }
+  .eng-map-grid { gap: 1.25rem; }
 }
 body.hw-nexus .hw .eng-parts-nav a {
   flex: 1 1 14rem;
@@ -2359,13 +2813,35 @@ body.hw-nexus .hw .eng-parts-nav a:focus-visible {
 .eng-part::before {
   content: "";
   display: block;
-  width: 4.5rem;
-  height: 6px;
+  width: 7rem;
+  height: 9px;
   margin-bottom: 1.4rem;
-  border-radius: 3px;
+  border-radius: 5px;
   background: var(--part);
 }
-.eng-part + .eng-part { margin-top: 6rem; }
+/* Detect, Inhibition and the page's close each start again rather than
+   continuing the one before, so a rule runs the full width of the page
+   between them -- past the ring's gutter, which nothing else on the page
+   crosses. It fades out at both ends so it reads as a pause in the page
+   rather than as a box drawn round what follows: the parts still sit on the
+   page ground, as the accent bars above their headings assume. */
+.eng-sep {
+  height: 2px;
+  margin: 3rem 0;
+  border: 0;
+  opacity: 1;
+  border-radius: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, currentColor 52%, transparent) 6%,
+    color-mix(in srgb, currentColor 52%, transparent) 94%,
+    transparent);
+}
+.eng-part + .eng-part { margin-top: 0; }
+.eng-sep + .eng-closing { margin-top: 0; }
+@media (max-width: 991.98px) {
+  .eng-sep { margin: 2.2rem 0; }
+}
 .eng-part-head {
   display: flex;
   flex-wrap: wrap;
@@ -2376,6 +2852,9 @@ body.hw-nexus .hw .eng-parts-nav a:focus-visible {
   border-bottom: 1px solid color-mix(in srgb, var(--part) 35%, transparent);
 }
 .eng-part-num {
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--part) 16%, transparent);
   font-family: "Changa", sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
@@ -2434,6 +2913,58 @@ body.hw-nexus .hw .eng-future-title {
   .eng-future-arrow { width: 100%; }
 }
 
+/* The page's close, under both parts. It is built like a part head -- the
+   short bar, then the kicker and the title on one baseline over a rule --
+   so it arrives as another section of the same page rather than as a
+   different kind of thing. What marks it as belonging to both parts is the
+   colour: the bar and the title cross from Detect's accent to Inhibition's,
+   where a part wears one or the other. */
+.eng-closing { margin-top: 6rem; }
+.eng-closing::before {
+  content: "";
+  display: block;
+  width: 7rem;
+  height: 9px;
+  margin-bottom: 1.4rem;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #49c5b6, #e6b060);
+}
+.eng-closing-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 1.25rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid color-mix(in srgb, #9bbf96 45%, transparent);
+}
+.eng-closing-num {
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, #49c5b6 16%, transparent),
+    color-mix(in srgb, #e6b060 16%, transparent));
+  font-family: "Changa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8aa888;
+}
+body.hw-nexus .hw .eng-closing-title {
+  margin: 0;
+  font-size: 2.6rem;
+  line-height: 1.05;
+  background: linear-gradient(90deg, #49c5b6, #e6b060);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@media (max-width: 991.98px) {
+  .eng-closing { margin-top: 3.5rem; }
+  body.hw-nexus .hw .eng-closing-title { font-size: 2.1rem; }
+}
+
 .eng-cycle-band {
   display: flex;
   align-items: center;
@@ -2445,10 +2976,17 @@ body.hw-nexus .hw .eng-future-title {
    ring of the previous round is sticky and would otherwise still be beside
    the new heading. */
 .eng-dbtl + .eng-cycle-band { margin-top: 5rem; }
+/* The band naming a round reads as a heading in its own right: a filled pill
+   in the part's colour, not a caption over a hairline. A reader scrolling
+   fast needs to catch where one round ends and the next begins. */
 .eng-cycle-band-num {
   flex: none;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--part) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--part) 45%, transparent);
   font-family: "Changa", sans-serif;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -2456,9 +2994,10 @@ body.hw-nexus .hw .eng-future-title {
 }
 .eng-cycle-band-rule {
   flex: 1 1 auto;
-  height: 1px;
+  height: 2px;
+  border-radius: 1px;
   background: linear-gradient(to right,
-    color-mix(in srgb, var(--part) 55%, transparent), transparent);
+    color-mix(in srgb, var(--part) 70%, transparent), transparent);
 }
 @media (max-width: 991.98px) {
   .eng-dbtl + .eng-cycle-band { margin-top: 3rem; }
@@ -2490,6 +3029,30 @@ body.hw-nexus .hw .eng-future-title {
 .eng-dbtl-stage[data-stage="build"] { --stage: #4fd48f; }
 .eng-dbtl-stage[data-stage="test"]  { --stage: #49c5b6; }
 .eng-dbtl-stage[data-stage="learn"] { --stage: #5bb6e6; }
+/* Inhibition runs the same four stages through a warm ramp instead of the
+   cool one, so a reader who lands in the middle of the page knows which part
+   they are in before reading a word. The ramp is sequential on purpose --
+   design through learn is an order, not a set of categories -- and its
+   adjacent steps sit about as far apart in OKLab as the cool ramp's do.
+   Colour is never the only cue either way: every box carries its letter and
+   every heading its name. */
+[data-part="inhibition"] .eng-dbtl-stage,
+[data-part="inhibition"] .eng-flow-cell[data-stage="design"] { --stage: #e8d25c; }
+[data-part="inhibition"] .eng-dbtl-stage[data-stage="build"],
+[data-part="inhibition"] .eng-flow-cell[data-stage="build"]  { --stage: #e8b155; }
+[data-part="inhibition"] .eng-dbtl-stage[data-stage="test"],
+[data-part="inhibition"] .eng-flow-cell[data-stage="test"]   { --stage: #e59356; }
+[data-part="inhibition"] .eng-dbtl-stage[data-stage="learn"],
+[data-part="inhibition"] .eng-flow-cell[data-stage="learn"]  { --stage: #d9775e; }
+/* and the ring's four arrows with them, tail to head */
+[data-part="inhibition"] .eng-cycle-tail-design { stop-color: #b89a2e; }
+[data-part="inhibition"] .eng-cycle-head-design { stop-color: #e8d25c; }
+[data-part="inhibition"] .eng-cycle-tail-build  { stop-color: #b87f28; }
+[data-part="inhibition"] .eng-cycle-head-build  { stop-color: #e8b155; }
+[data-part="inhibition"] .eng-cycle-tail-test   { stop-color: #b56228; }
+[data-part="inhibition"] .eng-cycle-head-test   { stop-color: #e59356; }
+[data-part="inhibition"] .eng-cycle-tail-learn  { stop-color: #a84a30; }
+[data-part="inhibition"] .eng-cycle-head-learn  { stop-color: #d9775e; }
 .eng-dbtl-head {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -2530,17 +3093,20 @@ body.hw-nexus .hw .eng-dbtl-note { color: var(--nx-muted); }
    functional assays), numbered and stepped in one level each. */
 .eng-sub + .eng-sub,
 .eng-sub > p + .eng-sub { margin-top: 2.25rem; }
+/* The rule down a nested sub-section marks which part it belongs to, not
+   which stage: it runs the whole height of the three assays, so on --stage
+   it was a long teal line in the middle of the warm part. */
 .eng-sub-2 {
   margin-left: 1.25rem;
   padding-left: 1.25rem;
-  border-left: 2px solid color-mix(in srgb, var(--stage) 30%, transparent);
+  border-left: 2px solid color-mix(in srgb, var(--part) 45%, transparent);
 }
 body.hw-nexus .hw .eng-sub-title {
   display: flex;
   align-items: baseline;
   gap: 0.7rem;
   margin: 0 0 1rem;
-  color: var(--stage);
+  color: var(--part);
 }
 body.hw-nexus .hw h3.eng-sub-title { font-size: 1.5rem; }
 body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
@@ -2549,7 +3115,7 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
   min-width: 1.7em;
   padding: 0.1em 0.45em;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--stage) 16%, transparent);
+  background: color-mix(in srgb, var(--part) 20%, transparent);
   font-family: "Changa", sans-serif;
   font-size: 0.8em;
   font-weight: 700;
@@ -5731,6 +6297,76 @@ html.tgc-overlay-open, html.tgc-overlay-open body { overflow: hidden; }
   font-size: 1.1rem;
 }
 
+/* ---- Part 2's validation, read at a glance ------------------------------
+   The three questions a reader has here are how far off it is, whether that
+   is a real offset, and whether it is good enough. They used to be answerable
+   only by reading two tables, so the answers are now four figures across the
+   top and the tables are folded underneath.
+
+   .is-null marks the tile whose good news is an absence -- no detectable bias
+   -- so it is set in the body colour rather than the accent: a large mint
+   "None" reads as a result, which it is not.
+   -------------------------------------------------------------------- */
+.md-val-verdict {
+  /* No measure cap: this one paragraph is read as the heading of the section
+     and lines up with the four figures under it, so it runs the full width of
+     the column rather than breaking several words short of them. The prose
+     further down keeps the page's usual measure. */
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+.md-val-verdict strong { color: var(--nx-lime); font-weight: 700; }
+
+.md-val-kpis {
+  list-style: none;
+  margin: 1.5rem 0 1.75rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.75rem;
+}
+.md-val-kpis > li {
+  display: grid;
+  gap: 0.2rem;
+  align-content: start;
+  padding: 1rem 1.1rem;
+  background: color-mix(in srgb, var(--nx-panel) 72%, transparent);
+  border: 1px solid var(--nx-line);
+  border-radius: 4px;
+  /* The accent runs down the edge rather than round the box: four outlined
+     cards in a row read as a table trying to be a diagram. */
+  border-left: 3px solid var(--nx-mint);
+}
+.md-val-kpis > li.is-null { border-left-color: var(--nx-line); }
+
+.md-val-n {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.7rem, 1.2rem + 1.5vw, 2.3rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--nx-lime);
+}
+.md-val-kpis > li.is-null .md-val-n { color: var(--nx-text); }
+.md-val-u { font-size: 0.5em; font-weight: 700; margin-left: 0.15em; }
+
+.md-val-k {
+  font-family: "Changa", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--nx-text);
+  margin-top: 0.15rem;
+}
+.md-val-s { font-size: 0.82rem; line-height: 1.45; color: var(--nx-muted); }
+
+@media print {
+  .md-val-kpis > li { background: none; border-color: #999; border-left-color: #555; }
+  .md-val-n, .md-val-k { color: #000; }
+  .md-val-s { color: #333; }
+  .md-val-verdict strong { color: #000; }
+}
+
 /* ---- the imaging pipeline on the Model page (Part 2) --------------------
    A flow with two branches in it, which .hw-flow cannot carry -- that one is
    a single row of boxes. Laid out downwards rather than across, because the
@@ -7857,6 +8493,38 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
 .hwx-ch[data-band="o"] .hwx-ch-bar { background: #e8a24b; }
 .hwx-ch[data-band="r"] .hwx-ch-bar { background: #e2705f; }
 .hwx-ch[data-band="k"] .hwx-ch-bar { background: #c3d2d8; }
+
+/* The light-path bench: drawing and readout side by side, so the panel is
+   about two thirds of the height it had with one stacked on the other. The
+   tiles lose their second line to fit: name and count share one. Below 900px
+   the two stack again and the tiles go back to a row. */
+.hwx-bench-main { border-top: 1px solid var(--hwx-rule); }
+.hwx-bench-read { padding: 1.1rem; border-top: 1px solid var(--hwx-rule); }
+@media (min-width: 900px) {
+  .hwx-bench-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .hwx-bench-main > .hwx-rig-figure { align-self: center; }
+  .hwx-bench-read {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.9rem 1rem;
+    border-top: 0;
+    border-left: 1px solid var(--hwx-rule);
+  }
+  .hwx-bench-read .hwx-readout { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem; }
+  .hwx-bench-read .hwx-ch {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.4rem;
+    padding: 0.4rem 0.55rem 0.5rem;
+  }
+  .hwx-bench-read .hwx-ch-val { font-size: 0.98rem; }
+}
 
 /* ---- what the state means ---- */
 .hwx-verdict {

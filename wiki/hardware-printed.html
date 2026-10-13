@@ -124,8 +124,9 @@
     <nav class="hw-jump" aria-label="In the 3D-printed build">
       <ul class="sw-links">
         <li><a href="#hardware-instrument">The instrument</a></li>
-        <li><a href="#hardware-v2">Design advantages</a></li>
+        <li><a href="#hardware-design">Design advantages</a></li>
         <li><a href="#hardware-use">User feedback</a></li>
+        <li><a href="#hardware-v2">Version 1 to version 2</a></li>
         <li><a href="#hardware-bench">Functional testing</a></li>
         <li><a href="#hardware-reproduce">Construction and operation</a></li>
         <li><a href="#hardware-cost-printed">Cost</a></li>
@@ -666,6 +667,97 @@
 
     {# PHOTO: 量測時的樣子（3D 列印機構與遮光紙箱），上傳到 static.igem.wiki 後插在這裡 #}
 
+  </section>
+
+  <!-- ========================= what the design gives ========================= -->
+  {# 2026-10-13（硬體負責人：「design advantages 現在看起來是把版本一跟版本二比較然後說版本二的優點，
+     但不是應該是說我們整個機構的設計優點嗎？」）。他說得對：這一節原本叫 Version 2: improvements，10-07 只改了
+     標題，四張卡片仍然是「第一版 → 第二版」。現在這一節講現在這台機器的四個設計決定各帶來什麼；
+     原本那四張比較卡片、照片與放比色管的步驟原封不動，在 User feedback 後面，標題是 From version 1 to version 2
+     （id 仍是 hardware-v2，Model 頁的連結不用改）。
+     每張卡片的依據都是頁面別處已經有的：
+       1 不用發射濾光片   86.44 與 0：2026-10-12 和 SpectraMax M3 並排那一場（最上面第一格的註解）。
+                         「分開藍與綠靠角度與感測器自己的色帶」是 Measurement principle 的句子。
+                         只寫「這個配置下量到」，沒有歸因給光阱：它吸收多少沒有量過。
+       2 座              八條肋、四個角台是設計值（Part by part 的表）；3–5 s 計時過（User feedback）；
+                         五次重插各自離平均的百分比與 0.76% 出自 The re-insertion numbers（re-insertion test 3）。
+       3 自己檢查         每個 cycle 是暗、亮、暗；遮光下暗讀值全為 0，不為 0 的那個 cycle 作廢
+                         （Light shielding 的 The operating rule）。56 與 0 是 Run 卡片 LOW_D_1 那一列；
+                         1 是 2026-10-05 6.25 µL 那一次（Run 卡片的 AMBIENT_PRESENT）。
+       4 一次換一個       Part by part 的表與說明；圖在下面的 Built to be changed。
+     成本在自己的一節與最上面第四格，這裡不放。 #}
+  <section id="hardware-design">
+    <h2>Design advantages</h2>
+
+    <p class="hw-point">
+      The light is sorted without a filter, the seat places the cuvette,
+      every read checks itself, and the parts change one at a time.
+    </p>
+
+    <ul class="hw-gains">
+      <li class="hw-gain" data-hw-anim>
+        <span class="hw-gain-what">No emission filter</span>
+        <span class="hw-gain-fig">86 vs 0</span>
+        <svg class="hw-vis" viewBox="0 0 320 150" role="img" aria-label="Two cultures of similar density read on the same day. The culture with sfGFP, at OD600 0.86, read 86 counts on the emission channel. The culture without GFP, at OD600 0.72, read 0.">
+          <path class="hw-vis-rule" d="M60 112H260"></path>
+          <path class="hw-bar hw-v2" style="--i:0" d="M98 112V36Q98 32 102 32H138Q142 32 142 36V112Z" data-tip-t="sfGFP culture, undiluted" data-tip="86.44 counts, the mean of nine cycles"></path>
+          <text class="hw-vis-strong hw-late" style="--i:0" x="120" y="26" text-anchor="middle">86</text>
+          <text class="hw-vis-strong" x="120" y="127" text-anchor="middle">with GFP</text>
+          <text x="120" y="141" text-anchor="middle">OD600 0.86</text>
+          <path class="hw-bar hw-v1" style="--i:1" d="M178 112V110H222V112Z" data-tip-t="Culture without GFP" data-tip="0 counts on all nine cycles"></path>
+          <text class="hw-vis-strong hw-late" style="--i:1" x="200" y="104" text-anchor="middle">0</text>
+          <text class="hw-vis-strong" x="200" y="127" text-anchor="middle">without</text>
+          <text x="200" y="141" text-anchor="middle">OD600 0.72</text>
+        </svg>
+        <p>The detector looks at the sample from 90&deg;, and its own colour bands keep the blue apart from the green. <a href="#hardware-v2-turbidity">Dense suspensions</a> are where this stops.</p>
+        <span class="hw-gain-basis">Measured, <a href="#hardware-v2-m3">one session</a> &middot; <a href="#hardware-bench-try">every channel of both reads</a></span>
+      </li>
+      <li class="hw-gain" data-hw-anim>
+        <span class="hw-gain-what">A seat that places the cuvette</span>
+        <span class="hw-gain-fig">1 step, 3&ndash;5&nbsp;s</span>
+        <svg class="hw-vis" viewBox="0 0 320 110" role="img" aria-label="One tube put back five times, each insertion as a percentage above or below the tube's own mean: all five within 1.1 per cent.">
+          <text x="172" y="18" text-anchor="middle">the tube's own mean</text>
+          <path class="hw-vis-rule" d="M172 26V78"></path>
+          <path class="hw-vis-rule" d="M46 62H298"></path>
+          <circle class="hw-dot hw-v2" style="--i:0" cx="154.9" cy="62" r="5" data-tip-t="Insertion 1" data-tip="49.33 counts, 1.1% below the tube's mean"></circle>
+          <circle class="hw-dot hw-v2" style="--i:1" cx="165.6" cy="62" r="5" data-tip-t="Insertion 2" data-tip="49.67 counts, 0.4% below the tube's mean"></circle>
+          <circle class="hw-dot hw-v2" style="--i:2" cx="176.3" cy="62" r="5" data-tip-t="Insertion 3" data-tip="50.00 counts, 0.3% above the tube's mean"></circle>
+          <circle class="hw-dot hw-v2" style="--i:3" cx="187.0" cy="62" r="5" data-tip-t="Insertion 4" data-tip="50.33 counts, 0.9% above the tube's mean"></circle>
+          <circle class="hw-dot hw-v2" style="--i:4" cx="176.3" cy="52" r="5" data-tip-t="Insertion 5" data-tip="50.00 counts, 0.3% above the tube's mean"></circle>
+          <text x="92" y="100" text-anchor="middle">&minus;5%</text>
+          <text x="172" y="100" text-anchor="middle">0</text>
+          <text x="252" y="100" text-anchor="middle">+5%</text>
+        </svg>
+        <p>The cuvette drops between eight ribs onto four corner tabs, which set its position and height. One tube, put back five times: 0.76% between insertions.</p>
+        <span class="hw-gain-basis">By design; timed and measured on version 2</span>
+      </li>
+      <li class="hw-gain">
+        <span class="hw-gain-what">A read that checks itself</span>
+        <span class="hw-gain-fig">dark, lit, dark</span>
+        <div class="hw-steps2">
+          <div class="hw-steps2-row is-v2">
+            <span class="hw-steps2-who">Shielded</span>
+            <span class="hw-read">0</span><span class="hw-read">56</span><span class="hw-read">0</span>
+            <span class="hw-steps2-done">kept</span>
+          </div>
+          <div class="hw-steps2-row">
+            <span class="hw-steps2-who">Leaking</span>
+            <span class="hw-read">1</span>
+            <span class="hw-steps2-who">cycle void</span>
+          </div>
+        </div>
+        <p>Every flash sits between two reads with the LED off. Shielded, those are exactly zero, so one that is not <a href="#hardware-shielding">voids its cycle</a>: eight in version&nbsp;1's logs, one in the dilution series.</p>
+        <span class="hw-gain-basis">In the firmware; counts from our logs</span>
+      </li>
+      <li class="hw-gain">
+        <span class="hw-gain-what">Parts that change one at a time</span>
+        <span class="hw-gain-fig">5 parts, 1 resistor</span>
+        <p>That is all version&nbsp;2 changed. The base plate, the detection side, the light trap and the firmware stayed as they were.</p>
+        <p><a href="#hardware-modules">What can be changed</a>, drawn below.</p>
+        <span class="hw-gain-basis">Done once, for <a href="#hardware-v2">version 2</a></span>
+      </li>
+    </ul>
+
     {# 2026-10-13（硬體負責人：要強調模組化，讓之後的人可以在這個架構上改，例如換感測器或激發 LED）。
        這一小節只寫頁面別處已經有依據的事，排成一張表：換過的、留了位置但沒用過的、還沒試過的。
          四組零件與底板：上面 3D 檢視的分組（Excitation end、Cuvette seat、Detection side、Light trap、Base plate）。
@@ -680,9 +772,8 @@
     <h3 id="hardware-modules">Built to be changed</h3>
 
     <p class="hw-point hw-point-sub">
-      Version 2 was made by changing five printed parts and one resistor
-      on the same base plate. The rest is built to be changed the same
-      way.
+      What has been changed, what is on the reader but not yet used, and
+      what has not been tried.
     </p>
 
     {# 2026-10-13（同一天，硬體負責人：「感覺有點過多文字敘述，可以有點視覺化」）：原本的一段字與六列的表
@@ -768,7 +859,96 @@
         in the repository, so one part can be redrawn without the others.
       </figcaption>
     </figure>
+  </section>
 
+  <!-- ========================= what its users told us ========================= -->
+  {# 這一節回答評審第二題（使用者測試、從回饋學到什麼）。
+     第一張表是 wet lab 隊員對兩版的回饋，出自硬體負責人 2026-10-06 的說明：
+       - wet lab 用過第一版，當時就對「放 cuvette 要這麼多步、而且有誤差」存疑，也覺得操作很久；
+         這是第二版改成直接放入的原因之一。
+       - 10-05 那一場最後的五次重插是 wet lab 的人做的。他們覺得只要放入就好、很快、幾乎沒有人為誤差的空間；
+         看到原本用電工膠帶修補的地方換成新件，也更相信這台儀器。
+     這是負責人的轉述，沒有逐字紀錄，所以頁面寫成轉述（they told us），沒有用引號，也沒有編造任何一句話。
+     硬體資料夾的紀錄沒有寫那一場由誰操作。讀值是有紀錄的：五次重插 49.33–50.33；同一管 39.6 分鐘前
+     由負責人量到 50.33（P08_LOW_D_2.log；REINSERTION_COMPARISON.json 的 earlier_read_of_new_series_tube）。
+     人數：硬體負責人 2026-10-06 說明，至少三位 wet lab 隊員用過，頁面上寫的就是他們的共識；頁面照這樣寫了。
+     放 UVette 花多久是計時過的（負責人 2026-10-07 更正），頁面寫成不同的人之間的範圍；計時了幾個人沒有說。
+     得獎頁面的寫法是「誰、說了什麼、我們改了什麼」，通常只有 3 到 7 個人。
+     第二張表（操作紀錄）的來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.6；10-03 的兩次拒絕執行與
+     偵測器接觸不良在 PROJECT_STATE/CURRENT_STATE.md「Electronics State」。 #}
+  <section id="hardware-use">
+    <h2>User feedback</h2>
+
+    <p class="hw-point">
+      Our wet lab used both versions, at least three of its members in all.
+      What they said about the first set the brief for the second.
+    </p>
+
+    {# 2026-10-06（晚）：原本是一張三欄的表，改成兩張卡片；每一句都是表格裡原來的句子。
+       這是轉述，不是引言，所以沒有引號，卡片上的小標寫的是 They told us。
+       2026-10-07：硬體負責人要回饋的字大一點、像 Version 2: improvements 的卡片那樣呈現。所以每張卡片最上面加了
+       一行大字（說了什麼 → 後來怎麼了），用的是改進卡片同一組樣式（hw-gain-fig）；那一行的字都取自下面兩句，
+       沒有新的內容。下面兩句左右並排、字放大。
+       同一天：這一節曾經拆成兩處（第一版的回饋留在這裡，第二版的回饋搬到 dilution series 後面）。硬體負責人覺得
+       拆開很怪：左側目錄只帶得到一半。這一節回答的是評審的「使用者測試、從回饋學到什麼」，得獎頁面也都把
+       「誰、說了什麼、我們改了什麼」放在同一處，所以兩張卡片合回這一節，整節移到 Version 2: improvements 之後，
+       這樣第二版的回饋不會在第二版還沒介紹之前出現。
+       第二版卡片的大字：硬體負責人 2026-10-07 說「大概是30-40秒跟3-5秒的差異」。我的理解是放 UVette 所花的時間，
+       第一版對第二版；如果指的是整次量測的時間，請改那一句說明。
+       我原本把它寫成「估計，沒有人計時」。負責人同一天更正：「那個時間就是計時過的，有人手腳比較慢的就是落於
+       那個時間」。所以改成：計時過，範圍是不同的人之間的快慢。計時了幾個人、每人幾次，負責人沒有說，頁面也沒有寫。
+       Limits 仍然保留「不是對照試驗」這一點，因為它是使用中的回饋。
+       同一天硬體負責人轉述：「他們也有提到箭頭的標示有幫助」。我的理解是第二版座頂面刻的雙向箭頭
+       （Fitting the version 2 parts 的 Cuvette 那一步；CAD 原始碼 capture_screen_uvette_seat_v0_2.py 的 arrow_solid），
+       所以加在 They told us 的最後一句。"it shows how the cuvette should face" 是設計上的事實，不是他們的原話。 #}
+    <ul class="hw-said is-one">
+      <li>
+        <span class="hw-said-who">Wet-lab members, on version 1</span>
+        <span class="hw-gain-fig"><span class="hw-gain-from">Too many steps</span><span class="hw-gain-arrow" aria-hidden="true">&rarr;</span><span class="visually-hidden">to </span>one step</span>
+        <div class="hw-said-pair">
+          <p class="hw-said-what"><b>They told us</b> Placing the cuvette took too many steps, each one a chance to seat it differently, and a measurement took a long time.</p>
+          <p class="hw-said-then"><b>What followed</b> Version 2's seat takes the cuvette in one step and sets its height and position itself.</p>
+        </div>
+      </li>
+      <li>
+        <span class="hw-said-who">Wet-lab members, on version 2, in the dilution series</span>
+        <span class="hw-gain-fig"><span class="hw-gain-from">30&ndash;40&nbsp;s</span><span class="hw-gain-arrow" aria-hidden="true">&rarr;</span><span class="visually-hidden">to </span>3&ndash;5&nbsp;s</span>
+        <p class="hw-said-note">Time to place the cuvette, version 1 against version 2, timed. Each range runs from quicker hands to slower ones.</p>
+        <div class="hw-said-pair">
+          <p class="hw-said-what"><b>They told us</b> Convenient and quick: the cuvette only has to be put in, which leaves little room for operator error. Seeing the taped repairs replaced by new parts, they trusted the reader more. The arrow engraved on the seat also helped: it shows how the cuvette should face.</p>
+          <p class="hw-said-then"><b>What followed</b> They made that session's five re-insertions themselves, and every reading stayed within a count of 50.</p>
+        </div>
+      </li>
+      {# 2026-10-13：硬體負責人轉述（原話）：「我們 WET 的人操作過一次操作卡，認為我們操作卡寫得很清楚，
+         出現錯誤也可以對照我們給的解方來處理。」是轉述不是引言，所以沒有引號。
+         同一天補充（原話）：「REJECTED sample_id 當時出現這個，有讓兩個人操作，其中一個有遇到問題，
+         另一個照順序做沒有問題。」所以寫成：兩個人各做一次，一個沒有問題，一個遇到 REJECTED sample_id。
+         還不知道、所以沒有寫：哪一天。知道了請補在這裡，不要自己推測。
+         「操作卡」指 Construction and operation 的 Run 卡片；「解方」指它下面的 When the reader says something else。 #}
+      <li>
+        <span class="hw-said-who">Two wet-lab members, each running the reader from the Run card</span>
+        <div class="hw-said-pair">
+          <p class="hw-said-what"><b>They told us</b> The card was clear to follow. One of them went through it in order and met no problem. The other met <code>REJECTED sample_id</code>, and the remedy the card gives for it was enough to deal with it.</p>
+          <p class="hw-said-then"><b>What followed</b> The <a href="#hardware-reproduce">Run card</a> stays as they used it, with its list of <a href="#hw-run-else">what to do when the reader says something else</a>.</p>
+        </div>
+      </li>
+    </ul>
+
+    <p class="hw-limit">
+      <b>Limits</b> Feedback from use, not a controlled trial: what is
+      reported is what they agreed on, and the times are a range across
+      people.
+    </p>
+
+    <p>
+      Use turned up seven more problems, from room light getting in to a
+      detector that lost its settings.
+    </p>
+
+    <p class="hw-more">
+      <a href="#hardware-v2">What version 2 changed</a>
+      <a href="#hw-doc-oplog">What the operating log added</a>
+    </p>
   </section>
 
   <!-- =====================================================================
@@ -842,8 +1022,10 @@
      都已改掉：0.19 是「濃度指標」（原液顯示 OD × 稀釋），不是那一管的顯示 OD；五件零件印了幾件沒有紀錄；
      冰塊是 wet lab 的說法、細節不明；光那一段講的是散射通道的 counts。這也是 AI 工具的使用，請寫進 Attributions。
      第一版與第二版的整機照已於 2026-10-06 放上，在這一節開頭、四張卡片之前（class="hw-shots"）。 #}
+  {# 2026-10-13：這一節的標題由 Design advantages 改成 From version 1 to version 2，並移到 User feedback 之後
+     （回饋說了什麼 → 改了什麼 → 量到什麼）。內容一個字都沒有動；設計本身的優點在上面的 #hardware-design。 #}
   <section id="hardware-v2">
-    <h2>Design advantages</h2>
+    <h2>From version 1 to version 2</h2>
 
     <p class="hw-point">
       One step to load, a steadier reading, more light with the same zero,
@@ -1058,80 +1240,6 @@
     </div>
   </section>
 
-  <!-- ========================= what its users told us ========================= -->
-  {# 這一節回答評審第二題（使用者測試、從回饋學到什麼）。
-     第一張表是 wet lab 隊員對兩版的回饋，出自硬體負責人 2026-10-06 的說明：
-       - wet lab 用過第一版，當時就對「放 cuvette 要這麼多步、而且有誤差」存疑，也覺得操作很久；
-         這是第二版改成直接放入的原因之一。
-       - 10-05 那一場最後的五次重插是 wet lab 的人做的。他們覺得只要放入就好、很快、幾乎沒有人為誤差的空間；
-         看到原本用電工膠帶修補的地方換成新件，也更相信這台儀器。
-     這是負責人的轉述，沒有逐字紀錄，所以頁面寫成轉述（they told us），沒有用引號，也沒有編造任何一句話。
-     硬體資料夾的紀錄沒有寫那一場由誰操作。讀值是有紀錄的：五次重插 49.33–50.33；同一管 39.6 分鐘前
-     由負責人量到 50.33（P08_LOW_D_2.log；REINSERTION_COMPARISON.json 的 earlier_read_of_new_series_tube）。
-     人數：硬體負責人 2026-10-06 說明，至少三位 wet lab 隊員用過，頁面上寫的就是他們的共識；頁面照這樣寫了。
-     放 UVette 花多久是計時過的（負責人 2026-10-07 更正），頁面寫成不同的人之間的範圍；計時了幾個人沒有說。
-     得獎頁面的寫法是「誰、說了什麼、我們改了什麼」，通常只有 3 到 7 個人。
-     第二張表（操作紀錄）的來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.6；10-03 的兩次拒絕執行與
-     偵測器接觸不良在 PROJECT_STATE/CURRENT_STATE.md「Electronics State」。 #}
-  <section id="hardware-use">
-    <h2>User feedback</h2>
-
-    <p class="hw-point">
-      Our wet lab used both versions, at least three of its members in all.
-      What they said about the first set the brief for the second.
-    </p>
-
-    {# 2026-10-06（晚）：原本是一張三欄的表，改成兩張卡片；每一句都是表格裡原來的句子。
-       這是轉述，不是引言，所以沒有引號，卡片上的小標寫的是 They told us。
-       2026-10-07：硬體負責人要回饋的字大一點、像 Version 2: improvements 的卡片那樣呈現。所以每張卡片最上面加了
-       一行大字（說了什麼 → 後來怎麼了），用的是改進卡片同一組樣式（hw-gain-fig）；那一行的字都取自下面兩句，
-       沒有新的內容。下面兩句左右並排、字放大。
-       同一天：這一節曾經拆成兩處（第一版的回饋留在這裡，第二版的回饋搬到 dilution series 後面）。硬體負責人覺得
-       拆開很怪：左側目錄只帶得到一半。這一節回答的是評審的「使用者測試、從回饋學到什麼」，得獎頁面也都把
-       「誰、說了什麼、我們改了什麼」放在同一處，所以兩張卡片合回這一節，整節移到 Version 2: improvements 之後，
-       這樣第二版的回饋不會在第二版還沒介紹之前出現。
-       第二版卡片的大字：硬體負責人 2026-10-07 說「大概是30-40秒跟3-5秒的差異」。我的理解是放 UVette 所花的時間，
-       第一版對第二版；如果指的是整次量測的時間，請改那一句說明。
-       我原本把它寫成「估計，沒有人計時」。負責人同一天更正：「那個時間就是計時過的，有人手腳比較慢的就是落於
-       那個時間」。所以改成：計時過，範圍是不同的人之間的快慢。計時了幾個人、每人幾次，負責人沒有說，頁面也沒有寫。
-       Limits 仍然保留「不是對照試驗」這一點，因為它是使用中的回饋。
-       同一天硬體負責人轉述：「他們也有提到箭頭的標示有幫助」。我的理解是第二版座頂面刻的雙向箭頭
-       （Fitting the version 2 parts 的 Cuvette 那一步；CAD 原始碼 capture_screen_uvette_seat_v0_2.py 的 arrow_solid），
-       所以加在 They told us 的最後一句。"it shows how the cuvette should face" 是設計上的事實，不是他們的原話。 #}
-    <ul class="hw-said is-one">
-      <li>
-        <span class="hw-said-who">Wet-lab members, on version 1</span>
-        <span class="hw-gain-fig"><span class="hw-gain-from">Too many steps</span><span class="hw-gain-arrow" aria-hidden="true">&rarr;</span><span class="visually-hidden">to </span>one step</span>
-        <div class="hw-said-pair">
-          <p class="hw-said-what"><b>They told us</b> Placing the cuvette took too many steps, each one a chance to seat it differently, and a measurement took a long time.</p>
-          <p class="hw-said-then"><b>What followed</b> Version 2's seat takes the cuvette in one step and sets its height and position itself.</p>
-        </div>
-      </li>
-      <li>
-        <span class="hw-said-who">Wet-lab members, on version 2, in the dilution series</span>
-        <span class="hw-gain-fig"><span class="hw-gain-from">30&ndash;40&nbsp;s</span><span class="hw-gain-arrow" aria-hidden="true">&rarr;</span><span class="visually-hidden">to </span>3&ndash;5&nbsp;s</span>
-        <p class="hw-said-note">Time to place the cuvette, version 1 against version 2, timed. Each range runs from quicker hands to slower ones.</p>
-        <div class="hw-said-pair">
-          <p class="hw-said-what"><b>They told us</b> Convenient and quick: the cuvette only has to be put in, which leaves little room for operator error. Seeing the taped repairs replaced by new parts, they trusted the reader more. The arrow engraved on the seat also helped: it shows how the cuvette should face.</p>
-          <p class="hw-said-then"><b>What followed</b> They made that session's five re-insertions themselves, and every reading stayed within a count of 50.</p>
-        </div>
-      </li>
-    </ul>
-
-    <p class="hw-limit">
-      <b>Limits</b> Feedback from use, not a controlled trial: what is
-      reported is what they agreed on, and the times are a range across
-      people.
-    </p>
-
-    <p>
-      Use turned up seven more problems, from room light getting in to a
-      detector that lost its settings.
-    </p>
-
-    <p class="hw-more"><a href="#hw-doc-oplog">What the operating log added</a></p>
-  </section>
-
   <!-- ========================= the bench ========================= -->
   <section id="hardware-bench">
     <h2>Functional testing</h2>
@@ -1142,6 +1250,31 @@
       tubes the same way. Without GFP it read zero in liquid
       culture, and a few counts in dense suspensions. It has not yet
       resolved AHL induction.
+    </p>
+
+    {# 2026-10-13（硬體負責人同意）：這一節的敘述順序改了三處。
+       (1) 樣品是什麼搬到最前面：原本到第四個小節才說「上面讀的 GFP 菌是測試菌」，讀者會先以為讀的是感測菌。
+           這一段的兩句原本在濃懸浮液那一小節（依據與負責人的確認寫在那裡的註解），那裡現在只留 AHL 盤的來歷。
+       (2) Light shielding 搬到濃懸浮液之前：它是前面每一個「0」的前提；極限與「接下來」的卡片收在最後，
+           後面只剩互動台。
+       (3) 小節標題先寫測了什麼、版本放後面（原本是 Version 2、Version 2、Version 1、Version 2 開頭）。
+       同一天稍晚，硬體負責人說明為什麼先用 GFP 菌：「我們預想 WET 的 AHL 如果誘導成功且明顯，螢光的濃度應該是
+       會與 GFP 相當的，故我們第一階段都以 GFP 來測試做預備」。下面第二句照這個意思寫（stood in for … expected）。
+       第三句原本寫「感測菌在液體培養裡兩個版本都沒有測到螢光」（負責人 10-12 的口頭確認）。Engineering 頁的 Detect
+       後來補上第三輪：兩個版本在液體裡加 1 µM AHL 都比空載體對照亮（plate reader，p < 0.001），但對照不是
+       「同一株不加 AHL」，所以 wet lab 自己的結論是 AHL-dependent induction 沒有被確實證明。這一句改成照那一頁寫；
+       wet lab 的結果以他們的頁面為準，那一頁再改，這裡要跟著改。
+       現在的順序：Dilution series、Beside a plate reader、Three mixing sessions、Light shielding、
+       Where it stops、Interactive bench。數字與圖都沒有動；id 都沒有變。 #}
+    <p>
+      The GFP cultures read in this section are a test strain:
+      <i>E.&nbsp;coli</i> TOP10 with a plasmid that makes sfGFP without
+      induction. They stood in for our AHL biosensor, which we expected
+      to be about as bright once induced. That induction has not been
+      shown conclusively: in liquid culture both of its constructs
+      fluoresced above an empty-vector control, with no uninduced culture
+      beside them to compare
+      (<a href="{{ url_for('pages', page='engineering') }}#eng-detect">Engineering</a>).
     </p>
 
     {# 2026-10-07（夜）：這一節原本叫 Version 1: bench tests，排在 The instrument 之後、只放第一版。
@@ -1164,7 +1297,7 @@
        收尾報告 §4.3 只說訊號夠高的兩場（09-16、09-29）成正比，所以改成 "In the two sessions with enough signal"。
        紀錄裡沒有寫這一場是誰操作的；硬體負責人 2026-10-06 確認是他自己操作的，所以
        What using version 1 taught us 第一段的 "every measurement here was taken by one member of the team" 仍然成立。 #}
-    <h3 id="hardware-v2-session">Version 2: the dilution series</h3>
+    <h3 id="hardware-v2-session">The dilution series (version&nbsp;2)</h3>
 
     <p class="hw-point hw-point-sub">
       Every tube without GFP read zero. From 25 to 200&nbsp;&micro;L the
@@ -1254,7 +1387,7 @@
        可以換算成絕對濃度；偵測極限；線性範圍的規格；對其他菌株或報導基因也成立；任何重複性的數字。
        M3 的數值是操作者抄錄的，沒有匯出檔，孔數與 gain 沒有紀錄；寫在收合的那一段。
        圖上的點由程式從證據檔 §3 的表算出；虛線是三管的平均比例（104 counts／OD），不是校正線，圖說寫明了。 #}
-    <h3 id="hardware-v2-m3">Version 2: beside a plate reader</h3>
+    <h3 id="hardware-v2-m3">Beside a plate reader (version&nbsp;2)</h3>
 
     <p class="hw-point hw-point-sub">
       Read beside a plate reader on the same tubes, it ranked them the same
@@ -1322,7 +1455,7 @@
       <a href="#hw-doc-m3">Beside the plate reader, tube by tube</a>
     </p>
 
-    <h3 id="hardware-bench-v1">Version 1: three mixing sessions</h3>
+    <h3 id="hardware-bench-v1">Three mixing sessions (version&nbsp;1)</h3>
 
     <p class="hw-point hw-point-sub">
       Zero on the emission channel for all 27 readings without GFP, above
@@ -1444,6 +1577,47 @@
 
     <p class="hw-more"><a href="#hw-doc-v1">The three mixing sessions in numbers</a></p>
 
+    <h3 id="hardware-shielding">Light shielding</h3>
+
+    <p class="hw-point hw-point-sub">
+      Under a shield the dark read is exactly zero, so the zeros above
+      are readings, not corrections.
+    </p>
+
+    <figure class="hw-figure hw-chart" data-hw-anim>
+      <svg class="hw-vis" viewBox="0 0 640 104" role="img" aria-label="F4 with the LED off and an empty cuvette. Shielded: 0 counts. In room light: 11 counts, 4 through the mechanism and 7 down the open cuvette.">
+        <text x="4" y="12">F4 with the LED off, empty cuvette, counts</text>
+        <text class="hw-vis-strong" x="4" y="38">Shielded</text>
+        <rect class="hw-on" x="118" y="25" width="2" height="18"></rect>
+        <text class="hw-vis-strong" x="128" y="38">0</text>
+        <text class="hw-vis-strong" x="4" y="72">Room light</text>
+        <rect class="hw-bar hw-on hw-on-soft" style="--i:0" x="118" y="59" width="136" height="18" data-tip-t="Through the mechanism" data-tip="4 of the 11 counts"></rect>
+        <rect class="hw-bar hw-on" style="--i:1" x="256" y="59" width="236" height="18" rx="0" data-tip-t="Down the open cuvette" data-tip="7 of the 11 counts"></rect>
+        <text class="hw-vis-strong hw-late" style="--i:1" x="502" y="72">11</text>
+        <text x="118" y="94">4 through the mechanism</text>
+        <text x="256" y="94">7 down the open cuvette</text>
+      </svg>
+    </figure>
+
+    <p>
+      Shielded, every channel reads zero with the LED off, out to 25&times;
+      the working integration time. In room light the leak does not grow in
+      proportion to integration time, so a dark read cannot simply be
+      subtracted.
+    </p>
+
+    {# 2026-10-12（硬體負責人：尺寸與樣式不一致的一併修正）：原本是一個有色底、左邊一條粗線的框（hw-caution），
+       原本改成一行小字（hw-limit）；硬體負責人同一天：不喜歡那種小字很多。這是一條操作規則不是限制，
+       所以改成一般的內文段落，開頭粗體；內容一個字都沒有動。 #}
+    <p>
+      <b>The operating rule.</b> Measure in a darkened room or under an
+      opaque shield. Because a shielded dark read is exactly zero, a dark
+      read that is not zero marks that cycle as invalid: it is dropped and
+      its raw row kept. The firmware applies this rule itself: it voided
+      eight cycles in version 1's logs and one in version 2's dilution
+      series.
+    </p>
+
     {# 2026-10-12（硬體負責人：「不喜歡 limit 那種小字很多」）：這一台看得到的小字註記都縮到一兩行，
        只留「這不能當成什麼」；條件的細節（幾杯、幾天、有沒有 OD、登記的區間）搬到 Data and documentation 裡
        那一場自己的表格下方，一樣只寫一次。濃懸浮液這一小節的 Not yet 原本有十二行。
@@ -1481,7 +1655,7 @@
        §8 另外要求：任何一句「讀 0」都要接「讀 0 表示低於這台機器的讀取下限，不表示沒有背景」；寫在第一段的最後一句。
        限制只在這一小節下方的 Not yet 寫一次（硬體負責人 2026-10-10）。
        還不知道、所以沒有寫的：菌株、是否與 10-09 那一株相同、兩份懸浮液的濃度。 #}
-    <h3 id="hardware-v2-ahl">Version 2: where it stops, in dense suspensions</h3>
+    <h3 id="hardware-v2-ahl">Where it stops: dense suspensions (version&nbsp;2)</h3>
 
     <p class="hw-point hw-point-sub">
       In a dense suspension the reader gives a few counts with no GFP
@@ -1502,13 +1676,8 @@
        還不知道、所以沒有寫：盤上是哪一個版本的感測質體（ProD 或 J23101；證據檔只記「舊的」）；測試用質體的名稱。
        請 wet lab 看過這一段；有出入請改這裡，不要動下面的數字。 #}
     <p>
-      We met this on suspensions scraped from AHL plates. In liquid culture
-      our biosensor gave no detectable fluorescence, in either of its two
-      constructs (<a href="{{ url_for('pages', page='engineering') }}#eng-detect">Engineering</a>);
-      the GFP cultures read above are a test strain, the same
-      <i>E.&nbsp;coli</i> TOP10 with a plasmid that makes sfGFP without
-      induction.
-      The samples we were given for an AHL test came from plates: the wet
+      We met this on suspensions scraped from AHL plates, the samples we
+      were given for an AHL test, in the same <i>E.&nbsp;coli</i> TOP10. The wet
       lab grew culture on plates containing AHL at five concentrations,
       0.22 to 1.1&nbsp;&micro;M by its own estimate, scraped each plate
       into suspension and gave us 200&nbsp;&micro;L of it. By eye it judged
@@ -1656,54 +1825,17 @@
       <a href="{{ url_for('pages', page='model') }}#model-rebuilt">The background, modelled</a>
     </p>
 
-    <h3>Light shielding</h3>
-
-    <figure class="hw-figure hw-chart" data-hw-anim>
-      <svg class="hw-vis" viewBox="0 0 640 104" role="img" aria-label="F4 with the LED off and an empty cuvette. Shielded: 0 counts. In room light: 11 counts, 4 through the mechanism and 7 down the open cuvette.">
-        <text x="4" y="12">F4 with the LED off, empty cuvette, counts</text>
-        <text class="hw-vis-strong" x="4" y="38">Shielded</text>
-        <rect class="hw-on" x="118" y="25" width="2" height="18"></rect>
-        <text class="hw-vis-strong" x="128" y="38">0</text>
-        <text class="hw-vis-strong" x="4" y="72">Room light</text>
-        <rect class="hw-bar hw-on hw-on-soft" style="--i:0" x="118" y="59" width="136" height="18" data-tip-t="Through the mechanism" data-tip="4 of the 11 counts"></rect>
-        <rect class="hw-bar hw-on" style="--i:1" x="256" y="59" width="236" height="18" rx="0" data-tip-t="Down the open cuvette" data-tip="7 of the 11 counts"></rect>
-        <text class="hw-vis-strong hw-late" style="--i:1" x="502" y="72">11</text>
-        <text x="118" y="94">4 through the mechanism</text>
-        <text x="256" y="94">7 down the open cuvette</text>
-      </svg>
-    </figure>
-
-    <p>
-      Shielded, every channel reads zero with the LED off, out to 25&times;
-      the working integration time. In room light the leak does not grow in
-      proportion to integration time, so a dark read cannot simply be
-      subtracted.
-    </p>
-
-    {# 2026-10-12（硬體負責人：尺寸與樣式不一致的一併修正）：原本是一個有色底、左邊一條粗線的框（hw-caution），
-       原本改成一行小字（hw-limit）；硬體負責人同一天：不喜歡那種小字很多。這是一條操作規則不是限制，
-       所以改成一般的內文段落，開頭粗體；內容一個字都沒有動。 #}
-    <p>
-      <b>The operating rule.</b> Measure in a darkened room or under an
-      opaque shield. Because a shielded dark read is exactly zero, a dark
-      read that is not zero marks that cycle as invalid: it is dropped and
-      its raw row kept. The firmware applies this rule itself: it voided
-      eight cycles in version 1's logs and one in version 2's dilution
-      series.
-    </p>
-
     <h3 id="hardware-bench-try">Interactive bench</h3>
 
     <p>
-      Does it tell a GFP culture from one without, does the excitation stay
-      out of the emission channel, and does room light get in? Choose a test
-      and throw its switches; only states that were measured are on offer.
+      Every channel of a read, for the states we measured. Choose a test
+      and throw its switches.
     </p>
 
     <div class="hwx-rig" id="hwxBench">
       <div class="hwx-rig-head">
         <h3>Light-path bench</h3>
-        <p class="hwx-rig-sub">Top view, schematic &middot; readings recorded on version 1</p>
+        <p class="hwx-rig-sub">Top view, schematic &middot; both versions, named by session</p>
       </div>
 
       {#
@@ -1717,12 +1849,19 @@
 
         要加新場次：在 hardware-bench.js 的 REC 加紀錄、SESSION 加日期、
         TESTS 裡 Fluorescence 的 session 選項加一顆。
+        2026-10-13（硬體負責人：「有點太占版面」「可以加後來的讀值」）：
+        (1) Fluorescence 多了第二版的兩場：dilution series（10-05）與和 plate reader 並排那一場（10-12），
+            預設開在 10-12。這兩場十個通道都有數字，由原始 log 逐列算出（每列的亮讀值取平均；暗讀值全為 0）：
+            10-12 的 XC_G100、XC_NEG、XC_BLK_1 各 9 列；10-05 的 EXT_GFP200_1、LOW_F_1、LOW_BLK_1 各 3 列。
+            F4 與 F3 和證據檔、逐管的表相同（86.44、16.56、98.33、23.00）。
+        (2) 圖與讀值左右並排（原本上下疊，整塊約 1000 px 高），圖裁掉左右的空白；窄螢幕仍然上下疊。
       #}
       <div class="hwx-tabs" id="hwxTabs" role="group" aria-label="Which test to show"></div>
       <div class="hwx-ctrls" id="hwxCtrls"></div>
 
+      <div class="hwx-bench-main">
       <div class="hwx-rig-figure">
-        <svg class="hwx-lab" viewBox="0 0 820 400" role="img"
+        <svg class="hwx-lab" viewBox="108 22 566 372" role="img"
              aria-label="Schematic top view of the optical path. Blue excitation runs left to right along the plus X axis from the LED holder, through the aperture baffle, across the UVette at the centre, and into the angled-wedge light trap on the right. Green emission leaves the UVette upwards along the plus Y axis through the filter cassette to the AS7341 detector holder. The controls above the diagram change which recorded state is shown.">
           <defs>
             <linearGradient id="hwxEx" x1="0" x2="1">
@@ -1751,9 +1890,9 @@
             <line x1="400" y1="20" x2="400" y2="390"></line>
           </g>
           <g class="hwx-lab-tick">
-            <text x="10" y="294">Y = 0</text>
+            <text x="114" y="294">Y = 0</text>
             <text x="406" y="386">X = 0</text>
-            <text x="676" y="372">+X excitation axis</text>
+            <text x="668" y="386" text-anchor="end">+X excitation axis</text>
             <text x="406" y="34">+Y detection axis</text>
           </g>
 
@@ -1799,15 +1938,19 @@
         </svg>
       </div>
 
-      <div class="hwx-rig-body">
+      <div class="hwx-bench-read">
         <div class="hwx-readout" id="hwxReadout">
           <p class="hwx-fallback">
             The channel readout needs the page script. Without it, the light
-            path above is still drawn, and the sessions the readings come from
+            path is still drawn, and the sessions the readings come from
             are named earlier in this section.
           </p>
         </div>
         <div class="hwx-readout-note" id="hwxReadoutNote"></div>
+      </div>
+      </div>
+
+      <div class="hwx-rig-body">
         <div class="hwx-verdict" id="hwxVerdict" role="status" aria-live="polite"></div>
       </div>
     </div>
@@ -2096,6 +2239,25 @@
       published under the MIT licence in the team's repository on iGEM
       GitLab:
       <a href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware">capture-screen-hardware</a>.
+    </p>
+
+    {# 2026-10-13：3D 列印機也接得上 LasReader。韌體在 lasreader repo 的 firmware/capture_screen_3d
+       （capture_screen_3d.ino，883 行；開頭的註解寫明它和雷切機的韌體講同一套通訊協定、送出的是未處理的原始計數）。
+       硬體負責人同一天的說明：
+         腳位：這一頁所有的數據都是用 GPIO25 量的（10-12 的 log 仍印 LED gate pin GPIO25）。之後換了一台，
+           確定那一台的腳位 25 不能用，才改用 26（負責人原話：「在這台所有的數據當時都是用 25，是換一台後確定
+           腳位 25 不能使用才換為 26」）。所以這份韌體的 LED 閘極在 GPIO26；序列埠韌體與這一頁的接線仍是 GPIO25。
+           照這一頁接線的人要燒這份韌體，得改線或改 LED_PIN。「換一台」換的是什麼（控制板或整台），頁面上沒有寫。
+         讀值：「是真的有讀取到數據的，但主要問題是讀值都是零，因為樣本的螢光低於儀器下限且散射程度不高，故沒有保留數據」。
+           所以只寫「連上並回傳讀值」，沒有寫量到什麼；這一頁的數據沒有一筆是用它量的。 #}
+    <p>
+      A second sketch runs the same reader from
+      <a href="{{ url_for('pages', page='software') }}">LasReader</a>, our
+      software, over Wi-Fi, in the protocol the laser-cut build uses:
+      <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader/-/tree/main/firmware/capture_screen_3d">firmware/capture_screen_3d</a>.
+      It drives the LED gate from GPIO26, not GPIO25: move the gate wire, or
+      change <code>LED_PIN</code>. It has connected and returned reads;
+      every reading on this page was taken with the serial firmware.
     </p>
 
     <p class="hw-limit">
@@ -2978,7 +3140,7 @@
     {# 來源：PROJECT_STATE/CURRENT_STATE.md「Physical Prototype State」。 #}
     <p class="hw-aside">
       Build version 2. Version 1 was never a complete set, for the reasons
-      under <a href="#hardware-v2">Design advantages</a>, and its
+      under <a href="#hardware-v2">From version 1 to version 2</a>, and its
       alignment was shown to work but never quantified.
     </p>
 

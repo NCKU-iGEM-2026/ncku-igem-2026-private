@@ -391,6 +391,76 @@
       density</a> on the 3D-printed build. So far it has read sfGFP in
       <i>E.&nbsp;coli</i> TOP10 culture and nothing else.
     </p>
+
+    {# 2026-10-13：硬體負責人的敘事（中文原話的大意）：一開始的目標是測 GFP；預想 wet lab 的 AHL 誘導如果成功且明顯，
+       螢光會與 GFP 相當，所以第一階段都用 GFP 做預備；過程中發現散射的影響，嘗試用模型與各通道的資訊濾除；
+       拿到 wet lab 的樣品時，樣品更濃稠、誘導不夠明顯，與預期有落差、觀測的維度也不同；承認專業儀器有其必要；
+       各隊可以依自己的溶液特性調整要看的波段與處理方式，我們提供的是一個穩定的觀測平台。
+       這一段原本先放在 Awards 頁，同一天搬到這裡：Best Hardware 評的是這一頁，Awards 頁只是索引。
+       照他的順序譯成英文，並對過這一頁與別頁的內容：
+         「誘導不夠明顯」寫成 wet lab 自己在 Engineering 頁 Detect 的結論（AHL-dependent induction 沒有被確實證明），
+           沒有寫成「那幾盤沒有被誘導」：AHL 那一場的證據檔明定不能這樣寫，wet lab 的頁面也沒有這樣說。
+         「用模型與各通道」指 Model 頁 3.5（四個通道回推）與 3.6（隨散射上升的背景）；寫的是「嘗試」，沒有說成功。
+         雷切機那一句是負責人說的兩條路線：3D 列印機暗讀值為 0、不用處理；雷切機低成本易組裝、靠數據處理。
+         兩台每次都記十個通道：3D 列印機見 Run 卡片，雷切機見 What ten channels add。
+       細節只在各自的小節寫一次；這裡是把它們串起來，沒有新的數字。
+       同一天稍晚加了兩篇文獻（參考資料 8、9），替「預期一樣亮」補上脈絡。兩篇的原文與原圖都打開核對過：
+         8 Ayukawa 2010 圖 4：PLuxR-GFP 加 4.5 nM AHL、誘導 8 小時約 177,000 A.U.，持續表現的 Placq-GFP 約 120,000，
+           不加 AHL 約 27,000（內文寫 6.8 倍）。是 LuxR 系統，不是我們的 LasR。
+         9 Kylilis 2018 圖 3b：以 J23101 為 1，lux 裝置誘導後約 1.5，las 裝置約 0.1 以下。它的 las 裝置不是 pLasRV。
+       兩篇都引，是因為最接近我們的那一筆（Las）並不支持這個預期；只引 Lux 那一篇是選擇性引用。
+       寫的是「文獻顯示」，不是「我們當初依據這些文獻」：這兩篇是事後查的。
+       再晚一點（硬體負責人同意）：縮成一句，從「預期」後面移到「wet lab 的樣品」後面，開頭用 We have since found，
+       免得被讀成事前就該知道；拿掉了「Our biosensor is a Las circuit」，不替 wet lab 的系統下結論。敘事回到兩段。
+       最後（硬體負責人自己的說法，取代上一行的寫法）：「就說我們事前只有查到量級差不多的結論，但沒有注意到 las 的問題
+       （當初真的記得有）」。所以照實寫成：事前讀到的是兩者在同一個範圍；沒有注意到各系統不同、Las 偏低。
+       放回「預期」後面，因為它現在講的是事前與疏漏。參考資料 8 是「同一個範圍」的一個例子，
+       不是指當初讀的就是這一篇：當初讀的是哪一篇沒有紀錄。「the kind our biosensor is」只說系統的種類，
+       文獻裡的 las 裝置不是 pLasRV，沒有說我們的感測菌一定偏暗。
+       不能寫成我們的感測菌一定暗十倍：構築不同。另外兩篇（Zucca 2012、Chappell 2013）沒有核對原文，所以沒有用。 #}
+    <h3 id="hardware-story">How we got here</h3>
+
+    <p class="hw-point hw-point-sub">
+      We built it for our biosensor, rehearsed on GFP cultures, and ended
+      with a platform that other teams can tune to their own samples.
+    </p>
+
+    <p>
+      We expected an AHL-induced culture to be about as bright as a GFP
+      culture, so the first stage ran on
+      <a href="#hardware-bench">a GFP test strain</a> as a rehearsal. What
+      we had read beforehand put the two in the same range, as one LuxR
+      circuit
+      is<sup class="hw-ref"><a href="#hardware-ref-8">8</a></sup>. What we
+      had not noticed is that circuits differ: a Las device, the kind our
+      biosensor is, stayed well below a constitutive
+      reference<sup class="hw-ref"><a href="#hardware-ref-9">9</a></sup>.
+    </p>
+
+    <p>
+      Along
+      the way we found that how dense a sample is changes the reading, and
+      worked on taking that out with a model and with the reader&rsquo;s other
+      channels
+      (<a href="{{ url_for('pages', page='model') }}#model-inverse">Model 3.5</a>,
+      <a href="{{ url_for('pages', page='model') }}#model-rebuilt">3.6</a>).
+    </p>
+
+    <p>
+      The samples our wet lab then gave us were
+      <a href="#hardware-v2-ahl">denser still</a>, and AHL-dependent
+      induction had not been shown conclusively
+      (<a href="{{ url_for('pages', page='engineering') }}#eng-detect">Engineering</a>):
+      not what we had prepared for, and a different thing to measure. A
+      plate reader has its place, and we read ours
+      <a href="#hardware-v2-m3">beside one</a>. What the two builds offer
+      is a steady platform to read from. Both record ten channels on every
+      read, and both run from the same software. Under its shield the 3D-printed build reads zero in the dark,
+      so its counts are used as they come; the laser-cut build is cheaper and easier to
+      assemble, and removes its background in the data. A team can choose
+      which bands to read, and how to process them,
+      <a href="#hardware-modules">to suit its own samples</a>.
+    </p>
   </section>
 
   <!-- ========================= how it measures ========================= -->
@@ -772,7 +842,7 @@
           a breadboard beside it.
         </p>
         <dl class="hw-spec">
-          <div><dt>Run from</dt><dd>Serial commands</dd></div>
+          <div><dt>Run from</dt><dd>Serial commands, or LasReader (<a href="{{ url_for('pages', page='software') }}">our software</a>)</dd></div>
           <div><dt>Version</dt><dd>Second, built 2026-10-03</dd></div>
           <div><dt>Data</dt><dd>Three mixing sessions and a dilution series with GFP culture, one beside a plate reader, one session on AHL plates and one on how dense a culture can be. The <a href="{{ url_for('pages', page='model') }}">Model</a> page works through the mixing sessions</dd></div>
         </dl>
@@ -822,6 +892,8 @@
       <li id="hardware-ref-5">Szymula KP, Magaraci MS, Patterson M, Clark A, Mannickarottu SG, Chow BY. An open-source plate reader. <cite>Biochemistry</cite> 58, 468&ndash;473 (2019). <a href="https://doi.org/10.1021/acs.biochem.8b00952" rel="noopener">doi:10.1021/acs.biochem.8b00952</a></li>
       <li id="hardware-ref-6">Beal J, Haddock-Angelli T, Baldwin G, Gershater M, Dwijayanti A, Storch M, et al. Quantification of bacterial fluorescence using independent calibrants. <cite>PLOS ONE</cite> 13(6), e0199432 (2018). <a href="https://doi.org/10.1371/journal.pone.0199432" rel="noopener">doi:10.1371/journal.pone.0199432</a></li>
       <li id="hardware-ref-7">Silverman AD, Karim AS, Jewett MC. Cell-free gene expression: an expanded repertoire of applications. <cite>Nature Reviews Genetics</cite> 21, 151&ndash;170 (2020). <a href="https://doi.org/10.1038/s41576-019-0186-3" rel="noopener">doi:10.1038/s41576-019-0186-3</a></li>
+      <li id="hardware-ref-8">Ayukawa S, Kobayashi A, Nakashima Y, Takagi H, Hamada S, Uchiyama M, et al. Construction of a genetic AND gate under a new standard for assembly of genetic parts. <cite>BMC Genomics</cite> 11 (Suppl 4), S16 (2010). <a href="https://doi.org/10.1186/1471-2164-11-S4-S16" rel="noopener">doi:10.1186/1471-2164-11-S4-S16</a></li>
+      <li id="hardware-ref-9">Kylilis N, Tuza ZA, Stan G-B, Polizzi KM. Tools for engineering coordinated system behaviour in synthetic microbial consortia. <cite>Nature Communications</cite> 9, 2677 (2018). <a href="https://doi.org/10.1038/s41467-018-05046-2" rel="noopener">doi:10.1038/s41467-018-05046-2</a></li>
     </ol>
 
     <p class="hw-refs-note">
