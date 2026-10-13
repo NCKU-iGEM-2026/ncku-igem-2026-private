@@ -281,16 +281,9 @@ strong, b { font-weight: 700; }
 .navbar-nav .nav-link:hover,
 .navbar-nav .nav-link:focus { color: #fff6b7; }
 
-/* Bootstrap's caret is a static triangle; spin it half a turn on hover so a
-   dropdown toggle gives the same kind of feedback the link's colour change
-   already does. */
-.navbar-nav .dropdown-toggle::after {
-  transition: transform 0.2s ease;
-}
-.navbar-nav .dropdown-toggle:hover::after,
-.navbar-nav .dropdown:hover .dropdown-toggle::after {
-  transform: rotate(180deg);
-}
+/* The caret's hover spin, and the centring it needs, now live together in
+   css/shell.css -- that file positions the same ::after for the nav underline
+   and loads later, so a transform set here was overridden by it. */
 
 /* Bootstrap paints the burger white, which is 2.3:1 on the green bar -- under
    the 3:1 a control has to meet. Redraw it in the same ink as the links. The
@@ -3767,146 +3760,6 @@ body.edu-cosmos-page .hero-sub {
   font-family: "Changa", sans-serif;
   font-size: 0.82rem;
   color: #6b7a72;
-}
-
-/* ===== Promotion: the Tainan Girls' Q&A sticky wall =======================
-   A question on a card's front, flipped on hover/tap/focus to the answer on
-   its back -- the same .hw-flip mechanism as the Hardware page and the
-   Description methods list (style.css, ~line 5671), with its own skin.
-
-   Square notes, three to a row, each its own colour (consistent front to
-   back, the way a real sticky note is the same colour on both sides -- the
-   Q/A badge carries the distinction instead), and each tilted a little
-   differently so it reads as a wall someone actually stuck notes on rather
-   than a form. No panel behind them: they sit straight on the page.
-
-   .hw-flip-card is given aspect-ratio:1/1 to be square, which means its
-   faces need the same fix as the team photo squares elsewhere in this file
-   (search "a percentage height only resolves against a parent"): sized by
-   content, a grid "face" won't reliably inherit a square from an
-   aspect-ratio ancestor, so the faces are pinned with position:absolute;
-   inset:0 instead, with the extra .tngs-qa ancestor on that rule only to
-   outweigh the generic mechanism's own position:relative at equal
-   specificity otherwise. The rotation lives on .hw-flip-card, a level above
-   the mechanism's own rotateY, so a tilted note stays tilted through the
-   flip instead of snapping upright. */
-.tngs-qa {
-  display: grid;
-  /* Fixed rather than 1fr: a third of the full text column stretched these
-     notes much bigger than an actual sticky note. Centred since three fixed
-     220px columns no longer fill the row on their own. */
-  grid-template-columns: repeat(3, 290px);
-  justify-content: center;
-  gap: 2rem 1.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 2rem 0 1.5rem;
-}
-
-.tngs-qa .hw-flip-card {
-  aspect-ratio: 1 / 1;
-  position: relative;
-  transition: transform 0.25s ease;
-}
-
-/* .tngs-qa.hw-flip (both classes, matching the dl itself) rather than plain
-   .tngs-qa: the extra class is only there to outweigh the generic
-   mechanism's own position:relative on these same elements, declared later
-   in this file at equal specificity otherwise -- without it, file order
-   decides and the generic rule wins, same as it did the first two times
-   this exact mistake got made on this page (search this file for "a
-   percentage height only resolves against a parent"). */
-.tngs-qa.hw-flip .hw-flip-front,
-.tngs-qa.hw-flip .hw-flip-back {
-  position: absolute;
-  inset: 0;
-}
-
-/* Six-value cycle so no two neighbouring notes lean the same way. */
-.tngs-qa .hw-flip-card:nth-child(6n+1) { transform: rotate(-5deg); margin-top: 0.8rem; }
-.tngs-qa .hw-flip-card:nth-child(6n+2) { transform: rotate(4deg); margin-top: -0.6rem; }
-.tngs-qa .hw-flip-card:nth-child(6n+3) { transform: rotate(-3deg); margin-top: 1.1rem; }
-.tngs-qa .hw-flip-card:nth-child(6n+4) { transform: rotate(5deg); margin-top: -0.4rem; }
-.tngs-qa .hw-flip-card:nth-child(6n+5) { transform: rotate(-4deg); margin-top: 0.9rem; }
-.tngs-qa .hw-flip-card:nth-child(6n+6) { transform: rotate(3deg); margin-top: -0.7rem; }
-
-/* Straightens and lifts toward the reader on the same hover/focus that
-   flips it, rather than staying tilted while it turns over. */
-.tngs-qa .hw-flip-card:hover,
-.tngs-qa .hw-flip-card:focus-within {
-  transform: rotate(0deg) scale(1.06);
-  z-index: 2;
-}
-
-.tngs-qa .hw-flip-front,
-.tngs-qa .hw-flip-back {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.6rem;
-  overflow: hidden;
-  border-radius: 2px 2px 14px 2px;
-  padding: 1.1rem 1rem 2.6rem;
-  box-shadow: 3px 6px 14px rgba(55, 40, 10, 0.28);
-}
-
-/* One colour per note, front and back alike -- six notes, six colours, no
-   cycling needed. The tag keeps Q vs. A legible regardless of the colour
-   underneath, so the palette doesn't have to mean anything. */
-.tngs-qa .hw-flip-card:nth-child(6n+1) .hw-flip-front,
-.tngs-qa .hw-flip-card:nth-child(6n+1) .hw-flip-back { background: #fff4b8; border: 1px solid #e8d87a; }
-.tngs-qa .hw-flip-card:nth-child(6n+2) .hw-flip-front,
-.tngs-qa .hw-flip-card:nth-child(6n+2) .hw-flip-back { background: #ffe0c2; border: 1px solid #edbf8d; }
-.tngs-qa .hw-flip-card:nth-child(6n+3) .hw-flip-front,
-.tngs-qa .hw-flip-card:nth-child(6n+3) .hw-flip-back { background: #d9ecff; border: 1px solid #a9cdec; }
-.tngs-qa .hw-flip-card:nth-child(6n+4) .hw-flip-front,
-.tngs-qa .hw-flip-card:nth-child(6n+4) .hw-flip-back { background: #e0f3e0; border: 1px solid #b3d9b3; }
-.tngs-qa .hw-flip-card:nth-child(6n+5) .hw-flip-front,
-.tngs-qa .hw-flip-card:nth-child(6n+5) .hw-flip-back { background: #ffd9e8; border: 1px solid #edb0c9; }
-.tngs-qa .hw-flip-card:nth-child(6n+6) .hw-flip-front,
-.tngs-qa .hw-flip-card:nth-child(6n+6) .hw-flip-back { background: #fdf8ec; border: 1px solid #e3dabd; }
-
-.tngs-qa-tag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  flex: none;
-  border-radius: 999px;
-  background: #075a3e;
-  font-family: "Changa", sans-serif;
-  font-weight: 700;
-  font-size: 0.82rem;
-  color: #fffdf7;
-}
-
-.tngs-qa p {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.5;
-  color: #4a3f35;
-  overflow-y: auto;
-}
-
-@media (max-width: 860px) {
-  .tngs-qa { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 575.98px) {
-  /* Six competing tilts in one narrow column reads as clutter rather than a
-     wall -- halved rather than removed, so it still looks hand-placed. */
-  .tngs-qa { grid-template-columns: 1fr; gap: 1.75rem; }
-  .tngs-qa .hw-flip-card:nth-child(6n+1) { transform: rotate(-2deg); margin-top: 0.3rem; }
-  .tngs-qa .hw-flip-card:nth-child(6n+2) { transform: rotate(1.5deg); margin-top: -0.25rem; }
-  .tngs-qa .hw-flip-card:nth-child(6n+3) { transform: rotate(-1deg); margin-top: 0.5rem; }
-  .tngs-qa .hw-flip-card:nth-child(6n+4) { transform: rotate(2deg); margin-top: -0.15rem; }
-  .tngs-qa .hw-flip-card:nth-child(6n+5) { transform: rotate(-1.5deg); margin-top: 0.4rem; }
-  .tngs-qa .hw-flip-card:nth-child(6n+6) { transform: rotate(1deg); margin-top: -0.3rem; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tngs-qa .hw-flip-card { transition: none; }
 }
 
 @media print {
@@ -12346,7 +12199,7 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
    .parts-pending instead of being left blank, on the same reasoning as the
    description page's citation flags: an empty cell reads as "nothing to say",
    a flag reads as "not written up yet". */
-.parts { max-width: 52rem; }
+.parts { max-width: 64rem; }
 .parts section { margin-bottom: 3rem; }
 
 .parts h2 {
@@ -12355,12 +12208,12 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
   margin-bottom: 1rem;
 }
 
-.parts p { line-height: 1.8; color: #33413a; }
+.parts p { font-size: 1.06rem; line-height: 1.8; color: #33413a; }
 
-.parts-lead p { font-size: 1.08rem; line-height: 1.85; }
+.parts-lead p { font-size: 1.2rem; line-height: 1.8; }
 
 .parts-note {
-  font-size: 0.92rem !important;
+  font-size: 1rem !important;
   color: #5f6e66 !important;
   border-left: 3px solid #dfe8e2;
   padding-left: 0.9rem;
@@ -12368,7 +12221,7 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 
 .parts-pending {
   display: inline-block;
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #8a3d12;
   background: #ffe4d0;
@@ -12384,7 +12237,7 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 .parts-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: 1.02rem;
 }
 
 .parts-table th,
@@ -12442,7 +12295,7 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 
 .parts-card h3 {
   font-family: "Changa", sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.32rem;
   color: #075a3e;
   margin-bottom: 0.9rem;
 }
@@ -12454,9 +12307,9 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 .parts-meta {
   display: grid;
   grid-template-columns: max-content 1fr;
-  gap: 0.35rem 1rem;
+  gap: 0.4rem 1.1rem;
   margin: 0 0 1.1rem;
-  font-size: 0.92rem;
+  font-size: 1rem;
 }
 
 .parts-meta dt {
@@ -12476,7 +12329,7 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 }
 
 .parts-built-from {
-  font-size: 0.88rem !important;
+  font-size: 0.96rem !important;
   color: #5f6e66 !important;
   padding-top: 0.9rem;
   border-top: 1px solid #e8efea;
@@ -12511,7 +12364,7 @@ body.edu-nexus .edu-album-step:focus-visible { outline-color: var(--nx-mint); }
 }
 
 .parts-seq code {
-  font-size: 0.84rem;
+  font-size: 0.9rem;
   line-height: 1.7;
   color: #1f3a2c;
   letter-spacing: 0.04em;
