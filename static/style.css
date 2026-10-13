@@ -36,8 +36,10 @@ body { padding-top: 104px; }
   /* Tracks the logo size above so the overhang stays proportional. Shifted
      down by the navbar's 16px top inset so the logo lands at the same
      on-screen position it did when the bar sat flush at the very top, then
-     nudged up 10px and back down 8px of that. */
-  top: clamp(-57px, calc(-0.212 * (100vw - 872px) - 1px), -30px);
+     nudged up 10px and back down 8px of that. Still -0.212 * size - 1px, with
+     the size now 1.2466 * (100vw - 872px), so it floors at -49px once the
+     logo reaches 225px. */
+  top: clamp(-49px, calc(-0.2643 * (100vw - 872px) - 1px), -30px);
   left: 24px;
   font-size: 1.7rem;
   padding-top: 0;
@@ -46,11 +48,13 @@ body { padding-top: 104px; }
 }
 
 .navbar-brand img {
-  /* Grows with the viewport instead of jumping: 120px where the menu needs the
-     room (992px) up to the full 250px from ~1122px on. Keeping this continuous
-     is what stops the bar visibly re-flowing as a window is resized. */
-  width: clamp(120px, calc(100vw - 872px), 250px);
-  height: clamp(120px, calc(100vw - 872px), 250px);
+  /* Grows with the viewport instead of jumping: 149px where the menu needs the
+     room (992px) up to 225px from ~1053px on. Keeping this continuous is what
+     stops the bar visibly re-flowing as a window is resized. Capped at 225px
+     (was 250px) so the artwork's right edge -- 88.5% of the way across the
+     square image -- stays left of "Home"; see .custom-nav-width. */
+  width: clamp(149px, calc(1.2466 * (100vw - 872px)), 225px);
+  height: clamp(149px, calc(1.2466 * (100vw - 872px)), 225px);
   transition: width 0.3s ease, height 0.3s ease;
 }
 
@@ -1144,17 +1148,31 @@ body.team-bio-locked { overflow: hidden; }
 /*維持上方橫幅置中
 */
    @media (min-width: 992px) {
+    /* Lets the items below size themselves in cqw. Desktop only: below 992px
+       the menu is a position: fixed drawer, and a container would become its
+       containing block. */
+    .navbar { container-type: inline-size; }
+
     .custom-nav-width {
       /* Seven items now -- five sections, Home, and Awards to the right of
          Team -- and they have to fit beside the logo from 992px up. At the
          old floor of 140px (110px for the two plain links) the row was
          ~920px wide at 992px and slid "Home" under the logo, so both widths
-         now start smaller there and grow with the window: 112px at 992px,
-         ~155px at 1280px, ~180px at 1440px, 200px from 1600px. From ~1440px
+         now start smaller there and grow with the window: 106px at 992px,
+         ~149px at 1280px, ~173px at 1440px, 200px from ~1620px. (6px and 5px
+         under the earlier 112px/84px floors, which buys "Home" the 40px the
+         225px logo needs.) From ~1440px
          up the bar is as it was with six items. Measured: every item clear
          of the logo and on one line at 992, 1024, 1100, 1200, 1280, 1366,
-         1440, 1600 and 1920px. */
-      width: clamp(112px, calc(112px + (100vw - 992px) * 0.15), 200px);
+         1440, 1600 and 1920px.
+         Sized off the bar's own width (100cqw, 942px inside the bar at a
+         992px window) rather than the window's: the bar stops growing at
+         1400px between ~1440px and ~1500px windows, and items that kept
+         growing with 100vw pushed "Home" up to 48px further left, under the
+         logo. Five of these at 0.15 plus the two short ones at 0.125 add up
+         to exactly 1px per px of bar, so "Home" now holds its place until the
+         items reach their caps and then only moves right. */
+      width: clamp(106px, calc(106px + (100cqw - 942px) * 0.15), 200px);
       position: relative;
     }
   
@@ -1177,9 +1195,9 @@ body.team-bio-locked { overflow: hidden; }
 
   @media (min-width: 992px) {
     .custom-nav-short {
-      /* Home and Awards: 84px at 992px, 140px at 1440px, 155px from 1560px.
+      /* Home and Awards: 79px at 992px, 135px at 1440px, 155px from ~1600px.
          See .custom-nav-width above. */
-      width: clamp(84px, calc(84px + (100vw - 992px) * 0.125), 155px);
+      width: clamp(79px, calc(79px + (100cqw - 942px) * 0.125), 155px);
       position: relative;
     }
   }
