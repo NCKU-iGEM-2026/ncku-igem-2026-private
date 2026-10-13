@@ -66,12 +66,23 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
   /* 320px centered on "Team" ran past the navbar's edge -- it only has
      112px of room on either side of that toggle (measured at 1400px
      viewport) before hitting it. Rather than let just that one menu run a
-     different width from the rest, every .dropdown-menu-center matches it
-     at 200px, so centering behaves the same way -- and looks the same --
-     on every item instead of Team being the odd one out. */
+     different width from the rest, every .dropdown-menu-center starts at
+     200px, so centering behaves the same way -- and looks the same -- on
+     every item instead of Team being the odd one out.
+
+     200px is a floor, not a fixed width. Fixed, it took "Safety and
+     Security" across two lines, but only on the pages whose panel carries
+     the 0.9rem of side padding set above: that leaves 136px for a name that
+     needs 138. The nexus pages, whose panel has no side padding, had 164px
+     and fitted it -- which is why the same menu wrapped on Parts and not on
+     Hardware. This also restores what .custom-nav-width .dropdown-menu in
+     style.css asks for; being the later of two equally specific rules, the
+     fixed width here was quietly overriding it. Only the Wet menu is wider
+     than the floor, by about 4px. */
   .dropdown-menu.dropdown-menu-center {
-    min-width: 0;
-    width: 200px;
+    min-width: 200px;
+    width: max-content;
+    max-width: min(22rem, 92vw);
     left: 50%;
     right: auto;
     transform: translateX(-50%);
