@@ -302,7 +302,7 @@
     var longRail = K.BOX_IN.x - K.RAIL_LONG_GAP;
     if (!(shortRail > 0)) shortRail = K.BOX_IN.y - 2 * 3;
     return [
-      big(makePiece('Second plate (13×13 cuvette hole)', G, [[0, 0, K.DECK_W, K.DECK_H, 1]],
+      big(makePiece('Cuvette plate (13 × 13 mm opening)', G, [[0, 0, K.DECK_W, K.DECK_H, 1]],
         [{ type: 'poly', pts: rectPts(K.cuvL, K.cuvBot, K.cuvR, K.cuvTop) }])),
       kind(makePiece('Deck support rail (long)', G, [[0, 0, longRail, K.RAIL_H, 1]]), 'railLong'),
       kind(makePiece('Deck support rail (long)', G, [[0, 0, longRail, K.RAIL_H, 1]]), 'railLong'),
@@ -756,7 +756,7 @@
       } else if (/rail \(short\)/.test(p.name)) {
         var nShort = out.filter(function (o) { return /rail \(short\)/.test(o.name); }).length;
         put(p, 'rail', 'sized', [nShort ? 0 : BI.x - t, t, zr], [0, 1, 0], [0, 0, 1], [t, 0, 0]);
-      } else if (/^Second plate/.test(p.name)) {
+      } else if (/^Cuvette plate/.test(p.name)) {
         // the plain plate lies on the chambers; its 13 x 13 opening holds the cuvette upright
         put(p, 'plate', 'cut', [0, 0, zTop], [1, 0, 0], [0, 1, 0], [0, 0, t]);
       } else if (/^Lid \(/.test(p.name)) {
