@@ -147,7 +147,14 @@ html[data-theme="light"] .rx-hero {
   font-size: clamp(2rem, 4.4vw, 3.4rem); color: #f2fff8; margin: 0 0 1.1rem; max-width: 22ch;
 }
 .hx-title em { color: var(--c-glow); }
-.hx-lead { font-size: var(--fs-lead); line-height: 1.7; color: var(--c-text-2); max-width: 62ch; margin: 0 0 2.6rem; }
+/* 這一段的導言刻意用 <br> 斷成兩句各一行，所以不能被 .hx-lead 的 62ch 再切一次：
+   第二句有 95 個字元，62ch 會把它折成兩行。這裡放掉上限，改由 .hx-inner 收邊。
+   代價是視窗窄於約 1360px 時第二句還是會折 -- 以這個長度沒有辦法避免。 */
+.hx-pipe .hx-lead { max-width: none; }
+/* text-wrap: balance 讓瀏覽器把兩三行的導言各行拉成差不多長度，而不是把前一行
+   塞到 62ch 的上限為止 -- 那樣常常在行尾留下一個「a」「the」之類的孤字。不支援的
+   瀏覽器就是原本的斷法，沒有副作用。 */
+.hx-lead { font-size: var(--fs-lead); line-height: 1.7; color: var(--c-text-2); max-width: 62ch; margin: 0 0 2.6rem; text-wrap: balance; }
 :is(#hx-systems, #hx-world) .hx-more { display: inline-block; margin-top: 1.1rem; font-weight: 700; color: var(--c-glow); text-decoration: none; }
 :is(#hx-systems, #hx-world) .hx-more:hover { text-decoration: underline; color: var(--c-glow); }
 
@@ -419,23 +426,6 @@ html[data-theme="light"] .rx-hero {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.2rem;
 }
 .hx-stage { position: relative; perspective: 900px; }
-/* the light passed on from one tool to the next */
-.hx-stage + .hx-stage::before {
-  content: ""; position: absolute; top: 3.1rem; right: 100%; width: 2.2rem; height: 2px;
-  background: linear-gradient(90deg, rgba(184, 245, 126, 0.25), rgba(184, 245, 126, 0.9));
-}
-.hx-stage + .hx-stage::after {
-  content: ""; position: absolute; top: calc(3.1rem - 4px); right: calc(100% + 2.2rem - 10px); width: 10px; height: 10px; border-radius: 50%;
-  background: #e8ffd4; box-shadow: 0 0 12px #b8f57e;
-  opacity: 0;
-}
-.hx-pipe-track.rx-in .hx-stage + .hx-stage::after { animation: hx-photon 2.6s ease-in-out infinite; animation-delay: calc(var(--k) * 0.35s); }
-@keyframes hx-photon {
-  0% { transform: translateX(0); opacity: 0; }
-  15% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { transform: translateX(calc(2.2rem + 0px)); opacity: 0; }
-}
 .hx-stage > a {
   --rx: 0deg; --ry: 0deg; --mx: 50%; --my: 0%;
   position: relative; display: flex; flex-direction: column; height: 100%;
@@ -629,7 +619,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
   .hx-sys-stage { grid-template-columns: 1fr; }
   .hx-sys-art { max-width: 560px; margin: 0 auto; }
   .hx-pipe-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .hx-stage:nth-child(3)::before, .hx-stage:nth-child(3)::after { display: none; }
   .hx-world-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 767.98px) {
@@ -641,9 +630,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
   .qs-meter-bar { min-width: 60px; }
   .qs-meter-state { min-width: 0; }
   .hx-pipe-track { grid-template-columns: 1fr; gap: 1.6rem; }
-  .hx-stage + .hx-stage::before { top: auto; bottom: 100%; right: auto; left: 2.2rem; width: 2px; height: 1.6rem; background: linear-gradient(180deg, rgba(184, 245, 126, 0.25), rgba(184, 245, 126, 0.9)); }
-  .hx-stage + .hx-stage::after { display: none; }
-  .hx-stage:nth-child(3)::before { display: block; }   /* one column again: every card but the first has its line */
   .hx-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hx-stats li:last-child { grid-column: span 2; }
   .hx-sys-tab { font-size: 1.1rem; padding: 0.9rem 0.8rem; }
@@ -661,7 +647,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
 /* ---- reduced motion: everything is shown at rest ---- */
 @media (prefers-reduced-motion: reduce) {
   .hx-orbit, .hx-orbit-face, .hx-wait-signal { animation: none !important; }
-  .hx-pipe-track.rx-in .hx-stage + .hx-stage::after { animation: none; }
   .hx-stage > a, .hx-game-card { transform: none !important; }
   .hx-sys-art g, .hx-sys-art path, .hx-sys-art rect, .hx-sys-art ellipse, .hx-sys-art use, .hx-sys-art text { transition: none !important; }
   .hx-sys-art * { animation: none !important; }
