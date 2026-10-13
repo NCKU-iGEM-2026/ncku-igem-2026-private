@@ -32,9 +32,31 @@ body.navbar-scrolled:not(.engineering-page):not(.hw-nexus):not(.edu-nexus):not(.
   border-radius: 2px; background: linear-gradient(90deg, var(--c-teal), var(--c-glow));
   transition: width var(--t-fast) var(--ease-out), left var(--t-fast) var(--ease-out);
 }
-.navbar .nav-link:hover::after,
-.navbar .nav-link:focus-visible::after,
-.navbar .nav-link.active::after { width: 70%; left: 15%; }
+.navbar .nav-link:not(.dropdown-toggle):hover::after,
+.navbar .nav-link:not(.dropdown-toggle):focus-visible::after,
+.navbar .nav-link.active:not(.dropdown-toggle)::after { width: 70%; left: 15%; }
+
+/* The caret and that underline share one ::after, and the two rules merge
+   property by property. Bootstrap draws the caret with a solid border-top and
+   transparent side borders; the rule above then positions the same pseudo
+   element at left: 50% with nothing to correct for its own width, so the
+   triangle sat its own .3em left border plus Bootstrap's .255em margin -- a bit
+   over half an em -- to the right of the label it belongs to. Dropping the
+   margin and pulling it back by half its own width centres it under the label.
+
+   The dropdown toggles are also kept out of the hover growth above: on them it
+   would move the caret to left: 15% and stretch it across 70% of the link
+   rather than draw an underline, because on those links that element is the
+   caret. */
+.navbar .nav-link.dropdown-toggle::after {
+  margin-left: 0;
+  transform: translateX(-50%);
+  transition: transform var(--t-fast) ease;
+}
+.navbar .nav-link.dropdown-toggle:hover::after,
+.navbar .dropdown:hover .nav-link.dropdown-toggle::after {
+  transform: translateX(-50%) rotate(180deg);
+}
 body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link { color: #075a3e; }
 body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link:hover,
 body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navbar .nav-link:focus-visible { color: var(--c-teal-deep); }
