@@ -709,7 +709,9 @@
           <text class="hw-vis-strong" x="200" y="127" text-anchor="middle">without</text>
           <text x="200" y="141" text-anchor="middle">OD600 0.72</text>
         </svg>
-        <p>The detector looks at the sample from 90&deg;, and its own colour bands keep the blue apart from the green. <a href="#hardware-v2-turbidity">Dense suspensions</a> are where this stops.</p>
+        {# 2026-10-14：加上兩管的 F2。10-12 那一場 XC_G100 的 F2 是 21.44、XC_NEG 是 21.67（各 9 個 cycle 的平均，
+           由原始 log 算出，互動台顯示的是同一組數字）。只寫 F2：F3 兩管不同（31.56 與 16.56），所以沒有寫「散射相同」。 #}
+        <p>The detector looks at the sample from 90&deg;, and its own colour bands keep the blue apart from the green. The two cultures read alike beside the source, 21.4 and 21.7 counts on F2; only the green differs. <a href="#hardware-v2-turbidity">Dense suspensions</a> are where this stops.</p>
         <span class="hw-gain-basis">Measured, <a href="#hardware-v2-m3">one session</a> &middot; <a href="#hardware-bench-try">every channel of both reads</a></span>
       </li>
       <li class="hw-gain" data-hw-anim>
@@ -1364,6 +1366,19 @@
        第二版的配合度與對位沒有另外檢查，在 Design advantages 的 Limits。
        拿掉的只有兩句已經過時的話：「讀過一場、一批菌」（現在還有 AHL 培養盤那一場）、
        「這一節其餘的都是第一版讀的」（各小節的標題已經寫明是哪一版）。 #}
+    {# 2026-10-14：每個 cycle 都讀得到的最低一階。雷切機那一段有 3σ 偵測極限，這一台沒有對應的說法；
+       不能給偵測極限，但可以說測過、每次都非零的最低一階。單位統一用這一小節的 µL（200 µL 裡的 GFP 菌液量）：
+         10-05：12.5 µL 三管（LOW_R2_1、LOW_R2_2 重做的那一次、EXT_R2_3）27 個 cycle 全部非零；
+                6.25 µL 兩管（LOW_R3_1 重讀的那一次、LOW_R3_2）18 個 cycle 有 4 個非零。逐管在 TUBE_TABLE.md。
+         10-12：最稀的一階 6.25%（也就是 12.5 µL）9 個 cycle 全部非零（各 cycle 2 到 3），那一場沒有測更稀的。
+       兩場的菌液不是同一批，所以只寫「兩場都是這一階」，沒有把讀值合併。這不是偵測極限：下面的 Not yet 已經寫了。 #}
+    <p>
+      The smallest amount read above zero on every cycle was
+      12.5&nbsp;&micro;L of GFP culture in 200&nbsp;&micro;L, here and in
+      <a href="#hardware-v2-m3">the session beside a plate reader</a>, on a
+      different batch. At half that, 4 of 18 cycles read above zero.
+    </p>
+
     <p class="hw-limit">
       <b>Not yet</b> One session, one batch of culture: not a limit of
       detection or a linear range, and no measure of how much more
@@ -1604,6 +1619,16 @@
       the working integration time. In room light the leak does not grow in
       proportion to integration time, so a dark read cannot simply be
       subtracted.
+    </p>
+
+    {# 2026-10-14：第二版四場的培養基空白合計。10-05 兩次各 3 個 cycle，10-09、10-11、10-12 各兩次、每次 9 個，
+       共 8 次讀取、60 個有效 cycle，F4 全為 0（硬體資料夾 P1_HARDWARE_WEB_EVIDENCE_2026-10-14 的 CAPTURE_SUMMARY.csv
+       與 METRICS.json，由原始 log 重算）。這是 60 個 cycle，不是 60 個獨立的空白；不能寫成零背景、專一性或偵測極限。
+       只說 F4：10-05 開場那一次的 F2、F3、Clear 不是 0。 #}
+    <p>
+      With the LED on, medium alone has read zero on the emission channel
+      every time on version 2: eight reads of a blank over four sessions,
+      60 valid cycles in all. They are cycles, not 60 separate samples.
     </p>
 
     {# 2026-10-12（硬體負責人：尺寸與樣式不一致的一併修正）：原本是一個有色底、左邊一條粗線的框（hw-caution），
