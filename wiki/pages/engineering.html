@@ -69,7 +69,7 @@
    reader can see at a glance what was carried over. #}
 {% set cycle_stages = {
   ('detect', 2): ['build', 'test', 'learn'],
-  ('detect', 3): ['design', 'test'],
+  ('detect', 3): ['design', 'test', 'learn'],
 } %}
 {# the stage's place in the full cycle, so a round that skipped one still
    lines up with the ring beside it #}
@@ -78,8 +78,48 @@
 {# Where a part goes next. This sits outside the cycle on purpose: the ring
    is what the team already went round, and this block is the step out of
    it, so the connector unwinds the ring into a straight arrow rather than
-   closing it again. #}
-{% set futures = {'inhibition': true} %}
+   closing it again.
+
+   The value is the block's heading. A part that ran several rounds needs it
+   to say where the module ended up, not only what comes after, so the two
+   parts do not share one wording. Its job is the question no single round
+   answers: where this module stands and what is still open. It must not
+   retell the rounds -- each cycle's own Learn did that. #}
+{% set futures = {'inhibition': 'Beyond the cycle'} %}
+
+{# The strip under each round's heading: its four stages left to right with
+   an arrow between them, one line per stage on what that stage actually did.
+   The page is long and almost all of it is prose, so a reader arriving at a
+   round gets its shape before any of the prose, and can jump straight to the
+   stage they came for. A stage the round did not run has no note here and is
+   drawn faint, matching the dimmed arrow on that round's ring.
+   Each note says what happened, not what the section is about. #}
+{% set cycle_flows = {
+  ('detect', 1): [
+    ('design', 'Build a sensor that lights up near <i>P. aeruginosa</i>: the receptor LasR catches the signal the bacteria use to talk to each other, and switches on a green fluorescent reporter.'),
+    ('build',  'The circuit went onto a pTwist plasmid in <i>E. coli</i> TOP10. We swapped the reference promoter J23101 for ProD, expecting it to make more LasR.'),
+    ('test',   'Adding the synthetic signal to liquid culture gave nothing, and so did growing the two bacteria together. Only an agar plate, with <i>P. aeruginosa</i> supernatant in a central well, produced a visible glow.'),
+    ('learn',  'A protein gel showed LasR was being made, so the cells were reading the plasmid. Whatever was blocking the response had to lie in the signal or the conditions around it.'),
+  ],
+  ('detect', 2): [
+    ('design', none),
+    ('build',  'To test whether the promoter swap was the problem, we rebuilt the plasmid with J23101 and the unmodified LasR, and put it into <i>E. coli</i> DH5&alpha;.'),
+    ('test',   'The rebuilt sensor behaved exactly like the first one, and again only the agar plate glowed. We added software that outlines the glowing area and reports its width in millimetres.'),
+    ('learn',  'Two different constructs behaving alike pointed away from the gene design. That left the signal breaking down, other compounds in the supernatant, agar versus liquid, and the fact that the original design had only ever been tested outside living cells.'),
+  ],
+  ('detect', 3): [
+    ('design', 'Stop changing the DNA. Control instead how the signal is handled, since pH and light both break down the molecule we were trying to detect.'),
+    ('build',  none),
+    ('test',   'Both constructs were given 1&nbsp;&micro;M of the synthetic signal and read in a plate reader every hour for five hours. Both glowed far above the control at every reading.'),
+    ('learn',  'Our control carried a plasmid with no reporter gene in it at all, so it could only show that the reporter was being made &mdash; not that the signal was what switched it on. That remains unproven.'),
+  ],
+  ('inhibition', 1): [
+    ('design', 'Instead of feeding cells a synthetic aptamer, have the cell make its own. A retron produces single-stranded DNA carrying Cb-2, an aptamer that binds the signal <i>P. aeruginosa</i> uses to coordinate.'),
+    ('build',  'The Cb-2 sequence was written into the retron on a pTwist plasmid, grown up in <i>E. coli</i> TOP10, then moved into BL21(DE3), where the retron can be switched on.'),
+    ('test',   'Nucleic acid was pulled out of those cells with TRIzol and applied to <i>P. aeruginosa</i>, which was then measured for three behaviours the signal controls: how far it spreads, how much pigment it makes, and how much biofilm it forms.'),
+    ('learn',  'All three fell against untreated controls, so the extract does something. What is still missing is direct molecular proof that what it contains is the aptamer.'),
+  ],
+} %}
 
 <div class="container my-4 hw eng">
   <nav class="eng-parts-nav" aria-label="Engineering parts">
@@ -92,6 +132,7 @@
   </nav>
 
   {% for part, part_name, cycles in parts %}
+  {% if not loop.first %}<hr class="eng-sep">{% endif %}
   <section class="eng-part" id="eng-{{ part }}" data-part="{{ part }}" aria-labelledby="eng-{{ part }}-title">
   <header class="eng-part-head">
     <span class="eng-part-num">Part 0{{ loop.index }}</span>
@@ -192,6 +233,26 @@
     </nav>
 
     <div class="eng-dbtl-stages" style="grid-row: {{ cycle * 2 + 2 }}">
+      {% set flow = cycle_flows.get((part, cycle)) %}
+      {% if flow %}
+      <ol class="eng-flow" aria-label="What this round did, stage by stage">
+        {% for stage, flow_note in flow %}
+        <li>
+          {% if flow_note %}
+          <a class="eng-flow-cell" data-stage="{{ stage }}" href="#eng-{{ part }}-c{{ cycle }}-{{ stage }}">
+            <span class="eng-flow-letter">{{ stage[0]|upper }}</span>
+            <span class="eng-flow-note">{{ flow_note|safe }}</span>
+          </a>
+          {% else %}
+          <div class="eng-flow-cell is-skipped" data-stage="{{ stage }}">
+            <span class="eng-flow-letter">{{ stage[0]|upper }}</span>
+            <span class="eng-flow-note">Carried over from the previous round, unchanged.</span>
+          </div>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+      {% endif %}
       {% for stage, bearing, x, y, note in stages if stage in shown %}
       <section class="eng-dbtl-stage" id="eng-{{ part }}-c{{ cycle }}-{{ stage }}" data-stage="{{ stage }}" data-bearing="{{ bearing }}">
         <header class="eng-dbtl-head">
@@ -212,13 +273,11 @@
             <figcaption>Fig. D10 The same plate before and after analysis: plate edge (green), fluorescent region (yellow) and its longest span, 17.1&nbsp;mm (red)</figcaption>
           </figure>
           {% elif part == 'detect' and cycle == 2 and stage == 'learn' %}
-          <p>Despite modifying the promoter responsible for LasR expression and LasR sequence, we did not observe a substantial improvement in the fluorescence response. Although we could not completely exclude potential limitations in the genetic circuit, the similar responses observed in both constructs suggested that factors beyond gene design might play an important role in biosensor performance.</p>
-          <p>One possible factor was the stability and availability of AHL molecules. The activity of AHL signaling molecules can be influenced by environmental conditions such as pH, temperature and light, which may affect the stability of their lactone rings.</p>
-          <p>Furthermore, PAO1 culture supernatant contains not only AHL molecules but also various bacterial metabolites and secreted compounds. These additional components might affect the physiological state of the engineered bacteria or interfere with fluorescence detection.</p>
-          <p>The differences between liquid culture and agar-based assays also suggested that the physical environment might influence the response of our biosensor. Factors such as signal diffusion, local AHL availability, and bacterial growth conditions could potentially contribute to the inconsistent fluorescence responses.</p>
-          <p>Importantly, because both the AHL source and culture environment differed between our successful and unsuccessful assays, we could not determine which factor was primarily responsible for the observed fluorescence.</p>
-          <p>To further investigate these inconsistencies, we revisited previous studies on AHL stability and on how genetic parts behave when they are moved between cell-free and living systems. Yates et al. (2002) demonstrated that AHL stability can be influenced by environmental factors, particularly pH and temperature. Chappell et al. (2013) validated an entirely in vitro approach for characterizing DNA regulatory elements in <i>E. coli</i> cell extract, and reported that cell-free performance is reflective of performance in vivo for the most frequently used elements. The LasRV design we started from was characterized in a cell-free system, so on that basis we had expected it to behave comparably once placed in living <i>E. coli</i>. That it did not points again to the signal and its environment, rather than to the circuit itself, as the source of the inconsistency.</p>
-          {% elif part == 'detect' and cycle == 2 and stage == 'build' %}
+          <p>Despite modifying the promoter controlling LasR expression and the LasR sequence itself, we did not observe a substantial improvement in fluorescence. Although we could not rule out problems with our genetic circuit, these results encouraged us to investigate other possible factors.</p>
+          <p>We began by reconsidering the stability of AHL molecules. Previous research has shown that AHLs can undergo pH- and temperature-dependent lactonolysis, potentially reducing their biological activity (Yates et al., 2002). In addition, PAO1 culture supernatant contains various metabolites besides AHL, which might influence our biosensor&rsquo;s response. Differences between liquid culture and agar plates, including signal diffusion and bacterial growth conditions, could also contribute to the inconsistent results.</p>
+          <p>Another possibility was the difference between cell-free and living-cell systems. Our initial design was based on previous cell-free biosensor research, but the behavior of a genetic circuit may change when introduced into living bacteria. Although Chappell et al. (2013) demonstrated that many regulatory elements show comparable performance in both systems, differences in their biological environments may still influence gene expression.</p>
+          <p>Since we could not identify the exact cause of our unsuccessful experiments, we decided to revisit the literature and repeat our initial synthetic AHL assay under more carefully controlled conditions, following the experimental approach described by Chappell et al. (2013).</p>
+{% elif part == 'detect' and cycle == 2 and stage == 'build' %}
           <p>Following the redesigned genetic circuit, we constructed a new plasmid in which the original ProD promoter was replaced with J23101 and the LasR also modified to unoptimized one, while retaining the LasR-responsive pLasRV promoter and downstream sfGFP reporter. (Fig. D7)</p>
           <figure class="hw-figure eng-figure text-center">
             <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/lasr-gene.avif" alt="Gene map of the rebuilt plasmid: J23101 driving LasR, and pLasRV driving sfGFP">
@@ -241,19 +300,23 @@
           <p>Based on the findings from our previous engineering cycles, we decided to revisit our initial experimental approach using synthetic 3-oxo-C12-HSL. Rather than introducing further modifications to the genetic circuit, we focused on controlling experimental conditions that might affect AHL stability and biosensor performance.</p>
           <p>Previous research has demonstrated that AHL molecules can undergo pH-dependent lactonolysis, potentially reducing their biological activity (Yates et al., 2002). Therefore, we paid particular attention to pH control and minimized unnecessary light exposure during AHL handling and preparation.</p>
           {% elif part == 'detect' and cycle == 3 and stage == 'test' %}
-          <p>We repeated the liquid-culture fluorescence assay by directly adding synthetic 3-oxo-C12-HSL to engineered <i>E. coli</i>. Both versions of our biosensor, containing either the ProD or J23101 promoter, were tested under the same experimental conditions. Following the fluorescence measurement approach described by Chappell et al. (2013), we used a 96-well plate reader to monitor fluorescence over time. Negative controls and constitutively fluorescent positive controls were included for comparison. (Fig. D11)</p>
-          <figure class="hw-figure eng-figure eng-figure-small text-center">
-            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/time-course.avif" alt="A 96-well plate seen from above, most of its wells filled with culture, seated in the holder of the plate reader">
+          <p>To evaluate the fluorescence response of our LasR-based biosensor, we performed a time-course assay using synthetic 3-oxo-C12-HSL. Both the ProD- and J23101-based constructs were tested, and fluorescence was monitored using a 96-well plate reader. (Fig. D11)</p>
+          <figure class="hw-figure eng-figure text-center">
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/96wells.avif" alt="A 96-well plate seen from above in the holder of the plate reader, columns 1 to 12 running left to right, most of its wells filled with culture">
             <figcaption>Fig. D11 The 96-well plate loaded for the time-course reading</figcaption>
           </figure>
-          <p>Through this experiment, we aimed to investigate whether improved control of experimental conditions could enable a detectable AHL-induced fluorescence response and to compare the performance of our two genetic constructs. (Fig. D12)</p>
+          <p>Both constructs exhibited increasing fluorescence over time, with the J23101-based construct showing higher fluorescence intensity than the ProD-based construct under the tested conditions. Statistical analysis revealed significantly higher fluorescence in both engineered strains compared with the negative control, which carried the empty vector pBBR1MCS-1 &mdash; the same resistance marker, but no sfGFP (Dunnett&rsquo;s test, p &lt; 0.001). (Fig. D12)</p>
           <figure class="hw-figure eng-figure eng-figure-wide text-center">
-            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/reading.avif" alt="Line chart on a log scale: the positive control falls from about 6,000 to 2,819, the two biosensor constructs rise from about 100 to 154 and 168, and the empty-vector line falls to 64">
-            <figcaption>Fig. D12 Blank-subtracted RFU/OD600 across successive readings, averaged over the six AHL rows of one plate. The empty vector did not grow (OD600 0.009&ndash;0.021), so its line is a small-denominator estimate and is not comparable with the others</figcaption>
+            <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/sfgp.avif" alt="Line chart over five hours: the negative control runs low, from 41 to 55, while the ProD construct rises from 105 to 151 and the J23101 construct from 115 to 163, every point marked with three stars">
+            <figcaption>Fig. D12 Fluorescence of the two constructs in liquid culture with 1&nbsp;&micro;M 3-oxo-C12-HSL, beside a control carrying the empty vector pBBR1MCS-1, which has the same resistance marker but no sfGFP. RFU/OD<sub>600</sub>, mean &plusmn; SD of column means (n&nbsp;=&nbsp;3 technical replicates on one plate). Stars are Dunnett&rsquo;s test against that control (***&nbsp;p&nbsp;&lt;&nbsp;0.001)</figcaption>
           </figure>
-          {# 待補：這一輪的時間序列曲線和它的讀法。放圖時記得圖說要寫清楚
-             error bar 是 SD 還是 SEM、n 是幾、生物重複還是技術重複，
-             檢定只跑事先選定的那一個比較，p 值照實寫出來。 #}
+          <p>However, our experimental design has an important limitation. Our negative control carried the empty vector pBBR1MCS-1, which has the resistance marker but no sfGFP gene, rather than the corresponding biosensor strain without AHL induction. Consequently, although the observed differences confirmed higher fluorescence in the engineered strains, they could not establish whether the fluorescence was specifically induced by AHL or resulted from basal reporter expression. This is a design flaw we did not notice. Therefore, while measurable fluorescence was observed in both genetic constructs, the AHL-dependent response of our biosensor remained unverified.</p>
+          {% elif part == 'detect' and cycle == 3 and stage == 'learn' %}
+          <p>Throughout our engineering cycles, we realized that biosensor performance depends not only on genetic design but also on experimental conditions.</p>
+          <p>Initially, we suspected that modifications to the promoter and LasR coding sequence contributed to our unsuccessful fluorescence detection. However, reconstructing the reference design did not improve the results, leading us to investigate AHL stability, culture conditions, and experimental procedures.</p>
+          <p>In our final cycle, we repeated the liquid-culture assay under more carefully controlled conditions. Both constructs exhibited increasing fluorescence over time, with statistically significant differences compared with the negative control. However, we later recognized a critical flaw in our control design: the negative control lacked the sfGFP-containing plasmid. Consequently, we could not distinguish AHL-induced fluorescence from basal reporter expression.</p>
+          <p>This experience taught us that statistical significance does not necessarily confirm biological functionality. Appropriate controls are essential for interpreting experimental results and validating biological mechanisms.</p>
+          <p>Although we were unable to conclusively demonstrate AHL-dependent induction, each engineering cycle deepened our understanding of synthetic biology. We learned to question our assumptions, systematically investigate unexpected results, and recognize the importance of experimental design. These lessons will guide future improvements to our biosensor.</p>
           {% elif part == 'detect' and cycle == 1 and stage == 'design' %}
           <p>To develop a system capable of detecting <i>Pseudomonas aeruginosa</i>, we designed a biosensor that responds to its quorum-sensing signals. We selected the LasR regulatory system, one of the major QS systems in <i>P. aeruginosa</i>, as the foundation of our biosensor.</p>
           <p>LasR protein is able to bind the AHL, 3-oxo-C12-HSL, forming a dimer. Upon binding to the AHL, this active dimer can activate the LasR-responsive promoter, pLasRV, and consequently drive the transcription of the downstream sfGFP gene. (Wen et al., 2017)</p>
@@ -438,7 +501,7 @@
       <path class="eng-future-arrow-head" d="M 258 38 L 272 46 L 258 54" fill="none"/>
     </svg>
     <div class="eng-future-body">
-      <h3 class="eng-future-title" id="eng-{{ part }}-future-title">Beyond the cycle</h3>
+      <h3 class="eng-future-title" id="eng-{{ part }}-future-title">{{ futures[part] }}</h3>
       <p>After confirming the function of our retron system, we aim to integrate our retron-Cb-2 system with an AHL-responsive lysis module, enabling engineered <i>E. coli</i> to detect quorum-sensing signals from <i>Pseudomonas aeruginosa</i> and subsequently release the intracellularly produced aptamer. We have already attempted to construct such a system, changing the sfGFP region to E7 lysis protein (Fig. I17); however, the lysis module has not yet been successfully validated. Similar synthetic circuits have previously used lysis proteins to release intracellular products from engineered <i>E. coli</i> following AHL detection (Saeidi et al., 2011).</p>
       <figure class="hw-figure eng-figure text-center">
         <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/lyse-gene.avif" alt="Gene map of the lysis construct: pLasRV driving E7, and J23101 driving LasR">
@@ -450,6 +513,25 @@
   {% endif %}
   </section>
   {% endfor %}
+
+  {# The page's own close, after both parts. Detection and Inhibition were
+     engineered separately and each part already said where it stands; this
+     block exists for the one question neither can answer alone -- what the
+     two together let the project claim, and what it still cannot. Its rule
+     runs from one part's accent to the other so it reads as belonging to
+     both rather than trailing off the second. #}
+  <hr class="eng-sep">
+  <section class="eng-closing" id="eng-closing" aria-labelledby="eng-closing-title">
+    <header class="eng-closing-head">
+      <span class="eng-closing-num">Across both systems</span>
+      <h2 class="eng-closing-title" id="eng-closing-title">Overall Learn</h2>
+    </header>
+    <p>Looking back on our iGEM journey, we realized how much we had grown throughout this project. At the beginning, most of us had little experience in synthetic biology. We initially believed that designing a genetic circuit and assembling the necessary components would be enough to achieve our expected results. However, as we began our experiments, we soon realized that biological systems were far more complex than we had imagined.</p>
+    <p>Throughout our engineering cycles, we gradually learned how to design genetic circuits, plan experiments, troubleshoot unexpected results, and critically analyze our data. From reconsidering our genetic designs to investigating experimental conditions and recognizing the importance of appropriate controls, each challenge encouraged us to question our assumptions and think more carefully about our next steps.</p>
+    <p>Our Detection and Inhibition systems presented different challenges and taught us different lessons. Although our final results were not as ideal as we had hoped, both projects helped us understand that biological engineering involves much more than simply putting genetic parts together. Even small changes in genetic design or experimental conditions can lead to unexpected outcomes, making biological systems both challenging and fascinating to study.</p>
+    <p>More importantly, we learned to appreciate the beauty and complexity of synthetic biology. What initially seemed like a straightforward engineering process gradually became an exploration of how biological components interact and how unexpected results can lead to new questions and discoveries.</p>
+    <p>From knowing almost nothing about synthetic biology to developing our own designs and learning from our experiments, this journey has changed the way we approach scientific problems. Ultimately, we learned that the value of engineering lies not only in achieving the desired outcome, but also in the knowledge, experience, and curiosity we gain along the way.</p>
+  </section>
 </div>
 
 {% endblock %}
