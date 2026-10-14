@@ -73,72 +73,6 @@ body.hw-nexus .ctb-repo .ctb-repo-name {
    the author's own account follow underneath, across the row. Side by side as
    two columns these two would be tall narrow strips, since both carry a
    photograph, several paragraphs and a list. */
-.ctb-rows { display: grid; gap: 2.25rem; margin-top: 1.5rem; }
-.ctb-row { display: grid; gap: 1.4rem; }
-.ctb-row-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1.6rem;
-}
-.ctb-row-top > .ctb-shot { margin: 0; }
-/* The figures stand as tall as the picture beside them and divide that height
-   between them, so the two halves of the band square up. */
-.ctb-row-top > .ctb-stats { margin: 0; align-content: stretch; grid-template-columns: minmax(0, 1fr); }
-.ctb-row-top > .ctb-stats > div { display: grid; place-content: center; }
-/* A figure reads beside the thing it counts, not above it, and at that size it
-   carries the tile; its label wraps under its own first line, not the number's.
-   The tiles of names (.ctb-forms) keep their stacked arrangement. */
-.ctb-row-top > .ctb-stats:not(.ctb-forms) > div {
-  display: flex; align-items: center; justify-content: center;
-  gap: 0.9rem; text-align: left;
-}
-.ctb-stats:not(.ctb-forms) dt { font-size: 3.1rem; letter-spacing: -0.02em; }
-.ctb-stats:not(.ctb-forms) dd { margin: 0; font-size: 0.98rem; line-height: 1.3; }
-/* Beside the game's picture the same two tiles hold names, not numbers: the
-   two forms it exists in. One of them is a place to go, so the whole tile is
-   the link rather than the words alone. */
-.ctb-forms dt {
-  font-family: "Changa", sans-serif; font-weight: 800; font-size: 1.2rem;
-  line-height: 1.25; color: var(--nx-mint);
-}
-.ctb-form-link { position: relative; transition: border-color 0.2s, background 0.2s; }
-body.hw-nexus .ctb-form-link dt a {
-  color: var(--nx-lime); text-decoration: none;
-}
-body.hw-nexus .ctb-form-link dt a::after {
-  content: " \2197"; /* the tile is a link, so it says so */
-  font-size: 0.85em;
-}
-/* the link's hit area is the tile, not just its name */
-.ctb-form-link dt a::before { content: ""; position: absolute; inset: 0; }
-.ctb-form-link:hover,
-.ctb-form-link:focus-within {
-  border-color: var(--nx-lime);
-  background: rgba(160, 232, 96, 0.08);
-}
-
-/* The card beside the picture: one frame, so the two read as a pair. */
-.ctb-row-card {
-  padding: 1.1rem 1.25rem 1.2rem;
-  border-radius: 12px;
-  border: 1px solid var(--nx-line);
-  background: rgba(10, 26, 33, 0.55);
-}
-/* The tag straddles the card's top edge, which here would land on the corner
-   of the picture; in a row it sits at the head of the card instead. */
-.ctb-row .hw-module-tag { position: static; display: inline-block; }
-.ctb-row-card > h3 { margin-top: 0.45rem; }
-.ctb-row-card > .ctb-list:last-child { margin-bottom: 0; }
-/* The account below runs to a readable measure, not the width of the row. */
-.ctb-row-text { max-width: 44rem; }
-.ctb-row-text > p:not(.ctb-links) { line-height: 1.75; color: var(--nx-text); }
-.ctb-row-text > .ctb-links { margin-top: 1rem; }
-
-@media (max-width: 860px) {
-  .ctb-row-top,
-  .ctb-row-top > .ctb-shot:only-child { grid-template-columns: minmax(0, 1fr); gap: 1.2rem; }
-  .ctb-row-top > .ctb-stats { grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); }
-}
 
 .ctb-shot { margin: 0 0 1rem; }
 .ctb-shot img {
@@ -207,4 +141,259 @@ body.hw-nexus .ctb-form-link dt a::after {
 .ctb-feature .ctb-figure img { max-height: 420px; }
 @media (max-width: 860px) {
   .ctb-feature { grid-template-columns: minmax(0, 1fr); padding: 1.2rem 1.1rem; }
+}
+
+/* ---- teaching material: two items behind tabs, two readings behind arrows
+   ----------------------------------------------------------------------
+   Both mechanisms are the site's own, borrowed rather than invented: the
+   tabs behave as the home page's do and the deck as the Education
+   gallery's. static/js/pages/contribution-teach.js.
+
+   Until that script has run nothing is hidden -- .is-live is what the
+   script adds, and every rule that hides a panel or a card is behind it, so
+   with no JavaScript the reader gets all four pieces stacked and in order.
+   ---------------------------------------------------------------------- */
+
+.ctb-teach { margin-top: 1.5rem; }
+
+/* ---- the tabs ---- */
+
+/* No rule under them: the panel below is a framed card and already draws its
+   own top edge, so a second line a few pixels above it was the same job done
+   twice. */
+.ctb-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.ctb-tabs > button {
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: var(--nx-text);
+  background: transparent;
+  border: 1px solid var(--nx-line);
+  border-radius: 999px;
+  padding: 0.5rem 1.15rem;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.ctb-tabs > button:hover { border-color: var(--nx-lime); color: #fff; }
+.ctb-tabs > button:focus-visible { outline: 3px solid #d8b26a; outline-offset: 3px; }
+.ctb-tabs > button[aria-selected="true"] {
+  color: #0d1f18;
+  background: var(--nx-lime);
+  border-color: var(--nx-lime);
+}
+
+/* Without the script the tabs would select nothing, so they are not shown
+   and both panels simply follow one another. */
+.ctb-teach:not(.is-live) > .ctb-tabs { display: none; }
+
+/* ---- a panel ---- */
+
+/* One frame round the whole item, so the picture and figures on top and the
+   readings underneath plainly belong to the same panel. The tabs stay a row
+   above it rather than running into it. */
+.ctb-panel {
+  display: grid;
+  gap: 1.4rem;
+  border: 1px solid var(--nx-line);
+  border-radius: 14px;
+  background: rgba(10, 26, 33, 0.72);
+  padding: 1.4rem 1.5rem 1.5rem;
+}
+.ctb-panel:focus { outline: none; }
+.ctb-panel:focus-visible { outline: 3px solid #d8b26a; outline-offset: 4px; }
+.ctb-teach:not(.is-live) > .ctb-panel + .ctb-panel { margin-top: 2.5rem; }
+
+/* The label leads and the item's name follows it on the same line. Centred
+   rather than on the baseline: the two are set at very different sizes, and
+   sharing a baseline leaves the small label hanging below the name. */
+.ctb-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0;
+}
+.ctb-panel-name {
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  font-size: 1.45rem;
+  /* The inherited 1.8 leaves a line box far taller than the letters, and the
+     label would then centre on that empty space rather than on the name. */
+  line-height: 1.2;
+  color: var(--nx-mint);
+}
+.ctb-panel-head > .hw-module-tag { position: static; }
+
+/* The picture takes the room; the column of controls and figures beside it
+   is kept narrow on purpose. */
+.ctb-panel-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.ctb-panel-top > .ctb-shot { margin: 0; }
+.ctb-panel-top > .ctb-shot img { width: 100%; }
+
+.ctb-panel-side { display: grid; align-content: start; gap: 0.9rem; }
+.ctb-panel-side > .hw-module-tag { position: static; justify-self: start; }
+
+/* The buttons stack in a narrow column rather than running off its edge.
+   margin:auto 0 0 is the shared default and would push them to the foot. */
+.ctb-panel-side > .ctb-links {
+  margin: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+/* No tile around them. These are set as the home page sets its own figures
+   (.hx-figures in static/css/pages/home.css): an amber rule down the left,
+   the number in cream above the reading, and no box at all. */
+.ctb-panel-side > .ctb-stats { margin: 0; grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
+.ctb-panel-side > .ctb-stats > div {
+  padding: 0.2rem 0 0.2rem 1.1rem;
+  border: 0;
+  border-left: 2px solid var(--c-amber);
+  border-radius: 0;
+  background: none;
+}
+.ctb-panel-side > .ctb-stats:not(.ctb-forms) dt {
+  font-size: clamp(2rem, 3.4vw, 2.9rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: #f6dca4;
+}
+.ctb-panel-side > .ctb-stats dd {
+  margin: 0.55rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--nx-text);
+}
+.ctb-panel-side > .ctb-forms dt { font-size: 1.05rem; color: var(--nx-lime); }
+/* One of the two forms is a place to go -- the Play The Green Cabinet section
+   of the board game page -- so the whole block is the link rather than the
+   words alone: the a::before below stretches the hit area over it, which is
+   why the block is positioned. The other figures lost their tile in this
+   layout, but this one keeps a frame, because a thing you can press has to
+   look like one; the amber rule stays on its left so it still reads as one of
+   the pair beside it. */
+.ctb-form-link { position: relative; transition: border-color 0.2s ease, background 0.2s ease; }
+.ctb-panel-side > .ctb-forms > .ctb-form-link {
+  padding: 0.7rem 0.9rem 0.8rem;
+  border: 1px solid var(--nx-line);
+  border-left: 2px solid var(--c-amber);
+  border-radius: 10px;
+  background: rgba(10, 26, 33, 0.55);
+}
+body.hw-nexus .ctb-form-link dt a { color: var(--nx-lime); text-decoration: none; }
+body.hw-nexus .ctb-form-link dt a::after {
+  content: " 97"; /* the block is a link, so it says so */
+  font-size: 0.85em;
+}
+.ctb-form-link dt a::before { content: ""; position: absolute; inset: 0; }
+.ctb-form-link:hover,
+.ctb-form-link:focus-within {
+  border-color: var(--nx-lime);
+  background: rgba(160, 232, 96, 0.08);
+}
+/* The ring belongs round the whole block, since that is what the pointer
+   gets; the stretched ::before would otherwise draw it round nothing. */
+.ctb-form-link dt a:focus-visible { outline: none; }
+.ctb-form-link:focus-within { outline: 3px solid #d8b26a; outline-offset: 2px; }
+
+/* Each figure arrives from the left, one after the other. The site's own
+   reveal lifts things from below; this is the same mechanism turned on its
+   side, and the stagger is the --rx-d each one carries. */
+html.rx-js .ctb-stats > div[data-reveal] { transform: translateX(-30px); }
+html.rx-js .ctb-stats > div[data-reveal].rx-in { transform: none; }
+
+/* ---- the deck of two readings ---- */
+
+/* Inside the panel's frame, so no frame of its own -- a box in a box reads as
+   two things. A rule across the top is what separates it from the picture and
+   figures above instead. */
+.ctb-deck {
+  border-top: 1px solid var(--nx-line);
+  padding-top: 1.2rem;
+}
+
+.ctb-deck-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.ctb-deck-arrow {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  color: var(--nx-lime);
+  background: transparent;
+  border: 1px solid var(--nx-line);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.ctb-deck-arrow svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ctb-deck-arrow:hover { border-color: var(--nx-lime); background: rgba(160, 232, 96, 0.12); }
+.ctb-deck-arrow:focus-visible { outline: 3px solid #d8b26a; outline-offset: 2px; }
+
+/* The two names double as the way to jump straight to one. */
+.ctb-deck-dots {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+.ctb-deck-dots > button {
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--nx-text);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0.25rem 0.4rem;
+  cursor: pointer;
+}
+.ctb-deck-dots > button[aria-current="true"] { color: var(--nx-lime); border-bottom-color: var(--nx-lime); }
+.ctb-deck-dots > button:focus-visible { outline: 3px solid #d8b26a; outline-offset: 2px; }
+
+/* The card the reader is on. Its kicker is already in the head above it, so
+   the one inside is only for the no-script reading. */
+.ctb-slide > .ctb-kicker { display: none; }
+.ctb-teach:not(.is-live) .ctb-slide > .ctb-kicker { display: block; }
+.ctb-teach:not(.is-live) .ctb-deck-head { display: none; }
+.ctb-teach:not(.is-live) .ctb-slide + .ctb-slide { margin-top: 1.4rem; }
+
+.ctb-slide > .ctb-list { margin: 0; }
+/* No measure of its own: the panel around it already sets the column, and a
+   72ch limit inside it left this one card ending short of the picture, the
+   figures and the arrows above, which all run the full width. */
+.ctb-slide > p { margin: 0 0 0.9rem; line-height: 1.75; color: var(--nx-text); }
+.ctb-slide > p:last-child { margin-bottom: 0; }
+
+/* ---- narrow ---- */
+
+@media (max-width: 860px) {
+  .ctb-panel-top { grid-template-columns: minmax(0, 1fr); }
+  .ctb-panel-side > .ctb-links { flex-direction: row; flex-wrap: wrap; }
+  .ctb-panel-side > .ctb-stats { grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
+  .ctb-deck-dots > button { font-size: 0.78rem; }
 }

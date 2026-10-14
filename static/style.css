@@ -861,6 +861,9 @@ footer a:hover { color: white; text-decoration: underline; }
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
+  /* Centred, so a row that does not fill the width -- and the last row of
+     every group -- sits in the middle rather than hugging the left. */
+  justify-content: center;
 }
 
 .team-grid + .team-grid {
@@ -2340,52 +2343,8 @@ body.hw-nexus .hw .eng-refs h2 { margin: 0 0 1.25rem; font-size: 1.6rem; }
   margin: 0 0 3rem;
 }
 
-/* ---- the stage strip under each round's heading ----
-   A round opens with its four stages laid out left to right, an arrow between
-   them, and one line in each box on what that stage actually did. The page is
-   long and nearly all prose, so this gives the shape of the round before any
-   of it, and each box is a link to the stage it stands for -- which is what
-   makes the strip a way in rather than a picture. The letter wears its
-   stage's colour and the arrows the part's, the same two codes the ring
-   beside it uses. */
-.eng-flow {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1.9rem;
-  margin: 0 0 3.5rem;
-  padding: 0;
-  list-style: none;
-}
-.eng-flow > li { position: relative; min-width: 0; }
-/* The arrow is drawn in the gap, so the markup carries only the stages. */
-.eng-flow > li + li::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: -1.33rem;
-  width: 9px;
-  height: 9px;
-  border-top: 2px solid color-mix(in srgb, var(--part) 70%, transparent);
-  border-right: 2px solid color-mix(in srgb, var(--part) 70%, transparent);
-  transform: translateY(-50%) rotate(45deg);
-}
-.eng-flow-cell {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  gap: 0.6rem;
-  height: 100%;
-  padding: 0.95rem 1rem;
-  border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--stage) 30%, transparent);
-  background: color-mix(in srgb, var(--stage) 7%, transparent);
-  text-decoration: none;
-  transition: border-color 0.15s, background 0.15s, transform 0.15s;
-}
-.eng-flow-cell[data-stage="design"] { --stage: #a0e860; }
-.eng-flow-cell[data-stage="build"]  { --stage: #4fd48f; }
-.eng-flow-cell[data-stage="test"]   { --stage: #49c5b6; }
-.eng-flow-cell[data-stage="learn"]  { --stage: #5bb6e6; }
+/* A stage's letter in a small square of its own colour: on the spine and
+   the edge of each card in a round's book (below). */
 .eng-flow-letter {
   display: grid;
   place-items: center;
@@ -2397,70 +2356,6 @@ body.hw-nexus .hw .eng-refs h2 { margin: 0 0 1.25rem; font-size: 1.6rem; }
   font-size: 0.92rem;
   font-weight: 700;
   color: var(--stage);
-}
-/* Names such as LasR-pLasRV-sfGFP have nowhere to break, so they are allowed
-   to break anywhere rather than run out of the box. */
-.eng-flow-note {
-  min-width: 0;
-  padding-top: 0.2rem;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--nx-text, #d7e3e6);
-  overflow-wrap: anywhere;
-}
-a.eng-flow-cell:hover,
-a.eng-flow-cell:focus-visible {
-  border-color: var(--stage);
-  background: color-mix(in srgb, var(--stage) 15%, transparent);
-  transform: translateY(-1px);
-}
-/* A round that skipped a stage keeps its box, so the four columns line up
-   from round to round, but drains it: the same thing the ring does with that
-   stage's arrow. */
-.eng-flow-cell.is-skipped {
-  border-style: dashed;
-  border-color: color-mix(in srgb, currentColor 18%, transparent);
-  background: none;
-  opacity: 0.45;
-}
-.eng-flow-cell.is-skipped .eng-flow-letter {
-  background: color-mix(in srgb, currentColor 12%, transparent);
-  color: inherit;
-}
-.eng-flow-cell.is-skipped .eng-flow-note { font-style: italic; }
-@media (max-width: 991.98px) {
-  .eng-flow { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; margin-bottom: 2.5rem; }
-  /* Stacked, the arrow turns to point the way the reading now runs. */
-  .eng-flow > li + li::before {
-    top: -1.1rem;
-    left: 50%;
-    transform: translateX(-50%) rotate(135deg);
-  }
-}
-.eng-parts-nav { grid-column: 2; }
-  .eng-part {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: subgrid;
-    align-items: start;
-  }
-  .eng-part::before, .eng-part-head { grid-column: 2; }
-  .eng-dbtl { display: contents; }
-  /* Rows 1 and 2 are the accent bar and the part heading; each round of the
-     cycle then takes two of its own -- its band, then the ring and the stages
-     side by side -- and engineering.html sets which pair. A fixed row here
-     would stack a part's second round on top of its first. */
-  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; justify-self: start; width: 10.5rem; margin-top: 1rem; }
-  /* With room to spare at the left, the ring grows and leans out into it, so
-     it stays clear of the text instead of crowding it. */
-  @media (min-width: 1300px) {
-    .eng-dbtl > .eng-dbtl-rail { justify-self: end; width: 11.5rem; margin-right: 1.5rem; }
-  }
-  .eng-dbtl > .eng-dbtl-stages { grid-column: 2; margin-top: 1rem; }
-  .eng-cycle-band { grid-column: 2; }
-  .eng-future { grid-column: 2; }
-  .hw.eng > .eng-closing { grid-column: 2; }
-  .hw.eng > .eng-sep { grid-column: 1 / -1; }
 }
 /* ---- the three parts: Detect, Inhibition, Measurement ----
    Each part has its own accent (--part): a short thick bar over its heading,
@@ -2625,31 +2520,6 @@ a.eng-map-cell:focus-visible {
   }
   .eng-map-round + .eng-map-round { margin-top: 2.75rem; }
 }
-.eng-parts-nav { grid-column: 2; }
-  .eng-part {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: subgrid;
-    align-items: start;
-  }
-  .eng-part::before, .eng-part-head { grid-column: 2; }
-  .eng-dbtl { display: contents; }
-  /* Rows 1 and 2 are the accent bar and the part heading; each round of the
-     cycle then takes two of its own -- its band, then the ring and the stages
-     side by side -- and engineering.html sets which pair. A fixed row here
-     would stack a part's second round on top of its first. */
-  .eng-dbtl > .eng-dbtl-rail { grid-column: 1; justify-self: start; width: 10.5rem; margin-top: 1rem; }
-  /* With room to spare at the left, the ring grows and leans out into it, so
-     it stays clear of the text instead of crowding it. */
-  @media (min-width: 1300px) {
-    .eng-dbtl > .eng-dbtl-rail { justify-self: end; width: 11.5rem; margin-right: 1.5rem; }
-  }
-  .eng-dbtl > .eng-dbtl-stages { grid-column: 2; margin-top: 1rem; }
-  .eng-cycle-band { grid-column: 2; }
-  .eng-future { grid-column: 2; }
-  .hw.eng > .eng-closing { grid-column: 2; }
-  .hw.eng > .eng-sep { grid-column: 1 / -1; }
-}
 /* ---- the three parts: Detect, Inhibition, Measurement ----
    Each part has its own accent (--part): a short thick bar over its heading,
    a "Part 01" banner and the word in its cycle's centre all wear it, so the
@@ -2660,6 +2530,7 @@ a.eng-map-cell:focus-visible {
    everything else on the page is driven off --part. */
 [data-part="detect"]     { --part: #49c5b6; }   /* --nx-mint */
 [data-part="inhibition"] { --part: #e6b060; }   /* --nx-warm */
+[data-part="reader"]     { --part: #b18df0; }   /* 第三個 part：紫，和薄荷綠、琥珀都分得開 */
 .eng-parts-nav {
   display: flex;
   flex-wrap: wrap;
@@ -3030,21 +2901,248 @@ body.hw-nexus .hw .eng-closing-title {
 .eng-dbtl-stage[data-stage="build"] { --stage: #4fd48f; }
 .eng-dbtl-stage[data-stage="test"]  { --stage: #49c5b6; }
 .eng-dbtl-stage[data-stage="learn"] { --stage: #5bb6e6; }
+/* ---- each round's stages as a book of cards (engineering.html, cycle_flows) ----
+   One stage's line to a card, always in stage order (engineering-folder.js).
+   The open card lies at full width; the cards before it fold away to the
+   left down to their spines, the cards after it lie stacked behind it, each
+   a spine's width further right, so their edges show. Every card keeps its
+   own place, whatever is open:
+
+     [D][B]| T, open                       |L
+     spines of the cards before            edge of the card after
+
+   Until the script marks the folder .is-book, the cards stand one under
+   another as plain boxes. */
+.eng-folder { margin: 0 0 3.5rem; }
+.eng-folder-page { --stage: #a0e860; }
+.eng-folder-page[data-stage="build"] { --stage: #4fd48f; }
+.eng-folder-page[data-stage="test"]  { --stage: #49c5b6; }
+.eng-folder-page[data-stage="learn"] { --stage: #5bb6e6; }
+.eng-folder-page {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--stage) 55%, transparent);
+  border-radius: 16px;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--stage) 14%, transparent), transparent 55%),
+    color-mix(in srgb, var(--stage) 6%, var(--nx-panel, #16323f));
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+.eng-folder-body {
+  display: flex;
+  flex-direction: column;
+  padding: 1.9rem 2.2rem 1.6rem;
+}
+.eng-folder:not(.is-book) .eng-folder-page + .eng-folder-page { margin-top: 1rem; }
+.eng-folder:not(.is-book) .eng-folder-spine,
+.eng-folder:not(.is-book) .eng-folder-edge { display: none; }
+
+/* The book. --s is a spine's width, --n the number of cards. Every card is
+   the open width, set from the book's own width (cqw), and starts its own
+   number of spines in; the body inside keeps that width whatever happens to
+   the card, so its lines never rewrap while it folds -- folding only covers
+   them. All the cards share one grid cell, so the book is as tall as its
+   longest card. */
+.eng-folder.is-book .eng-folder-pages {
+  --s: 3rem;
+  display: grid;
+  container-type: inline-size;
+  /* One eye for the whole book, level with its right edge: cards sinking
+     back shrink toward that edge, so the edges of the cards behind keep
+     their place under the pointer while they recede. */
+  perspective: 1600px;
+  perspective-origin: 100% 50%;
+}
+.eng-folder.is-book .eng-folder-page {
+  grid-area: 1 / 1;
+  display: flex;
+  width: calc(100cqw - (var(--n, 4) - 1) * var(--s));
+  margin-left: calc(var(--i, 0) * var(--s));
+  overflow: hidden;
+  cursor: pointer;
+  transform-origin: left center;
+  transition:
+    width 0.6s cubic-bezier(0.3, 0.7, 0.2, 1),
+    transform 0.6s cubic-bezier(0.3, 0.7, 0.2, 1),
+    filter 0.6s, box-shadow 0.6s;
+}
+.eng-folder.is-book .eng-folder-body {
+  flex: none;
+  width: calc(100cqw - var(--n, 4) * var(--s));
+  transition: opacity 0.25s, visibility 0s 0.25s;
+}
+/* The open card: on top, raised toward the reader, in full light. */
+.eng-folder.is-book .eng-folder-page.is-open {
+  z-index: 10;
+  cursor: auto;
+  /* raised only a little: nearer, it would widen leftward under the
+     folded spines and cover its own */
+  transform: translateZ(12px);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--stage) 25%, transparent),
+    0 30px 60px rgba(0, 0, 0, 0.55),
+    0 0 40px color-mix(in srgb, var(--stage) 12%, transparent);
+}
+.eng-folder.is-book .eng-folder-page.is-open .eng-folder-body {
+  transition: opacity 0.35s 0.2s, visibility 0s;
+}
+.eng-folder.is-book .eng-folder-page:not(.is-open) .eng-folder-body {
+  visibility: hidden;
+  opacity: 0;
+}
+/* Before the open card: folded away to the left, swung back on the spine
+   like a page already turned, and in its own shade. Drawn over the open
+   card, so a card folding away visibly uncovers the next one rather than
+   vanishing behind it. */
+.eng-folder.is-book .eng-folder-page.is-before {
+  z-index: 11;
+  width: var(--s);
+  transform: rotateY(32deg);
+  filter: brightness(0.72);
+  box-shadow: inset -14px 0 18px -6px rgba(0, 0, 0, 0.45), 6px 10px 22px rgba(0, 0, 0, 0.35);
+}
+/* After the open card: sunk back a step deeper for each card between, hinged
+   at their own right edge, darker the further down, each lying in the
+   shadow of the card in front of it. */
+.eng-folder.is-book .eng-folder-page.is-after {
+  z-index: calc(10 - var(--a, 1));
+  transform-origin: right center;
+  transform: translateZ(calc(var(--a, 1) * -55px)) rotateY(calc(var(--a, 1) * -2.5deg));
+  filter: brightness(calc(1 - var(--a, 1) * 0.16));
+  box-shadow: inset 18px 0 20px -10px rgba(0, 0, 0, 0.55), 0 14px 30px rgba(0, 0, 0, 0.3);
+}
+.eng-folder.is-book .eng-folder-page:not(.is-open):hover { filter: brightness(1.05); }
+
+/* A card's spine, down its left side: its letter and name, read upright.
+   It is what shows of a card folded away, and it is the button that opens
+   the card from the keyboard. */
+.eng-folder-spine,
+.eng-folder-edge {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  width: var(--s);
+  padding: 1.1rem 0;
+  background: color-mix(in srgb, var(--stage) 12%, transparent);
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  color: var(--stage);
+}
+.eng-folder-spine {
+  border: 0;
+  border-right: 1px solid color-mix(in srgb, var(--stage) 35%, transparent);
+  cursor: pointer;
+}
+.eng-folder-spine:focus-visible { outline: 2px solid var(--stage); outline-offset: -4px; }
+.eng-folder-spine-name {
+  writing-mode: vertical-rl;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+/* A card's edge, down its right side: what shows of a card lying behind. */
+.eng-folder-edge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border-left: 1px solid color-mix(in srgb, var(--stage) 35%, transparent);
+  visibility: hidden;
+}
+.eng-folder.is-book .eng-folder-page.is-after .eng-folder-edge { visibility: visible; }
+
+/* The light the open card catches where the pointer is (--mx/--my). */
+.eng-folder-page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, 0.1), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.eng-folder.is-book .eng-folder-page.is-open:hover::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .eng-folder.is-book .eng-folder-page,
+  .eng-folder.is-book .eng-folder-body { transition: none; }
+}
+
+body.hw-nexus .hw .eng-folder-page-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin: 0 0 1rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--stage);
+}
+.eng-folder-page-num {
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  opacity: 0.8;
+}
+body.hw-nexus .hw .eng-folder-page-note {
+  margin: 0 0 1.5rem;
+  font-size: 1.3rem;
+  line-height: 1.65;
+  color: var(--nx-text, #d7e3e6);
+}
+.eng-folder-page.is-skipped .eng-folder-page-note { font-style: italic; opacity: 0.6; }
+/* A stage the round did not run keeps its card, so every book has its four,
+   but drained: the same thing the ring does with that stage's arrow. */
+.eng-folder-page.is-skipped { border-style: dashed; }
+.eng-folder-page.is-skipped .eng-flow-letter,
+.eng-folder-page.is-skipped .eng-folder-spine-name { opacity: 0.55; }
+body.hw-nexus .hw .eng-folder-page-more {
+  align-self: flex-start;
+  margin-top: auto;
+  padding: 0.45rem 1.05rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--stage) 45%, transparent);
+  background: color-mix(in srgb, var(--stage) 10%, transparent);
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--stage);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+body.hw-nexus .hw .eng-folder-page-more:hover,
+body.hw-nexus .hw .eng-folder-page-more:focus-visible {
+  background: color-mix(in srgb, var(--stage) 22%, transparent);
+}
+@media (max-width: 991.98px) {
+  .eng-folder { margin-bottom: 2.5rem; }
+  .eng-folder-body { padding: 1.5rem 1.4rem 1.3rem; }
+  body.hw-nexus .hw .eng-folder-page-note { font-size: 1.12rem; }
+}
+/* On a phone the spines have room for their letters, not their names. */
+@media (max-width: 575.98px) {
+  .eng-folder.is-book .eng-folder-pages { --s: 2rem; }
+  .eng-folder-spine-name { display: none; }
+  .eng-folder-body { padding: 1.25rem 1rem 1.1rem; }
+  body.hw-nexus .hw .eng-folder-page-head { font-size: 1.35rem; }
+}
 /* Inhibition runs the same four stages through a warm ramp instead of the
    cool one, so a reader who lands in the middle of the page knows which part
    they are in before reading a word. The ramp is sequential on purpose --
    design through learn is an order, not a set of categories -- and its
    adjacent steps sit about as far apart in OKLab as the cool ramp's do.
-   Colour is never the only cue either way: every box carries its letter and
+   Colour is never the only cue either way: every card carries its letter and
    every heading its name. */
 [data-part="inhibition"] .eng-dbtl-stage,
-[data-part="inhibition"] .eng-flow-cell[data-stage="design"] { --stage: #e8d25c; }
+[data-part="inhibition"] .eng-folder-page[data-stage="design"] { --stage: #e8d25c; }
 [data-part="inhibition"] .eng-dbtl-stage[data-stage="build"],
-[data-part="inhibition"] .eng-flow-cell[data-stage="build"]  { --stage: #e8b155; }
+[data-part="inhibition"] .eng-folder-page[data-stage="build"]  { --stage: #e8b155; }
 [data-part="inhibition"] .eng-dbtl-stage[data-stage="test"],
-[data-part="inhibition"] .eng-flow-cell[data-stage="test"]   { --stage: #e59356; }
+[data-part="inhibition"] .eng-folder-page[data-stage="test"]   { --stage: #e59356; }
 [data-part="inhibition"] .eng-dbtl-stage[data-stage="learn"],
-[data-part="inhibition"] .eng-flow-cell[data-stage="learn"]  { --stage: #d9775e; }
+[data-part="inhibition"] .eng-folder-page[data-stage="learn"]  { --stage: #d9775e; }
 /* and the ring's four arrows with them, tail to head */
 [data-part="inhibition"] .eng-cycle-tail-design { stop-color: #b89a2e; }
 [data-part="inhibition"] .eng-cycle-head-design { stop-color: #e8d25c; }
@@ -3054,6 +3152,28 @@ body.hw-nexus .hw .eng-closing-title {
 [data-part="inhibition"] .eng-cycle-head-test   { stop-color: #e59356; }
 [data-part="inhibition"] .eng-cycle-tail-learn  { stop-color: #a84a30; }
 [data-part="inhibition"] .eng-cycle-head-learn  { stop-color: #d9775e; }
+/* Reader runs a third ramp, violet, on the same reasoning: sequential rather
+   than a set of categories, and far enough from both the cool and the warm
+   ramp that a reader landing mid-page knows which part they are in. Colour is
+   not the only cue here either -- every card keeps its letter, every heading
+   its name. */
+[data-part="reader"] .eng-dbtl-stage,
+[data-part="reader"] .eng-folder-page[data-stage="design"] { --stage: #d7a8e8; }
+[data-part="reader"] .eng-dbtl-stage[data-stage="build"],
+[data-part="reader"] .eng-folder-page[data-stage="build"]  { --stage: #c294e8; }
+[data-part="reader"] .eng-dbtl-stage[data-stage="test"],
+[data-part="reader"] .eng-folder-page[data-stage="test"]   { --stage: #a884e0; }
+[data-part="reader"] .eng-dbtl-stage[data-stage="learn"],
+[data-part="reader"] .eng-folder-page[data-stage="learn"]  { --stage: #8f79d6; }
+/* and the ring's four arrows with them, tail to head */
+[data-part="reader"] .eng-cycle-tail-design { stop-color: #8f6bb0; }
+[data-part="reader"] .eng-cycle-head-design { stop-color: #d7a8e8; }
+[data-part="reader"] .eng-cycle-tail-build  { stop-color: #7f5cb0; }
+[data-part="reader"] .eng-cycle-head-build  { stop-color: #c294e8; }
+[data-part="reader"] .eng-cycle-tail-test   { stop-color: #6f4faa; }
+[data-part="reader"] .eng-cycle-head-test   { stop-color: #a884e0; }
+[data-part="reader"] .eng-cycle-tail-learn  { stop-color: #5d45a0; }
+[data-part="reader"] .eng-cycle-head-learn  { stop-color: #8f79d6; }
 .eng-dbtl-head {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -8050,7 +8170,9 @@ body.hw-nexus .hw .hw-keys dd { color: var(--nx-muted); }
   line-height: 1.6;
   color: var(--hwx-dim);
 }
-.hw .hwp .hwp-get a { color: var(--hwx-blue); overflow-wrap: anywhere; }
+/* A link in a sentence, so the site's link colour rather than the panel's
+   blue; the long file name still breaks wherever it has to. */
+.hw .hwp .hwp-get a { color: var(--c-teal); overflow-wrap: anywhere; }
 .hw .hwp .hwp-get .hwp-back { display: block; margin-top: 0.6rem; }
 
 /* ---- every file, folded away ---- */
@@ -11622,7 +11744,7 @@ body.edu-nexus .edu-session-block h3 { color: var(--nx-text); }
 body.edu-nexus .edu-session-block p,
 body.edu-nexus .edu-session-block li { color: var(--nx-text); }
 body.edu-nexus .edu-session-block strong { color: #fff; }
-body.edu-nexus .edu-session-block a { color: var(--nx-lime); }
+body.edu-nexus .edu-session-block a { color: var(--c-teal); }
 body.edu-nexus .edu-heading-date { color: var(--nx-muted); }
 body.edu-nexus .edu-quote {
   border-left-color: var(--nx-mint);
@@ -13130,7 +13252,8 @@ body.nb-nexus .nb-week-n { color: var(--nx-text); }
 body.nb-nexus .nb-dates { color: var(--nx-muted); }
 body.nb-nexus .nb-col-head { color: var(--nx-muted); }
 body.nb-nexus .nb-entry { color: var(--nx-text); }
-body.nb-nexus .nb-entry a { color: var(--nx-lime); }
+body.nb-nexus .nb-entry a { color: var(--c-teal); }
+html[data-theme="dark"] .nb-entry a { text-decoration-color: currentColor; }
 body.nb-nexus .nb-entry em { color: var(--nx-text); }
 body.nb-nexus .nb-empty { color: #5c7d8a; }
 
@@ -14053,7 +14176,7 @@ body.hw-nexus.attr-page .attr-ai {
 body.hw-nexus.attr-page .attr-ai h2 { color: var(--nx-mint); }
 body.hw-nexus.attr-page .attr-ai h4 { color: var(--nx-muted); }
 body.hw-nexus.attr-page .attr-ai strong { color: #fff; }
-body.hw-nexus.attr-page .attr-ai a { color: var(--nx-lime); }
+body.hw-nexus.attr-page .attr-ai a { color: var(--c-teal); }
 body.hw-nexus.attr-page .attr-ai .attr-ai-close { color: var(--nx-text); }
 
 /* The thank-you and the credit lists, on the deep-teal ground. */
@@ -14329,12 +14452,13 @@ body.hw-nexus .page-hero:has(.hero-hardware) .hero-title {
 }
 
 /* ---- Board Game: what to notice, in colour ----
-   Three marks in the write-up, each a different colour from the site's
-   palette so they never read as the same kind of thing:
+   Marks in the write-up:
      .bg-num    a number or a count -- the warm amber, bold
      .bg-hl     the sentence the section is making -- the lime, with a soft
                 underline of the same colour
-     .bg-key    a named rule, card or place -- the mint
+     .bg-key    a named rule, card or place -- the lime too, bolder: the
+                site marks what matters in one colour, and the weight is
+                what separates a named thing from the sentence around it
      .bg-quote  what the playtesters wrote -- italic, in light blue
    Nothing else on the page changes. */
 body.bg-nexus .bg-num {
@@ -14351,8 +14475,12 @@ body.bg-nexus .bg-hl {
           box-decoration-break: clone;
 }
 
-body.bg-nexus .bg-key {
-  color: var(--nx-mint);
+/* The second selector is for a .bg-key that is also a <strong> inside a
+   list, where "body.bg-nexus .sgd-list li strong { color: #fff }" is one
+   step more specific and was painting two of them white. */
+body.bg-nexus .bg-key,
+body.bg-nexus .sgd-list li strong.bg-key {
+  color: var(--nx-lime);
   font-weight: 700;
 }
 

@@ -378,7 +378,7 @@
     <p class="hw-point">
       The LED holds steady, and once the sensor was aligned with the cuvette,
       the signal behaved as sfGFP fluorescence and the reader detected about
-      4% sfGFP culture.
+      4% sfGFP culture; our AHL sensor strain stays below that limit.
     </p>
 
     <h3>The density test: does the reading follow the sample?</h3>
@@ -553,6 +553,54 @@
     </p>
       </div>
     </details>
+
+    {# 2026-10-14：感測菌測試（硬體負責人自己量的 P1；同一個備份檔裡另外兩個計畫不是他的，不用）。
+       資料：桌面 lasreader-backup-20261013-0130.json，plan RUN-20261012-3911，2026-10-12，現在的 LasReader 韌體（不是 v5.5）。
+       16 筆感測菌讀值：拿掉兩筆測其他東西時的讀值（100 µM r2、10 µM r3）。空白是純培養基。
+       F5/F3 平均 0.0549、範圍 0.0477–0.0604；F4 與 F7、Clear 的相關 0.99、0.92（16 筆）。
+       F5/F3 對 log AHL 的相關是 0.56（10 nM 約 0.050、1 mM 約 0.056），差距和同濃度各管之間的差距相當，
+       所以不寫「沒有變化」，只寫「停在不含 sfGFP 的菌的水準」。參考線取自線性測試（0922）：N ≈ 0.055、H100 ≈ 0.127，
+       是另一場、另一版韌體，圖例有標明。讀盤機上感測菌高於對照，見 Engineering 頁（對照是空載體，AHL 依賴性未確認）。 #}
+    <h3 id="lc-sensor">The sensor-strain test: our AHL sensor on this reader</h3>
+    <p>
+      <span class="lc-tag">Aim</span> Read the AHL-sensing strain our wet lab
+      built, <em>E.&nbsp;coli</em> TOP10 carrying ProD-LasR &middot;
+      pLasRV-sfGFP, across a range of AHL.<br>
+      <span class="lc-tag">Method</span> The strain was given AHL at seven
+      concentrations, 10&nbsp;nM to 1&nbsp;mM, three tubes each, with three
+      tubes of medium alone as blanks, and read with the current firmware
+      rather than the batch firmware of the tests above. Two readings taken
+      while testing something else are left out, leaving 16.
+    </p>
+    <figure class="hw-figure">
+      <div data-lc-chart="sensor"></div>
+      <figcaption>
+        F5/F3 of each tube of the sensor strain, and of medium alone. The two
+        dashed lines are from the linearity test, a different session with the
+        batch firmware: a culture without sfGFP, and the undiluted sfGFP test
+        culture.
+      </figcaption>
+    </figure>
+    <p>
+      <span class="lc-tag">Result</span> F5/F3 stayed between 0.048 and 0.060
+      (mean 0.055) across the whole range, at the level of the culture without
+      sfGFP in the linearity test (0.055) and far below the undiluted sfGFP
+      test culture (0.127); medium alone read 0.026 to 0.033. The differences
+      between concentrations were no larger than those between tubes at one
+      concentration. F4 rose and fell with the red channel F7 and the clear
+      channel (r&nbsp;=&nbsp;0.99 and 0.92): the readings followed the light
+      scattered by the cells.
+    </p>
+    <p>
+      <span class="lc-tag">Conclusion</span> This reader detects and
+      quantifies a strongly expressing sfGFP culture down to about 4%, but our
+      sensor strain's signal is below that limit. In the wet lab's plate
+      reader the strain did glow above its control
+      (<a href="{{ url_for('pages', page='engineering') }}">Engineering</a>),
+      so the signal exists but is too faint for this reader. The 3D-printed
+      build reached the same conclusion with dense suspensions
+      (<a href="#hardware-v2-ahl">Where it stops</a>).
+    </p>
   </section>
 
   <!-- ========================= ten channels ========================= -->
@@ -643,9 +691,15 @@
         same session.
       </li>
       <li>
-        <strong>No reference comparison yet.</strong> The reader has not been
-        compared with a plate reader, and it has not read an AHL-induced
-        culture.
+        <strong>The AHL sensor strain is below its detection limit.</strong>
+        Our sensor strain glows above its control in a plate reader, but on
+        this reader its F5/F3 stayed at the level of cells without sfGFP from
+        10&nbsp;nM to 1&nbsp;mM AHL (see
+        <a href="#lc-sensor">the sensor-strain test</a>).
+      </li>
+      <li>
+        <strong>No reference comparison yet.</strong> This reader has not been
+        compared with a plate reader.
       </li>
     </ul>
   </section>

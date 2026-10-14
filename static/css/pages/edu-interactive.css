@@ -7,9 +7,14 @@
    (static/js/pages/edu-interactive.js); without the script it all shows.
    ============================================================ */
 
+/* One highlight colour across the wiki: the lime marks what matters,
+   whether the mark is .edx-hl (the sentence) or .edx-key (the thing named
+   in it), and a reader learns it once. The two keep separate names because
+   they still mean different things in the markup. Numbers stay amber, so a
+   figure is still told apart from a phrase at a glance. */
 body:is(.edu-nexus, .hp-nexus) {
   --edx-hl:  var(--nx-lime);
-  --edx-key: var(--nx-blue-up);
+  --edx-key: var(--nx-lime);
   --edx-num: var(--nx-warm);
 }
 
@@ -791,3 +796,34 @@ body:is(.edu-nexus, .hp-nexus) .edx-finale .edx-finale-note {
   .edx-cert-icon,
   .edx-kpi { transition: none; }
 }
+
+/* ---- Education's auto-built "On this page" sidebar (page-toc.js,
+   static/page-toc.css) ----
+   Overview (stats + map + timeline) is full-width content that sits before
+   the nine tracked sessions; it is not one of them (it has no h2, so
+   page-toc.js never lists it). But .has-page-toc's padding-left:252px lands
+   on the whole container, which would also push Overview's map off centre.
+   Pull Overview back out to the container's full width so the map stays
+   centred on the page, the way it was before this page had a TOC sidebar.
+   The sidebar itself starts at the top of the container by default, which
+   would float it beside Overview; push it down to start level with the
+   first tracked session (Xihu) instead. Both numbers are estimates of
+   Overview's own height (the map's aspect-ratio and the orbit layout both
+   vary with width) and may need a small adjustment once checked in the
+   browser. */
+@media (min-width: 1200px) {
+  body.edu-nexus .container.has-page-toc #session-overview {
+    margin-left: -252px;
+    width: calc(100% + 252px);
+  }
+  /* 同樣綁到註解裡講的那個元素。這個檔也被 meet-with-experts 載入，而它同為
+     edu-nexus 卻沒有 Overview，原本會吃到這 64rem 的偏移。 */
+  body.edu-nexus .container.has-page-toc:has(#session-overview) .page-toc-inner { margin-top: 64rem; }
+}
+
+/* None of the nine parts above has sub-sections, so this button (page-toc.js
+   adds it unconditionally in "parts" mode) never has anything to expand or
+   collapse -- it always reads "Collapse all" and does nothing. Hidden here
+   rather than in page-toc.js itself, since Model's own parts do have
+   sub-sections and the button does real work there. */
+body.edu-nexus .page-toc-all { display: none; }
