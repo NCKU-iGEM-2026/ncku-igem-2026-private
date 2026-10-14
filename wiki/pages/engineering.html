@@ -61,7 +61,7 @@
 
    part: used in ids and links (#eng-detect-c1-design ...); part_name: the
    heading above the cycle and the word in its centre. #}
-{% set parts = [('detect', 'Detection', 3), ('inhibition', 'Inhibition', 1)] %}
+{% set parts = [('detect', 'Detection', 3), ('inhibition', 'Inhibition', 1), ('reader', 'Reader', 2)] %}
 
 {# A later round does not always start from scratch. cycle_stages says which
    stages that round actually ran; the ones it skipped keep their arrow on the
@@ -85,7 +85,7 @@
    parts do not share one wording. Its job is the question no single round
    answers: where this module stands and what is still open. It must not
    retell the rounds -- each cycle's own Learn did that. #}
-{% set futures = {'inhibition': 'Beyond the cycle'} %}
+{% set futures = {'inhibition': 'Beyond the cycle', 'reader': 'Where the reader stands'} %}
 
 {# The book of cards under each round's heading: one line per stage on what
    that stage actually did, a card each, always in stage order. The page is
@@ -100,6 +100,9 @@
    so and is drawn faint, matching the dimmed arrow on that round's ring.
    Each note says what happened, not what the section is about. Without the
    script the cards simply stand one under another. #}
+{# Part 03（Reader）的八張卡片是硬體負責人提供的草稿（HARDWARE_FOR_ENGINEERING.md，
+   2026-10-14）。數字全部取自 Hardware 頁、沒有改動；每個階段的全文都連回 Hardware
+   頁寫它的那一節，細節在那裡，這一頁只講這一輪做了什麼。 #}
 {% set cycle_flows = {
   ('detect', 1): [
     ('design', 'Build a sensor that lights up near <i>P. aeruginosa</i>: the receptor LasR catches the signal the bacteria use to talk to each other, and switches on a green fluorescent reporter.'),
@@ -118,6 +121,18 @@
     ('build',  none),
     ('test',   'Both constructs were given 1&nbsp;&micro;M of the synthetic signal and read in a plate reader every hour for five hours. Both glowed far above the control at every reading.'),
     ('learn',  'Our control carried a plasmid with no reporter gene in it at all, so it could only show that the reporter was being made &mdash; not that the signal was what switched it on. That remains unproven.'),
+  ],
+  ('reader', 1): [
+    ('design', 'Read the green of a GFP culture without an emission filter: one blue LED, a sensor looking from 90&deg;, and a light trap to swallow the beam that passes straight through.'),
+    ('build',  'A 3D-printed optical core on a base plate, with an ESP32 and an AS7341 spectral sensor on a breadboard beside it. Two printed parts broke as their supports came off and were taped.'),
+    ('test',   'Room light leaked in &mdash; 11 counts on an empty cuvette &mdash; so the reader went under a shield, and a dark read that is not zero now voids its cycle. Across three mixing sessions, all 27 readings without GFP were zero, and 35 of 38 tubes with GFP read above zero.'),
+    ('learn',  'The wet lab found that placing the cuvette took four steps and 30 to 40 seconds, each step a chance to seat it differently. The LED was also running under its design current.'),
+  ],
+  ('reader', 2): [
+    ('design', 'A seat that takes the cuvette in one step and sets its height and position itself, holders redrawn to print without weak layers, and one resistor to bring the LED to about 10&nbsp;mA.'),
+    ('build',  'Five printed parts and one resistor changed on the same base plate; the base plate, detector side, light trap and firmware stayed as they were.'),
+    ('test',   'Loading fell to 3 to 5 seconds, and one tube put back five times varied by 0.76%. Beside a SpectraMax M3 plate reader, a GFP culture read 86 counts and one without GFP, at similar density, read 0; five dilutions ranked the same way on both.'),
+    ('learn',  'Suspensions scraped from AHL plates read a few counts with no GFP in them. A culture without the reporter read zero while the scatter channel stayed under about 33 counts, and no longer did from 46, so the scatter channel has to be read beside the green one.'),
   ],
   ('inhibition', 1): [
     ('design', 'Instead of feeding cells a synthetic aptamer, have the cell make its own. A retron produces single-stranded DNA carrying Cb-2, an aptamer that binds the signal <i>P. aeruginosa</i> uses to coordinate.'),
@@ -497,6 +512,36 @@
           <p>We also found that experimental conditions strongly influenced assay performance. Factors such as plate moisture in the swarming assay and mixing efficiency during pyocyanin extraction had to be optimized before reliable results could be obtained.</p>
           <p>In future work, we would focus on directly verifying and quantifying retron-derived ssDNA using methods such as denaturing urea-PAGE or sequence-specific detection. This would allow us to better connect aptamer production with the functional effects observed in our assays.</p>
           <p>Ultimately, we hope to develop the retron system into a more reliable biological platform for continuous production of functional DNA aptamers in vivo.</p>
+          {# ---- Part 03 · Reader ----
+             來源：HARDWARE_FOR_ENGINEERING.md（硬體負責人，2026-10-14）。數字一律
+             照 Hardware 頁，沒有自己換算；每一段都連回 Hardware 頁寫它的那一節。
+             這一頁只說這一輪做了什麼，細節留在 Hardware。 #}
+          {% elif part == 'reader' and cycle == 1 and stage == 'design' %}
+          <p>A fluorescence reader normally tells green light from blue with an emission filter. We set out to do without one: a single 470&nbsp;nm LED lights the sample, a ten-channel spectral sensor looks at it from 90&deg;, where the beam does not go, and a light trap behind the cuvette swallows the beam that passes straight through. What the sensor sees is then a matter of which of its channels respond, not of what a filter let past.</p>
+          <p>The reasoning behind that geometry, and the optics it depends on, are set out under <a href="{{ url_for('pages', page='hardware') }}#hardware-principle">how the reader works</a>.</p>
+          {% elif part == 'reader' and cycle == 1 and stage == 'build' %}
+          <p>The first build put a 3D-printed optical core on a base plate, with an ESP32 and the AS7341 spectral sensor on a breadboard beside it. Two of the printed parts broke as their supports came away and were taped rather than reprinted, which is the kind of thing a first build is for finding.</p>
+          <p>The parts, the wiring and what it cost are listed under <a href="{{ url_for('pages', page='hardware') }}#hardware-builds">the builds</a>.</p>
+          {% elif part == 'reader' and cycle == 1 and stage == 'test' %}
+          <p>The first thing the reader measured was the room it was standing in: an empty cuvette read 11 counts, which is light getting in rather than anything in the tube. The reader went under a shield, and the firmware now voids any cycle whose dark read is not zero, so a leak cannot be mistaken for a sample. It has voided cycles since; the reader does not claim never to leak, it claims to notice.</p>
+          <p>Across three mixing sessions, all 27 readings of tubes without GFP came back zero, and 35 of the 38 tubes with GFP read above zero. The cells in those tubes were a test strain &mdash; <i>E.&nbsp;coli</i> TOP10 carrying a plasmid that makes sfGFP on its own &mdash; not the biosensor, so this says the reader can see the reporter, not that it can see the signal.</p>
+          <p>The sessions are written up under <a href="{{ url_for('pages', page='hardware') }}#hardware-bench-v1">the three mixing sessions</a>, and the shielding under <a href="{{ url_for('pages', page='hardware') }}#hardware-shielding">keeping the light out</a>.</p>
+          {% elif part == 'reader' and cycle == 1 and stage == 'learn' %}
+          <p>The reader worked, and using it did not. The wet lab reported that placing a cuvette took four separate steps and 30 to 40 seconds, and every one of those steps was a chance to seat the tube a little differently from the last time &mdash; which is the one thing a reader comparing one tube with another cannot afford. The LED was also found to be running under the current it had been designed for.</p>
+          <p>Neither is a fault in the optics, and that is what made the second round about the fittings rather than the physics. The feedback is under <a href="{{ url_for('pages', page='hardware') }}#hardware-use">what using it was like</a>.</p>
+          {% elif part == 'reader' and cycle == 2 and stage == 'design' %}
+          <p>Three changes, each answering something the first round found. A seat that takes the cuvette in one step and sets its height and position by itself, so the tube is placed the same way whoever places it. Holders redrawn so that they print without weak layers, after two parts broke on the first build. And one resistor, to bring the LED up to about 10&nbsp;mA.</p>
+          <p>What changed between the two builds, and why, is under <a href="{{ url_for('pages', page='hardware') }}#hardware-v2">the first build to the second</a>.</p>
+          {% elif part == 'reader' and cycle == 2 and stage == 'build' %}
+          <p>Five printed parts and one resistor changed, on the same base plate. The base plate itself, the detector side, the light trap and the firmware were left exactly as they were &mdash; so anything the second round measured differently is down to the five parts and the resistor, and not to a reader rebuilt from scratch.</p>
+          {% elif part == 'reader' and cycle == 2 and stage == 'test' %}
+          <p>Loading a cuvette fell from 30&ndash;40 seconds to 3 to 5, and one tube taken out and put back five times varied by 0.76% &mdash; the seat doing what it was drawn to do.</p>
+          <p>The reader was then run beside a SpectraMax M3 plate reader. A GFP culture read 86 counts on ours and a culture without GFP, at similar density, read 0; across five dilutions the two instruments ranked the samples the same way. Ranking the same way is what we can say: the two were not run as a calibration, and we are not claiming the readings are proportional to each other.</p>
+          <p>The session is under <a href="{{ url_for('pages', page='hardware') }}#hardware-v2-m3">beside a plate reader</a>.</p>
+          {% elif part == 'reader' and cycle == 2 and stage == 'learn' %}
+          <p>Then the reader met a sample that was not a clean culture. Suspensions scraped from AHL plates read a few counts with no GFP in them at all, which the green channel alone cannot explain away. Reading the scatter channel beside it showed where the line is: a culture without the reporter read zero while scatter stayed under about 33 counts, and no longer did from 46.</p>
+          <p>So the green channel is not enough on its own &mdash; the scatter channel has to be read beside it, and a sample too dense cannot be trusted. On those plates the reader could not tell a suspension apart from a culture carrying no reporter at the same scatter, which agrees with what Detection found: AHL-dependent induction is not yet shown by either of us.</p>
+          <p>The dense-suspension readings are under <a href="{{ url_for('pages', page='hardware') }}#hardware-v2-ahl">suspensions from the AHL plates</a>.</p>
           {% else %}
           {# 內容待 wet lab 確認後寫在這裡，寫好後刪掉下面這個佔位框。
              寫某一部分的某一階段時，照上面 inhibition / design 的寫法加一個條件。 #}
@@ -520,12 +565,20 @@
     </svg>
     <div class="eng-future-body">
       <h3 class="eng-future-title" id="eng-{{ part }}-future-title">{{ futures[part] }}</h3>
+      {# 這個區塊的內文原本只寫給 inhibition，futures 多了一個 part 之後就得分流，
+         否則 Reader 會顯示到 inhibition 的文字。 #}
+      {% if part == 'reader' %}
+      <p>Two rounds in, the reader reads the reporter and does not read the signal. It tells a GFP culture from one without, on the bench, in a few seconds a tube; it ranks dilutions the way a plate reader ranks them; and on suspensions scraped from AHL plates it cannot tell an induced sample from an uninduced one. The next thing it needs is not another round of fittings.</p>
+      <p>It is an emission filter, and there is already a drawer on the reader to take one. Without a filter the green channel and the blue beam are told apart by geometry alone, which is what leaves a dense, scattering sample unreadable; a filter would separate scattered blue from emitted green rather than relying on the angle to do it. The same reader also runs from LasReader over Wi-Fi, so the readings need not be collected by hand.</p>
+      <p>Both are set out on the Hardware page, under <a href="{{ url_for('pages', page='hardware') }}#hardware-v2-next">what the reader needs next</a> and <a href="{{ url_for('pages', page='hardware') }}#hardware-modules">the modules it takes</a>.</p>
+      {% else %}
       <p>After confirming the function of our retron system, we aim to integrate our retron-Cb-2 system with an AHL-responsive lysis module, enabling engineered <i>E. coli</i> to detect quorum-sensing signals from <i>Pseudomonas aeruginosa</i> and subsequently release the intracellularly produced aptamer. We have already attempted to construct such a system, changing the sfGFP region to E7 lysis protein (Fig. I17); however, the lysis module has not yet been successfully validated. Similar synthetic circuits have previously used lysis proteins to release intracellular products from engineered <i>E. coli</i> following AHL detection.<sup>[8]</sup></p>
       <figure class="hw-figure eng-figure text-center">
         <img class="img-fluid" src="https://static.igem.wiki/teams/6379/wiki/engineering/engineering/lyse-gene.avif" alt="Gene map of the lysis construct: pLasRV driving E7, and J23101 driving LasR">
         <figcaption>Fig. I17 pTwist-pLasRV-E7; J23101-LasR gene map</figcaption>
       </figure>
       <p>For future clinical applications, the safety of bacterial lysis would also need to be carefully considered. Lysis of Gram-negative bacteria may release cellular debris and inflammatory components such as lipopolysaccharide (LPS), which could trigger unwanted immune responses. Therefore, future development should focus not only on improving lysis efficiency, but also on safer release strategies, such as controlled secretion or alternative chassis with lower inflammatory risk.</p>
+      {% endif %}
     </div>
   </section>
   {% endif %}
