@@ -284,11 +284,45 @@
       return (pinPx + 4) * unitsPerPx;
     }
 
+    // 每個縣市投影後的多邊形，供下面「把圖釘收回自己縣市」用。
+    // 與 <path> 同樣採 even-odd：一個點落在奇數條邊的左side即視為在內部。
+    var countyPolys = {};
+    geoRings.forEach(function (g) {
+      countyPolys[g.id] = g.rings.map(function (ring) {
+        return ring.map(function (c) { return project(c[0], c[1]); });
+      });
+    });
+
+    function insideCounty(id, x, y) {
+      var rings = countyPolys[id];
+      if (!rings) return true;               // 沒有這個縣市的輪廓就不限制
+      var inside = false;
+      for (var r = 0; r < rings.length; r++) {
+        var ring = rings[r];
+        for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+          var xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+          if ((yi > y) !== (yj > y) &&
+              x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+        }
+      }
+      return inside;
+    }
+
+    // 縣市的概略中心：取所有輪廓點的平均，用來把跑出去的圖釘往回拉。
+    var countyCentre = {};
+    Object.keys(countyPolys).forEach(function (id) {
+      var sx = 0, sy = 0, n = 0;
+      countyPolys[id].forEach(function (ring) {
+        ring.forEach(function (p) { sx += p[0]; sy += p[1]; n++; });
+      });
+      countyCentre[id] = n ? [sx / n, sy / n] : null;
+    });
+
     function layoutPins() {
       var gap = requiredGap();
       var pts = SESSIONS.map(function (s, i) {
         var p = project(s.lon, s.lat);
-        return { el: pinEls[i], x: p[0], y: p[1] };
+        return { el: pinEls[i], x: p[0], y: p[1], county: s.county };
       });
 
       // 完全同座標的點（同一所學校去了兩次）距離是 0，沒有方向可以推，
@@ -331,6 +365,19 @@
         }
         if (!moved) break;
       }
+
+      // 推擠完可能把圖釘推出自己的縣市（台南市區一帶最擠）。
+      // 沿著「圖釘 → 縣市中心」這條線往回走，走到回到縣市內為止。
+      pts.forEach(function (pt) {
+        var c = countyCentre[pt.county];
+        if (!c || insideCounty(pt.county, pt.x, pt.y)) return;
+        for (var t = 0.08; t <= 1.0001; t += 0.08) {
+          var nx = pt.x + (c[0] - pt.x) * t;
+          var ny = pt.y + (c[1] - pt.y) * t;
+          if (insideCounty(pt.county, nx, ny)) { pt.x = nx; pt.y = ny; return; }
+        }
+        pt.x = c[0]; pt.y = c[1];          // 極端情況：直接放縣市中心
+      });
 
       // 圖釘以座標為中心（CSS 有 transform: translate(-50%, -50%)），留半顆邊界
       var half = gap / 2;
