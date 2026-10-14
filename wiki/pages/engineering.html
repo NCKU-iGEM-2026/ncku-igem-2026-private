@@ -87,13 +87,19 @@
    retell the rounds -- each cycle's own Learn did that. #}
 {% set futures = {'inhibition': 'Beyond the cycle'} %}
 
-{# The strip under each round's heading: its four stages left to right with
-   an arrow between them, one line per stage on what that stage actually did.
-   The page is long and almost all of it is prose, so a reader arriving at a
-   round gets its shape before any of the prose, and can jump straight to the
-   stage they came for. A stage the round did not run has no note here and is
-   drawn faint, matching the dimmed arrow on that round's ring.
-   Each note says what happened, not what the section is about. #}
+{# The book of cards under each round's heading: one line per stage on what
+   that stage actually did, a card each, always in stage order. The page is
+   long and almost all of it is prose, so a reader arriving at a round gets
+   its shape before any of the prose, and can jump straight to the stage they
+   came for. The card open sits in the middle; the ones before it fold away
+   to the left down to their spines, the ones after it lie stacked behind,
+   their edges showing on the right. Pointing at a spine or an edge opens
+   that card, so the reader leafs through without clicking; clicking keeps it
+   open (engineering-folder.js). Each card links down to its stage's full
+   write-up. A stage the round did not run has no note here: its card says
+   so and is drawn faint, matching the dimmed arrow on that round's ring.
+   Each note says what happened, not what the section is about. Without the
+   script the cards simply stand one under another. #}
 {% set cycle_flows = {
   ('detect', 1): [
     ('design', 'Build a sensor that lights up near <i>P. aeruginosa</i>: the receptor LasR catches the signal the bacteria use to talk to each other, and switches on a green fluorescent reporter.'),
@@ -235,23 +241,35 @@
     <div class="eng-dbtl-stages" style="grid-row: {{ cycle * 2 + 2 }}">
       {% set flow = cycle_flows.get((part, cycle)) %}
       {% if flow %}
-      <ol class="eng-flow" aria-label="What this round did, stage by stage">
-        {% for stage, flow_note in flow %}
-        <li>
-          {% if flow_note %}
-          <a class="eng-flow-cell" data-stage="{{ stage }}" href="#eng-{{ part }}-c{{ cycle }}-{{ stage }}">
-            <span class="eng-flow-letter">{{ stage[0]|upper }}</span>
-            <span class="eng-flow-note">{{ flow_note|safe }}</span>
-          </a>
-          {% else %}
-          <div class="eng-flow-cell is-skipped" data-stage="{{ stage }}">
-            <span class="eng-flow-letter">{{ stage[0]|upper }}</span>
-            <span class="eng-flow-note">Carried over from the previous round, unchanged.</span>
-          </div>
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ol>
+      <div class="eng-folder" aria-label="What this round did, stage by stage" style="--n: {{ flow|length }}">
+        <div class="eng-folder-pages">
+          {% for stage, flow_note in flow %}
+          {% set stage_name = stage_titles.get(stage, stage|capitalize) %}
+          <article class="eng-folder-page{% if not flow_note %} is-skipped{% endif %}" id="eng-{{ part }}-c{{ cycle }}-gist-{{ stage }}" data-stage="{{ stage }}" style="--i: {{ loop.index0 }}">
+            <button type="button" class="eng-folder-spine" aria-controls="eng-{{ part }}-c{{ cycle }}-gist-{{ stage }}">
+              <span class="eng-flow-letter">{{ stage[0]|upper }}</span>
+              <span class="eng-folder-spine-name">{{ stage_name }}</span>
+            </button>
+            <div class="eng-folder-body">
+              <p class="eng-folder-page-head">
+                <span class="eng-folder-page-num">0{{ stage_num[stage] }}</span>
+                {{ stage_name }}
+              </p>
+              {% if flow_note %}
+              <p class="eng-folder-page-note">{{ flow_note|safe }}</p>
+              <a class="eng-folder-page-more" href="#eng-{{ part }}-c{{ cycle }}-{{ stage }}">Read the full {{ stage_name }} <span aria-hidden="true">&darr;</span></a>
+              {% else %}
+              <p class="eng-folder-page-note">Carried over from the previous round, unchanged.</p>
+              {% endif %}
+            </div>
+            <span class="eng-folder-edge" aria-hidden="true">
+              <span class="eng-flow-letter">{{ stage[0]|upper }}</span>
+              <span class="eng-folder-spine-name">{{ stage_name }}</span>
+            </span>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
       {% endif %}
       {% for stage, bearing, x, y, note in stages if stage in shown %}
       <section class="eng-dbtl-stage" id="eng-{{ part }}-c{{ cycle }}-{{ stage }}" data-stage="{{ stage }}" data-bearing="{{ bearing }}">
@@ -571,5 +589,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="{{ url_for('static', filename = 'engineering-folder.js') }}"></script>
 <script src="{{ url_for('static', filename = 'engineering-cycle.js') }}"></script>
 {% endblock %}
