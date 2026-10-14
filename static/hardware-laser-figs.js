@@ -133,6 +133,40 @@
       text(s, 'r² ≈ 0.97', X(0.04), Y(50), { anchor: 'start', size: 12, fill: C.ink, weight: 600 });
     },
 
+    /* The sensor-strain test: lasreader-backup-20261013-0130.json, plan RUN-20261012-3911 (P1), F5/F3 of each
+       reading, current firmware. Two readings taken while testing something else are left out (100 µM r2,
+       10 µM r3). Blanks are medium alone. Reference lines from 0922 (linearity test): the tube without
+       sfGFP, F5/F3 ≈ 0.055, and the undiluted sfGFP culture H100, ≈ 0.127. */
+    sensor: function (host) {
+      var pts = [[1,0.0477],[1,0.0485],[1,0.0547],[2,0.0537],[2,0.0557],[2,0.0572],[3,0.0538],[3,0.0541],[3,0.0542],
+                 [4,0.0584],[4,0.0604],[5,0.0549],[5,0.0553],[6,0.0561],[6,0.0563],[6,0.0567]];
+      var blank = [0.0332, 0.0273, 0.0263];
+      var cats = ['Medium', '10 nM', '100 nM', '1 µM', '10 µM', '100 µM', '1 mM'];
+      legend(host, [[C.blue, 'Sensor strain, one tube each'], [C.mute, 'Medium alone', 'open'],
+                    [C.green, 'Undiluted sfGFP test culture (linearity test)'], [C.amber, 'Culture without sfGFP (linearity test)']]);
+      var W = 680, H = 300, L = 56, R = 18, T = 14, B = 48, pw = W - L - R, ph = H - T - B;
+      function X(i) { return L + pw * (i + 0.5) / cats.length; }
+      function Y(v) { return T + ph - v / 0.14 * ph; }
+      var s = svg(host, W, H, 'F5 over F3 of the AHL sensor strain at seven AHL concentrations, 10 nanomolar to 1 millimolar. Every reading lies between 0.048 and 0.060, on the level of a culture without sfGFP and far below the undiluted sfGFP test culture at 0.127.');
+      [0, 0.04, 0.08, 0.12].forEach(function (v) {
+        el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 0 ? '' : '3 4' }, s);
+        text(s, v.toFixed(2), L - 8, Y(v) + 4, { anchor: 'end', size: 10 });
+      });
+      el('line', { x1: L, x2: W - R, y1: Y(0.127), y2: Y(0.127), stroke: C.green, 'stroke-width': 1.6, 'stroke-dasharray': '6 4' }, s);
+      el('line', { x1: L, x2: W - R, y1: Y(0.055), y2: Y(0.055), stroke: C.amber, 'stroke-width': 1.6, 'stroke-dasharray': '6 4' }, s);
+      cats.forEach(function (c, i) { text(s, c, X(i), T + ph + 17, { size: 10, fill: i ? C.mute : C.ink }); });
+      text(s, 'AHL concentration', L + pw / 2 + pw / cats.length / 2, H - 6, { size: 10 });
+      text(s, 'F5/F3', L - 8, T - 2 + 10, { anchor: 'start', size: 10 });
+      blank.forEach(function (v, k) {
+        el('circle', { cx: X(0) + (k - 1) * 9, cy: Y(v), r: 4.2, fill: C.panel, stroke: C.mute, 'stroke-width': 1.6 }, s);
+      });
+      var seen = {};
+      pts.forEach(function (p) {
+        var k = seen[p[0]] = (seen[p[0]] || 0) + 1;
+        el('circle', { cx: X(p[0]) + (k - 2) * 9, cy: Y(p[1]), r: 4.2, fill: C.blue }, s);
+      });
+    },
+
     /* 0920_逐筆.csv, the fluorescence test, readings 2–5 of each adopted batch (same batches as its fit).
        For each culture density d: (F/F3 of the f = 1 tube) − (F/F3 of the f = 0 tube), then the
        whole curve divided by its own F4 value. F3 is zero by construction. F2 sits next to the
