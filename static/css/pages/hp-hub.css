@@ -522,7 +522,31 @@ body.edu-nexus .mx-advice-link { margin: 1rem 0 0; color: var(--nx-muted); font-
 
 /* ---------- Survey ---------- */
 .sv-intro { --hpx-dir: var(--hpx-back); margin-bottom: 1rem; }
-.sv-intro > p:not(.hpx-kicker) { max-width: 75ch; }
+.sv-intro > p:not(.hpx-kicker) { max-width: 150ch; }
+
+/* This page's sections are h2s on purpose, so page-toc.js's "On this page"
+   list picks them up (see the comment at the top of survey.html) -- but its
+   padding-left:252px lands on the whole container, which also narrows and
+   indents the intro (title, stats, the two lead paragraphs) above the
+   sections, which is not one of the list's entries (its own heading is an
+   h3, not an h2). Pull the intro back out to the container's full width, and
+   push the sidebar down to start level with the first real section
+   (Population Sample) instead of floating beside the intro. The margin is an
+   estimate of the intro's own height and may need a small adjustment once
+   checked in the browser. */
+@media (min-width: 1200px) {
+  body.edu-nexus .container.has-page-toc .sv-intro {
+    margin-left: -252px;
+    width: calc(100% + 252px);
+  }
+  /* :has(.sv-intro) 把這條綁在 Survey 自己身上。body.edu-nexus 另外還有
+     human-practices 與 meet-with-experts 兩頁在用，它們沒有這個 intro，卻一樣
+     吃到這個偏移，目錄上方因此空出一大塊。
+     36rem 是原作者估的 intro 高度，實測在瀏覽器裡多推了約 86px，所以收到
+     30.6rem，讓目錄第一項跟 Population Sample 同一個水平。這個值只決定靜止時
+     的位置：一旦往下捲，sticky 的 top: 112px 就接手。 */
+  body.edu-nexus .container.has-page-toc:has(.sv-intro) .page-toc-inner { margin-top: 30.6rem; }
+}
 
 body.edu-nexus .sv-title,
 body.edu-nexus .sv-section h2 {
