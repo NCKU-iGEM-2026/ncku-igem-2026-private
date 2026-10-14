@@ -105,40 +105,40 @@
    頁寫它的那一節，細節在那裡，這一頁只講這一輪做了什麼。 #}
 {% set cycle_flows = {
   ('detect', 1): [
-    ('design', 'Build a sensor that lights up near <i>P. aeruginosa</i>: the receptor LasR catches the signal the bacteria use to talk to each other, and switches on a green fluorescent reporter.'),
-    ('build',  'The circuit went onto a pTwist plasmid in <i>E. coli</i> TOP10. We swapped the reference promoter J23101 for ProD, expecting it to make more LasR.'),
-    ('test',   'Adding the synthetic signal to liquid culture gave nothing, and so did growing the two bacteria together. Only an agar plate, with <i>P. aeruginosa</i> supernatant in a central well, produced a visible glow.'),
-    ('learn',  'A protein gel showed LasR was being made, so the cells were reading the plasmid. Whatever was blocking the response had to lie in the signal or the conditions around it.'),
+    ('design', 'We designed a LasR&ndash;pLasRV&ndash;sfGFP biosensor to convert the quorum-sensing signal 3-oxo-C12-HSL into a fluorescent output.', true),
+    ('build',  'We constructed the ProD&ndash;LasR / pLasRV&ndash;sfGFP circuit in <i>E. coli</i> TOP10 and verified that LasR was expressed at approximately its expected molecular weight.', true),
+    ('test',   'We tested the biosensor using synthetic AHL, co-culture with PAO1, and finally an agar diffusion assay with PAO1 supernatant. Detectable fluorescence appeared only in the agar-based assay, while the liquid-based tests did not produce the expected response.', true),
+    ('learn',  'The inconsistent response showed us that simply increasing LasR expression was not enough to guarantee better sensing. We also discovered a sequence difference in our optimized LasR, so we decided to rebuild the circuit closer to the original reference design.', true),
   ],
   ('detect', 2): [
-    ('design', none),
-    ('build',  'To test whether the promoter swap was the problem, we rebuilt the plasmid with J23101 and the unmodified LasR, and put it into <i>E. coli</i> TOP10.'),
-    ('test',   'The rebuilt sensor behaved exactly like the first one, and again only the agar plate glowed. We added software that outlines the glowing area and reports its width in millimetres.'),
-    ('learn',  'Two different constructs behaving alike pointed away from the gene design. That left the signal breaking down, other compounds in the supernatant, agar versus liquid, and the fact that the original design had only ever been tested outside living cells.'),
+    ('design', 'Carried over from the previous round, unchanged.', false),
+    ('build',  'We rebuilt the J23101&ndash;LasR / pLasRV&ndash;sfGFP plasmid and transformed it into <i>E. coli</i> TOP10. The new construct was then verified and compared with the original ProD-based version before further testing.', true),
+    ('test',   'We repeated the same experimental approaches used in Cycle&nbsp;1, but the redesigned construct showed almost the same pattern. We also introduced LasReader software to make fluorescence analysis more objective.', true),
+    ('learn',  'Because rebuilding the genetic circuit did not substantially improve the response, we began to suspect that the problem was not only genetic, but also AHL stability, culture conditions, and the differences between liquid, agar and cell-free environments.', true),
   ],
   ('detect', 3): [
-    ('design', 'Stop changing the DNA. Control instead how the signal is handled, since pH and light both break down the molecule we were trying to detect.'),
-    ('build',  none),
-    ('test',   'Both constructs were given 1&nbsp;&micro;M of the synthetic signal and read in a plate reader every hour for five hours. Both glowed far above the control at every reading.'),
-    ('learn',  'Our control carried a plasmid with no reporter gene in it at all, so it could only show that the reporter was being made &mdash; not that the signal was what switched it on. That remains unproven.'),
+    ('design', 'Instead of changing the genetic circuit again, we shifted our focus to factors such as pH and light exposure that might reduce AHL activity before it reached the biosensor.', true),
+    ('build',  'Reuse the ProD- and J23101-based constructs rather than building another genetic circuit.', false),
+    ('test',   'We repeated the synthetic 3-oxo-C12-HSL assay as a time-course experiment in liquid culture and measured fluorescence using a plate reader.', true),
+    ('learn',  'Measurable fluorescence was obtained; the limitation is that the control design could not distinguish AHL induction from basal reporter expression.', true),
   ],
   ('reader', 1): [
-    ('design', 'Read the green of a GFP culture without an emission filter: one blue LED, a sensor looking from 90&deg;, and a light trap to swallow the beam that passes straight through.'),
-    ('build',  'A 3D-printed optical core on a base plate, with an ESP32 and an AS7341 spectral sensor on a breadboard beside it. Two printed parts broke as their supports came off and were taped.'),
-    ('test',   'Room light leaked in &mdash; 11 counts on an empty cuvette &mdash; so the reader went under a shield, and a dark read that is not zero now voids its cycle. Across three mixing sessions, all 27 readings without GFP were zero, and 35 of 38 tubes with GFP read above zero.'),
-    ('learn',  'The wet lab found that placing the cuvette took four steps and 30 to 40 seconds, each step a chance to seat it differently. The LED was also running under its design current.'),
+    ('design', 'Read the green of a GFP culture without an emission filter: one blue LED, a sensor looking from 90&deg;, and a light trap to swallow the beam that passes straight through.', true),
+    ('build',  'A 3D-printed optical core on a base plate, with an ESP32 and an AS7341 spectral sensor on a breadboard beside it. Two printed parts broke as their supports came off and were taped.', true),
+    ('test',   'Room light leaked in &mdash; 11 counts on an empty cuvette &mdash; so the reader went under a shield, and a dark read that is not zero now voids its cycle. Across three mixing sessions, all 27 readings without GFP were zero, and 35 of 38 tubes with GFP read above zero.', true),
+    ('learn',  'The wet lab found that placing the cuvette took four steps and 30 to 40 seconds, each step a chance to seat it differently. The LED was also running under its design current.', true),
   ],
   ('reader', 2): [
-    ('design', 'A seat that takes the cuvette in one step and sets its height and position itself, holders redrawn to print without weak layers, and one resistor to bring the LED to about 10&nbsp;mA.'),
-    ('build',  'Five printed parts and one resistor changed on the same base plate; the base plate, detector side, light trap and firmware stayed as they were.'),
-    ('test',   'Loading fell to 3 to 5 seconds, and one tube put back five times varied by 0.76%. Beside a SpectraMax M3 plate reader, a GFP culture read 86 counts and one without GFP, at similar density, read 0; five dilutions ranked the same way on both.'),
-    ('learn',  'Suspensions scraped from AHL plates read a few counts with no GFP in them. A culture without the reporter read zero while the scatter channel stayed under about 33 counts, and no longer did from 46, so the scatter channel has to be read beside the green one.'),
+    ('design', 'A seat that takes the cuvette in one step and sets its height and position itself, holders redrawn to print without weak layers, and one resistor to bring the LED to about 10&nbsp;mA.', true),
+    ('build',  'Five printed parts and one resistor changed on the same base plate; the base plate, detector side, light trap and firmware stayed as they were.', true),
+    ('test',   'Loading fell to 3 to 5 seconds, and one tube put back five times varied by 0.76%. Beside a SpectraMax M3 plate reader, a GFP culture read 86 counts and one without GFP, at similar density, read 0; five dilutions ranked the same way on both.', true),
+    ('learn',  'Suspensions scraped from AHL plates read a few counts with no GFP in them. A culture without the reporter read zero while the scatter channel stayed under about 33 counts, and no longer did from 46, so the scatter channel has to be read beside the green one.', true),
   ],
   ('inhibition', 1): [
-    ('design', 'Instead of feeding cells a synthetic aptamer, have the cell make its own. A retron produces single-stranded DNA carrying Cb-2, an aptamer that binds the signal <i>P. aeruginosa</i> uses to coordinate.'),
-    ('build',  'The Cb-2 sequence was written into the retron on a pTwist plasmid, grown up in <i>E. coli</i> TOP10, then moved into BL21(DE3), where the retron can be switched on.'),
-    ('test',   'Nucleic acid was pulled out of those cells with TRIzol and applied to <i>P. aeruginosa</i>, which was then measured for three behaviours the signal controls: how far it spreads, how much pigment it makes, and how much biofilm it forms.'),
-    ('learn',  'All three fell against untreated controls, so the extract does something. What is still missing is direct molecular proof that what it contains is the aptamer.'),
+    ('design', 'We designed an Ec67 retron system to produce Cb-2 aptamer-containing ssDNA inside <i>E. coli</i>, reducing the need to supply chemically synthesized aptamer from outside.', true),
+    ('build',  'We incorporated the Cb-2 sequence into the retron msd region and constructed the system on a pTwist vector. The plasmid was first propagated in TOP10 and then transferred into BL21(DE3) for expression and further characterization.', true),
+    ('test',   'We first attempted to detect the retron-derived product by agarose gel electrophoresis, and then evaluated the system through swarming, pyocyanin and biofilm assays. All three functional assays showed inhibitory effects, but direct molecular identification of Cb-2 remained incomplete.', true),
+    ('learn',  'Functional activity and molecular verification provide different levels of evidence. The consistent phenotypic effects encouraged us to continue developing the system, while the limitations in our control design showed exactly what the next round of validation needs to improve.', true),
   ],
 } %}
 
@@ -258,9 +258,9 @@
       {% if flow %}
       <div class="eng-folder" aria-label="What this round did, stage by stage" style="--n: {{ flow|length }}">
         <div class="eng-folder-pages">
-          {% for stage, flow_note in flow %}
+          {% for stage, flow_note, ran in flow %}
           {% set stage_name = stage_titles.get(stage, stage|capitalize) %}
-          <article class="eng-folder-page{% if not flow_note %} is-skipped{% endif %}" id="eng-{{ part }}-c{{ cycle }}-gist-{{ stage }}" data-stage="{{ stage }}" style="--i: {{ loop.index0 }}">
+          <article class="eng-folder-page{% if not ran %} is-skipped{% endif %}" id="eng-{{ part }}-c{{ cycle }}-gist-{{ stage }}" data-stage="{{ stage }}" style="--i: {{ loop.index0 }}">
             <button type="button" class="eng-folder-spine" aria-controls="eng-{{ part }}-c{{ cycle }}-gist-{{ stage }}">
               <span class="eng-flow-letter">{{ stage[0]|upper }}</span>
               <span class="eng-folder-spine-name">{{ stage_name }}</span>
@@ -270,11 +270,9 @@
                 <span class="eng-folder-page-num">0{{ stage_num[stage] }}</span>
                 {{ stage_name }}
               </p>
-              {% if flow_note %}
               <p class="eng-folder-page-note">{{ flow_note|safe }}</p>
+              {% if ran %}
               <a class="eng-folder-page-more" href="#eng-{{ part }}-c{{ cycle }}-{{ stage }}">Read the full {{ stage_name }} <span aria-hidden="true">&darr;</span></a>
-              {% else %}
-              <p class="eng-folder-page-note">Carried over from the previous round, unchanged.</p>
               {% endif %}
             </div>
             <span class="eng-folder-edge" aria-hidden="true">
@@ -509,7 +507,6 @@
           <p>Through these experiments, we learned that functional evidence and molecular verification should be interpreted separately. Although our agarose gel results were insufficient to directly confirm retron-derived Cb-2 ssDNA production, the swarming, pyocyanin, and biofilm assays all showed inhibitory effects consistent with the expected function of Cb-2.</p>
           <p>The agreement across three different phenotypic assays provides meaningful functional support for our retron-Cb-2 system and makes further molecular verification worthwhile. We therefore see molecular confirmation not as a missing endpoint, but as the key next step for strengthening the evidence behind the system.</p>
           <p>A further limitation is that the three treatments were not dose-matched. A16-2 and ALS-5 were chemically synthesized at known concentrations, whereas the Cb-2 group was derived from a crude TRIzol extract with an unknown aptamer concentration. Therefore, differences in effect size should not be interpreted as direct differences in aptamer potency. Despite this limitation, the retron-Cb-2 group consistently showed inhibitory effects across all three functional assays.</p>
-          <p>We also found that experimental conditions strongly influenced assay performance. Factors such as plate moisture in the swarming assay and mixing efficiency during pyocyanin extraction had to be optimized before reliable results could be obtained.</p>
           <p>In future work, we would focus on directly verifying and quantifying retron-derived ssDNA using methods such as denaturing urea-PAGE or sequence-specific detection. This would allow us to better connect aptamer production with the functional effects observed in our assays.</p>
           <p>Ultimately, we hope to develop the retron system into a more reliable biological platform for continuous production of functional DNA aptamers in vivo.</p>
           {# ---- Part 03 · Reader ----
