@@ -13,10 +13,11 @@
   --green: #a6ffcb;
   --cyan: #61f6ff;
   --dark: #030a0a;
-  --dim: #527e72;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -85,10 +86,11 @@ main {
 
 h1 {
   font-family: 'Orbitron', sans-serif;
-  font-size: clamp(48px, 10vw, 100px);
+  font-size: clamp(42px, 10vw, 100px);
   font-weight: 800;
   letter-spacing: 5px;
   margin: 18px 0 5px;
+  overflow-wrap: anywhere;
   text-shadow: 0 0 15px #61f6ff80, 0 0 45px #61f6ff30;
 }
 
@@ -106,9 +108,9 @@ h1 {
 
 .panel {
   border: 1px solid #3b8c71;
-  background: #071411d9;
+  background: #071411eF;
   padding: 22px;
-  margin: 20px 0;
+  margin: 25px 0;
   position: relative;
   box-shadow: 0 0 25px #42ffb00b;
 }
@@ -138,7 +140,9 @@ p {
   font-size: 14px;
 }
 
-.highlight { color: var(--green); }
+.highlight {
+  color: var(--green);
+}
 
 .metrics {
   display: grid;
@@ -184,7 +188,14 @@ button:hover {
   box-shadow: 0 0 25px #a6ffcb60;
 }
 
-.center { text-align: center; }
+button:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 4px;
+}
+
+.center {
+  text-align: center;
+}
 
 #terminal {
   min-height: 125px;
@@ -192,9 +203,12 @@ button:hover {
   line-height: 1.9;
   font-size: 13px;
   color: var(--green);
+  overflow-wrap: anywhere;
 }
 
-.hidden { display: none; }
+.hidden {
+  display: none !important;
+}
 
 #reveal {
   text-align: center;
@@ -212,8 +226,9 @@ button:hover {
   font-family: 'Orbitron', sans-serif;
   font-size: 11px;
   letter-spacing: 3px;
-  color: var(--dim);
+  color: #527e72;
   text-align: center;
+  line-height: 2;
   margin-top: 50px;
 }
 
@@ -221,13 +236,163 @@ button:hover {
   animation: glitch .3s linear 2;
 }
 
+/* Don't click me */
+
+.prank-area {
+  text-align: center;
+  margin: 45px 0;
+  padding: 25px 10px;
+  border: 1px dashed #773b3b;
+  background: #16070780;
+}
+
+.prank-label {
+  color: #ff7777;
+  font-size: 11px;
+  letter-spacing: 3px;
+  margin-bottom: 18px;
+}
+
+.prank-button {
+  color: #ff7777;
+  border: 1px solid #ff5555;
+  background: #200808;
+  font-size: 15px;
+  padding: 16px 30px;
+  animation: prankPulse 1.5s infinite;
+}
+
+.prank-button:hover {
+  background: #ff4444;
+  color: white;
+  box-shadow: 0 0 25px #ff4444;
+}
+
+/* Prank overlay */
+
+.prank-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #000000ed;
+  backdrop-filter: blur(7px);
+  overflow-y: auto;
+  padding: 20px 15px 35px;
+  overscroll-behavior: contain;
+}
+
+.prank-overlay.hidden {
+  display: none !important;
+}
+
+.prank-header {
+  max-width: 500px;
+  margin: 10px auto 20px;
+  padding: 15px;
+  text-align: center;
+  color: #ff7777;
+  border: 1px solid #ff5555;
+  background: #190707;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  animation: blink 1s infinite;
+}
+
+.prank-window {
+  position: relative;
+  width: min(390px, 100%);
+  margin: 18px auto;
+  padding: 20px;
+  background: #071411;
+  border: 1px solid #ff5555;
+  color: var(--green);
+  box-shadow: 0 0 25px #ff333322;
+  animation: prankAppear .35s ease-out both;
+}
+
+.prank-window:nth-child(2) {
+  animation-delay: .12s;
+}
+
+.prank-window:nth-child(3) {
+  animation-delay: .24s;
+}
+
+.prank-window:nth-child(4) {
+  animation-delay: .36s;
+}
+
+.prank-window:nth-child(5) {
+  animation-delay: .48s;
+}
+
+.prank-window h3 {
+  color: #ff7777;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.prank-window p {
+  font-size: 14px;
+}
+
+.prank-window .error-code {
+  color: var(--cyan);
+  font-size: 11px;
+}
+
+.prank-window .window-bar {
+  display: flex;
+  justify-content: space-between;
+  color: #ff7777;
+  border-bottom: 1px solid #4d2929;
+  padding-bottom: 10px;
+  font-size: 10px;
+}
+
+.escape-area {
+  max-width: 500px;
+  margin: 25px auto 0;
+  text-align: center;
+  padding: 20px;
+  border: 1px solid #3b8c71;
+  background: #071411;
+}
+
+.escape-area p {
+  font-size: 12px;
+}
+
+.escape-button {
+  display: inline-block;
+  margin: 10px auto;
+  background: #163b2d;
+  border: 1px solid var(--green);
+  color: var(--green);
+  letter-spacing: 1px;
+  width: 100%;
+}
+
+.escape-button:hover {
+  background: var(--green);
+  color: #00140c;
+}
+
 @keyframes blink {
   50% { opacity: .25; }
 }
 
 @keyframes appear {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes glitch {
@@ -236,20 +401,69 @@ button:hover {
   75% { transform: translateX(3px); }
 }
 
+@keyframes prankPulse {
+  50% { box-shadow: 0 0 15px #ff333355; }
+}
+
+@keyframes prankAppear {
+  from {
+    opacity: 0;
+    transform: scale(.8) translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 @media (max-width: 500px) {
-  main { padding-top: 20px; }
-  .hero { padding-top: 45px; }
-  .topbar { letter-spacing: 0; }
-  .metrics { gap: 6px; }
-  .metric strong { font-size: 15px; }
-  .panel { padding: 17px; }
+  main {
+    padding-top: 20px;
+  }
+
+  .hero {
+    padding-top: 45px;
+  }
+
+  .topbar {
+    letter-spacing: 0;
+  }
+
+  .metrics {
+    gap: 6px;
+  }
+
+  .metric strong {
+    font-size: 15px;
+  }
+
+  .panel {
+    padding: 17px;
+  }
+
+  .subtitle {
+    letter-spacing: 2px;
+  }
+
+  .prank-button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }
 </style>
 </head>
 
 <body>
-<canvas id="particles"></canvas>
-<div class="scanlines"></div>
+
+<canvas id="particles" aria-hidden="true"></canvas>
+<div class="scanlines" aria-hidden="true"></div>
 
 <main>
   <div class="topbar">
@@ -270,18 +484,12 @@ button:hover {
 
   <section class="panel">
     <h2>// PROJECT OVERVIEW</h2>
-    <p>
-      <span class="highlight">TARGET:</span>
-      Pseudomonas aeruginosa
-    </p>
-    <p>
-      <span class="highlight">THREAT:</span>
-      Biofilm formation & bacterial communication
-    </p>
-    <p>
-      <span class="highlight">MISSION:</span>
-      Intercept the signal. Challenge the biofilm.
-    </p>
+    <p><span class="highlight">TARGET:</span>
+      Pseudomonas aeruginosa</p>
+    <p><span class="highlight">THREAT:</span>
+      Biofilm formation & bacterial communication</p>
+    <p><span class="highlight">MISSION:</span>
+      Intercept the signal. Challenge the biofilm.</p>
     <p>
       Bacteria communicate through chemical signals such as AHL.
       What if we could capture the message before it becomes a
@@ -311,11 +519,11 @@ button:hover {
       Its origin appears to be connected to the CAPTURE project.
     </p>
 
-    <div id="terminal">> Initializing secure connection...
+    <div id="terminal" aria-live="polite">> Initializing secure connection...
 > Awaiting authorization.</div>
 
     <div class="center">
-      <button id="unlock" onclick="unlockTerminal()">
+      <button id="unlock" type="button" onclick="unlockTerminal()">
         [ INITIATE DECRYPTION ]
       </button>
     </div>
@@ -339,6 +547,18 @@ button:hover {
     </div>
   </section>
 
+  <!-- Prank button -->
+  <section class="prank-area">
+    <div class="prank-label">⚠ RESTRICTED AREA // AUTHORIZED PERSONNEL ONLY</div>
+    <button
+      type="button"
+      class="prank-button"
+      onclick="startPrank()">
+      🚫 不要點進來
+    </button>
+    <p>Seriously. There is absolutely nothing interesting here.</p>
+  </section>
+
   <section class="panel">
     <h2>// FINAL TRANSMISSION</h2>
     <p>
@@ -359,47 +579,83 @@ button:hover {
   </div>
 </main>
 
+<!-- Five-window prank overlay -->
+<div
+  id="prank-overlay"
+  class="prank-overlay hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="prank-title">
+
+  <div class="prank-header" id="prank-title">
+    ⚠ CRITICAL ERROR // YOU WERE WARNED ⚠
+  </div>
+
+  <div id="prank-windows"></div>
+
+  <div class="escape-area">
+    <p>ALL FIVE WARNINGS HAVE BEEN ACKNOWLEDGED.</p>
+    <p>Well... you did this to yourself.</p>
+    <button
+      type="button"
+      class="escape-button"
+      onclick="endPrank()">
+      OKAY, I GET IT. LET ME OUT.
+    </button>
+  </div>
+</div>
+
 <script>
-// Background particles
+// Animated background particles
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
-let particles = [];
 
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  particles = Array.from({length: 65}, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: Math.random() * 1.8 + .3,
-    speed: Math.random() * .5 + .1
+let particles = [];
+let animationFrame;
+
+function resizeCanvas() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  particles = Array.from({ length: 65 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.8 + 0.3,
+    speed: Math.random() * 0.5 + 0.1
   }));
 }
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function drawParticles() {
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
   particles.forEach(p => {
     p.y -= p.speed;
+
     if (p.y < 0) {
-      p.y = canvas.height;
-      p.x = Math.random() * canvas.width;
+      p.y = window.innerHeight;
+      p.x = Math.random() * window.innerWidth;
     }
 
     ctx.fillStyle = '#a6ffcb';
-    ctx.globalAlpha = Math.random() * .5 + .2;
+    ctx.globalAlpha = 0.5;
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     ctx.fill();
   });
 
   ctx.globalAlpha = 1;
-  requestAnimationFrame(draw);
+  animationFrame = requestAnimationFrame(drawParticles);
 }
 
-window.addEventListener('resize', resize);
-resize();
-draw();
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+drawParticles();
 
 // Terminal decryption animation
 const messages = [
@@ -415,8 +671,12 @@ const messages = [
 
 let unlocked = false;
 
+const sleep = ms =>
+  new Promise(resolve => setTimeout(resolve, ms));
+
 async function unlockTerminal() {
   if (unlocked) return;
+
   unlocked = true;
 
   const terminal = document.getElementById('terminal');
@@ -424,12 +684,11 @@ async function unlockTerminal() {
 
   button.disabled = true;
   button.textContent = '[ DECRYPTING... ]';
-
   terminal.textContent = '';
 
   for (const message of messages) {
     terminal.textContent += message + '\n';
-    await new Promise(resolve => setTimeout(resolve, 650));
+    await sleep(500);
   }
 
   document.getElementById('reveal').classList.remove('hidden');
@@ -441,6 +700,106 @@ async function unlockTerminal() {
   button.textContent = '[ ACCESS GRANTED ]';
   document.querySelector('.hero h1').classList.add('glitch');
 }
+
+// Five-window prank
+let prankStarted = false;
+
+const prankMessages = [
+  {
+    title: 'WARNING 001',
+    text: '不是跟你說不要點了嗎？',
+    code: 'CURIOUS_001'
+  },
+  {
+    title: 'WARNING 002',
+    text: '你是不是沒看懂「不要」？',
+    code: 'CURIOUS_002'
+  },
+  {
+    title: 'WARNING 003',
+    text: 'CAPTURE 都抓不到你的好奇心。',
+    code: 'CURIOUS_003'
+  },
+  {
+    title: 'WARNING 004',
+    text: '恭喜！你觸發了隱藏的隱藏彩蛋。',
+    code: 'CURIOUS_004'
+  },
+  {
+    title: 'WARNING 005',
+    text: '最後一個了……真的。大概。',
+    code: 'CURIOUS_005'
+  }
+];
+
+function startPrank() {
+  if (prankStarted) return;
+
+  prankStarted = true;
+
+  const overlay = document.getElementById('prank-overlay');
+  const container = document.getElementById('prank-windows');
+
+  container.replaceChildren();
+
+  prankMessages.forEach((message, index) => {
+    const win = document.createElement('section');
+    win.className = 'prank-window';
+
+    const bar = document.createElement('div');
+    bar.className = 'window-bar';
+    bar.innerHTML = '<span>SYS_ALERT.EXE</span><span>LOCKED</span>';
+
+    const heading = document.createElement('h3');
+    heading.textContent = '⚠ ' + message.title;
+
+    const paragraph = document.createElement('p');
+    paragraph.textContent = message.text;
+
+    const code = document.createElement('div');
+    code.className = 'error-code';
+    code.textContent = 'ERROR CODE: ' + message.code;
+
+    win.append(bar, heading, paragraph, code);
+    container.appendChild(win);
+  });
+
+  overlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  // Start at the top so all five warnings can be discovered.
+  overlay.scrollTop = 0;
+
+  // Move keyboard focus into the dialog.
+  overlay.querySelector('.escape-button').focus({
+    preventScroll: true
+  });
+}
+
+function endPrank() {
+  const overlay = document.getElementById('prank-overlay');
+
+  overlay.classList.add('hidden');
+  document.getElementById('prank-windows').replaceChildren();
+
+  document.body.style.overflow = '';
+  prankStarted = false;
+
+  document.querySelector('.prank-button').focus();
+}
+
+// Escape key does not dismiss the prank; the on-screen button does.
+document.addEventListener('keydown', event => {
+  const overlay = document.getElementById('prank-overlay');
+
+  if (
+    !overlay.classList.contains('hidden') &&
+    event.key === 'Escape'
+  ) {
+    event.stopPropagation();
+  }
+});
 </script>
+
 </body>
 </html>

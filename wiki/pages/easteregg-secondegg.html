@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPTURE // NCKU-Tainan 2026 彩蛋</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+TC:wght@300;500;700&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #050510;
+    color: #e0f7ff;
+    font-family: 'Noto Sans TC', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+    cursor: crosshair;
+  }
+
+  /* 背景粒子畫布 */
+  #particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* 主容器 */
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    text-align: center;
+  }
+
+  /* 頂部霓虹標籤 */
+  .tag {
+    display: inline-block;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: #00f0ff;
+    border: 1px solid #00f0ff55;
+    padding: 6px 16px;
+    border-radius: 999px;
+    margin-bottom: 30px;
+    background: #00f0ff11;
+    animation: pulse-border 2.5s infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 8px #00f0ff44; }
+    50% { box-shadow: 0 0 20px #00f0ffaa; }
+  }
+
+  /* 巨大標題 */
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(2.8rem, 10vw, 5.5rem);
+    line-height: 1.05;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, #00f0ff, #7b61ff, #ff2d95, #00f0ff);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-shift 6s ease infinite;
+    text-shadow: 0 0 40px #00f0ff33;
+  }
+
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .subtitle {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem;
+    letter-spacing: 6px;
+    color: #7b61ff;
+    margin-bottom: 50px;
+    opacity: 0.9;
+  }
+
+  /* 打字機文字區 */
+  .typewriter-box {
+    background: rgba(10, 15, 30, 0.7);
+    border: 1px solid #00f0ff33;
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin: 40px 0;
+    text-align: left;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 30px #00f0ff15;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .typewriter-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(#00f0ff, #7b61ff);
+  }
+
+  #typed-text {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    min-height: 120px;
+    white-space: pre-wrap;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 1.2em;
+    background: #00f0ff;
+    margin-left: 2px;
+    animation: blink 0.8s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* 三個炫砲卡片 */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin: 50px 0;
+  }
+
+  .card {
+    background: linear-gradient(145deg, #0a1225, #0d1a35);
+    border: 1px solid #00f0ff22;
+    border-radius: 18px;
+    padding: 28px 22px;
+    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card:hover {
+    transform: translateY(-8px) scale(1.03);
+    border-color: #00f0ff88;
+    box-shadow: 0 15px 40px #00f0ff25;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #00f0ff15, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover::after {
+    opacity: 1;
+  }
+
+  .card-icon {
+    font-size: 2.2rem;
+    margin-bottom: 14px;
+  }
+
+  .card h3 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.05rem;
+    color: #00f0ff;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .card p {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #a8d8e8;
+    opacity: 0.9;
+  }
+
+  /* 底部大標語 */
+  .final-quote {
+    margin-top: 60px;
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    letter-spacing: 3px;
+    color: #ff2d95;
+    text-shadow: 0 0 20px #ff2d9566;
+    animation: glow-pink 2.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes glow-pink {
+    from { text-shadow: 0 0 10px #ff2d9544; }
+    to { text-shadow: 0 0 30px #ff2d95aa, 0 0 50px #ff2d9555; }
+  }
+
+  .team {
+    margin-top: 18px;
+    font-size: 0.95rem;
+    color: #7b9fff;
+    letter-spacing: 2px;
+  }
+
+  /* 隱藏提示 */
+  .secret-hint {
+    margin-top: 50px;
+    font-size: 0.75rem;
+    color: #445566;
+    letter-spacing: 1px;
+  }
+
+  /* 滑鼠軌跡 */
+  .trail {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00f0ff;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.7;
+    box-shadow: 0 0 12px #00f0ff;
+    transition: transform 0.1s, opacity 0.4s;
+  }
+
+  /* 點擊爆炸粒子 */
+  .burst {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+  }
+
+  /* 隱藏彩蛋訊息 */
+  #secret-msg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    background: rgba(5, 10, 25, 0.95);
+    border: 2px solid #ff2d95;
+    border-radius: 20px;
+    padding: 40px 50px;
+    text-align: center;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 60px #ff2d9544;
+  }
+
+  #secret-msg.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  #secret-msg h2 {
+    font-family: 'Orbitron', monospace;
+    color: #ff2d95;
+    font-size: 1.6rem;
+    margin-bottom: 16px;
+  }
+
+  #secret-msg p {
+    color: #cceeff;
+    line-height: 1.7;
+  }
+
+  .close-btn {
+    margin-top: 24px;
+    background: transparent;
+    border: 1px solid #ff2d95;
+    color: #ff2d95;
+    padding: 8px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+  }
+
+  .close-btn:hover {
+    background: #ff2d95;
+    color: #050510;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="container">
+  <div class="tag">iGEM 2026 • NCKU-TAINAN</div>
+  
+  <h1>CAPTURE</h1>
+  <div class="subtitle">SECURE THE FUTURE // CAPTURE THE CURE</div>
+
+  <div class="typewriter-box">
+    <div id="typed-text"></div><span class="cursor"></span>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🧬</div>
+      <h3>AHL SIGNAL</h3>
+      <p>Pseudomonas aeruginosa 靠 quorum sensing 分子 AHL 互相通訊。我們不正面硬剛，而是精準攔截它的「密碼」。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔬</div>
+      <h3>APTAMER MISSILE</h3>
+      <p>設計高度專一的核酸適體（Aptamer），像精密導彈一樣扣住 AHL，切斷細菌的通訊網路。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">💡</div>
+      <h3>E. COLI SENSOR</h3>
+      <p>工程大腸桿菌聽到 AHL 就會發出螢光。把看不見的訊號變成肉眼可見的光芒。</p>
+    </div>
+  </div>
+
+  <div class="final-quote">
+    BEFORE IT CAPTURES A LIFE,<br>
+    WE CAPTURE ITS MESSAGE.
+  </div>
+  <div class="team">NCKU-TAINAN • iGEM 2026</div>
+
+  <div class="secret-hint">
+    提示：連續按下鍵盤上的 C-A-P-T-U-R-E 會有驚喜
+  </div>
+</div>
+
+<!-- 隱藏彩蛋訊息 -->
+<div id="secret-msg">
+  <h2>SYSTEM UNLOCKED</h2>
+  <p>
+    你成功攔截了訊號。<br>
+    Project Capture 的核心從來不是消滅細菌，<br>
+    而是<strong>在它出手之前，先奪取它的通訊權</strong>。<br><br>
+    Secure the future.<br>
+    Capture the cure.
+  </p>
+  <button class="close-btn" onclick="closeSecret()">CLOSE</button>
+</div>
+
+<script>
+  // ========== 背景粒子系統 ==========
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let mouse = { x: null, y: null };
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Particle {
+    constructor() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.size = Math.random() * 2 + 0.5;
+      this.speedX = (Math.random() - 0.5) * 0.4;
+      this.speedY = (Math.random() - 0.5) * 0.4;
+      this.color = `hsla(${180 + Math.random() * 60}, 100%, 70%, ${Math.random() * 0.5 + 0.2})`;
+    }
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+      if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 連線
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(0, 240, 255, ${0.15 * (1 - dist / 120)})`;
+          ctx.lineWidth = 0.6;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+
+  // ========== 打字機效果 ==========
+  const texts = [
+    "目標：Pseudomonas aeruginosa\n它在呼吸器、導管、傷口中形成致命生物膜。\n傳統抗生素正在失效……",
+    "解決方案不是更強的抗生素。\n而是切斷它們的通訊網路。\n\n我們捕捉的是 AHL——\n細菌用來協調攻擊的密碼。",
+    "Aptamer 像精密導彈，\n精準鎖定訊號分子。\n工程大腸桿菌則把訊號變成可見的螢光。\n\n兩套系統，同一個目標：Capture。"
+  ];
+
+  let textIndex = 0;
+  let charIndex = 0;
+  const typedEl = document.getElementById('typed-text');
+
+  function type() {
+    if (charIndex < texts[textIndex].length) {
+      typedEl.textContent += texts[textIndex].charAt(charIndex);
+      charIndex++;
+      setTimeout(type, 28 + Math.random() * 20);
+    } else {
+      setTimeout(() => {
+        typedEl.textContent = '';
+        charIndex = 0;
+        textIndex = (textIndex + 1) % texts.length;
+        setTimeout(type, 600);
+      }, 3200);
+    }
+  }
+  setTimeout(type, 800);
+
+  // ========== 滑鼠發光軌跡 ==========
+  const trails = [];
+  document.addEventListener('mousemove', e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+
+    const t = document.createElement('div');
+    t.className = 'trail';
+    t.style.left = e.clientX + 'px';
+    t.style.top = e.clientY + 'px';
+    document.body.appendChild(t);
+    trails.push(t);
+
+    setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'scale(0.3)';
+      setTimeout(() => t.remove(), 400);
+    }, 50);
+
+    // 卡片光暈跟隨
+    document.querySelectorAll('.card').forEach(card => {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--x', x + '%');
+      card.style.setProperty('--y', y + '%');
+    });
+  });
+
+  // ========== 點擊爆炸粒子 ==========
+  document.addEventListener('click', e => {
+    const colors = ['#00f0ff', '#7b61ff', '#ff2d95', '#00ff9d'];
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'burst';
+      p.style.left = e.clientX + 'px';
+      p.style.top = e.clientY + 'px';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.boxShadow = `0 0 8px ${p.style.background}`;
+      document.body.appendChild(p);
+
+      const angle = (Math.PI * 2 * i) / 18;
+      const velocity = 2 + Math.random() * 4;
+      const vx = Math.cos(angle) * velocity;
+      const vy = Math.sin(angle) * velocity;
+
+      let x = 0, y = 0, opacity = 1;
+      const anim = () => {
+        x += vx;
+        y += vy;
+        opacity -= 0.025;
+        p.style.transform = `translate(${x}px, ${y}px)`;
+        p.style.opacity = opacity;
+        if (opacity > 0) requestAnimationFrame(anim);
+        else p.remove();
+      };
+      requestAnimationFrame(anim);
+    }
+  });
+
+  // ========== 鍵盤彩蛋：C-A-P-T-U-R-E ==========
+  const code = ['c','a','p','t','u','r','e'];
+  let codeIndex = 0;
+
+  document.addEventListener('keydown', e => {
+    if (e.key.toLowerCase() === code[codeIndex]) {
+      codeIndex++;
+      if (codeIndex === code.length) {
+        document.getElementById('secret-msg').classList.add('show');
+        codeIndex = 0;
+      }
+    } else {
+      codeIndex = 0;
+    }
+  });
+
+  function closeSecret() {
+    document.getElementById('secret-msg').classList.remove('show');
+  }
+</script>
+</body>
+</html>
