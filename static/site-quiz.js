@@ -271,7 +271,7 @@
     optionBox.hidden = false;
     restart.hidden = true;
     back.hidden = false;
-    back.disabled = at === 0;
+    back.disabled = false;
     back.textContent = copy.back;
     skip.textContent = copy.skip;
     count.textContent = (at + 1) + ' ' + copy.of + ' ' + copy.questions.length;
@@ -381,7 +381,8 @@
 
   back.addEventListener('click', function () {
     if (!resultBox.hidden) { at = COPY.en.questions.length - 1; renderQuestion(); return; }
-    if (at > 0) { at -= 1; renderQuestion(); }
+    if (at > 0) { at -= 1; renderQuestion(); return; }
+    close();
   });
 
   restart.addEventListener('click', function () {
