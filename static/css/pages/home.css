@@ -240,14 +240,17 @@ html[data-theme="light"] .rx-hero {
   list-style: none; margin: 0.8rem 0 0; padding: 0;
   display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--c-text-3); font-variant-numeric: tabular-nums;
 }
-.hx-wait-read { display: grid; grid-template-columns: 64px 1fr; gap: 1.1rem; align-items: center; }
+.hx-wait-read { display: grid; grid-template-columns: 64px 1fr; gap: 3.15rem; align-items: center; }
 .hx-shield { width: 64px; height: 72px; overflow: visible; }
 .hx-shield-shape { fill: rgba(255,255,255,0.04); stroke: rgba(242, 255, 248, 0.5); stroke-width: 2; }
-/* the shield fills as the hours pass: a picture of "already up", not a curve */
+/* the shield fills as the hours pass: a picture of "already up", not a curve.
+   The rect is already the full shield shape (clipped to hxShieldClip), so
+   there is no sub-region to raise or slide -- fading its opacity in with
+   the hours reads as the whole shield gradually filling in, with no edge
+   moving across it. */
 .hx-shield-level {
-  fill: #e2574c; opacity: 0.75;
-  transform-box: fill-box; transform-origin: 50% 100%;
-  transform: scaleY(min(1, calc(var(--h) * 1.5)));
+  fill: #e2574c;
+  opacity: calc(min(1, var(--h) * 1.5) * 0.85);
 }
 .hx-wait-out { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--c-text); min-height: 6.4em; }
 .hx-wait-hours {
