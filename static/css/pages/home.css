@@ -520,9 +520,13 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
   --rx: 0deg; --ry: 0deg; --mx: 50%; --my: 0%;
   position: relative; display: block; overflow: hidden; padding: 1.5rem 9rem 1.5rem 1.5rem; border-radius: var(--r-lg);
   text-decoration: none;
-  background:
-    radial-gradient(260px circle at var(--mx) var(--my), rgba(238, 203, 134, 0.14), transparent 60%),
-    linear-gradient(150deg, rgba(56, 74, 40, 0.75), rgba(14, 36, 46, 0.85));
+  /* No fill: the olive-to-ink gradient that used to sit here was the only
+     panel in this section carrying one, and the page's own mesh now shows
+     through. The amber rule and its hover brightening still mark the card out.
+     The pointer-following glow went with it -- on a transparent card it read
+     as a stray smudge rather than a highlight -- so --mx/--my are no longer
+     used by anything, though js/pages/home.js still sets them. */
+  background: none;
   border: 1px solid rgba(238, 203, 134, 0.3);
   transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
   transition: transform 0.25s ease, border-color 0.3s ease;
@@ -532,17 +536,28 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
 .hx-game-k { display: block; font-family: "Changa", sans-serif; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: #eecb86; font-weight: 700; }
 .hx-game-name { display: block; font-family: "Changa", sans-serif; font-weight: 800; font-size: 1.45rem; color: #f2fff8; margin: 0.2rem 0 0.5rem; }
 .hx-game-text { display: block; font-size: 0.9rem; line-height: 1.6; color: var(--c-text-2); }
-/* three cards fanned in the corner; they spread when the card is pointed at */
-.hx-game-cards { position: absolute; right: 1.6rem; top: 50%; width: 64px; height: 88px; margin-top: -44px; }
+/* three cards fanned in the corner; they spread when the card is pointed at.
+   right: 2.6rem rather than 1.6: rotating about 50% 110% swings the front
+   card's top-right corner about 28px past its resting edge at 18deg, which is
+   more than 1.6rem of inset allowed, and .hx-game-card clips it (overflow:
+   hidden). 2.6rem leaves roughly 13px of clearance. Still well inside the
+   9rem of padding the text is held off by. */
+.hx-game-cards { position: absolute; right: 2.6rem; top: 50%; width: 64px; height: 88px; margin-top: -44px; }
+/* The three cards are the site's own three accents, so the fan reads as part
+   of the page rather than as clip art: amber at the back, teal in the middle,
+   and the lime-to-teal of the project's own mark in front. The salmon-to-red
+   middle card and the cream rim they all carried were the only colours in
+   this section that appear nowhere else on the site. Hex rather than tokens
+   to match the lines around them; the theme is locked to dark. */
 .hx-game-cards i {
   position: absolute; inset: 0; border-radius: 8px;
-  background: linear-gradient(160deg, #f6dca4, #d8b26a); border: 2px solid #fff6dd;
+  background: linear-gradient(160deg, #b8f57e, #49c5b6); border: 2px solid #e7f2ea;
   box-shadow: 0 8px 18px -6px rgba(0,0,0,0.6);
   transform-origin: 50% 110%;
   transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.hx-game-cards i:nth-child(1) { transform: rotate(-12deg); background: linear-gradient(160deg, #b8f57e, #49c5b6); }
-.hx-game-cards i:nth-child(2) { transform: rotate(-2deg); background: linear-gradient(160deg, #ffb59d, #e2574c); }
+.hx-game-cards i:nth-child(1) { transform: rotate(-12deg); background: linear-gradient(160deg, #eecb86, #d8b26a); }
+.hx-game-cards i:nth-child(2) { transform: rotate(-2deg); background: linear-gradient(160deg, #2edbb4, #14b391); }
 .hx-game-cards i:nth-child(3) { transform: rotate(9deg); }
 .hx-game-card:hover .hx-game-cards i:nth-child(1) { transform: rotate(-28deg) translateY(-4px); }
 .hx-game-card:hover .hx-game-cards i:nth-child(2) { transform: rotate(-6deg) translateY(-10px); }
@@ -634,7 +649,7 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
   .hx-stats li:last-child { grid-column: span 2; }
   .hx-sys-tab { font-size: 1.1rem; padding: 0.9rem 0.8rem; }
   .hx-game-card { padding-right: 6.5rem; }
-  .hx-game-cards { right: 1.1rem; width: 52px; height: 72px; margin-top: -36px; }
+  .hx-game-cards { right: 1.9rem; width: 52px; height: 72px; margin-top: -36px; }
   .hx-orbit-item { width: 52px; height: 52px; margin: -26px 0 0 -26px; transform: rotate(calc(var(--i) * 360deg / var(--n))) translateX(calc(var(--d) / 2 - 30px)) rotate(calc(var(--i) * -360deg / var(--n))); }
   .hx-orbit-wrap::before { inset: 30px; }
   .hx-map-cols { grid-template-columns: 1fr; }
