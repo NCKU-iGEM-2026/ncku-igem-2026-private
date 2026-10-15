@@ -1,24 +1,55 @@
 (function () {
-  // 特效框圖檔還沒畫好前先留空，之後美宣畫好上傳到 static.igem.wiki 後
-  // 把對應的網址填進這裡就好，其他程式邏輯都不用動。
-  var FRAME_URLS = [
-    "https://static.igem.wiki/teams/6379/wiki/filter/hank-heart.avif", // 特效 1
-    "https://static.igem.wiki/teams/6379/wiki/filter/hank-cat.avif", // 特效 2
-    null, // 特效 3
-    null, // 特效 4
-    null  // 特效 5
+  // 一個濾鏡一個人。name 是 static.igem.wiki 上的檔名，label 是按鈕上的字。
+  // 兩者通常相同，june 是唯一的例外：檔名 june，按鈕寫 Chun。
+  // 這個陣列的順序就是 team.html 裡 .webcam-filter-btn 的順序，
+  // 要增減人必須兩邊一起改，否則按鈕會對到別人的圖。
+  var FILTERS = [
+    { name: "alan",   label: "Alan" },
+    { name: "alston", label: "Alston" },
+    { name: "cindy",  label: "Cindy" },
+    { name: "hank",   label: "Hank" },
+    { name: "jason",  label: "Jason" },
+    { name: "jenny",  label: "Jenny" },
+    { name: "joy",    label: "Joy" },
+    { name: "june",   label: "Chun" },
+    { name: "leo",    label: "Leo" },
+    { name: "luna",   label: "Luna" },
+    { name: "miklos", label: "Miklos" },
+    { name: "ryan",   label: "Ryan" },
+    { name: "simon",  label: "Simon" },
+    { name: "vane",   label: "Vane" },
+    { name: "will",   label: "Will" },
+    { name: "willy",  label: "Willy" }
   ];
 
-  // 每個特效框圖案要畫在畫面的哪個位置、多大，數字是相對畫面的比例 (0~1)。
-  // 沒有特別設定的濾鏡預設是滿版；如果某個特效框圖案本身偏大/偏小或要放在
-  // 角落，改這裡對應的 x / y / width / height 就好，相機畫面不受影響。
-  var FRAME_RECTS = [
-    { x: 0.2, y: 0.3, width: 0.35, height: 0.9 }, // 特效 1
-    { x: 0.2, y: 0.3, width: 0.3, height: 0.9 }, // 特效 2
-    { x: 0.4, y: 0.4, width: 0.6, height: 0.7}, // 特效 3
-    { x: 0.4, y: 0.4, width: 0.6, height: 0.7}, // 特效 4
-    { x: 0, y: 0.3, width: 0.3, height: 0.7 }  // 特效 5
-  ];
+  var FRAME_BASE = "https://static.igem.wiki/teams/6379/wiki/photobooth/";
+
+  // 人像要畫進畫面的哪一個方框，數字是相對畫面的比例 (0~1)。
+  // 圖會「等比例縮到塞得進這個方框」，再貼齊方框底部、水平置中 —— 不是拉伸填滿。
+  // 這 16 張的長寬比從 0.40 (alan) 到 0.88 (leo) 都有，差了 2.2 倍，
+  // 若直接拉伸填滿同一個方框，每個人被壓扁的程度都不一樣。
+  var FRAME_RECT = { x: 0.02, y: 0.06, width: 0.46, height: 0.94 };
+
+  // 三個站位：預設的左側，與它左右對稱的右側，以及置中。
+  // 三者只差水平位置，高度與大小都沿用 FRAME_RECT，所以之後要把人像調大調小
+  // 或上下挪動，只要改 FRAME_RECT 一處，三個站位會一起跟著動。
+  function standing(x) {
+    return { x: x, y: FRAME_RECT.y, width: FRAME_RECT.width, height: FRAME_RECT.height };
+  }
+  var RIGHT = 1 - FRAME_RECT.width - FRAME_RECT.x;
+  var CENTRE = (1 - FRAME_RECT.width) / 2;
+
+  // 個別站位。鍵用檔名，不是按鈕上的字（所以是 june 不是 chun）。
+  // 沒有列在這裡的人就是預設的左側。
+  var FRAME_RECT_BY_NAME = {
+    alston: standing(RIGHT),
+    jason:  standing(RIGHT),
+    leo:    standing(RIGHT),
+    miklos: standing(RIGHT),
+    simon:  standing(RIGHT),
+    vane:   standing(RIGHT),
+    ryan:   standing(CENTRE)
+  };
 
   var stage, video, canvas, ctx, placeholder;
   var startBtn, shutterBtn, closeBtn, filterBtns;
@@ -28,14 +59,12 @@
   var rafId = null;
 
   function loadFrameImages() {
-    FRAME_URLS.forEach(function (url, i) {
-      if (!url) {
-        frameImages[i] = null;
-        return;
-      }
+    FILTERS.forEach(function (f, i) {
       var img = new Image();
+      // 拍照時要把這張圖畫進 canvas 再 toDataURL，跨網域的圖沒有這一行會
+      // 污染 canvas，下載那一步就會丟 SecurityError。
       img.crossOrigin = 'anonymous';
-      img.src = url;
+      img.src = FRAME_BASE + f.name + '.avif';
       frameImages[i] = img;
     });
   }
@@ -48,7 +77,8 @@
   }
 
   function getFrameRect(index) {
-    return FRAME_RECTS[index] || FRAME_RECTS[0] || { x: 0, y: 0, width: 1, height: 1 };
+    var f = FILTERS[index];
+    return (f && FRAME_RECT_BY_NAME[f.name]) || FRAME_RECT;
   }
 
   function drawFrame(context, index, width, height) {
@@ -56,12 +86,23 @@
     if (!frame || !frame.complete || !frame.naturalWidth) return;
 
     var rect = getFrameRect(index);
+    var boxX = rect.x * width;
+    var boxY = rect.y * height;
+    var boxW = rect.width * width;
+    var boxH = rect.height * height;
+
+    // 等比例縮到塞得進方框（contain），再貼齊方框底部、水平置中。
+    // 這些是站姿的去背人像，底部對齊才會像站在畫面裡，而不是浮在半空。
+    var scale = Math.min(boxW / frame.naturalWidth, boxH / frame.naturalHeight);
+    var drawW = frame.naturalWidth * scale;
+    var drawH = frame.naturalHeight * scale;
+
     context.drawImage(
       frame,
-      rect.x * width,
-      rect.y * height,
-      rect.width * width,
-      rect.height * height
+      boxX + (boxW - drawW) / 2,
+      boxY + (boxH - drawH),
+      drawW,
+      drawH
     );
   }
 
