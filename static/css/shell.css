@@ -109,11 +109,27 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
     right: auto;
     transform: translateX(-50%);
   }
+  /* Not absolutely positioned: a fixed left offset reads fine on a short
+     label like "Team", but "Safety and Security" is the widest item in any
+     menu, close enough to its dropdown's own width (centred text, see the
+     200px-floor note above) that a dot pinned to the edge lands on top of
+     the "S" instead of beside it. A normal inline dot moves and centres
+     with the text it belongs to, on every label, in every menu.
+
+     That alone pulls the text off-centre, though: the dot's own gutter
+     (width + margin) only exists on the left, so the before+text+after row
+     centres as a group with the text sitting left of where it would on its
+     own. ::after mirrors the dot's gutter on the right, invisible and
+     non-interactive, so the two sides balance and the text itself is what
+     ends up centred -- the dot just occupies the left gutter that leaves. */
   .navbar .dropdown-item::before {
-    content: ""; width: 5px; height: 5px; border-radius: 50%;
-    background: var(--c-teal); position: absolute; left: 0.9rem;
+    content: ""; width: 5px; height: 5px; min-width: 5px; border-radius: 50%;
+    background: var(--c-teal); margin-right: 0.5rem;
     opacity: 0; transform: scale(0.4);
     transition: opacity var(--t-fast) ease, transform var(--t-fast) var(--ease-spring);
+  }
+  .navbar .dropdown-item::after {
+    content: ""; width: 5px; min-width: 5px; margin-left: 0.5rem;
   }
   .navbar .dropdown-item:hover::before,
   .navbar .dropdown-item:focus-visible::before { opacity: 1; transform: scale(1); }
