@@ -1,0 +1,446 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAPTURE // Classified Terminal</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;800&display=swap');
+
+:root {
+  --green: #a6ffcb;
+  --cyan: #61f6ff;
+  --dark: #030a0a;
+  --dim: #527e72;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--dark);
+  color: var(--green);
+  font-family: 'Share Tech Mono', monospace;
+  overflow-x: hidden;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: .35;
+  pointer-events: none;
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    transparent 0px,
+    transparent 3px,
+    #00000020 4px
+  );
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  width: min(900px, 92%);
+  margin: auto;
+  padding: 35px 0 70px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #3d7863;
+  padding-bottom: 14px;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.status {
+  color: var(--cyan);
+  animation: blink 1.2s infinite;
+}
+
+.hero {
+  text-align: center;
+  padding: 65px 0 35px;
+}
+
+.eyebrow {
+  color: var(--cyan);
+  font-size: 12px;
+  letter-spacing: 5px;
+}
+
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(48px, 10vw, 100px);
+  font-weight: 800;
+  letter-spacing: 5px;
+  margin: 18px 0 5px;
+  text-shadow: 0 0 15px #61f6ff80, 0 0 45px #61f6ff30;
+}
+
+.subtitle {
+  letter-spacing: 5px;
+  color: var(--cyan);
+  font-size: 14px;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  margin: 30px 0;
+}
+
+.panel {
+  border: 1px solid #3b8c71;
+  background: #071411d9;
+  padding: 22px;
+  margin: 20px 0;
+  position: relative;
+  box-shadow: 0 0 25px #42ffb00b;
+}
+
+.panel::before {
+  content: "SYSTEM MODULE";
+  position: absolute;
+  top: -8px;
+  left: 15px;
+  background: var(--dark);
+  padding: 0 8px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+}
+
+h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+}
+
+p {
+  line-height: 1.9;
+  color: #b5d6c8;
+  font-size: 14px;
+}
+
+.highlight { color: var(--green); }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 25px 0;
+}
+
+.metric {
+  border: 1px solid #245a48;
+  padding: 16px 8px;
+  text-align: center;
+}
+
+.metric strong {
+  display: block;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  color: var(--cyan);
+  margin-bottom: 8px;
+}
+
+.metric span {
+  font-size: 10px;
+  color: #91bca9;
+  letter-spacing: 1px;
+}
+
+button {
+  font-family: inherit;
+  color: var(--green);
+  background: #0a2119;
+  border: 1px solid var(--green);
+  padding: 14px 24px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: .25s;
+}
+
+button:hover {
+  background: var(--green);
+  color: #00140c;
+  box-shadow: 0 0 25px #a6ffcb60;
+}
+
+.center { text-align: center; }
+
+#terminal {
+  min-height: 125px;
+  white-space: pre-wrap;
+  line-height: 1.9;
+  font-size: 13px;
+  color: var(--green);
+}
+
+.hidden { display: none; }
+
+#reveal {
+  text-align: center;
+  padding: 30px 10px;
+  animation: appear 1.4s ease both;
+}
+
+#reveal h2 {
+  font-size: clamp(20px, 4vw, 32px);
+  color: var(--green);
+  text-shadow: 0 0 20px #a6ffcb70;
+}
+
+.signature {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-align: center;
+  margin-top: 50px;
+}
+
+.glitch {
+  animation: glitch .3s linear 2;
+}
+
+@keyframes blink {
+  50% { opacity: .25; }
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+@media (max-width: 500px) {
+  main { padding-top: 20px; }
+  .hero { padding-top: 45px; }
+  .topbar { letter-spacing: 0; }
+  .metrics { gap: 6px; }
+  .metric strong { font-size: 15px; }
+  .panel { padding: 17px; }
+}
+</style>
+</head>
+
+<body>
+<canvas id="particles"></canvas>
+<div class="scanlines"></div>
+
+<main>
+  <div class="topbar">
+    <span>NCKU // TAINAN</span>
+    <span class="status">● SYSTEM ONLINE</span>
+  </div>
+
+  <section class="hero">
+    <div class="eyebrow">UNKNOWN SIGNAL DETECTED</div>
+    <h1>CAPTURE</h1>
+    <div class="subtitle">BEYOND THE BIOFILM</div>
+    <div class="divider"></div>
+    <p>
+      Every signal tells a story.<br>
+      Every connection can change the outcome.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>// PROJECT OVERVIEW</h2>
+    <p>
+      <span class="highlight">TARGET:</span>
+      Pseudomonas aeruginosa
+    </p>
+    <p>
+      <span class="highlight">THREAT:</span>
+      Biofilm formation & bacterial communication
+    </p>
+    <p>
+      <span class="highlight">MISSION:</span>
+      Intercept the signal. Challenge the biofilm.
+    </p>
+    <p>
+      Bacteria communicate through chemical signals such as AHL.
+      What if we could capture the message before it becomes a
+      coordinated threat?
+    </p>
+  </section>
+
+  <div class="metrics">
+    <div class="metric">
+      <strong>AHL</strong>
+      <span>SIGNAL</span>
+    </div>
+    <div class="metric">
+      <strong>DNA</strong>
+      <span>DESIGN</span>
+    </div>
+    <div class="metric">
+      <strong>∞</strong>
+      <span>POSSIBILITY</span>
+    </div>
+  </div>
+
+  <section class="panel">
+    <h2>// CLASSIFIED ACCESS</h2>
+    <p>
+      An unidentified transmission has been detected in the system.
+      Its origin appears to be connected to the CAPTURE project.
+    </p>
+
+    <div id="terminal">> Initializing secure connection...
+> Awaiting authorization.</div>
+
+    <div class="center">
+      <button id="unlock" onclick="unlockTerminal()">
+        [ INITIATE DECRYPTION ]
+      </button>
+    </div>
+
+    <div id="reveal" class="hidden">
+      <div class="eyebrow">TRANSMISSION DECRYPTED</div>
+      <h2>THE REAL EASTER EGG IS YOU.</h2>
+      <p>
+        You looked beyond the surface.<br>
+        You followed the signal.<br><br>
+        Science is not just about discovering answers.
+        It is about daring to ask better questions.
+      </p>
+      <div class="divider"></div>
+      <p class="highlight">
+        FROM TAINAN, WITH CURIOSITY.<br>
+        NEXT STOP: PARIS.
+      </p>
+      <p>Thank you for being part of our journey.</p>
+      <p>— iGEM NCKU-Tainan 2026</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>// FINAL TRANSMISSION</h2>
+    <p>
+      We are more than a sequence of experiments.<br>
+      We are the questions that keep us awake,<br>
+      the failures that teach us to try again,<br>
+      and the people who make discovery possible.
+    </p>
+    <p class="highlight">
+      One team. Countless possibilities.<br>
+      Let's capture the future.
+    </p>
+  </section>
+
+  <div class="signature">
+    NCKU-TAINAN // iGEM 2026<br><br>
+    END OF TRANSMISSION_
+  </div>
+</main>
+
+<script>
+// Background particles
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  particles = Array.from({length: 65}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.8 + .3,
+    speed: Math.random() * .5 + .1
+  }));
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  particles.forEach(p => {
+    p.y -= p.speed;
+    if (p.y < 0) {
+      p.y = canvas.height;
+      p.x = Math.random() * canvas.width;
+    }
+
+    ctx.fillStyle = '#a6ffcb';
+    ctx.globalAlpha = Math.random() * .5 + .2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', resize);
+resize();
+draw();
+
+// Terminal decryption animation
+const messages = [
+  '> Establishing encrypted connection...',
+  '> Scanning biological signal...',
+  '> Detecting AHL communication patterns...',
+  '> Analyzing biofilm defense mechanisms...',
+  '> Verifying project identity: CAPTURE',
+  '> Identity confirmed: iGEM NCKU-Tainan 2026',
+  '> Decryption successful.',
+  '> Welcome, curious mind.'
+];
+
+let unlocked = false;
+
+async function unlockTerminal() {
+  if (unlocked) return;
+  unlocked = true;
+
+  const terminal = document.getElementById('terminal');
+  const button = document.getElementById('unlock');
+
+  button.disabled = true;
+  button.textContent = '[ DECRYPTING... ]';
+
+  terminal.textContent = '';
+
+  for (const message of messages) {
+    terminal.textContent += message + '\n';
+    await new Promise(resolve => setTimeout(resolve, 650));
+  }
+
+  document.getElementById('reveal').classList.remove('hidden');
+  document.getElementById('reveal').scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+
+  button.textContent = '[ ACCESS GRANTED ]';
+  document.querySelector('.hero h1').classList.add('glitch');
+}
+</script>
+</body>
+</html>
