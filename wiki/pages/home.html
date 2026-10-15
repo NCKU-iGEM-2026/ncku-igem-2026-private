@@ -1216,12 +1216,41 @@
 <script src="{{ url_for('static', filename = 'js/pages/home.js') }}" defer></script>
 <script src="{{ url_for('static', filename = 'js/pages/hais-reels.js') }}" defer></script>
 <script>
+/* The player is given its address only once the reader has come to rest on
+   it. Booting it costs about a tenth of a second of main thread, and with
+   loading="lazy" that landed exactly as the reader scrolled past the box --
+   the frame rate through this part of the page halved. Waiting for the box
+   to be a quarter on screen, and for a short pause after that, means
+   scrolling past costs nothing and the player still loads by itself for
+   anyone who stops to watch. The dark panel behind it is what shows in the
+   meantime, as it already did while the player was loading.
+   Without IntersectionObserver, the old behaviour. */
 (function () {
   var frame = document.querySelector(".home-video-frame iframe[data-src]");
   if (!frame) return;
-  function give() { frame.src = frame.getAttribute("data-src"); }
-  if (document.readyState === "complete") give();
-  else window.addEventListener("load", give);
+  var given = false;
+  function give() {
+    if (given) return;
+    given = true;
+    frame.src = frame.getAttribute("data-src");
+  }
+  if (!("IntersectionObserver" in window)) {
+    if (document.readyState === "complete") give();
+    else window.addEventListener("load", give);
+    return;
+  }
+  var timer = null;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        timer = setTimeout(function () { give(); io.disconnect(); }, 400);
+      } else if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    });
+  }, { threshold: 0.25 });
+  io.observe(frame);
 })();
 </script>
 {% endblock %}
