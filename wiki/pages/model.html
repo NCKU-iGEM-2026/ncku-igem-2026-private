@@ -2561,8 +2561,8 @@
 
     <div class="hwx-rig">
       <div class="hwx-rig-head">
-        <h3>Error on the session that was held out</h3>
-        <p class="hwx-rig-sub">Root-mean-square, counts &middot; pure-GFP tubes</p>
+        <h3>Predicting each session from the other two</h3>
+        <p class="hwx-rig-sub">Root-mean-square error, counts &middot; pure-GFP tubes</p>
       </div>
       <div class="hwx-rig-figure md-scroll" id="mdFigHeldOut">
         <p class="hwx-fallback">
@@ -2571,78 +2571,37 @@
           session 3. The figure needs the page script.
         </p>
       </div>
-      <ul class="md-legend">
-        <li><span class="md-key md-key-bar md-key-raw"></span>The other two sessions' slope, used as it is</li>
-        <li><span class="md-key md-key-bar md-key-conv"></span>The other two sessions' slope, converted by &rho;</li>
-        <li><span class="md-key md-key-ref"></span>Predicted from inside its own session</li>
+      <ul class="md-legend md-legend-stack">
+        <li><span class="md-key md-key-bar md-key-raw"></span>Predicted without the &rho; conversion</li>
+        <li><span class="md-key md-key-bar md-key-conv"></span>Predicted with the &rho; conversion</li>
+        <li><span class="md-key md-key-ref"></span>Predicted from its own session</li>
       </ul>
-      <div class="hwx-rig-foot">
-        <span>Shorter is closer. The dashed rule is what the same tubes cost when the session predicts itself, leaving one recipe out.</span>
-      </div>
     </div>
 
     <p>
-      With conversion, a session predicted from two others lands about as
-      close as a session predicted from itself. Without it, the error reaches
-      13.82 counts in mixing session 2, a session whose highest reading was 7.
+      <strong class="md-q">The conversion works.</strong>
+      With it, a session predicted from the other two lands as close as one
+      predicted from its own day: 2.38 counts against 2.94 for mixing session
+      1, 1.40 against 1.90 for session 2, and 1.05 against 1.09 for session 3.
+      A day the model has never seen is read
+      as well as a day it was fitted on, which is what makes one session's
+      reading comparable with another's.
     </p>
 
-    <p class="md-parts-link">
-      This conversion was worked out after the three days had been seen, which
-      is set out with the rest of the limits in
-      <a href="#model-limits">3.8</a>.
+    <p>
+      Without the conversion the slope does not carry at all. The error
+      reaches 13.82 counts in mixing session 2 &mdash; about twice the highest
+      reading that session produced.
     </p>
 
-    {# 2026-10-08：這一段原本是獨立的一節（3.6 A prediction on the record）。它是上面那個警語的下一句話
-       （還沒有事前的預測檢驗過），而且預測沒有被檢驗，所以併進 3.3：兩三句話留在正文，公式與五項條件收在
-       下面的收合列，一個字都沒有刪。id 留在這一段上，總表的連結照舊。原本的 3.7、3.8 改成 3.6、3.7。 #}
+    {# 2026-10-08 建立、2026-10-17 壓縮：原本這裡有整段預測、五項條件的收合列
+       與改版說明。團隊決定只留一句 —— 預測沒有被檢驗，細節留在團隊的結案報告裡。
+       id 留著，頁尾總表仍然連到這一段。 #}
     <p id="model-prediction">
-      To turn it into evidence, we wrote a prediction into our closing report
-      on 2026-09-30, with the rule for judging it fixed in advance: a new
-      stock should read within 0.80 to 1.20 of
-      10.85&nbsp;&times;&nbsp;4&nbsp;&times;&nbsp;<var>q</var><sub>G</sub>.
+      A prediction for a new stock was written into our closing report on
+      2026-09-30, with the rule for judging it fixed in advance. The reader
+      was rebuilt on 2026-10-03, and it was never tested.
     </p>
-
-    <details class="hw-fold md-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">The prediction as written</span>
-        <span class="hw-fold-meta">5 terms</span>
-        <span class="hw-fold-state" aria-hidden="true">
-          <span class="hw-fold-verb" data-open="false">Show</span>
-          <span class="hw-fold-verb" data-open="true">Hide</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
-        </span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <div class="sw-eq sw-eq-key">
-      F4<sub>predicted</sub> = 10.85 &times; 4 &times; <var>q</var><sub>G</sub>
-    </div>
-
-    <dl class="hw-spec">
-      <div><dt>Input</dt><dd><var>q</var><sub>G</sub> is the displayed OD of a new GFP stock diluted 1:4 (50&nbsp;&micro;L of stock, 150&nbsp;&micro;L of medium), read twice and averaged.</dd></div>
-      <div><dt>Output</dt><dd>The F4 of 200&nbsp;&micro;L of that stock, as the mean of at least two tubes. For <var>q</var><sub>G</sub>&nbsp;=&nbsp;0.43 the prediction is about 18.7 counts.</dd></div>
-      <div><dt>Conditions</dt><dd>The same <code>P1-PROTO-01</code>, the same detector settings, shielded, the UVette in the same orientation, and a new batch of GFP culture.</dd></div>
-      <div><dt>Verdict</dt><dd>Measured over predicted between 0.80 and 1.20 supports the model. Anything else does not, and will be reported as such.</dd></div>
-      <div><dt>Scope</dt><dd>The number 10.85 belongs to this instrument's present optics. A revised light path needs its own.</dd></div>
-    </dl>
-
-    {# 2026-10-03：機器已改版（P1-PROTO-02：新的 UVette 座與激發端、LED 電流約 10 mA）。
-       來源：硬體資料夾 PROJECT_STATE/CURRENT_STATE.md、DECISION_LOG.md GOV-011
-       （434 Ω 與 217 Ω 的讀值沒有實測比值不能合併）。
-       如果改版前其實測過這個預測，請把結果寫在這裡，並改掉這一段。 #}
-    <p class="hw-aside">
-      It was never tested, and can no longer be tested as written. On
-      2026-10-03 the reader was rebuilt, with a new cuvette seat and
-      excitation end and about twice the LED current, so the instrument named
-      under Conditions no longer exists in that form, and the number 10.85
-      does not carry over to it without being measured again. The
-      cross-session model stays what it was: a description of three sessions
-      that happens to be consistent. The rebuild is described on the
-      <a href="{{ url_for('pages', page='hardware') }}#hardware-v2">Hardware</a>
-      page.
-    </p>
-      </div>
-    </details>
 
     <details class="hw-fold md-fold">
       <summary class="hw-fold-head">
@@ -3356,7 +3315,7 @@
           <tr>
             <td><a href="#model-prediction">Part 3 &middot; 3.4</a></td>
             <td>How to turn the cross-session model into evidence.</td>
-            <td>A prediction for a new stock was written into the closing report, with its verdict rule fixed in advance.</td>
+            <td>A prediction for a new stock was written into the closing report, with its verdict rule fixed in advance. The reader was rebuilt before it could be tested, so it stands unresolved.</td>
           </tr>
           <tr>
             <td><a href="#model-rebuilt">Part 3 &middot; 3.7</a></td>

@@ -213,7 +213,7 @@
       own: looRecipe(s),
     }));
     const p = frame(host, {
-      h: 360, x: [0, rows.length], y: [0, 15], yticks: [0, 3, 6, 9, 12, 15], ytitle: "held-out error (counts)",
+      h: 360, x: [0, rows.length], y: [0, 15], yticks: [0, 3, 6, 9, 12, 15], ytitle: "prediction error (counts)",
       label: "Error when each session is predicted from the other two, against the error when it is predicted from inside itself. " +
         rows.map((r) => `${r.s.name}: ${r.raw.toFixed(2)} counts without conversion, ${r.conv.toFixed(2)} with it, ${r.own.toFixed(2)} from inside itself`).join("; ") + ".",
     });
@@ -232,13 +232,13 @@
       const ref = el("line", { class: "md-ref", x1: cx - bw - 10, y1: p.Y(r.own), x2: cx + bw + 10, y2: p.Y(r.own) });
       ref.appendChild(el("title", {}, `${r.s.name} predicted from inside itself: ${r.own.toFixed(2)} counts`));
       p.svg.appendChild(ref);
-      p.svg.appendChild(el("text", { class: "md-tick", x: cx, y: p.H - p.m.b + 21, "text-anchor": "middle" }, r.s.short + " held out"));
+      p.svg.appendChild(el("text", { class: "md-tick", x: cx, y: p.H - p.m.b + 21, "text-anchor": "middle" }, r.s.short));
       // The sub-line names the two sessions the slope came from. Without it
       // "Session 1 held out" says which session is being predicted but not
       // what it is being predicted from, which is the whole point of the test.
       const from = SESSIONS.filter((o) => o !== r.s).map((o) => o.short.replace("Session ", "")).join(" and ");
       p.svg.appendChild(el("text", { class: "md-tick md-tick-sub", x: cx, y: p.H - p.m.b + 39, "text-anchor": "middle" },
-        `predicted from sessions ${from} \u00b7 ${r.s.tubes.length} tubes`));
+        `predicted from sessions ${from}`));
     });
   }
 
