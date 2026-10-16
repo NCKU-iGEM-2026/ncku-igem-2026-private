@@ -2198,10 +2198,10 @@
     <dl class="hw-spec">
       <div><dt>Question</dt><dd>How the reading scales with GFP culture, why sessions disagree, and when another experiment is worth running. <a href="#model-questions">3.0</a></dd></div>
       <div><dt>Data</dt><dd>50 tubes from three mixing sessions on one instrument, each tube the mean of its valid cycles. <a href="#model-data">3.1</a></dd></div>
-      <div><dt>Model</dt><dd>A line through the origin within a session, a stock-density conversion across sessions, and a four-channel ridge regression in the other direction. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
-      <div><dt>Validation</dt><dd>Every model is scored on tubes it was not fitted to: a left-out recipe, or a whole left-out session. <a href="#model-within">3.2</a>, <a href="#model-across">3.3</a>, <a href="#model-inverse">3.5</a></dd></div>
-      <div><dt>What it changed</dt><dd>How many pairs to make, whether to repeat a comparison, and which pipeline to keep. <a href="#model-design">3.4</a>, <a href="#model-impact">Summary</a></dd></div>
-      <div><dt>Limits</dt><dd>Relative readings only, three sessions, and a cross-session conversion found after the fact. <a href="#model-limits">3.7</a></dd></div>
+      <div><dt>Model</dt><dd>A line through the origin within a session, a stock-density conversion across sessions, and a four-channel ridge regression in the other direction. <a href="#model-within">3.2</a>, <a href="#model-shape">3.3</a>, <a href="#model-across">3.4</a>, <a href="#model-inverse">3.6</a></dd></div>
+      <div><dt>Validation</dt><dd>Every model is scored on tubes it was not fitted to: a left-out recipe, or a whole left-out session. <a href="#model-shape">3.3</a>, <a href="#model-across">3.4</a>, <a href="#model-inverse">3.6</a></dd></div>
+      <div><dt>What it changed</dt><dd>How many pairs to make, whether to repeat a comparison, and which pipeline to keep. <a href="#model-design">3.5</a>, <a href="#model-impact">Summary</a></dd></div>
+      <div><dt>Limits</dt><dd>Relative readings only, three sessions, and a cross-session conversion found after the fact. <a href="#model-limits">3.8</a></dd></div>
     </dl>
   </div>
 
@@ -2255,7 +2255,7 @@
     <h2 data-toc-title="3.1 Data">3.1 The data behind it</h2>
 
     <p>
-      Sections 3.2 to 3.5 come from one instrument, <code>P1-PROTO-01</code>,
+      Sections 3.2 to 3.6 come from one instrument, <code>P1-PROTO-01</code>,
       read under an opaque shield with the UVette in the same orientation and
       the detector at the same settings throughout: gain 512&times;, ATIME 255,
       ASTEP 280. The models rest on three mixing sessions, in which a GFP
@@ -2300,7 +2300,7 @@
       seven replicate groups the spread left over between tubes is larger than
       that: there, seating, sampling, preparation or the cuvette contribute
       more than the detector's own cycle noise &mdash; which is why
-      <a href="#model-design">3.4</a> asks for more tubes rather than more
+      <a href="#model-design">3.5</a> asks for more tubes rather than more
       cycles.
     </p>
 
@@ -2330,7 +2330,7 @@
 
   <!-- ========================= 3.2 within a session ========================= -->
   <section id="model-within">
-    <h2 data-toc-title="3.2 Within a session">3.2 Within one session, the reading is proportional</h2>
+    <h2 data-toc-title="3.2 How steep">3.2 How steep the line is</h2>
 
     <p>
       The simplest thing the reading could do is rise in proportion to the
@@ -2364,13 +2364,48 @@
       </div>
     </div>
 
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Notes on the line</span>
+        <span class="hw-fold-meta">2 notes</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+        <dl class="hw-spec">
+          <div><dt>Doubling</dt><dd>Going from <var>G</var>&nbsp;=&nbsp;0.5 to 1.0 multiplied the reading by 2.04 in mixing session 3, by 1.51 in session 1 with a dense stock, and by 9.25 in session 2 near the floor. Proportional would be 2.</dd></div>
+          <div><dt>Low end</dt><dd>The lowest-concentration recipe reads below the line in all three sessions, by 1.2 to 1.9 counts. One straight line is a first-order description.</dd></div>
+        </dl>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===================== 3.3 what shape ===================== -->
+  <section id="model-shape">
+    <h2 data-toc-title="3.3 What shape">3.3 What shape the relationship has</h2>
+
     <p>
-      Whether that line is enough was not decided by how well it fits. A model
-      with more terms always fits the tubes it was given better. What matters
-      is how well it predicts tubes it was not given, so each candidate was
-      scored by <strong>leaving one recipe out</strong>: every tube of one
-      recipe is removed, the model is fitted to the rest, and it is asked to
-      predict the ones removed.
+      Is the line of <a href="#model-within">3.2</a> enough, or does the
+      relationship bend? Fit cannot answer that. Add parameters and the fit
+      always improves, even when the extra ones mean nothing. That is
+      overfitting. R&sup2; cannot detect it, because overfitting raises
+      R&sup2; as well. So each candidate was scored on tubes it had
+      never seen. This is done on the readings already taken; nothing was
+      measured again. The rule is <strong>leave one recipe out</strong>. Set
+      aside every reading from one recipe, fit the model to the rest, then ask
+      it to predict the readings set aside. Every recipe takes its turn, and
+      the errors are combined into the <em>Left-out recipe error</em> column.
+    </p>
+
+    <p>
+      This comparison needs every tube of the session. The mixed tubes and the
+      GFP-free ones are all in it. One candidate below is a surface in
+      <var>G</var> and <var>d</var>. A pure-GFP tube has
+      <var>d</var>&nbsp;=&nbsp;<var>G</var>. On the twenty tubes of
+      <a href="#model-within">3.2</a> that surface cannot be fitted at all.
     </p>
 
     <div class="hw-figure">
@@ -2407,26 +2442,27 @@
         <strong>Two sets of slopes appear on this page.</strong> This table
         fits every tube of the session, mixed and GFP-free ones included, which
         gives 30.48, 4.24 and 18.46 counts per unit <var>G</var>. The figure
-        above, and the conversion in <a href="#model-across">3.3</a>, use the
+        above, and the conversion in <a href="#model-across">3.4</a>, use the
         twenty pure-GFP tubes alone, which give 30.93, 5.17 and 18.69.
       </figcaption>
     </div>
 
     <p>
-      On the two days with enough signal the one-parameter line predicts
-      left-out recipes best, and adding terms raises R&sup2; while making the
-      predictions worse. On the day with the most tubes, the test against the
-      scatter of replicate tubes sees no lack of fit either. On the day the
-      stock was thin, most readings sat within a few counts of zero and the
-      line does fail: a surface describes that day better. How complex a model
-      is warranted depends on how far the signal is from the floor &mdash;
-      which is the one sentence to carry out of this section.
+      In mixing sessions 1 and 3, the two with enough signal, the
+      one-parameter line predicts left-out recipes best, and adding terms
+      raises R&sup2; while making the predictions worse. In mixing session 3
+      the test against the scatter of replicate tubes sees no lack of fit
+      either. In mixing session 2 the stock was thin, most readings sat within
+      a few counts of zero, and there the line does fail: a surface describes
+      that session better. How complex a model is warranted depends on how far
+      the signal is from the floor &mdash; which is the one sentence to carry
+      out of this section.
     </p>
 
     <details class="hw-fold md-fold">
       <summary class="hw-fold-head">
-        <span class="hw-fold-title">Notes on the line</span>
-        <span class="hw-fold-meta">4 notes</span>
+        <span class="hw-fold-title">Notes on the comparison</span>
+        <span class="hw-fold-meta">2 notes</span>
         <span class="hw-fold-state" aria-hidden="true">
           <span class="hw-fold-verb" data-open="false">Show</span>
           <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -2435,10 +2471,8 @@
       </summary>
       <div class="hw-fold-body hw-fold-prose">
         <dl class="hw-spec">
-          <div><dt>Doubling</dt><dd>Going from <var>G</var>&nbsp;=&nbsp;0.5 to 1.0 multiplied the reading by 2.04 in mixing session 3, by 1.51 in session 1 with a dense stock, and by 9.25 in session 2 near the floor. Proportional would be 2.</dd></div>
-          <div><dt>Low end</dt><dd>The lowest-concentration recipe reads below the line in all three sessions, by 1.2 to 1.9 counts. One straight line is a first-order description.</dd></div>
           <div><dt>Design</dt><dd>The six-parameter surface cannot be estimated from mixing session 3 at all. Its five recipes all lie on (<var>d</var>&nbsp;&minus;&nbsp;<var>G</var>)(<var>d</var>&nbsp;&minus;&nbsp;1)&nbsp;=&nbsp;0, so the design matrix has rank 5. A session meant to test curvature has to place recipes off that curve.</dd></div>
-          <div><dt>Caveat</dt><dd>The lack-of-fit test on the dense-stock day has almost no power; see <a href="#model-limits">3.7</a>.</dd></div>
+          <div><dt>Caveat</dt><dd>The lack-of-fit test on the dense-stock day has almost no power; see <a href="#model-limits">3.8</a>.</dd></div>
         </dl>
       </div>
     </details>
@@ -2446,7 +2480,7 @@
 
   <!-- ========================= 3.3 across sessions ========================= -->
   <section id="model-across">
-    <h2 data-toc-title="3.3 Across sessions">3.3 Across sessions, most of the difference is the stock</h2>
+    <h2 data-toc-title="3.4 Across sessions">3.4 Across sessions, most of the difference is the stock</h2>
 
     <p>
       The three slopes above are 30.93, 5.17 and 18.69, a spread of
@@ -2548,7 +2582,7 @@
     <p class="md-parts-link">
       This conversion was worked out after the three days had been seen, which
       is set out with the rest of the limits in
-      <a href="#model-limits">3.7</a>.
+      <a href="#model-limits">3.8</a>.
     </p>
 
     {# 2026-10-08：這一段原本是獨立的一節（3.6 A prediction on the record）。它是上面那個警語的下一句話
@@ -2664,7 +2698,7 @@
 
   <!-- ========================= 3.4 design ========================= -->
   <section id="model-design">
-    <h2 data-toc-title="3.4 Design">3.4 Deciding what to measure, and when to stop</h2>
+    <h2 data-toc-title="3.5 Design">3.5 Deciding what to measure, and when to stop</h2>
 
     <p>
       One question the instrument has to answer is whether other cells in the
@@ -2745,7 +2779,7 @@
 
   <!-- ========================= inverse ========================= -->
   <section id="model-inverse">
-    <h2 data-toc-title="3.5 Inverse">3.5 The other direction: from four channels back to G</h2>
+    <h2 data-toc-title="3.6 Inverse">3.6 The other direction: from four channels back to G</h2>
 
     <p>
       The models above predict a reading from a recipe. In use the question
@@ -2999,7 +3033,7 @@
      表的第三列只列「目視有誘導」的六筆：目視沒有誘導的兩筆與不含報導基因的那一筆是用來定 c 的點，
      它們接近 0 是擬合的結果，不是獨立的檢驗（證據檔 §7.2）。 #}
   <section id="model-rebuilt">
-    <h2 data-toc-title="3.6 After the rebuild">3.6 After the rebuild: what carried over</h2>
+    <h2 data-toc-title="3.7 After the rebuild">3.7 After the rebuild: what carried over</h2>
 
     <p>
       The models above describe the first reader. It was rebuilt on
@@ -3103,13 +3137,13 @@
       may be used to subtract a background from anything else. They tell a
       cuvette with added sfGFP from one without; they do not give an amount.
       What else follows from that is in
-      <a href="#model-limits">3.7</a>.
+      <a href="#model-limits">3.8</a>.
     </p>
   </section>
 
   <!-- ========================= limits ========================= -->
   <section id="model-limits">
-    <h2 data-toc-title="3.7 Limits">3.7 Assumptions and limits</h2>
+    <h2 data-toc-title="3.8 Limits">3.8 Assumptions and limits</h2>
 
     <p>
       Every limit this part has is here. The sections above state what the
@@ -3124,14 +3158,14 @@
         <thead><tr><th scope="col">We do not say</th><th scope="col">What the data supports</th></tr></thead>
         <tbody>
           <tr><td>A calibration curve, an absolute GFP concentration, a limit of detection</td><td>Relative readings within one session, and a description of these three sessions.</td></tr>
-          <tr><td>Non-GFP cells do not affect F4</td><td>No difference was resolved at this precision; the nominal range is &minus;20&nbsp;% to +12&nbsp;% of A. A culture without the reporter stops reading zero once it is dense enough (<a href="#model-rebuilt">3.6</a>).</td></tr>
+          <tr><td>Non-GFP cells do not affect F4</td><td>No difference was resolved at this precision; the nominal range is &minus;20&nbsp;% to +12&nbsp;% of A. A culture without the reporter stops reading zero once it is dense enough (<a href="#model-rebuilt">3.7</a>).</td></tr>
           <tr><td>The instrument does not drift</td><td>After conversion the three sessions agree, with no sign of a large drift. Post hoc.</td></tr>
           <tr><td>OD is a cell count</td><td>A displayed OD that does not scale with dilution, for a reason not yet established.</td></tr>
-          <tr><td>The biosensor's dose&ndash;response to AHL</td><td>Not part of this model, because we have not measured one. None of these samples was induced with AHL: they are cultures reported to carry the sfGFP plasmid, cultures without it, and medium. The one session on AHL plates did not resolve induction (<a href="#model-rebuilt">3.6</a>).</td></tr>
+          <tr><td>The biosensor's dose&ndash;response to AHL</td><td>Not part of this model, because we have not measured one. None of these samples was induced with AHL: they are cultures reported to carry the sfGFP plasmid, cultures without it, and medium. The one session on AHL plates did not resolve induction (<a href="#model-rebuilt">3.7</a>).</td></tr>
           <tr><td>Every GFP sample is detected</td><td>35 of 38 tubes read above zero; the three that did not had the lowest density index.</td></tr>
           <tr><td>Four channels beat one</td><td>Not established either way on this data.</td></tr>
           <tr><td>Accurate to 8.24 points</td><td>A mean over all 50 tubes, with a worst tube at 29.37.</td></tr>
-          <tr><td>The models carry over to the rebuilt reader</td><td>The three that need no OD did no better than guessing the mean on its dilution series (<a href="#model-rebuilt">3.6</a>).</td></tr>
+          <tr><td>The models carry over to the rebuilt reader</td><td>The three that need no OD did no better than guessing the mean on its dilution series (<a href="#model-rebuilt">3.7</a>).</td></tr>
         </tbody>
       </table>
     </div>
@@ -3157,7 +3191,7 @@
       </li>
       <li>
         <em>The cross-session conversion is a post hoc analysis</em>
-        (<a href="#model-across">3.3</a>). How <var>&rho;</var> should be read
+        (<a href="#model-across">3.4</a>). How <var>&rho;</var> should be read
         was chosen after the three sessions had been seen, there are only
         three of them, and no prediction made in advance has tested it yet.
         The formal comparison agrees with the figures &mdash; a shared slope
@@ -3168,19 +3202,19 @@
       </li>
       <li>
         <em>The ranking of the eighteen model families was made after the
-        scores were seen</em> (<a href="#model-inverse">3.5</a>), and is read
+        scores were seen</em> (<a href="#model-inverse">3.6</a>), and is read
         that way: it describes which families happened to score where on this
         data, not which family is better.
       </li>
       <li>
         <em>The lack-of-fit test on the dense-stock day has almost no power</em>
-        (<a href="#model-within">3.2</a>). It has two degrees of freedom of
+        (<a href="#model-shape">3.3</a>). It has two degrees of freedom of
         pure error, from one replicated recipe, so its <var>p</var> values say
         little either way.
       </li>
       <li>
         <em>Neither background curve is a calibration</em>
-        (<a href="#model-rebuilt">3.6</a>). Both were made after the readings
+        (<a href="#model-rebuilt">3.7</a>). Both were made after the readings
         were seen. Three readings above zero set the fitted curve's one
         parameter; the measured one is a single culture on a single day and
         stops at F3&nbsp;89. Neither says whether the background is scattered
@@ -3193,10 +3227,10 @@
 
   <!-- ========================= reproducing ========================= -->
   <section id="model-reproduce">
-    <h2 data-toc-title="3.8 Reproducing">3.8 How the numbers were produced</h2>
+    <h2 data-toc-title="3.9 Reproducing">3.9 How the numbers were produced</h2>
 
     <p>
-      The tables behind sections 3.2 to 3.4 were not typed in by hand. Each is
+      The tables behind sections 3.2 to 3.5 were not typed in by hand. Each is
       generated by a script that reads the instrument's raw serial logs and
       the bench record, and is then recomputed by a second script, written
       separately, that compares the two cell by cell. The least-squares fits
@@ -3204,8 +3238,8 @@
       Every tube mean the models use is listed in those tables, including the
       readings of zero and the tubes that were re-prepared. The four-channel
       study keeps a record of every model it fitted and refits its held-out
-      predictions as a check. The three figures in 3.2 and 3.3 are drawn from the twenty tube means themselves, with their slopes and
-      held-out errors computed in the page. The numbers in 3.6 are computed
+      predictions as a check. The three figures in 3.2 and 3.4 are drawn from the twenty tube means themselves, with their slopes and
+      held-out errors computed in the page. The numbers in 3.7 are computed
       by scripts from the raw logs of the two later sessions.
     </p>
 
@@ -3215,7 +3249,7 @@
       rows, of which 631 are valid (96.0&nbsp;%). Most of those rows come from
       sessions these models do not use &mdash; the earlier ones, which cannot
       enter the cross-session model for the reason given in
-      <a href="#model-across">3.3</a> &mdash; so the 96&nbsp;% is this
+      <a href="#model-across">3.4</a> &mdash; so the 96&nbsp;% is this
       instrument's record over eight days, not a validity rate for the 50
       tubes. The other 26 are accounted for: 18 are deliberate gate checks,
       run with the LED not armed or disabled, and 8 are cycles the firmware
@@ -3296,27 +3330,27 @@
             <td>Classical vision rather than a learned model, so there are no weights to load, no inference step and no GPU: it runs on a free hosting tier instead of one machine in the lab. Each plate comes back as the photograph itself, with every span and a scale bar drawn on it, so no number is copied by hand.</td>
           </tr>
           <tr>
-            <td><a href="#model-design">Part 3 &middot; 3.4</a></td>
+            <td><a href="#model-design">Part 3 &middot; 3.5</a></td>
             <td>How many A/C pairs to make, and whether to repeat the comparison.</td>
             <td>Six pairs were chosen before the session. Afterwards the analysis recommended against repeating the comparison and for spending the bench time elsewhere.</td>
           </tr>
           <tr>
-            <td><a href="#model-design">Part 3 &middot; 3.4</a></td>
+            <td><a href="#model-design">Part 3 &middot; 3.5</a></td>
             <td>Where precision comes from.</td>
             <td>Because tube-to-tube spread exceeds cycle noise, precision comes from more tubes or more pairs, not from more cycles per tube.</td>
           </tr>
           <tr>
-            <td><a href="#model-inverse">Part 3 &middot; 3.5</a></td>
+            <td><a href="#model-inverse">Part 3 &middot; 3.6</a></td>
             <td>Whether a more complex model reads G back better.</td>
             <td>The fixed four-channel ridge pipeline was kept: nothing in forty configurations gave a reason to move off it.</td>
           </tr>
           <tr>
-            <td><a href="#model-prediction">Part 3 &middot; 3.3</a></td>
+            <td><a href="#model-prediction">Part 3 &middot; 3.4</a></td>
             <td>How to turn the cross-session model into evidence.</td>
             <td>A prediction for a new stock was written into the closing report, with its verdict rule fixed in advance.</td>
           </tr>
           <tr>
-            <td><a href="#model-rebuilt">Part 3 &middot; 3.6</a></td>
+            <td><a href="#model-rebuilt">Part 3 &middot; 3.7</a></td>
             <td>Whether the earlier models could read the rebuilt reader's sessions.</td>
             <td>They could not, so the AHL plate session was read with a one-parameter background fitted to its own controls, then against a background measured two days later on a culture without the reporter. Both are reported as descriptions.</td>
           </tr>
