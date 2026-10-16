@@ -2191,50 +2191,6 @@
     <h2 data-toc-title="Part 3 · Reader">Reader model: from counts to culture</h2>
   </header>
 
-  {# Part 3 的各節捷徑。每個連結對應一個 section 的 id，改了 id 要一起改。 #}
-  <nav class="hw-jump" aria-label="Part 3 sections">
-    <ul class="sw-links">
-      <li><a href="#model-questions">3.0 Three questions</a></li>
-      <li><a href="#model-data">3.1 Data</a></li>
-      <li><a href="#model-within">3.2 Within a session</a></li>
-      <li><a href="#model-across">3.3 Across sessions</a></li>
-      <li><a href="#model-design">3.4 Design</a></li>
-      <li><a href="#model-inverse">3.5 Inverse</a></li>
-      <li><a href="#model-rebuilt">3.6 After the rebuild</a></li>
-      <li><a href="#model-limits">3.7 Limits</a></li>
-      <li><a href="#model-reproduce">3.8 Reproducing</a></li>
-    </ul>
-  </nav>
-
-  <div class="hw-lead">
-    <p>
-      <a href="{{ url_for('pages', page='hardware') }}">CAPTURE-Screen</a>
-      reports counts from a spectral sensor. A count is not yet a statement
-      about a sample: it depends on how much reporter culture is in the
-      cuvette, on how dense that culture happened to be on the day, and on the
-      scatter that pipetting, cuvettes and the sensor add on top.
-    </p>
-    <p>
-      The model in this part connects the two. It was built from our own bench
-      data and tested against it.
-    </p>
-  </div>
-
-  <div class="hw-caution">
-    <p>
-      <em>What this part does not claim.</em> Every reading here is a relative
-      fluorescence on one instrument. There is no fluorescence standard behind
-      it, so there is no absolute unit, no limit of detection and no
-      calibration curve. None of these cultures was induced with AHL: the
-      samples are cultures reported to carry the sfGFP plasmid, cultures
-      without it, and medium. A dose&ndash;response model of the biosensor
-      itself is not part of this model, because we have not measured one. The
-      one session on AHL plates, read on the rebuilt reader, is in
-      <a href="#model-rebuilt">3.6</a>, with the background measured two
-      days after it.
-    </p>
-  </div>
-
   {# Part 3 寫在這套小標題訂下之前，所以用這張表把評審要找的每一項對到它所在的節。
      每一列都只指向本頁已經寫了的內容。 #}
   <div class="md-glance">
@@ -2254,47 +2210,27 @@
     <h2 data-toc-title="3.0 Three questions">3.0 Three questions</h2>
 
     <p>
-      The reader model had three questions put to it. Each card turns over
-      to show what came back.
+      The reader model had three questions put to it.
     </p>
 
-    <dl class="hw-terms hw-flip">
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2 20.4 20.4"/></svg></span>Understand</span></dt>
-        <dd class="hw-flip-back">
-          Within one session, how does the green channel relate to the amount
-          of GFP culture? Where the signal is clear of the floor, it is
-          proportional: double the GFP culture and the reading becomes
-          2.04&times;.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 18.5 9 12l3.6 3.2 7.4-9"/><path d="M15.4 6.2H20v4.6"/></svg></span>Predict</span></dt>
-        <dd class="hw-flip-back">
-          Why do the slopes of different sessions differ by a factor of six,
-          and can one session be converted into another? Dividing by the
-          density of that day's stock brings the three slopes to within
-          8&nbsp;% of each other.
-        </dd>
-      </div>
-      <div class="hw-flip-card" tabindex="0">
-        <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.6" width="16" height="16.8" rx="2"/><path d="M8 9h8M8 13h8M8 17h4.5"/></svg></span>Design</span></dt>
-        <dd class="hw-flip-back">
-          How should the next session be laid out, and is it worth running? A
-          power calculation chose six pairs beforehand, and afterwards showed
-          that a repeat would resolve a 10&nbsp;% difference only one time in
-          four.
-        </dd>
-      </div>
-    </dl>
-
-    <ol class="hw-flow">
-      <li>Dark &middot; lit &middot; dark cycles</li>
-      <li>Tube mean of 3 cycles</li>
-      <li>3.2 Within a session</li>
-      <li>3.3 Across sessions</li>
-      <li>A prediction to test</li>
-    </ol>
+    <p>
+      <strong class="md-q">Is the reading proportional?</strong> Within one session, where
+      the signal is clear of the floor, it is: double the GFP culture and the
+      reading becomes 2.04&times;.
+    </p>
+    <p>
+      <strong class="md-q">Why did the same recipe read six times higher on one day than another?</strong> Because a volume
+      fraction is not an amount &mdash; a volume of thin culture holds less
+      GFP than the same volume of dense culture. Dividing by the density of
+      that day's stock brings the three slopes to within 8&nbsp;% of each
+      other.
+    </p>
+    <p>
+      <strong class="md-q">Is another session worth running?</strong> A power calculation
+      chose six pairs beforehand. Afterwards it showed a repeat would resolve
+      a 10&nbsp;% difference one time in four, so the comparison was not
+      repeated.
+    </p>
 
     <div class="hw-figure hw-figure-table">
       <table class="hw-table">
@@ -2331,12 +2267,12 @@
        mixing session 1、2、3，日期只留在這張表的最後一欄；圖例、圖上的提示與其餘表格都用名字
        （圖在 static/model-charts.js）。較早的幾場叫 stability read（09-03）、first fluorescence（09-04）、
        re-insertion test 1、2（09-09、09-14），對照表在 Hardware 頁 3D 列印機那一塊的 Data and documentation。 #}
-    <div class="hw-figure hw-figure-table">
+    <div class="hw-figure">
       <table class="hw-table md-keep">
         <caption>The three mixing sessions</caption>
         <thead>
           <tr>
-            <th scope="col">Session</th><th scope="col">What it was for</th>
+            <th scope="col">Session</th>
             <th scope="col" class="md-n">Tubes fitted</th>
             <th scope="col" class="md-n">GFP stock, displayed OD</th>
             <th scope="col" class="md-n">Pure-GFP tubes</th>
@@ -2344,9 +2280,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>Mixing session 1</td><td>Mixing matrix</td><td class="md-n">14</td><td class="md-n">1.56</td><td class="md-n">4</td><td>2026-09-16</td></tr>
-          <tr><td>Mixing session 2</td><td>Mixing matrix, with a thinner stock</td><td class="md-n">18</td><td class="md-n">0.52</td><td class="md-n">6</td><td>2026-09-21</td></tr>
-          <tr><td>Mixing session 3</td><td>Recipe difference and proportionality</td><td class="md-n">18</td><td class="md-n">1.10</td><td class="md-n">10</td><td>2026-09-29</td></tr>
+          <tr><td>Mixing session 1</td><td class="md-n">14</td><td class="md-n">1.56</td><td class="md-n">4</td><td>2026-09-16</td></tr>
+          <tr><td>Mixing session 2</td><td class="md-n">18</td><td class="md-n">0.52</td><td class="md-n">6</td><td>2026-09-21</td></tr>
+          <tr><td>Mixing session 3</td><td class="md-n">18</td><td class="md-n">1.10</td><td class="md-n">10</td><td>2026-09-29</td></tr>
         </tbody>
       </table>
     </div>
@@ -2479,13 +2415,14 @@
     </div>
 
     <p>
-      In the two sessions with enough signal, the one-parameter line predicts
-      left-out recipes best, and in mixing session 3 the test against the scatter of
-      replicate tubes sees no lack of fit. In both, adding terms raises
-      R&sup2; and makes the predictions worse. In mixing session 2 the stock was thin,
-      most readings sat within a few counts of zero, and there the line does
-      fail: a surface describes that session better. How complex a model is
-      warranted depends on how far the signal is from the floor.
+      On the two days with enough signal the one-parameter line predicts
+      left-out recipes best, and adding terms raises R&sup2; while making the
+      predictions worse. On the day with the most tubes, the test against the
+      scatter of replicate tubes sees no lack of fit either. On the day the
+      stock was thin, most readings sat within a few counts of zero and the
+      line does fail: a surface describes that day better. How complex a model
+      is warranted depends on how far the signal is from the floor &mdash;
+      which is the one sentence to carry out of this section.
     </p>
 
     <details class="hw-fold md-fold">
@@ -2503,7 +2440,7 @@
           <div><dt>Doubling</dt><dd>Going from <var>G</var>&nbsp;=&nbsp;0.5 to 1.0 multiplied the reading by 2.04 in mixing session 3, by 1.51 in session 1 with a dense stock, and by 9.25 in session 2 near the floor. Proportional would be 2.</dd></div>
           <div><dt>Low end</dt><dd>The lowest-concentration recipe reads below the line in all three sessions, by 1.2 to 1.9 counts. One straight line is a first-order description.</dd></div>
           <div><dt>Design</dt><dd>The six-parameter surface cannot be estimated from mixing session 3 at all. Its five recipes all lie on (<var>d</var>&nbsp;&minus;&nbsp;<var>G</var>)(<var>d</var>&nbsp;&minus;&nbsp;1)&nbsp;=&nbsp;0, so the design matrix has rank 5. A session meant to test curvature has to place recipes off that curve.</dd></div>
-          <div><dt>Caveat</dt><dd>The lack-of-fit test in mixing session 1 has two degrees of freedom of pure error, from one replicated recipe. It has almost no power, and its <var>p</var> values say little either way.</dd></div>
+          <div><dt>Caveat</dt><dd>The lack-of-fit test on the dense-stock day has almost no power; see <a href="#model-limits">3.7</a>.</dd></div>
         </dl>
       </div>
     </details>
@@ -2610,18 +2547,11 @@
       13.82 counts in mixing session 2, a session whose highest reading was 7.
     </p>
 
-    <div class="hw-caution">
-      <p>
-        <em>This is a post hoc analysis.</em> How <var>&rho;</var> should be
-        read was chosen after the three sessions had been seen, there are only
-        three of them, and no prediction made in advance has tested it yet.
-        The formal comparison agrees with the figures (a shared slope is not
-        rejected after conversion, <var>p</var>&nbsp;=&nbsp;0.897, and is
-        rejected before it, <var>p</var>&nbsp;&lt;&nbsp;0.001), but for the
-        same reason those <var>p</var> values describe the data and validate
-        nothing.
-      </p>
-    </div>
+    <p class="md-parts-link">
+      This conversion was worked out after the three days had been seen, which
+      is set out with the rest of the limits in
+      <a href="#model-limits">3.7</a>.
+    </p>
 
     {# 2026-10-08：這一段原本是獨立的一節（3.6 A prediction on the record）。它是上面那個警語的下一句話
        （還沒有事前的預測檢驗過），而且預測沒有被檢驗，所以併進 3.3：兩三句話留在正文，公式與五項條件收在
@@ -2630,9 +2560,7 @@
       To turn it into evidence, we wrote a prediction into our closing report
       on 2026-09-30, with the rule for judging it fixed in advance: a new
       stock should read within 0.80 to 1.20 of
-      10.85&nbsp;&times;&nbsp;4&nbsp;&times;&nbsp;<var>q</var><sub>G</sub>. It was
-      not tested. On 2026-10-03 the reader was rebuilt, and the number 10.85
-      does not carry over to the rebuilt reader without being measured again.
+      10.85&nbsp;&times;&nbsp;4&nbsp;&times;&nbsp;<var>q</var><sub>G</sub>.
     </p>
 
     <details class="hw-fold md-fold">
@@ -2663,14 +2591,13 @@
        （434 Ω 與 217 Ω 的讀值沒有實測比值不能合併）。
        如果改版前其實測過這個預測，請把結果寫在這裡，並改掉這一段。 #}
     <p class="hw-aside">
-      This prediction was not tested, and it can no longer be tested as
-      written. On 2026-10-03 the reader was rebuilt, with a new cuvette seat
-      and excitation end and about twice the LED current, so the instrument
-      named under Conditions no longer exists in that form, and the number
-      10.85 does not carry over to the rebuilt reader without being measured
-      again. The cross-session model stays what it was: a description of
-      three sessions that happens to be consistent. The rebuild is described
-      on the
+      It was never tested, and can no longer be tested as written. On
+      2026-10-03 the reader was rebuilt, with a new cuvette seat and
+      excitation end and about twice the LED current, so the instrument named
+      under Conditions no longer exists in that form, and the number 10.85
+      does not carry over to it without being measured again. The
+      cross-session model stays what it was: a description of three sessions
+      that happens to be consistent. The rebuild is described on the
       <a href="{{ url_for('pages', page='hardware') }}#hardware-v2">Hardware</a>
       page.
     </p>
@@ -3040,8 +2967,7 @@
     </div>
 
     <p>
-      The ranking is a description made after the scores were seen, and it is
-      read that way. Its shape is what matters. The linear models sit between
+      Its shape is what matters, not its order. The linear models sit between
       7.6 and 10, within two points of the pipeline that was fixed first. The
       smooth non-linear ones land in the same band and do no better. The most
       flexible families, splines, nearest neighbours, the cubic polynomial and
@@ -3175,20 +3101,24 @@
     </div>
 
     <p>
-      Both are descriptions made after the readings were seen, not
-      calibrations. Three readings above zero set the fitted curve's one
-      parameter; the measured one is a single culture on a single day and
-      stops at F3 89. Neither says whether the background is scattered
-      light or the cells' own fluorescence. They tell a cuvette with added
-      sfGFP from one without; they do not give an amount, and a reading
-      that sits on the background means the reader read nothing above it
-      there, not that the plate was not induced.
+      <strong>Both are descriptions, not calibrations</strong>, and neither
+      may be used to subtract a background from anything else. They tell a
+      cuvette with added sfGFP from one without; they do not give an amount.
+      What else follows from that is in
+      <a href="#model-limits">3.7</a>.
     </p>
   </section>
 
   <!-- ========================= limits ========================= -->
   <section id="model-limits">
     <h2 data-toc-title="3.7 Limits">3.7 Assumptions and limits</h2>
+
+    <p>
+      Every limit this part has is here. The sections above state what the
+      readings show and leave the qualifications to this one, so a reader who
+      wants to know what the model cannot do has one place to look rather than
+      a caveat in each section.
+    </p>
 
     <div class="hw-figure">
       <table class="hw-table">
@@ -3199,7 +3129,7 @@
           <tr><td>Non-GFP cells do not affect F4</td><td>No difference was resolved at this precision; the nominal range is &minus;20&nbsp;% to +12&nbsp;% of A. A culture without the reporter stops reading zero once it is dense enough (<a href="#model-rebuilt">3.6</a>).</td></tr>
           <tr><td>The instrument does not drift</td><td>After conversion the three sessions agree, with no sign of a large drift. Post hoc.</td></tr>
           <tr><td>OD is a cell count</td><td>A displayed OD that does not scale with dilution, for a reason not yet established.</td></tr>
-          <tr><td>The biosensor's dose&ndash;response to AHL</td><td>None of these samples was induced. The one session on AHL plates did not resolve induction (<a href="#model-rebuilt">3.6</a>).</td></tr>
+          <tr><td>The biosensor's dose&ndash;response to AHL</td><td>Not part of this model, because we have not measured one. None of these samples was induced with AHL: they are cultures reported to carry the sfGFP plasmid, cultures without it, and medium. The one session on AHL plates did not resolve induction (<a href="#model-rebuilt">3.6</a>).</td></tr>
           <tr><td>Every GFP sample is detected</td><td>35 of 38 tubes read above zero; the three that did not had the lowest density index.</td></tr>
           <tr><td>Four channels beat one</td><td>Not established either way on this data.</td></tr>
           <tr><td>Accurate to 8.24 points</td><td>A mean over all 50 tubes, with a worst tube at 29.37.</td></tr>
@@ -3226,6 +3156,39 @@
       <li>
         Three sessions, each with a different recipe design, are a small basis
         for a model. Every analysis here looked at the same three.
+      </li>
+      <li>
+        <em>The cross-session conversion is a post hoc analysis</em>
+        (<a href="#model-across">3.3</a>). How <var>&rho;</var> should be read
+        was chosen after the three sessions had been seen, there are only
+        three of them, and no prediction made in advance has tested it yet.
+        The formal comparison agrees with the figures &mdash; a shared slope
+        is not rejected after conversion,
+        <var>p</var>&nbsp;=&nbsp;0.897, and is rejected before it,
+        <var>p</var>&nbsp;&lt;&nbsp;0.001 &mdash; but for the same reason
+        those <var>p</var> values describe the data and validate nothing.
+      </li>
+      <li>
+        <em>The ranking of the eighteen model families was made after the
+        scores were seen</em> (<a href="#model-inverse">3.5</a>), and is read
+        that way: it describes which families happened to score where on this
+        data, not which family is better.
+      </li>
+      <li>
+        <em>The lack-of-fit test on the dense-stock day has almost no power</em>
+        (<a href="#model-within">3.2</a>). It has two degrees of freedom of
+        pure error, from one replicated recipe, so its <var>p</var> values say
+        little either way.
+      </li>
+      <li>
+        <em>Neither background curve is a calibration</em>
+        (<a href="#model-rebuilt">3.6</a>). Both were made after the readings
+        were seen. Three readings above zero set the fitted curve's one
+        parameter; the measured one is a single culture on a single day and
+        stops at F3&nbsp;89. Neither says whether the background is scattered
+        light or the cells' own fluorescence. A reading that sits on the
+        background means the reader read nothing above it there, not that the
+        plate was not induced.
       </li>
     </ul>
   </section>
