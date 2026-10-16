@@ -2191,26 +2191,24 @@
     <h2 data-toc-title="Part 3 · Reader">Reader model: from counts to culture</h2>
   </header>
 
-  {# Part 3 寫在這套小標題訂下之前，所以用這張表把評審要找的每一項對到它所在的節。
-     每一列都只指向本頁已經寫了的內容。 #}
-  <div class="md-glance">
-    <p class="md-glance-title">Part 3 at a glance</p>
-    <dl class="hw-spec">
-      <div><dt>Question</dt><dd>How the reading scales with GFP culture, why sessions disagree, and when another experiment is worth running. <a href="#model-questions">3.0</a></dd></div>
-      <div><dt>Data</dt><dd>50 tubes from three mixing sessions on one instrument, each tube the mean of its valid cycles. <a href="#model-data">3.1</a></dd></div>
-      <div><dt>Model</dt><dd>A line through the origin within a session, a stock-density conversion across sessions, and a four-channel ridge regression in the other direction. <a href="#model-within">3.2</a>, <a href="#model-shape">3.3</a>, <a href="#model-across">3.4</a>, <a href="#model-inverse">3.6</a></dd></div>
-      <div><dt>Validation</dt><dd>Every model is scored on tubes it was not fitted to: a left-out recipe, or a whole left-out session. <a href="#model-shape">3.3</a>, <a href="#model-across">3.4</a>, <a href="#model-inverse">3.6</a></dd></div>
-      <div><dt>What it changed</dt><dd>How many pairs to make, whether to repeat a comparison, and which pipeline to keep. <a href="#model-design">3.5</a>, <a href="#model-impact">Summary</a></dd></div>
-      <div><dt>Limits</dt><dd>Relative readings only, three sessions, and a cross-session conversion found after the fact. <a href="#model-limits">3.8</a></dd></div>
-    </dl>
-  </div>
-
   <!-- ========================= the questions ========================= -->
   <section id="model-questions">
     <h2 data-toc-title="3.0 Three questions">3.0 Three questions</h2>
 
     <p>
-      The reader model had three questions put to it.
+      CAPTURE-Screen was built for our AHL biosensor and rehearsed on GFP
+      cultures: we expected an AHL-induced culture to be about as bright as a
+      GFP one
+      (<a href="{{ url_for('pages', page='hardware') }}">Hardware</a>).
+      Everything in this part is that rehearsal. It is the instrument's
+      measurement behaviour &mdash; how a count relates to the culture in the
+      cuvette &mdash; not the biosensor's response to AHL, which we have not
+      measured. The one session on AHL plates could not tell the sensor strain
+      from cells without sfGFP (<a href="#model-rebuilt">3.7</a>).
+    </p>
+
+    <p>
+      Within that scope, the reader model had three questions put to it.
     </p>
 
     <p>
@@ -2665,7 +2663,7 @@
 
   <!-- ========================= 3.4 design ========================= -->
   <section id="model-design">
-    <h2 data-toc-title="3.5 Design">3.5 Deciding what to measure, and when to stop</h2>
+    <h2 data-toc-title="3.5 When to stop">3.5 Deciding what to measure, and when to stop</h2>
 
     <p>
       One question the instrument has to answer is whether other cells in the
@@ -2677,35 +2675,55 @@
     </p>
 
     <p>
-      Before the session, a simulation with the noise we had seen so far
-      settled how many pairs to make. After the session, the same calculation
-      was redone with the noise the session actually showed.
+      Six pairs were chosen before the session by a power calculation. On the
+      day the plan did not hold: A read 9.33 counts where 14.8 had been
+      assumed, so the same percentage difference became a smaller absolute one
+      and the chance of resolving it roughly halved.
     </p>
 
-    <div class="hw-figure hw-figure-table">
-      <table class="hw-table">
-        <caption>Chance that six pairs resolve a true difference</caption>
-        <thead>
-          <tr>
-            <th scope="col">True difference, as a share of A</th>
-            <th scope="col" class="md-n">Planned, before the session</th>
-            <th scope="col" class="md-n">Recalculated, after it</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>10&nbsp;%</td><td class="md-n">49.2&nbsp;%</td><td class="md-n">25.9&nbsp;%</td></tr>
-          <tr><td>15&nbsp;%</td><td class="md-n">83.2&nbsp;%</td><td class="md-n">49.6&nbsp;%</td></tr>
-          <tr><td>20&nbsp;%</td><td class="md-n">97.5&nbsp;%</td><td class="md-n">73.1&nbsp;%</td></tr>
-        </tbody>
-      </table>
-      <figcaption>
-        The plan assumed A would read about 14.8 counts with a preparation CV
-        of 7.39&nbsp;%. On the day A read 9.33 counts and the paired
-        differences had a standard deviation of 1.42. The second column is a
-        conditional calculation: it assumes the true noise equals what that
-        one session showed.
-      </figcaption>
-    </div>
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">The power calculation, before and after</span>
+        <span class="hw-fold-meta">3 effect sizes</span>
+        <span class="hw-fold-state" aria-hidden="true">
+          <span class="hw-fold-verb" data-open="false">Show</span>
+          <span class="hw-fold-verb" data-open="true">Hide</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hw-fold-caret"><path d="M3 6l5 5 5-5"></path></svg>
+        </span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+      <p>
+        Before the session, a simulation with the noise we had seen so far
+        settled how many pairs to make. After the session, the same calculation
+        was redone with the noise the session actually showed.
+      </p>
+
+      <div class="hw-figure hw-figure-table">
+        <table class="hw-table">
+          <caption>Chance that six pairs resolve a true difference</caption>
+          <thead>
+            <tr>
+              <th scope="col">True difference, as a share of A</th>
+              <th scope="col" class="md-n">Planned, before the session</th>
+              <th scope="col" class="md-n">Recalculated, after it</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>10&nbsp;%</td><td class="md-n">49.2&nbsp;%</td><td class="md-n">25.9&nbsp;%</td></tr>
+            <tr><td>15&nbsp;%</td><td class="md-n">83.2&nbsp;%</td><td class="md-n">49.6&nbsp;%</td></tr>
+            <tr><td>20&nbsp;%</td><td class="md-n">97.5&nbsp;%</td><td class="md-n">73.1&nbsp;%</td></tr>
+          </tbody>
+        </table>
+        <figcaption>
+          The plan assumed A would read about 14.8 counts with a preparation CV
+          of 7.39&nbsp;%. On the day A read 9.33 counts and the paired
+          differences had a standard deviation of 1.42. The second column is a
+          conditional calculation: it assumes the true noise equals what that
+          one session showed.
+        </figcaption>
+      </div>
+      </div>
+    </details>
 
     <p>
       The six pairs gave a mean C&nbsp;&minus;&nbsp;A of &minus;0.39 counts,
@@ -2746,47 +2764,29 @@
 
   <!-- ========================= inverse ========================= -->
   <section id="model-inverse">
-    <h2 data-toc-title="3.6 Inverse">3.6 The other direction: from four channels back to G</h2>
+    <h2 data-toc-title="3.6 Reading G back">3.6 The other direction: from four channels back to G</h2>
 
     <p>
       The models above predict a reading from a recipe. In use the question
-      runs the other way: given what the sensor reports, how much GFP culture
-      is in the tube? A second study asked whether the other channels help
-      with that. It predicts <var>G</var> from four channels (F2, F3, F4 and
-      Clear) and from the displayed OD of that day's GFP stock, over all 50
-      tubes.
+      runs the other way: the sensor reports counts, and what we want to know
+      is how much GFP culture is in the tube.
     </p>
 
     <p>
-      The pipeline was fixed before any score was looked at: a ridge
-      regression on the four channels. It is always scored on a session it
-      never saw, and its regularisation strength is chosen inside the training
-      sessions by leaving recipes out.
+      <strong class="md-q">It can be read back to 8.24 percentage points
+      of <var>G</var>.</strong>
+      That is a ridge regression on four channels (F2, F3, F4 and Clear),
+      divided by the displayed OD of that day's GFP stock, scored on whole
+      sessions it had never seen. The pipeline was fixed before any score was
+      looked at, and its regularisation strength is chosen inside the training
+      sessions by leaving recipes out. Every error below comes from refitting
+      without one whole session and predicting that session.
     </p>
-
-    <h3>The fitted formula</h3>
-
-    <p>
-      The model is one line. The four channel counts are weighted, added, and
-      divided by the density of that day's stock:
-    </p>
-
-    <div class="sw-eq sw-eq-key">
-      <var>&Gcirc;</var> = <var>b</var><sub>0</sub> +
-      {{ frac('<var>b</var><sub>2</sub>&thinsp;F2 + <var>b</var><sub>3</sub>&thinsp;F3 + <var>b</var><sub>4</sub>&thinsp;F4 + <var>b</var><sub>C</sub>&thinsp;Clear', 'OD<sub>stock</sub>') }}
-    </div>
-
-    <p>Fitted to all 50 tubes, with the coefficients rounded to four places, it reads:</p>
-
-    <div class="sw-eq">
-      <var>&Gcirc;</var> = &minus;0.0517 +
-      {{ frac('&minus;0.0049&thinsp;F2 &minus; 0.0811&thinsp;F3 + 0.0203&thinsp;F4 + 0.0531&thinsp;Clear', 'OD<sub>stock</sub>') }}
-    </div>
 
     <details class="hw-fold md-fold">
       <summary class="hw-fold-head">
-        <span class="hw-fold-title">The coefficients to eight places</span>
-        <span class="hw-fold-meta">5 values</span>
+        <span class="hw-fold-title">The fitted formula and its coefficients</span>
+        <span class="hw-fold-meta">one line, five coefficients</span>
         <span class="hw-fold-state" aria-hidden="true">
           <span class="hw-fold-verb" data-open="false">Show</span>
           <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -2796,6 +2796,30 @@
       <div class="hw-fold-body">
         <div class="hw-figure hw-figure-table">
           <table class="hw-table">
+
+      <p>
+        The model is one line. The four channel counts are weighted, added, and
+        divided by the density of that day's stock:
+      </p>
+
+      <div class="sw-eq sw-eq-key">
+        <var>&Gcirc;</var> = <var>b</var><sub>0</sub> +
+        {{ frac('<var>b</var><sub>2</sub>&thinsp;F2 + <var>b</var><sub>3</sub>&thinsp;F3 + <var>b</var><sub>4</sub>&thinsp;F4 + <var>b</var><sub>C</sub>&thinsp;Clear', 'OD<sub>stock</sub>') }}
+      </div>
+
+      <p>Fitted to all 50 tubes, with the coefficients rounded to four places, it reads:</p>
+
+      <div class="sw-eq">
+        <var>&Gcirc;</var> = &minus;0.0517 +
+        {{ frac('&minus;0.0049&thinsp;F2 &minus; 0.0811&thinsp;F3 + 0.0203&thinsp;F4 + 0.0531&thinsp;Clear', 'OD<sub>stock</sub>') }}
+      </div>
+
+      <p class="hw-aside">
+        This is the fit to all the data, and it is what one would carry to a new
+        sample. Its error is not measured by applying it back to the tubes it was
+        fitted on. Every error quoted below comes from refitting without one
+        whole session and predicting that session.
+      </p>
             <caption>Ridge coefficients, fitted to all 50 tubes</caption>
             <thead><tr><th scope="col">Coefficient</th><th scope="col">Multiplies</th><th scope="col" class="md-n">Value</th></tr></thead>
             <tbody>
@@ -2816,14 +2840,13 @@
       </div>
     </details>
 
-    <p class="hw-aside">
-      This is the fit to all the data, and it is what one would carry to a new
-      sample. Its error is not measured by applying it back to the tubes it was
-      fitted on. Every error quoted below comes from refitting without one
-      whole session and predicting that session.
-    </p>
 
-    <h3>Does the OD belong in it?</h3>
+    <p>
+      Does the stock OD really belong in that formula, or does any extra
+      number help? There is a way to tell. Three sessions have three OD
+      values, so there are six ways to hand them out and only one is right.
+      All six were scored, against using no OD at all.
+    </p>
 
     <div class="hwx-rig">
       <div class="hwx-rig-head">
@@ -2845,20 +2868,22 @@
       </ul>
     </div>
 
+
     <p>
       Dividing the channels by the stock OD takes the mean absolute error from
-      <strong>20.73 to 8.24 percentage points</strong> of <var>G</var>. The
-      permutation is the check that this is not an artefact of adding a
-      parameter: of the six ways to hand three OD values to three sessions,
-      only the true one beats using no OD at all. Each session has a single
-      stock OD, though, so OD and date cannot be separated. The result shows
-      that the right pairing carries information; it does not show that cell
-      density is the whole reason.
+      20.73 to 8.24 percentage points of <var>G</var>, and
+      <strong>only the true pairing beats using no OD at all</strong>. So the
+      OD is not just one more parameter to tune. Each session has a single
+      stock OD, though, so OD and date cannot be separated: the right pairing
+      carries information, but this does not show that cell density is the
+      whole reason.
     </p>
+
 
     <p class="hw-aside">
       This study divided by the stock's displayed OD as read (1.56, 0.52,
-      1.10), not by the low-range index <var>&rho;</var> of 3.3. The two
+      1.10), not by the low-range index <var>&rho;</var> of
+      <a href="#model-across">3.4</a>. The two
       analyses were made separately and have not been reconciled.
     </p>
 
@@ -3003,13 +3028,29 @@
     <h2 data-toc-title="3.7 After the rebuild">3.7 After the rebuild: what carried over</h2>
 
     <p>
-      The models above describe the first reader. It was rebuilt on
-      2026-10-03, and three sessions on the rebuilt reader, a dilution
-      series, a session on AHL plates and one on how dense a culture can
-      be, show what carries over. All three are on the
+      The models above describe the first reader. Its noise did not come
+      mostly from the detector. In four of seven replicate groups, seating and
+      preparation outweighed the cycle noise
+      (<a href="#model-data">3.1</a>). That was one consideration in the
+      rebuild that followed, alongside the parts that had broken or made
+      loading slow.
+    </p>
+
+    <p>
+      The reader was rebuilt on 2026-10-03: five printed parts redrawn around
+      a one-step cuvette seat, and one resistor to bring the LED to its design
+      current. Putting the same tube back now repeats to 0.76&nbsp;%, against
+      3.6 to 6.3&nbsp;% before
+      (<a href="{{ url_for('pages', page='hardware') }}#hardware-v2">Hardware</a>).
+    </p>
+
+    <p>
+      Three sessions on the rebuilt reader &mdash; a dilution series, a session
+      on AHL plates and one on how dense a culture can be &mdash; show what
+      carries over. All three are on the
       <a href="{{ url_for('pages', page='hardware') }}#hardware-v2-ahl">Hardware</a>
-      page, and everything in this section was worked out after their
-      readings were seen.
+      page, and everything in this section was worked out after their readings
+      were seen.
     </p>
 
     <h3>The inverse models did not carry over</h3>
@@ -3296,6 +3337,11 @@
             <td><a href="#model-zone-changed">Part 2 &middot; 2.6</a></td>
             <td>How to get that reading to the people doing the measuring.</td>
             <td>Classical vision rather than a learned model, so there are no weights to load, no inference step and no GPU: it runs on a free hosting tier instead of one machine in the lab. Each plate comes back as the photograph itself, with every span and a scale bar drawn on it, so no number is copied by hand.</td>
+          </tr>
+          <tr>
+            <td><a href="#model-data">Part 3 &middot; 3.1</a></td>
+            <td>Where the reader's noise actually came from.</td>
+            <td>Not from the detector. In four of seven replicate groups, seating and preparation outweighed the cycle noise, which was one consideration in the rebuild that followed. Putting the same tube back now repeats to 0.76&nbsp;%, against 3.6 to 6.3&nbsp;% before.</td>
           </tr>
           <tr>
             <td><a href="#model-design">Part 3 &middot; 3.5</a></td>
