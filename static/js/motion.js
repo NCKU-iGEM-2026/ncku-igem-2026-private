@@ -201,6 +201,7 @@
     });
     if (chapters.length) {
       var chapRaf = null, chapLast = 0;
+      var lastY = window.pageYOffset, lastVh = window.innerHeight;
       var measureChapters = function () {
         var y = window.pageYOffset;
         chapters.forEach(function (c) {
@@ -212,7 +213,13 @@
         chapRaf = null;
         var dt = chapLast ? Math.min(0.1, (t - chapLast) / 1000) : 1;
         chapLast = t;
-        var y = window.pageYOffset, vh = window.innerHeight, moving = false;
+        /* The scroll position and the window height are read where they are
+           free -- in the scroll and resize handlers -- not here. Read inside
+           the frame, after the reading-progress bar has just written its
+           width, each one forced the browser to lay the page out again on
+           the spot: measured on the home page, 119 layouts in two seconds of
+           scrolling past the video, for a tick that writes nothing there. */
+        var y = lastY, vh = lastVh, moving = false;
         chapters.forEach(function (c) {
           var start = c.top - 0.75 * vh, end = c.bottom - 0.55 * vh;
           var target = Math.max(0, Math.min(1, (y - start) / Math.max(1, end - start)));
@@ -222,10 +229,53 @@
         });
         if (moving) chapRaf = requestAnimationFrame(chapTick); else chapLast = 0;
       };
-      var chapKick = function () { if (!chapRaf) chapRaf = requestAnimationFrame(chapTick); };
+      /* Nothing to schedule once every chapter has reached the end it is
+         heading for: below the habitats section -- which is most of the
+         page -- the tick had nothing to write and still ran every frame. */
+      var chapSettled = function () {
+        for (var i = 0; i < chapters.length; i++) {
+          var c = chapters[i];
+          var start = c.top - 0.75 * lastVh, end = c.bottom - 0.55 * lastVh;
+          var target = lastY <= start ? 0 : (lastY >= end ? 1 : -1);
+          if (target < 0 || c.cur !== target) return false;
+        }
+        return true;
+      };
+      var chapKick = function () {
+        if (chapRaf || chapSettled()) return;
+        chapRaf = requestAnimationFrame(chapTick);
+      };
       measureChapters(); chapKick();
-      window.addEventListener('scroll', chapKick, { passive: true });
-      var remeasure = function () { measureChapters(); chapKick(); };
+      /* The listener itself is only attached while the section is within a
+         couple of screens: reading the scroll position costs something on
+         every scroll event, and on the rest of the page -- which is most of
+         it -- there is no chapter to move. */
+      var onChapScroll = function () {
+        lastY = window.pageYOffset;
+        chapKick();
+      };
+      var listening = false;
+      var listen = function (on) {
+        if (on === listening) return;
+        listening = on;
+        if (on) window.addEventListener('scroll', onChapScroll, { passive: true });
+        else window.removeEventListener('scroll', onChapScroll);
+      };
+      if ('IntersectionObserver' in window) {
+        var near = new IntersectionObserver(function (entries) {
+          var any = false;
+          entries.forEach(function (e) { if (e.isIntersecting) any = true; });
+          listen(any);
+          if (any) onChapScroll();
+        }, { rootMargin: '200% 0px' });
+        chapters.forEach(function (c) { near.observe(c.el); });
+      } else {
+        listen(true);
+      }
+      var remeasure = function () {
+        lastY = window.pageYOffset; lastVh = window.innerHeight;
+        measureChapters(); chapKick();
+      };
       window.addEventListener('resize', remeasure);
       window.addEventListener('load', remeasure);
       /* 圖片晚到、區塊長高時，章節的位置也會變 */

@@ -88,6 +88,19 @@
   const byG = (s) => s.tubes.map((t) => [t[1], t[2]]);
   const byX = (s) => s.tubes.map((t) => [t[1] * s.rho, t[2]]);
   const others = (s, f) => SESSIONS.filter((o) => o !== s).flatMap(f);
+  // Leave one recipe out inside a single session: hold out every tube at one
+  // value of G, fit on the rest, predict the ones held out. This is the
+  // reference the cross-session bars are measured against -- how close a
+  // session lands when predicted from itself rather than from the other two.
+  const looRecipe = (s) => {
+    const pts = byG(s);
+    const recipes = [...new Set(pts.map((q) => q[0]))];
+    const sq = recipes.flatMap((r) => {
+      const m = slope(pts.filter((q) => q[0] !== r));
+      return pts.filter((q) => q[0] === r).map((q) => (q[1] - m * q[0]) ** 2);
+    });
+    return Math.sqrt(sq.reduce((a, v) => a + v, 0) / sq.length);
+  };
 
   // ---- drawing ------------------------------------------------------------
   function el(name, attrs, text) {
@@ -197,11 +210,12 @@
       s,
       raw: rmse(byG(s), slope(others(s, byG))),
       conv: rmse(byX(s), slope(others(s, byX))),
+      own: looRecipe(s),
     }));
     const p = frame(host, {
-      h: 360, x: [0, rows.length], y: [0, 15], yticks: [0, 3, 6, 9, 12, 15], ytitle: "held-out error (counts)",
-      label: "Error when each session is predicted from the other two. " +
-        rows.map((r) => `${r.s.name}: ${r.raw.toFixed(2)} counts without conversion, ${r.conv.toFixed(2)} with it`).join("; ") + ".",
+      h: 360, x: [0, rows.length], y: [0, 15], yticks: [0, 3, 6, 9, 12, 15], ytitle: "prediction error (counts)",
+      label: "Error when each session is predicted from the other two, against the error when it is predicted from inside itself. " +
+        rows.map((r) => `${r.s.name}: ${r.raw.toFixed(2)} counts without conversion, ${r.conv.toFixed(2)} with it, ${r.own.toFixed(2)} from inside itself`).join("; ") + ".",
     });
     const bw = 64;
     rows.forEach((r, i) => {
@@ -212,9 +226,19 @@
         p.svg.appendChild(bar);
         p.svg.appendChild(el("text", { class: "md-val", x: x + bw / 2, y: p.Y(v) - 7, "text-anchor": "middle" }, v.toFixed(2)));
       });
-      p.svg.appendChild(el("text", { class: "md-tick", x: cx, y: p.H - p.m.b + 21, "text-anchor": "middle" }, r.s.short + " held out"));
+      // The reference: what the same tubes cost when predicted from inside
+      // their own session. A dashed rule rather than a third bar, because it
+      // is the target the converted bar has to reach, not a third method.
+      const ref = el("line", { class: "md-ref", x1: cx - bw - 10, y1: p.Y(r.own), x2: cx + bw + 10, y2: p.Y(r.own) });
+      ref.appendChild(el("title", {}, `${r.s.name} predicted from inside itself: ${r.own.toFixed(2)} counts`));
+      p.svg.appendChild(ref);
+      p.svg.appendChild(el("text", { class: "md-tick", x: cx, y: p.H - p.m.b + 21, "text-anchor": "middle" }, r.s.short));
+      // The sub-line names the two sessions the slope came from. Without it
+      // "Session 1 held out" says which session is being predicted but not
+      // what it is being predicted from, which is the whole point of the test.
+      const from = SESSIONS.filter((o) => o !== r.s).map((o) => o.short.replace("Session ", "")).join(" and ");
       p.svg.appendChild(el("text", { class: "md-tick md-tick-sub", x: cx, y: p.H - p.m.b + 39, "text-anchor": "middle" },
-        `${r.s.tubes.length} tubes`));
+        `predicted from sessions ${from}`));
     });
   }
 

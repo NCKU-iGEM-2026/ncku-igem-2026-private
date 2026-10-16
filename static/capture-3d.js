@@ -210,10 +210,18 @@
       'Half-size breadboard, taped to the base, with the ESP32 plugged into it. ' + BOARD, [0.88, 0.88, 0.86, 1]);
     part('ESP32 DevKit (ESP32-WROOM-32)', 'elec', boxMesh(22, 30, zE, 73, 58, zE + 1.6),
       'The controller, plugged into the breadboard in the lower layer. Its spot there is illustrative. ' + BOARD, [0.13, 0.17, 0.22, 1]);
+    // the ESP32 is powered over USB; the cable leaves through the opening in one short side (we use a power bank)
+    var SP = K.SIDE_PORT, sy = A.box.y0 + t + SP.x + SP.w / 2, sz = A.box.z0 + t + SP.y + SP.h / 2;
+    items.push({ name: 'USB cable', kind: 'wire', col: [0.75, 0.77, 0.8, 1],
+      mesh: (function () { var tv = [], r = 1.6, pts = [[22, 44, zE + 1.2], [10, 44, zE + 1.2], [10, sy, zE + 1.2], [10, sy, sz], [A.box.x0 - 25, sy, sz]];
+        for (var i = 0; i + 1 < pts.length; i++) { var a = pts[i], b = pts[i + 1];
+          tv = tv.concat(boxMesh(Math.min(a[0], b[0]) - r, Math.min(a[1], b[1]) - r, Math.min(a[2], b[2]) - r, Math.max(a[0], b[0]) + r, Math.max(a[1], b[1]) + r, Math.max(a[2], b[2]) + r).tris); }
+        return { tris: tv, lines: [] }; })(),
+      text: 'Powers the ESP32, through the opening in one short side. We use a power bank; any USB supply will do. With the batch firmware the same cable carries the readings to a computer. Its path is drawn to show the connection.' });
     part('ESP32-WROOM-32 module', 'elec', boxMesh(52, 35, zE + 1.6, 70, 53, zE + 4.6),
       'The ESP32 module on the controller board. ' + BOARD, [0.62, 0.64, 0.66, 1]);
     part('Blue LED (Cree C503B, 470 nm)', 'led', ballMesh([K.cuvL - t - 2.6, K.LED_HOLE.s, K.LED_HOLE.z], 2.5, 8),
-      'Behind the 4 mm hole in the cuvette wall, shining straight at the cuvette. ' + BOARD, [0.55, 0.75, 1, 1]);
+      'In the 4 mm hole in the cuvette wall, taped in place, shining straight at the cuvette. ' + BOARD, [0.55, 0.75, 1, 1]);
     var WH = K.WIRE_HOLE, TW = K.T_WIRE_HOLE, FP = K.FRONT_PORT;
     // the display and the button are fixed to the outside of the long side, side by side, and together cover
     // its opening; their wires come through the opening from behind
@@ -224,9 +232,6 @@
     part('Push button', 'elec', boxMesh(fx0 + 22.5, fy, fzc - 8, fx1 + 10.5, fy + 2.6, fzc + 8),
       'Fixed to the outside of the long side, over its opening, beside the display. One press records a batch of five readings. ' + BOARD, [0.3, 0.3, 0.33, 1]);
     part('Push button cap', 'elec', boxMesh(fx1 + 2.5, fy + 2.6, fzc - 2.5, fx1 + 7.5, fy + 5.6, fzc + 2.5), 'The button itself. ' + BOARD, [0.85, 0.25, 0.2, 1]);
-    // the reader is to run on a battery; which one is not decided, so this is a placeholder of no particular size
-    part('Battery (not decided yet)', 'elec', boxMesh(104, 30, zf, 123, 90, zf + 15),
-      'Placeholder: the reader is to run on a battery, which has not been chosen yet. Its size and spot here mean nothing.', [0.32, 0.3, 0.22, 1]);
     // a resistor in the LED line, on the stretch that drops through the LED chamber's wire hole
     part('220 Ω resistor', 'elec', boxMesh(WH.x - 1.2, WH.y - 1.2, -16, WH.x + 1.2, WH.y + 1.2, -9),
       'In the LED line: GPIO25 through 220 Ω to the LED. ' + BOARD, [0.82, 0.72, 0.52, 1]);
@@ -234,8 +239,7 @@
     var WIRE = {
       v: { c: [0.86, 0.22, 0.2, 1], what: '3.3 V supply' }, g: { c: [0.5, 0.52, 0.56, 1], what: 'ground' },
       sda: { c: [0.3, 0.55, 0.98, 1], what: 'I²C data (SDA), GPIO21' }, scl: { c: [0.96, 0.8, 0.22, 1], what: 'I²C clock (SCL), GPIO22' },
-      led: { c: [0.96, 0.55, 0.2, 1], what: 'LED, GPIO25 through 220 Ω' }, btn: { c: [0.9, 0.9, 0.92, 1], what: 'button, GPIO13 (internal pull-up)' },
-      bv: { c: [0.86, 0.22, 0.2, 1], what: 'battery positive (placeholder: the battery is not decided yet)' }, bg: { c: [0.5, 0.52, 0.56, 1], what: 'battery negative (placeholder: the battery is not decided yet)' }
+      led: { c: [0.96, 0.55, 0.2, 1], what: 'LED, GPIO25 through 220 Ω' }, btn: { c: [0.9, 0.9, 0.92, 1], what: 'button, GPIO13 (internal pull-up)' }
     };
     function wire(name, sig, pts) {
       var tv = [], r = 0.55;
@@ -263,10 +267,6 @@
      ['Button wire (GPIO13)', 'btn', 15], ['Button ground wire', 'g', 16.4]].forEach(function (w, i) {
       var x0 = 60 + i * 1.4, x = fx0 + 6 + w[2] * 1.4, z = portZ - 3 + (i % 4) * 1.6;
       wire(w[0], w[1], [[x0, 57, zE + 1.6], [x0, 57, z], [x, 57, z], [x, fy + 0.2, z]]);
-    });
-    // battery: two leads to the controller, drawn only to show that it powers it
-    [['Battery lead (+)', 'bv', 0], ['Battery lead (−)', 'bg', 1.6]].forEach(function (w) {
-      wire(w[0], w[1], [[104, 60 + w[2], zf + 12], [74 + w[2], 60 + w[2], zf + 12], [74 + w[2], 52, zf + 12], [72, 52, zf + 12], [72, 52, zE + 1.6]]);
     });
 
     /* --- the light, for "Take a reading": each piece has a start, a duration, and either grows along `dir`

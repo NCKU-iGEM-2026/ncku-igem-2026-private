@@ -49,7 +49,9 @@
     LID_HOLE: { x: 48.77, y: 27.2, w: 25, h: 25 },
     LID_CAP_OVER: 1,        // the lid's top square overhangs the opening by this much on each side
     SENSOR_PLATE_OVER: 5,   // the plate under the sensor slot reaches this far past the slot on every side
-    FRONT_PORT: { x: 84.46, y: 6.74, w: 26, h: 14.69 }
+    FRONT_PORT: { x: 84.46, y: 6.74, w: 26, h: 14.69 },
+    // opening in one short side for the USB cable that powers the ESP32 (restored 2026-10-15: no battery)
+    SIDE_PORT: { x: 37.57, y: 12.15, w: 25.99, h: 14.69 }
   };
 
   // ───────────────────────── Geometry helpers ─────────────────────────
@@ -258,8 +260,7 @@
     panel('Enclosure lid (' + K.LID_HOLE.w + '×' + K.LID_HOLE.h + ' cuvette opening)', X, Y, BN.x, BN.y, true, true, [hole(K.LID_HOLE)]);
     panel('Enclosure front (opening for the display and button wires)', X, Z, BN.x, BN.z, false, true, [hole(K.FRONT_PORT)]);
     panel('Enclosure back', X, Z, BN.x, BN.z, false, true);
-    // the short sides have no opening: the one that took the USB cable went when the reader moved to a battery (2026-10-08)
-    panel('Enclosure side', Y, Z, BN.y, BN.z, false, false);
+    panel('Enclosure side (USB cable opening)', Y, Z, BN.y, BN.z, false, false, [hole(K.SIDE_PORT)]);
     panel('Enclosure side', Y, Z, BN.y, BN.z, false, false);
 
 
@@ -739,7 +740,7 @@
     var BI = K.BOX_IN, zf = -t - BI.z / 2, X = BI.x + 2 * t, Y = BI.y + 2 * t, Z = BI.z + 2 * t;
     var bo = [-t, -t, zf - t];
     function at(dx, dy, dz) { return [bo[0] + dx, bo[1] + dy, bo[2] + dz]; }
-    var sides = r.pieces.filter(function (p) { return p.name === 'Enclosure side'; });
+    var sides = [byName['Enclosure side (USB cable opening)'], byName['Enclosure side']];
     put(byName['Enclosure base'], 'box', 'cut', at(0, 0, 0), [1, 0, 0], [0, 1, 0], [0, 0, t]);
     put(r.pieces.filter(function (p) { return /^Enclosure lid/.test(p.name); })[0], 'box', 'cut', at(0, 0, Z - t), [1, 0, 0], [0, 1, 0], [0, 0, t]);
     // the front's opening is on the detection-chamber side (high y), where the display and button wires come out

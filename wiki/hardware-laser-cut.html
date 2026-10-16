@@ -378,7 +378,7 @@
     <p class="hw-point">
       The LED holds steady, and once the sensor was aligned with the cuvette,
       the signal behaved as sfGFP fluorescence and the reader detected about
-      4% sfGFP culture; our AHL sensor strain stays below that limit.
+      4% sfGFP culture; our AHL sensor strain's signal is too faint for it.
     </p>
 
     <h3>The density test: does the reading follow the sample?</h3>
@@ -592,13 +592,17 @@
       scattered by the cells.
     </p>
     <p>
-      <span class="lc-tag">Conclusion</span> This reader detects and
-      quantifies a strongly expressing sfGFP culture down to about 4%, but our
-      sensor strain's signal is below that limit. In the wet lab's plate
+      <span class="lc-tag">Conclusion</span> This reader detects and quantifies a strongly expressing
+      sfGFP culture down to about 4%, but our sensor strain's F5/F3 could not
+      be told apart from a culture without sfGFP read in another session. No
+      culture without sfGFP was read alongside it, so the result cannot be
+      stated against the 4% detection limit; it shows that the sensor strain's
+      signal is too faint for this reader. In the wet lab's plate
       reader the strain did glow above its control
       (<a href="{{ url_for('pages', page='engineering') }}">Engineering</a>),
       so the signal exists but is too faint for this reader. The 3D-printed
-      build reached the same conclusion with dense suspensions
+      build saw the same pattern with dense suspensions: readings followed
+      the amount of culture, not the AHL
       (<a href="#hardware-v2-ahl">Where it stops</a>).
     </p>
   </section>
@@ -691,10 +695,11 @@
         same session.
       </li>
       <li>
-        <strong>The AHL sensor strain is below its detection limit.</strong>
+        <strong>The AHL sensor strain is too faint for this reader.</strong>
         Our sensor strain glows above its control in a plate reader, but on
-        this reader its F5/F3 stayed at the level of cells without sfGFP from
-        10&nbsp;nM to 1&nbsp;mM AHL (see
+        this reader its F5/F3 stayed at the level of cells without sfGFP, read
+        in another session, from 10&nbsp;nM to 1&nbsp;mM AHL; no culture without
+        sfGFP was read alongside it (see
         <a href="#lc-sensor">the sensor-strain test</a>).
       </li>
       <li>
@@ -728,7 +733,8 @@
         <p>
           The AS7341 sensor and the OLED share the ESP32's I&sup2;C bus; the
           LED runs from GPIO25 through 220&nbsp;&Omega;, and the button sits on
-          GPIO13. Everything runs from 3.3&nbsp;V.
+          GPIO13. Everything runs from 3.3&nbsp;V, and the ESP32 takes its
+          power over USB from any supply.
         </p>
         <p class="hw-more"><a href="#lc-circuit">The circuit</a> <a href="#lc-wiring">Wiring</a></p>
       </li>
@@ -887,7 +893,7 @@
 
     {# 操作步驟：照量測用的批次韌體 v5.5（桌面 0920/0920.ino）與 0922 的紀錄，硬體負責人確認過（2026-10-09）：
        USB 接電腦、Serial 115200、輸入編號、按鈕跑五筆、每場次先跑一批暖機再下 k。
-       之後的電池版（結果傳到軟體、由軟體處理）做好後再補一句，不要先寫。 #}
+       2026-10-15：不改電池；USB 供電（我們用行動電源），短邊開孔保留給 USB 線。 #}
     <details class="hw-fold hw-fold-wide" id="lc-operating">
       <summary class="hw-fold-head">
         <span class="hw-fold-title">Operating steps</span>
@@ -900,8 +906,8 @@
       </summary>
       <div class="hw-fold-body hw-fold-prose">
         <p>
-          These are the steps the data on this page were taken with, using the
-          batch firmware described under <a href="#lc-firmware">Firmware and data</a>.
+          These are the steps the first four tests under Validation were taken
+          with, using the batch firmware described under <a href="#lc-firmware">Firmware and data</a>.
         </p>
 
         <ol class="hw-steps">
@@ -955,14 +961,35 @@
       GPIO25 to 220&nbsp;&Omega; to the LED to ground, switched by the
       firmware. The button connects GPIO13 to ground and uses the ESP32's
       internal pull-up. None of the pins used (13, 21, 22, 25) is a strapping
-      pin that affects boot.
+      pin that affects boot. The ESP32 itself is powered over USB, through the
+      opening in one short side of the enclosure: we use a power bank, or the
+      computer when the batch firmware sends its readings, but any USB supply
+      will do.
     </p>
-    {# FIGURE: breadboard-wiring.png 與 schematic.png 上傳到 static.igem.wiki 之後插在這裡。
-       建議圖說（CIRCUIT_HANDOFF.md）：
-       Breadboard wiring of the CAPTURE-Screen electronics. An ESP32 DevKit drives the blue excitation LED
-       (GPIO25, 220 Ω) and reads a push button (GPIO13). The AS7341 spectral sensor (DFRobot Gravity SEN0364)
-       and the SSD1306 OLED share one I²C bus (SDA GPIO21, SCL GPIO22). Everything runs from the 3.3 V rail.
-       兩張圖都是依接線表重畫的示意圖，不是 Tinkercad／Fritzing 匯出的原始檔；不要用舊的 Tinkercad 截圖。 #}
+    {# 2026-10-15：接線示意圖（breadboard-wiring.avif）與電路圖（schematic.avif）左右並排，窄螢幕自動上下排；兩張都放在同樣 3:2 的框裡（object-fit: contain），高度一致。
+       兩張都依接線表重畫，不是 Tinkercad／Fritzing 匯出檔；對過接線表一致。電路圖上的 ESP32-D0WD-V3 是 WROOM-32 模組裡的晶片。 #}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:1rem;margin:1.25rem 0;align-items:start;">
+      <figure class="hw-figure" style="margin:0">
+        <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/breadboard-wiring.avif" loading="lazy"
+             style="display:block;width:100%;aspect-ratio:3/2;object-fit:contain;border-radius:8px;background:#f2f5f6;"
+             alt="Breadboard wiring diagram. An ESP32 DevKit sits across the middle of a breadboard. The blue LED's long leg runs through a 220 ohm resistor to GPIO25 and its short leg to ground. A push button connects GPIO13 to ground. The SSD1306 OLED and the AS7341 sensor board each take 3.3 V and ground from the top rails, and share the I2C lines from the bottom rails: SDA to GPIO21 in green, SCL to GPIO22 in blue.">
+        <figcaption>
+          Breadboard wiring, redrawn from the wiring table below. The blue
+          LED runs from GPIO25 through 220&nbsp;&Omega;, the button sits on
+          GPIO13, and the AS7341 and the OLED share the I&sup2;C lines.
+        </figcaption>
+      </figure>
+      <figure class="hw-figure" style="margin:0">
+        <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/schematic.avif" loading="lazy"
+             style="display:block;width:100%;aspect-ratio:3/2;object-fit:contain;border-radius:8px;background:#fff;"
+             alt="Circuit schematic. The ESP32 DevKit, U1, connects through GPIO25 and a 220 ohm resistor R1 to the blue LED D1, and through GPIO13 to push button SW1, both returning to ground. Its 3V3, GND, GPIO21 (SDA) and GPIO22 (SCL) go to both the AS7341 Gravity board U2, at I2C address 0x39, and the 0.96 inch SSD1306 OLED U3, at 0x3C.">
+        <figcaption>
+          The same circuit as a schematic: the ESP32 (U1), the AS7341 (U2,
+          DFRobot Gravity SEN0364) and the SSD1306 OLED (U3) on one I&sup2;C
+          bus, all from the 3.3&nbsp;V rail.
+        </figcaption>
+      </figure>
+    </div>
     <figure id="lc-wiring" class="hw-figure hw-figure-table">
       <table class="hw-table">
         <caption>Wiring. All parts run from 3.3&nbsp;V.</caption>
@@ -1066,7 +1093,10 @@
     
 
     <p class="hw-aside">
-      Not in the costing: the <strong>Eppendorf UVette</strong>, which the sheet never priced. We have not guessed at it.
+      Not in the costing: the <strong>Eppendorf UVette</strong>, which the
+      sheet never priced, and the USB cable and power supply, which any
+      USB supply can be; we have not guessed at them. The small parts that
+      do not fit on the one sheet were cut from offcuts.
     </p>
   </section>
 
