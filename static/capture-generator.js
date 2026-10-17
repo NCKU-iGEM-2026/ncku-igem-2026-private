@@ -641,7 +641,8 @@
         '<div class="cg-stat"><span class="cg-stat-k">Sheet 1</span><span class="cg-stat-v">' + lay.sheets.reduce(function (n, sh) { return n + sh.placed.length; }, 0) + '<small> parts</small></span></div>' +
         '<div class="cg-stat"><span class="cg-stat-k">Sheet 2</span><span class="cg-stat-v">' + lay.overflow.length + '<small> parts</small></span></div>' +
 
-        '<div class="cg-pill ' + (errs ? 'is-error' : warns ? 'is-warn' : 'is-ok') + '">' + (errs ? errs + (errs === 1 ? ' problem, do not cut yet' : ' problems, do not cut yet') : warns ? warns + (warns === 1 ? ' warning' : ' warnings') : 'Fits the sheet · no overlaps · thickness in range') + '</div>';
+        // a badge only when something needs attention; nothing is shown when every check passes
+        (errs || warns ? '<div class="cg-pill ' + (errs ? 'is-error' : 'is-warn') + '">' + (errs ? errs + (errs === 1 ? ' problem, do not cut yet' : ' problems, do not cut yet') : warns + (warns === 1 ? ' warning' : ' warnings')) + '</div>' : '');
       var rows = {}, order = [];
       function addRow(x, where) {
         var k = x.name + '|' + fmt(x.w) + '|' + fmt(x.h) + '|' + where;
