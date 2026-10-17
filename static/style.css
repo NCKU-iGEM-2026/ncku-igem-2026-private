@@ -11495,16 +11495,70 @@ body.hw-nexus .sw .sw-idea-ref { margin: -0.4rem 0 0; font-size: 0.82rem; color:
 .sw-adapt { color: var(--nx-text); border-color: var(--nx-line); }
 .sw-no { color: var(--nx-warm); }
 
-/* ---- try it with your data ---- */
+/* ---- try it with your data ----
+   Input on the left, the curve on the right once the panel is wide enough;
+   stacked below that. A container query, so the sidebar's width doesn't matter. */
 .sw-try {
-  display: grid;
-  gap: 2rem;
+  container-type: inline-size;
   padding: 1.25rem;
   background: var(--nx-panel);
   border: 1px solid var(--nx-line);
   border-radius: 14px;
 }
-.sw-try-step[hidden] { display: none; }
+.sw-try-cols { display: grid; gap: 2rem; }
+@container (min-width: 46rem) {
+  .sw-try-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; }
+  .sw-try-side { position: sticky; top: 6rem; }
+}
+.sw-try-step[hidden], .sw-try [hidden] { display: none; }
+.sw-try-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; }
+body.hw-nexus .sw .sw-try-head .sw-try-k { margin: 0; }
+.sw-try-check { list-style: none; margin: 0.9rem 0 0; padding: 0; display: grid; gap: 0.35rem; }
+body.hw-nexus .sw .sw-try-check li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--nx-muted);
+}
+.sw-try-tick {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 1.5px solid var(--nx-line);
+  border-radius: 50%;
+}
+body.hw-nexus .sw .sw-try-check li.is-done { color: var(--nx-text); }
+.sw-try-check li.is-done .sw-try-tick {
+  background: var(--nx-mint) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='%230a1c24' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat;
+  border-color: var(--nx-mint);
+}
+.sw-try-count { font-variant-numeric: tabular-nums; }
+body.hw-nexus .sw .sw-try-empty {
+  display: grid;
+  place-items: center;
+  min-height: 14rem;
+  margin: 0;
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--nx-muted);
+  border: 1px dashed var(--nx-line);
+  border-radius: 10px;
+}
+.sw-try .sw-plot { cursor: crosshair; }
+.sw-try-table input::placeholder { color: var(--nx-muted); opacity: 0.55; font-style: italic; }
+/* Sits right under the table and is styled like the placeholders it explains. */
+body.hw-nexus .sw .sw-try-hint-note {
+  margin: 0.35rem 0 0;
+  padding-left: 0.3rem;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--nx-muted);
+}
+.sw-try-table input.is-bad { border-color: var(--nx-warm); box-shadow: 0 0 0 1px var(--nx-warm); }
+.sw-inv-row .sw-inv-n { flex: 0 1 7rem; }
 body.hw-nexus .sw .sw-try-k {
   display: flex;
   align-items: center;
@@ -11514,9 +11568,12 @@ body.hw-nexus .sw .sw-try-k {
   font-size: 1.08rem;
   color: var(--nx-text);
 }
-body.hw-nexus .sw .sw-try-step > .sw-try-k ~ .sw-try-k { margin-top: 1.8rem; }
+body.hw-nexus .sw .sw-try-step > .sw-try-k ~ .sw-try-k,
+body.hw-nexus .sw #swTryOut > .sw-try-k { margin-top: 1.6rem; }
 .sw-try-table-wrap { overflow-x: auto; margin-top: 0.6rem; }
-.sw-try-table { width: 100%; min-width: 30rem; border-collapse: separate; border-spacing: 0.3rem; }
+.sw-try-table { width: 100%; border-collapse: separate; border-spacing: 0.25rem; }
+.sw-try-table td { min-width: 3.4rem; }
+.sw-try-table input { padding-inline: 0.4rem; }
 body.hw-nexus .sw .sw-try-table th {
   font-size: 0.8rem;
   font-weight: 400;
@@ -11558,7 +11615,7 @@ body.hw-nexus .sw .sw-try-msg { min-height: 1.5rem; margin: 0.7rem 0 0; font-siz
 body.hw-nexus .sw .sw-try-msg.is-error { color: var(--nx-warm); }
 .sw-try-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
   gap: 0.8rem;
   margin-bottom: 1rem;
 }
@@ -11566,7 +11623,7 @@ body.hw-nexus .sw .sw-try-msg.is-error { color: var(--nx-warm); }
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  padding: 0.9rem 1rem;
+  padding: 0.7rem 0.9rem;
   background: var(--nx-raised);
   border: 1px solid var(--nx-line);
   border-radius: 10px;
@@ -11580,7 +11637,7 @@ body.hw-nexus .sw .sw-try-msg.is-error { color: var(--nx-warm); }
 }
 .sw-try-stat-v {
   font-family: "Changa", sans-serif;
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   color: var(--nx-text);
   font-variant-numeric: tabular-nums;
 }

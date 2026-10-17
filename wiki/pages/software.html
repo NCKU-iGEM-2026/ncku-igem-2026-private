@@ -36,7 +36,7 @@
   內容來源：LasReader repo（C:\Users\user\Desktop\iGEM Code\iGEM Software），commit e2f97d7：
   README.md、docs/capture_screen_model.md、frontend/js/curve_fit.js、firmware/、
   backend/app/swarming/。Results 的 Figure 8 是 wet lab 用 Plate Reader Assay 跑出的校正曲線截圖。
-  本頁沒有加入這些來源以外的數據、結果或引用。
+  本頁沒有加入這些來源以外的數據或結果。外部引用只有 §3.6 References，每筆都在出版者頁面核對過（見該段註解）。
 
   頁面結構（左側 On this page 目錄由 static/page-toc.js 依 h2 自動產生，
   Part 標題用 data-toc-group 分組、data-toc-no 給編號，各節 h2 用 data-toc-title 給短名；
@@ -44,13 +44,13 @@
     頁首 On this page 清單（sw-map）= 四個 Part 的目錄
     Part 1 One workflow, bench to concentration：The problem / Three tools / The workflow（互動）
     Part 2 How it decides：Five key ideas / Rules it keeps / How the pieces connect（架構圖）
-    Part 3 For any fluorescent biosensor：Who can use it / Try it with your data / Standards it builds on /
+    Part 3 For other fluorescent biosensors：Who can use it / Try it with your data / Standards it builds on /
            Connect it to other tools / Run it, build on it
     Part 4 Where it stands：Tried so far / Limitations（iGEM 軟體要求的表在 Part 3 的 Run it, build on it）
     Also in LasReader：Plate Imaging · Agar Vision（舊名 Swarming Assay，和 workflow 無關，獨立放最後。
     名稱跟 LasReader app 和 README 一致；id="part-swarming" 和 id="swarming" 要保留，
     Engineering 與 Results 頁有連過來）
-    順序的理由：做什麼（Part 1）→ 為什麼可信（Part 2 原理）→ 所以任何螢光感測器都能用
+    順序的理由：做什麼（Part 1）→ 為什麼可信（Part 2 原理）→ 所以其他螢光感測器也能用
     （Part 3，本頁重點：通用性）→ 現況（Part 4）。原理放在通用性之前，Part 3 說「換感測器
     不用改分析」時，讀者已經知道分析長什麼樣子、為什麼不依賴 AHL。實際驗證目前只有一次校正，
     Part 4 簡短交代，細節在限制表裡。
@@ -147,8 +147,8 @@
       <li>
         <a href="#part-yours">
           <span class="sw-map-no" aria-hidden="true">3</span>
-          <span class="sw-map-name">For any fluorescent biosensor</span>
-          <span class="sw-map-q">What another team would change (often nothing), a fit to try on your own readings, and how it connects to other tools.</span>
+          <span class="sw-map-name">For other fluorescent biosensors</span>
+          <span class="sw-map-q">Who else can use it and what they would change, a fit to try on your own readings, and how it connects to other tools.</span>
         </a>
       </li>
       <li>
@@ -796,16 +796,20 @@
   </section>
 
   {# ======================================================================
-     Part 3: For any fluorescent biosensor（本頁的重點：通用性）
+     Part 3: For other fluorescent biosensors（本頁的重點：通用性）
+     Table 1 每一列都對過 LasReader e2f97d7：上升曲線限制（curve_fit.js 的 top > bottom）、
+     韌體預設連我們的 Render 後端（BACKEND_HOST）、後端一次只接一台裝置（hardware/hub.py
+     attach_device 會取代舊的）、激發光是 470 nm LED、新的後端功能要在 main.py 掛 router。
      ====================================================================== #}
   <header class="md-part" id="part-yours" data-toc-group data-toc-no="3">
     <p class="md-part-no">Part 3</p>
-    <h2 data-toc-title="For any fluorescent biosensor">For any fluorescent biosensor</h2>
+    <h2 data-toc-title="For other fluorescent biosensors">For other fluorescent biosensors</h2>
   </header>
   <p class="sw-takeaway">
-    Nothing in the analysis is specific to our sensor. Any team whose
-    biosensor reports a concentration as fluorescence can use LasReader
-    today, and most other setups need one file changed.
+    The analysis does not depend on AHL. A team whose fluorescent biosensor
+    gets brighter as its target rises, and who can make standards of known
+    concentration, can use the Plate Reader Assay today. Table 1 lists what
+    other setups would change.
   </p>
 
   <!-- ========================= who ========================= -->
@@ -813,10 +817,14 @@
     <h2 data-toc-title="3.1 Who can use it"><span class="sw-h-no">3.1</span>Who can use it</h2>
     <p>
       LasReader was built for our AHL biosensor, so its pages say "AHL" and
-      label concentrations in nM. The analysis never uses either: it fits
-      standards of known concentration to their readings and converts samples
-      through that curve. Any unit works, as long as standards and samples
-      share it.
+      its labels and export columns say nM. The analysis never uses either: it
+      fits standards of known concentration to their readings and converts
+      samples through that curve. Any unit works, as long as standards and
+      samples share it; keep a note of yours, since the labels still say nM.
+    </p>
+    <p>
+      What it does need is at least 4 standard concentrations and 2 blank
+      readings, and a signal that rises with the target.
     </p>
 
     <div class="hw-figure">
@@ -827,27 +835,27 @@
           <tr>
             <td>A fluorescent biosensor and any plate reader</td>
             <td><span class="sw-yes">As is</span></td>
-            <td>Open the Plate Reader Assay and paste your plate. Read the AHL labels as your own target.</td>
+            <td>Open the Plate Reader Assay and paste your plate, standards and samples together. Read "AHL" as your target and "nM" as your unit.</td>
           </tr>
           <tr>
             <td>A sensor whose fluorescence <em>falls</em> as the target rises</td>
             <td><span class="sw-no">Not yet</span></td>
-            <td>The fit accepts only a rising curve (<var>T</var>&nbsp;&gt;&nbsp;<var>B</var>). A falling response would need a change in <code>curve_fit.js</code>.</td>
+            <td>The fit accepts only a rising curve (<var>T</var>&nbsp;&gt;&nbsp;<var>B</var>). A falling response would need changes to the fit, the LOD and the inversion in <code>curve_fit.js</code>.</td>
           </tr>
           <tr>
             <td>A copy of one of our two readers</td>
-            <td><span class="sw-yes">As is</span></td>
-            <td>Build it from the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page and flash that build's sketch, <code>firmware/capture_screen</code> (laser-cut) or <code>firmware/capture_screen_3d</code> (3D-printed). Every CAPTURE-Screen page works with either.</td>
+            <td><span class="sw-adapt">Own backend</span></td>
+            <td>Build it from the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page and flash that build's sketch, <code>firmware/capture_screen</code> (laser-cut) or <code>firmware/capture_screen_3d</code> (3D-printed). The sketch connects to our server by default, which holds one reader at a time, so run LasReader on a lab computer (<a href="#run">&sect;3.5</a>) and point the reader at it in <code>secrets.h</code>. The 3D-printed build also needs its LED current measured and entered before it will read, as the repository's README describes. Every CAPTURE-Screen page then works with either build.</td>
           </tr>
           <tr>
             <td>A reader of your own design, on an AS7341 sensor</td>
             <td><span class="sw-adapt">One sketch</span></td>
-            <td>Start from the closer of our two sketches: pins, sensor settings and build ID are set at its top. Keep its messages, which the backend checks against <code>backend/app/hardware/models.py</code>.</td>
+            <td>Start from the closer of our two sketches: pins, sensor settings and build ID are set at its top. Keep its messages, which the backend checks against <code>backend/app/hardware/models.py</code>, and run your own backend as in the row above.</td>
           </tr>
           <tr>
             <td>A different fluorescent protein on CAPTURE-Screen</td>
             <td><span class="sw-adapt">One file</span></td>
-            <td>Set the signal channel in <code>frontend/config/unmix_basis.json</code>. It is F4 (515&nbsp;nm, for sfGFP) now; the AS7341's eight visible channels run from about 415 to 680&nbsp;nm.</td>
+            <td>If the reader's 470&nbsp;nm LED excites it, set the signal channel in <code>frontend/config/unmix_basis.json</code>. It is F4 (515&nbsp;nm, for sfGFP<sup><a href="#swref1">[1]</a></sup>) now; the AS7341's eight visible channels<sup><a href="#swref2">[2]</a></sup> run from about 415 to 680&nbsp;nm. A protein excited at longer wavelengths, such as a red one, also needs a different LED.</td>
           </tr>
           <tr>
             <td>A plate reader export that cannot be pasted as a plate</td>
@@ -857,7 +865,7 @@
           <tr>
             <td>A new analysis to add</td>
             <td><span class="sw-adapt">One folder</span></td>
-            <td>A backend feature is a folder under <code>backend/app/</code> with its own <code>router.py</code>; a page is one HTML file and one script.</td>
+            <td>A backend feature is a folder under <code>backend/app/</code> with its own <code>router.py</code>, mounted with one line in <code>main.py</code>; a page is one HTML file and one script, linked from <code>index.html</code>.</td>
           </tr>
         </tbody>
       </table>
@@ -867,7 +875,11 @@
   <!-- ========================= try ========================= -->
   {# 「用你的數據試試看」：static/software-fit.js。數學全部交給 LasReader 自己的
      curve_fit.js（static/lasreader-curve-fit.js），所以結果和 app 一樣。
-     Load example 按鈕等團隊給真實校正數據（說明 C）再打開。 #}
+     左邊輸入、右邊結果（面板夠寬時並排，窄的時候上下排）：固定 3 個重複欄，
+     表格會自己往下長出新的一列，清單即時打勾，點圖可以直接換算。
+     每一格的灰色數字只是 placeholder（software-fit.js 的 hint()，由固定曲線算出的編造整數），
+     只示範格式，不會被讀取或擬合；每格空著時才顯示、各自獨立，所以不違反「No demo data」。
+     Load example 按鈕等團隊給真實校正數據（說明 D）再打開。 #}
   <section id="try">
     <h2 data-toc-title="3.2 Try it with your data"><span class="sw-h-no">3.2</span>Try it with your data</h2>
     <p>
@@ -877,66 +889,74 @@
     </p>
 
     <div class="sw-try" id="swTry">
-      <div class="sw-try-step">
-        <p class="sw-try-k"><span class="sw-idea-n">1</span>Paste your standards</p>
-        <p class="sw-small">
-          One row per concentration, with up to four replicate readings. Use
-          0 for blanks. Copy a block of cells from Excel and paste it into any
-          cell.
-        </p>
-        <div class="sw-try-table-wrap">
-          <table class="sw-try-table">
-            <thead>
-              <tr>
-                <th scope="col">Concentration (<span class="sw-try-unit-label">nM</span>)</th>
-                <th scope="col">Reading 1</th>
-                <th scope="col">Reading 2</th>
-                <th scope="col">Reading 3</th>
-                <th scope="col">Reading 4</th>
-              </tr>
-            </thead>
-            <tbody id="swTryRows"></tbody>
-          </table>
-        </div>
-        <div class="sw-try-actions">
-          <button type="button" class="sw-btn" id="swTryAdd">Add a row</button>
-          <button type="button" class="sw-btn" id="swTryClear">Clear</button>
-          {# <button type="button" class="sw-btn" id="swTryExample">Load our calibration</button> #}
-          <label class="sw-try-unit">Unit <input id="swTryUnit" type="text" value="nM" maxlength="12" spellcheck="false"></label>
-        </div>
-        <p class="sw-try-msg" id="swTryMsg" role="status" aria-live="polite"></p>
-      </div>
-
-      <div class="sw-try-step" id="swTryOut" hidden>
-        <p class="sw-try-k"><span class="sw-idea-n">2</span>Your curve</p>
-        <div class="sw-try-stats">
-          <div><span class="sw-try-stat-k">Usable range</span><span class="sw-try-stat-v" id="swTryRange"></span><span class="sw-try-stat-s">the only range that returns a number</span></div>
-          <div><span class="sw-try-stat-k">Limit of detection</span><span class="sw-try-stat-v" id="swTryLod"></span><span class="sw-try-stat-s">blank + 3 SD, through the curve</span></div>
-          <div><span class="sw-try-stat-k">Readings used</span><span class="sw-try-stat-v" id="swTryUsed"></span><span class="sw-try-stat-s" id="swTryWeight"></span></div>
-        </div>
-        <figure class="sw-plot-wrap">
-          <svg class="sw-plot" id="swTryPlot" role="img" aria-label="The readings, the fitted curve, the limit of detection and the usable range"></svg>
-          <figcaption class="sw-small">
-            <strong>Figure 7.</strong> Your curve. Dots: your readings (blanks at 0, left of the break). Line: the
-            fitted curve. Shaded: the usable range. Dashed: the LOD.
-          </figcaption>
-        </figure>
-        <details class="sw-try-more">
-          <summary>All fitted values</summary>
-          <div class="hw-figure">
-            <table class="hw-table sw-lab-table">
-              <caption class="visually-hidden">The fitted curve</caption>
-              <tbody id="swTryParams"></tbody>
+      <div class="sw-try-cols">
+        <div class="sw-try-step">
+          <div class="sw-try-head">
+            <p class="sw-try-k"><span class="sw-idea-n">1</span>Enter your standards</p>
+            <label class="sw-try-unit">Unit <input id="swTryUnit" type="text" value="nM" maxlength="12" spellcheck="false"></label>
+          </div>
+          <p class="sw-small">
+            Copy the block from Excel and paste it into the first cell, or type.
+            One row per concentration, 0 for blanks, up to three replicate readings across.
+            The table grows as you fill it.
+          </p>
+          <div class="sw-try-table-wrap">
+            <table class="sw-try-table" aria-describedby="swTryHintNote">
+              <thead><tr id="swTryHead"></tr></thead>
+              <tbody id="swTryRows"></tbody>
             </table>
           </div>
-        </details>
-
-        <p class="sw-try-k"><span class="sw-idea-n">3</span>Convert a sample</p>
-        <div class="sw-inv-row">
-          <label>Sample reading (mean)<input id="swTryF" type="number" step="any" inputmode="decimal"></label>
-          <label>Replicates averaged<input id="swTryN" type="number" min="1" value="1" inputmode="numeric"></label>
+          <p class="sw-try-hint-note" id="swTryHintNote">
+            The grey numbers are placeholders that show the layout. They are not
+            experimental data and are never fitted.
+          </p>
+          <ul class="sw-try-check" aria-label="What a curve needs">
+            <li id="swTryNeedBlanks"><span class="sw-try-tick" aria-hidden="true"></span>At least 2 blank readings <span class="sw-try-count"></span></li>
+            <li id="swTryNeedStd"><span class="sw-try-tick" aria-hidden="true"></span>At least 4 standard concentrations <span class="sw-try-count"></span></li>
+          </ul>
+          <p class="sw-try-msg" id="swTryMsg" role="status" aria-live="polite"></p>
+          <div class="sw-try-actions">
+            <button type="button" class="sw-btn" id="swTryClear">Clear</button>
+            {# <button type="button" class="sw-btn" id="swTryExample">Load our calibration</button> #}
+          </div>
         </div>
-        <p class="sw-try-result" id="swTryResult" role="status" aria-live="polite"></p>
+
+        <div class="sw-try-step sw-try-side">
+          <p class="sw-try-k"><span class="sw-idea-n">2</span>Your curve</p>
+          <p class="sw-try-empty" id="swTryEmpty">Your curve appears here as soon as both items on the list are ticked.</p>
+          <div id="swTryOut" hidden>
+            <div class="sw-try-stats">
+              <div><span class="sw-try-stat-k">Usable range</span><span class="sw-try-stat-v" id="swTryRange"></span></div>
+              <div><span class="sw-try-stat-k">Limit of detection</span><span class="sw-try-stat-v" id="swTryLod"></span></div>
+            </div>
+            <figure class="sw-plot-wrap">
+              <svg class="sw-plot" id="swTryPlot" role="img" aria-label="The readings, the fitted curve, the limit of detection and the usable range. Click to convert a reading."></svg>
+              <figcaption class="sw-small">
+                <strong>Figure 7.</strong> Your curve. Dots: your readings (blanks at 0, left of the break).
+                Line: the fitted curve. Shaded: the usable range, the only one that returns a number.
+                Dashed: the LOD. <span id="swTryWeight"></span>
+              </figcaption>
+            </figure>
+
+            <p class="sw-try-k"><span class="sw-idea-n">3</span>Convert a sample</p>
+            <p class="sw-small">Type a sample's mean reading, or click the plot at its height.</p>
+            <div class="sw-inv-row">
+              <label>Sample reading (mean)<input id="swTryF" type="number" step="any" inputmode="decimal"></label>
+              <label class="sw-inv-n">Replicates<input id="swTryN" type="number" min="1" value="1" inputmode="numeric"></label>
+            </div>
+            <p class="sw-try-result" id="swTryResult" role="status" aria-live="polite"></p>
+
+            <details class="sw-try-more">
+              <summary>All fitted values</summary>
+              <div class="hw-figure">
+                <table class="hw-table sw-lab-table">
+                  <caption class="visually-hidden">The fitted curve</caption>
+                  <tbody id="swTryParams"></tbody>
+                </table>
+              </div>
+            </details>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -959,14 +979,14 @@
         <caption><strong>Table 2.</strong> Standards and established methods in LasReader</caption>
         <thead><tr><th scope="col">Standard or method</th><th scope="col">Where LasReader uses it</th></tr></thead>
         <tbody>
-          <tr><td>The 96-well plate layout, wells A1&ndash;H12</td><td>The Plate Reader Assay takes the 8&nbsp;&times;&nbsp;12 block any plate reader can export or copy, with or without its row letters and column numbers, and keeps each reading's well in the export.</td></tr>
-          <tr><td>CSV (RFC&nbsp;4180), UTF-8</td><td>The exports are CSV files that Excel, R and Python open as is; the Plate Reader Assay's has one row per reading. Cross-Validation reads the exports back with an RFC&nbsp;4180 parser.</td></tr>
-          <tr><td>Calibrated fluorescence units, such as the InterLab's MEFL</td><td>The signal can be in any unit, so readings a team has already converted with a fluorescein standard go in unchanged and the curve's signal axis is in those units.</td></tr>
-          <tr><td>The four-parameter logistic</td><td>The usual model for a saturating dose&ndash;response standard curve (<a href="#method-1">&sect;2.1, step 1</a>), with parameters a biologist can read.</td></tr>
-          <tr><td>LOD and LOQ from the blanks, 3 and 10 standard deviations</td><td>The conventional limits, carried through the curve into concentrations (<a href="#method-3">&sect;2.1, step 3</a>).</td></tr>
-          <tr><td>Bland&ndash;Altman limits of agreement</td><td>Cross-Validation compares two instruments the way method-comparison studies do, on the log scale (<a href="#method-5">&sect;2.1, step 5</a>).</td></tr>
-          <tr><td>OpenAPI, WebSocket, JSON</td><td>The backend describes its own API at <code>/docs</code>, and CAPTURE-Screen speaks JSON over WebSocket (<a href="#connect">&sect;3.4</a>).</td></tr>
-          <tr><td>SBOL</td><td>Not used. LasReader handles measurements, not genetic designs; the biosensor strain is recorded as free text in every export.</td></tr>
+          <tr><td>The 96-well plate layout, wells A1&ndash;H12<sup><a href="#swref3">[3]</a></sup></td><td>The Plate Reader Assay takes the 8&nbsp;&times;&nbsp;12 block any plate reader can export or copy, with or without its row letters and column numbers, and keeps each reading's well in the export.</td></tr>
+          <tr><td>CSV (RFC&nbsp;4180<sup><a href="#swref4">[4]</a></sup>), UTF-8</td><td>The exports are CSV files that Excel, R and Python open as is; the Plate Reader Assay's has one row per reading. Cross-Validation reads the exports back with an RFC&nbsp;4180 parser.</td></tr>
+          <tr><td>Calibrated fluorescence units, such as the InterLab's MEFL<sup><a href="#swref5">[5]</a></sup></td><td>The signal can be in any unit, so readings a team has already converted with a fluorescein standard go in unchanged and the curve's signal axis is in those units.</td></tr>
+          <tr><td>The four-parameter logistic<sup><a href="#swref6">[6]</a></sup></td><td>The reference model for a saturating standard curve in binding assays, best fitted with weights (<a href="#method-1">&sect;2.1, steps 1&ndash;2</a>), with parameters a biologist can read.</td></tr>
+          <tr><td>LOD and LOQ from the blanks, 3 and 10 standard deviations</td><td>The blank mean plus a multiple of the blank SD is the usual way to set both limits<sup><a href="#swref7">[7]</a></sup>; 10 is IUPAC's default multiplier for quantification<sup><a href="#swref8">[8]</a></sup>. Both are carried through the curve into concentrations (<a href="#method-3">&sect;2.1, step 3</a>).</td></tr>
+          <tr><td>Bland&ndash;Altman limits of agreement<sup><a href="#swref9">[9]</a></sup></td><td>Cross-Validation compares two instruments the way method-comparison studies do, on the log scale (<a href="#method-5">&sect;2.1, step 5</a>).</td></tr>
+          <tr><td>OpenAPI 3.1<sup><a href="#swref10">[10]</a></sup>, WebSocket<sup><a href="#swref11">[11]</a></sup>, JSON<sup><a href="#swref12">[12]</a></sup></td><td>The backend describes its own API at <code>/docs</code>, and CAPTURE-Screen speaks JSON over WebSocket (<a href="#connect">&sect;3.4</a>).</td></tr>
+          <tr><td>SBOL<sup><a href="#swref13">[13]</a></sup></td><td>Not used. LasReader handles measurements, not genetic designs; the biosensor strain is recorded as free text in every export.</td></tr>
         </tbody>
       </table>
     </div>
@@ -1014,7 +1034,7 @@
 
   <!-- ========================= run & extend ========================= -->
   <section id="run">
-    <h2 data-toc-title="3.5 Run and extend"><span class="sw-h-no">3.5</span>Run it, build on it</h2>
+    <h2 data-toc-title="3.5 Run it, build on it"><span class="sw-h-no">3.5</span>Run it, build on it</h2>
     <p>
       To <em>use</em> LasReader you need only a browser: open the
       <a href="https://igem-ncku-software.github.io/igem-software/">live app</a>.
@@ -1030,6 +1050,18 @@ bash scripts/dev.sh        # backend on :8000, frontend on :5500</pre>
       <code>scripts\dev.ps1</code> instead. <code>cd backend; pytest</code> runs
       the 46 backend tests, and the API documents itself at <code>/docs</code>.
     </p>
+    {# 照 LasReader firmware/*/secrets.h.example 和 README「Without the scripts」寫；dev 腳本只綁
+       127.0.0.1，所以讀取儀要連就不用 dev 腳本，改用 --host 0.0.0.0 啟動後端（兩者同用 8000 會衝突）。
+       CORS 已允許 localhost:5500（backend/app/config.py）。 #}
+    <p class="sw-small">
+      To connect your own CAPTURE-Screen (<a href="#who">Table 1</a>), skip
+      <code>dev</code>: in <code>backend/</code>, with its <code>.venv</code>
+      active, run <code>uvicorn app.main:app --host 0.0.0.0 --port 8000</code>,
+      and in <code>frontend/</code> run <code>python -m http.server 5500</code>.
+      Then in the reader's <code>secrets.h</code> set <code>BACKEND_HOST</code>
+      to this computer's address on the same Wi-Fi, <code>BACKEND_PORT</code>
+      to 8000 and <code>BACKEND_USE_TLS</code> to 0.
+    </p>
     <div class="hw-figure">
       <table class="hw-table">
         <caption><strong>Table 4.</strong> iGEM software requirements and where they are met</caption>
@@ -1040,7 +1072,7 @@ bash scripts/dev.sh        # backend on :8000, frontend on :5500</pre>
           <tr><td>OSI-approved license</td><td>MIT</td></tr>
           <tr><td>Reproducible build and run</td><td><code>scripts/</code>, <code>setup</code> and <code>dev</code> in <code>.sh</code> and <code>.ps1</code>; no compiled binaries</td></tr>
           <tr><td>Pinned dependencies</td><td><code>backend/requirements.txt</code> pins every package, direct and transitive</td></tr>
-          <tr><td>Repository under 50&nbsp;MB</td><td>About 1&nbsp;MB</td></tr>
+          <tr><td>Repository under 50&nbsp;MB</td><td>About 1.5&nbsp;MB</td></tr>
         </tbody>
       </table>
     </div>
@@ -1053,6 +1085,99 @@ bash scripts/dev.sh        # backend on :8000, frontend on :5500</pre>
       listed on the
       <a href="{{ url_for('pages', page='attributions') }}">Attributions</a> page.
     </p>
+  </section>
+
+  <!-- ========================= Part 3 references ========================= -->
+  {# 2026-10-17 每一筆都在出版者頁面核對過作者、年份、卷期頁與 DOI：Springer、De Gruyter、
+     SAGE、PLOS、Nature、RFC Editor、OpenAPI Initiative、SLAS、ams OSRAM；Armbruster & Pry
+     在 PubMed Central（該期刊全文的官方存放處）。沒能在出版者頁面確認的沒有放：
+     Bland & Altman 1986（Lancet 要過 CAPTCHA）、MacDougall et al. 1980（ACS 擋機器人，
+     看不到內文）、AS7341 datasheet PDF（只能下載）。所以 415–680 nm 這兩個數字目前沒有引用來源，
+     出處是 LasReader 的 docs/capture_screen_model.md。 #}
+  <section id="refs-yours">
+    <h2 data-toc-title="3.6 References"><span class="sw-h-no">3.6</span>References</h2>
+    <p class="hw-refs-note">
+      Sources for the standards and methods named in Part&nbsp;3. Statements
+      about LasReader itself come from its code, in the
+      <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader">repository</a>.
+    </p>
+    <ol class="hw-refs">
+      <li id="swref1">
+        P&eacute;delacq, J.-D., Cabantous, S., Tran, T., Terwilliger, T. C., &amp;
+        Waldo, G. S. (2006). Engineering and characterization of a superfolder
+        green fluorescent protein. <em>Nature Biotechnology</em>, 24(1), 79&ndash;88.
+        <a href="https://doi.org/10.1038/nbt1172" target="_blank" rel="noopener noreferrer">https://doi.org/10.1038/nbt1172</a>
+      </li>
+      <li id="swref2">
+        ams OSRAM. ams AS7341 &ndash; 11-channel spectral color sensor (product
+        page: eight optical channels across the visible spectrum).
+        <a href="https://ams-osram.com/products/sensor-solutions/ambient-light-color-spectral-proximity-sensors/ams-as7341-11-channel-spectral-color-sensor" target="_blank" rel="noopener noreferrer">ams-osram.com</a>
+      </li>
+      <li id="swref3">
+        Society for Laboratory Automation and Screening. ANSI SLAS 4-2004 (R2012):
+        Microplates &ndash; Well Positions.
+        <a href="https://www.slas.org/education/ansi-slas-microplate-standards/" target="_blank" rel="noopener noreferrer">slas.org</a>
+      </li>
+      <li id="swref4">
+        Shafranovich, Y. (2005). <em>Common format and MIME type for
+        comma-separated values (CSV) files</em> (RFC&nbsp;4180). IETF.
+        <a href="https://doi.org/10.17487/RFC4180" target="_blank" rel="noopener noreferrer">https://doi.org/10.17487/RFC4180</a>
+      </li>
+      <li id="swref5">
+        Beal, J., Haddock-Angelli, T., Gershater, M., de Mora, K., Lizarazo, M.,
+        Hollenhorst, J., Rettberg, R., &amp; iGEM Interlab Study Contributors
+        (2016). Reproducibility of fluorescent expression from engineered
+        biological constructs in <em>E. coli</em>. <em>PLOS ONE</em>, 11(3),
+        e0150182.
+        <a href="https://doi.org/10.1371/journal.pone.0150182" target="_blank" rel="noopener noreferrer">https://doi.org/10.1371/journal.pone.0150182</a>
+      </li>
+      <li id="swref6">
+        Findlay, J. W. A., &amp; Dillard, R. F. (2007). Appropriate calibration
+        curve fitting in ligand binding assays. <em>The AAPS Journal</em>, 9(2), 29.
+        <a href="https://doi.org/10.1208/aapsj0902029" target="_blank" rel="noopener noreferrer">https://doi.org/10.1208/aapsj0902029</a>
+      </li>
+      <li id="swref7">
+        Armbruster, D. A., &amp; Pry, T. (2008). Limit of blank, limit of
+        detection and limit of quantitation. <em>The Clinical Biochemist
+        Reviews</em>, 29(Suppl&nbsp;1), S49&ndash;S52.
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2556583/" target="_blank" rel="noopener noreferrer">PMC2556583</a>
+      </li>
+      <li id="swref8">
+        Currie, L. A. (1995). Nomenclature in evaluation of analytical methods
+        including detection and quantification capabilities (IUPAC
+        Recommendations 1995). <em>Pure and Applied Chemistry</em>, 67(10),
+        1699&ndash;1723.
+        <a href="https://doi.org/10.1351/pac199567101699" target="_blank" rel="noopener noreferrer">https://doi.org/10.1351/pac199567101699</a>
+      </li>
+      <li id="swref9">
+        Bland, J. M., &amp; Altman, D. G. (1999). Measuring agreement in method
+        comparison studies. <em>Statistical Methods in Medical Research</em>,
+        8(2), 135&ndash;160.
+        <a href="https://doi.org/10.1177/096228029900800204" target="_blank" rel="noopener noreferrer">https://doi.org/10.1177/096228029900800204</a>
+      </li>
+      <li id="swref10">
+        OpenAPI Initiative (2021). <em>OpenAPI Specification</em>, version 3.1.0.
+        <a href="https://spec.openapis.org/oas/v3.1.0.html" target="_blank" rel="noopener noreferrer">https://spec.openapis.org/oas/v3.1.0.html</a>
+      </li>
+      <li id="swref11">
+        Fette, I., &amp; Melnikov, A. (2011). <em>The WebSocket protocol</em>
+        (RFC&nbsp;6455). IETF.
+        <a href="https://doi.org/10.17487/RFC6455" target="_blank" rel="noopener noreferrer">https://doi.org/10.17487/RFC6455</a>
+      </li>
+      <li id="swref12">
+        Bray, T. (Ed.) (2017). <em>The JavaScript Object Notation (JSON) data
+        interchange format</em> (RFC&nbsp;8259). IETF.
+        <a href="https://doi.org/10.17487/RFC8259" target="_blank" rel="noopener noreferrer">https://doi.org/10.17487/RFC8259</a>
+      </li>
+      <li id="swref13">
+        Galdzicki, M., Clancy, K. P., Oberortner, E., Pocock, M., Quinn, J. Y.,
+        Rodriguez, C. A., Roehner, N., Wilson, M. L., et al. (2014). The
+        Synthetic Biology Open Language (SBOL) provides a community standard
+        for communicating designs in synthetic biology. <em>Nature
+        Biotechnology</em>, 32(6), 545&ndash;550.
+        <a href="https://doi.org/10.1038/nbt.2891" target="_blank" rel="noopener noreferrer">https://doi.org/10.1038/nbt.2891</a>
+      </li>
+    </ol>
   </section>
 
   {# ======================================================================

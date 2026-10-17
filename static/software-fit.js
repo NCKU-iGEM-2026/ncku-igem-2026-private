@@ -5,8 +5,11 @@
 // for the same readings. This file only reads the table, draws the result and asks
 // CurveFit to convert a reading. Nothing is sent anywhere and nothing is stored.
 //
-// The table starts empty. A block copied from a spreadsheet can be pasted into any
-// cell and fills the table from there. The curve is refitted as you type.
+// The table has three reading columns and grows downward as it fills: there is always
+// one empty row at the bottom. A block copied from a spreadsheet can be pasted into any
+// cell and fills the table from there; readings past the third are left out. The
+// checklist ticks as the table meets what a curve needs, and the curve is refitted as
+// you type. A sample can be converted by typing its reading or by clicking the plot.
 (function () {
   "use strict";
 
@@ -18,21 +21,39 @@
   // While it is null the "Load our calibration" button stays out of the page.
   const EXAMPLE = null; // { source: "…", unit: "nM", rows: [[0, …], …] }
 
-  const READINGS = 4;
-  const START_ROWS = 8;
+  // Grey hints, one in every cell, to show the layout: row 1 is a blank (0), then each
+  // row's concentration is ten times the last, with replicate readings across that rise
+  // with it. They are placeholders only: made-up round numbers from a fixed curve, never
+  // read or fitted. Each cell shows its own hint whenever it is empty.
+  const HINT_SPREAD = [0, 0.03, -0.03]; // replicate scatter, per column
+  function hint(r, c) {
+    const concentration = r === 0 ? 0 : 10 ** r;
+    if (c === 0) return String(concentration);
+    const signal = r === 0 ? 100 : 100 + 4500 / (1 + 300 / concentration);
+    return String(Math.round((signal * (1 + HINT_SPREAD[c - 1])) / 5) * 5);
+  }
+
+  const READINGS = 3; // replicate columns
+  const MIN_ROWS = 6;
   const SVG = "http://www.w3.org/2000/svg";
   const $ = (id) => document.getElementById(id);
 
+  const head = $("swTryHead");
   const rows = $("swTryRows");
   const msg = $("swTryMsg");
+  const empty = $("swTryEmpty");
   const out = $("swTryOut");
   const plot = $("swTryPlot");
   const unitInput = $("swTryUnit");
   const invF = $("swTryF");
   const invN = $("swTryN");
   const result = $("swTryResult");
+  const needBlanks = $("swTryNeedBlanks");
+  const needStd = $("swTryNeedStd");
 
+  let note = ""; // said when the table has no problem, e.g. that a paste was trimmed
   let current = null; // { points, fit, weighted }
+  let toPlotY = null; // plot y (viewBox units) -> reading, set by renderPlot
   let timer = 0;
 
   // ---- formatting -------------------------------------------------------
@@ -44,73 +65,134 @@
   const conc = (c) => num(c) + " " + unit();
   const sig = (x) => (Number.isFinite(x) ? Number(x.toPrecision(4)).toString() : "--");
 
+  // A number as a spreadsheet copies it: "1,234.5" (thousands commas) reads as 1234.5;
+  // anything else that is not a plain number gives NaN.
+  function parseNum(v) {
+    const s = /^[-+]?\d{1,3}(,\d{3})+(\.\d*)?$/.test(v) ? v.replace(/,/g, "") : v;
+    return s === "" ? NaN : Number(s);
+  }
+
   // ---- the table --------------------------------------------------------
+  const indexIn = (parent, child) => Array.prototype.indexOf.call(parent.children, child);
+
+  function newCell() {
+    const td = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "text";
+    input.inputMode = "decimal";
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    td.append(input);
+    return td;
+  }
+  function renderHead() {
+    const first = document.createElement("th");
+    first.scope = "col";
+    first.textContent = `Concentration (${unit()})`;
+    const ths = [first];
+    for (let j = 1; j <= READINGS; j++) {
+      const th = document.createElement("th");
+      th.scope = "col";
+      th.textContent = `Reading ${j}`;
+      ths.push(th);
+    }
+    head.replaceChildren(...ths);
+  }
+  // Every cell gets its label and its grey hint from its position, so rows added as
+  // the table grows get theirs too.
+  function relabel() {
+    Array.from(rows.children).forEach((tr, i) => {
+      Array.from(tr.children).forEach((td, j) => {
+        td.firstChild.setAttribute("aria-label", j === 0 ? `Row ${i + 1}, concentration` : `Row ${i + 1}, reading ${j}`);
+        td.firstChild.placeholder = hint(i, j);
+      });
+    });
+  }
   function addRow() {
     const tr = document.createElement("tr");
-    for (let col = 0; col <= READINGS; col++) {
-      const td = document.createElement("td");
-      const input = document.createElement("input");
-      input.type = "text";
-      input.inputMode = "decimal";
-      input.autocomplete = "off";
-      input.spellcheck = false;
-      input.setAttribute("aria-label", col === 0
-        ? `Row ${rows.children.length + 1}, concentration`
-        : `Row ${rows.children.length + 1}, reading ${col}`);
-      td.append(input);
-      tr.append(td);
-    }
+    for (let j = 0; j <= READINGS; j++) tr.append(newCell());
     rows.append(tr);
     return tr;
   }
   function cell(r, c) {
+    if (c > READINGS) return null;
     while (rows.children.length <= r) addRow();
     return rows.children[r].children[c].firstChild;
   }
+  const filled = (input) => input.value.trim() !== "";
+  // Keep one empty row at the bottom.
+  function grow() {
+    if (Array.from(rows.lastElementChild.querySelectorAll("input")).some(filled)) addRow();
+    relabel();
+  }
   function clearTable() {
+    note = "";
+    renderHead();
     rows.replaceChildren();
-    for (let i = 0; i < START_ROWS; i++) addRow();
+    for (let i = 0; i < MIN_ROWS; i++) addRow();
+    relabel();
   }
 
-  // A block pasted from a spreadsheet: tab-separated cells, one line per row.
-  // Commas or semicolons also separate, for a block typed by hand.
+  // A block pasted from a spreadsheet: tab-separated cells, one line per row. A block
+  // typed by hand may use commas, semicolons or spaces instead.
   rows.addEventListener("paste", (e) => {
     const target = e.target;
     if (!(target instanceof HTMLInputElement)) return;
-    const text = (e.clipboardData || window.clipboardData).getData("text");
-    if (!/[\t\n,;]/.test(text.trim())) return; // a single value: let the browser paste it
+    const text = (e.clipboardData || window.clipboardData).getData("text").replace(/\r/g, "");
+    if (!/[\t\n,; ]/.test(text.trim())) return; // a single value: let the browser paste it
     e.preventDefault();
     const td = target.parentElement;
-    const r0 = Array.prototype.indexOf.call(rows.children, td.parentElement);
-    const c0 = Array.prototype.indexOf.call(td.parentElement.children, td);
-    const lines = text.replace(/\r/g, "").split("\n");
+    const r0 = indexIn(rows, td.parentElement);
+    const c0 = indexIn(td.parentElement, td);
+    const sep = text.includes("\t") ? /\t/ : /\s*[,;]\s*|\s+/;
+    const lines = text.split("\n");
     while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+    let trimmed = false;
     lines.forEach((line, i) => {
-      line.split(/\t|[,;]\s*/).forEach((value, j) => {
-        if (c0 + j <= READINGS) cell(r0 + i, c0 + j).value = value.trim();
+      line.trim().split(sep).forEach((value, j) => {
+        const input = cell(r0 + i, c0 + j);
+        if (input) input.value = value.trim();
+        else if (value.trim() !== "") trimmed = true;
       });
     });
+    note = trimmed ? `Only ${READINGS} readings per row fit in this table; the rest of the pasted block was left out.` : "";
+    grow();
     schedule();
   });
-  rows.addEventListener("input", schedule);
+  rows.addEventListener("input", () => { note = ""; grow(); schedule(); });
+  // Enter moves down the column, as in a spreadsheet.
+  rows.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" || !(e.target instanceof HTMLInputElement)) return;
+    e.preventDefault();
+    const td = e.target.parentElement;
+    const r = indexIn(rows, td.parentElement) + (e.shiftKey ? -1 : 1);
+    if (r >= 0) cell(r, indexIn(td.parentElement, td)).focus();
+  });
 
   function read() {
     const points = [];
     const problems = [];
+    root.querySelectorAll(".sw-try-table .is-bad").forEach((n) => n.classList.remove("is-bad"));
+    const bad = (input, text) => { input.classList.add("is-bad"); problems.push(text); };
     Array.from(rows.children).forEach((tr, i) => {
-      const values = Array.from(tr.querySelectorAll("input")).map((x) => x.value.trim());
+      const inputs = Array.from(tr.querySelectorAll("input"));
+      const values = inputs.map((x) => x.value.trim());
       if (values.every((v) => v === "")) return;
       // A header row copied along with the data: skip it quietly.
-      if (i === 0 && values[0] !== "" && !Number.isFinite(Number(values[0]))) return;
-      const c = Number(values[0]);
-      if (values[0] === "" || !Number.isFinite(c) || c < 0) {
-        problems.push(`Row ${i + 1}: the concentration must be a number, 0 or more.`);
+      if (i === 0 && values[0] !== "" && !Number.isFinite(parseNum(values[0]))) return;
+      const c = parseNum(values[0]);
+      if (values[0] === "") {
+        bad(inputs[0], `Row ${i + 1}: type its concentration; the grey numbers are only hints.`);
+        return;
+      }
+      if (!Number.isFinite(c) || c < 0) {
+        bad(inputs[0], `Row ${i + 1}: the concentration must be a number, 0 or more.`);
         return;
       }
       values.slice(1).forEach((v, j) => {
         if (v === "") return;
-        const y = Number(v);
-        if (!Number.isFinite(y)) problems.push(`Row ${i + 1}, reading ${j + 1}: not a number.`);
+        const y = parseNum(v);
+        if (!Number.isFinite(y)) bad(inputs[j + 1], `Row ${i + 1}, reading ${j + 1}: not a number.`);
         else points.push({ c, y, sd: 0 });
       });
     });
@@ -126,36 +208,42 @@
     msg.textContent = text;
     msg.classList.toggle("is-error", !!isError);
   }
+  function check(li, have, need, noun) {
+    li.classList.toggle("is-done", have >= need);
+    li.querySelector(".sw-try-count").textContent = have >= need ? `(${have})` : `(${have} so far)`;
+    li.setAttribute("aria-label", `${noun}: ${have} of at least ${need}`);
+  }
+  function show(ready) {
+    out.hidden = !ready;
+    empty.hidden = ready;
+  }
 
   function run() {
     current = null;
-    out.hidden = true;
     const { points, problems } = read();
-    if (problems.length) { say(problems.slice(0, 3).join(" "), true); return; }
-    if (!points.length) { say("Type or paste your standards to begin.", false); return; }
-
     const blanks = points.filter((p) => p.c === 0).length;
     const groups = new Map();
     points.forEach((p) => groups.set(p.c, (groups.get(p.c) || 0) + 1));
     const standards = [...groups.keys()].filter((c) => c > 0).length;
-    if (blanks < 2 || standards < 4) {
-      say(`So far: ${blanks} blank reading${blanks === 1 ? "" : "s"} and ${standards} standard concentration${standards === 1 ? "" : "s"}. ` +
-        "A curve needs at least 2 blank readings and 4 standard concentrations.", false);
-      return;
-    }
+    check(needBlanks, blanks, 2, "Blank readings");
+    check(needStd, standards, 4, "Standard concentrations");
+
+    if (problems.length) { say(problems.slice(0, 2).join(" "), true); show(false); return; }
+    say(note, false);
+    if (blanks < 2 || standards < 4) { show(false); return; }
 
     let fit;
     try {
       fit = CurveFit.fit(points);
     } catch (e) {
-      say("No curve: " + e.message, true);
+      say("No curve from these readings: " + e.message, true);
+      show(false);
       return;
     }
     // The same test CurveFit.fit makes: without replicate spread it fits unweighted.
     const weighted = [...groups.values()].some((n) => n >= 2);
     current = { points, fit, weighted };
-    say("", false);
-    out.hidden = false;
+    show(true);
     render();
   }
 
@@ -163,8 +251,8 @@
     const { points, fit, weighted } = current;
     $("swTryRange").textContent = num(fit.range_nM.min) + " – " + conc(fit.range_nM.max);
     $("swTryLod").textContent = conc(fit.lod_nM);
-    $("swTryUsed").textContent = String(points.length);
-    $("swTryWeight").textContent = weighted ? "weighted by their replicate spread" : "unweighted: no replicates to weight by";
+    $("swTryWeight").textContent = `${points.length} readings, ` +
+      (weighted ? "weighted by their replicate spread." : "unweighted: no replicates to weight by.");
     renderParams();
     invert();
   }
@@ -202,7 +290,8 @@
     if (!current) return;
     const raw = invF.value.trim();
     const n = Math.round(Number(invN.value));
-    if (raw === "") { result.textContent = ""; result.className = "sw-try-result"; renderPlot(null); return; }
+    result.className = "sw-try-result";
+    if (raw === "") { result.textContent = ""; renderPlot(null); return; }
     const F = Number(raw);
     if (!Number.isFinite(F)) { result.textContent = "Enter the sample's mean reading."; renderPlot(null); return; }
     if (!(n >= 1)) { result.textContent = "Replicates must be at least 1."; renderPlot(null); return; }
@@ -212,18 +301,32 @@
       result.innerHTML = "";
       const big = document.createElement("strong");
       big.textContent = "≈ " + conc(r.concentration_nM);
-      result.append(big, document.createTextNode(`  95% CI ${num(r.ci95_nM[0])} – ${conc(r.ci95_nM[1])}`));
+      result.append(big, document.createTextNode(` 95% CI ${num(r.ci95_nM[0])} – ${conc(r.ci95_nM[1])}`));
       renderPlot({ F, c: r.concentration_nM, ci: r.ci95_nM });
     } else {
       result.className = "sw-try-result is-bound";
       result.textContent = r.status === "below_lod"
-        ? `Below the limit of detection: under ${conc(current.fit.range_nM.min)}. No number is given.`
+        ? `Below the usable range: under ${conc(current.fit.range_nM.min)}. No number is given.`
         : `Above the usable range: over ${conc(current.fit.range_nM.max)}. No number is given.`;
       renderPlot({ F });
     }
   }
   invF.addEventListener("input", invert);
   invN.addEventListener("input", invert);
+
+  // Clicking the plot converts the reading at that height.
+  plot.addEventListener("click", (e) => {
+    if (!current || !toPlotY) return;
+    const ctm = plot.getScreenCTM();
+    if (!ctm) return;
+    const pt = plot.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const F = toPlotY(pt.matrixTransform(ctm.inverse()).y);
+    if (F === null) return;
+    invF.value = sig(F);
+    invert();
+  });
 
   // ---- the plot ----------------------------------------------------------
   // Log concentration axis. Blanks have no place on a log axis, so they sit in
@@ -237,7 +340,7 @@
 
   function renderPlot(marker) {
     const { points, fit } = current;
-    const W = 640, H = 360, L = 64, R = 18, TOP = 18, BOT = 52, ZERO = 64;
+    const W = 520, H = 380, L = 60, R = 16, TOP = 16, BOT = 50, ZERO = 52;
     const cs = points.filter((p) => p.c > 0).map((p) => p.c);
     const lx0 = Math.floor(Math.log10(Math.min(...cs)) - 0.25);
     const lx1 = Math.ceil(Math.log10(Math.max(...cs)) + 0.25);
@@ -250,7 +353,8 @@
     const x0px = L + ZERO; // where the log axis starts
     const X = (c) => x0px + ((Math.log10(c) - lx0) / (lx1 - lx0)) * (W - R - x0px);
     const Y = (y) => TOP + (1 - (y - y0) / (y1 - y0)) * (H - TOP - BOT);
-    const XB = L + 22;
+    const XB = L + 20;
+    toPlotY = (py) => (py < TOP || py > H - BOT ? null : y0 + (1 - (py - TOP) / (H - TOP - BOT)) * (y1 - y0));
 
     plot.replaceChildren();
     plot.setAttribute("viewBox", `0 0 ${W} ${H}`);
@@ -312,7 +416,6 @@
   }
 
   // ---- buttons ------------------------------------------------------------
-  $("swTryAdd").addEventListener("click", () => addRow().querySelector("input").focus());
   $("swTryClear").addEventListener("click", () => {
     clearTable();
     invF.value = "";
@@ -321,7 +424,7 @@
     cell(0, 0).focus();
   });
   unitInput.addEventListener("input", () => {
-    root.querySelectorAll(".sw-try-unit-label").forEach((n) => { n.textContent = unit(); });
+    renderHead();
     if (current) render();
   });
   const exampleBtn = $("swTryExample");
@@ -329,7 +432,8 @@
     if (!EXAMPLE) exampleBtn.remove();
     else exampleBtn.addEventListener("click", () => {
       clearTable();
-      EXAMPLE.rows.forEach((r, i) => r.forEach((v, j) => { if (j <= READINGS) cell(i, j).value = String(v); }));
+      EXAMPLE.rows.forEach((r, i) => r.forEach((v, j) => { const input = cell(i, j); if (input) input.value = String(v); }));
+      grow();
       unitInput.value = EXAMPLE.unit;
       unitInput.dispatchEvent(new Event("input"));
       run();
