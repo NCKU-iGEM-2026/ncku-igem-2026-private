@@ -36,7 +36,7 @@
   內容來源：LasReader repo（C:\Users\user\Desktop\iGEM Code\iGEM Software），commit e2f97d7：
   README.md、docs/capture_screen_model.md、frontend/js/curve_fit.js、firmware/、
   backend/app/swarming/。Results 的 Figure 8 是 wet lab 用 Plate Reader Assay 跑出的校正曲線截圖。
-  本頁沒有加入這些來源以外的數據或結果。外部引用只有 §3.6 References，每筆都在出版者頁面核對過（見該段註解）。
+  本頁沒有加入這些來源以外的數據或結果。外部引用只有頁尾的 References（只放數據格式與數據分析、擬合），每筆都在出版者頁面核對過（見該段註解）。
 
   頁面結構（左側 On this page 目錄由 static/page-toc.js 依 h2 自動產生，
   Part 標題用 data-toc-group 分組、data-toc-no 給編號，各節 h2 用 data-toc-title 給短名；
@@ -50,6 +50,8 @@
     Also in LasReader：Plate Imaging · Agar Vision（舊名 Swarming Assay，和 workflow 無關，獨立放最後。
     名稱跟 LasReader app 和 README 一致；id="part-swarming" 和 id="swarming" 要保留，
     Engineering 與 Results 頁有連過來）
+    References：全頁共用一份，放在 Part 4 之後、Plate Imaging 之前（id="references"，不另設 Part 橫幅，
+    所以左側目錄把它列在 Part 4 底下、沒有編號），引用號依在頁面上第一次出現的順序編。
     順序的理由：做什麼（Part 1）→ 為什麼可信（Part 2 原理）→ 所以其他螢光感測器也能用
     （Part 3，本頁重點：通用性）→ 現況（Part 4）。原理放在通用性之前，Part 3 說「換感測器
     不用改分析」時，讀者已經知道分析長什麼樣子、為什麼不依賴 AHL。實際驗證目前只有一次校正，
@@ -430,7 +432,7 @@
           <div class="sw-flow-soft">
             <p class="sw-flow-k">LasReader does</p>
             <ul>
-              <li>Fits a weighted four-parameter logistic curve and works out the limits of detection and quantification (<a href="#key-ideas">&sect;2.1</a>).</li>
+              <li>Fits a weighted four-parameter logistic curve<sup><a href="#swref1">[1]</a></sup> and works out the limits of detection and quantification<sup><a href="#swref2">[2]</a><a href="#swref3">[3]</a></sup> (<a href="#key-ideas">&sect;2.1</a>).</li>
               <li>Marks the usable range: the only part of the curve that returns a number.</li>
             </ul>
             <p class="sw-flow-where">In <a href="#tool-plate">Plate Reader Assay</a> and <a href="#tool-capture">CAPTURE-Screen</a></p>
@@ -466,7 +468,7 @@
           <div class="sw-flow-soft">
             <p class="sw-flow-k">LasReader does</p>
             <ul>
-              <li>Pairs the results by sample name and shows how well they agree: a log-log plot, the geometric mean ratio and Bland&ndash;Altman limits of agreement (<a href="#key-ideas">&sect;2.1</a>).</li>
+              <li>Pairs the results by sample name and shows how well they agree: a log-log plot, the geometric mean ratio and Bland&ndash;Altman limits of agreement<sup><a href="#swref4">[4]</a></sup> (<a href="#key-ideas">&sect;2.1</a>).</li>
             </ul>
             <p class="sw-flow-where">In <a href="#tool-compare">Cross-Validation</a></p>
           </div>
@@ -538,7 +540,7 @@
       <h3><span class="sw-idea-n">1</span>Model the response</h3>
       <p>
         A biosensor saturates, so its signal is S-shaped on a log
-        concentration axis. LasReader uses the four-parameter logistic (4PL),
+        concentration axis. LasReader uses the four-parameter logistic (4PL)<sup><a href="#swref1">[1]</a></sup>,
         whose parameters each mean something at the bench.
       </p>
       <div class="sw-eq sw-eq-key md-eqset">
@@ -588,7 +590,7 @@
         LOD = <var>F</var><sup>&minus;1</sup>(<var>F&#772;</var><sub>0</sub> + 3<var>s</var><sub>0</sub>),
         <span class="sw-sep"></span>LOQ = <var>F</var><sup>&minus;1</sup>(<var>F&#772;</var><sub>0</sub> + 10<var>s</var><sub>0</sub>)
         <span class="sw-eq-no">(5)</span>
-        <span class="md-eqnote">where <var>F&#772;</var><sub>0</sub> is the larger of the blanks' mean and <var>B</var>, <var>s</var><sub>0</sub> the blanks' standard deviation, and <var>F</var><sup>&minus;1</sup> the inverse curve of (7).</span>
+        <span class="md-eqnote">where <var>F&#772;</var><sub>0</sub> is the larger of the blanks' mean and <var>B</var>, <var>s</var><sub>0</sub> the blanks' standard deviation, and <var>F</var><sup>&minus;1</sup> the inverse curve of (7). The blank mean plus a multiple of the blank SD is the usual way to set both limits<sup><a href="#swref2">[2]</a></sup>; 10 is IUPAC's default multiplier for quantification<sup><a href="#swref3">[3]</a></sup>.</span>
       </div>
       <div class="sw-eq sw-eq-key md-eqset">
         <var>c</var><sub>min</sub> = max(LOD, <var>c</var><sub>lowest standard</sub>),
@@ -641,7 +643,7 @@
         <span class="sw-sep"></span>GMR = 10<sup><span class="sw-bar"><var>d</var></span></sup>,
         <span class="sw-sep"></span>LoA<sub>95</sub> = [10<sup><span class="sw-bar"><var>d</var></span> &minus; 1.96<var>s<sub>d</sub></var></sup>, 10<sup><span class="sw-bar"><var>d</var></span> + 1.96<var>s<sub>d</sub></var></sup>]
         <span class="sw-eq-no">(10)</span>
-        <span class="md-eqnote">where <span class="sw-bar"><var>d</var></span> and <var>s<sub>d</sub></var> are the mean and standard deviation of <var>d<sub>i</sub></var> over the paired samples. The geometric mean ratio (GMR) is the typical bias; the Bland&ndash;Altman limits of agreement (LoA) are the range 95% of single comparisons fall in. The tool also counts the pairs whose 95% CIs overlap.</span>
+        <span class="md-eqnote">where <span class="sw-bar"><var>d</var></span> and <var>s<sub>d</sub></var> are the mean and standard deviation of <var>d<sub>i</sub></var> over the paired samples. The geometric mean ratio (GMR) is the typical bias; the Bland&ndash;Altman limits of agreement (LoA)<sup><a href="#swref4">[4]</a></sup> are the range 95% of single comparisons fall in. The tool also counts the pairs whose 95% CIs overlap.</span>
       </div>
     </div>
 
@@ -845,17 +847,17 @@
           <tr>
             <td>A copy of one of our two readers</td>
             <td><span class="sw-adapt">Own backend</span></td>
-            <td>Build it from the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page and flash that build's sketch, <code>firmware/capture_screen</code> (laser-cut) or <code>firmware/capture_screen_3d</code> (3D-printed). The sketch connects to our server by default, which holds one reader at a time, so run LasReader on a lab computer (<a href="#run">&sect;3.5</a>) and point the reader at it in <code>secrets.h</code>. The 3D-printed build also needs its LED current measured and entered before it will read, as the repository's README describes. Every CAPTURE-Screen page then works with either build.</td>
+            <td>Build it from the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page, flash its sketch, and run LasReader on a lab computer (<a href="#run">&sect;3.5</a>): our server holds one reader at a time. Steps are in the README's <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader#hardware-capture-screen">Hardware</a> section.</td>
           </tr>
           <tr>
             <td>A reader of your own design, on an AS7341 sensor</td>
             <td><span class="sw-adapt">One sketch</span></td>
-            <td>Start from the closer of our two sketches: pins, sensor settings and build ID are set at its top. Keep its messages, which the backend checks against <code>backend/app/hardware/models.py</code>, and run your own backend as in the row above.</td>
+            <td>Adapt the closer of our two sketches and keep its messages, then run your own backend as above.</td>
           </tr>
           <tr>
             <td>A different fluorescent protein on CAPTURE-Screen</td>
             <td><span class="sw-adapt">One file</span></td>
-            <td>If the reader's 470&nbsp;nm LED excites it, set the signal channel in <code>frontend/config/unmix_basis.json</code>. It is F4 (515&nbsp;nm, for sfGFP<sup><a href="#swref1">[1]</a></sup>) now; the AS7341's eight visible channels<sup><a href="#swref2">[2]</a></sup> run from about 415 to 680&nbsp;nm. A protein excited at longer wavelengths, such as a red one, also needs a different LED.</td>
+            <td>Set the signal channel in <code>frontend/config/unmix_basis.json</code> (F4 for sfGFP now). A protein the reader's 470&nbsp;nm LED does not excite also needs a different LED.</td>
           </tr>
           <tr>
             <td>A plate reader export that cannot be pasted as a plate</td>
@@ -979,28 +981,29 @@
         <caption><strong>Table 2.</strong> Standards and established methods in LasReader</caption>
         <thead><tr><th scope="col">Standard or method</th><th scope="col">Where LasReader uses it</th></tr></thead>
         <tbody>
-          <tr><td>The 96-well plate layout, wells A1&ndash;H12<sup><a href="#swref3">[3]</a></sup></td><td>The Plate Reader Assay takes the 8&nbsp;&times;&nbsp;12 block any plate reader can export or copy, with or without its row letters and column numbers, and keeps each reading's well in the export.</td></tr>
-          <tr><td>CSV (RFC&nbsp;4180<sup><a href="#swref4">[4]</a></sup>), UTF-8</td><td>The exports are CSV files that Excel, R and Python open as is; the Plate Reader Assay's has one row per reading. Cross-Validation reads the exports back with an RFC&nbsp;4180 parser.</td></tr>
-          <tr><td>Calibrated fluorescence units, such as the InterLab's MEFL<sup><a href="#swref5">[5]</a></sup></td><td>The signal can be in any unit, so readings a team has already converted with a fluorescein standard go in unchanged and the curve's signal axis is in those units.</td></tr>
-          <tr><td>The four-parameter logistic<sup><a href="#swref6">[6]</a></sup></td><td>The reference model for a saturating standard curve in binding assays, best fitted with weights (<a href="#method-1">&sect;2.1, steps 1&ndash;2</a>), with parameters a biologist can read.</td></tr>
-          <tr><td>LOD and LOQ from the blanks, 3 and 10 standard deviations</td><td>The blank mean plus a multiple of the blank SD is the usual way to set both limits<sup><a href="#swref7">[7]</a></sup>; 10 is IUPAC's default multiplier for quantification<sup><a href="#swref8">[8]</a></sup>. Both are carried through the curve into concentrations (<a href="#method-3">&sect;2.1, step 3</a>).</td></tr>
-          <tr><td>Bland&ndash;Altman limits of agreement<sup><a href="#swref9">[9]</a></sup></td><td>Cross-Validation compares two instruments the way method-comparison studies do, on the log scale (<a href="#method-5">&sect;2.1, step 5</a>).</td></tr>
-          <tr><td>OpenAPI 3.1<sup><a href="#swref10">[10]</a></sup>, WebSocket<sup><a href="#swref11">[11]</a></sup>, JSON<sup><a href="#swref12">[12]</a></sup></td><td>The backend describes its own API at <code>/docs</code>, and CAPTURE-Screen speaks JSON over WebSocket (<a href="#connect">&sect;3.4</a>).</td></tr>
-          <tr><td>SBOL<sup><a href="#swref13">[13]</a></sup></td><td>Not used. LasReader handles measurements, not genetic designs; the biosensor strain is recorded as free text in every export.</td></tr>
+          <tr><td>The 96-well plate layout, wells A1&ndash;H12<sup><a href="#swref5">[5]</a></sup></td><td>The Plate Reader Assay takes the 8&nbsp;&times;&nbsp;12 block any plate reader can export or copy, with or without its row letters and column numbers, and keeps each reading's well in the export.</td></tr>
+          <tr><td>CSV (RFC&nbsp;4180<sup><a href="#swref6">[6]</a></sup>), UTF-8</td><td>The exports are CSV files that Excel, R and Python open as is; the Plate Reader Assay's has one row per reading. Cross-Validation reads the exports back with an RFC&nbsp;4180 parser.</td></tr>
+          <tr><td>Calibrated fluorescence units, such as the InterLab's MEFL<sup><a href="#swref7">[7]</a></sup></td><td>The signal can be in any unit, so readings a team has already converted with a fluorescein standard go in unchanged and the curve's signal axis is in those units.</td></tr>
+          <tr><td>The four-parameter logistic<sup><a href="#swref1">[1]</a></sup></td><td>The reference model for a saturating standard curve in binding assays, best fitted with weights (<a href="#method-1">&sect;2.1, steps 1&ndash;2</a>), with parameters a biologist can read.</td></tr>
+          <tr><td>LOD and LOQ from the blanks, 3 and 10 standard deviations</td><td>The blank mean plus a multiple of the blank SD is the usual way to set both limits<sup><a href="#swref2">[2]</a></sup>; 10 is IUPAC's default multiplier for quantification<sup><a href="#swref3">[3]</a></sup>. Both are carried through the curve into concentrations (<a href="#method-3">&sect;2.1, step 3</a>).</td></tr>
+          <tr><td>Bland&ndash;Altman limits of agreement<sup><a href="#swref4">[4]</a></sup></td><td>Cross-Validation compares two instruments the way method-comparison studies do, on the log scale (<a href="#method-5">&sect;2.1, step 5</a>).</td></tr>
+          <tr><td>OpenAPI 3.1, WebSocket, JSON</td><td>The backend describes its own API at <code>/docs</code>, and CAPTURE-Screen speaks JSON over WebSocket.</td></tr>
+          <tr><td>SBOL</td><td>Not used. LasReader handles measurements, not genetic designs; the biosensor strain is recorded as free text in every export.</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
   <!-- ========================= connect ========================= -->
-  {# CurveFit 的函式名稱、API 路徑、CSV 欄位數
-     （40 欄）都對過 LasReader e2f97d7 的程式碼；那邊改了這裡要跟著改。 #}
+  {# CurveFit 的函式名稱、CSV 欄位數（40 欄）都對過 LasReader e2f97d7 的程式碼；
+     那邊改了這裡要跟著改。2026-10-18 只留數據分析相關的兩列：HTTP API 和 device protocol
+     兩列偏硬體，已拿掉，細節在 LasReader README 的 How it works 與 Hardware 兩節。 #}
   <section id="connect">
     <h2 data-toc-title="3.4 Connect it to other tools"><span class="sw-h-no">3.4</span>Connect it to other tools</h2>
     <p>
-      LasReader does not have to be used whole. Its analysis, its server and
-      its files each have an interface another program can use without
-      touching the rest (Table 3).
+      LasReader does not have to be used whole. Its analysis and its files
+      each have an interface another program can use without touching the
+      rest (Table 3).
     </p>
     <div class="hw-figure">
       <table class="hw-table">
@@ -1011,16 +1014,6 @@
             <td>The fitting module</td>
             <td>Steps 1&ndash;4 of &sect;2.1 as pure functions with no dependencies and no access to the page: <code>CurveFit.fit(points)</code> returns the curve, LOD, LOQ and usable range; <code>CurveFit.invert(signal, fit, n)</code> returns a concentration with its 95% CI, or says it is out of range. The panel in <a href="#try">&sect;3.2</a> loads this file unchanged, which is the proof that it works outside the app.</td>
             <td><code>frontend/js/curve_fit.js</code></td>
-          </tr>
-          <tr>
-            <td>The HTTP API</td>
-            <td>Device status and reads (<code>/api/hardware</code>), the live spectrum over WebSocket (<code>/api/live/spectrum</code>) and colony photo analysis (<code>/api/swarming/analyze</code>). The HTTP routes are described as OpenAPI at <code>/docs</code>, with their request and response schemas.</td>
-            <td><code>backend/app/</code></td>
-          </tr>
-          <tr>
-            <td>The device protocol</td>
-            <td>The JSON messages a reader sends over WebSocket, checked by the backend against one schema. A reader of your own design on an AS7341 sensor that sends them works with every CAPTURE-Screen page (<a href="#who">Table 1</a>).</td>
-            <td><code>backend/app/hardware/models.py</code></td>
           </tr>
           <tr>
             <td>The files</td>
@@ -1035,33 +1028,70 @@
   <!-- ========================= run & extend ========================= -->
   <section id="run">
     <h2 data-toc-title="3.5 Run it, build on it"><span class="sw-h-no">3.5</span>Run it, build on it</h2>
+    {# 寫給使用者，分三條路：只想用（大多數隊伍）→ 在自己電腦跑 → 接自己的 CAPTURE-Screen。
+       指令都對過 LasReader 的 scripts/（setup/dev 的 .sh 與 .ps1 檔頭的 Usage）、
+       README「Without the scripts」與 firmware/*/secrets.h.example。dev 腳本只綁 127.0.0.1，
+       所以接讀取儀時不用 dev，改用 --host 0.0.0.0（兩者同用 8000 會衝突）；CORS 已允許
+       localhost:5500（backend/app/config.py）。pytest 在 backend 的 .venv 裡，所以用 .venv 的 python 跑。 #}
     <p>
-      To <em>use</em> LasReader you need only a browser: open the
-      <a href="https://igem-ncku-software.github.io/igem-software/">live app</a>.
-      To run it yourself you need Python&nbsp;3.14 and Git; the frontend has no
-      build step and needs no Node.js.
+      Most teams only need the first path below. The other two are for running
+      your own copy and for connecting a CAPTURE-Screen.
     </p>
+
+    <p class="sw-run-k"><span class="sw-idea-n">1</span>Use it in the browser</p>
+    <p>
+      Nothing to install. Open the
+      <a href="https://igem-ncku-software.github.io/igem-software/">live app</a>
+      and choose the
+      <a href="https://igem-ncku-software.github.io/igem-software/plate-assay.html">Plate Reader Assay</a>:
+    </p>
+    <ol class="sw-run-steps">
+      <li><strong>Enter data.</strong> Type, paste from Excel, or paste your reader's 8&nbsp;&times;&nbsp;12 plate and mark the wells: standards (0 for blanks) and samples from the same plate.</li>
+      <li><strong>Fit.</strong> At least 4 standard concentrations and 2 blanks.</li>
+      <li><strong>Read the results</strong>: each sample's concentration with its 95% CI.</li>
+      <li><strong>Export</strong> the CSV and the curve as PNG. Readings never leave your browser.</li>
+    </ol>
+
+    <p class="sw-run-k"><span class="sw-idea-n">2</span>Run it on your own computer</p>
+    <p>
+      For working offline or changing the code. You need Git and
+      Python&nbsp;3.14 (check with <code>python --version</code>); the
+      frontend has no build step and needs no Node.js.
+    </p>
+    <p class="sw-small">macOS or Linux (on Windows, the same lines work in Git Bash):</p>
     <pre class="sw-code">git clone https://gitlab.igem.org/2026/software/ncku-tainan/lasreader.git
 cd lasreader
-bash scripts/setup.sh      # once
-bash scripts/dev.sh        # backend on :8000, frontend on :5500</pre>
-    <p class="sw-small">
-      On Windows PowerShell, run <code>scripts\setup.ps1</code> and
-      <code>scripts\dev.ps1</code> instead. <code>cd backend; pytest</code> runs
-      the 46 backend tests, and the API documents itself at <code>/docs</code>.
+bash scripts/setup.sh      # once: installs the pinned packages into backend/.venv
+bash scripts/dev.sh        # starts LasReader</pre>
+    <p class="sw-small">Windows PowerShell:</p>
+    <pre class="sw-code">git clone https://gitlab.igem.org/2026/software/ncku-tainan/lasreader.git
+cd lasreader
+powershell -ExecutionPolicy Bypass -File scripts\setup.ps1    # once
+powershell -ExecutionPolicy Bypass -File scripts\dev.ps1      # starts LasReader</pre>
+    <p>
+      Then open <code>http://127.0.0.1:5500</code> in your browser. Press
+      <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal to stop.
     </p>
-    {# 照 LasReader firmware/*/secrets.h.example 和 README「Without the scripts」寫；dev 腳本只綁
-       127.0.0.1，所以讀取儀要連就不用 dev 腳本，改用 --host 0.0.0.0 啟動後端（兩者同用 8000 會衝突）。
-       CORS 已允許 localhost:5500（backend/app/config.py）。 #}
     <p class="sw-small">
-      To connect your own CAPTURE-Screen (<a href="#who">Table 1</a>), skip
-      <code>dev</code>: in <code>backend/</code>, with its <code>.venv</code>
-      active, run <code>uvicorn app.main:app --host 0.0.0.0 --port 8000</code>,
-      and in <code>frontend/</code> run <code>python -m http.server 5500</code>.
-      Then in the reader's <code>secrets.h</code> set <code>BACKEND_HOST</code>
-      to this computer's address on the same Wi-Fi, <code>BACKEND_PORT</code>
-      to 8000 and <code>BACKEND_USE_TLS</code> to 0.
+      For developers: the API documents itself at
+      <code>http://127.0.0.1:8000/docs</code>, and in <code>backend/</code>,
+      <code>.venv/bin/python -m pytest</code>
+      (<code>.venv\Scripts\python -m pytest</code> on Windows) runs the 46
+      backend tests.
     </p>
+
+    <p class="sw-run-k"><span class="sw-idea-n">3</span>Connect your own CAPTURE-Screen</p>
+    <p>
+      Our online server holds one reader at a time, so a team with its own
+      reader (<a href="#who">Table 1</a>) runs LasReader on a lab computer on
+      the same Wi-Fi. Do the setup in path 2, then, instead of
+      <code>dev</code>:
+    </p>
+    <ol class="sw-run-steps">
+      <li>In <code>backend/</code>, start the backend so the reader can reach it: <code>.venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000</code> (<code>.venv\Scripts\python</code> on Windows).</li>
+      <li>In <code>frontend/</code>, in a second terminal: <code>python -m http.server 5500</code>, and open <code>http://127.0.0.1:5500</code>.</li>
+      <li>In the reader's <code>secrets.h</code>, set <code>BACKEND_HOST</code> to this computer's address on the Wi-Fi, <code>BACKEND_PORT</code> to 8000 and <code>BACKEND_USE_TLS</code> to 0, and flash it. The rest of the reader's setup is in the README's <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader#hardware-capture-screen">Hardware</a> section.</li>
+    </ol>
     <div class="hw-figure">
       <table class="hw-table">
         <caption><strong>Table 4.</strong> iGEM software requirements and where they are met</caption>
@@ -1085,99 +1115,6 @@ bash scripts/dev.sh        # backend on :8000, frontend on :5500</pre>
       listed on the
       <a href="{{ url_for('pages', page='attributions') }}">Attributions</a> page.
     </p>
-  </section>
-
-  <!-- ========================= Part 3 references ========================= -->
-  {# 2026-10-17 每一筆都在出版者頁面核對過作者、年份、卷期頁與 DOI：Springer、De Gruyter、
-     SAGE、PLOS、Nature、RFC Editor、OpenAPI Initiative、SLAS、ams OSRAM；Armbruster & Pry
-     在 PubMed Central（該期刊全文的官方存放處）。沒能在出版者頁面確認的沒有放：
-     Bland & Altman 1986（Lancet 要過 CAPTCHA）、MacDougall et al. 1980（ACS 擋機器人，
-     看不到內文）、AS7341 datasheet PDF（只能下載）。所以 415–680 nm 這兩個數字目前沒有引用來源，
-     出處是 LasReader 的 docs/capture_screen_model.md。 #}
-  <section id="refs-yours">
-    <h2 data-toc-title="3.6 References"><span class="sw-h-no">3.6</span>References</h2>
-    <p class="hw-refs-note">
-      Sources for the standards and methods named in Part&nbsp;3. Statements
-      about LasReader itself come from its code, in the
-      <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader">repository</a>.
-    </p>
-    <ol class="hw-refs">
-      <li id="swref1">
-        P&eacute;delacq, J.-D., Cabantous, S., Tran, T., Terwilliger, T. C., &amp;
-        Waldo, G. S. (2006). Engineering and characterization of a superfolder
-        green fluorescent protein. <em>Nature Biotechnology</em>, 24(1), 79&ndash;88.
-        <a href="https://doi.org/10.1038/nbt1172" target="_blank" rel="noopener noreferrer">https://doi.org/10.1038/nbt1172</a>
-      </li>
-      <li id="swref2">
-        ams OSRAM. ams AS7341 &ndash; 11-channel spectral color sensor (product
-        page: eight optical channels across the visible spectrum).
-        <a href="https://ams-osram.com/products/sensor-solutions/ambient-light-color-spectral-proximity-sensors/ams-as7341-11-channel-spectral-color-sensor" target="_blank" rel="noopener noreferrer">ams-osram.com</a>
-      </li>
-      <li id="swref3">
-        Society for Laboratory Automation and Screening. ANSI SLAS 4-2004 (R2012):
-        Microplates &ndash; Well Positions.
-        <a href="https://www.slas.org/education/ansi-slas-microplate-standards/" target="_blank" rel="noopener noreferrer">slas.org</a>
-      </li>
-      <li id="swref4">
-        Shafranovich, Y. (2005). <em>Common format and MIME type for
-        comma-separated values (CSV) files</em> (RFC&nbsp;4180). IETF.
-        <a href="https://doi.org/10.17487/RFC4180" target="_blank" rel="noopener noreferrer">https://doi.org/10.17487/RFC4180</a>
-      </li>
-      <li id="swref5">
-        Beal, J., Haddock-Angelli, T., Gershater, M., de Mora, K., Lizarazo, M.,
-        Hollenhorst, J., Rettberg, R., &amp; iGEM Interlab Study Contributors
-        (2016). Reproducibility of fluorescent expression from engineered
-        biological constructs in <em>E. coli</em>. <em>PLOS ONE</em>, 11(3),
-        e0150182.
-        <a href="https://doi.org/10.1371/journal.pone.0150182" target="_blank" rel="noopener noreferrer">https://doi.org/10.1371/journal.pone.0150182</a>
-      </li>
-      <li id="swref6">
-        Findlay, J. W. A., &amp; Dillard, R. F. (2007). Appropriate calibration
-        curve fitting in ligand binding assays. <em>The AAPS Journal</em>, 9(2), 29.
-        <a href="https://doi.org/10.1208/aapsj0902029" target="_blank" rel="noopener noreferrer">https://doi.org/10.1208/aapsj0902029</a>
-      </li>
-      <li id="swref7">
-        Armbruster, D. A., &amp; Pry, T. (2008). Limit of blank, limit of
-        detection and limit of quantitation. <em>The Clinical Biochemist
-        Reviews</em>, 29(Suppl&nbsp;1), S49&ndash;S52.
-        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2556583/" target="_blank" rel="noopener noreferrer">PMC2556583</a>
-      </li>
-      <li id="swref8">
-        Currie, L. A. (1995). Nomenclature in evaluation of analytical methods
-        including detection and quantification capabilities (IUPAC
-        Recommendations 1995). <em>Pure and Applied Chemistry</em>, 67(10),
-        1699&ndash;1723.
-        <a href="https://doi.org/10.1351/pac199567101699" target="_blank" rel="noopener noreferrer">https://doi.org/10.1351/pac199567101699</a>
-      </li>
-      <li id="swref9">
-        Bland, J. M., &amp; Altman, D. G. (1999). Measuring agreement in method
-        comparison studies. <em>Statistical Methods in Medical Research</em>,
-        8(2), 135&ndash;160.
-        <a href="https://doi.org/10.1177/096228029900800204" target="_blank" rel="noopener noreferrer">https://doi.org/10.1177/096228029900800204</a>
-      </li>
-      <li id="swref10">
-        OpenAPI Initiative (2021). <em>OpenAPI Specification</em>, version 3.1.0.
-        <a href="https://spec.openapis.org/oas/v3.1.0.html" target="_blank" rel="noopener noreferrer">https://spec.openapis.org/oas/v3.1.0.html</a>
-      </li>
-      <li id="swref11">
-        Fette, I., &amp; Melnikov, A. (2011). <em>The WebSocket protocol</em>
-        (RFC&nbsp;6455). IETF.
-        <a href="https://doi.org/10.17487/RFC6455" target="_blank" rel="noopener noreferrer">https://doi.org/10.17487/RFC6455</a>
-      </li>
-      <li id="swref12">
-        Bray, T. (Ed.) (2017). <em>The JavaScript Object Notation (JSON) data
-        interchange format</em> (RFC&nbsp;8259). IETF.
-        <a href="https://doi.org/10.17487/RFC8259" target="_blank" rel="noopener noreferrer">https://doi.org/10.17487/RFC8259</a>
-      </li>
-      <li id="swref13">
-        Galdzicki, M., Clancy, K. P., Oberortner, E., Pocock, M., Quinn, J. Y.,
-        Rodriguez, C. A., Roehner, N., Wilson, M. L., et al. (2014). The
-        Synthetic Biology Open Language (SBOL) provides a community standard
-        for communicating designs in synthetic biology. <em>Nature
-        Biotechnology</em>, 32(6), 545&ndash;550.
-        <a href="https://doi.org/10.1038/nbt.2891" target="_blank" rel="noopener noreferrer">https://doi.org/10.1038/nbt.2891</a>
-      </li>
-    </ol>
   </section>
 
   {# ======================================================================
@@ -1234,6 +1171,68 @@ bash scripts/dev.sh        # backend on :8000, frontend on :5500</pre>
         </tbody>
       </table>
     </div>
+  </section>
+
+  <!-- ========================= references ========================= -->
+  {# 全頁共用一份 References（2026-10-18 從 §3.6 移到 Part 4 之後、Plate Imaging 之前（和 Plate Imaging 無關，不放它後面））。只放數據格式與數據分析、擬合的引用（2026-10-18 團隊決定）：96-well、CSV、MEFL、4PL、
+     LOD/LOQ、Bland–Altman。硬體（sfGFP、AS7341）、通訊協定（OpenAPI、WebSocket、JSON）
+     和 SBOL 的引用已拿掉，Table 1、Table 2 的那些列也就沒有引用號。
+     2026-10-17 每一筆都在出版者頁面核對過作者、年份、卷期頁與 DOI：SLAS、RFC Editor、PLOS、
+     Springer、De Gruyter、SAGE；Armbruster & Pry 在 PubMed Central（該期刊全文的官方存放處）。沒能在出版者頁面
+     確認的沒有放：Bland & Altman 1986（Lancet 要過 CAPTCHA）、MacDougall et al. 1980
+     （ACS 擋機器人，看不到內文）。 #}
+  <section id="references">
+    <h2 data-toc-title="References">References</h2>
+    <p class="hw-refs-note">
+      Sources for the data formats and the data-analysis and curve-fitting
+      methods named on this page. Statements about LasReader itself come
+      from its code, in the
+      <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader">repository</a>.
+    </p>
+    <ol class="hw-refs">
+      <li id="swref1">
+        Findlay, J. W. A., &amp; Dillard, R. F. (2007). Appropriate calibration
+        curve fitting in ligand binding assays. <em>The AAPS Journal</em>, 9(2), 29.
+        <a href="https://doi.org/10.1208/aapsj0902029" target="_blank" rel="noopener noreferrer">https://doi.org/10.1208/aapsj0902029</a>
+      </li>
+      <li id="swref2">
+        Armbruster, D. A., &amp; Pry, T. (2008). Limit of blank, limit of
+        detection and limit of quantitation. <em>The Clinical Biochemist
+        Reviews</em>, 29(Suppl&nbsp;1), S49&ndash;S52.
+        <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC2556583/" target="_blank" rel="noopener noreferrer">PMC2556583</a>
+      </li>
+      <li id="swref3">
+        Currie, L. A. (1995). Nomenclature in evaluation of analytical methods
+        including detection and quantification capabilities (IUPAC
+        Recommendations 1995). <em>Pure and Applied Chemistry</em>, 67(10),
+        1699&ndash;1723.
+        <a href="https://doi.org/10.1351/pac199567101699" target="_blank" rel="noopener noreferrer">https://doi.org/10.1351/pac199567101699</a>
+      </li>
+      <li id="swref4">
+        Bland, J. M., &amp; Altman, D. G. (1999). Measuring agreement in method
+        comparison studies. <em>Statistical Methods in Medical Research</em>,
+        8(2), 135&ndash;160.
+        <a href="https://doi.org/10.1177/096228029900800204" target="_blank" rel="noopener noreferrer">https://doi.org/10.1177/096228029900800204</a>
+      </li>
+      <li id="swref5">
+        Society for Laboratory Automation and Screening. ANSI SLAS 4-2004 (R2012):
+        Microplates &ndash; Well Positions.
+        <a href="https://www.slas.org/education/ansi-slas-microplate-standards/" target="_blank" rel="noopener noreferrer">slas.org</a>
+      </li>
+      <li id="swref6">
+        Shafranovich, Y. (2005). <em>Common format and MIME type for
+        comma-separated values (CSV) files</em> (RFC&nbsp;4180). IETF.
+        <a href="https://doi.org/10.17487/RFC4180" target="_blank" rel="noopener noreferrer">https://doi.org/10.17487/RFC4180</a>
+      </li>
+      <li id="swref7">
+        Beal, J., Haddock-Angelli, T., Gershater, M., de Mora, K., Lizarazo, M.,
+        Hollenhorst, J., Rettberg, R., &amp; iGEM Interlab Study Contributors
+        (2016). Reproducibility of fluorescent expression from engineered
+        biological constructs in <em>E. coli</em>. <em>PLOS ONE</em>, 11(3),
+        e0150182.
+        <a href="https://doi.org/10.1371/journal.pone.0150182" target="_blank" rel="noopener noreferrer">https://doi.org/10.1371/journal.pone.0150182</a>
+      </li>
+    </ol>
   </section>
 
   {# ======================================================================
