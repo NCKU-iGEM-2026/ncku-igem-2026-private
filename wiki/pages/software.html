@@ -58,7 +58,7 @@
     因為其他頁連到 #who #try #run #limits #swarming，id 都沒改。
     圖表依閱讀順序編號：Figure 1 首頁、2 Plate Reader Assay、3 CAPTURE-Screen 步驟列（workflow）、
     4 校正畫面（calibrate-2）、5 實驗台照片、6 架構、7 試用、8 校正曲線（Tried so far）、9 平板照片；
-    Table 1 誰能用、2 標準、3 整合介面、4 iGEM 要求、5 限制（§2.2 規則是卡片，不編號）。頁面上不寫評審相關的文字。圖號有被內文引用，改了要一起改。
+    Table 1 誰能用、2 標準、3 整合介面、4 iGEM 要求、5 限制（§2.2 規則是 R1–R6 清單，不編 Table 號）。頁面上不寫評審相關的文字。圖號有被內文引用，改了要一起改。
 
   關於「AHL」：app 畫面寫 AHL，本頁用通用說法，並在 Who can use it 明講
   app 是為 AHL 感測器做的、換算本身不用到分析物名稱。curve_fit.js 已核對：
@@ -660,10 +660,9 @@
   </section>
 
   <!-- ========================= rules ========================= -->
-  {# 規則用分組卡片呈現（不是表格，所以不編 Table 號）：擬合前、給數字時、長期。
-     每條都對過 LasReader：curve_fit.js（數據太少、超出範圍）、docs §4 與 §9.5（排除與標記）、
-     §5 指紋與 §13（曲線綁定、曲線不變）、README（no demo data）。
-     e4c7f2 是 Figure 3 步驟列上的設定指紋（hardware_common.js：Online · fingerprint）。
+  {# 規則用編號清單（R1–R6，像規格書），分三組：擬合前、給數字時、長期；不是表格，不編 Table 號。
+     每條都對過 LasReader：curve_fit.js（R1、R3）、docs §4 與 §9.5（R2）、§5 指紋與 §13（R4、R5）、
+     README（R6）。e4c7f2 是 Figure 3 步驟列上的設定指紋（hardware_common.js：Online · fingerprint）。
      「數據不上傳、後端不儲存」寫在 §2.3 圖說，這裡不重複。 #}
   <section id="rules">
     <h2 data-toc-title="2.2 Rules it keeps"><span class="sw-h-no">2.2</span>Rules it keeps</h2>
@@ -673,51 +672,39 @@
       behind it. Each is enforced by the code, not left to the person at the
       bench.
     </p>
-    <div class="sw-rule-group">
-      <p class="sw-row-tag">Before the fit</p>
-      <div class="sw-rule-grid">
+    <p class="sw-row-tag">Before the fit</p>
+    <dl class="sw-rules">
         <div class="sw-rule">
-          <p class="sw-rule-title">No curve from too little data</p>
-          <p>With fewer than 4 standard concentrations or 2 blanks, the fit will not run.</p>
-          <p class="sw-rule-for">Plate Reader Assay &middot; CAPTURE-Screen</p>
+          <dt><span class="sw-rule-no">R1</span>No curve from too little data</dt>
+          <dd>With fewer than 4 standard concentrations or 2 blanks, the fit will not run. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
         <div class="sw-rule">
-          <p class="sw-rule-title">Nothing disappears silently</p>
-          <p>Quality flags only warn. A reading is excluded only with a written reason, and stays on the plot and in the export.</p>
-          <p class="sw-rule-for">Plate Reader Assay &middot; CAPTURE-Screen</p>
+          <dt><span class="sw-rule-no">R2</span>Nothing disappears silently</dt>
+          <dd>Quality flags only warn. A reading is excluded only with a written reason, and stays on the plot and in the export. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
-      </div>
-    </div>
-    <div class="sw-rule-group">
-      <p class="sw-row-tag">When it gives a number</p>
-      <div class="sw-rule-grid">
+    </dl>
+    <p class="sw-row-tag">When it gives a number</p>
+    <dl class="sw-rules">
         <div class="sw-rule">
-          <p class="sw-rule-title">No number outside the usable range</p>
-          <p>Outside <var>c</var><sub>min</sub> to <var>c</var><sub>max</sub> (<a href="#method-3">&sect;2.1, step 3</a>) you get only the bound, never an extrapolated value.</p>
-          <p class="sw-rule-for">Plate Reader Assay &middot; CAPTURE-Screen</p>
+          <dt><span class="sw-rule-no">R3</span>No number outside the usable range</dt>
+          <dd>Outside <var>c</var><sub>min</sub> to <var>c</var><sub>max</sub> (<a href="#method-3">&sect;2.1, step 3</a>), only the bound is reported, never an extrapolated value. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
         <div class="sw-rule">
-          <p class="sw-rule-title">A curve converts only what it was made for</p>
-          <p>Each curve is bound to the reader's configuration fingerprint (<em>e4c7f2</em> on the step bar, Figure 3). Readings taken any other way are not converted with it.</p>
-          <p class="sw-rule-for">CAPTURE-Screen</p>
+          <dt><span class="sw-rule-no">R4</span>A curve converts only what it was made for</dt>
+          <dd>Each curve is bound to the reader's configuration fingerprint (<em>e4c7f2</em> on the step bar, Figure 3). Readings taken any other way are not converted with it. <span class="sw-rule-for">CAPTURE-Screen</span></dd>
         </div>
-      </div>
-    </div>
-    <div class="sw-rule-group">
-      <p class="sw-row-tag">Over time</p>
-      <div class="sw-rule-grid">
+    </dl>
+    <p class="sw-row-tag">Over time</p>
+    <dl class="sw-rules">
         <div class="sw-rule">
-          <p class="sw-rule-title">A saved curve never changes</p>
-          <p>Refitting makes a new curve, so every result can be traced to the curve that produced it.</p>
-          <p class="sw-rule-for">CAPTURE-Screen</p>
+          <dt><span class="sw-rule-no">R5</span>A saved curve never changes</dt>
+          <dd>Refitting makes a new curve, so every result can be traced to the curve that produced it. <span class="sw-rule-for">CAPTURE-Screen</span></dd>
         </div>
         <div class="sw-rule">
-          <p class="sw-rule-title">No demo data</p>
-          <p>With CAPTURE-Screen off, the pages say it is offline. They never show made-up readings.</p>
-          <p class="sw-rule-for">All tools</p>
+          <dt><span class="sw-rule-no">R6</span>No demo data</dt>
+          <dd>With CAPTURE-Screen off, the pages say it is offline. They never show made-up readings. <span class="sw-rule-for">All tools</span></dd>
         </div>
-      </div>
-    </div>
+    </dl>
   </section>
 
   <!-- ========================= architecture ========================= -->
