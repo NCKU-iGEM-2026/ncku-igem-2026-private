@@ -2,25 +2,17 @@
 
 {% block title %}Software{% endblock %}
 
-{# Same deep-teal treatment as Hardware: the two pages describe one instrument
-   from its two sides, so they wear the same ground. #}
 {% block body_class %}hw-nexus{% endblock %}
 
 {% block hero_image %}https://static.igem.wiki/teams/6379/wiki/software/banner.avif{% endblock %}
-{# hero-software: the banner at 75% brightness; see style.css #}
 {% block hero_class %}hero-software{% endblock %}
 
 {% block lead %}LasReader turns measuring fluorescence and working out AHL concentration into one clear workflow, run on our CAPTURE-Screen reader or any plate reader{% endblock %}
 
 {% block page_content %}
 
-{# A fraction, typeset. Arguments are trusted markup written on this page. #}
 {% macro frac(n, d) %}<span class="sw-frac"><span>{{ n|safe }}</span><span>{{ d|safe }}</span></span>{% endmacro %}
 
-{# A screenshot or photo, without a frame (only rounded corners).
-   Until the image is uploaded the frame is dashed and says so; give it src
-   (a static.igem.wiki URL) and alt, and it opens full size on click
-   (static/edu-lightbox.js). fig is its figure number. #}
 {% macro shot(name, fig='', src='', alt='', cls='') %}
 <figure class="sw-shot{% if not src %} is-todo{% endif %}{% if cls %} {{ cls }}{% endif %}">
   <div class="sw-frame">
@@ -29,57 +21,6 @@
   <figcaption>{% if fig %}<strong>{{ fig }}.</strong> {% endif %}{{ name }}</figcaption>
 </figure>
 {% endmacro %}
-
-{#
-  === 給團隊的說明，發布前請讀 ===
-
-  內容來源：LasReader repo（C:\Users\user\Desktop\iGEM Code\iGEM Software），commit e2f97d7：
-  README.md、docs/capture_screen_model.md、frontend/js/curve_fit.js、firmware/、
-  backend/app/swarming/。Results 的 Figure 8 是 wet lab 用 Plate Reader Assay 跑出的校正曲線截圖。
-  本頁沒有加入這些來源以外的數據或結果。外部引用只有頁尾的 References（只放數據格式與數據分析、擬合），每筆都在出版者頁面核對過（見該段註解）。
-
-  頁面結構（左側 On this page 目錄由 static/page-toc.js 依 h2 自動產生，
-  Part 標題用 data-toc-group 分組、data-toc-no 給編號，各節 h2 用 data-toc-title 給短名；
-  container 上的 data-toc-style="parts" 讓目錄畫成編號＋軌道＋進度條，其他頁不受影響）：
-    頁首 On this page 清單（sw-map）= 四個 Part 的目錄
-    Part 1 One workflow, bench to concentration：The problem / Three tools / The workflow（互動）
-    Part 2 How it decides：Five key ideas / Rules it keeps / How the pieces connect（架構圖）
-    Part 3 For other fluorescent biosensors：Who can use it / Try it with your data / Standards it builds on /
-           Connect it to other tools / Run it, build on it
-    Part 4 Where it stands：Tried so far / Limitations（iGEM 軟體要求的表在 Part 3 的 Run it, build on it）
-    Also in LasReader：Plate Imaging · Agar Vision（舊名 Swarming Assay，和 workflow 無關，獨立放最後。
-    名稱跟 LasReader app 和 README 一致；id="part-swarming" 和 id="swarming" 要保留，
-    Engineering 與 Results 頁有連過來）
-    References：全頁共用一份，放在 Part 4 之後、Plate Imaging 之前（id="references"，不另設 Part 橫幅，
-    所以左側目錄把它列在 Part 4 底下、沒有編號），引用號依在頁面上第一次出現的順序編。
-    順序的理由：做什麼（Part 1）→ 為什麼可信（Part 2 原理）→ 所以其他螢光感測器也能用
-    （Part 3，本頁重點：通用性）→ 現況（Part 4）。原理放在通用性之前，Part 3 說「換感測器
-    不用改分析」時，讀者已經知道分析長什麼樣子、為什麼不依賴 AHL。實際驗證目前只有一次校正，
-    Part 4 簡短交代，細節在限制表裡。
-    各 Part 的 id 沿用舊的（part-model 是 Part 2、part-yours 是 Part 3、part-evidence 是 Part 4），
-    因為其他頁連到 #who #try #run #limits #swarming，id 都沒改。
-    圖表依閱讀順序編號：Figure 1 首頁、2 Plate Reader Assay、3 CAPTURE-Screen 步驟列（workflow）、
-    4 校正畫面（calibrate-2）、5 實驗台照片、6 架構、7 試用、8 校正曲線（Tried so far）、9 平板照片；
-    Table 1 誰能用、2 標準、3 整合介面、4 iGEM 要求、5 限制（§2.2 規則是 R1–R6 清單，不編 Table 號）。頁面上不寫評審相關的文字。圖號有被內文引用，改了要一起改。
-
-  關於「AHL」：app 畫面寫 AHL，本頁用通用說法，並在 Who can use it 明講
-  app 是為 AHL 感測器做的、換算本身不用到分析物名稱。curve_fit.js 已核對：
-  沒有任何地方用到 AHL；只接受隨濃度上升的反應（top > bottom），這點也寫在頁面上。
-
-  發布前要補（freeze 前不可留下任何虛線佔位框）：
-  A. 截圖：Figure 1–5 已上傳；Plate Imaging · Agar Vision 的 9a、9b 還是佔位。上傳到 static.igem.wiki 後在
-     {{ shot(...) }} 加上 src='https://static.igem.wiki/...', alt='替代文字'，點圖會放大。
-  B. Figure 8 的圖檔：用 uploads tool 上傳到 wiki/software 資料夾，檔名 plate-reader-calibration.png，
-     網址就會是本頁寫好的那一個。上傳前這張圖會是破圖。
-  C. Figure 8 的說明：請 wet lab 補上日期與菌株，以及 app Results 面板上的 LOD 與
-     usable range（見 Results 段落裡的註解）。
-  D. Try it with your data 的「Load example」：Figure 8 的原始讀值可以當範例，
-     填進 static/software-fit.js 的 EXAMPLE（附來源說明），再把本頁那個按鈕的註解拿掉。
-  E. static/lasreader-curve-fit.js 是 LasReader curve_fit.js 的原封不動複本（到 e2f97d7 都沒變）。
-     LasReader 那邊改了，這裡也要一起更新。
-  已解決：舊的「感測器設定與 Hardware 頁不一致」是兩台機器各自的設定（雷切 ATIME 59 / ASTEP 999，
-  3D 列印 255 / 280），兩邊都對。
-#}
 
 <div class="hw-orbs" aria-hidden="true">
   <span class="hw-orb hw-orb-a"><span></span></span>
@@ -103,17 +44,17 @@
       (<a href="{{ url_for('pages', page='hardware') }}">Hardware</a>), the
       instrument is part of the workflow: LasReader checks the reader, shows
       which tube to read next, reads each one in a click, and gives every
-      sample's concentration with a 95% interval. Data from any plate reader
-      goes through the same steps.
+      sample's concentration with an approximate 95% confidence interval.
+      Data from any plate reader goes through the same steps.
     </p>
     <p>
       We built it for our AHL sensor, but the analysis never uses the target's
-      name: any biosensor whose fluorescence rises with concentration works.
+      name. It can be used with other biosensors whose rising response is
+      suitable for a 4PL calibration, provided the fit is checked against
+      their experimental data.
     </p>
   </div>
 
-  {# 兩顆按鈕並排：live app 是主要按鈕（實心），GitLab 是次要按鈕（框線）。
-     授權只是資訊，用小字，不做成按鈕。 #}
   <ul class="sw-links">
     <li><a class="sw-btn-link sw-link-primary" href="https://igem-ncku-software.github.io/igem-software/">Open the live app</a></li>
     <li><a class="sw-btn-link sw-link-secondary" href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader">Source on iGEM GitLab</a></li>
@@ -126,9 +67,6 @@
     diagnostic use.
   </div>
 
-  {# 本頁的目錄：四行編號清單（不是卡片，也不畫箭頭，因為四個 Part 是閱讀順序、
-     不是工作流程；真正的流程在 Part 1）。每行連到一個 Part 的 id，改了 id 要一起改。
-     class 名稱 sw-parts 要保留：style.css 用 .sw-parts ~ section 控制內文行寬。 #}
   <nav class="sw-map-wrap" aria-labelledby="swMapTitle">
     <p class="sw-map-title" id="swMapTitle">On this page</p>
     <ol class="sw-parts sw-map">
@@ -143,7 +81,7 @@
         <a href="#part-model">
           <span class="sw-map-no" aria-hidden="true">2</span>
           <span class="sw-map-name">How it decides</span>
-          <span class="sw-map-q">The five ideas behind each number, from the curve's shape to its 95% interval.</span>
+          <span class="sw-map-q">The five ideas behind each number, from the curve's shape to its approximate 95% confidence interval.</span>
         </a>
       </li>
       <li>
@@ -160,7 +98,6 @@
           <span class="sw-map-q">What has been tested so far, and what is still missing.</span>
         </a>
       </li>
-      {# 第五行：獨立工具，和左側目錄的「+」一致；不屬於螢光流程，所以單獨一整行。 #}
       <li class="sw-map-apart">
         <a href="#part-swarming">
           <span class="sw-map-no" aria-hidden="true">+</span>
@@ -171,9 +108,6 @@
     </ol>
   </nav>
 
-  {# ======================================================================
-     Part 1: One workflow, bench to concentration（本頁重點之一：實驗流程＋硬體變成一個清楚的 workflow）
-     ====================================================================== #}
   <header class="md-part" id="part-workflow" data-toc-group data-toc-no="1">
     <p class="md-part-no">Part 1</p>
     <h2 data-toc-title="One workflow">One workflow, bench to concentration</h2>
@@ -184,15 +118,9 @@
     do for you.
   </p>
 
-  <!-- ========================= problem ========================= -->
-  {# 每一列：左邊是實驗上原本的麻煩（不是軟體的問題），右邊是 LasReader 怎麼解決。每格保持一兩句。
-     第三列只說 LasReader「直接操作 CAPTURE-Screen、讀取市售 plate reader 的數據」：
-     市售儀器是貼上／匯入它的輸出，不是即時連線，不要寫成 connects to。
-     右欄每一句都對過 app 的實際行為；id="problem" 保留。 #}
   <section id="problem">
     <h2 data-toc-title="1.1 What it solves"><span class="sw-h-no">1.1</span>What it solves</h2>
     <div class="sw-solve">
-      {# 欄位標題只在桌面顯示一次；手機上下堆疊時改用每格裡的 sw-solve-k。 #}
       <div class="sw-solve-head" aria-hidden="true">
         <span>Without LasReader</span>
         <span>With LasReader</span>
@@ -218,8 +146,8 @@
         <p class="sw-solve-now">
           <span class="sw-solve-k">With LasReader</span>
           <strong>A curve in seconds.</strong> Paste the readings and press Fit:
-          the curve and every sample's concentration, with its 95% interval,
-          come back at once.
+          the curve and every sample's concentration, with its approximate
+          95% confidence interval, come back at once.
         </p>
       </div>
       <div class="sw-solve-row">
@@ -238,15 +166,6 @@
     </div>
   </section>
 
-  <!-- ========================= tools ========================= -->
-  {# 首頁（Figure 1）置中：標題、圖、說明由上到下。其餘工具左右交錯排列（sw-row，
-     sw-row-flip 讓圖在左），手機上一律文字在上。CAPTURE-Screen 的校正畫面（Figure 4）和
-     實驗台照片（Figure 5）是同一件事，放在同一個區塊（sw-group）裡兩列交錯、不畫分隔線；
-     說明要涵蓋四個頁面（Instrument、Calibrate、Curves、Measure），不只 Calibrate
-     （內容對過 LasReader README 的 Usage）。
-     截圖與照片都是真實數據（Rules 表：no demo data）。Figure 1 首頁同時拍到三個工具和
-     Live spectrum，所以 Cross-Validation 不另外放截圖。Figure 2 會看到整盤原始讀值，
-     已提醒上傳前和 wet lab 確認可以公開。 #}
   <section id="tools">
     <h2 data-toc-title="1.2 Three tools"><span class="sw-h-no">1.2</span>Three tools, one workflow</h2>
 
@@ -271,15 +190,15 @@
         <p class="sw-row-tag">Any instrument</p>
         <h3>Plate Reader Assay</h3>
         <p>
-          <strong>Works with any plate reader, whatever the brand.</strong>
-          Every reader can export or copy a read as an 8&nbsp;&times;&nbsp;12
-          block: paste it in as it comes, with or without row letters and column
-          numbers, and mark the wells (Figure 2, from a SpectraMax M3). Readings
+          <strong>Accepts plate-reader data, regardless of brand.</strong>
+          For 96-well data that can be arranged as an 8&nbsp;&times;&nbsp;12
+          block, paste it with or without row letters and column numbers,
+          and mark the wells (Figure 2, from a SpectraMax M3). Readings
           from any other instrument can be typed or pasted from a spreadsheet.
         </p>
         <p>
           Press Fit, and the standard curve and each sample's concentration with
-          its 95% CI come back at once. Nothing is stored or uploaded.
+          its approximate 95% CI come back at once. Nothing is stored or uploaded.
         </p>
         <p><span class="sw-flow-chips">Steps 1&ndash;5, 7</span></p>
       </div>
@@ -289,12 +208,9 @@
               alt='Plate Reader Assay, step 1. Experiment details, then a fluorescence plate and an OD600 plate pasted as the reader exported them, and the 8 by 12 plate map with wells marked as standards from 0 to 100,000 nM and as medium blanks.') }}
     </div>
 
-    {# CAPTURE-Screen：一個區塊、一個標題，裡面兩列交錯（文字｜截圖、照片｜文字），兩列之間不畫分隔線。 #}
     <div class="sw-group" id="tool-capture">
       <p class="sw-row-tag">Our instrument</p>
       <h3>CAPTURE-Screen</h3>
-      {# 步驟列（Figure 3）放在這裡而不是 §1.3：它是 CAPTURE-Screen 自己的四個頁面，
-         §1.3 是兩個工具共用的七步實驗流程，放在那裡會讓讀者把 4 步和 7 步搞混。 #}
       {{ shot('The step bar at the top of every CAPTURE-Screen page: the reader online, three calibration runs, one usable curve, and Measure ready.',
               fig='Figure 3',
               src='https://static.igem.wiki/teams/6379/wiki/software/workflow.avif',
@@ -310,7 +226,7 @@
             tube by tube and fits the curve (Figure 4). <strong>Curves</strong>
             keeps every saved curve with its LOD and usable range.
             <strong>Measure</strong> reads the samples and gives each one a
-            concentration with its 95% CI, ready to export.
+            concentration with its approximate 95% CI, ready to export.
           </p>
           <p><span class="sw-flow-chips">Steps 1&ndash;5, 7</span></p>
         </div>
@@ -347,15 +263,21 @@
     </div>
   </section>
 
-  <!-- ========================= workflow ========================= -->
-  {# 互動流程圖：static/software-workflow.js 把七個 panel 變成分頁。
-     沒有 JavaScript 時，七個 panel 依序全部顯示，內容不會少。
-     每步左欄 You do、右欄 LasReader does，各一兩句；內容都對過 docs/capture_screen_model.md
-     （§4 flags、§6 讀取順序、§12 batch、§14 self-check）和 README。
-     第 7 步：Plate Reader Assay 沒有匯入 CSV 的功能，重現是「照檔案重新輸入讀值」，不要寫成從檔案重算。 #}
   <section id="workflow">
     <h2 data-toc-title="1.3 The workflow"><span class="sw-h-no">1.3</span>The workflow</h2>
     <p>Seven steps, in the order they happen at the bench. Choose one to see what you do and what LasReader does.</p>
+    <p>The blanks have different roles; prepare the one each step requires:</p>
+    <dl class="hw-spec">
+      <div><dt>Medium blank</dt><dd>Medium without cells. Its mean fluorescence and OD600 are subtracted before the Plate Reader Assay divides fluorescence by OD600.</dd></div>
+      <div><dt>Cell blank</dt><dd>Biosensor cells without AHL, prepared under the standards' conditions and at the same OD for CAPTURE-Screen. These zero-concentration readings establish the calibration baseline and blank scatter for LOD; on CAPTURE-Screen, clean cell blanks also establish the scatter baseline.</dd></div>
+      <div><dt>Buffer-only cuvette</dt><dd>Used for the CAPTURE-Screen Instrument self-check. It does not replace the cell blank or set the cell-scatter baseline.</dd></div>
+    </dl>
+    <p>
+      With OD normalization enabled, the Plate Reader Assay uses
+      <code>(F_sample &minus; mean F_medium) / (OD_sample &minus; mean OD_medium)</code>.
+      This implementation still needs to be confirmed against the wet lab's
+      protocol (<a href="#limits">Table 5</a>).
+    </p>
 
     <div class="sw-flow" id="swFlow">
       <ol class="sw-flow-steps" hidden>
@@ -379,7 +301,7 @@
             <p class="sw-flow-k">LasReader does</p>
             <ul>
               <li>Asks for at least 4 concentrations and 2 blanks, the minimum for a four-parameter curve and a limit of detection.</li>
-              <li>On CAPTURE-Screen, sets the reading order so instrument drift falls on every concentration equally.</li>
+              <li>On CAPTURE-Screen, interleaves concentrations in replicate rounds to reduce the time bias from reading all replicates of one concentration together; drift may still affect concentrations differently.</li>
             </ul>
             <p class="sw-flow-where">In <a href="#tool-plate">Plate Reader Assay</a> and <a href="#tool-capture">CAPTURE-Screen</a> &rarr; Calibrate</p>
           </div>
@@ -450,8 +372,8 @@
           <div class="sw-flow-soft">
             <p class="sw-flow-k">LasReader does</p>
             <ul>
-              <li>Averages the replicates, converts once, scales by the dilution, and gives a 95% confidence interval.</li>
-              <li>Outside the usable range, says &ldquo;below LOD&rdquo; or &ldquo;above range&rdquo; instead of a number.</li>
+              <li>Averages the replicates, converts once, scales by the dilution, and gives an approximate 95% confidence interval.</li>
+              <li>Below the usable range or above its upper limit, reports a bound instead of a concentration estimate.</li>
             </ul>
             <p class="sw-flow-where">In <a href="#tool-plate">Plate Reader Assay</a> and <a href="#tool-capture">CAPTURE-Screen</a> &rarr; Measure</p>
           </div>
@@ -501,26 +423,18 @@
     </div>
   </section>
 
-  {# ======================================================================
-     Part 2: How it decides
-     ====================================================================== #}
   <header class="md-part" id="part-model" data-toc-group data-toc-no="2">
     <p class="md-part-no">Part 2</p>
     <h2 data-toc-title="How it decides">How it decides</h2>
   </header>
   <p class="sw-takeaway">
     How a reading becomes a concentration, and how sure that number is: a
-    weighted four-parameter fit, limits set from the blanks, and a 95%
-    interval on every result. Every equation below is what the code
+    weighted four-parameter fit, limits set from the blanks, and an approximate 95%
+    confidence interval on every result. Every equation below is what the code
     computes; the full derivation is in the repository's
     <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader/-/blob/main/docs/capture_screen_model.md">model document</a>.
   </p>
 
-  <!-- ========================= key ideas ========================= -->
-  {# 方法依資料流排成五步：模型 → 加權擬合 → 極限 → 反推與區間 → 儀器比較。
-     每條式子都對過 LasReader 的 frontend/js/curve_fit.js（1–9）與 js/compare.js（10），
-     符號在每條式子下方的 where 說明裡定義。id="key-ideas" 保留（本頁其他地方連過來）；
-     其他地方用「§2.1, step N」引用，步驟順序改了要一起改。 #}
   <section id="key-ideas">
     <h2 data-toc-title="2.1 The method"><span class="sw-h-no">2.1</span>The method, step by step</h2>
     <p>
@@ -596,8 +510,23 @@
         <var>c</var><sub>min</sub> = max(LOD, <var>c</var><sub>lowest standard</sub>),
         <span class="sw-sep"></span><var>c</var><sub>max</sub> = min(<var>c</var><sub>highest standard</sub>, EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup>)
         <span class="sw-eq-no">(6)</span>
-        <span class="md-eqnote">EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup> is where the curve reaches 95% of its span: setting <var>F</var> = <var>B</var> + 0.95(<var>T</var> &minus; <var>B</var>) in (1) gives (EC<sub>50</sub>/<var>c</var>)<sup><var>h</var></sup> = 1/19. Above it, a change in signal smaller than the noise moves the concentration by a large factor. A sample outside [<var>c</var><sub>min</sub>, <var>c</var><sub>max</sub>] is reported as &ldquo;below LOD&rdquo; or &ldquo;above range&rdquo;, with no number.</span>
+        <span class="md-eqnote">EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup> is where the curve reaches 95% of its response span: setting <var>F</var> = <var>B</var> + 0.95(<var>T</var> &minus; <var>B</var>) in (1) gives (EC<sub>50</sub>/<var>c</var>)<sup><var>h</var></sup> = 1/19. The upper-end region beyond 95% of the response span is excluded because inversion becomes sensitive to small signal changes. Outside [<var>c</var><sub>min</sub>, <var>c</var><sub>max</sub>], only a bound is reported, with no concentration estimate.</span>
       </div>
+      <p>
+        The lower bound is the larger of the LOD and the lowest non-zero
+        standard concentration. A sample can therefore be above the LOD but
+        below the usable range. The current app's <code>below_lod</code>
+        status covers both cases; it does not always mean the signal is
+        below the detection limit.
+      </p>
+      <p>
+        <strong>The usable range is the software's permitted inversion
+        range, not an experimentally validated quantification range.</strong>
+        Its lower bound uses LOD, not LOQ, so estimates may be returned
+        between LOD and LOQ. The blank-based LOQ estimate alone does not
+        establish reliable quantification: bias, precision and recovery
+        still need to be checked with low-concentration samples.
+      </p>
       <p class="sw-idea-ref">Model document <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader/-/blob/main/docs/capture_screen_model.md#10-lod-loq-and-the-usable-range">&sect;10</a></p>
     </div>
 
@@ -616,7 +545,7 @@
       </div>
       <div class="sw-eq sw-eq-key md-eqset">
         Var(ln&nbsp;<var>c&#770;</var>) &asymp; <var>g<sub>F</sub></var><sup>2</sup> {{ frac('<var>a</var> + <var>b</var><var>F&#772;</var><sup>2</sup>', '<var>n</var>') }} + <var>g</var><sub>&theta;</sub><sup>&#8868;</sup> &Sigma;<sub>&theta;</sub> <var>g</var><sub>&theta;</sub>,
-        <span class="sw-sep"></span>95% CI = exp(ln&nbsp;<var>c&#770;</var> &plusmn; 1.96&radic;Var)
+        <span class="sw-sep"></span>approximate 95% CI = exp(ln&nbsp;<var>c&#770;</var> &plusmn; 1.96&radic;Var)
         <span class="sw-eq-no">(8)</span>
         <span class="md-eqnote">The first term is the noise of the reading, which shrinks as <var>n</var> grows; the second is the uncertainty of the curve, from (4), which every sample shares and more replicates cannot reduce. This is the delta method: a first-order expansion of (7).</span>
       </div>
@@ -634,16 +563,17 @@
       <p>
         Cross-Validation asks whether CAPTURE-Screen agrees with a commercial
         plate reader on the same samples. Both tools run the same fitting
-        code, <code>curve_fit.js</code>, so any difference comes from the
-        instruments, not from two pieces of arithmetic. Agreement is measured
-        on the log scale, as a ratio:
+        code, <code>curve_fit.js</code>, which reduces differences caused by
+        separate analysis implementations. Differences can still arise from
+        the instruments, sample handling, OD normalization, calibration and
+        operation. Agreement is measured on the log scale, as a ratio:
       </p>
       <div class="sw-eq sw-eq-key md-eqset">
         <var>d<sub>i</sub></var> = log<sub>10</sub> {{ frac('<var>c&#770;</var><sub><var>i</var></sub><sup>CAPTURE</sup>', '<var>c&#770;</var><sub><var>i</var></sub><sup>plate</sup>') }},
         <span class="sw-sep"></span>GMR = 10<sup><span class="sw-bar"><var>d</var></span></sup>,
         <span class="sw-sep"></span>LoA<sub>95</sub> = [10<sup><span class="sw-bar"><var>d</var></span> &minus; 1.96<var>s<sub>d</sub></var></sup>, 10<sup><span class="sw-bar"><var>d</var></span> + 1.96<var>s<sub>d</sub></var></sup>]
         <span class="sw-eq-no">(10)</span>
-        <span class="md-eqnote">where <span class="sw-bar"><var>d</var></span> and <var>s<sub>d</sub></var> are the mean and standard deviation of <var>d<sub>i</sub></var> over the paired samples. The geometric mean ratio (GMR) is the typical bias; the Bland&ndash;Altman limits of agreement (LoA)<sup><a href="#swref4">[4]</a></sup> are the range 95% of single comparisons fall in. The tool also counts the pairs whose 95% CIs overlap.</span>
+        <span class="md-eqnote">where <span class="sw-bar"><var>d</var></span> and <var>s<sub>d</sub></var> are the mean and standard deviation of <var>d<sub>i</sub></var> over the paired samples. The geometric mean ratio (GMR) is the typical bias; the Bland&ndash;Altman limits of agreement (LoA)<sup><a href="#swref4">[4]</a></sup> are the range 95% of single comparisons fall in. The tool also counts the pairs whose approximate 95% CIs overlap.</span>
       </div>
     </div>
 
@@ -651,8 +581,9 @@
       <strong>Assumptions.</strong> Replicate readings are independent, with
       roughly normal errors; the response rises with concentration
       (<var>T</var>&nbsp;&gt;&nbsp;<var>B</var>); and the interval in (8) is a
-      first-order approximation with 1.96, which runs somewhat narrow when
-      there are few tubes. These are listed with the other limits in
+      first-order approximation with 1.96. Its coverage has not been
+      validated and may be inaccurate with few tubes or strong non-linearity.
+      These are listed with the other limits in
       <a href="#limits">Table 5</a>.
     </p>
     <p class="hw-aside">
@@ -661,11 +592,6 @@
     </p>
   </section>
 
-  <!-- ========================= rules ========================= -->
-  {# 規則用編號清單（R1–R6，像規格書），分三組：擬合前、給數字時、長期；不是表格，不編 Table 號。
-     每條都對過 LasReader：curve_fit.js（R1、R3）、docs §4 與 §9.5（R2）、§5 指紋與 §13（R4、R5）、
-     README（R6）。e4c7f2 是 Figure 3 步驟列上的設定指紋（hardware_common.js：Online · fingerprint）。
-     「數據不上傳、後端不儲存」寫在 §2.3 圖說，這裡不重複。 #}
   <section id="rules">
     <h2 data-toc-title="2.2 Rules it keeps"><span class="sw-h-no">2.2</span>Rules it keeps</h2>
     <p>
@@ -709,7 +635,6 @@
     </dl>
   </section>
 
-  <!-- ========================= architecture ========================= -->
   <section id="architecture">
     <h2 data-toc-title="2.3 How the pieces connect"><span class="sw-h-no">2.3</span>How the pieces connect</h2>
     <p>
@@ -727,13 +652,11 @@
             </marker>
           </defs>
 
-          <!-- device -->
           <rect class="hw-svg-sensor" x="16" y="40" width="170" height="110" rx="8"/>
           <text class="hw-svg-label" x="101" y="72" text-anchor="middle">CAPTURE-Screen</text>
           <text class="hw-svg-sub" x="101" y="96" text-anchor="middle">ESP32 + AS7341</text>
           <text class="hw-svg-sub" x="101" y="118" text-anchor="middle">laser-cut or 3D-printed</text>
 
-          <!-- backend -->
           <rect class="hw-svg-case" x="262" y="16" width="228" height="368" rx="12"/>
           <text class="hw-svg-note" x="276" y="38">backend · FastAPI</text>
           <rect class="hw-svg-body sw-svg-box" x="284" y="52" width="184" height="76" rx="6"/>
@@ -746,7 +669,6 @@
           <text class="hw-svg-label" x="376" y="322" text-anchor="middle">/api/swarming</text>
           <text class="hw-svg-sub" x="376" y="346" text-anchor="middle">photo analysis · OpenCV</text>
 
-          <!-- browser -->
           <rect class="hw-svg-case" x="560" y="16" width="206" height="368" rx="12"/>
           <text class="hw-svg-note" x="574" y="38">browser · static pages</text>
           <rect class="hw-svg-body sw-svg-box" x="574" y="50" width="178" height="40" rx="6"/>
@@ -763,7 +685,6 @@
           <rect class="hw-svg-body sw-svg-box" x="574" y="318" width="178" height="40" rx="6"/>
           <text class="hw-svg-sub sw-svg-in" x="663" y="343" text-anchor="middle">Plate Imaging</text>
 
-          <!-- links -->
           <path class="sw-svg-link" d="M186 95 C232 95 240 90 284 90" marker-end="url(#swArrow)"/>
           <text class="hw-svg-note" x="235" y="74" text-anchor="middle">WSS</text>
           <text class="hw-svg-note" x="235" y="116" text-anchor="middle">dials out</text>
@@ -780,7 +701,6 @@
           <path class="sw-svg-link" d="M574 338 H468" marker-end="url(#swArrow)"/>
           <text class="hw-svg-note" x="520" y="330" text-anchor="middle">HTTPS · photo</text>
 
-          <!-- the two tools that fit curves both call curve_fit.js; Cross-Validation does not -->
           <path class="sw-svg-local" d="M752 118 H760 V278 H752"/>
           <path class="sw-svg-local" d="M752 178 H760"/>
         </svg>
@@ -797,24 +717,18 @@
     </figure>
   </section>
 
-  {# ======================================================================
-     Part 3: For other fluorescent biosensors（本頁的重點：通用性）
-     Table 1 每一列都對過 LasReader e2f97d7：上升曲線限制（curve_fit.js 的 top > bottom）、
-     韌體預設連我們的 Render 後端（BACKEND_HOST）、後端一次只接一台裝置（hardware/hub.py
-     attach_device 會取代舊的）、激發光是 470 nm LED、新的後端功能要在 main.py 掛 router。
-     ====================================================================== #}
   <header class="md-part" id="part-yours" data-toc-group data-toc-no="3">
     <p class="md-part-no">Part 3</p>
     <h2 data-toc-title="For other fluorescent biosensors">For other fluorescent biosensors</h2>
   </header>
   <p class="sw-takeaway">
     The analysis does not depend on AHL. A team whose fluorescent biosensor
-    gets brighter as its target rises, and who can make standards of known
-    concentration, can use the Plate Reader Assay today. Table 1 lists what
+    has a rising response suitable for 4PL calibration, and who can make
+    standards of known concentration, can use the Plate Reader Assay and
+    check the fit against their own experimental data. Table 1 lists what
     other setups would change.
   </p>
 
-  <!-- ========================= who ========================= -->
   <section id="who">
     <h2 data-toc-title="3.1 Who can use it"><span class="sw-h-no">3.1</span>Who can use it</h2>
     <p>
@@ -826,7 +740,9 @@
     </p>
     <p>
       What it does need is at least 4 standard concentrations and 2 blank
-      readings, and a signal that rises with the target.
+      readings, and a rising signal suitable for a 4PL calibration. Check
+      that the fitted curve describes the experimental response before
+      interpreting sample estimates.
     </p>
 
     <div class="hw-figure">
@@ -837,7 +753,7 @@
           <tr>
             <td>A fluorescent biosensor and any plate reader</td>
             <td><span class="sw-yes">As is</span></td>
-            <td>Open the Plate Reader Assay and paste your plate, standards and samples together. Read "AHL" as your target and "nM" as your unit.</td>
+            <td>Open the Plate Reader Assay and enter standards and samples together; paste a plate if its data can be arranged as an 8&nbsp;&times;&nbsp;12 block. Check that the rising response is suitable for a 4PL calibration. Read "AHL" as your target and "nM" as your unit.</td>
           </tr>
           <tr>
             <td>A sensor whose fluorescence <em>falls</em> as the target rises</td>
@@ -874,14 +790,6 @@
     </div>
   </section>
 
-  <!-- ========================= try ========================= -->
-  {# 「用你的數據試試看」：static/software-fit.js。數學全部交給 LasReader 自己的
-     curve_fit.js（static/lasreader-curve-fit.js），所以結果和 app 一樣。
-     左邊輸入、右邊結果（面板夠寬時並排，窄的時候上下排）：固定 3 個重複欄，
-     表格會自己往下長出新的一列，清單即時打勾，點圖可以直接換算。
-     每一格的灰色數字只是 placeholder（software-fit.js 的 hint()，由固定曲線算出的編造整數），
-     只示範格式，不會被讀取或擬合；每格空著時才顯示、各自獨立，所以不違反「No demo data」。
-     Load example 按鈕等團隊給真實校正數據（說明 D）再打開。 #}
   <section id="try">
     <h2 data-toc-title="3.2 Try it with your data"><span class="sw-h-no">3.2</span>Try it with your data</h2>
     <p>
@@ -919,7 +827,6 @@
           <p class="sw-try-msg" id="swTryMsg" role="status" aria-live="polite"></p>
           <div class="sw-try-actions">
             <button type="button" class="sw-btn" id="swTryClear">Clear</button>
-            {# <button type="button" class="sw-btn" id="swTryExample">Load our calibration</button> #}
           </div>
         </div>
 
@@ -963,11 +870,6 @@
     </div>
   </section>
 
-  <!-- ========================= standards ========================= -->
-  {# 每一列都對過 LasReader 程式碼：
-     plate_layout.js（8 × 12、A1–H12）、compare.js（RFC 4180 parser）、plate_assay.js
-     （CSV 欄位、strain 欄）、curve_fit.js（4PL、3/10 SD）、FastAPI（OpenAPI /docs）。
-     MEFL 那列只說「任何單位都能用」這個事實，沒有宣稱有 MEFL 轉換功能。 #}
   <section id="standards">
     <h2 data-toc-title="3.3 Standards it builds on"><span class="sw-h-no">3.3</span>Standards it builds on</h2>
     <p>
@@ -981,7 +883,7 @@
         <caption><strong>Table 2.</strong> Standards and established methods in LasReader</caption>
         <thead><tr><th scope="col">Standard or method</th><th scope="col">Where LasReader uses it</th></tr></thead>
         <tbody>
-          <tr><td>The 96-well plate layout, wells A1&ndash;H12<sup><a href="#swref5">[5]</a></sup></td><td>The Plate Reader Assay takes the 8&nbsp;&times;&nbsp;12 block any plate reader can export or copy, with or without its row letters and column numbers, and keeps each reading's well in the export.</td></tr>
+          <tr><td>The 96-well plate layout, wells A1&ndash;H12<sup><a href="#swref5">[5]</a></sup></td><td>The Plate Reader Assay accepts 96-well data arranged as an 8&nbsp;&times;&nbsp;12 block, with or without row letters and column numbers, and keeps each reading's well in the export. Other readings can be typed or pasted into its table.</td></tr>
           <tr><td>CSV (RFC&nbsp;4180<sup><a href="#swref6">[6]</a></sup>), UTF-8</td><td>The exports are CSV files that Excel, R and Python open as is; the Plate Reader Assay's has one row per reading. Cross-Validation reads the exports back with an RFC&nbsp;4180 parser.</td></tr>
           <tr><td>Calibrated fluorescence units, such as the InterLab's MEFL<sup><a href="#swref7">[7]</a></sup></td><td>The signal can be in any unit, so readings a team has already converted with a fluorescein standard go in unchanged and the curve's signal axis is in those units.</td></tr>
           <tr><td>The four-parameter logistic<sup><a href="#swref1">[1]</a></sup></td><td>The reference model for a saturating standard curve in binding assays, best fitted with weights (<a href="#method-1">&sect;2.1, steps 1&ndash;2</a>), with parameters a biologist can read.</td></tr>
@@ -994,10 +896,6 @@
     </div>
   </section>
 
-  <!-- ========================= connect ========================= -->
-  {# CurveFit 的函式名稱、CSV 欄位數（40 欄）都對過 LasReader e2f97d7 的程式碼；
-     那邊改了這裡要跟著改。2026-10-18 只留數據分析相關的兩列：HTTP API 和 device protocol
-     兩列偏硬體，已拿掉，細節在 LasReader README 的 How it works 與 Hardware 兩節。 #}
   <section id="connect">
     <h2 data-toc-title="3.4 Connect it to other tools"><span class="sw-h-no">3.4</span>Connect it to other tools</h2>
     <p>
@@ -1012,7 +910,7 @@
         <tbody>
           <tr>
             <td>The fitting module</td>
-            <td>Steps 1&ndash;4 of &sect;2.1 as pure functions with no dependencies and no access to the page: <code>CurveFit.fit(points)</code> returns the curve, LOD, LOQ and usable range; <code>CurveFit.invert(signal, fit, n)</code> returns a concentration with its 95% CI, or says it is out of range. The panel in <a href="#try">&sect;3.2</a> loads this file unchanged, which is the proof that it works outside the app.</td>
+            <td>Steps 1&ndash;4 of &sect;2.1 as pure functions with no dependencies and no access to the page: <code>CurveFit.fit(points)</code> returns the curve, LOD, LOQ and usable range; <code>CurveFit.invert(signal, fit, n)</code> returns a concentration with its approximate 95% CI, or says it is out of range. The panel in <a href="#try">&sect;3.2</a> loads this file unchanged, which is the proof that it works outside the app.</td>
             <td><code>frontend/js/curve_fit.js</code></td>
           </tr>
           <tr>
@@ -1025,14 +923,8 @@
     </div>
   </section>
 
-  <!-- ========================= run & extend ========================= -->
   <section id="run">
     <h2 data-toc-title="3.5 Run it, build on it"><span class="sw-h-no">3.5</span>Run it, build on it</h2>
-    {# 寫給使用者，分三條路：只想用（大多數隊伍）→ 在自己電腦跑 → 接自己的 CAPTURE-Screen。
-       指令都對過 LasReader 的 scripts/（setup/dev 的 .sh 與 .ps1 檔頭的 Usage）、
-       README「Without the scripts」與 firmware/*/secrets.h.example。dev 腳本只綁 127.0.0.1，
-       所以接讀取儀時不用 dev，改用 --host 0.0.0.0（兩者同用 8000 會衝突）；CORS 已允許
-       localhost:5500（backend/app/config.py）。pytest 在 backend 的 .venv 裡，所以用 .venv 的 python 跑。 #}
     <p>
       Most teams only need the first path below. The other two are for running
       your own copy and for connecting a CAPTURE-Screen.
@@ -1040,17 +932,13 @@
 
     <p class="sw-run-k"><span class="sw-idea-n">1</span>Use it in the browser</p>
     <p>
-      Nothing to install. Open the
+      Nothing to install: open the
       <a href="https://igem-ncku-software.github.io/igem-software/">live app</a>
-      and choose the
-      <a href="https://igem-ncku-software.github.io/igem-software/plate-assay.html">Plate Reader Assay</a>:
+      and every tool is there. The Plate Reader Assay and Cross-Validation run
+      entirely in your browser; CAPTURE-Screen and Plate Imaging &middot; Agar
+      Vision also use our server, which holds one reader at a time (path 3 runs
+      your own).
     </p>
-    <ol class="sw-run-steps">
-      <li><strong>Enter data.</strong> Type, paste from Excel, or paste your reader's 8&nbsp;&times;&nbsp;12 plate and mark the wells: standards (0 for blanks) and samples from the same plate.</li>
-      <li><strong>Fit.</strong> At least 4 standard concentrations and 2 blanks.</li>
-      <li><strong>Read the results</strong>: each sample's concentration with its 95% CI.</li>
-      <li><strong>Export</strong> the CSV and the curve as PNG. Readings never leave your browser.</li>
-    </ol>
 
     <p class="sw-run-k"><span class="sw-idea-n">2</span>Run it on your own computer</p>
     <p>
@@ -1058,16 +946,20 @@
       Python&nbsp;3.14 (check with <code>python --version</code>); the
       frontend has no build step and needs no Node.js.
     </p>
+    <p class="sw-small">
+      Run setup once to install the pinned packages into
+      <code>backend/.venv</code>; dev starts the backend and frontend together.
+    </p>
     <p class="sw-small">macOS or Linux (on Windows, the same lines work in Git Bash):</p>
     <pre class="sw-code">git clone https://gitlab.igem.org/2026/software/ncku-tainan/lasreader.git
 cd lasreader
-bash scripts/setup.sh      # once: installs the pinned packages into backend/.venv
-bash scripts/dev.sh        # starts LasReader</pre>
+bash scripts/setup.sh
+bash scripts/dev.sh</pre>
     <p class="sw-small">Windows PowerShell:</p>
     <pre class="sw-code">git clone https://gitlab.igem.org/2026/software/ncku-tainan/lasreader.git
 cd lasreader
-powershell -ExecutionPolicy Bypass -File scripts\setup.ps1    # once
-powershell -ExecutionPolicy Bypass -File scripts\dev.ps1      # starts LasReader</pre>
+powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
     <p>
       Then open <code>http://127.0.0.1:5500</code> in your browser. Press
       <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal to stop.
@@ -1117,9 +1009,6 @@ powershell -ExecutionPolicy Bypass -File scripts\dev.ps1      # starts LasReader
     </p>
   </section>
 
-  {# ======================================================================
-     Part 4: Where it stands（驗證只簡短交代，細節在 Table 5）
-     ====================================================================== #}
   <header class="md-part" id="part-evidence" data-toc-group data-toc-no="4">
     <p class="md-part-no">Part 4</p>
     <h2 data-toc-title="Where it stands">Where it stands</h2>
@@ -1128,10 +1017,6 @@ powershell -ExecutionPolicy Bypass -File scripts\dev.ps1      # starts LasReader
     What has been tried so far, and what comes next.
   </p>
 
-  <!-- ========================= results ========================= -->
-  {# Figure 8：wet lab 用 Plate Reader Assay 跑的校正曲線（app 的圖表截圖）。
-     內文只寫圖上看得到的東西；可請 wet lab 補日期與菌株（說明 C）。
-     若要寫 usable range，照 app Results 面板上的數字寫，不要從圖上估。圖檔上傳見說明 B。 #}
   <section id="results">
     <h2 data-toc-title="4.1 Tried so far"><span class="sw-h-no">4.1</span>Tried so far</h2>
     <p>
@@ -1150,7 +1035,6 @@ powershell -ExecutionPolicy Bypass -File scripts\dev.ps1      # starts LasReader
             alt='Plate Reader Assay chart: fluorescence divided by OD600 against AHL concentration from 10 nM to 100 µM on a log axis. The readings at 10, 100 and 1,000 nM overlap; the signal rises above 1,000 nM, and the fitted curve is still rising at 100 µM. A dashed line marks the EC50 near 20 µM.') }}
   </section>
 
-  <!-- ========================= limitations ========================= -->
   <section id="limits">
     <h2 data-toc-title="4.2 Limitations"><span class="sw-h-no">4.2</span>Limitations and next steps</h2>
     <div class="hw-figure">
@@ -1163,7 +1047,7 @@ powershell -ExecutionPolicy Bypass -File scripts\dev.ps1      # starts LasReader
           <tr><td>Single-channel signal on CAPTURE-Screen</td><td>F4 alone also picks up autofluorescence and scattered light; the blank absorbs only the constant part.</td><td>Unmix with a measured sfGFP spectrum</td></tr>
           <tr><td>No automated tests for the curve fit</td><td>The 46 tests cover the backend; <code>curve_fit.js</code> runs in the browser and is checked by hand.</td><td>Test it against curves with known parameters</td></tr>
           <tr><td>Rising responses only</td><td>A sensor whose fluorescence falls with its target gives no curve.</td><td>Support a falling 4PL</td></tr>
-          <tr><td>An approximate interval</td><td>The delta method with 1.96 is somewhat too narrow with few tubes.</td><td>The flattest 5% of the curve is already excluded</td></tr>
+          <tr><td>An approximate interval</td><td>The delta method with 1.96 gives an approximate 95% confidence interval. Its coverage has not been validated and may be inaccurate with few tubes or strong non-linearity.</td><td>Check coverage using simulations, bootstrap or another appropriate method; the existing upper-range cutoff does not establish interval coverage</td></tr>
           <tr><td>No cell-density correction on CAPTURE-Screen</td><td>Samples at a different OD than the standards convert wrongly.</td><td>Add it to the signal definition</td></tr>
           <tr><td>No direct import of reader files</td><td>Files such as SoftMax Pro <code>.sda</code> are not read; the plate is pasted instead.</td><td>Add readers' formats as they are needed</td></tr>
           <tr><td>Browser-only storage</td><td>Clearing site data deletes CAPTURE-Screen runs and curves.</td><td>Back up from the Data page; a database later</td></tr>
@@ -1173,14 +1057,6 @@ powershell -ExecutionPolicy Bypass -File scripts\dev.ps1      # starts LasReader
     </div>
   </section>
 
-  <!-- ========================= references ========================= -->
-  {# 全頁共用一份 References（2026-10-18 從 §3.6 移到 Part 4 之後、Plate Imaging 之前（和 Plate Imaging 無關，不放它後面））。只放數據格式與數據分析、擬合的引用（2026-10-18 團隊決定）：96-well、CSV、MEFL、4PL、
-     LOD/LOQ、Bland–Altman。硬體（sfGFP、AS7341）、通訊協定（OpenAPI、WebSocket、JSON）
-     和 SBOL 的引用已拿掉，Table 1、Table 2 的那些列也就沒有引用號。
-     2026-10-17 每一筆都在出版者頁面核對過作者、年份、卷期頁與 DOI：SLAS、RFC Editor、PLOS、
-     Springer、De Gruyter、SAGE；Armbruster & Pry 在 PubMed Central（該期刊全文的官方存放處）。沒能在出版者頁面
-     確認的沒有放：Bland & Altman 1986（Lancet 要過 CAPTCHA）、MacDougall et al. 1980
-     （ACS 擋機器人，看不到內文）。 #}
   <section id="references">
     <h2 data-toc-title="References">References</h2>
     <p class="hw-refs-note">
@@ -1235,10 +1111,6 @@ powershell -ExecutionPolicy Bypass -File scripts\dev.ps1      # starts LasReader
     </ol>
   </section>
 
-  {# ======================================================================
-     Also in LasReader: Plate Imaging · Agar Vision
-     和 workflow 無關，所以放在最後、獨立一區。
-     ====================================================================== #}
   <header class="md-part sw-apart" id="part-swarming" data-toc-group data-toc-no="+" data-toc-apart>
     <p class="md-part-no">Also in LasReader</p>
     <h2 data-toc-title="Plate Imaging · Agar Vision">Plate Imaging &middot; Agar Vision</h2>
