@@ -3298,7 +3298,11 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 1.5rem;
-  align-items: end;
+  /* Stretch, not end: the two cards are then the same height and their
+     pictures start on the same line, which is what a reader comparing two
+     gels looks at first. The shared aspect-ratio box below already makes the
+     pictures the same size, so nothing is left to align at the foot. */
+  align-items: stretch;
   margin: 1.5rem 0;
 }
 .eng-figure-pair .eng-figure { margin: 0; }
@@ -3328,6 +3332,30 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
 /* A pair held well under the column width, so each panel sits nearer the
    size a single figure gets on this page rather than filling the measure. */
 .eng-figure-pair-narrow { max-width: 720px; margin-inline: auto; }
+/* ---- Stage figures as framed cards --------------------------------------
+   The figures sat bare on the page: a gel photographed on white read as a
+   white rectangle floating in the dark, a plate photographed on black had no
+   edge at all, and captions centred by .text-center ragged as soon as they
+   ran past one line. Framing them does for Engineering what .res-figure
+   already does for Results -- one card shape, the part's colour along the top
+   edge, the caption flush left under the picture. Which figure sits where is
+   untouched; this is the frame around it. */
+body.hw-nexus .hw .eng-figure {
+  padding: 0.85rem;
+  border: 1px solid var(--nx-line);
+  border-top: 3px solid color-mix(in srgb, var(--part, var(--nx-mint)) 55%, var(--nx-line));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--nx-panel) 65%, transparent);
+}
+body.hw-nexus .hw .eng-figure > img { border-radius: 8px; }
+/* The picture stays centred in its card. Only the words go flush left, which
+   is where a caption of two or three lines is easier to read. */
+body.hw-nexus .hw .eng-figure figcaption { text-align: left; }
+/* A floated card is narrow to begin with, so it takes a tighter inset and a
+   little more width, leaving the picture about the size it had before. */
+body.hw-nexus .hw .eng-figure-float { width: min(42%, 312px); padding: 0.6rem; }
+body.hw-nexus .hw .eng-sub-2 .eng-figure-float { width: min(38%, 272px); }
+
 /* Where the stage's content will go: an empty frame in the stage's colour,
    so the layout can be judged before the text arrives. */
 .eng-dbtl-empty {
