@@ -25,12 +25,12 @@
 
   var MIN = 2;
   var OFFSET = 130;          /* a heading counts as "reached" this far below the top */
-  /* data-toc-icon on a part's heading: a summary (lines of text) or reference
-     matter (an open book), in place of a character in the badge */
-  var ICONS = {
-    summary: "M4 4.5h8M4 8h8M4 11.5h5",
-    refs: "M8 4.5C6.8 3.6 5.2 3.2 3 3.2v8.6c2.2 0 3.8.4 5 1.3 1.2-.9 2.8-1.3 5-1.3V3.2c-2.2 0-3.8.4-5 1.3zM8 4.5v8.6"
-  };
+  /* data-toc-icon on a part's heading: a summary or reference matter, in place
+     of a character in the badge. Both are drawn as the same lines of text, so
+     every part set apart from the numbered run carries one mark across the
+     site (the open book reference matter had is gone). */
+  var LINES = "M4 4.5h8M4 8h8M4 11.5h5";
+  var ICONS = { summary: LINES, refs: LINES };
   var aside = null, list = null, items = [], signature = "", ticking = false, pinned = null;
   /* A page that is split into numbered parts can ask for them to be drawn as
      parts (data-toc-style="parts" anywhere on the page, the Software page for
