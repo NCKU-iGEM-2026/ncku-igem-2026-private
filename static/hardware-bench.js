@@ -244,7 +244,7 @@
       "on-gfp@0916-dark": {
         vals: { F2: 6.00, F3: 12.00, F4: 29.67, Clear: 37.67 }, tone: "ok",
         text: "Undiluted GFP culture stock, displayed OD 1.56. At half this GFP fraction the emission channel read about 16 to 20 counts in the same session, and with no GFP present it read zero.",
-        src: "Mixing session 1, CAL_B12_d100_f100, three cycles · session evidence, not a change of project status"
+        src: "Mixing session 1, CAL_B12_d100_f100, three cycles"
       },
       "on-ctrl@0916-dark": {
         vals: { F2: 5.67, F3: 4.67, F4: 0, Clear: 8.00 }, tone: "ok",
@@ -275,7 +275,7 @@
       "on-gfp@0921-dark": {
         vals: { F2: 5.33, F3: 7.33, F4: 7.00, Clear: 19.33 }, tone: "ok",
         text: "Undiluted GFP stock again, and the same detector settings, but this stock was thin: a displayed OD of 0.49, against 1.56 five days earlier. It reads 7 where that one read 29.67, and its replicate tube read 5.33. How far the density of the stock accounts for the difference is worked through on the Model page.",
-        src: "Mixing session 2, CAL_C09r1_d100_f100, three cycles · replicate CAL_C09r2 · session evidence, not a change of project status"
+        src: "Mixing session 2, CAL_C09r1_d100_f100, three cycles · replicate CAL_C09r2"
       },
       "on-ctrl@0921-dark": {
         vals: { F2: 0, F3: 0, F4: 0, Clear: 1.33 }, tone: "ok",
@@ -306,7 +306,7 @@
       "on-gfp@0929-dark": {
         vals: { F2: 0.33, F3: 5.33, F4: 18.00, Clear: 21.67 }, tone: "ok",
         text: "Undiluted GFP stock, displayed OD 1.10. Its replicate tube read 20.00. At half this GFP fraction six tubes averaged 9.33, so doubling the GFP culture multiplied the reading by 2.04.",
-        src: "Mixing session 3, ATN_D_1, three cycles · replicate ATN_D_2 · session evidence, not a change of project status"
+        src: "Mixing session 3, ATN_D_1, three cycles · replicate ATN_D_2"
       },
       "on-ctrl@0929-dark": {
         vals: { F2: 6.00, F3: 5.33, F4: 0, Clear: 10.00 }, tone: "ok",
@@ -342,7 +342,7 @@
       "on-gfp@1005-dark": {
         vals: { F1: 0, F2: 25.00, F3: 37.00, F4: 98.33, F5: 33.00, F6: 8.00, F7: 3.33, F8: 0.67, Clear: 135.00, NIR: 0 }, tone: "ok",
         text: "Undiluted GFP culture, 200 µL, read at the end of the session. The green falls away from the emission channel: 98 at F4, 33 at F5, 8 at F6. At half this amount two tubes read 56.00 and 50.33 on F4.",
-        src: "Dilution series, EXT_GFP200_1, three cycles · version 2 · session evidence, not a change of project status"
+        src: "Dilution series, EXT_GFP200_1, three cycles · version 2"
       },
       "on-ctrl@1005-dark": {
         vals: { F1: 0, F2: 31.00, F3: 23.00, F4: 0, F5: 0, F6: 0, F7: 0, F8: 0, Clear: 44.00, NIR: 0 }, tone: "ok",
@@ -373,7 +373,7 @@
       "on-gfp@1012-dark": {
         vals: { F1: 0, F2: 21.44, F3: 31.56, F4: 86.44, F5: 29.11, F6: 6.89, F7: 2.22, F8: 0.11, Clear: 117.22, NIR: 0 }, tone: "ok",
         text: "Undiluted sfGFP test culture, at an OD600 of 0.86 on the plate reader beside it. The green falls away from the emission channel: 86 at F4, 29 at F5, 7 at F6. There is no emission filter in the reader.",
-        src: "Plate reader comparison, XC_G100, nine cycles · version 2 · session evidence, not a change of project status"
+        src: "Plate reader comparison, XC_G100, nine cycles · version 2"
       },
       "on-ctrl@1012-dark": {
         vals: { F1: 0, F2: 21.67, F3: 16.56, F4: 0, F5: 0, F6: 0, F7: 0, F8: 0, Clear: 31.56, NIR: 0 }, tone: "ok",
