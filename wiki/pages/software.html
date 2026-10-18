@@ -48,7 +48,8 @@
       Data from any plate reader goes through the same steps.
     </p>
     <p>
-      We built it for our AHL sensor, but the analysis never uses the target's
+      We built it for our AHL sensor
+      (<a href="{{ url_for('pages', page='description') }}">Description</a>), but the analysis never uses the target's
       name. It can be used with other biosensors whose rising response is
       suitable for a 4PL calibration, provided the fit is checked against
       their experimental data.
@@ -64,7 +65,9 @@
   <div class="hw-caution">
     <em>Research use only.</em> LasReader reports concentrations
     <em>inferred</em> from a calibration curve. It is not intended for
-    diagnostic use.
+    diagnostic use: at this stage the project detects signals and does not
+    diagnose infections, as Prof. Nan-Si Li put it
+    (<a href="{{ url_for('pages', page='meet-with-experts') }}#expert-li">Meet with experts</a>).
   </div>
 
   <nav class="sw-map-wrap" aria-labelledby="swMapTitle">
@@ -164,6 +167,14 @@
         </p>
       </div>
     </div>
+    <p>
+      Prof. Nan-Si Li advised us to design the whole workflow, sample to
+      answer: preparing the specimen, the sensing reaction, reading the
+      fluorescence on a portable instrument, and interpreting the data in
+      software
+      (<a href="{{ url_for('pages', page='meet-with-experts') }}#expert-li">Meet with experts</a>).
+      CAPTURE-Screen is the third of those steps and LasReader the fourth.
+    </p>
   </section>
 
   <section id="tools">
@@ -336,7 +347,7 @@
           <div class="sw-flow-soft">
             <p class="sw-flow-k">LasReader does</p>
             <ul>
-              <li>Self-checks CAPTURE-Screen with a buffer-only cuvette, and flags any tube that saturated, scattered more than the blank, or was read under other settings.</li>
+              <li>Self-checks CAPTURE-Screen with a buffer-only cuvette, and flags any tube that saturated, scattered more than the blank, or was read under other settings. The scatter check matters: a culture without the reporter can still read a few counts once it scatters enough, so the scatter channel has to be read beside the green one (<a href="{{ url_for('pages', page='engineering') }}#eng-reader-c2">Engineering</a>, reader cycle&nbsp;2).</li>
               <li>Excludes a reading only with a written reason, and keeps it in the export.</li>
             </ul>
             <p class="sw-flow-where">In <a href="#tool-capture">CAPTURE-Screen</a> &rarr; Instrument, and every fit</p>
@@ -483,7 +494,7 @@
         &theta;&#770; = arg&nbsp;min<sub>&theta;</sub> &Sigma;<sub><var>i</var></sub> {{ frac('(<var>y<sub>i</sub></var> &minus; <var>F</var>(<var>c<sub>i</sub></var>; &theta;))<sup>2</sup>', '&sigma;<sub><var>i</var></sub><sup>2</sup>') }},
         <span class="sw-sep"></span>&sigma;<sub><var>i</var></sub><sup>2</sup> = max(<var>s<sub>i</sub></var><sup>2</sup>, <var>a</var> + <var>b</var><var>y<sub>i</sub></var><sup>2</sup>)
         <span class="sw-eq-no">(3)</span>
-        <span class="md-eqnote">where <var>y<sub>i</sub></var> is reading <var>i</var> at concentration <var>c<sub>i</sub></var>, and <var>s<sub>i</sub></var> its own read-noise SD (CAPTURE-Screen measures it on every read; it is 0 for a plate reader). The sum is minimised by Levenberg&ndash;Marquardt.</span>
+        <span class="md-eqnote">where <var>y<sub>i</sub></var> is reading <var>i</var> at concentration <var>c<sub>i</sub></var>, and <var>s<sub>i</sub></var> its own read-noise SD (CAPTURE-Screen measures it on every read; it is 0 for a plate reader). The sum is minimised by Levenberg&ndash;Marquardt. The read noise alone would understate the scatter: on the first CAPTURE-Screen prototype, seating and preparing the tube outweighed the noise of the reading itself in four of seven replicate groups (<a href="{{ url_for('pages', page='model') }}#model-data">Model 3.1</a>).</span>
       </div>
       <div class="sw-eq md-eqset">
         &Sigma;<sub>&theta;</sub> = {{ frac('&chi;<sup>2</sup><sub>min</sub>', '<var>N</var> &minus; 4') }} (<var>J</var><sup>&#8868;</sup><var>W</var><var>J</var>)<sup>&minus;1</sup>
@@ -927,7 +938,10 @@
     <h2 data-toc-title="3.5 Run it, build on it"><span class="sw-h-no">3.5</span>Run it, build on it</h2>
     <p>
       Most teams only need the first path below. The other two are for running
-      your own copy and for connecting a CAPTURE-Screen.
+      your own copy and for connecting a CAPTURE-Screen. HIA-Taiwan, a
+      high-school iGEM team, has already asked us about the code's
+      programming structure
+      (<a href="{{ url_for('pages', page='collaboration') }}#session-hia">Collaboration</a>).
     </p>
 
     <p class="sw-run-k"><span class="sw-idea-n">1</span>Use it in the browser</p>
@@ -1015,9 +1029,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
   </header>
   <p class="sw-takeaway">
     LasReader runs end to end on real instruments: a commercial plate
-    reader, our own reader at the bench, and photos of real plates. What it
-    cannot show yet is a validated concentration, because that needs a
-    biosensor response to calibrate against.
+    reader, our own reader at the bench, and photos of real plates, where
+    its measurements agree with a ruler to within 0.71&nbsp;mm on average.
+    What the fluorescence tools cannot show yet is a validated
+    concentration, because that needs a biosensor response to calibrate
+    against.
   </p>
 
   <section id="results">
@@ -1029,18 +1045,18 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
         <tbody>
           <tr>
             <td>Plate Reader Assay</td>
-            <td>A SpectraMax M3 plate of our biosensor: pasted as the reader exported it, wells marked, normalized to OD600 against a medium blank, fitted and exported (Figure 2)</td>
+            <td>A SpectraMax M3 plate of our biosensor: pasted as the reader exported it, wells marked, normalized to OD600 against a medium blank, fitted and exported (Figure 2).</td>
             <td><span class="sw-yes">Every step</span></td>
           </tr>
           <tr>
             <td>CAPTURE-Screen</td>
-            <td>Our reader at the bench, calibrating tube by tube (Figures 3&ndash;5)</td>
+            <td>Our reader at the bench, calibrating tube by tube (Figures 3&ndash;5). What the reader itself measured on GFP cultures is on the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page and in <a href="{{ url_for('pages', page='engineering') }}#eng-reader-c2">Engineering</a> (reader, cycle&nbsp;2).</td>
             <td><span class="sw-yes">Workflow run</span></td>
           </tr>
           <tr>
             <td>Plate Imaging &middot; Agar Vision</td>
-            <td>The agar plate on the <a href="{{ url_for('pages', page='results') }}">Results</a> page; its halo measurement is the one reported there</td>
-            <td><span class="sw-yes">In our results</span></td>
+            <td>Plates measured for the wet lab: the biosensor's fluorescent halo on agar (<a href="{{ url_for('pages', page='results') }}">Results</a>; <a href="{{ url_for('pages', page='engineering') }}#eng-detect-c2">Engineering</a>, detection cycle&nbsp;2), and swarming plates, as a cross-check on ImageJ (<a href="{{ url_for('pages', page='engineering') }}#eng-inhibition-c1-test">Engineering</a>, inhibition cycle&nbsp;1). Against a ruler on 14 colonies from 8 to 26&nbsp;mm, it read within 0.71&nbsp;mm on average, every colony within 2&nbsp;mm, with no bias the data can separate from zero (<a href="{{ url_for('pages', page='model') }}#model-zone-validation">Model 2.5</a>).</td>
+            <td><span class="sw-yes">Validated</span></td>
           </tr>
           <tr>
             <td>Fitting module</td>
@@ -1075,6 +1091,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
           <tr><td>A checked interval</td><td>The delta method with 1.96 gives an approximate 95% CI. Its coverage has not been measured and may fall short with few standards.</td><td>Measure its coverage by simulation; use a <var>t</var> quantile if it falls short</td></tr>
           <tr><td>Clearer OD normalization</td><td>Not yet confirmed against the wet lab's protocol. A change in OD600 alone also moves fluorescence &divide; OD600, and the result does not show which one moved.</td><td>Confirm the protocol; show raw fluorescence and OD600 beside the normalized signal</td></tr>
           <tr><td>A cleaner CAPTURE-Screen signal</td><td>The F4 channel alone also picks up autofluorescence and scattered light, and there is no cell-density correction, so samples at a different OD from the standards convert wrongly.</td><td>Unmix with a measured sfGFP spectrum; add cell density to the signal</td></tr>
+          <tr><td>Plate Imaging on harder photos</td><td>The scale assumes the plate was photographed square-on, and a reflection bright and even enough to have a dense centre can still be read as a colony (<a href="{{ url_for('pages', page='model') }}#model-zone-limits">Model 2.7</a>).</td><td>Photograph square-on, lid off, away from overhead light; measure how much tilt a comparison within one plate tolerates</td></tr>
         </tbody>
       </table>
     </div>
