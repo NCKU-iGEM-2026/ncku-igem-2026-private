@@ -293,7 +293,16 @@
     Wiki、Judging Form、Attributions Form 都在 2026-10-21 23:00（台灣時間）凍結。
 #}
 
-<div class="container my-4 hw">
+{# 左側目錄（static/page-toc.js）用編號分組的樣式，與 Model、Software 同一套：
+   每一節是一個編號，兩台機器的標題是第 4 節，底下列出那一台的各小節；
+   切換機器時目錄會跟著換（hardware-builds.js 切換後會發 resize，page-toc.js 會重建）。
+   兩台的 data-toc-group 標在 hardware-printed.html／hardware-laser-cut.html 的 hw-build-head 上。
+   References 用三條線的圖示、不編號，與 Lab Book、Safety 一樣。 #}
+{# 2026-10-18 最終檢查：How we got here 的 Model 連結原本是 3.5（#model-inverse）與 3.6；Model 第三部分重排後
+   #model-inverse 不在了，反推模型與背景都在 3.5（#model-rebuilt），3.6 是 Assumptions and limits，所以只連 3.5。
+   兩台機器卡片的 Data 一行改成逐項列出（原本「a dilution series…, one beside a plate reader」讀起來像兩個稀釋系列）。
+   參考文獻 1 原本只寫 SEN0365，但雷切機用的是 SEN0364（hardware-laser-cut.html 的規格表），兩個都列。 #}
+<div class="container my-4 hw" data-toc-style="parts">
 
   {# 開頭只放兩台共通的事：這是什麼、有兩台、這一頁怎麼排（文字是團隊 2026-10-09 給的；
      藍光 LED 與 90° 偵測在下面 Measurement principle）。講結果的那一段與三個數字是 3D 列印機的，
@@ -347,7 +356,7 @@
      specified.」也拿掉（團隊貼回來的版本沒有這句）。第四格改寫成便宜幾倍、金額放小字：
      比的是 Szymula 2019 的開源 plate reader（under US$3,500，與 3D 列印機成本圖同一個來源，ref 5），
      3500 / 160.62 = 21.8、3500 / 53.54 = 65.4。對方是「低於」3,500，所以這是上限，取整數往下寫 21–65×。 #}
-  <section id="hardware-background">
+  <section id="hardware-background" data-toc-group data-toc-no="1">
     <h2>Background</h2>
 
     <p class="hw-point">
@@ -397,7 +406,7 @@
   {# 兩台共同的原理。2026-10-06 拆檔時新增的一節：這兩段是原本 The instrument 開頭那一段拆開的
      （加了第一句，並說明圖畫的是 3D 列印機）；平面圖原樣搬來；下面的摺疊是原本收在 CAD 組裝圖
      下方的示意剖視圖。圖上的尺寸與座標都是 3D 列印機的。 #}
-  <section id="hardware-principle">
+  <section id="hardware-principle" data-toc-group data-toc-no="2">
     <h2>Measurement principle</h2>
 
     {# 2026-10-11：加了第二句。兩台都沒有發射端濾光片是頁面上本來就有的事實（雷切機的規格表寫 None；
@@ -740,7 +749,7 @@
      縮圖：兩台用同一個角度、同一個背景拍，橫式 4:3。上傳到 static.igem.wiki 之後，把卡片裡的
      PHOTO 註解換成
        <figure class="hw-pick-photo"><img src="https://static.igem.wiki/teams/6379/wiki/hardware/檔名.webp" alt="照片裡看得到什麼"></figure> #}
-  <section id="hardware-builds">
+  <section id="hardware-builds" data-toc-group data-toc-no="3">
     <h2>The two builds</h2>
 
     <p class="hw-point">
@@ -774,7 +783,7 @@
         <dl class="hw-spec">
           <div><dt>Run from</dt><dd>Serial commands, or LasReader (<a href="{{ url_for('pages', page='software') }}">our software</a>)</dd></div>
           <div><dt>Version</dt><dd>Second, built 2026-10-03</dd></div>
-          <div><dt>Data</dt><dd>Three mixing sessions and a dilution series with GFP culture, one beside a plate reader, one session on AHL plates and one on how dense a culture can be. The <a href="{{ url_for('pages', page='model') }}">Model</a> page works through the mixing sessions</dd></div>
+          <div><dt>Data</dt><dd>Three mixing sessions, a dilution series of GFP culture, a session beside a plate reader, one on AHL plates and one on how dense a culture can be. The <a href="{{ url_for('pages', page='model') }}">Model</a> page works through the mixing sessions</dd></div>
         </dl>
         <a class="hw-pick-go" href="#printed"><span class="hw-pick-see">See the 3D-printed build</span><span class="hw-pick-now">Showing below</span></a>
       </div>
@@ -812,7 +821,7 @@
   {# 2026-10-17（組員提出、硬體負責人同意）：這一節原本在 Background 的結尾。Background 講的是問題；這一節講開發經過
      與結果，放在前面會提前講到還沒出現的東西（分不出感測菌、和 plate reader 並排）。所以搬到兩台機器之後、
      參考文獻之前，放在切換兩台的區塊外面，兩台都看得到。內容沒有改，只把小標升成這一節的標題。 #}
-  <section id="hardware-story">
+  <section id="hardware-story" data-toc-group data-toc-no="5">
     {# 2026-10-13：硬體負責人的敘事（中文原話的大意）：一開始的目標是測 GFP；預想 wet lab 的 AHL 誘導如果成功且明顯，
        螢光會與 GFP 相當，所以第一階段都用 GFP 做預備；過程中發現散射的影響，嘗試用模型與各通道的資訊濾除；
        拿到 wet lab 的樣品時，樣品更濃稠、誘導不夠明顯，與預期有落差、觀測的維度也不同；承認專業儀器有其必要；
@@ -863,8 +872,7 @@
       the way we found that how dense a sample is changes the reading, and
       worked on taking that out with a model and with the reader&rsquo;s other
       channels
-      (<a href="{{ url_for('pages', page='model') }}#model-inverse">Model 3.5</a>,
-      <a href="{{ url_for('pages', page='model') }}#model-rebuilt">3.6</a>).
+      (<a href="{{ url_for('pages', page='model') }}#model-rebuilt">Model 3.5</a>).
     </p>
 
     <p>
@@ -887,11 +895,11 @@
   <!-- ========================= references ========================= -->
   {# 2026-10-04 新增。四個元件的規格書與 sfGFP 的原始論文，每一條都實際查過存在。
      Best Wiki 的第五題問的是引用；本頁原本沒有任何外部連結。 #}
-  <section id="hardware-references">
+  <section id="hardware-references" data-toc-group data-toc-icon="refs" data-toc-apart>
     <h2>References</h2>
 
     <ol class="hw-refs">
-      <li id="hardware-ref-1">ams OSRAM. <cite>AS7341 11-Channel Multi-Spectral Digital Sensor</cite>, datasheet DS000504, v3-00, 2020. <a href="https://ams-osram.com/products/sensor-solutions/ambient-light-color-spectral-proximity-sensors/ams-as7341-11-channel-spectral-color-sensor" rel="noopener">ams-osram.com</a>. The board used is the DFRobot SEN0365: <a href="https://wiki.dfrobot.com/sen0365/" rel="noopener">wiki.dfrobot.com/sen0365</a>.</li>
+      <li id="hardware-ref-1">ams OSRAM. <cite>AS7341 11-Channel Multi-Spectral Digital Sensor</cite>, datasheet DS000504, v3-00, 2020. <a href="https://ams-osram.com/products/sensor-solutions/ambient-light-color-spectral-proximity-sensors/ams-as7341-11-channel-spectral-color-sensor" rel="noopener">ams-osram.com</a>. The 3D-printed build uses the DFRobot SEN0365 board (<a href="https://wiki.dfrobot.com/sen0365/" rel="noopener">wiki.dfrobot.com/sen0365</a>), the laser-cut build the DFRobot Gravity SEN0364 (<a href="https://wiki.dfrobot.com/sen0364" rel="noopener">wiki.dfrobot.com/sen0364</a>).</li>
       <li id="hardware-ref-2">P&eacute;delacq J-D, Cabantous S, Tran T, Terwilliger TC, Waldo GS. Engineering and characterization of a superfolder green fluorescent protein. <cite>Nature Biotechnology</cite> 24, 79&ndash;88 (2006). <a href="https://doi.org/10.1038/nbt1172" rel="noopener">doi:10.1038/nbt1172</a></li>
       <li id="hardware-ref-3">Cree LED. <cite>Cree 5-mm Blue and Green Round LED, C503B-BAS/BAN/BCS/BCN/GAS/GAN/GCS/GCN</cite>, product family data sheet CLD-CT1094. <a href="https://www.farnell.com/datasheets/1975638.pdf" rel="noopener">PDF, hosted by Farnell</a></li>
       <li id="hardware-ref-4">Eppendorf. <cite>Eppendorf UVette</cite>, product page. <a href="https://www.eppendorf.com/us-en/Products/Lab-Consumables/Cuvettes/Eppendorf-UVette-p-PF-9817" rel="noopener">eppendorf.com</a></li>
