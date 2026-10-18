@@ -43,8 +43,9 @@
       install. With CAPTURE-Screen, our low-cost reader
       (<a href="{{ url_for('pages', page='hardware') }}">Hardware</a>), the
       instrument is part of the workflow: LasReader checks the reader, shows
-      which tube to read next, reads each one in a click, and gives every
-      sample's concentration with an approximate 95% confidence interval.
+      which tube to read next, reads each one in a click, and gives each
+      sample inside the curve's usable range a concentration with an
+      approximate 95% confidence interval.
       Data from any plate reader goes through the same steps.
     </p>
     <p>
@@ -84,7 +85,7 @@
         <a href="#part-model">
           <span class="sw-map-no" aria-hidden="true">2</span>
           <span class="sw-map-name">How it decides</span>
-          <span class="sw-map-q">The five ideas behind each number, from the curve's shape to its approximate 95% confidence interval.</span>
+          <span class="sw-map-q">The five steps behind each number, from the curve's shape to its approximate 95% confidence interval.</span>
         </a>
       </li>
       <li>
@@ -213,9 +214,9 @@
         </p>
         <p><span class="sw-flow-chips">Steps 1&ndash;5, 7</span></p>
       </div>
-      {{ shot('Pasting a plate and marking its wells: standards, samples and medium blanks.',
+      {{ shot('Pasting a plate and marking its wells: standards and medium blanks.',
               fig='Figure 2',
-              src='https://static.igem.wiki/teams/6379/wiki/software/plate-reader-assay.avif',
+              src='https://static.igem.wiki/teams/6379/wiki/software/plate-reader-assay-2.avif',
               alt='Plate Reader Assay, step 1. Experiment details, then a fluorescence plate and an OD600 plate pasted as the reader exported them, and the 8 by 12 plate map with wells marked as standards from 0 to 100,000 nM and as medium blanks.') }}
     </div>
 
@@ -383,7 +384,7 @@
           <div class="sw-flow-soft">
             <p class="sw-flow-k">LasReader does</p>
             <ul>
-              <li>Averages the replicates, converts once, scales by the dilution, and gives an approximate 95% confidence interval.</li>
+              <li>Averages the replicates, converts once, and gives an approximate 95% confidence interval. The Plate Reader Assay also scales the result by the sample's dilution; for a CAPTURE-Screen batch, Cross-Validation applies it.</li>
               <li>Below the usable range or above its upper limit, reports a bound instead of a concentration estimate.</li>
             </ul>
             <p class="sw-flow-where">In <a href="#tool-plate">Plate Reader Assay</a> and <a href="#tool-capture">CAPTURE-Screen</a> &rarr; Measure</p>
@@ -418,8 +419,8 @@
           <div class="sw-flow-soft">
             <p class="sw-flow-k">LasReader does</p>
             <ul>
-              <li>Exports a CSV with every reading, every exclusion and its reason, and every result, plus the curve as a PNG. CAPTURE-Screen backs everything up to one JSON file.</li>
-              <li>Because every reading and exclusion is in the file, anyone can enter them again and get the same curve.</li>
+              <li>The Plate Reader Assay exports one CSV with every reading, every exclusion and its reason, and every result, plus the curve as a PNG. CAPTURE-Screen exports each calibration run and each measurement batch as CSV (a batch with its exclusions and reasons), and keeps a curve's own exclusions with the curve, in the JSON file it backs everything up to.</li>
+              <li>With the readings and the exclusions, anyone can enter them again and get the same curve.</li>
             </ul>
             <p class="sw-flow-where">In every tool</p>
           </div>
@@ -594,7 +595,7 @@
       (<var>T</var>&nbsp;&gt;&nbsp;<var>B</var>); and the interval in (8) is a
       first-order approximation with 1.96. Its coverage has not been
       validated and may be inaccurate with few tubes or strong non-linearity.
-      These are listed with the other limits in
+      What comes next for them is in
       <a href="#limits">Table 6</a>.
     </p>
     <p class="hw-aside">

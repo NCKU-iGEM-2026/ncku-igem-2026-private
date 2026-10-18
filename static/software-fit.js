@@ -301,7 +301,7 @@
       result.innerHTML = "";
       const big = document.createElement("strong");
       big.textContent = "≈ " + conc(r.concentration_nM);
-      result.append(big, document.createTextNode(` 95% CI ${num(r.ci95_nM[0])} – ${conc(r.ci95_nM[1])}`));
+      result.append(big, document.createTextNode(` approx. 95% CI ${num(r.ci95_nM[0])} – ${conc(r.ci95_nM[1])}`));
       renderPlot({ F, c: r.concentration_nM, ci: r.ci95_nM });
     } else {
       result.className = "sw-try-result is-bound";
