@@ -25,6 +25,12 @@
 
   var MIN = 2;
   var OFFSET = 130;          /* a heading counts as "reached" this far below the top */
+  /* data-toc-icon on a part's heading: a summary (lines of text) or reference
+     matter (an open book), in place of a character in the badge */
+  var ICONS = {
+    summary: "M4 4.5h8M4 8h8M4 11.5h5",
+    refs: "M8 4.5C6.8 3.6 5.2 3.2 3 3.2v8.6c2.2 0 3.8.4 5 1.3 1.2-.9 2.8-1.3 5-1.3V3.2c-2.2 0-3.8.4-5 1.3zM8 4.5v8.6"
+  };
   var aside = null, list = null, items = [], signature = "", ticking = false, pinned = null;
   /* A page that is split into numbered parts can ask for them to be drawn as
      parts (data-toc-style="parts" anywhere on the page, the Software page for
@@ -83,6 +89,7 @@
       target.style.scrollMarginTop = "104px";
       out.push({ id: id, title: t, el: h, group: !!group,
         no: group ? group.getAttribute("data-toc-no") || "" : "",
+        icon: group ? group.getAttribute("data-toc-icon") || "" : "",
         apart: !!(group && group.hasAttribute("data-toc-apart")) });
     });
     /* Headings that sit side by side (the team's columns) are not a sequence to
@@ -212,7 +219,10 @@
         var no = document.createElement("span");
         no.className = "page-toc-no";
         no.setAttribute("aria-hidden", "true");
-        no.textContent = f.no;
+        /* a part outside the numbered run (data-toc-apart) can name an icon
+           instead of a character; drawn like the open / close chevron */
+        if (ICONS[f.icon]) no.innerHTML = '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="' + ICONS[f.icon] + '"/></svg>';
+        else no.textContent = f.no;
         var name = document.createElement("span");
         name.textContent = f.title;
         a.appendChild(no);
