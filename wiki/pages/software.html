@@ -276,7 +276,7 @@
       With OD normalization enabled, the Plate Reader Assay uses
       <code>(F_sample &minus; mean F_medium) / (OD_sample &minus; mean OD_medium)</code>.
       This implementation still needs to be confirmed against the wet lab's
-      protocol (<a href="#limits">Table 5</a>).
+      protocol (<a href="#limits">Table 6</a>).
     </p>
 
     <div class="sw-flow" id="swFlow">
@@ -584,7 +584,7 @@
       first-order approximation with 1.96. Its coverage has not been
       validated and may be inaccurate with few tubes or strong non-linearity.
       These are listed with the other limits in
-      <a href="#limits">Table 5</a>.
+      <a href="#limits">Table 6</a>.
     </p>
     <p class="hw-aside">
       Steps 1&ndash;4 can be tried on your own readings in
@@ -1022,38 +1022,52 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
 
   <section id="results">
     <h2 data-toc-title="4.1 What it has done"><span class="sw-h-no">4.1</span>What it has done</h2>
-    <ul>
-      <li>
-        <strong>Plate Reader Assay.</strong> A real SpectraMax M3 plate of
-        our biosensor went through every step: pasted as the reader exported
-        it, wells marked, normalized to OD600 against a medium blank, fitted
-        and exported (Figure 2 shows the first step). Converting real samples
-        waits on the biosensor's response to AHL, which our wet lab is still
-        establishing (<a href="{{ url_for('pages', page='engineering') }}">Engineering</a>).
-      </li>
-      <li>
-        <strong>CAPTURE-Screen.</strong> Its calibration workflow has run on
-        the reader at the bench (Figures 3&ndash;5).
-      </li>
-      <li>
-        <strong>Plate Imaging &middot; Agar Vision.</strong> Its measurement
-        of the fluorescent halo is the one reported on the
-        <a href="{{ url_for('pages', page='results') }}">Results</a> page.
-      </li>
-      <li>
-        <strong>The code itself.</strong> The fit in
-        <a href="#try">&sect;3.2</a> is the app's own module, unchanged, so
-        it can be tried on this page; the backend passes its 46 automated
-        tests (<a href="#run">&sect;3.5</a>).
-      </li>
-    </ul>
+    <div class="hw-figure">
+      <table class="hw-table">
+        <caption><strong>Table 5.</strong> What each part of LasReader has run on</caption>
+        <thead><tr><th scope="col">Part</th><th scope="col">Run on</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Plate Reader Assay</td>
+            <td>A SpectraMax M3 plate of our biosensor: pasted as the reader exported it, wells marked, normalized to OD600 against a medium blank, fitted and exported (Figure 2)</td>
+            <td><span class="sw-yes">Every step</span></td>
+          </tr>
+          <tr>
+            <td>CAPTURE-Screen</td>
+            <td>Our reader at the bench, calibrating tube by tube (Figures 3&ndash;5)</td>
+            <td><span class="sw-yes">Workflow run</span></td>
+          </tr>
+          <tr>
+            <td>Plate Imaging &middot; Agar Vision</td>
+            <td>The agar plate on the <a href="{{ url_for('pages', page='results') }}">Results</a> page; its halo measurement is the one reported there</td>
+            <td><span class="sw-yes">In our results</span></td>
+          </tr>
+          <tr>
+            <td>Fitting module</td>
+            <td>This page: <a href="#try">&sect;3.2</a> runs the app's own <code>curve_fit.js</code>, unchanged</td>
+            <td><span class="sw-yes">Try it here</span></td>
+          </tr>
+          <tr>
+            <td>Backend</td>
+            <td>Its automated tests (<a href="#run">&sect;3.5</a>)</td>
+            <td><span class="sw-yes">46 of 46 pass</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Converting real samples into concentrations waits on the biosensor's
+      response to AHL, which our wet lab is still establishing
+      (<a href="{{ url_for('pages', page='engineering') }}">Engineering</a>).
+      That, and what else comes next, is in <a href="#limits">Table 6</a>.
+    </p>
   </section>
 
   <section id="limits">
     <h2 data-toc-title="4.2 Next steps"><span class="sw-h-no">4.2</span>Next steps</h2>
     <div class="hw-figure">
       <table class="hw-table">
-        <caption><strong>Table 5.</strong> What comes next, and why</caption>
+        <caption><strong>Table 6.</strong> What comes next, and why</caption>
         <thead><tr><th scope="col">Next</th><th scope="col">Why it matters</th><th scope="col">How</th></tr></thead>
         <tbody>
           <tr><td>Validation on real samples</td><td>Waits on a biosensor response. Until then, no concentration has been checked against a sample of known concentration, and no fit compared with an established fitting tool.</td><td>Spiked samples once the biosensor responds; the same readings fitted in an established tool</td></tr>
