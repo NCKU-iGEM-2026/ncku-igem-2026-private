@@ -180,9 +180,19 @@
     shot.height = canvas.height;
     var shotCtx = shot.getContext('2d');
 
+    // 預覽是 object-fit: cover（等比例放大填滿、裁掉多的），存檔也要照同一套裁法。
+    // 以前直接把整段影像拉伸成 canvas 的大小：桌機鏡頭剛好 16:9 看不出來，
+    // 但手機前鏡頭是 4:3 或直式，存下來的照片會整個被壓扁。
+    var vw = video.videoWidth || shot.width;
+    var vh = video.videoHeight || shot.height;
+    var cover = Math.max(shot.width / vw, shot.height / vh);
+    var drawW = vw * cover;
+    var drawH = vh * cover;
+
     shotCtx.save();
+    shotCtx.translate(shot.width, 0);
     shotCtx.scale(-1, 1);
-    shotCtx.drawImage(video, -shot.width, 0, shot.width, shot.height);
+    shotCtx.drawImage(video, (shot.width - drawW) / 2, (shot.height - drawH) / 2, drawW, drawH);
     shotCtx.restore();
 
     drawFrame(shotCtx, activeFilter, shot.width, shot.height);

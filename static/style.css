@@ -1415,6 +1415,75 @@ body.team-bio-locked { overflow: hidden; }
 
 .webcam-start:hover { background: rgba(255,255,255,0.75); }
 
+/* Phones. The desktop layout wraps into one column here, which left the
+   sixteen pills as a 704px single-file list above the camera, a 16:9 stage
+   only 183px tall, and the centred shutter sitting on top of Start Camera.
+
+   Instead: camera first, names below it as a 4x4 grid, so the stage, the
+   shutter and every name fit on one screen and you can switch people
+   without scrolling. The stage goes to 4:3, which is what phone front
+   cameras actually deliver, so it is taller and crops less. The controls
+   become a three-column grid (empty | shutter | start): the shutter stays
+   centred, and if the screen is too narrow the start column grows and
+   pushes the shutter left rather than overlapping it. */
+@media (max-width: 575.98px) {
+  .webcam-layout {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding: 0;
+    margin-top: 2rem;
+    overflow: hidden;
+  }
+
+  .webcam-booth {
+    flex: none;
+    max-width: none;
+    border-radius: 0;
+  }
+
+  .webcam-stage { aspect-ratio: 4 / 3; }
+
+  .webcam-controls {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .webcam-shutter,
+  .webcam-shutter:hover,
+  .webcam-shutter:disabled {
+    position: static;
+    transform: none;
+    grid-column: 2;
+  }
+
+  .webcam-start {
+    grid-column: 3;
+    justify-self: end;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.9rem;
+  }
+
+  .webcam-filters {
+    order: 1;
+    flex: none;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.4rem;
+    padding: 0.75rem;
+  }
+
+  .webcam-filter-btn {
+    min-height: 40px;
+    padding: 0.3rem 0.25rem;
+  }
+
+  /* Touch screens keep :hover after a tap, which left the last pill
+     tapped stuck at 110%. */
+  .webcam-filter-btn:hover { transform: none; }
+}
+
 /* ===== Education: Impact Dashboard ===== */
 .edu-dashboard {
   display: flex;
