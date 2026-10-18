@@ -36,7 +36,8 @@
      parts (data-toc-style="parts" anywhere on the page, the Software page for
      one): a numbered badge per part, the sections of the part being read on
      a rail under it, and a bar for how far down the page the reader is.
-     Every other page keeps the plain list. */
+     Every other page gets the same rail and bar with its sections straight
+     on it -- no badges, nothing to open -- so the two read as one design. */
   var parts = !!host.querySelector('[data-toc-style="parts"]'), bar = null;
   /* Each part's sections open with the part being read, unless the reader has
      opened or closed that part by hand (open: true / false), which then holds. */
@@ -163,8 +164,8 @@
       a.addEventListener("click", function () { pinned = f; });
     });
     nav.appendChild(p);
+    aside.classList.add(parts ? "is-parts" : "is-rail");
     if (parts) {
-      aside.classList.add("is-parts");
       allBtn = document.createElement("button");
       allBtn.type = "button";
       allBtn.className = "page-toc-all";
@@ -174,13 +175,13 @@
         applyOpen();
       });
       p.appendChild(allBtn);
-      var track = document.createElement("div");
-      track.className = "page-toc-progress";
-      track.setAttribute("aria-hidden", "true");
-      bar = document.createElement("span");
-      track.appendChild(bar);
-      nav.appendChild(track);
     }
+    var track = document.createElement("div");
+    track.className = "page-toc-progress";
+    track.setAttribute("aria-hidden", "true");
+    bar = document.createElement("span");
+    track.appendChild(bar);
+    nav.appendChild(track);
     nav.appendChild(list);
     aside.appendChild(nav);
     host.classList.add("has-page-toc");
@@ -309,8 +310,8 @@
         if (f.part) f.part.classList.toggle("is-current", f.part === current.part);
       });
       applyOpen();
-      if (bar) bar.style.width = (room > 0 ? Math.min(100, Math.max(0, window.pageYOffset / room * 100)) : 100) + "%";
     }
+    if (bar) bar.style.width = (room > 0 ? Math.min(100, Math.max(0, window.pageYOffset / room * 100)) : 100) + "%";
     /* keep the active entry in view when the list is longer than the screen */
     var a = current.link, l = list;
     if (l && l.scrollHeight > l.clientHeight) {

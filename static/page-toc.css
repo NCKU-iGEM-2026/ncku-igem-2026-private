@@ -3,12 +3,11 @@
    not shown. The page gets room for it by padding, so nothing on the page has
    to know it is there.
 
-   Drawn the way the Human Practices sidebar (.edu-sidebar) is drawn, so every
-   page's contents read alike: Changa, a small arrow before each entry that
-   turns green once its section has been scrolled past, a tinted pill for the
-   section being read, and a nudge to the right under the pointer. The rules
-   are repeated here rather than shared, because the .edu-sidebar ones come
-   with a collapsing list and a scroll script of their own. */
+   Two forms, one look. A page split into parts (.is-parts: Model, Software,
+   Hardware...) gets a numbered badge per part with that part's sections on a
+   rail under it. Every other page (.is-rail) puts its sections straight on
+   the same rail. Both carry the reading-progress bar on top and mark the
+   section being read with a mint bar on the rail and a tinted pill. */
 .page-toc { display: none; }
 
 @media (min-width: 1200px) {
@@ -35,27 +34,13 @@
   }
   .page-toc-inner::-webkit-scrollbar { display: none; }
 
-  /* the heading of the list, like an .edu-sidebar-group-title */
+  /* the row above the list; holds the Expand all control on a parts list */
   .page-toc-title {
     position: relative;
     margin: 0 0 0.5rem;
-    padding-left: 1.15rem;
     font-family: "Changa", sans-serif;
     font-weight: 700;
     font-size: 1rem;
-    color: #075a3e;
-  }
-  .page-toc-title::before {
-    content: "";
-    position: absolute;
-    left: 4px;
-    top: 50%;
-    width: 0;
-    height: 0;
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent;
-    border-left: 7px solid #075a3e;
-    transform: translateY(-50%);
   }
 
   .page-toc-list {
@@ -65,7 +50,7 @@
   }
   .page-toc-list li { margin: 0; }
 
-  /* each entry, like an .edu-sidebar-link */
+  /* each entry */
   .page-toc-list a {
     position: relative;
     display: block;
@@ -89,31 +74,12 @@
   html[data-theme="dark"] .page-toc-list a:not(.is-active) {
     color: rgb(231, 242, 234);
   }
-  .page-toc-list a::before {
-    content: "";
-    position: absolute;
-    left: 4px;
-    top: 50%;
-    width: 0;
-    height: 0;
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-    border-left: 6px solid #c9bfa8;
-    transform: translateY(-50%);
-    transition: border-left-color 0.2s ease;
-  }
 
   .page-toc-list a:hover,
   .page-toc-list a:focus-visible {
-    color: #075a3e;
+    color: var(--nx-text, var(--c-text));
     transform: translateX(8px);
   }
-  .page-toc-list a:hover::before,
-  .page-toc-list a:focus-visible::before { border-left-color: #075a3e; transform: translate(-8px, -50%); }
-
-  /* scrolled past already: the arrow goes green, nothing else changes */
-  .page-toc-list a.is-passed::before,
-  .page-toc-list a.is-active::before { border-left-color: #075a3e; }
 
   /* the one being read */
   .page-toc-list a.is-active {
@@ -122,46 +88,7 @@
     font-weight: 700;
   }
 
-  .page-toc-list a:focus-visible { outline: 2px solid #075a3e; outline-offset: 1px; }
-
-  /* The deep-teal pages: the same swaps body.edu-nexus makes to the sidebar on
-     Education and SDGs. */
-  body.hw-nexus .page-toc-title,
-  body.edu-nexus .page-toc-title,
-  body.bg-nexus .page-toc-title { color: var(--nx-mint); }
-  body.hw-nexus .page-toc-title::before,
-  body.edu-nexus .page-toc-title::before,
-  body.bg-nexus .page-toc-title::before { border-left-color: var(--nx-mint); }
-  body.hw-nexus .page-toc-list a,
-  body.edu-nexus .page-toc-list a,
-  body.bg-nexus .page-toc-list a { color: var(--nx-muted); }
-  body.hw-nexus .page-toc-list a::before,
-  body.edu-nexus .page-toc-list a::before,
-  body.bg-nexus .page-toc-list a::before { border-left-color: var(--nx-line); }
-  body.hw-nexus .page-toc-list a:hover,
-  body.hw-nexus .page-toc-list a:focus-visible,
-  body.hw-nexus .page-toc-list a.is-active,
-  body.edu-nexus .page-toc-list a:hover,
-  body.edu-nexus .page-toc-list a:focus-visible,
-  body.edu-nexus .page-toc-list a.is-active,
-  body.bg-nexus .page-toc-list a:hover,
-  body.bg-nexus .page-toc-list a:focus-visible,
-  body.bg-nexus .page-toc-list a.is-active { color: var(--nx-lime); }
-  body.hw-nexus .page-toc-list a:hover::before,
-  body.hw-nexus .page-toc-list a:focus-visible::before,
-  body.hw-nexus .page-toc-list a.is-passed::before,
-  body.hw-nexus .page-toc-list a.is-active::before,
-  body.edu-nexus .page-toc-list a:hover::before,
-  body.edu-nexus .page-toc-list a:focus-visible::before,
-  body.edu-nexus .page-toc-list a.is-passed::before,
-  body.edu-nexus .page-toc-list a.is-active::before,
-  body.bg-nexus .page-toc-list a:hover::before,
-  body.bg-nexus .page-toc-list a:focus-visible::before,
-  body.bg-nexus .page-toc-list a.is-passed::before,
-  body.bg-nexus .page-toc-list a.is-active::before { border-left-color: var(--nx-lime); }
-  body.hw-nexus .page-toc-list a:focus-visible,
-  body.edu-nexus .page-toc-list a:focus-visible,
-  body.bg-nexus .page-toc-list a:focus-visible { outline-color: var(--nx-mint); }
+  .page-toc-list a:focus-visible { outline: 2px solid var(--nx-mint, var(--c-teal-deep)); outline-offset: 1px; }
 
   /* A part of a page split into parts (data-toc-group): a small uppercase
      title with room above it, so the entries under it read as its own. */
@@ -173,25 +100,24 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  body.hw-nexus .page-toc-list li.page-toc-group > a { color: var(--nx-mint); }
-  body.hw-nexus .page-toc-list li.page-toc-group > a.is-active,
-  body.hw-nexus .page-toc-list li.page-toc-group > a:hover { color: var(--nx-lime); }
 
-  /* ---- Parts (data-toc-style="parts"; the Software page) ----
+  /* ---- Parts (data-toc-style="parts": Model, Software, Hardware...) ----
      A numbered badge per part, filled for the part being read and outlined
      once a part is behind the reader. The part being read opens its
      sections, on a rail with a bar beside the one being read; each part also
      has its own open / close button, and the title an Expand all. A thin bar on top shows how far down
      the page the reader is. One accent (mint) and greys; the light theme's
      greens are fallbacks for a page not on the deep-teal theme. */
-  .page-toc.is-parts .page-toc-progress {
+  .page-toc.is-parts .page-toc-progress,
+  .page-toc.is-rail .page-toc-progress {
     height: 2px;
     margin: 0 0 1rem;
     background: var(--nx-line, var(--c-line));
     border-radius: 2px;
     overflow: hidden;
   }
-  .page-toc.is-parts .page-toc-progress > span {
+  .page-toc.is-parts .page-toc-progress > span,
+  .page-toc.is-rail .page-toc-progress > span {
     display: block;
     width: 0;
     height: 100%;
@@ -215,7 +141,6 @@
     font-weight: 600;
     color: var(--nx-muted, var(--c-text-2));
   }
-  .page-toc.is-parts a.page-toc-part-head::before { display: none; }
   .page-toc.is-parts a.page-toc-part-head:hover,
   .page-toc.is-parts a.page-toc-part-head:focus-visible {
     transform: none;
@@ -255,11 +180,8 @@
   /* "Expand all / Collapse all", at the end of the list's title */
   /* The "On this page" label is gone (static/page-toc.js). On an ungrouped
      list that leaves the row with nothing in it, so it goes; on a grouped one
-     the All control is still a child, so the row is not :empty and stays --
-     without the left padding and the marker that were there for the text. */
+     the All control is still a child, so the row is not :empty and stays. */
   .page-toc-title:empty { display: none; }
-  .page-toc.is-parts .page-toc-title { padding-left: 0; }
-  .page-toc.is-parts .page-toc-title::before { display: none; }
 
   /* The grouped list reads --nx-* first and falls back to the global tokens.
      The nexus pages declare --nx-* on the body, so they keep their own palette;
@@ -309,28 +231,38 @@
   .page-toc-all:focus-visible,
   .page-toc-toggle:focus-visible { outline: 2px solid var(--nx-mint, var(--c-teal-deep)); outline-offset: 1px; }
 
-  /* its sections, on a rail under the badge; shown while the part is open
-     (the part being read, or one the reader opened) */
-  .page-toc.is-parts .page-toc-sub {
+  /* The rail. On a parts list it carries a part's sections under its badge,
+     shown while the part is open (the part being read, or one the reader
+     opened); on every other page it carries the whole list. */
+  .page-toc.is-parts .page-toc-sub,
+  .page-toc.is-rail .page-toc-list {
     list-style: none;
-    margin: 0.1rem 0 0.45rem 1.2rem;
     padding: 0 0 0 0.55rem;
     border-left: 1px solid var(--nx-line, var(--c-line));
   }
+  .page-toc.is-parts .page-toc-sub { margin: 0.1rem 0 0.45rem 1.2rem; }
+  .page-toc.is-rail .page-toc-list { margin: 0 0 0 0.2rem; }
   .page-toc.is-parts .page-toc-part:not(.is-open) > .page-toc-sub { display: none; }
   /* Muted until hovered or read: the site's dark theme colours every link
      teal, which would leave no difference between a section and the one
      being read. */
-  .page-toc.is-parts .page-toc-sub a {
+  .page-toc.is-parts .page-toc-sub a,
+  .page-toc.is-rail .page-toc-list a {
     display: flex;
     gap: 0.45rem;
     padding: 0.26rem 0.5rem 0.26rem 0.6rem;
     font-size: 0.86rem;
     color: var(--nx-muted, var(--c-text-2));
   }
+  /* On its own the rail is the top level, so its entries are set at the size
+     of a part's name rather than of a section under one. */
+  .page-toc.is-rail .page-toc-list a { font-size: 0.9rem; }
   .page-toc.is-parts .page-toc-sub a:hover,
-  .page-toc.is-parts .page-toc-sub a:focus-visible { color: var(--nx-text, var(--c-text)); }
-  .page-toc.is-parts .page-toc-sub a.is-active {
+  .page-toc.is-parts .page-toc-sub a:focus-visible,
+  .page-toc.is-rail .page-toc-list a:hover,
+  .page-toc.is-rail .page-toc-list a:focus-visible { color: var(--nx-text, var(--c-text)); }
+  .page-toc.is-parts .page-toc-sub a.is-active,
+  .page-toc.is-rail .page-toc-list a.is-active {
     color: var(--nx-text, var(--c-text));
     font-weight: 600;
     background: rgba(73, 197, 182, 0.1);
@@ -343,30 +275,27 @@
     color: var(--nx-muted, var(--c-text-2));
   }
   .page-toc.is-parts .page-toc-sub a.is-active .page-toc-sec { color: var(--nx-mint, var(--c-teal-deep)); }
-  .page-toc.is-parts .page-toc-sub a::before {
+  /* the mint bar on the rail beside the section being read */
+  .page-toc.is-parts .page-toc-sub a::before,
+  .page-toc.is-rail .page-toc-list a::before {
+    content: "";
+    position: absolute;
     left: calc(-0.55rem - 1px);
     top: 15%;
     bottom: 15%;
     width: 2px;
-    height: auto;
-    border: 0;
     background: transparent;
-    transform: none;
   }
-  .page-toc.is-parts .page-toc-sub a:hover::before,
-  .page-toc.is-parts .page-toc-sub a:focus-visible::before { transform: none; }
-  .page-toc.is-parts .page-toc-sub a.is-active::before { background: var(--nx-mint, var(--c-teal-deep)); }
+  .page-toc.is-parts .page-toc-sub a.is-active::before,
+  .page-toc.is-rail .page-toc-list a.is-active::before { background: var(--nx-mint, var(--c-teal-deep)); }
 }
 
 @media (min-width: 1200px) and (prefers-reduced-motion: reduce) {
   .page-toc-list a,
-  .page-toc-list a::before,
   .page-toc-no,
   .page-toc-toggle svg { transition: none; }
   .page-toc-list a:hover,
   .page-toc-list a:focus-visible { transform: none; }
-  .page-toc-list a:hover::before,
-  .page-toc-list a:focus-visible::before { transform: translateY(-50%); }
 }
 
 @media print { .page-toc { display: none !important; } }
