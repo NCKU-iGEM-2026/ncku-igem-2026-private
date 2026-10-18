@@ -25,18 +25,19 @@
 
   var MIN = 2;
   var OFFSET = 130;          /* a heading counts as "reached" this far below the top */
-  /* data-toc-icon on a part's heading: a summary (lines of text) or reference
-     matter (an open book), in place of a character in the badge */
-  var ICONS = {
-    summary: "M4 4.5h8M4 8h8M4 11.5h5",
-    refs: "M8 4.5C6.8 3.6 5.2 3.2 3 3.2v8.6c2.2 0 3.8.4 5 1.3 1.2-.9 2.8-1.3 5-1.3V3.2c-2.2 0-3.8.4-5 1.3zM8 4.5v8.6"
-  };
+  /* data-toc-icon on a part's heading: a summary or reference matter, in place
+     of a character in the badge. Both are drawn as the same lines of text, so
+     every part set apart from the numbered run carries one mark across the
+     site (the open book reference matter had is gone). */
+  var LINES = "M4 4.5h8M4 8h8M4 11.5h5";
+  var ICONS = { summary: LINES, refs: LINES };
   var aside = null, list = null, items = [], signature = "", ticking = false, pinned = null;
   /* A page that is split into numbered parts can ask for them to be drawn as
      parts (data-toc-style="parts" anywhere on the page, the Software page for
      one): a numbered badge per part, the sections of the part being read on
      a rail under it, and a bar for how far down the page the reader is.
-     Every other page keeps the plain list. */
+     Every other page gets the same rail and bar with its sections straight
+     on it -- no badges, nothing to open -- so the two read as one design. */
   var parts = !!host.querySelector('[data-toc-style="parts"]'), bar = null;
   /* Each part's sections open with the part being read, unless the reader has
      opened or closed that part by hand (open: true / false), which then holds. */
@@ -163,8 +164,8 @@
       a.addEventListener("click", function () { pinned = f; });
     });
     nav.appendChild(p);
+    aside.classList.add(parts ? "is-parts" : "is-rail");
     if (parts) {
-      aside.classList.add("is-parts");
       allBtn = document.createElement("button");
       allBtn.type = "button";
       allBtn.className = "page-toc-all";
@@ -174,13 +175,13 @@
         applyOpen();
       });
       p.appendChild(allBtn);
-      var track = document.createElement("div");
-      track.className = "page-toc-progress";
-      track.setAttribute("aria-hidden", "true");
-      bar = document.createElement("span");
-      track.appendChild(bar);
-      nav.appendChild(track);
     }
+    var track = document.createElement("div");
+    track.className = "page-toc-progress";
+    track.setAttribute("aria-hidden", "true");
+    bar = document.createElement("span");
+    track.appendChild(bar);
+    nav.appendChild(track);
     nav.appendChild(list);
     aside.appendChild(nav);
     host.classList.add("has-page-toc");
@@ -309,8 +310,8 @@
         if (f.part) f.part.classList.toggle("is-current", f.part === current.part);
       });
       applyOpen();
-      if (bar) bar.style.width = (room > 0 ? Math.min(100, Math.max(0, window.pageYOffset / room * 100)) : 100) + "%";
     }
+    if (bar) bar.style.width = (room > 0 ? Math.min(100, Math.max(0, window.pageYOffset / room * 100)) : 100) + "%";
     /* keep the active entry in view when the list is longer than the screen */
     var a = current.link, l = list;
     if (l && l.scrollHeight > l.clientHeight) {
