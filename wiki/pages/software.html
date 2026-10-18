@@ -1050,7 +1050,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
           </tr>
           <tr>
             <td>CAPTURE-Screen</td>
-            <td>Our reader at the bench, calibrating tube by tube (Figures 3&ndash;5). What the reader itself measured on GFP cultures is on the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page and in <a href="{{ url_for('pages', page='engineering') }}#eng-reader-c2">Engineering</a> (reader, cycle&nbsp;2).</td>
+            <td>Our reader at the bench, calibrating tube by tube (Figures 3&ndash;5); one run's export and the curve it gave are Figures 8a and 8b. What the reader itself measured on GFP cultures is on the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page and in <a href="{{ url_for('pages', page='engineering') }}#eng-reader-c2">Engineering</a> (reader, cycle&nbsp;2).</td>
             <td><span class="sw-yes">Workflow run</span></td>
           </tr>
           <tr>
@@ -1077,6 +1077,47 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
       (<a href="{{ url_for('pages', page='engineering') }}">Engineering</a>).
       That, and what else comes next, is in <a href="#limits">Table 6</a>.
     </p>
+    <div class="sw-row" id="run-1009">
+      <div class="sw-row-text">
+        <p class="sw-row-tag">One run at the bench</p>
+        <h3>The record of a run</h3>
+        <p>
+          A CAPTURE-Screen calibration on 9 October 2026: a blank and five
+          standards from 220 to 1,100&nbsp;nM, in three rounds, 18 tubes read
+          in the order the page set.
+        </p>
+        <p>
+          The export keeps one row per tube, with its configuration
+          fingerprint (e4c7f2), signal, scatter, quality flags and all ten
+          channels, so every tube can be checked without the instrument
+          (Figure 8a).
+        </p>
+      </div>
+      {{ shot("The run's CSV export, one row per tube. Click to enlarge.",
+              fig='Figure 8a',
+              src='https://static.igem.wiki/teams/6379/wiki/software/calibrate-csv.avif',
+              alt='A spreadsheet of the exported run: 18 rows, one per tube, in replicate rounds of a blank and standards of 220, 275, 350, 550 and 1,100 nM. Columns include the slot, label, sample type, concentration, timestamp, signal F4, fluorescence, its SD, scatter, flags, configuration fingerprint e4c7f2, source and the channels F1 to F4 and beyond.') }}
+    </div>
+    <div class="sw-row sw-row-flip">
+      <div class="sw-row-text">
+        <h3>What the curve shows, and what it does not</h3>
+        <p>
+          Excluded tubes stay on the plot as open circles (R2). Here the rise
+          rests on the 550&nbsp;nM standard alone: the three 1,100&nbsp;nM
+          tubes read at the blank level and were excluded.
+        </p>
+        <p>
+          With them counted, LasReader refuses to build a curve, because the
+          blanks scatter too much for the span. The page worked as designed;
+          the curve is not evidence that the biosensor responds to AHL
+          (Figure 8b).
+        </p>
+      </div>
+      {{ shot("The curve that run gave, on the Curves page. Filled dots: counted tubes. Open circles: excluded tubes.",
+              fig='Figure 8b',
+              src='https://static.igem.wiki/teams/6379/wiki/software/curve.avif',
+              alt='CAPTURE-Screen Curves page, details open for curve CURVE-20261009-3654: EC50 573.3 nM, Hill slope 4.89, LOD 333.7 nM, LOQ 431.3 nM, usable range 333.7 to 550 nM, config e4c7f2, signal F4, with the note that the unmixing basis is a placeholder and the signal is F4 alone. Below, a plot of F4 against concentration from 220 to 1,100 nM: counted tubes near the baseline from 220 to 350 nM and higher at 550 nM, a fitted S-shaped curve rising beyond them, and open circles for one 350 nM tube and the three 1,100 nM tubes, which sit at the baseline.') }}
+    </div>
   </section>
 
   <section id="limits">
