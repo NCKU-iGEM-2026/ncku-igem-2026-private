@@ -1415,6 +1415,154 @@ body.team-bio-locked { overflow: hidden; }
 
 .webcam-start:hover { background: rgba(255,255,255,0.75); }
 
+/* The photo just taken, shown over the stage until the visitor retakes,
+   downloads or saves it. The photo is the stage's own size, so it fills
+   the stage exactly. */
+.webcam-review {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: #1a1a1a;
+  z-index: 2;
+}
+
+.webcam-review-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.webcam-review-actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem 0.75rem 0.75rem;
+  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.6));
+}
+
+.webcam-review-hint {
+  flex-basis: 100%;
+  margin: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.webcam-review-btn {
+  font-family: "Changa", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  min-height: 40px;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.8);
+  color: #1c3a52;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(20,60,100,0.12);
+  transition: background 0.15s ease;
+}
+
+.webcam-review-btn:hover { background: rgba(255,255,255,0.75); }
+
+.webcam-save,
+.webcam-download {
+  background: #2f9fe0;
+  border-color: #2f9fe0;
+  color: #fff;
+}
+
+.webcam-save:hover,
+.webcam-download:hover { background: #2589c4; }
+
+/* On a phone Save to Photos is the main way out; Download steps back. */
+.webcam-save:not([hidden]) ~ .webcam-download {
+  background: rgba(255,255,255,0.5);
+  border-color: rgba(255,255,255,0.8);
+  color: #1c3a52;
+}
+
+/* Phones. The desktop layout wraps into one column here, which left the
+   sixteen pills as a 704px single-file list above the camera, a 16:9 stage
+   only 183px tall, and the centred shutter sitting on top of Start Camera.
+
+   Instead: camera first, names below it as a 4x4 grid, so the stage, the
+   shutter and every name fit on one screen and you can switch people
+   without scrolling. The stage goes to 4:3, which is what phone front
+   cameras actually deliver, so it is taller and crops less. The controls
+   become a three-column grid (empty | shutter | start): the shutter stays
+   centred, and if the screen is too narrow the start column grows and
+   pushes the shutter left rather than overlapping it. */
+@media (max-width: 575.98px) {
+  .webcam-layout {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding: 0;
+    margin-top: 2rem;
+    overflow: hidden;
+  }
+
+  .webcam-booth {
+    flex: none;
+    max-width: none;
+    border-radius: 0;
+  }
+
+  .webcam-stage { aspect-ratio: 4 / 3; }
+
+  .webcam-controls {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .webcam-shutter,
+  .webcam-shutter:hover,
+  .webcam-shutter:disabled {
+    position: static;
+    transform: none;
+    grid-column: 2;
+  }
+
+  .webcam-start {
+    grid-column: 3;
+    justify-self: end;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.9rem;
+  }
+
+  .webcam-filters {
+    order: 1;
+    flex: none;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.4rem;
+    padding: 0.75rem;
+  }
+
+  .webcam-filter-btn {
+    min-height: 40px;
+    padding: 0.3rem 0.25rem;
+  }
+
+  /* Retake, Save to Photos and Download on one row of a 350px stage. */
+  .webcam-review-btn { padding: 0.4rem 0.75rem; }
+
+  /* Touch screens keep :hover after a tap, which left the last pill
+     tapped stuck at 110%. */
+  .webcam-filter-btn:hover { transform: none; }
+}
+
 /* ===== Education: Impact Dashboard ===== */
 .edu-dashboard {
   display: flex;
@@ -3298,7 +3446,11 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
   gap: 1.5rem;
-  align-items: end;
+  /* Stretch, not end: the two cards are then the same height and their
+     pictures start on the same line, which is what a reader comparing two
+     gels looks at first. The shared aspect-ratio box below already makes the
+     pictures the same size, so nothing is left to align at the foot. */
+  align-items: stretch;
   margin: 1.5rem 0;
 }
 .eng-figure-pair .eng-figure { margin: 0; }
@@ -3328,6 +3480,52 @@ body.hw-nexus .hw h4.eng-sub-title { font-size: 1.15rem; }
 /* A pair held well under the column width, so each panel sits nearer the
    size a single figure gets on this page rather than filling the measure. */
 .eng-figure-pair-narrow { max-width: 720px; margin-inline: auto; }
+/* ---- Stage figures as framed cards --------------------------------------
+   The figures sat bare on the page: a gel photographed on white read as a
+   white rectangle floating in the dark, a plate photographed on black had no
+   edge at all, and captions centred by .text-center ragged as soon as they
+   ran past one line. Framing them does for Engineering what .res-figure
+   already does for Results -- one card shape, the part's colour along the top
+   edge, the caption flush left under the picture. Which figure sits where is
+   untouched; this is the frame around it. */
+body.hw-nexus .hw .eng-figure {
+  margin: 1.75rem 0;
+  padding: 1.5rem 1.75rem 1.75rem;
+  border: 1px solid var(--nx-line);
+  border-top: 3px solid color-mix(in srgb, var(--part, var(--nx-mint)) 55%, var(--nx-line));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--nx-panel) 65%, transparent);
+}
+body.hw-nexus .hw .eng-figure > img { border-radius: 8px; }
+/* The picture stays centred in its card. Only the words go flush left, which
+   is where a caption of two or three lines is easier to read, and they keep
+   clear of the frame on every side rather than running up against it. */
+body.hw-nexus .hw .eng-figure figcaption {
+  text-align: left;
+  padding-top: 1.35rem;
+}
+/* A floated card is narrow to begin with, so it takes a tighter inset, and a
+   little more width to pay for the frame. */
+body.hw-nexus .hw .eng-figure-float {
+  /* The margin has to be restated here. The shorthand on .eng-figure above
+     outranks the one on .eng-figure-float, which had been wiping out the
+     left margin and running the wrapped text straight into the frame. */
+  margin: 0.35rem 0 1.75rem 2rem;
+  width: min(42%, 326px);
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+@media (max-width: 767.98px) {
+  body.hw-nexus .hw .eng-figure-float {
+    float: none;
+    width: auto;
+    margin: 1.75rem 0;
+  }
+}
+body.hw-nexus .hw .eng-sub-2 .eng-figure-float { width: min(38%, 286px); }
+/* Two cards in a row are separated by the grid gap, so they do not also carry
+   the outer margin a single figure has. */
+body.hw-nexus .hw .eng-figure-pair .eng-figure { margin: 0; }
+
 /* Where the stage's content will go: an empty frame in the stage's colour,
    so the layout can be judged before the text arrives. */
 .eng-dbtl-empty {
@@ -10849,11 +11047,53 @@ body.hw-nexus .hw-flip-card:focus-within > .hw-flip-front::before {
 body.hw-nexus .sw-links li > a { color: var(--nx-lime); }
 body.hw-nexus .sw-links li > a:hover,
 body.hw-nexus .sw-links li > a:focus-visible { border-color: var(--nx-lime); }
+/* The page's two actions, side by side and the same size: the live app
+   filled so it reads first, the source code outlined beside it. */
+body.hw-nexus .sw-links li > a.sw-btn-link {
+  padding: 0.5rem 1.15rem;
+  border-width: 2px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+body.hw-nexus .sw-links li > a.sw-link-primary {
+  background: var(--nx-lime);
+  border-color: var(--nx-lime);
+  color: var(--nx-ground);
+}
+body.hw-nexus .sw-links li > a.sw-link-primary:hover,
+body.hw-nexus .sw-links li > a.sw-link-primary:focus-visible {
+  background: var(--nx-mint);
+  border-color: var(--nx-mint);
+}
+body.hw-nexus .sw-links li > a.sw-link-secondary {
+  background: var(--nx-raised);
+  border-color: var(--nx-lime);
+  color: var(--nx-lime);
+}
+body.hw-nexus .sw-links li > a.sw-link-secondary:hover,
+body.hw-nexus .sw-links li > a.sw-link-secondary:focus-visible {
+  background: var(--nx-line);
+}
+/* On a phone the two still sit side by side; the licence wraps below. */
+@media (max-width: 575.98px) {
+  .sw-links { gap: 0.5rem; }
+  body.hw-nexus .sw-links li > a.sw-btn-link {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.86rem;
+  }
+}
+/* The licence is information, not a link: plain small text beside the buttons. */
+.sw-links li.sw-links-note {
+  align-self: center;
+  padding-left: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--nx-muted);
+}
 
 .sw-small { font-size: 0.88rem; }
 body.hw-nexus .sw .sw-small { color: var(--nx-muted); }
-.sw-steps { padding-left: 1.2rem; margin: 0; font-size: 0.92rem; }
-.sw-steps li { margin-bottom: 0.5rem; line-height: 1.6; }
+.sw-findings { padding-left: 1.2rem; margin: 1.25rem 0 0; }
+.sw-findings li { margin-bottom: 0.6rem; line-height: 1.65; }
 .sw .hw-module .sw-small { margin: 0.9rem 0 0; }
 /* Three tools in a two-column grid: the odd one out takes the full row. */
 .sw .hw-module:last-child:nth-child(odd) { grid-column: 1 / -1; }
@@ -10982,17 +11222,116 @@ body.hw-nexus .sw .sw-lab-table td.sw-lab-note { color: var(--nx-muted); font-si
 .sw-inv-row label { flex: 1 1 9rem; }
 
 /* ---- page structure ------------------------------------------------------
-   The page borrows the Model page's parts (md-parts cards, md-part banners;
-   its container carries .md for them). Four cards instead of three: stacked
-   on a phone, two by two on a tablet (no arrow into the second row), four
-   abreast once there is room. */
-@media (min-width: 768px) {
-  .sw .sw-parts { grid-template-columns: repeat(2, 1fr); }
-  .sw .sw-parts > li:nth-child(3)::before { display: none; }
+   The page borrows the Model page's md-part banners (its container carries
+   .md for them). The contents on top are a ruled, numbered list rather than
+   cards: the four parts are a reading order, not a workflow, so nothing
+   points from one to the next. One column on a phone, two by two from a
+   tablet up. */
+body.hw-nexus .sw .sw-map-wrap { margin: 2.2rem 0 1rem; }
+body.hw-nexus .sw .sw-map-title {
+  margin: 0 0 0.4rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
 }
-@media (min-width: 1200px) {
-  .sw .sw-parts { grid-template-columns: repeat(4, 1fr); }
-  .sw .sw-parts > li:nth-child(3)::before { display: block; }
+.sw-map {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 2.5rem;
+  padding: 0;
+  margin: 0;
+}
+.sw-map a {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  column-gap: 0.6rem;
+  row-gap: 0.15rem;
+  align-content: start;
+  height: 100%;
+  padding: 0.85rem 0.25rem 0.95rem;
+  border-top: 1px solid var(--nx-line);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+.sw-map-no {
+  grid-row: 1 / span 2;
+  font-family: "Changa", sans-serif;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  color: var(--nx-mint);
+}
+.sw-map-name {
+  font-family: "Changa", sans-serif;
+  font-size: 1.12rem;
+  color: var(--nx-lime);
+}
+.sw-map-q {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--nx-muted);
+}
+.sw-map a:hover,
+.sw-map a:focus-visible { background: var(--nx-panel); }
+.sw-map a:hover .sw-map-name,
+.sw-map a:focus-visible .sw-map-name { text-decoration: underline; text-underline-offset: 0.2em; }
+@media (min-width: 768px) {
+  .sw-map { grid-template-columns: repeat(2, 1fr); }
+}
+/* §1.1 What it solves: each lab chore beside what LasReader does about it.
+   The chore sits quiet on the left; the answer takes the panel and the
+   accent on the right. Stacked on a phone, side by side from a tablet up. */
+.sw-solve { display: grid; gap: 0.9rem; margin: 1.2rem 0 0; }
+.sw-solve-row { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+.sw-solve-row > p { margin: 0; padding: 0.9rem 1.1rem; border-radius: 10px; line-height: 1.7; }
+.sw-solve-was { border: 1px solid var(--nx-line); }
+body.hw-nexus .sw .sw-solve-row > p.sw-solve-was { color: var(--nx-muted); }
+body.hw-nexus .sw .sw-solve-row > p.sw-solve-was strong { color: var(--nx-text); }
+.sw-solve-now {
+  background: var(--nx-panel);
+  border: 1px solid var(--nx-line);
+  border-left: 3px solid var(--nx-mint);
+  color: var(--nx-text);
+}
+.sw-solve-k {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-muted);
+}
+.sw-solve-now .sw-solve-k { color: var(--nx-mint); }
+body.hw-nexus .sw .sw-solve-row > p.sw-solve-now strong { color: var(--nx-mint); }
+.sw-solve-head { display: none; }
+@media (min-width: 768px) {
+  .sw-solve-row { grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+  /* Side by side, the two columns are labelled once, above them. */
+  .sw-solve-head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+    margin-bottom: -0.3rem;
+    padding: 0 1.1rem;
+    font-family: "Changa", sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--nx-muted);
+  }
+  .sw-solve-head span + span { color: var(--nx-mint); padding-left: 1.1rem; }
+  .sw-solve-k { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* The separate tool: a full-width row below the four parts, quieter than them. */
+.sw-map > .sw-map-apart { grid-column: 1 / -1; margin-top: 0.6rem; }
+.sw-map-apart a { border-top-style: dashed; }
+.sw-map-apart .sw-map-name { color: var(--nx-mint); font-size: 1rem; }
+@media (prefers-reduced-motion: reduce) {
+  .sw-map a { transition: none; }
 }
 /* The one sentence under each part's banner: what a judge should take away. */
 body.hw-nexus .sw .sw-takeaway {
@@ -11017,23 +11356,8 @@ body.hw-nexus .sw .sw-apart .md-part-no { color: var(--nx-muted); }
    opens full size on click (edu-lightbox.js). Until the image is uploaded the
    frame is dashed in the caution colour and says so. */
 .sw-shot { display: flex; flex-direction: column; gap: 0.55rem; margin: 0; }
-.sw-frame {
-  overflow: hidden;
-  background: #0a1c24;
-  border: 1px solid var(--nx-line);
-  border-radius: 10px;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
-}
-.sw-frame-bar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 22px;
-  padding: 0 10px;
-  background: var(--nx-raised);
-  border-bottom: 1px solid var(--nx-line);
-}
-.sw-frame-bar i { width: 7px; height: 7px; border-radius: 50%; background: var(--nx-line); }
+/* No frame: the image itself, with rounded corners only. */
+.sw-frame { overflow: hidden; border-radius: 8px; }
 .sw-shot img { display: block; width: 100%; height: auto; }
 body.hw-nexus .sw .sw-shot figcaption { font-size: 0.8rem; line-height: 1.5; color: var(--nx-muted); }
 body.hw-nexus .sw .sw-shot figcaption strong { color: var(--nx-text); font-weight: 600; }
@@ -11056,6 +11380,54 @@ body.hw-nexus .sw .sw-shot figcaption strong { color: var(--nx-text); font-weigh
   border-radius: 10px;
 }
 .sw-tools .sw-shot { margin-top: 1rem; }
+.sw-tools { align-items: start; }
+
+/* §1.2 opens with the home page as one centred block: heading, then the
+   picture, then the text below it. */
+.sw-block {
+  max-width: 50rem;
+  margin: 2.5rem auto 0;
+  padding-top: 2.2rem;
+  border-top: 1px solid var(--nx-line);
+}
+#tools > h2 + .sw-block { margin-top: 1.5rem; padding-top: 0; border-top: 0; }
+.sw-block h3 { margin: 0 0 1.1rem; }
+.sw-block > p:last-child { margin-bottom: 0; }
+body.hw-nexus .sw .sw-row-tag {
+  margin: 0 0 0.25rem;
+  font-family: "Changa", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nx-mint);
+}
+.sw-block > .sw-shot { margin: 0 auto 1.2rem; }
+body.hw-nexus .sw .sw-block .sw-shot figcaption { text-align: center; }
+/* The home page shot is tall: held narrow and centred. */
+.sw-shot.sw-shot-tall { max-width: 22rem; }
+
+/* The other tools in rows: text on one side, picture on the other,
+   alternating (.sw-row-flip puts the picture first). On a phone the text
+   always comes first. A rule divides one tool from the next; the rows inside
+   one tool (.sw-group, under one heading) have none between them. */
+.sw-row,
+.sw-group {
+  margin: 2.5rem 0 0;
+  padding-top: 2.2rem;
+  border-top: 1px solid var(--nx-line);
+}
+.sw-row { display: grid; grid-template-columns: 1fr; gap: 1.2rem 2.5rem; align-items: center; }
+.sw-group h3 { margin: 0 0 0.4rem; }
+.sw-group > .sw-row-inner { margin-top: 1.4rem; padding-top: 0; border-top: 0; }
+/* The step bar: a wide, thin shot across the whole group, under its heading. */
+.sw-group > .sw-shot-strip { margin-top: 1.1rem; }
+.sw-row-text > :last-child { margin-bottom: 0; }
+.sw-row h3 { margin: 0 0 0.6rem; }
+@media (min-width: 900px) {
+  .sw-row { grid-template-columns: 1fr 1fr; }
+  .sw-row-flip > .sw-row-text { order: 2; }
+  .sw-row-single { grid-template-columns: 1fr; }
+}
 
 /* ---- the workflow ----------------------------------------------------------
    Seven steps as tabs (software-workflow.js adds .is-live). Without the
@@ -11146,12 +11518,7 @@ body.hw-nexus .sw .sw-shot figcaption strong { color: var(--nx-text); font-weigh
 }
 .sw-flow-cols { display: grid; gap: 1.25rem; }
 @media (min-width: 768px) {
-  .sw-flow-cols { grid-template-columns: 1fr 1fr; }
-  .sw-flow-cols > .sw-shot { grid-column: 1 / -1; }
-}
-@media (min-width: 992px) {
-  .sw-flow-cols { grid-template-columns: 0.8fr 1.2fr 1.3fr; }
-  .sw-flow-cols > .sw-shot { grid-column: auto; }
+  .sw-flow-cols { grid-template-columns: 0.8fr 1.2fr; }
 }
 .sw-flow-k {
   margin: 0 0 0.4rem;
@@ -11228,10 +11595,71 @@ body.hw-nexus .sw-page .hw-table caption strong { color: var(--nx-text); font-we
 .sw-idea > p,
 .sw-parts ~ section .sw-swarm p { max-width: 46rem; }
 
-/* The cards on top follow the page's single accent. */
-body.hw-nexus .sw .sw-parts .md-parts-name { color: var(--nx-text); }
-.sw-parts a:hover,
-.sw-parts a:focus-visible { border-color: var(--nx-mint); }
+
+/* ---- §2.1, the method in five steps ---- */
+/* The pipeline at the top: five linked steps in a row, arrows between. */
+.sw-pipe {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.6rem;
+  padding: 0;
+  margin: 1.2rem 0 2.2rem;
+  counter-reset: pipe;
+}
+.sw-pipe li { position: relative; counter-increment: pipe; font-family: "Changa", sans-serif; font-size: 0.95rem; }
+.sw-pipe li::before { content: counter(pipe) ". "; color: var(--nx-mint); }
+.sw-pipe li + li::after {
+  content: "\2192";
+  position: absolute;
+  left: -1.15rem;
+  top: 0;
+  color: var(--nx-muted);
+}
+.sw-pipe a { color: var(--nx-text); text-decoration: none; border-bottom: 1px dotted var(--nx-line); }
+.sw-pipe a:hover, .sw-pipe a:focus-visible { color: var(--nx-lime); border-bottom-color: var(--nx-lime); }
+.sw-idea { scroll-margin-top: 90px; }
+/* An equation with its "where" note: the number sits beside the equation line, not the note. */
+.sw-idea .sw-eq.md-eqset .sw-eq-no { top: 1.55rem; transform: none; }
+/* On a phone, two expressions set side by side stack at their separator. */
+@media (max-width: 575.98px) {
+  .sw-idea .sw-eq .sw-sep { display: block; width: auto; height: 0.2rem; }
+  .sw-idea .sw-eq { padding-left: 1rem; }
+}
+/* §2.2: the rules as a numbered list, like a specification: R-number and
+   name on the left, what the code does on the right, a hairline between
+   rules. Stacked on a phone. Three groups, each under its small label. */
+#rules .sw-row-tag { margin-top: 1.8rem; }
+.sw-rules { margin: 0.4rem 0 0; border-top: 1px solid var(--nx-line); }
+.sw-rules .sw-rule {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem 2rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--nx-line);
+}
+@media (min-width: 768px) {
+  .sw-rules .sw-rule { grid-template-columns: 17rem 1fr; }
+}
+.sw-rules dt { display: flex; margin: 0; font-weight: 600; line-height: 1.6; }
+body.hw-nexus .sw .sw-rules dt { color: var(--nx-text); }
+.sw-rules dd { margin: 0; line-height: 1.7; }
+.sw-rule-no {
+  display: inline-block;
+  flex-shrink: 0;
+  min-width: 2.2rem;
+  font-family: "Changa", sans-serif;
+  font-weight: 600;
+  color: var(--nx-mint);
+}
+body.hw-nexus .sw .sw-rule-for {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--nx-muted);
+}
+/* Where the model document derives the step. */
+body.hw-nexus .sw .sw-idea-ref { margin: -0.4rem 0 0; font-size: 0.82rem; color: var(--nx-muted); }
 
 /* ---- the five ideas ---- */
 .sw-idea { margin: 0 0 2.4rem; }
@@ -11265,16 +11693,70 @@ body.hw-nexus .sw .sw-parts .md-parts-name { color: var(--nx-text); }
 .sw-adapt { color: var(--nx-text); border-color: var(--nx-line); }
 .sw-no { color: var(--nx-warm); }
 
-/* ---- try it with your data ---- */
+/* ---- try it with your data ----
+   Input on the left, the curve on the right once the panel is wide enough;
+   stacked below that. A container query, so the sidebar's width doesn't matter. */
 .sw-try {
-  display: grid;
-  gap: 2rem;
+  container-type: inline-size;
   padding: 1.25rem;
   background: var(--nx-panel);
   border: 1px solid var(--nx-line);
   border-radius: 14px;
 }
-.sw-try-step[hidden] { display: none; }
+.sw-try-cols { display: grid; gap: 2rem; }
+@container (min-width: 46rem) {
+  .sw-try-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; }
+  .sw-try-side { position: sticky; top: 6rem; }
+}
+.sw-try-step[hidden], .sw-try [hidden] { display: none; }
+.sw-try-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; }
+body.hw-nexus .sw .sw-try-head .sw-try-k { margin: 0; }
+.sw-try-check { list-style: none; margin: 0.9rem 0 0; padding: 0; display: grid; gap: 0.35rem; }
+body.hw-nexus .sw .sw-try-check li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--nx-muted);
+}
+.sw-try-tick {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 1.5px solid var(--nx-line);
+  border-radius: 50%;
+}
+body.hw-nexus .sw .sw-try-check li.is-done { color: var(--nx-text); }
+.sw-try-check li.is-done .sw-try-tick {
+  background: var(--nx-mint) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='%230a1c24' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat;
+  border-color: var(--nx-mint);
+}
+.sw-try-count { font-variant-numeric: tabular-nums; }
+body.hw-nexus .sw .sw-try-empty {
+  display: grid;
+  place-items: center;
+  min-height: 14rem;
+  margin: 0;
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--nx-muted);
+  border: 1px dashed var(--nx-line);
+  border-radius: 10px;
+}
+.sw-try .sw-plot { cursor: crosshair; }
+.sw-try-table input::placeholder { color: var(--nx-muted); opacity: 0.55; font-style: italic; }
+/* Sits right under the table and is styled like the placeholders it explains. */
+body.hw-nexus .sw .sw-try-hint-note {
+  margin: 0.35rem 0 0;
+  padding-left: 0.3rem;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--nx-muted);
+}
+.sw-try-table input.is-bad { border-color: var(--nx-warm); box-shadow: 0 0 0 1px var(--nx-warm); }
+.sw-inv-row .sw-inv-n { flex: 0 1 7rem; }
 body.hw-nexus .sw .sw-try-k {
   display: flex;
   align-items: center;
@@ -11284,9 +11766,12 @@ body.hw-nexus .sw .sw-try-k {
   font-size: 1.08rem;
   color: var(--nx-text);
 }
-body.hw-nexus .sw .sw-try-step > .sw-try-k ~ .sw-try-k { margin-top: 1.8rem; }
+body.hw-nexus .sw .sw-try-step > .sw-try-k ~ .sw-try-k,
+body.hw-nexus .sw #swTryOut > .sw-try-k { margin-top: 1.6rem; }
 .sw-try-table-wrap { overflow-x: auto; margin-top: 0.6rem; }
-.sw-try-table { width: 100%; min-width: 30rem; border-collapse: separate; border-spacing: 0.3rem; }
+.sw-try-table { width: 100%; border-collapse: separate; border-spacing: 0.25rem; }
+.sw-try-table td { min-width: 3.4rem; }
+.sw-try-table input { padding-inline: 0.4rem; }
 body.hw-nexus .sw .sw-try-table th {
   font-size: 0.8rem;
   font-weight: 400;
@@ -11328,7 +11813,7 @@ body.hw-nexus .sw .sw-try-msg { min-height: 1.5rem; margin: 0.7rem 0 0; font-siz
 body.hw-nexus .sw .sw-try-msg.is-error { color: var(--nx-warm); }
 .sw-try-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
   gap: 0.8rem;
   margin-bottom: 1rem;
 }
@@ -11336,7 +11821,7 @@ body.hw-nexus .sw .sw-try-msg.is-error { color: var(--nx-warm); }
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  padding: 0.9rem 1rem;
+  padding: 0.7rem 0.9rem;
   background: var(--nx-raised);
   border: 1px solid var(--nx-line);
   border-radius: 10px;
@@ -11350,7 +11835,7 @@ body.hw-nexus .sw .sw-try-msg.is-error { color: var(--nx-warm); }
 }
 .sw-try-stat-v {
   font-family: "Changa", sans-serif;
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   color: var(--nx-text);
   font-variant-numeric: tabular-nums;
 }
@@ -11365,6 +11850,27 @@ body.hw-nexus .sw .sw-try-result.is-ok strong {
   color: var(--nx-mint);
 }
 body.hw-nexus .sw .sw-try-result.is-bound { color: var(--nx-warm); }
+
+/* ---- run it: three numbered paths, headed like the try-it steps ---- */
+body.hw-nexus .sw .sw-run-k {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.8rem 0 0.5rem;
+  font-family: "Changa", sans-serif;
+  font-size: 1.08rem;
+  color: var(--nx-text);
+}
+body.hw-nexus .sw .sw-run-steps { margin: 0 0 1rem; padding-left: 1.4rem; }
+body.hw-nexus .sw .sw-run-steps li { margin-bottom: 0.45rem; }
+.sw kbd {
+  padding: 0.05rem 0.35rem;
+  font-size: 0.85em;
+  color: var(--nx-text);
+  background: var(--nx-raised);
+  border: 1px solid var(--nx-line);
+  border-radius: 4px;
+}
 
 /* ---- swarming ---- */
 .sw-swarm { display: grid; gap: 2rem; }
@@ -14213,6 +14719,26 @@ body.team-page .webcam-start {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 body.team-page .webcam-start:hover { background: var(--nx-line); color: #fff; }
+body.team-page .webcam-review-btn {
+  background: var(--nx-raised);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+body.team-page .webcam-review-btn:hover { background: var(--nx-line); color: #fff; }
+body.team-page .webcam-save,
+body.team-page .webcam-download {
+  background: var(--nx-lime);
+  border-color: var(--nx-lime);
+  color: #0e242e;
+}
+body.team-page .webcam-save:hover,
+body.team-page .webcam-download:hover { background: var(--nx-mint); border-color: var(--nx-mint); color: #0e242e; }
+body.team-page .webcam-save:not([hidden]) ~ .webcam-download {
+  background: var(--nx-raised);
+  border-color: var(--nx-line);
+  color: var(--nx-text);
+}
 
 /* ---- Attributions ---- */
 body.hw-nexus.attr-page .container { color: var(--nx-text); }

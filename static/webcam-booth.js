@@ -53,7 +53,11 @@
 
   var stage, video, canvas, ctx, placeholder;
   var startBtn, shutterBtn, closeBtn, filterBtns;
+  var review, reviewImg, reviewHint, retakeBtn, saveBtn, downloadBtn;
   var stream = null;
+  // 剛拍的那張：預覽用的 blob URL，以及分享到相簿用的 File。
+  var shotUrl = null;
+  var shotFile = null;
   var activeFilter = 0;
   var frameImages = [];
   var rafId = null;
@@ -61,8 +65,8 @@
   function loadFrameImages() {
     FILTERS.forEach(function (f, i) {
       var img = new Image();
-      // 拍照時要把這張圖畫進 canvas 再 toDataURL，跨網域的圖沒有這一行會
-      // 污染 canvas，下載那一步就會丟 SecurityError。
+      // 拍照時要把這張圖畫進 canvas 再 toBlob，跨網域的圖沒有這一行會
+      // 污染 canvas，存檔那一步就會丟 SecurityError。
       img.crossOrigin = 'anonymous';
       img.src = FRAME_BASE + f.name + '.avif';
       frameImages[i] = img;
@@ -138,6 +142,7 @@
   }
 
   function stopCamera() {
+    hideReview();
     if (rafId) cancelAnimationFrame(rafId);
     if (stream) {
       stream.getTracks().forEach(function (t) { t.stop(); });
@@ -180,27 +185,91 @@
     shot.height = canvas.height;
     var shotCtx = shot.getContext('2d');
 
+    // 預覽是 object-fit: cover（等比例放大填滿、裁掉多的），存檔也要照同一套裁法。
+    // 以前直接把整段影像拉伸成 canvas 的大小：桌機鏡頭剛好 16:9 看不出來，
+    // 但手機前鏡頭是 4:3 或直式，存下來的照片會整個被壓扁。
+    var vw = video.videoWidth || shot.width;
+    var vh = video.videoHeight || shot.height;
+    var cover = Math.max(shot.width / vw, shot.height / vh);
+    var drawW = vw * cover;
+    var drawH = vh * cover;
+
     shotCtx.save();
+    shotCtx.translate(shot.width, 0);
     shotCtx.scale(-1, 1);
-    shotCtx.drawImage(video, -shot.width, 0, shot.width, shot.height);
+    shotCtx.drawImage(video, (shot.width - drawW) / 2, (shot.height - drawH) / 2, drawW, drawH);
     shotCtx.restore();
 
     drawFrame(shotCtx, activeFilter, shot.width, shot.height);
 
     flashEffect();
 
-    var dataUrl;
     try {
-      dataUrl = shot.toDataURL('image/png');
+      shot.toBlob(function (blob) {
+        if (!blob) {
+          alert('fail to save photo');
+          return;
+        }
+        showReview(blob);
+      }, 'image/png');
     } catch (err) {
-      alert('fail to download' + err.message);
-      return;
+      alert('fail to save photo ' + err.message);
     }
+  }
 
+  function photoName() {
+    // 檔名帶拍照時間，連拍好幾張才不會互相覆蓋。
+    var d = new Date();
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    return 'ncku-tainan-photobooth-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
+      '-' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + '.png';
+  }
+
+  function showReview(blob) {
+    if (shotUrl) URL.revokeObjectURL(shotUrl);
+    shotUrl = URL.createObjectURL(blob);
+    shotFile = new File([blob], photoName(), { type: 'image/png' });
+    reviewImg.src = shotUrl;
+
+    // 網頁沒辦法直接寫進手機相簿，只能透過系統的分享選單：
+    // iOS 選「儲存影像」就會進「照片」，Android 可以分享到相簿 / Google 相簿。
+    // 所以只有觸控裝置、而且瀏覽器能分享檔案時，才顯示「Save to Photos」。
+    // 不能分享的手機（舊版瀏覽器）就提示長按照片，iOS 與 Android 長按圖片都能存。
+    var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    var canShare = !!(navigator.canShare && navigator.canShare({ files: [shotFile] }));
+    saveBtn.hidden = !(touch && canShare);
+    reviewHint.hidden = !(touch && !canShare);
+
+    review.hidden = false;
+    shutterBtn.disabled = true;
+  }
+
+  function hideReview() {
+    if (!review) return;
+    review.hidden = true;
+    shutterBtn.disabled = !stream;
+  }
+
+  function downloadPhoto() {
+    if (!shotUrl) return;
     var link = document.createElement('a');
-    link.download = 'ncku-tainan-photobooth.png';
-    link.href = dataUrl;
+    link.download = shotFile.name;
+    link.href = shotUrl;
+    // Firefox 只認得已經放進文件裡的連結。
+    document.body.appendChild(link);
     link.click();
+    link.remove();
+  }
+
+  function savePhoto() {
+    if (!shotFile) return;
+    // 必須在點擊當下直接呼叫 share，中間不能先 await 別的東西，
+    // 否則 iOS 會認定不是使用者觸發而拒絕。只放檔案、不帶文字，
+    // 帶了文字 iOS 的分享選單會少掉「儲存影像」。
+    navigator.share({ files: [shotFile] }).catch(function (err) {
+      // 使用者自己關掉分享選單是 AbortError，不用處理。
+      if (err.name !== 'AbortError') downloadPhoto();
+    });
   }
 
   function init() {
@@ -214,12 +283,21 @@
     shutterBtn = document.querySelector('.webcam-shutter');
     closeBtn = document.querySelector('.webcam-booth-close');
     filterBtns = Array.prototype.slice.call(document.querySelectorAll('.webcam-filter-btn'));
+    review = stage.querySelector('.webcam-review');
+    reviewImg = review.querySelector('.webcam-review-img');
+    reviewHint = review.querySelector('.webcam-review-hint');
+    retakeBtn = review.querySelector('.webcam-retake');
+    saveBtn = review.querySelector('.webcam-save');
+    downloadBtn = review.querySelector('.webcam-download');
 
     ctx = canvas.getContext('2d');
     loadFrameImages();
 
     startBtn.addEventListener('click', toggleCamera);
     shutterBtn.addEventListener('click', capturePhoto);
+    retakeBtn.addEventListener('click', hideReview);
+    saveBtn.addEventListener('click', savePhoto);
+    downloadBtn.addEventListener('click', downloadPhoto);
     window.addEventListener('resize', resizeCanvas);
 
     filterBtns.forEach(function (btn, i) {
