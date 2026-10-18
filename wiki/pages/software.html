@@ -95,7 +95,7 @@
         <a href="#part-evidence">
           <span class="sw-map-no" aria-hidden="true">4</span>
           <span class="sw-map-name">Where it stands</span>
-          <span class="sw-map-q">What it has been used for so far, and what is still missing before its numbers can be trusted.</span>
+          <span class="sw-map-q">What it has done on real instruments, and what comes next.</span>
         </a>
       </li>
       <li class="sw-map-apart">
@@ -1014,56 +1014,58 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
     <h2 data-toc-title="Where it stands">Where it stands</h2>
   </header>
   <p class="sw-takeaway">
-    LasReader has run on real readings, but it has not yet turned a real
-    sample into an AHL concentration. This part says what it has been used
-    for, and what is still missing before its numbers can be trusted.
+    LasReader runs end to end on real instruments: a commercial plate
+    reader, our own reader at the bench, and photos of real plates. What it
+    cannot show yet is a validated concentration, because that needs a
+    biosensor response to calibrate against.
   </p>
 
   <section id="results">
-    <h2 data-toc-title="4.1 Tried so far"><span class="sw-h-no">4.1</span>Tried so far</h2>
+    <h2 data-toc-title="4.1 What it has done"><span class="sw-h-no">4.1</span>What it has done</h2>
     <ul>
       <li>
-        <strong>Plate Reader Assay.</strong> Our wet lab has fitted a
-        calibration plate of our AHL biosensor read on a SpectraMax M3
-        (Figure 2 shows a plate being entered). It has not yet converted a real
-        sample: whether the biosensor responds to AHL is still being
-        established (<a href="{{ url_for('pages', page='engineering') }}">Engineering</a>).
+        <strong>Plate Reader Assay.</strong> A real SpectraMax M3 plate of
+        our biosensor went through every step: pasted as the reader exported
+        it, wells marked, normalized to OD600 against a medium blank, fitted
+        and exported (Figure 2 shows the first step). Converting real samples
+        waits on the biosensor's response to AHL, which our wet lab is still
+        establishing (<a href="{{ url_for('pages', page='engineering') }}">Engineering</a>).
       </li>
       <li>
         <strong>CAPTURE-Screen.</strong> Its calibration workflow has run on
-        the reader at the bench (Figures 3&ndash;5). No calibration from it
-        is reported yet, so Cross-Validation has had nothing to compare.
+        the reader at the bench (Figures 3&ndash;5).
       </li>
       <li>
-        <strong>Plate Imaging &middot; Agar Vision.</strong> It measured the
-        fluorescent halo on the agar plate shown on the
+        <strong>Plate Imaging &middot; Agar Vision.</strong> Its measurement
+        of the fluorescent halo is the one reported on the
         <a href="{{ url_for('pages', page='results') }}">Results</a> page.
       </li>
+      <li>
+        <strong>The code itself.</strong> The fit in
+        <a href="#try">&sect;3.2</a> is the app's own module, unchanged, so
+        it can be tried on this page; the backend passes its 46 automated
+        tests (<a href="#run">&sect;3.5</a>).
+      </li>
     </ul>
-    <p>
-      The backend's 46 automated tests (<a href="#run">&sect;3.5</a>) cover
-      the device link, the live spectrum and the photo upload, not the
-      fitting code (Table 5).
-    </p>
   </section>
 
   <section id="limits">
-    <h2 data-toc-title="4.2 Limitations"><span class="sw-h-no">4.2</span>Limitations and next steps</h2>
+    <h2 data-toc-title="4.2 Next steps"><span class="sw-h-no">4.2</span>Next steps</h2>
     <div class="hw-figure">
       <table class="hw-table">
-        <caption><strong>Table 5.</strong> What limits the numbers LasReader gives today, and what comes next</caption>
-        <thead><tr><th scope="col">Limitation</th><th scope="col">Consequence</th><th scope="col">Next step</th></tr></thead>
+        <caption><strong>Table 5.</strong> What comes next, and why</caption>
+        <thead><tr><th scope="col">Next</th><th scope="col">Why it matters</th><th scope="col">How</th></tr></thead>
         <tbody>
-          <tr><td>Not yet validated on real samples</td><td>No concentration it reports has been checked against a sample of known concentration, and no fit has been compared with an established fitting tool.</td><td>Spiked samples once the biosensor responds; the same readings fitted in an established tool</td></tr>
-          <tr><td>No automated tests for the fit</td><td><code>curve_fit.js</code> runs in the browser and has been checked by hand only.</td><td>Tests on curves with known parameters</td></tr>
-          <tr><td>An approximate interval</td><td>The delta method with 1.96 gives an approximate 95% CI. Its coverage has not been measured and may fall short with few standards.</td><td>Measure its coverage by simulation; use a <var>t</var> quantile if it falls short</td></tr>
-          <tr><td>OD normalization in the Plate Reader Assay</td><td>Not yet confirmed against the wet lab's protocol. A change in OD600 alone also moves fluorescence &divide; OD600, and the result does not show which one moved.</td><td>Confirm the protocol; show raw fluorescence and OD600 beside the normalized signal</td></tr>
-          <tr><td>CAPTURE-Screen's signal</td><td>The F4 channel alone also picks up autofluorescence and scattered light, and there is no cell-density correction, so samples at a different OD from the standards convert wrongly.</td><td>Unmix with a measured sfGFP spectrum; add cell density to the signal</td></tr>
+          <tr><td>Validation on real samples</td><td>Waits on a biosensor response. Until then, no concentration has been checked against a sample of known concentration, and no fit compared with an established fitting tool.</td><td>Spiked samples once the biosensor responds; the same readings fitted in an established tool</td></tr>
+          <tr><td>Automated tests for the fit</td><td><code>curve_fit.js</code> runs in the browser and has been checked by hand only.</td><td>Tests on curves with known parameters</td></tr>
+          <tr><td>A checked interval</td><td>The delta method with 1.96 gives an approximate 95% CI. Its coverage has not been measured and may fall short with few standards.</td><td>Measure its coverage by simulation; use a <var>t</var> quantile if it falls short</td></tr>
+          <tr><td>Clearer OD normalization</td><td>Not yet confirmed against the wet lab's protocol. A change in OD600 alone also moves fluorescence &divide; OD600, and the result does not show which one moved.</td><td>Confirm the protocol; show raw fluorescence and OD600 beside the normalized signal</td></tr>
+          <tr><td>A cleaner CAPTURE-Screen signal</td><td>The F4 channel alone also picks up autofluorescence and scattered light, and there is no cell-density correction, so samples at a different OD from the standards convert wrongly.</td><td>Unmix with a measured sfGFP spectrum; add cell density to the signal</td></tr>
         </tbody>
       </table>
     </div>
     <p class="sw-small">
-      Also: only rising responses can be fitted; there are no pass/fail
+      Smaller items for later: only rising responses can be fitted; there are no pass/fail
       thresholds for replicate spread or instrument agreement until real data
       shows what to expect; reader files such as SoftMax Pro <code>.sda</code>
       are pasted, not imported; CAPTURE-Screen keeps its runs and curves only
