@@ -13,8 +13,8 @@
 
 {% macro frac(n, d) %}<span class="sw-frac"><span>{{ n|safe }}</span><span>{{ d|safe }}</span></span>{% endmacro %}
 
-{% macro shot(name, fig='', src='', alt='', cls='') %}
-<figure class="sw-shot{% if not src %} is-todo{% endif %}{% if cls %} {{ cls }}{% endif %}">
+{% macro shot(name, fig='', src='', alt='', cls='', width='') %}
+<figure class="sw-shot{% if not src %} is-todo{% endif %}{% if cls %} {{ cls }}{% endif %}"{% if width %} style="max-width: {{ width }}"{% endif %}>
   <div class="sw-frame">
     {% if src %}<img src="{{ src }}" alt="{{ alt }}" loading="lazy">{% else %}<span class="sw-shot-todo">Screenshot to come</span>{% endif %}
   </div>
@@ -188,7 +188,7 @@
               fig='Figure 1',
               src='https://static.igem.wiki/teams/6379/wiki/software/lasreader.avif',
               alt='LasReader home page. Three cards: Plate Reader Assay, CAPTURE-Screen, and Cross-Validation linked below the first two. Underneath, the Live spectrum panel for the laser-cut CAPTURE-Screen: a bar chart of raw counts in the ten AS7341 channels, with the F4 sfGFP band at 515 nm highlighted.',
-              cls='sw-shot-tall') }}
+              cls='sw-shot-tall', width='34rem') }}
       <p>
         Everything starts here. Two tools take readings from different
         instruments through the same curve; the third compares them. While
@@ -275,8 +275,61 @@
     </div>
   </section>
 
+  <section id="fits">
+    <h2 data-toc-title="1.3 With CAPTURE-Screen"><span class="sw-h-no">1.3</span>LasReader and CAPTURE-Screen</h2>
+    <p>
+      LasReader is the software half of our measurement chain. CAPTURE-Screen,
+      the reader we designed and built, is the hardware half: it makes the
+      light and reads it, and LasReader decides what each reading is worth.
+    </p>
+
+    <div class="hw-modules">
+      <article class="hw-module" data-module="primary">
+        <span class="hw-module-tag">Hardware page</span>
+        <h3>CAPTURE-Screen, the reader</h3>
+        <p class="hw-module-what">
+          A blue LED at 470&nbsp;nm, a ten-channel AS7341 spectral sensor
+          looking from 90&deg; and an ESP32, in two builds. The Hardware page
+          has the optics, the parts, the cost and what each build has
+          measured.
+        </p>
+        <dl class="hw-spec">
+          <div><dt>Principle</dt><dd><a href="{{ url_for('pages', page='hardware') }}#hardware-principle">Measurement principle</a></dd></div>
+          <div><dt>Builds</dt><dd><a href="{{ url_for('pages', page='hardware') }}#printed">3D-printed</a> &middot; <a href="{{ url_for('pages', page='hardware') }}#laser-cut">Laser-cut</a></dd></div>
+          <div><dt>History</dt><dd><a href="{{ url_for('pages', page='engineering') }}#eng-reader">Engineering, the reader's cycles</a></dd></div>
+        </dl>
+      </article>
+      <article class="hw-module">
+        <span class="hw-module-tag">This page</span>
+        <h3>LasReader, the software</h3>
+        <p class="hw-module-what">
+          One sketch per build connects the reader to LasReader over Wi-Fi.
+          Four pages then check the reader, calibrate it tube by tube, keep
+          its curves and measure samples, and every result carries its curve,
+          its limits and its approximate 95% CI.
+        </p>
+        <dl class="hw-spec">
+          <div><dt>Pages</dt><dd><a href="#tool-capture">CAPTURE-Screen</a>, Figures 3&ndash;5</dd></div>
+          <div><dt>Rules</dt><dd><a href="#rules">&sect;2.2</a>, R4 binds a curve to one reader setup</dd></div>
+          <div><dt>Sketches</dt><dd>The README's <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader#hardware-capture-screen">Hardware</a> section</dd></div>
+        </dl>
+      </article>
+    </div>
+
+    <p class="hw-aside">
+      The two pages report different numbers from the same reader. The
+      Hardware page reports each build's readout from its own serial
+      firmware, such as F5/F3 on the laser-cut build
+      (<a href="{{ url_for('pages', page='hardware') }}#hardware-laser-reading">How a reading is made</a>).
+      LasReader's sketches send all ten channels, and its calibration
+      currently takes F4 as the signal and F3 as scatter, a placeholder until
+      a measured sfGFP spectrum replaces it (<a href="#limits">Table 6</a>).
+      A value from one is therefore not a value from the other.
+    </p>
+  </section>
+
   <section id="workflow">
-    <h2 data-toc-title="1.3 The workflow"><span class="sw-h-no">1.3</span>The workflow</h2>
+    <h2 data-toc-title="1.4 The workflow"><span class="sw-h-no">1.4</span>The workflow</h2>
     <p>Seven steps, in the order they happen at the bench. Choose one to see what you do and what LasReader does.</p>
     <p>The blanks have different roles; prepare the one each step requires:</p>
     <dl class="hw-spec">
@@ -286,9 +339,10 @@
     </dl>
     <p>
       With OD normalization enabled, the Plate Reader Assay uses
-      <code>(F_sample &minus; mean F_medium) / (OD_sample &minus; mean OD_medium)</code>.
-      This implementation still needs to be confirmed against the wet lab's
-      protocol (<a href="#limits">Table 6</a>).
+      <code>(F_sample &minus; mean F_medium) / (OD_sample &minus; mean OD_medium)</code>,
+      the usual convention. Check that it matches your own protocol before
+      relying on normalized values; the export keeps each well's raw
+      fluorescence and OD600 beside the normalized signal.
     </p>
 
     <div class="sw-flow" id="swFlow">
@@ -516,7 +570,7 @@
         LOD = <var>F</var><sup>&minus;1</sup>(<var>F&#772;</var><sub>0</sub> + 3<var>s</var><sub>0</sub>),
         <span class="sw-sep"></span>LOQ = <var>F</var><sup>&minus;1</sup>(<var>F&#772;</var><sub>0</sub> + 10<var>s</var><sub>0</sub>)
         <span class="sw-eq-no">(5)</span>
-        <span class="md-eqnote">where <var>F&#772;</var><sub>0</sub> is the larger of the blanks' mean and <var>B</var>, <var>s</var><sub>0</sub> the blanks' standard deviation, and <var>F</var><sup>&minus;1</sup> the inverse curve of (7). The blank mean plus a multiple of the blank SD is the usual way to set both limits<sup><a href="#swref2">[2]</a></sup>; 10 is IUPAC's default multiplier for quantification<sup><a href="#swref3">[3]</a></sup>.</span>
+        <span class="md-eqnote">where <var>F&#772;</var><sub>0</sub> is the larger of the blanks' mean and <var>B</var>, <var>s</var><sub>0</sub> the blanks' standard deviation (if every blank reads the same, their read-noise SD instead, or the residual SD of an unweighted fit), and <var>F</var><sup>&minus;1</sup> the inverse curve of (7). The blank mean plus a multiple of the blank SD is the usual way to set both limits<sup><a href="#swref2">[2]</a></sup>; 10 is IUPAC's default multiplier for quantification<sup><a href="#swref3">[3]</a></sup>.</span>
       </div>
       <div class="sw-eq sw-eq-key md-eqset">
         <var>c</var><sub>min</sub> = max(LOD, <var>c</var><sub>lowest standard</sub>),
@@ -526,10 +580,10 @@
       </div>
       <p>
         The lower bound is the larger of the LOD and the lowest non-zero
-        standard concentration. A sample can therefore be above the LOD but
-        below the usable range. The current app's <code>below_lod</code>
-        status covers both cases; it does not always mean the signal is
-        below the detection limit.
+        standard concentration, so a sample can be above the LOD and still
+        below the usable range. The app reports both cases with one status,
+        <code>below_lod</code>: read it as &ldquo;below the usable
+        range&rdquo;, not always &ldquo;below the detection limit&rdquo;.
       </p>
       <p>
         <strong>The usable range is the software's permitted inversion
@@ -749,6 +803,7 @@
       fits standards of known concentration to their readings and converts
       samples through that curve. Any unit works, as long as standards and
       samples share it; keep a note of yours, since the labels still say nM.
+      The fit panel in <a href="#try">&sect;3.2</a> lets you set your own unit.
     </p>
     <p>
       What it does need is at least 4 standard concentrations and 2 blank
@@ -1009,7 +1064,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
           <tr><td>OSI-approved license</td><td>MIT</td></tr>
           <tr><td>Reproducible build and run</td><td><code>scripts/</code>, <code>setup</code> and <code>dev</code> in <code>.sh</code> and <code>.ps1</code>; no compiled binaries</td></tr>
           <tr><td>Pinned dependencies</td><td><code>backend/requirements.txt</code> pins every package, direct and transitive</td></tr>
-          <tr><td>Repository under 50&nbsp;MB</td><td>Under 2&nbsp;MB, history included</td></tr>
+          <tr><td>Repository under 50&nbsp;MB</td><td>About 2&nbsp;MB, history included</td></tr>
         </tbody>
       </table>
     </div>
@@ -1074,8 +1129,10 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
     </div>
     <p>
       Converting real samples into concentrations waits on the biosensor's
-      response to AHL, which our wet lab is still establishing
-      (<a href="{{ url_for('pages', page='engineering') }}">Engineering</a>).
+      response to AHL across a range of concentrations, which our wet lab is
+      still establishing
+      (<a href="{{ url_for('pages', page='results') }}#res-detect">Results</a>,
+      <a href="{{ url_for('pages', page='engineering') }}#eng-detect">Engineering</a>).
       That, and what else comes next, is in <a href="#limits">Table 6</a>.
     </p>
     <div class="sw-row" id="run-1009">
@@ -1103,15 +1160,17 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
       <div class="sw-row-text">
         <h3>What the curve shows, and what it does not</h3>
         <p>
-          Excluded tubes stay on the plot as open circles (R2). Here the rise
-          rests on the 550&nbsp;nM standard alone: the three 1,100&nbsp;nM
-          tubes read at the blank level and were excluded.
+          Four tubes were left out of this curve, the three at 1,100&nbsp;nM
+          and one at 350&nbsp;nM, because of a human error during the
+          experiment. LasReader would not fit until each exclusion had a
+          written reason, and it keeps the tubes on the plot as open circles
+          and in the export (R2), so anyone can see what was left out.
         </p>
         <p>
-          With them counted, LasReader refuses to build a curve, because the
-          blanks scatter too much for the span. The page worked as designed;
-          the curve is not evidence that the biosensor responds to AHL
-          (Figure 8b).
+          The run shows the workflow working at the bench, not the biosensor.
+          With the 1,100&nbsp;nM standards gone, the rise rests on the
+          550&nbsp;nM tubes alone, and the curve is marked Unverified. It is
+          not evidence that the biosensor responds to AHL (Figure 8b).
         </p>
       </div>
       {{ shot("The curve that run gave, on the Curves page. Filled dots: counted tubes. Open circles: excluded tubes.",
@@ -1131,8 +1190,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
           <tr><td>Validation on real samples</td><td>Waits on a biosensor response. Until then, no concentration has been checked against a sample of known concentration, and no fit compared with an established fitting tool.</td><td>Spiked samples once the biosensor responds; the same readings fitted in an established tool</td></tr>
           <tr><td>Automated tests for the fit</td><td><code>curve_fit.js</code> runs in the browser and has been checked by hand only.</td><td>Tests on curves with known parameters</td></tr>
           <tr><td>A checked interval</td><td>The delta method with 1.96 gives an approximate 95% CI. Its coverage has not been measured and may fall short with few standards.</td><td>Measure its coverage by simulation; use a <var>t</var> quantile if it falls short</td></tr>
-          <tr><td>Clearer OD normalization</td><td>Not yet confirmed against the wet lab's protocol. A change in OD600 alone also moves fluorescence &divide; OD600, and the result does not show which one moved.</td><td>Confirm the protocol; show raw fluorescence and OD600 beside the normalized signal</td></tr>
-          <tr><td>A cleaner CAPTURE-Screen signal</td><td>The F4 channel alone also picks up autofluorescence and scattered light, and there is no cell-density correction, so samples at a different OD from the standards convert wrongly.</td><td>Unmix with a measured sfGFP spectrum; add cell density to the signal</td></tr>
+          <tr><td>Clearer OD normalization</td><td>A change in OD600 alone also moves fluorescence &divide; OD600, and the results on screen do not show which one moved; only the export keeps both.</td><td>Show raw fluorescence and OD600 beside the normalized signal on screen</td></tr>
+          <tr><td>A cleaner CAPTURE-Screen signal</td><td>The F4 channel alone also picks up autofluorescence and scattered light, and there is no cell-density correction, so samples at a different OD from the standards convert wrongly. The Hardware page explains why the laser-cut build's own firmware reads F5/F3 instead (<a href="{{ url_for('pages', page='hardware') }}#hardware-laser-reading">How a reading is made</a>).</td><td>Unmix with a measured sfGFP spectrum; add cell density to the signal</td></tr>
           <tr><td>Plate Imaging on harder photos</td><td>The scale assumes the plate was photographed square-on, and a reflection bright and even enough to have a dense centre can still be read as a colony (<a href="{{ url_for('pages', page='model') }}#model-zone-limits">Model 2.7</a>).</td><td>Photograph square-on, lid off, away from overhead light; measure how much tilt a comparison within one plate tolerates</td></tr>
         </tbody>
       </table>
