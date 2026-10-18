@@ -1079,8 +1079,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
     <p class="sw-small">
       LasReader is released under the MIT License: future teams may use, modify
       and redistribute it, keeping the copyright notice. Yu-Chun Sung designed
-      and wrote the software; Tzu-Chiao Chou wrote the colony-measurement code
-      that Plate Imaging &middot; Agar Vision runs. Everyone's contributions are
+      and wrote the software, apart from the colony analysis credited in
+      <a href="#swarming-method">A.2</a>. Everyone's contributions are
       listed on the
       <a href="{{ url_for('pages', page='attributions') }}">Attributions</a> page.
     </p>
@@ -1212,8 +1212,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
     <p class="sw-small">
       Smaller items for later: only rising responses can be fitted; there are no pass/fail
       thresholds for replicate spread or instrument agreement until real data
-      shows what to expect; reader files such as SoftMax Pro <code>.sda</code>
-      are pasted, not imported; CAPTURE-Screen keeps its runs and curves only
+      shows what to expect; CAPTURE-Screen keeps its runs and curves only
       in the browser (back them up from the Data page); and the device link
       has no authentication yet.
     </p>
@@ -1278,31 +1277,143 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
     <h2 data-toc-title="Plate Imaging · Agar Vision">Plate Imaging &middot; Agar Vision</h2>
   </header>
   <p class="sw-takeaway">
-    A separate tool for plate phenotypes: the size and spread of colonies,
-    such as a swarming colony, measured from photos of the plates.
+    A separate tool for plate phenotypes: take a photo of the plate, and every
+    colony on it comes back measured in millimetres, with each figure drawn
+    across the colony it belongs to.
   </p>
 
   <section id="swarming">
-    <div class="sw-swarm">
-      <div>
-        <dl class="hw-spec">
-          <div><dt>Input</dt><dd>Plate photos taken from above, up to 24 per batch, each with its strain, condition and replicate.</dd></div>
-          <div><dt>Scale</dt><dd>The plate is found in the photo, and its known diameter (93&nbsp;mm by default, adjustable) turns pixels into millimetres.</dd></div>
-          <div><dt>Detection</dt><dd>The background is corrected, colonies are thresholded, and a region that looks like more than one colony is split. Photos on a purple UV background are detected and handled separately.</dd></div>
-          <div><dt>Output</dt><dd>Each colony's longest span, equivalent diameter and area, in one CSV for the batch, and every photo returned annotated so you can check the plate edge was found.</dd></div>
-          <div><dt>Reproducible</dt><dd>The analysis is deterministic: the same photos and plate diameter give the same numbers. The CSV records both on every row.</dd></div>
-        </dl>
-        <p class="sw-small">
-          The analysis is Tzu-Chiao Chou's colony-measurement code, run
-          unchanged on the backend in Python with OpenCV. The backend keeps
-          neither the photos nor the results.
+    <p>
+      The wet lab used to measure colonies by hand, one at a time and again for
+      every plate. Plate Imaging &middot; Agar Vision reads a whole batch of
+      plate photos instead. It has been used on swarming plates, as a
+      cross-check on ImageJ
+      (<a href="{{ url_for('pages', page='engineering') }}#eng-inhibition-c1-test">Engineering</a>,
+      inhibition cycle&nbsp;1), and on the biosensor's fluorescent halo on agar
+      (<a href="{{ url_for('pages', page='results') }}">Results</a>). The same
+      analysis runs on any plate; the assay type you enter only labels the
+      batch and its files.
+    </p>
+    <div class="sw-swarm-pair">
+      {{ shot('Normal mode: four colonies on one plate, each outlined in yellow with its longest span in red.',
+              fig='Figure 9a',
+              src='https://static.igem.wiki/teams/6379/wiki/software/swarming-2026-10-02-10-s6-r2.avif',
+              alt='Annotated photo of a plate on a dark bench. A green circle traces the plate edge. Four branched colonies, one in each quarter of the plate, are outlined in yellow, each with a red line across its longest span labelled #1 24.0 mm, #2 20.3 mm, #3 17.9 mm and #4 17.0 mm. A 10 mm scale bar sits in the bottom right corner.') }}
+      {{ shot('UV mode: a plate photographed on a purple UV background, its glowing centre found by colour.',
+              fig='Figure 9b',
+              src='https://static.igem.wiki/teams/6379/wiki/software/swarming-2026-10-02-02-s8-r1.avif',
+              alt='Annotated photo of a plate under UV light on a purple background. A green circle traces the plate edge. At the centre, a bright cyan glow is outlined in yellow, with a red line across it labelled #1 10.9 mm. A 10 mm scale bar sits in the bottom right corner.') }}
+    </div>
+  </section>
+
+  <section id="swarming-use">
+    <h2 data-toc-title="A.1 Using it"><span class="sw-h-no">A.1</span>Using it</h2>
+
+    <div class="sw-row" id="swarming-photos">
+      <div class="sw-row-text">
+        <p class="sw-row-tag">Step 1</p>
+        <h3>Photos</h3>
+        <p>
+          Enter the assay type and date once for the batch, then choose up to
+          24 photos taken from above (Figure 10a). Each photo gets its strain,
+          an optional condition and a replicate; the replicate is numbered for
+          you when photos share a strain and condition. The plate diameter,
+          93&nbsp;mm by default, is shared by the batch: it sets the scale of
+          every size.
+        </p>
+        <p>
+          Press Analyse and the photos go to the backend one after another,
+          each row showing its own result. The diameter is locked while they
+          run, so a whole batch shares one scale.
         </p>
       </div>
-      <div class="sw-swarm-shots">
-        {{ shot('Plate Imaging · Agar Vision: choosing photos', fig='Figure 9a') }}
-        {{ shot('An annotated plate', fig='Figure 9b') }}
+      {{ shot('Step 1: the experiment, the plate diameter, and one row per photo with its analysis.',
+              fig='Figure 10a',
+              src='https://static.igem.wiki/teams/6379/wiki/software/photos.avif',
+              alt='Plate Imaging step 1, Plate photos, marked Done. Experiment fields: assay type Swarming, date 2026/10/02, optional incubation and notes. Below, the photo picker with the note on accepted formats and limits, and the plate diameter set to 93 mm. A table lists the photos s7.png, s8.png and s9.png, each with its strain, an empty condition, replicate 1, an analysis status of Done with 3, 1 and 1 colonies, and a Remove button.') }}
+    </div>
+
+    <div class="sw-row sw-row-flip" id="swarming-detection">
+      <div class="sw-row-text">
+        <p class="sw-row-tag">Step 2</p>
+        <h3>Detection</h3>
+        <p>
+          One row per photo: how the plate was found, the mode, the number of
+          colonies and the largest span. View opens the photo beside what was
+          found on it (Figure 10b). The first thing to check is that the green
+          circle sits on the plate edge, since every millimetre comes from it.
+          When circle detection fails and a fallback finds the plate instead,
+          the page names the photo and warns that its scale is less sure.
+        </p>
+      </div>
+      {{ shot('Step 2: View opens the photo, what was found on it, and the plate and scale behind every number.',
+              fig='Figure 10b',
+              src='https://static.igem.wiki/teams/6379/wiki/software/detection.avif',
+              alt='Plate Imaging step 2, Plates and colonies, marked Done. The row for s7.png, rep 1: found by Circle, Normal mode, 3 colonies, largest span 27.24 mm, with a Hide button. Below it, the original photo of three colonies beside the annotated one, with the plate edge in green, colony outlines in yellow and longest spans of 15.9, 21.7 and 27.2 mm in red. Underneath, a Plate table: diameter entered 93 mm, found by circle detection, centre (443, 442) px, radius 393 px, scale 0.1183 mm/px.') }}
+    </div>
+
+    <div class="sw-row sw-row-single" id="swarming-export">
+      <div class="sw-row-text">
+        <p class="sw-row-tag">Step 3</p>
+        <h3>Export</h3>
+        <p>
+          Nothing is stored, so the files are the record: one CSV with every
+          colony of every photo, and each annotated photo as a PNG. The page
+          warns before you leave if the batch has not been exported.
+        </p>
       </div>
     </div>
+  </section>
+
+  <section id="swarming-method">
+    <h2 data-toc-title="A.2 What happens to a photo"><span class="sw-h-no">A.2</span>What happens to a photo</h2>
+    <p>
+      The analysis is Tzu-Chiao Chou's colony-measurement notebook, run on the
+      backend with its steps, thresholds and values unchanged. Why each step is
+      there, and what it rejects, is on the
+      <a href="{{ url_for('pages', page='model') }}#model-zone-model">Model</a>
+      page (Part&nbsp;2); in short:
+    </p>
+    <ol class="sw-swarm-steps">
+      <li><strong>Shrink.</strong> A photo wider than 1200&nbsp;px is shrunk to 1200&nbsp;px wide. <em>Added for LasReader:</em> the notebook's pixel thresholds were set on photos about that size, and a full-size phone photo used more memory than the server has.</li>
+      <li><strong>Find the plate.</strong> A circle transform finds the plate edge; the diameter you entered, divided by the diameter found in pixels, gives millimetres per pixel.</li>
+      <li><strong>Choose the mode.</strong> If more than 35% of the photo is blue-purple, the plate was photographed under UV and colonies are found by their green-to-blue ratio (Figure 9b). Otherwise the background is evened out and a colony must pass two brightness thresholds, a loose one for its outline and a high one for its core (Figure 9a).</li>
+      <li><strong>Separate and filter.</strong> A region that does not look like one colony is split. Regions that are too small, touch the plate edge, or are too broken or elongated are dropped as reflections; the ten largest that remain are kept.</li>
+      <li><strong>Measure and draw.</strong> Each colony's longest span, equivalent diameter and area, drawn on the photo with a 10&nbsp;mm scale bar. <em>Added for LasReader:</em> a small photo's annotation is drawn on an enlarged copy so its labels stay sharp; the numbers are measured before it.</li>
+    </ol>
+  </section>
+
+  <section id="swarming-output">
+    <h2 data-toc-title="A.3 What you get"><span class="sw-h-no">A.3</span>What you get</h2>
+    <dl class="hw-spec">
+      <div><dt>CSV</dt><dd>One row per colony across the whole batch, 31 columns: the experiment (assay type, date, strain, condition, replicate), the photo's size as uploaded and as analysed, the plate and its scale, the mode with its thresholds, and the colony's longest span, equivalent diameter and area.</dd></div>
+      <div><dt>Photos</dt><dd>Each annotated photo as a PNG, the same picture as View: plate edge, colony outlines, spans and scale bar.</dd></div>
+      <div><dt>Reproducible</dt><dd>The analysis is deterministic: the same photos with the same plate diameter give the same numbers, and the CSV records both on every row.</dd></div>
+    </dl>
+  </section>
+
+  <section id="swarming-limits">
+    <h2 data-toc-title="A.4 How far to trust it"><span class="sw-h-no">A.4</span>How far to trust it</h2>
+    <p>
+      Against a ruler on 14 colonies from 8 to 26&nbsp;mm, it read within
+      0.71&nbsp;mm on average, every colony within 2&nbsp;mm
+      (<a href="{{ url_for('pages', page='model') }}#model-zone-validation">Model 2.5</a>).
+      It depends on how the plate was photographed: square-on, lid off and
+      away from overhead light, since the scale assumes the plate appears as a
+      circle and a strong enough reflection can still be read as a colony
+      (<a href="{{ url_for('pages', page='model') }}#model-zone-limits">Model 2.7</a>).
+    </p>
+    <ul>
+      <li>The thresholds were set on our swarming plates. On another phenotype, check the outlines in View before trusting the numbers.</li>
+      <li>A wrong plate circle or a stray colony cannot yet be corrected by hand, and the thresholds cannot be changed from the page.</li>
+      <li>The backend's tests cover the upload (file type, size, plate diameter) but not yet the analysis of a real photo; the analysis was instead checked against the notebook's own output on the team's photos.</li>
+    </ul>
+    <p class="sw-small">
+      Runs on LasReader's backend in Python with OpenCV, one photo at a time
+      (<code>POST /api/swarming/analyze</code>); the backend keeps neither the
+      photos nor the results. Notebook by Tzu-Chiao Chou; integrated into
+      LasReader by Yu-Chun Sung.
+    </p>
   </section>
 
 </div>
