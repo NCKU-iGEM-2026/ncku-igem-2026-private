@@ -318,13 +318,16 @@
 
     <p class="hw-aside">
       The two pages report different numbers from the same reader. The
-      Hardware page reports each build's readout from its own serial
-      firmware, such as F5/F3 on the laser-cut build
-      (<a href="{{ url_for('pages', page='hardware') }}#hardware-laser-reading">How a reading is made</a>).
-      LasReader's sketches send all ten channels, and its calibration
-      currently takes F4 as the signal and F3 as scatter, a placeholder until
-      a measured sfGFP spectrum replaces it (<a href="#limits">Table 6</a>).
-      A value from one is therefore not a value from the other.
+      Hardware page reports the laser-cut build's readings as F5/F3, the
+      green channel divided by the blue one
+      (<a href="{{ url_for('pages', page='hardware') }}#hardware-laser-reading">How a reading is made</a>),
+      both from its batch firmware and, for its sensor-strain test, from
+      the ten channels LasReader's sketch sends
+      (<a href="{{ url_for('pages', page='hardware') }}#lc-sensor">The sensor-strain test</a>).
+      LasReader's calibration currently takes F4 alone as the signal and F3
+      as scatter, a placeholder until a measured sfGFP spectrum replaces it
+      (<a href="#limits">Table 6</a>). A value from one is therefore not a
+      value from the other, even when both come from the same reading.
     </p>
   </section>
 
@@ -402,7 +405,7 @@
           <div class="sw-flow-soft">
             <p class="sw-flow-k">LasReader does</p>
             <ul>
-              <li>Self-checks CAPTURE-Screen with a buffer-only cuvette, and flags any tube that saturated, scattered more than the blank, or was read under other settings. The scatter check matters: a culture without the reporter can still read a few counts once it scatters enough, so the scatter channel has to be read beside the green one (<a href="{{ url_for('pages', page='engineering') }}#eng-reader-c2">Engineering</a>, reader cycle&nbsp;2).</li>
+              <li>Self-checks CAPTURE-Screen with a buffer-only cuvette, and flags any tube that saturated, scattered more than twice as much as the latest blank read under the same settings, or was read under other settings. The scatter check matters: a culture without the reporter can still read a few counts once it scatters enough, so the scatter channel has to be read beside the green one (<a href="{{ url_for('pages', page='engineering') }}#eng-reader-c2">Engineering</a>, reader cycle&nbsp;2).</li>
               <li>Excludes a reading only with a written reason, and keeps it in the export.</li>
             </ul>
             <p class="sw-flow-where">In <a href="#tool-capture">CAPTURE-Screen</a> &rarr; Instrument, and every fit</p>
@@ -554,7 +557,7 @@
       <div class="sw-eq md-eqset">
         &Sigma;<sub>&theta;</sub> = {{ frac('&chi;<sup>2</sup><sub>min</sub>', '<var>N</var> &minus; 4') }} (<var>J</var><sup>&#8868;</sup><var>W</var><var>J</var>)<sup>&minus;1</sup>
         <span class="sw-eq-no">(4)</span>
-        <span class="md-eqnote">The uncertainty of the fitted curve: <var>J</var> is the <var>N</var>&nbsp;&times;&nbsp;4 matrix of derivatives &part;<var>F</var>/&part;&theta; at &theta;&#770;, <var>W</var> = diag(1/&sigma;<sub><var>i</var></sub><sup>2</sup>), <var>N</var> the number of readings and &chi;<sup>2</sup><sub>min</sub> the minimised sum in (3). With one reading per concentration and no read-noise estimate, the fit is unweighted and <var>a</var> is taken from the residuals.</span>
+        <span class="md-eqnote">The uncertainty of the fitted curve: <var>J</var> is the <var>N</var>&nbsp;&times;&nbsp;4 matrix of derivatives &part;<var>F</var>/&part;&theta; at &theta;&#770;, <var>W</var> = diag(1/&sigma;<sub><var>i</var></sub><sup>2</sup>), <var>N</var> the number of readings and &chi;<sup>2</sup><sub>min</sub> the minimised sum in (3). When only the blanks are replicated, (2) has a single group to fit, so <var>b</var>&nbsp;=&nbsp;0, <var>a</var> is the blanks' variance and, without read noise, every reading gets the same weight. Only when the replicates show no spread at all and there is no read-noise estimate is the fit unweighted, with <var>a</var> taken from the residuals.</span>
       </div>
       <p class="sw-idea-ref">Model document <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader/-/blob/main/docs/capture_screen_model.md#8-noise-model-and-weights">&sect;8</a>, <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader/-/blob/main/docs/capture_screen_model.md#9-fitting-weighted-levenbergmarquardt">&sect;9</a></p>
     </div>
@@ -674,7 +677,7 @@
         </div>
         <div class="sw-rule">
           <dt><span class="sw-rule-no">R2</span>Nothing disappears silently</dt>
-          <dd>Quality flags warn and leave the decision to you; the one exception is a reading taken under other settings, which a curve never uses (R4). A reading is excluded only with a written reason, and stays on the plot and in the export. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
+          <dd>Quality flags warn and leave the decision to you; the one exception is a reading taken under other settings, which a curve never uses (R4). A reading is excluded only with a written reason, and stays on the plot with its reason kept: in the export, and for a CAPTURE-Screen curve, with the curve and in its JSON backup. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
     </dl>
     <p class="sw-row-tag">When it gives a number</p>
@@ -830,7 +833,11 @@
           <tr>
             <td>A copy of one of our two readers</td>
             <td><span class="sw-adapt">Own backend</span></td>
-            <td>Build it from the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page, flash its sketch, and run LasReader on a lab computer (<a href="#run">&sect;3.5</a>): our server holds one reader at a time. Steps are in the README's <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader#hardware-capture-screen">Hardware</a> section.</td>
+            <td>Build it from the <a href="{{ url_for('pages', page='hardware') }}">Hardware</a> page, flash its sketch, and run LasReader on a lab computer (<a href="#run">&sect;3.5</a>): our server holds one reader at a time. The 3D-printed build's sketch
+            drives the LED from GPIO26, not the GPIO25 of the Hardware page's
+            wiring, and it ships with our build's measured LED current: measure
+            your own and enter it, since that value is part of the
+            configuration every curve is bound to. Steps are in the README's <a href="https://gitlab.igem.org/2026/software/ncku-tainan/lasreader#hardware-capture-screen">Hardware</a> section.</td>
           </tr>
           <tr>
             <td>A reader of your own design, on an AS7341 sensor</td>
@@ -1163,14 +1170,20 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
           Four tubes were left out of this curve, the three at 1,100&nbsp;nM
           and one at 350&nbsp;nM, because of a human error during the
           experiment. LasReader would not fit until each exclusion had a
-          written reason, and it keeps the tubes on the plot as open circles
-          and in the export (R2), so anyone can see what was left out.
+          written reason. The tubes stay on the plot as open circles, and the
+          curve keeps each one's reason, listed in its details on the Curves
+          page and saved in the JSON backup (R2), so anyone can see what was
+          left out and why. The run's CSV (Figure 8a) lists all 18 tubes; it
+          records the readings, not the exclusions.
         </p>
         <p>
           The run shows the workflow working at the bench, not the biosensor.
           With the 1,100&nbsp;nM standards gone, the rise rests on the
-          550&nbsp;nM tubes alone, and the curve is marked Unverified. It is
-          not evidence that the biosensor responds to AHL (Figure 8b).
+          550&nbsp;nM tubes alone, so the curve is not evidence that the
+          biosensor responds to AHL (Figure 8b). Its status reads Unverified
+          only because the reader was offline when the screenshot was taken:
+          the Curves page checks each curve against the configuration the
+          reader is running, and cannot check it while the reader is off.
         </p>
       </div>
       {{ shot("The curve that run gave, on the Curves page. Filled dots: counted tubes. Open circles: excluded tubes.",
@@ -1191,7 +1204,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
           <tr><td>Automated tests for the fit</td><td><code>curve_fit.js</code> runs in the browser and has been checked by hand only.</td><td>Tests on curves with known parameters</td></tr>
           <tr><td>A checked interval</td><td>The delta method with 1.96 gives an approximate 95% CI. Its coverage has not been measured and may fall short with few standards.</td><td>Measure its coverage by simulation; use a <var>t</var> quantile if it falls short</td></tr>
           <tr><td>Clearer OD normalization</td><td>A change in OD600 alone also moves fluorescence &divide; OD600, and the results on screen do not show which one moved; only the export keeps both.</td><td>Show raw fluorescence and OD600 beside the normalized signal on screen</td></tr>
-          <tr><td>A cleaner CAPTURE-Screen signal</td><td>The F4 channel alone also picks up autofluorescence and scattered light, and there is no cell-density correction, so samples at a different OD from the standards convert wrongly. The Hardware page explains why the laser-cut build's own firmware reads F5/F3 instead (<a href="{{ url_for('pages', page='hardware') }}#hardware-laser-reading">How a reading is made</a>).</td><td>Unmix with a measured sfGFP spectrum; add cell density to the signal</td></tr>
+          <tr><td>A cleaner CAPTURE-Screen signal</td><td>The F4 channel alone also picks up autofluorescence and scattered light, and there is no cell-density correction, so samples at a different OD from the standards convert wrongly. The Hardware page explains why it reports the laser-cut build's readings as F5/F3 instead (<a href="{{ url_for('pages', page='hardware') }}#hardware-laser-reading">How a reading is made</a>).</td><td>Unmix with a measured sfGFP spectrum; add cell density to the signal</td></tr>
           <tr><td>Plate Imaging on harder photos</td><td>The scale assumes the plate was photographed square-on, and a reflection bright and even enough to have a dense centre can still be read as a colony (<a href="{{ url_for('pages', page='model') }}#model-zone-limits">Model 2.7</a>).</td><td>Photograph square-on, lid off, away from overhead light; measure how much tilt a comparison within one plate tolerates</td></tr>
         </tbody>
       </table>

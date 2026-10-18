@@ -240,8 +240,10 @@
       show(false);
       return;
     }
-    // The same test CurveFit.fit makes: without replicate spread it fits unweighted.
-    const weighted = [...groups.values()].some((n) => n >= 2);
+    // The panel's readings carry no read-noise SD, so each weight is 1 / (a + b·y²): the weights
+    // differ only when the replicates show the spread growing with the signal (b > 0). Replicated
+    // blanks alone give b = 0, an equal weight for every reading.
+    const weighted = fit.noise.b > 0;
     current = { points, fit, weighted };
     show(true);
     render();
@@ -252,7 +254,8 @@
     $("swTryRange").textContent = num(fit.range_nM.min) + " – " + conc(fit.range_nM.max);
     $("swTryLod").textContent = conc(fit.lod_nM);
     $("swTryWeight").textContent = `${points.length} readings, ` +
-      (weighted ? "weighted by their replicate spread." : "unweighted: no replicates to weight by.");
+      (weighted ? "weighted by their replicate spread."
+        : "weighted equally: the replicates do not show the spread growing with the signal.");
     renderParams();
     invert();
   }
