@@ -95,7 +95,7 @@
         <a href="#part-evidence">
           <span class="sw-map-no" aria-hidden="true">4</span>
           <span class="sw-map-name">Where it stands</span>
-          <span class="sw-map-q">What has been tested so far, and what is still missing.</span>
+          <span class="sw-map-q">What it has been used for so far, and what is still missing before its numbers can be trusted.</span>
         </a>
       </li>
       <li class="sw-map-apart">
@@ -608,7 +608,7 @@
         </div>
         <div class="sw-rule">
           <dt><span class="sw-rule-no">R2</span>Nothing disappears silently</dt>
-          <dd>Quality flags only warn. A reading is excluded only with a written reason, and stays on the plot and in the export. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
+          <dd>Quality flags warn and leave the decision to you; the one exception is a reading taken under other settings, which a curve never uses (R4). A reading is excluded only with a written reason, and stays on the plot and in the export. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
     </dl>
     <p class="sw-row-tag">When it gives a number</p>
@@ -994,7 +994,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
           <tr><td>OSI-approved license</td><td>MIT</td></tr>
           <tr><td>Reproducible build and run</td><td><code>scripts/</code>, <code>setup</code> and <code>dev</code> in <code>.sh</code> and <code>.ps1</code>; no compiled binaries</td></tr>
           <tr><td>Pinned dependencies</td><td><code>backend/requirements.txt</code> pins every package, direct and transitive</td></tr>
-          <tr><td>Repository under 50&nbsp;MB</td><td>About 1.5&nbsp;MB</td></tr>
+          <tr><td>Repository under 50&nbsp;MB</td><td>Under 2&nbsp;MB, history included</td></tr>
         </tbody>
       </table>
     </div>
@@ -1014,47 +1014,63 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
     <h2 data-toc-title="Where it stands">Where it stands</h2>
   </header>
   <p class="sw-takeaway">
-    What has been tried so far, and what comes next.
+    LasReader has run on real readings, but it has not yet turned a real
+    sample into an AHL concentration. This part says what it has been used
+    for, and what is still missing before its numbers can be trusted.
   </p>
 
   <section id="results">
     <h2 data-toc-title="4.1 Tried so far"><span class="sw-h-no">4.1</span>Tried so far</h2>
+    <ul>
+      <li>
+        <strong>Plate Reader Assay.</strong> Our wet lab has fitted a
+        calibration plate of our AHL biosensor read on a SpectraMax M3
+        (Figure 2 shows a plate being entered). It has not yet converted a real
+        sample: whether the biosensor responds to AHL is still being
+        established (<a href="{{ url_for('pages', page='engineering') }}">Engineering</a>).
+      </li>
+      <li>
+        <strong>CAPTURE-Screen.</strong> Its calibration workflow has run on
+        the reader at the bench (Figures 3&ndash;5). No calibration from it
+        is reported yet, so Cross-Validation has had nothing to compare.
+      </li>
+      <li>
+        <strong>Plate Imaging &middot; Agar Vision.</strong> It measured the
+        fluorescent halo on the agar plate shown on the
+        <a href="{{ url_for('pages', page='results') }}">Results</a> page
+        (Figure 8).
+      </li>
+    </ul>
     <p>
-      Our wet lab has put one calibration of our AHL biosensor through the
-      Plate Reader Assay (Figure 8): five standards from 10&nbsp;nM to
-      100&nbsp;&micro;M, three readings each, fluorescence divided by OD600.
-      The low standards overlap within their scatter, which is where a
-      concentration read off the curve would look precise and mean little;
-      LasReader returns one only inside the usable range
-      (<a href="#method-3">&sect;2.1, step 3</a>). The backend has 46 automated tests,
-      and Table 5 lists what is still to be tested.
+      The backend's 46 automated tests (<a href="#run">&sect;3.5</a>) cover
+      the device link, the live spectrum and the photo upload, not the
+      fitting code (Table 5).
     </p>
-    {{ shot('A calibration of our AHL biosensor, fitted in the Plate Reader Assay. Green dots: the readings. Squares: mean ± SD. Line: the weighted 4PL fit. Dashed: its EC50.',
-            fig='Figure 8',
-            src='https://static.igem.wiki/teams/6379/wiki/software/plate-reader-calibration.png',
-            alt='Plate Reader Assay chart: fluorescence divided by OD600 against AHL concentration from 10 nM to 100 µM on a log axis. The readings at 10, 100 and 1,000 nM overlap; the signal rises above 1,000 nM, and the fitted curve is still rising at 100 µM. A dashed line marks the EC50 near 20 µM.') }}
   </section>
 
   <section id="limits">
     <h2 data-toc-title="4.2 Limitations"><span class="sw-h-no">4.2</span>Limitations and next steps</h2>
     <div class="hw-figure">
       <table class="hw-table">
-        <caption><strong>Table 5.</strong> Known limitations and next steps</caption>
+        <caption><strong>Table 5.</strong> What limits the numbers LasReader gives today, and what comes next</caption>
         <thead><tr><th scope="col">Limitation</th><th scope="col">Consequence</th><th scope="col">Next step</th></tr></thead>
         <tbody>
-          <tr><td>One real calibration so far</td><td>The Plate Reader Assay has fitted one calibration from our wet lab (Figure 8). Its OD normalization (subtracting a medium blank) is yet to be confirmed against the wet lab's protocol, and CAPTURE-Screen and Cross-Validation have no real dataset on this page yet.</td><td>More runs, both instruments on the same samples, and the same readings fitted in an established tool</td></tr>
-          <tr><td>No thresholds without data</td><td>There is no replicate-spread limit and no pass/fail for Cross-Validation agreement.</td><td>Set them once real data shows what to expect</td></tr>
-          <tr><td>Single-channel signal on CAPTURE-Screen</td><td>F4 alone also picks up autofluorescence and scattered light; the blank absorbs only the constant part.</td><td>Unmix with a measured sfGFP spectrum</td></tr>
-          <tr><td>No automated tests for the curve fit</td><td>The 46 tests cover the backend; <code>curve_fit.js</code> runs in the browser and is checked by hand.</td><td>Test it against curves with known parameters</td></tr>
-          <tr><td>Rising responses only</td><td>A sensor whose fluorescence falls with its target gives no curve.</td><td>Support a falling 4PL</td></tr>
-          <tr><td>An approximate interval</td><td>The delta method with 1.96 gives an approximate 95% confidence interval. Its coverage has not been validated and may be inaccurate with few tubes or strong non-linearity.</td><td>Check coverage using simulations, bootstrap or another appropriate method; the existing upper-range cutoff does not establish interval coverage</td></tr>
-          <tr><td>No cell-density correction on CAPTURE-Screen</td><td>Samples at a different OD than the standards convert wrongly.</td><td>Add it to the signal definition</td></tr>
-          <tr><td>No direct import of reader files</td><td>Files such as SoftMax Pro <code>.sda</code> are not read; the plate is pasted instead.</td><td>Add readers' formats as they are needed</td></tr>
-          <tr><td>Browser-only storage</td><td>Clearing site data deletes CAPTURE-Screen runs and curves.</td><td>Back up from the Data page; a database later</td></tr>
-          <tr><td>No authentication on the device link</td><td>Anyone who knows the address could impersonate the device.</td><td>A shared secret</td></tr>
+          <tr><td>Not yet validated on real samples</td><td>No concentration it reports has been checked against a sample of known concentration, and no fit has been compared with an established fitting tool.</td><td>Spiked samples once the biosensor responds; the same readings fitted in an established tool</td></tr>
+          <tr><td>No automated tests for the fit</td><td><code>curve_fit.js</code> runs in the browser and has been checked by hand only.</td><td>Tests on curves with known parameters</td></tr>
+          <tr><td>An approximate interval</td><td>The delta method with 1.96 gives an approximate 95% CI. Its coverage has not been measured and may fall short with few standards.</td><td>Measure its coverage by simulation; use a <var>t</var> quantile if it falls short</td></tr>
+          <tr><td>OD normalization in the Plate Reader Assay</td><td>Not yet confirmed against the wet lab's protocol. A change in OD600 alone also moves fluorescence &divide; OD600, and the result does not show which one moved.</td><td>Confirm the protocol; show raw fluorescence and OD600 beside the normalized signal</td></tr>
+          <tr><td>CAPTURE-Screen's signal</td><td>The F4 channel alone also picks up autofluorescence and scattered light, and there is no cell-density correction, so samples at a different OD from the standards convert wrongly.</td><td>Unmix with a measured sfGFP spectrum; add cell density to the signal</td></tr>
         </tbody>
       </table>
     </div>
+    <p class="sw-small">
+      Also: only rising responses can be fitted; there are no pass/fail
+      thresholds for replicate spread or instrument agreement until real data
+      shows what to expect; reader files such as SoftMax Pro <code>.sda</code>
+      are pasted, not imported; CAPTURE-Screen keeps its runs and curves only
+      in the browser (back them up from the Data page); and the device link
+      has no authentication yet.
+    </p>
   </section>
 
   <section id="references">
@@ -1131,14 +1147,19 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
           <div><dt>Reproducible</dt><dd>The analysis is deterministic: the same photos and plate diameter give the same numbers. The CSV records both on every row.</dd></div>
         </dl>
         <p class="sw-small">
-          The analysis is Tzu-Chiao Chou's colony-measurement code, run
-          unchanged on the backend in Python with OpenCV. The backend keeps
-          neither the photos nor the results.
+          The analysis is Tzu-Chiao Chou's colony-measurement code, run on the
+          backend in Python with OpenCV. Its detection and measurement steps
+          and their parameters are unchanged; only the input and output were
+          adapted to a web upload, and a photo wider than 1200&nbsp;px is
+          shrunk to that width first. The backend keeps neither the photos nor
+          the results.
         </p>
       </div>
       <div class="sw-swarm-shots">
-        {{ shot('Plate Imaging · Agar Vision: choosing photos', fig='Figure 9a') }}
-        {{ shot('An annotated plate', fig='Figure 9b') }}
+        {{ shot('A plate analysed by Plate Imaging · Agar Vision: the plate edge it found (green), the fluorescent halo it outlined (yellow) and its longest span (red). The same plate is Figure D1A on the Results page.',
+                fig='Figure 8',
+                src='https://static.igem.wiki/teams/6379/wiki/engineering/engineering/swarming-top10-r2.avif',
+                alt='Whole agar plate under UV, its edge outlined in green, with a fluorescent halo around the central well outlined in yellow and its longest span marked in red.') }}
       </div>
     </div>
   </section>
