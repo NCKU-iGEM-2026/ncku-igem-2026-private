@@ -60,6 +60,22 @@
   transform: none;
   transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.2, 0.75, 0.25, 1);
 }
+/* The sideways deal belongs to the two-column layout: a stop's text starts
+   out towards its own side of the line and slides in. Below 991.98px
+   style.css drops those columns and the stops stack, so there is no side to
+   come from -- and the 26px offset instead pushed every stop not yet scrolled
+   into view past the right edge, which gave the whole page a horizontal
+   scrollbar at every width from 320px up to 768px. Stacked, the text arrives
+   straight up, exactly as it does for reduced motion below.
+
+   :not(.is-in) so the rule stops applying the moment the stop arrives:
+   without it this would outrank the .is-in reset above, which sits at the
+   same specificity but earlier in the file, and the text would stay parked
+   14px down instead of settling. */
+@media (max-width: 991.98px) {
+  .sgd-js .sgd-stop.is-right:not(.is-in) .sgd-text,
+  .sgd-js .sgd-stop.is-left:not(.is-in) .sgd-text { transform: translateY(14px); }
+}
 
 /* 3. the ripple when a stop is reached ------------------------------- */
 .sgd-stop.is-reached .sgd-node { animation: bgm-reach 1s ease-out 1; }
