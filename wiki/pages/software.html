@@ -162,7 +162,7 @@
         </p>
         <p class="sw-solve-now">
           <span class="sw-solve-k">With LasReader</span>
-          <strong>One tool for both.</strong> It runs our CAPTURE-Screen
+          <strong>One tool for every reader.</strong> It runs our CAPTURE-Screen
           directly and takes data from any commercial plate reader, through the
           same curve.
         </p>
@@ -174,7 +174,8 @@
       fluorescence on a portable instrument, and interpreting the data in
       software
       (<a href="{{ url_for('pages', page='meet-with-experts') }}#expert-li">Meet with experts</a>).
-      CAPTURE-Screen is the third of those steps and LasReader the fourth.
+      CAPTURE-Screen, our hardware, is the third of those steps and
+      LasReader, our software, the fourth.
     </p>
   </section>
 
@@ -285,7 +286,7 @@
 
     <div class="hw-modules">
       <article class="hw-module" data-module="primary">
-        <span class="hw-module-tag">Hardware page</span>
+        <span class="hw-module-tag">Hardware</span>
         <h3>CAPTURE-Screen, the reader</h3>
         <p class="hw-module-what">
           A blue LED at 470&nbsp;nm, a ten-channel AS7341 spectral sensor
@@ -300,7 +301,7 @@
         </dl>
       </article>
       <article class="hw-module">
-        <span class="hw-module-tag">This page</span>
+        <span class="hw-module-tag">Software</span>
         <h3>LasReader, the software</h3>
         <p class="hw-module-what">
           One sketch per build connects the reader to LasReader over Wi-Fi.
@@ -579,14 +580,14 @@
         <var>c</var><sub>min</sub> = max(LOD, <var>c</var><sub>lowest standard</sub>),
         <span class="sw-sep"></span><var>c</var><sub>max</sub> = min(<var>c</var><sub>highest standard</sub>, EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup>)
         <span class="sw-eq-no">(6)</span>
-        <span class="md-eqnote">EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup> is where the curve reaches 95% of its response span: setting <var>F</var> = <var>B</var> + 0.95(<var>T</var> &minus; <var>B</var>) in (1) gives (EC<sub>50</sub>/<var>c</var>)<sup><var>h</var></sup> = 1/19. The upper-end region beyond 95% of the response span is excluded because inversion becomes sensitive to small signal changes. Outside [<var>c</var><sub>min</sub>, <var>c</var><sub>max</sub>], only a bound is reported, with no concentration estimate.</span>
+        <span class="md-eqnote">EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup> is where the curve reaches 95% of its response span: setting <var>F</var> = <var>B</var> + 0.95(<var>T</var> &minus; <var>B</var>) in (1) gives (EC<sub>50</sub>/<var>c</var>)<sup><var>h</var></sup> = 1/19. The upper-end region beyond 95% of the response span is excluded because inversion becomes sensitive to small signal changes. Outside [<var>c</var><sub>min</sub>, <var>c</var><sub>max</sub>], only a status is reported, with no concentration estimate.</span>
       </div>
       <p>
-        The lower bound is the larger of the LOD and the lowest non-zero
-        standard concentration, so a sample can be above the LOD and still
-        below the usable range. The app reports both cases with one status,
-        <code>below_lod</code>: read it as &ldquo;below the usable
-        range&rdquo;, not always &ldquo;below the detection limit&rdquo;.
+        The usable range starts at whichever is higher, the LOD or the lowest
+        standard. A sample can therefore clear the LOD but still read below
+        the lowest standard, and fall outside the range. The app gives both
+        cases the same status, <code>below_lod</code>, which means &ldquo;too
+        low to quantify&rdquo;, not always &ldquo;not detected&rdquo;.
       </p>
       <p>
         <strong>The usable range is the software's permitted inversion
@@ -676,7 +677,7 @@
           <dd>With fewer than 4 standard concentrations or 2 blanks, the fit will not run. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
         <div class="sw-rule">
-          <dt><span class="sw-rule-no">R2</span>Nothing disappears silently</dt>
+          <dt><span class="sw-rule-no">R2</span>No reading dropped without a reason</dt>
           <dd>Quality flags warn and leave the decision to you; the one exception is a reading taken under other settings, which a curve never uses (R4). A reading is excluded only with a written reason, and stays on the plot with its reason kept: in the export, and for a CAPTURE-Screen curve, with the curve and in its JSON backup. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
     </dl>
@@ -684,7 +685,7 @@
     <dl class="sw-rules">
         <div class="sw-rule">
           <dt><span class="sw-rule-no">R3</span>No number outside the usable range</dt>
-          <dd>Outside <var>c</var><sub>min</sub> to <var>c</var><sub>max</sub> (<a href="#method-3">&sect;2.1, step 3</a>), only the bound is reported, never an extrapolated value. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
+          <dd>Outside the usable range (<a href="#method-3">&sect;2.1, step 3</a>), LasReader gives no number, only a status: <code>below_lod</code> or <code>above_range</code>. It never extrapolates a concentration. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
         <div class="sw-rule">
           <dt><span class="sw-rule-no">R4</span>A curve converts only what it was made for</dt>
@@ -791,11 +792,11 @@
     <h2 data-toc-title="For other fluorescent biosensors">For other fluorescent biosensors</h2>
   </header>
   <p class="sw-takeaway">
-    The analysis does not depend on AHL. A team whose fluorescent biosensor
-    has a rising response suitable for 4PL calibration, and who can make
-    standards of known concentration, can use the Plate Reader Assay and
-    check the fit against their own experimental data. Table 1 lists what
-    other setups would change.
+    Nothing in the analysis is specific to AHL. The Plate Reader Assay works
+    for any fluorescent biosensor whose signal rises with concentration along
+    an S-shaped (4PL) curve, as long as standards of known concentration can
+    be made. Other teams can then check the fit on their own data. Table 1
+    shows what changes for other setups.
   </p>
 
   <section id="who">
@@ -960,7 +961,7 @@
           <tr><td>The 96-well plate layout, wells A1&ndash;H12<sup><a href="#swref5">[5]</a></sup></td><td>The Plate Reader Assay accepts 96-well data arranged as an 8&nbsp;&times;&nbsp;12 block, with or without row letters and column numbers, and keeps each reading's well in the export. Other readings can be typed or pasted into its table.</td></tr>
           <tr><td>CSV (RFC&nbsp;4180<sup><a href="#swref6">[6]</a></sup>), UTF-8</td><td>The exports are CSV files that Excel, R and Python open as is; the Plate Reader Assay's has one row per reading. Cross-Validation reads the exports back with an RFC&nbsp;4180 parser.</td></tr>
           <tr><td>Calibrated fluorescence units, such as the InterLab's MEFL<sup><a href="#swref7">[7]</a></sup></td><td>The signal can be in any unit, so readings a team has already converted with a fluorescein standard go in unchanged and the curve's signal axis is in those units.</td></tr>
-          <tr><td>The four-parameter logistic<sup><a href="#swref1">[1]</a></sup></td><td>The reference model for a saturating standard curve in binding assays, best fitted with weights (<a href="#method-1">&sect;2.1, steps 1&ndash;2</a>), with parameters a biologist can read.</td></tr>
+          <tr><td>The four-parameter logistic<sup><a href="#swref1">[1]</a></sup></td><td>The reference model for a saturating standard curve in binding assays, best fitted with weights (<a href="#method-1">&sect;2.1, steps 1&ndash;2</a>), with biologically interpretable parameters.</td></tr>
           <tr><td>LOD and LOQ from the blanks, 3 and 10 standard deviations</td><td>The blank mean plus a multiple of the blank SD is the usual way to set both limits<sup><a href="#swref2">[2]</a></sup>; 10 is IUPAC's default multiplier for quantification<sup><a href="#swref3">[3]</a></sup>. Both are carried through the curve into concentrations (<a href="#method-3">&sect;2.1, step 3</a>).</td></tr>
           <tr><td>Bland&ndash;Altman limits of agreement<sup><a href="#swref4">[4]</a></sup></td><td>Cross-Validation compares two instruments the way method-comparison studies do, on the log scale (<a href="#method-5">&sect;2.1, step 5</a>).</td></tr>
           <tr><td>OpenAPI 3.1, WebSocket, JSON</td><td>The backend describes its own API at <code>/docs</code>, and CAPTURE-Screen speaks JSON over WebSocket.</td></tr>
@@ -1406,7 +1407,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev.ps1</pre>
     <ul>
       <li>The thresholds were set on our swarming plates. On another phenotype, check the outlines in View before trusting the numbers.</li>
       <li>A wrong plate circle or a stray colony cannot yet be corrected by hand, and the thresholds cannot be changed from the page.</li>
-      <li>The backend's tests cover the upload (file type, size, plate diameter) but not yet the analysis of a real photo; the analysis was instead checked against the notebook's own output on the team's photos.</li>
     </ul>
     <p class="sw-small">
       Runs on LasReader's backend in Python with OpenCV, one photo at a time

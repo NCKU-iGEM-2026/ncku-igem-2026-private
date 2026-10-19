@@ -1,7 +1,9 @@
 (function () {
   // Click any photo in an .edu-gallery -- or an .hp-figure-grid, the survey
   // figure layout on Human Practices, or an .edu-album-item, one school's
-  // pair in the Education contact sheet, or a .sw-shot screenshot on Software
+  // pair in the Education contact sheet, or a .sw-shot screenshot on Software,
+  // or an .md-plate figure in Part 1 of the Model page, whose forest plots
+  // and dose curves are drawn far larger than the column they sit in
   // -- to open it full-size, with arrow
   // keys / on-screen arrows to step through the rest of that group.
   // The markup is untouched -- this only adds a click handler per <img>
@@ -29,7 +31,7 @@
 
   function init() {
     var galleries = Array.prototype.slice.call(
-      document.querySelectorAll('.edu-gallery, .hp-figure-grid, .edu-album-item, .sw-shot'));
+      document.querySelectorAll('.edu-gallery, .hp-figure-grid, .edu-album-item, .sw-shot, .md-plate'));
     if (!galleries.length) return;
 
     var overlay = buildOverlay();

@@ -1,0 +1,73 @@
+/* Part 1's mechanism flow. Keep other models unchanged. */
+.md .md-mechanism-flow {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.md .md-mechanism-step {
+  color: var(--nx-mint, #49c5b6);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.md .md-mechanism-flow li > span:last-child {
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+.md .md-mechanism-flow > li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 0.65rem;
+  padding: 1.2rem;
+  min-width: 0;
+  border: 1px solid var(--nx-line, #24596b);
+  border-radius: 10px;
+  background: var(--nx-panel, #16323f);
+}
+.md .md-mechanism-flow > li + li::before {
+  content: "↓";
+  position: absolute;
+  top: -1.05rem;
+  left: calc(50% - 0.5rem);
+  line-height: 1;
+  color: var(--nx-mint, #49c5b6);
+}
+.md .md-mechanism-flow strong {
+  line-height: 1.4;
+  color: var(--nx-text, #e8f1f1);
+}
+.md .md-mechanism-flow li > span:last-child {
+  color: var(--nx-muted, #93b0bb);
+}
+.md .md-mechanism figcaption { padding-top: 0.5rem; }
+@media (min-width: 768px) {
+  .md .md-mechanism-flow { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .md .md-mechanism-flow > li { padding: 1rem; }
+  .md .md-mechanism-flow > li + li::before {
+    content: "→";
+    top: calc(50% - 0.5rem);
+    left: -1.05rem;
+  }
+}
+@media print {
+  .md .md-mechanism-flow > li { background: white; border-color: #999; }
+  .md .md-mechanism-flow strong,
+  .md .md-mechanism-flow span { color: black; }
+}
+
+/* Part 1's figures are exported far larger than the column they sit in, so
+   static/edu-lightbox.js is wired to .md-plate and opens them full size. The
+   script adds .edu-gallery-zoomable, which brings its own cursor and a hover
+   scale; the scale is dropped here because these images sit in an
+   overflow-auto panel where it nudges the scrollbar. */
+.md .md-plate .edu-gallery-zoomable:hover { transform: none; }
+.md .hw-figure:has(> .md-plate) figcaption::after {
+  content: " Click the figure to open it full size.";
+  color: var(--nx-muted, #93b0bb);
+}
+@media print {
+  .md .hw-figure:has(> .md-plate) figcaption::after { content: ""; }
+}
