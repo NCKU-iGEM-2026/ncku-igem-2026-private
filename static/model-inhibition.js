@@ -192,6 +192,8 @@
         dialog.addEventListener('close', function () { document.body.classList.remove('md-chart-dialog-open'); });
       }
       var copy = svg.cloneNode(true);
+      var box = svg.viewBox.baseVal;
+      copy.style.setProperty('--md-chart-aspect', box.width / box.height);
       // A modal copy needs distinct IDs so its accessible name stays local.
       copy.querySelectorAll('[id]').forEach(function (el) { el.id += '-expanded'; });
       copy.setAttribute('aria-labelledby', svg.getAttribute('aria-labelledby').split(' ').map(function (id) { return id + '-expanded'; }).join(' '));
