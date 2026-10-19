@@ -2,10 +2,6 @@
 
 {% block title %}Education{% endblock %}
 
-{# The same deep-teal treatment Hardware uses. Everything it switches on
-   lives under body.edu-nexus (and the shared body.hw-nexus rules it joins)
-   in style.css, and overrides the light theme rather than replacing it --
-   deleting this one line puts the page back as it was. #}
 {% block body_class %}edu-nexus{% endblock %}
 
 {% block page_css %}
@@ -16,11 +12,6 @@
 
 {% block page_content %}
 
-{#- Small inline icons and the two pieces every event opens with: a row of
-    fact chips (date, place, who) and a row of figures. Every figure here is
-    one already stated in that event's own text; the number written in the
-    markup is the real one, and static/js/pages/edu-interactive.js only counts
-    up to it. -#}
 {% macro ico(name) -%}
 {%- if name == 'date' -%}<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4.5 0a.5.5 0 0 1 .5.5V1h6V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5z"/></svg>
 {%- elif name == 'place' -%}<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/></svg>
@@ -50,24 +41,14 @@
 <div class="edx-kpi"><span class="edx-kpi-n"><span data-edx-to="{{ a }}">{{ a }}</span><span class="edx-arrow" aria-label="to">&rarr;</span><span data-edx-to="{{ b }}">{{ b }}</span>{% if unit %}<small>{{ unit|safe }}</small>{% endif %}</span><span class="edx-kpi-l">{{ label|safe }}</span></div>
 {%- endmacro %}
 
-{# Same background treatment as the Hardware page: a wash + grid behind
-     everything (body.edu-cosmos-page::before/::after in style.css, built to
-     match body.hw-nexus's recipe) and the same three drifting green glows,
-     reusing hw-nexus's own .hw-orbs/.hw-orb classes directly since they are
-     not scoped to that page. #}
 <div class="hw-orbs" aria-hidden="true">
   <span class="hw-orb hw-orb-a"><span></span></span>
   <span class="hw-orb hw-orb-b"><span></span></span>
   <span class="hw-orb hw-orb-c"><span></span></span>
 </div>
 
-{# Overview（統計、地圖、時間軸）放在兩欄版面之外：它不是可以從側邊欄跳到的
-   場次，而是整頁的開場。留在 .edu-sessions 裡的話，側邊欄會從統計和地圖旁邊
-   就開始出現，而那時還沒有任何場次可跳。搬出來之後側邊欄從第一場活動才起算。
-   #session-overview 的 id 保留——地圖與時間軸的連結不受影響。 #}
   <section id="session-overview" class="edu-session-block edu-overview-block">
 
-  {# Impact Dashboard #}
   <div class="edu-dashboard">
   <div class="edu-stat-tile">
     <div class="edu-stat-number" data-count-to="17">0</div>
@@ -83,13 +64,6 @@
   </div>
 </div>
 
-{#
-  地圖是用真實的台灣縣市界線資料（TopoJSON）在瀏覽器端即時解碼、畫成 SVG，
-  不是接外部地圖圖磚，也沒有用任何外部函式庫，解碼邏輯都寫在 taiwan-map.js。
-  圖釘位置依各活動地點的實際經緯度換算，跟地圖用同一套投影，位置對得起來。
-  地圖維持 17 支圖釘（去過兩次的學校各算一場），圖釘順序不可更動，
-  taiwan-map.js 裡的 SESSIONS 座標陣列是用 index 對應這裡的圖釘順序。
-#}
 <div class="edu-map-row">
   <div class="edu-map-orbit"></div>
   <div class="edu-map-leaders" aria-hidden="true"></div>
@@ -117,9 +91,6 @@
 </div>
 
 
-{# Every event, earliest first -- the same order as the sections below.
-   Each stop is a plain link; the script lights the rail up to the event
-   being read. #}
 <nav class="edx-timeline" aria-label="Our education events, in date order">
   <p class="edx-timeline-title">Our year of teaching, in order</p>
   <ol>
@@ -136,20 +107,6 @@
 
   </section>
 
-{#
-  The "On this page" sidebar here is the auto-built one (static/page-toc.js,
-  data-toc-style="parts" -- same system as Model and SDGs), not the
-  hand-written .edu-sidebar every other hp-nexus/edu-nexus page carries.
-  Nine parts, earliest event first, each a plain link -- none has
-  sub-sections of its own in the new TOC.
-    Overview (stats, map, timeline) still is not one of them: it has no h2 of
-    its own, so page-toc.js never sees it, same as it was never in the old
-    hand-written sidebar either ("沒有人需要跳回去").
-    NCKU-Tainan & STEAM from Seed is one link, not ten: its ten schools are
-    <h4>s inside photo captions (.edu-album-item), not real h2/h3 section
-    headings, so page-toc.js cannot list them without turning that contact
-    sheet back into ten stacked sections -- deliberately not done here.
-#}
 <div data-toc-style="parts">
 
   <section id="session-xihu" class="edu-session-block" data-toc-group data-toc-no="1">
@@ -234,16 +191,6 @@
     </div>
     <p>The STEAM from Seed team is a service-oriented group of students from various high schools and universities in Tainan City. Every year, this team conducts science education camps in rural elementary schools in Tainan City. Their contributions to education have earned them recognition for three consecutive years from the Taiwan Ministry of Education's Youth Volunteer Action Competition. This year, our NCKU-Tainan team collaborated with them to integrate life science lessons into the STEAM curriculum, allowing students in rural elementary schools to experience life science in their daily lives and inspiring the next generation of scientific talent.</p>
 
-    {# The ten sessions as one contact sheet instead of ten stacked strips.
-       Each school keeps its own figure, its name, its date and its id -- the
-       sidebar's ten deep links still land on them, and because every figure
-       is always on screen those links need no script to work.
-
-       Deliberately NOT .edu-gallery: that class is what education-gallery.js
-       turns into an auto-advancing carousel, and ten of those running at once
-       in one section was the thing this replaces. Photos here just sit there.
-       Clicking one still opens the lightbox and arrows through that school's
-       pair -- see the selector in edu-lightbox.js. #}
     <h3>Ten activities, eight schools</h3>
     <div class="edu-album">
 
@@ -340,9 +287,6 @@
     <p>We consulted faculty on safety procedures and purchased materials only after school approval. Participants wore safety goggles and gloves, and a medical professional was present at every activity. Most experiments followed the 3R principle (Replace, Recycle, Reduce), reusing equipment and sorting waste properly.</p>
     <p>On top of this, our team leader completed four of <span class="edx-key">National Cheng Kung University&rsquo;s (NCKU)</span> campus safety training courses and holds a certificate for each, so that the safety of every experiment we brought into a classroom rests on <span class="edx-hl">formal lab-safety training</span>.</p>
 
-    {# The four NCKU training certificates. Each card links straight to its
-       PDF; on a wide screen the script opens it in the dialog at the foot of
-       the page instead. Course names follow the certificates themselves. #}
     <div class="edx-certs">
       <ul class="edx-certs-head">
         <li><b>4</b>training courses</li>
@@ -519,9 +463,6 @@
     <h3>Part 2: Why a Medical Student Joined iGEM</h3>
     <p>In the second half, our team leader Hank, currently a second-year medical student, shared why he chose medicine, what daily life in medical school looks like, and why a medical student would take part in a synthetic biology competition like iGEM. This part sparked an enthusiastic response: students eagerly asked questions to learn more about the perspective about health insurance and the reality of studying medicine.</p>
 
-    {# The Q&A with Hank. Four rows that open on click -- the same
-       .edx-fb accordion the kindergarten feedback uses, so four long
-       chat bubbles no longer take over the section. #}
     <div class="edx-fb tngs-qa-rows" aria-label="A recreation of part of the Q&amp;A with Hank">
       <details>
         <summary>
@@ -574,10 +515,6 @@
     <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
   </section>
 
-  {# Kindergarten, October 1. The team's write-up, shortened; every figure is
-     from it. The interactive parts (the five-step mission, the two flip
-     cards, the feedback rows) all fall back to plain stacked content without
-     JavaScript -- see static/css/pages/edu-interactive.css. #}
   <section id="session-kindergarten" class="edu-session-block edx-kg" data-toc-group data-toc-no="8">
     <p class="edx-kg-badge">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5.5 5.5"/><circle cx="9" cy="9.5" r="1.1" fill="currentColor" stroke="none"/><circle cx="12.3" cy="11.8" r=".8" fill="currentColor" stroke="none"/></svg>
@@ -749,24 +686,6 @@
     <p class="edu-consent-note">Photo and video usage consent was obtained from all participants (or their guardians) prior to this activity.</p>
   </section>
 
-  {#
-    The handbook, in two languages. English is the default.
-
-    The switch is two native radio buttons and CSS -- no script: it works with
-    JavaScript off, a keyboard moves between the two with the arrow keys, and
-    a screen reader hears an ordinary pair of options. The radios come first
-    and sit beside the two panels so the rules in style.css can reach both the
-    labels and the panels with plain sibling selectors.
-
-    Each panel is the same PDF block the Little Sun Project section uses: the
-    document embedded (dropped on a phone, where embedded PDFs do not render
-    reliably) and a View PDF link underneath that opens it full size. The
-    hidden panel's frame is loading="lazy" and display:none, so its PDF is not
-    fetched until that language is chosen.
-
-    Both files are on static.igem.wiki: education-handbook-en.pdf and
-    education-handbook-cn.pdf.
-  #}
   <section id="session-handbook" class="edu-session-block" data-toc-group data-toc-no="9">
     <h2 class="h3">Education Handbook</h2>
 
@@ -833,7 +752,6 @@
     </div>
   </section>
 
-  {# The page's last word: a line about why science education matters. #}
   <section class="edx-finale" aria-label="Closing quote">
     <blockquote>
       <p>If a child is to keep alive his inborn sense of wonder &hellip; he needs the companionship of at least one adult who can share it, rediscovering with him the joy, excitement and mystery of the world we live in.</p>
@@ -845,7 +763,6 @@
 </div>
 
 
-{# Opened by the certificate links in HP safety (edu-interactive.js). #}
 <dialog class="edx-cert-dialog" aria-labelledby="edx-cert-dialog-title">
   <div class="edx-cert-dialog-bar">
     <h4 class="edx-cert-dialog-title" id="edx-cert-dialog-title">Certificate</h4>

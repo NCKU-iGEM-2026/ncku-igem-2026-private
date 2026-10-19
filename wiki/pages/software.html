@@ -162,7 +162,7 @@
         </p>
         <p class="sw-solve-now">
           <span class="sw-solve-k">With LasReader</span>
-          <strong>One tool for both.</strong> It runs our CAPTURE-Screen
+          <strong>One tool for every reader.</strong> It runs our CAPTURE-Screen
           directly and takes data from any commercial plate reader, through the
           same curve.
         </p>
@@ -174,7 +174,8 @@
       fluorescence on a portable instrument, and interpreting the data in
       software
       (<a href="{{ url_for('pages', page='meet-with-experts') }}#expert-li">Meet with experts</a>).
-      CAPTURE-Screen is the third of those steps and LasReader the fourth.
+      CAPTURE-Screen, our hardware, is the third of those steps and
+      LasReader, our software, the fourth.
     </p>
   </section>
 
@@ -285,7 +286,7 @@
 
     <div class="hw-modules">
       <article class="hw-module" data-module="primary">
-        <span class="hw-module-tag">Hardware page</span>
+        <span class="hw-module-tag">Hardware</span>
         <h3>CAPTURE-Screen, the reader</h3>
         <p class="hw-module-what">
           A blue LED at 470&nbsp;nm, a ten-channel AS7341 spectral sensor
@@ -300,7 +301,7 @@
         </dl>
       </article>
       <article class="hw-module">
-        <span class="hw-module-tag">This page</span>
+        <span class="hw-module-tag">Software</span>
         <h3>LasReader, the software</h3>
         <p class="hw-module-what">
           One sketch per build connects the reader to LasReader over Wi-Fi.
@@ -579,14 +580,14 @@
         <var>c</var><sub>min</sub> = max(LOD, <var>c</var><sub>lowest standard</sub>),
         <span class="sw-sep"></span><var>c</var><sub>max</sub> = min(<var>c</var><sub>highest standard</sub>, EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup>)
         <span class="sw-eq-no">(6)</span>
-        <span class="md-eqnote">EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup> is where the curve reaches 95% of its response span: setting <var>F</var> = <var>B</var> + 0.95(<var>T</var> &minus; <var>B</var>) in (1) gives (EC<sub>50</sub>/<var>c</var>)<sup><var>h</var></sup> = 1/19. The upper-end region beyond 95% of the response span is excluded because inversion becomes sensitive to small signal changes. Outside [<var>c</var><sub>min</sub>, <var>c</var><sub>max</sub>], only a bound is reported, with no concentration estimate.</span>
+        <span class="md-eqnote">EC<sub>50</sub>&middot;19<sup>1/<var>h</var></sup> is where the curve reaches 95% of its response span: setting <var>F</var> = <var>B</var> + 0.95(<var>T</var> &minus; <var>B</var>) in (1) gives (EC<sub>50</sub>/<var>c</var>)<sup><var>h</var></sup> = 1/19. The upper-end region beyond 95% of the response span is excluded because inversion becomes sensitive to small signal changes. Outside [<var>c</var><sub>min</sub>, <var>c</var><sub>max</sub>], only a status is reported, with no concentration estimate.</span>
       </div>
       <p>
-        The lower bound is the larger of the LOD and the lowest non-zero
-        standard concentration, so a sample can be above the LOD and still
-        below the usable range. The app reports both cases with one status,
-        <code>below_lod</code>: read it as &ldquo;below the usable
-        range&rdquo;, not always &ldquo;below the detection limit&rdquo;.
+        The usable range starts at whichever is higher, the LOD or the lowest
+        standard. A sample can therefore clear the LOD but still read below
+        the lowest standard, and fall outside the range. The app gives both
+        cases the same status, <code>below_lod</code>, which means &ldquo;too
+        low to quantify&rdquo;, not always &ldquo;not detected&rdquo;.
       </p>
       <p>
         <strong>The usable range is the software's permitted inversion
@@ -676,7 +677,7 @@
           <dd>With fewer than 4 standard concentrations or 2 blanks, the fit will not run. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
         <div class="sw-rule">
-          <dt><span class="sw-rule-no">R2</span>Nothing disappears silently</dt>
+          <dt><span class="sw-rule-no">R2</span>No reading dropped without a reason</dt>
           <dd>Quality flags warn and leave the decision to you; the one exception is a reading taken under other settings, which a curve never uses (R4). A reading is excluded only with a written reason, and stays on the plot with its reason kept: in the export, and for a CAPTURE-Screen curve, with the curve and in its JSON backup. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
     </dl>
@@ -684,7 +685,7 @@
     <dl class="sw-rules">
         <div class="sw-rule">
           <dt><span class="sw-rule-no">R3</span>No number outside the usable range</dt>
-          <dd>Outside <var>c</var><sub>min</sub> to <var>c</var><sub>max</sub> (<a href="#method-3">&sect;2.1, step 3</a>), only the bound is reported, never an extrapolated value. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
+          <dd>Outside the usable range (<a href="#method-3">&sect;2.1, step 3</a>), LasReader gives no number, only a status: <code>below_lod</code> or <code>above_range</code>. It never extrapolates a concentration. <span class="sw-rule-for">Plate Reader Assay, CAPTURE-Screen</span></dd>
         </div>
         <div class="sw-rule">
           <dt><span class="sw-rule-no">R4</span>A curve converts only what it was made for</dt>
