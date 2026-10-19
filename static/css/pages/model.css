@@ -58,11 +58,8 @@
   .md .md-mechanism-flow span { color: black; }
 }
 
-/* Part 1's figures are exported far larger than the column they sit in, so
-   static/edu-lightbox.js is wired to .md-plate and opens them full size. The
-   script adds .edu-gallery-zoomable, which brings its own cursor and a hover
-   scale; the scale is dropped here because these images sit in an
-   overflow-auto panel where it nudges the scrollbar. */
+/* Retain the existing image viewer for other Model-page figures. Part 1's
+   native SVG charts use the accessible dialog below. */
 .md .md-plate .edu-gallery-zoomable:hover { transform: none; }
 .md .hw-figure:has(> .md-plate) figcaption::after {
   content: " Click the figure to open it full size.";
@@ -70,4 +67,116 @@
 }
 @media print {
   .md .hw-figure:has(> .md-plate) figcaption::after { content: ""; }
+}
+
+/* Long-form scientific prose and native charts, scoped to Part 1. */
+.md-inhibition {
+  font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", sans-serif;
+  background: rgba(14, 36, 46, 0.72);
+  border-radius: 12px;
+  min-width: 0;
+}
+body.hw-nexus .md-inhibition p,
+body.hw-nexus .md-inhibition li { line-height: 1.8; }
+.md-inhibition section { scroll-margin-top: 112px; }
+.md-inhibition details[id] { scroll-margin-top: 112px; }
+.md-inhibition .hw-fold-title { line-height: 1.5; }
+.md-inhibition .md-fold { width: 100%; max-width: none; }
+.md-inhibition .md-chart-figure { max-width: 860px; margin-inline: auto; }
+.md-inhibition .md-chart {
+  overflow-x: auto;
+  background: #fcfcfb;
+  border: 1px solid var(--nx-line, #24596b);
+  border-radius: 12px;
+  padding: 0.5rem;
+  margin-top: 1rem;
+}
+.md-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 720px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: #fcfcfb;
+}
+body.hw-nexus .md-inhibition .md-chart > p { color: #172e39; padding: 1rem; }
+.md-inhibition .md-table-scroll { overflow-x: auto; }
+.md-inhibition .md-table-scroll th[scope="row"] {
+  color: var(--nx-text, #e8f1f1);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.md-inhibition .md-chart:focus-visible,
+.md-inhibition .md-table-scroll:focus-visible {
+  outline: 2px solid var(--nx-mint, #49c5b6);
+  outline-offset: 4px;
+}
+.md-inhibition .md-scroll-hint { display: none; }
+.md-chart-expand,
+.md-chart-close {
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  cursor: pointer;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+}
+.md-chart-expand {
+  color: var(--nx-mint, #49c5b6);
+  background: transparent;
+  margin-top: 0.6rem;
+}
+.md-chart-expand:hover { background: rgba(73, 197, 182, 0.12); }
+.md-chart-dialog {
+  width: min(1200px, calc(100vw - 2rem));
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  box-sizing: border-box;
+  padding: 1rem;
+  border: 1px solid #647b80;
+  border-radius: 12px;
+  background: #fcfcfb;
+  color: #172e39;
+  overflow: auto;
+}
+.md-chart-dialog::backdrop { background: rgba(5, 16, 22, 0.9); }
+.md-chart-dialog-content { overflow: auto; }
+.md-chart-dialog .md-svg {
+  max-width: calc((100dvh - 9rem) * var(--md-chart-aspect, 1));
+  margin-inline: auto;
+}
+.md-chart-close {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: block;
+  margin: 0 0 0.7rem auto;
+  background: #172e39;
+  color: #fff;
+}
+body.md-chart-dialog-open { overflow: hidden; }
+/* Existing image lightboxes on this page must also clear the fixed navbar. */
+body:has([data-model-inhibition]) .edu-lightbox { z-index: 1200; }
+
+@media (min-width: 768px) and (max-width: 1199.98px) {
+  .md .md-mechanism-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md .md-mechanism-flow > li + li::before { content: none; }
+}
+@media (max-width: 767.98px) {
+  .md-inhibition .md-scroll-hint {
+    display: block;
+    color: var(--nx-muted, #93b0bb);
+    font-size: 0.85rem;
+    margin-top: 0.6rem;
+  }
+  .md-inhibition .md-chart-figure figcaption { line-height: 1.65; }
+  .md-chart-dialog { padding: 0.6rem; width: calc(100vw - 1rem); }
+}
+@media print {
+  .md-inhibition { background: transparent; color: black; }
+  .md-inhibition .md-chart { overflow: visible; border-color: #999; }
+  .md-svg { min-width: 0; }
+  .md-chart-expand, .md-chart-dialog, .md-inhibition .md-scroll-hint { display: none; }
 }
