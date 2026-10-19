@@ -284,7 +284,7 @@
       <em>Pseudomonas&nbsp;aeruginosa</em>. The idea is a molecular sponge:
       hold the signal below the threshold and the quorum-sensing switch never
       turns on. What the wet lab measured was a partial effect &mdash;
-      swarming and pyocyanin both down by roughly a fifth to a third. This
+      swarming, pyocyanin and biofilm all down, by a tenth to a third. This
       model was fitted to two of those numbers and then asked to predict a
       treatment and two phenotypes it had never seen. It misses them, in the
       same direction every time, and that failure is the most informative
@@ -324,9 +324,9 @@
       <dt class="hw-flip-front"><span class="hw-face-text"><span class="hw-ico" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><path d="M6.2 17.8 17.8 6.2"/></svg></span>It fails its own test</span></dt>
       <dd class="hw-flip-back">
         Cb-2 was held out of every fit and the model misses it in all three
-        assays, the same way each time. Two readings survive and this design
-        cannot separate them. The experiment that would is the first thing
-        1.8 asks for.
+        assays, the same way each time and by the most in biofilm. Three
+        readings survive and this design cannot separate them. The experiment
+        that would is the first thing 1.8 asks for.
       </dd>
     </div>
   </dl>
@@ -344,11 +344,11 @@
     <div class="hw-fold-body">
     <dl class="hw-spec">
       <div><dt>Question</dt><dd>Why the inhibition is partial, how much more aptamer would finish it, why the dual-specificity aptamer underperforms, and which unknown is holding the answers back. <a href="#model-inhibition-question">1.1</a></dd></div>
-      <div><dt>Data</dt><dd>Three assays, every treated well normalised to a control on the same plate, plates resampled whole for the intervals, and the plate count printed beside every row. <a href="#model-inhibition-data">1.2</a></dd></div>
+      <div><dt>Data</dt><dd>Three assays, every treated well normalised to a control on the same plate, each interval resampled over whatever that assay's unit is, and that unit printed beside every row. <a href="#model-inhibition-data">1.2</a></dd></div>
       <div><dt>Model</dt><dd>Competitive sequestration by a one-site sponge against two AHL signals that the cell regenerates under positive feedback. <a href="#model-inhibition-model">1.3</a></dd></div>
       <div><dt>Calibration</dt><dd>Two free parameters fitted to two measurements, on 400 bootstrap resamples rather than once; one affinity from the literature; everything else predicted. <a href="#model-inhibition-params">1.4</a></dd></div>
       <div><dt>Results</dt><dd>Why the effect is partial, what dose would finish it, and why length rather than dual specificity is what costs Cb-2. <a href="#model-inhibition-results">1.5</a></dd></div>
-      <div><dt>Validation</dt><dd>One treatment and two phenotypes held out entirely. The model fails all three, consistently, and the failure is diagnostic. <a href="#model-inhibition-validation">1.6</a></dd></div>
+      <div><dt>Validation</dt><dd>One treatment and two phenotypes held out entirely. The model fails all three, consistently; the failure is diagnostic, and part of it belongs to treating a plate as one compartment. <a href="#model-inhibition-validation">1.6</a></dd></div>
       <div><dt>Uncertainty</dt><dd>Three unknowns separated &mdash; the measurements, the literature parameters, the unrecorded dose. The parameters dominate every output. <a href="#model-inhibition-uncertainty">1.7</a></dd></div>
       <div><dt>What it changed</dt><dd>Seven instructions handed back to the wet lab, starting with the control the analysis cannot do without. <a href="#model-inhibition-changed">1.8</a></dd></div>
     </dl>
@@ -393,10 +393,13 @@
     <p>
       Every treated well is normalised to a control on the same plate, so the
       response is a ratio and is analysed on the log scale, where ratios are
-      symmetric and additive. Plates enter the model as a random intercept, so
-      replicate wells on one plate are not counted as independent experiments.
-      The plate count is printed beside every row: it is the number that sets
-      how much the interval beside it is worth.
+      symmetric and additive. <strong>What counts as one experiment differs
+      between the assays.</strong> For swarming and pyocyanin the plate is the
+      unit and plates enter as a random intercept, so repeated readings on one
+      plate are not counted as independent experiments. For biofilm every row
+      is a separately grown biological replicate and the replicates are the
+      units. That unit is printed beside every row, because it is what sets how
+      much the interval beside it is worth.
     </p>
 
     <div class="hw-caution">
@@ -404,9 +407,9 @@
         <em>A plate is recovered from its control reading.</em> The workbook
         records no dates and no plate numbers. Readings that are equal are
         taken to be the same plate. That is what re-pairs ALS-5 and A16-2
-        across nine swarming plates, which is what makes the key comparison
-        below a within-plate one; it also merges two pyocyanin rows that both
-        read 0.102, costing that assay a plate.
+        across nine swarming plates, which is what lets the key comparison
+        below be made within plates at all; it also merges two pyocyanin rows
+        that both read 0.102, costing that assay a plate.
       </p>
     </div>
 
@@ -414,12 +417,12 @@
 
     <div class="hw-figure hw-figure-table">
       <table class="hw-table md-keep">
-        <caption>Ratio to the same-plate control &mdash; geometric mean with a 95&nbsp;% plate-level bootstrap interval</caption>
+        <caption>Ratio to the same-plate control &mdash; geometric mean with a 95&nbsp;% interval over the assay's own unit</caption>
         <thead>
           <tr>
             <th scope="col">Assay</th><th scope="col">Treatment</th>
             <th scope="col" class="md-n">Wells</th>
-            <th scope="col" class="md-n">Plates</th>
+            <th scope="col" class="md-n">Units</th>
             <th scope="col" class="md-n">Ratio [95&nbsp;% CI]</th>
             <th scope="col" class="md-n">Inhibition</th>
           </tr>
@@ -431,32 +434,43 @@
           <tr><td>Pyocyanin</td><td>ALS-5</td><td class="md-n">4</td><td class="md-n">4</td><td class="md-n">0.812 [0.747, 0.866]</td><td class="md-n">18.8&nbsp;%</td></tr>
           <tr><td>Pyocyanin</td><td>A16-2</td><td class="md-n">3</td><td class="md-n">3</td><td class="md-n">0.801 [0.767, 0.833]</td><td class="md-n">19.9&nbsp;%</td></tr>
           <tr><td>Pyocyanin</td><td><strong>Cb-2</strong></td><td class="md-n">4</td><td class="md-n">3</td><td class="md-n"><strong>0.723 [0.650, 0.774]</strong></td><td class="md-n"><strong>27.7&nbsp;%</strong></td></tr>
-          <tr><td>Biofilm</td><td>ALS-5</td><td class="md-n">6</td><td class="md-n">2</td><td class="md-n">0.793 [0.454, 1.386]&nbsp;&dagger;</td><td class="md-n">20.7&nbsp;%</td></tr>
-          <tr><td>Biofilm</td><td>A16-2</td><td class="md-n">6</td><td class="md-n">2</td><td class="md-n">0.784 [0.448, 1.370]&nbsp;&dagger;</td><td class="md-n">21.6&nbsp;%</td></tr>
-          <tr><td>Biofilm</td><td>Cb-2</td><td class="md-n">12</td><td class="md-n">2</td><td class="md-n">0.745 [0.422, 1.316]&nbsp;&dagger;</td><td class="md-n">25.5&nbsp;%</td></tr>
+          <tr><td>Biofilm</td><td>ALS-5</td><td class="md-n">6</td><td class="md-n">6&nbsp;&dagger;</td><td class="md-n">0.885 [0.779, 1.005]</td><td class="md-n">11.5&nbsp;%</td></tr>
+          <tr><td>Biofilm</td><td>A16-2</td><td class="md-n">6</td><td class="md-n">6&nbsp;&dagger;</td><td class="md-n">0.874 [0.785, 0.973]</td><td class="md-n">12.6&nbsp;%</td></tr>
+          <tr><td>Biofilm</td><td><strong>Cb-2</strong></td><td class="md-n">12</td><td class="md-n">12&nbsp;&dagger;</td><td class="md-n"><strong>0.633 [0.563, 0.712]</strong></td><td class="md-n"><strong>36.7&nbsp;%</strong></td></tr>
         </tbody>
       </table>
     </div>
 
     <p class="hw-aside">
-      &dagger;&nbsp;Biofilm has two plates per treatment, which supports no
-      bootstrap interval at all, so those three rows give the mixed-model
-      estimate and interval instead. Source:
-      <code>effect_sizes_bootstrap.csv</code>, <code>effect_sizes.csv</code>.
+      &dagger;&nbsp;A biofilm unit is one well, not one plate: the wet lab
+      confirmed on 2026-10-15 that every crystal-violet well was grown from its
+      own culture and inoculated separately, so the assay has 24 independent
+      biological replicates read on three shared plates. Those three intervals
+      are each treatment's own replicates with their own standard error; the
+      swarming and pyocyanin rows are the plate-level bootstrap, which assumes
+      nothing about the shape of the plate effect. Source:
+      <code>effect_sizes.csv</code>,
+      <code>effect_sizes_bootstrap.csv</code>.
     </p>
 
     <figure class="hw-figure">
       <div class="md-plate md-plate-tall">
         <img src="https://static.igem.wiki/teams/6379/wiki/model/inhibition-f1-effect-sizes.avif"
-             alt="A forest plot of three treatments in each of three assays, as a ratio to the control on the same plate. The six swarming and pyocyanin intervals are short, solid and sit clear to the left of the no-effect line at 1. The three biofilm intervals are drawn dashed and open and are so wide that all three cross 1."
+             alt="A forest plot of three treatments in each of three assays, as a ratio to the control on the same plate. All nine intervals are short, solid and sit clear to the left of the no-effect line at 1, and all nine are starred. The swarming and pyocyanin rows are labelled with their plate counts, the biofilm rows as six, six and twelve replicates on two plates. The largest effect in the figure is biofilm Cb-2 at 36.7 percent."
              loading="lazy" decoding="async" width="1800" height="1480">
       </div>
       <figcaption>
-        <strong>Six resolvable effects and three unresolvable ones.</strong>
-        Solid markers are plate-level bootstrap intervals; the open, dashed
-        biofilm rows have fewer than three plates, so they carry the
-        mixed-model interval and no bootstrap is possible.
-        Source: <code>effect_sizes_bootstrap.csv</code>, F1.
+        <strong>Nine effects, each resampled over its own unit.</strong>
+        The interval on every row is resampled over whatever that assay's rows
+        are &mdash; plates for swarming and pyocyanin, biological replicates
+        for biofilm &mdash; so a row's interval is built from the same unit its
+        <var>p</var>-value counts, and it assumes nothing about the shape of
+        the error. A star marks an interval that excludes no effect.
+        <strong>Biofilm ALS-5 carries one here while its
+        <var>t</var>-interval in the table above does not</strong>
+        (<var>p</var>&nbsp;=&nbsp;0.057): a result that lands on the line under
+        one reading and off it under the other is borderline, and is called
+        that. Source: <code>effect_sizes_bootstrap.csv</code>, F1.
       </figcaption>
     </figure>
 
@@ -469,33 +483,136 @@
     </p>
 
     <p>
-      <strong>Biofilm is not resolvable as run.</strong> Its point estimates
-      sit with the others at 21&ndash;25&nbsp;% inhibition, but each treatment
-      was measured on two plates: nothing reaches significance
-      (<var>p</var>&nbsp;=&nbsp;0.16&ndash;0.22) and no plate-level interval
-      is reportable. Against a 0.80&ndash;1.25 equivalence margin, no treatment
-      in any assay is demonstrated <em>equivalent</em> to no effect either; for
-      two of them &mdash; swarming A16-2 and pyocyanin Cb-2 &mdash; the effect
-      lies beyond that margin, and the remaining seven are inconclusive
-      (<code>equivalence_tests.csv</code>).
+      <strong>Biofilm resolves for Cb-2 and for A16-2, and not for
+      ALS-5.</strong> Cb-2 removes 36.7&nbsp;% of the biofilm [28.8, 43.7] on
+      twelve replicates (<var>p</var>&nbsp;=&nbsp;3&nbsp;&times;&nbsp;10<sup>&minus;6</sup>)
+      and A16-2 12.6&nbsp;% [2.7, 21.5] on six
+      (<var>p</var>&nbsp;=&nbsp;0.023); ALS-5's 11.5&nbsp;% does not clear the
+      line (<var>p</var>&nbsp;=&nbsp;0.057). Those three readings agree with
+      the wet lab's own summary on the
+      <a href="{{ url_for('pages', page='results') }}">Results</a> page, which
+      reports the same assay as reductions of 34.2&nbsp;% for Cb-2,
+      12.2&nbsp;% for A16-2 and 11.0&nbsp;% for ALS-5, and likewise leaves
+      ALS-5 just short at <var>p</var>&nbsp;=&nbsp;0.053. The two
+      analyses are compared treatment by treatment at the end of this section.
+      <strong>Cb-2's row carries a condition the other two do not</strong>: its
+      two plates disagree with each other, which is the caution below.
+    </p>
+
+    <h3>Equivalence, and what the assays could have detected</h3>
+
+    <p>
+      Failing to reject &ldquo;no effect&rdquo; is not the same as showing
+      there is none, so every treatment was tested the other way round as well,
+      against a 0.80&ndash;1.25 equivalence margin. The margin is symmetric on
+      the log scale, where the analysis is done; in ratio terms that reads as
+      &minus;20&nbsp;%&nbsp;/&nbsp;+25&nbsp;% and must not be quoted as
+      &plusmn;20&nbsp;%.
+    </p>
+
+    <p>
+      Of the nine rows, three are <em>larger</em> than the margin allows
+      &mdash; swarming A16-2, pyocyanin Cb-2 and biofilm Cb-2 &mdash; four are
+      inconclusive, and <strong>two come back equivalent to no effect, both in
+      biofilm: ALS-5 (<var>p</var>&nbsp;=&nbsp;0.049) and A16-2
+      (<var>p</var>&nbsp;=&nbsp;0.043)</strong>. A16-2's is the awkward one:
+      the same six replicates give <var>p</var>&nbsp;=&nbsp;0.023 against no
+      effect and <var>p</var>&nbsp;=&nbsp;0.043 against the margin. Read
+      together those say the effect is resolvable <em>and</em> small &mdash; a
+      real difference from the control that a 20&nbsp;% criterion would not
+      call biologically interesting.
+    </p>
+
+    <p>
+      Both verdicts sit on the line, and one number says how close. Every
+      biofilm well is divided by the mean of its block's control wells, so one
+      number divides all of them and its own sampling error cancels out of the
+      spread of the ratios. Carry that error through and both verdicts turn
+      over &mdash; ALS-5 to 0.055, A16-2 to 0.050, neither equivalent any more.
+      Nothing else in this part moves under that sensitivity and this does, so
+      <strong>those two rows are better described as small and not resolved
+      either way</strong> than as either label.
+      Source: <code>equivalence_tests.csv</code>.
+    </p>
+
+    <p>
+      <strong>What the assays could have detected</strong>, at 80&nbsp;% power
+      against a 20&nbsp;% target reduction: swarming asks for seven plates per
+      treatment and has 10, 11 and 5; biofilm asks for four replicates and has
+      6, 6 and 12. <strong>Cb-2's swarming arm is the short one</strong>
+      &mdash; five plates against a smallest detectable effect of 22.9&nbsp;%,
+      larger than the 18.0&nbsp;% it measured. That it resolves anyway
+      (<var>p</var>&nbsp;=&nbsp;0.019) is because the power figure uses the
+      variance pooled across the whole assay while Cb-2's own five plates are
+      tighter than it: the table is an assay-level statement, not a
+      per-treatment one. Source: <code>power_requirements.csv</code>.
     </p>
 
     <div class="hw-caution">
       <p>
-        <em>A biofilm row is a well, not a plate.</em> Whether a numbered row
-        is one or the other is an assay-level judgement, and it is the single
-        choice that most changes what this assay appears to show. A swarming
-        row is one colony and is read here as a plate; a biofilm row is one
-        well of a 96-well plate &mdash; which is how the
+        <em>What one row is was asked, not inferred.</em> Until 2026-10-15 this
+        analysis read a biofilm row as one well of a shared 96-well plate
+        &mdash; a technical replicate, with the plate as the experimental unit
+        &mdash; which is how the
         <a href="{{ url_for('pages', page='engineering') }}">Engineering</a>
-        page describes the method &mdash; and is read as a replicate. That is
-        why biofilm has two plates per treatment here rather than six or
-        twelve, and why this part reports it as unresolved while the
-        <a href="{{ url_for('pages', page='results') }}">Results</a> page
-        reports the well-level statistics for the same measurements. The
-        reading taken here is the one that claims less.
+        page describes the method, and it was reported here as the reading that
+        claims less. That is a reason to prefer a reading, not evidence for
+        one. <strong>The wet lab was asked and answered: each crystal-violet
+        well was grown from its own culture and inoculated separately.</strong>
+        Read as plates instead, the assay has two units per treatment and
+        resolves nothing (<var>p</var>&nbsp;=&nbsp;0.13&ndash;0.45); every
+        biofilm number in this part would change, and only the biofilm numbers.
+        An assumption that decides what counts as <var>n</var> is worth one
+        question to the people who ran the experiment.
       </p>
     </div>
+
+    <h3>Do the plates agree? One treatment says no</h3>
+
+    <p>
+      Reading those wells as independent replicates carries a condition:
+      dividing each well by the control on its own plate has to leave nothing
+      of the plate behind. If it does not, twelve wells are not twelve
+      experiments and the standard error computed from them is too small. So
+      every treatment is also reported one plate at a time, and the plates are
+      tested against each other.
+    </p>
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table md-keep">
+        <caption>Biofilm Cb-2, plate by plate &mdash; the one treatment whose plates disagree</caption>
+        <thead>
+          <tr>
+            <th scope="col">Plate</th>
+            <th scope="col" class="md-n">Wells</th>
+            <th scope="col" class="md-n">Inhibition</th>
+            <th scope="col">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>bf-P1</code></td><td class="md-n">10</td><td class="md-n"><strong>40.6&nbsp;%</strong></td><td>carries no other treatment</td></tr>
+          <tr><td><code>bf-P2</code></td><td class="md-n">2</td><td class="md-n"><strong>13.3&nbsp;%</strong></td><td>carries all three</td></tr>
+          <tr><td>one-way <var>F</var></td><td class="md-n">&mdash;</td><td class="md-n"><var>p</var>&nbsp;=&nbsp;<strong>0.002</strong></td><td>the gap is three times the spread within either plate</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">Source: <code>plate_split.csv</code>.</p>
+
+    <p>
+      Eight of the nine treatment-assay pairs are fine or untestable. Biofilm
+      Cb-2 is not: the reported 36.7&nbsp;% [28.8, 43.7] is
+      <code>bf-P1</code> carrying ten of the twelve rows, and the plate-level
+      standard error of the same twelve is 3.5&times; wider than the one quoted.
+      <strong>The headline column stays as it is</strong> &mdash; with two
+      plates there is no model that estimates a well-level effect and a plate
+      effect at once, and the replicate reading is the one the wet lab supports
+      &mdash; but <strong>the number should be read as what <code>bf-P1</code>
+      says.</strong> The three biofilm plates also differ 3.4-fold in control
+      reading and the readout is assumed linear across that range; Cb-2 is the
+      only treatment with enough wells on the extreme plate for that assumption
+      to be testable, and there it fails.
+    </p>
 
     <h3>There is no quorum-sensing-independent control</h3>
 
@@ -517,57 +634,92 @@
       recommendation in <a href="#model-inhibition-changed">1.8</a>.
     </p>
 
-    <h3>Which comparisons are paired</h3>
+    <h3>Which comparisons hold the plate fixed</h3>
 
     <p>
-      A contrast between treatments measured on the same plates is a
-      within-plate comparison and the plate effect cancels. A contrast across
+      A contrast between treatments measured on the same plates can be made
+      within those plates, and the plate effect cancels. A contrast across
       different plates carries the difference between plates with it. Both can
       return <var>p</var>&nbsp;&asymp;&nbsp;0.03 and they are not the same
-      evidence, so every contrast is reported with the number of plates it
-      rests on.
+      evidence, so every contrast is reported twice: pooled over the assay, and
+      restricted to the plates both treatments were on with the plate held
+      fixed.
     </p>
 
     <div class="hw-figure hw-figure-table">
       <table class="hw-table md-keep">
-        <caption>Treatment-versus-treatment contrasts, with the plates they share</caption>
+        <caption>Treatment-versus-treatment contrasts, pooled and with the plate held fixed</caption>
         <thead>
           <tr>
             <th scope="col">Contrast</th>
             <th scope="col" class="md-n">Shared plates</th>
             <th scope="col" class="md-n">Fold [95&nbsp;% CI]</th>
             <th scope="col" class="md-n"><var>p</var></th>
+            <th scope="col" class="md-n">Fold, plate fixed</th>
+            <th scope="col" class="md-n"><var>p</var></th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Swarming, A16-2 vs ALS-5</td><td class="md-n"><strong>9</strong></td><td class="md-n">0.835 [0.713, 0.979]</td><td class="md-n"><strong>0.028</strong></td></tr>
-          <tr><td>Swarming, A16-2 vs Cb-2</td><td class="md-n"><strong>0</strong></td><td class="md-n">0.783 [0.635, 0.964]</td><td class="md-n">0.024</td></tr>
-          <tr><td>Swarming, Cb-2 vs ALS-5</td><td class="md-n"><strong>0</strong></td><td class="md-n">1.067 [0.863, 1.320]</td><td class="md-n">0.526</td></tr>
-          <tr><td>Pyocyanin, A16-2 vs ALS-5</td><td class="md-n">3</td><td class="md-n">0.977 [0.876, 1.090]</td><td class="md-n">0.592</td></tr>
-          <tr><td>Pyocyanin, Cb-2 vs ALS-5</td><td class="md-n">2</td><td class="md-n">0.875 [0.778, 0.985]</td><td class="md-n"><strong>0.035</strong></td></tr>
-          <tr><td>Pyocyanin, A16-2 vs Cb-2</td><td class="md-n">1</td><td class="md-n">1.117 [0.982, 1.270]</td><td class="md-n">0.076</td></tr>
-          <tr><td>Biofilm, A16-2 vs ALS-5</td><td class="md-n">2</td><td class="md-n">0.988 [0.736, 1.326]</td><td class="md-n">0.876</td></tr>
-          <tr><td>Biofilm, A16-2 vs Cb-2</td><td class="md-n">1</td><td class="md-n">1.051 [0.660, 1.676]</td><td class="md-n">0.689</td></tr>
-          <tr><td>Biofilm, Cb-2 vs ALS-5</td><td class="md-n">1</td><td class="md-n">0.940 [0.590, 1.498]</td><td class="md-n">0.624</td></tr>
+          <tr><td>Swarming, A16-2 vs ALS-5</td><td class="md-n"><strong>9</strong></td><td class="md-n">0.835 [0.713, 0.979]</td><td class="md-n"><strong>0.028</strong></td><td class="md-n">0.838</td><td class="md-n">0.120</td></tr>
+          <tr><td>Swarming, A16-2 vs Cb-2</td><td class="md-n"><strong>0</strong></td><td class="md-n">0.783 [0.635, 0.964]</td><td class="md-n"><strong>0.024</strong></td><td class="md-n">&mdash;</td><td class="md-n">&mdash;</td></tr>
+          <tr><td>Swarming, Cb-2 vs ALS-5</td><td class="md-n"><strong>0</strong></td><td class="md-n">1.067 [0.863, 1.320]</td><td class="md-n">0.526</td><td class="md-n">&mdash;</td><td class="md-n">&mdash;</td></tr>
+          <tr><td>Pyocyanin, A16-2 vs ALS-5</td><td class="md-n">3</td><td class="md-n">0.977 [0.876, 1.090]</td><td class="md-n">0.592</td><td class="md-n">0.989</td><td class="md-n">0.798</td></tr>
+          <tr><td>Pyocyanin, Cb-2 vs ALS-5</td><td class="md-n">2</td><td class="md-n">0.875 [0.778, 0.985]</td><td class="md-n"><strong>0.035</strong></td><td class="md-n">0.841</td><td class="md-n">0.054</td></tr>
+          <tr><td>Pyocyanin, A16-2 vs Cb-2</td><td class="md-n">1</td><td class="md-n">1.117 [0.982, 1.270]</td><td class="md-n">0.076</td><td class="md-n">1.076</td><td class="md-n">0.342</td></tr>
+          <tr><td>Biofilm, A16-2 vs ALS-5</td><td class="md-n">2</td><td class="md-n">0.988 [0.855, 1.142]</td><td class="md-n">0.857</td><td class="md-n">0.988</td><td class="md-n">0.864</td></tr>
+          <tr><td>Biofilm, A16-2 vs Cb-2</td><td class="md-n">1</td><td class="md-n">1.381 [1.196, 1.595]</td><td class="md-n"><strong>0.0002</strong></td><td class="md-n">0.955</td><td class="md-n">0.674</td></tr>
+          <tr><td>Biofilm, Cb-2 vs ALS-5</td><td class="md-n">1</td><td class="md-n">0.715 [0.612, 0.836]</td><td class="md-n"><strong>0.0004</strong></td><td class="md-n">0.934</td><td class="md-n">0.538</td></tr>
         </tbody>
       </table>
     </div>
 
-    <p class="hw-aside">Source: <code>contrasts.csv</code>.</p>
+    <p class="hw-aside">
+      Source: <code>contrasts.csv</code>. A shared plate is not by itself a
+      within-plate comparison: for a plate-unit assay the random intercept
+      makes it one, but biofilm's rows are biological replicates and its
+      pooled test holds no plate fixed at all. The right-hand pair of columns
+      is what does. One shared plate reduces the comparison to a two-sample
+      test on that plate; several make it the average of the per-plate
+      differences.
+    </p>
 
     <p>
-      <strong>A16-2 inhibits swarming more than ALS-5, and that rests on nine
-      shared plates.</strong> It is the best-evidenced aptamer comparison in
-      the data set, and the mechanistic model below depends on it: the two
-      fitted parameters are pinned by the difference between these two
-      treatments.
+      <strong>Five of the nine contrasts are significant pooled, and none of
+      the five survives holding the plate fixed.</strong> There are two kinds
+      of failure in that sentence and the difference between them is the
+      result.
+    </p>
+
+    <p>
+      <strong>Two keep their estimate and lose only borrowed degrees of
+      freedom.</strong> Swarming A16-2 vs ALS-5 goes from 0.835 to 0.838 with
+      <var>p</var> from 0.028 to 0.120 on nine paired differences; pyocyanin
+      Cb-2 vs ALS-5 behaves the same way, 0.875 to 0.841 and
+      <var>p</var> 0.035 to 0.054. Eight of A16-2's nine shared plates favour
+      it over ALS-5 and one reverses hard, so <strong>the direction is
+      consistent (sign test <var>p</var>&nbsp;=&nbsp;0.039) and the size is not
+      resolved.</strong> That is the comparison the mechanistic model below
+      depends on &mdash; the two fitted parameters are pinned by the difference
+      between these two treatments &mdash; and this is how strong it is.
+    </p>
+
+    <p>
+      <strong>The two biofilm folds move instead.</strong> A16-2 vs Cb-2 goes
+      from 1.381 to 0.955 and Cb-2 vs ALS-5 from 0.715 to 0.934, because the
+      pooled versions are comparing <code>bf-P1</code> with <code>bf-P2</code>
+      and the within-plate versions are not. On <code>bf-P2</code>, the only
+      biofilm plate carrying all three treatments, A16-2 inhibits more than
+      Cb-2 &mdash; the reverse of the pooled ordering. The pooled column is the
+      better-powered estimate where its assumptions hold; the within-plate
+      column is the one that holds either way.
     </p>
 
     <p>
       That difference is also the strongest evidence here that the effect is
       signal-specific rather than general. The two aptamers are both short
-      ssDNA applied the same way; they differ in which AHL they bind, and they
-      differ in effect on the same plates. A nonspecific effect &mdash; slower
+      ssDNA applied the same way; they differ in which AHL they bind, and on
+      eight of the nine plates they share they differ in effect in the same
+      direction. A nonspecific effect &mdash; slower
       growth, a toxic contaminant &mdash; has no reason to care which signal
       an aptamer was raised against. <strong>This is a weaker argument than a
       quorum-sensing-independent control and is not a replacement for
@@ -580,8 +732,102 @@
       control with any other treatment, so &ldquo;A16-2 beats Cb-2&rdquo; is a
       comparison across different plates on different days. The
       <var>p</var>-value is 0.024; the evidence is weaker than that number
-      suggests.
+      suggests, and the table has no within-plate column to offer for it.
     </p>
+
+    <h3>The wet lab's own test, and the three places it differs</h3>
+
+    <p>
+      Beside the raw readings, every sheet of the workbook carries a percentage
+      column in which each treated well is already expressed against a control
+      set to 100, and one copy of the file adds a one-sample <var>t</var>-test
+      of that column against 100. <strong>That block is the arithmetic behind
+      the numbers on the
+      <a href="{{ url_for('pages', page='results') }}">Results</a>
+      page.</strong> This part computes something different &mdash; ratios
+      recomputed from the readings, analysed on the log scale, with the plate
+      or the biological replicate as the unit &mdash; so rather than leave the
+      two to be compared by eye, the wet lab's test is recomputed from the same
+      cells and put beside this one.
+    </p>
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table md-keep">
+        <caption>Inhibition, the workbook's own test against this analysis</caption>
+        <thead>
+          <tr>
+            <th scope="col">Assay</th><th scope="col">Treatment</th>
+            <th scope="col" class="md-n">Workbook</th>
+            <th scope="col" class="md-n">This part</th>
+            <th scope="col" class="md-n">Gap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Swarming</td><td>A16-2</td><td class="md-n">33.7&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.00012</td><td class="md-n">35.8&nbsp;%, <var>p</var>&nbsp;=&nbsp;2&times;10<sup>&minus;6</sup></td><td class="md-n">&minus;2.1</td></tr>
+          <tr><td>Swarming</td><td>ALS-5</td><td class="md-n">22.2&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.00086</td><td class="md-n">23.2&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.00092</td><td class="md-n">&minus;1.0</td></tr>
+          <tr><td>Swarming</td><td>Cb-2</td><td class="md-n">19.3&nbsp;%, <var>p</var>&nbsp;=&nbsp;1.6&times;10<sup>&minus;6</sup></td><td class="md-n">18.0&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.019</td><td class="md-n">+1.3</td></tr>
+          <tr><td>Pyocyanin</td><td>A16-2</td><td class="md-n">19.8&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.0092</td><td class="md-n">20.1&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.0056</td><td class="md-n">&minus;0.3</td></tr>
+          <tr><td>Pyocyanin</td><td>ALS-5</td><td class="md-n">18.6&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.013</td><td class="md-n">18.2&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.0059</td><td class="md-n">+0.3</td></tr>
+          <tr><td>Pyocyanin</td><td>Cb-2</td><td class="md-n">26.3&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.0034</td><td class="md-n">28.4&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.0011</td><td class="md-n">&minus;2.2</td></tr>
+          <tr><td>Biofilm</td><td>A16-2</td><td class="md-n">12.2&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.018</td><td class="md-n">12.6&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.023</td><td class="md-n">&minus;0.4</td></tr>
+          <tr><td>Biofilm</td><td>ALS-5</td><td class="md-n">11.0&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.053</td><td class="md-n">11.5&nbsp;%, <var>p</var>&nbsp;=&nbsp;0.057</td><td class="md-n">&minus;0.5</td></tr>
+          <tr><td>Biofilm</td><td>Cb-2</td><td class="md-n">34.2&nbsp;%, <var>n</var>&nbsp;=&nbsp;<strong>14</strong></td><td class="md-n">36.7&nbsp;%, <var>n</var>&nbsp;=&nbsp;<strong>12</strong></td><td class="md-n">&minus;2.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      Source: <code>prism_crosscheck.csv</code>. Inhibition is
+      100&nbsp;&minus;&nbsp;mean for the workbook column and the geometric-mean
+      ratio here; the gap is in percentage points.
+    </p>
+
+    <p>
+      <strong>The two analyses agree on all nine verdicts and on every effect
+      to within 2.5 points of inhibition.</strong> Biofilm ALS-5 stays short of
+      the line under both (0.053 and 0.057), which is the one verdict a reader
+      might expect the choice of test to decide, and it does not. Three
+      differences produce the rest:
+    </p>
+
+    <ol class="hw-steps">
+      <li>
+        <strong>The estimator.</strong> The workbook pools every plate of a
+        sheet into one sample, averages the percentages arithmetically, and
+        takes the control as exactly 100 with no variance of its own. This part
+        takes the geometric mean on the log scale and keeps the plate
+        structure. On the point estimates that is worth a point or two in
+        either direction; on the intervals it is larger and not in one
+        direction. <strong>Swarming Cb-2 is where it matters</strong>: the
+        workbook reads [15.3, 23.2] from ten wells treated as ten
+        observations, this part [3.6, 30.3] from the five plates those wells
+        sit on. The wide interval is the honest one.
+      </li>
+      <li>
+        <strong><var>n</var>&nbsp;=&nbsp;14 against <var>n</var>&nbsp;=&nbsp;12
+        in biofilm Cb-2.</strong> Two percentages in that column have no raw
+        reading anywhere in the file. The wet lab's test includes them; this
+        part excludes them under a traceability rule fixed before anyone looked
+        at their values. Both sit well above the twelve that can be traced, so
+        excluding them makes the effect reported here <em>larger</em>, not
+        smaller.
+      </li>
+      <li>
+        <strong>Nineteen of the 68 stated percentages are divided by the wrong
+        control.</strong> Seven swarming Cb-2 cells divide by the <em>first</em>
+        plate's control instead of their own, ten biofilm Cb-2 cells pair row
+        by row with a control in the same row, and two are the untraceable
+        pair. <strong>This is the one place the two analyses are not simply two
+        reasonable choices: a percentage divided by another plate's control is
+        wrong whichever analysis reads it.</strong> Recomputing every ratio
+        from the readings is what keeps those out, and it is why this part
+        reports 18.0&nbsp;% for swarming Cb-2 where the workbook's own column
+        gives 19.3&nbsp;%. The agreement in the table above survives it by
+        luck: the first plate's control was close to the mean of the five, so
+        the pooled mean barely moved while individual cells are out by up to 12
+        points.
+      </li>
+    </ol>
   </section>
 
   <!-- ========================= 1.3 the model ========================= -->
@@ -691,7 +937,7 @@
     <h3>Assumptions</h3>
 
     <dl class="hw-spec">
-      <div><dt>One compartment</dt><dd>The swarm plate is treated as a single well-mixed volume shared by the bacteria, the signals and the aptamer. A real swarm is a spreading front with gradients.</dd></div>
+      <div><dt>One compartment</dt><dd>The swarm plate is treated as a single well-mixed volume shared by the bacteria, the signals and the aptamer. A real swarm is a spreading front with gradients. <a href="#model-inhibition-validation">1.6</a> runs the whole analysis again over a plate of patches and reports what this assumption costs.</dd></div>
       <div><dt>Fast binding</dt><dd>Receptor occupancy and aptamer binding are in rapid equilibrium relative to synthesis, so both are solved algebraically at every step.</dd></div>
       <div><dt>One site per aptamer</dt><dd>Each aptamer molecule binds one ligand at a time. A dual binder does not get two sites; it gets one site that either ligand can occupy.</dd></div>
       <div><dt>Mass to moles</dt><dd>An aptamer applied at mass concentration <var>c</var> supplies <var>c</var>&nbsp;/&nbsp;(<var>n</var>&nbsp;&times;&nbsp;330&nbsp;g/mol) moles, with <var>n</var> the length in nucleotides. The 93-nt Cb-2 therefore delivers 2.1&times; fewer molecules per nanogram than the 44-nt A16-2. This is arithmetic, not a fitted result.</dd></div>
@@ -817,8 +1063,14 @@
       instead of stopping at a point estimate. That matters here: the two
       parameters are pinned by the <em>difference</em> between ALS-5 and
       A16-2, and if that difference were not resolvable the fit would be
-      fitting noise. It is resolvable, on nine shared plates
-      (<a href="#model-inhibition-data">1.2</a>).
+      fitting noise. <strong>It is resolvable in direction and not in
+      size</strong>: eight of the nine shared plates favour A16-2 (sign test
+      <var>p</var>&nbsp;=&nbsp;0.039), while the size loses significance once
+      the plate is held fixed (<var>p</var>&nbsp;=&nbsp;0.120,
+      <a href="#model-inhibition-data">1.2</a>). The fitted values below should
+      be read with that beside them: what pins them is a difference whose
+      direction the plates agree on and whose magnitude this design does not
+      resolve.
     </p>
 
     <div class="hw-caution">
@@ -978,11 +1230,22 @@
       <strong>The 50&nbsp;% figure is the robust one.</strong> Across 296
       successfully calibrated draws &mdash; spanning three orders of magnitude
       in the LasR constant, more than an order of magnitude in both AHL levels
-      and the full 1&ndash;30&nbsp;ng/&micro;L range of the applied dose
+      and the whole 1&ndash;30&nbsp;ng/&micro;L span of the applied dose
       &mdash; the median requirement for half suppression is 1.6&times; and
       the 90&nbsp;% range reaches only 2.6&times;. Full suppression is a
       different matter: the median is 11&times; and the range reaches
       49&times;. We do not treat it as a target.
+    </p>
+
+    <p class="hw-aside">
+      Those quantiles are computed on the draws that calibrated, and whether a
+      draw calibrates is not independent of the dose it assumed: 47&nbsp;% of
+      the draws in the lowest quarter of the dose range calibrate against
+      98&nbsp;% in the highest
+      (<a href="#model-inhibition-uncertainty">1.7</a>). The calibrated draws
+      still span 1.0 to 30.0&nbsp;ng/&micro;L, so this is a weighting and not a
+      truncation, and it runs in the direction that would understate a low-dose
+      effect.
     </p>
 
     <h3 id="model-inhibition-saturates">Result 2 &middot; A C12-only aptamer is predicted not to do this job</h3>
@@ -1000,8 +1263,9 @@
         <em>This is a prediction, not a result.</em> The data do not have the
         resolution to test it: it would be tested by a dose series, and what
         exists is one dose. The swarming difference between ALS-5 and A16-2 is
-        consistent with it (<a href="#model-inhibition-data">1.2</a>,
-        <var>p</var>&nbsp;=&nbsp;0.028 on nine shared plates), but consistency
+        consistent with it &mdash; eight of their nine shared plates run that
+        way (<a href="#model-inhibition-data">1.2</a>), though the size of the
+        difference is not resolved within plates &mdash; but consistency
         at a single dose does not distinguish &ldquo;ALS-5 saturates&rdquo;
         from &ldquo;ALS-5 is simply weaker here&rdquo;.
         <a href="#model-inhibition-changed">1.8</a> says what would settle it.
@@ -1090,7 +1354,8 @@
           <tr><td>ALS-5</td><td>fitted</td><td class="md-n">0.766</td><td class="md-n">0.766</td><td>&mdash;</td></tr>
           <tr><td>A16-2</td><td>fitted</td><td class="md-n">0.639</td><td class="md-n">0.639</td><td>&mdash;</td></tr>
           <tr><td><strong>Cb-2</strong></td><td><strong>held out</strong></td><td class="md-n">0.992 / 0.490</td><td class="md-n">0.820 [0.760, 0.865]</td><td><strong>outside both</strong>; the measurement falls between them</td></tr>
-          <tr><td>ALS-5&nbsp;+&nbsp;A16-2</td><td>not measured</td><td class="md-n">0.587 / 0.605</td><td class="md-n">&mdash;</td><td>a real prediction, with nothing to score it against</td></tr>
+          <tr><td>ALS-5&nbsp;+&nbsp;A16-2, total dose split</td><td>not measured</td><td class="md-n">0.587 / 0.605</td><td class="md-n">&mdash;</td><td>a real prediction, with nothing to score it against</td></tr>
+          <tr><td>ALS-5&nbsp;+&nbsp;A16-2, each at the full dose</td><td>not measured</td><td class="md-n">0.473 / 0.473</td><td class="md-n">&mdash;</td><td>as above, and the two conventions coincide here</td></tr>
         </tbody>
       </table>
     </div>
@@ -1125,9 +1390,10 @@
         <strong>No applied dose reproduces the measured 0.820.</strong>
         Autoinduction makes the response discontinuous at the switch: at
         8.6930&nbsp;ng/&micro;L the model predicts 0.991 and at
-        8.6932&nbsp;ng/&micro;L it predicts 0.659, jumping straight over the
+        8.6932&nbsp;ng/&micro;L it predicts 0.662, jumping straight over the
         measurement. The measured value falls inside the model's own switching
-        gap.
+        gap. <strong>That is a statement about one well-mixed compartment, and
+        the last part of this section tests it.</strong>
       </li>
       <li>
         <strong>An affinity does reproduce it.</strong> At the equal-mass
@@ -1141,12 +1407,14 @@
 
     <p>
       So the two explanations are not equally available. The affinity
-      explanation works; the dose explanation cannot, at any dose, because the
-      model's switch is sharper than whatever produced the measurement.
-      <strong>Either Cb-2 really does bind C4-HSL much more tightly than
-      A16-2, or the model's bistability is too abrupt</strong> &mdash; a single
-      well-mixed compartment flips all at once, while a real swarm plate has a
-      population that does not.
+      explanation works; the dose explanation cannot, at any dose, as long as
+      the plate is one compartment, because then the model's switch is sharper
+      than whatever produced the measurement. <strong>Either Cb-2 really does
+      bind C4-HSL much more tightly than A16-2, or the model's bistability is
+      too abrupt</strong> &mdash; a single well-mixed compartment flips all at
+      once, while a real swarm plate has a population that does not. The second
+      of those is a modelling choice rather than a claim about Cb-2, so it is
+      taken apart at the end of this section.
     </p>
 
     <h3>Held out again: the other two phenotypes</h3>
@@ -1179,7 +1447,7 @@
         <tbody>
           <tr><td>Swarming</td><td class="md-n">&minus;0.00 [&minus;0.04, 0.04]</td><td class="md-n"><strong>0.99 [0.75, 1.21]</strong></td></tr>
           <tr><td>Pyocyanin</td><td class="md-n">0.02 [&minus;0.00, 0.05]</td><td class="md-n"><strong>0.50 [0.33, 0.64]</strong></td></tr>
-          <tr><td>Biofilm</td><td class="md-n">0.03 [&minus;0.04, 0.11]</td><td class="md-n">0.54 [0.08, 1.04]</td></tr>
+          <tr><td>Biofilm</td><td class="md-n">0.01 [&minus;0.01, 0.05]</td><td class="md-n"><strong>0.30 [0.15, 0.46]</strong></td></tr>
         </tbody>
       </table>
     </div>
@@ -1192,14 +1460,16 @@
     <figure class="hw-figure">
       <div class="md-plate md-plate-wide">
         <img src="https://static.igem.wiki/teams/6379/wiki/model/inhibition-f2-cross-phenotype.avif"
-             alt="Two panels. On the left, bars of the exponent each phenotype puts on the two receptor occupancies: the rhl bars are 0.99 for swarming, 0.50 for pyocyanin and 0.54 for biofilm, while all three las bars are at or near zero. On the right, the held-out Cb-2 prediction for each phenotype: a diamond at about 0.99 sits outside the measured band for swarming and pyocyanin, and a square at 1.11 times the dose lands inside the band for pyocyanin and biofilm but overshoots for swarming."
+             alt="Two panels. On the left, bars of the exponent each phenotype puts on the two receptor occupancies: the rhl bars are 0.99 for swarming, 0.50 for pyocyanin and 0.30 for biofilm, while all three las bars are at or near zero. On the right, the held-out Cb-2 prediction for each phenotype: a diamond at about 0.99 sits well outside the measured band in all three rows, and a square at 1.11 times the dose lands inside the band for pyocyanin only, undershooting for swarming and still short of the band for biofilm."
              loading="lazy" decoding="async" width="2640" height="1040">
       </div>
       <figcaption>
         <strong>One suppression, read three ways &mdash; and Cb-2 missed three
         times.</strong> Left: none of the three phenotypes needs the
-        <em>las</em> arm. Right: the held-out Cb-2 prediction against what was
-        measured, at the nominal dose and at 1.11&times; it. Source: F2.
+        <em>las</em> arm, and the three <em>rhl</em> exponents run from linear
+        to shallow. Right: the held-out Cb-2 prediction against what was
+        measured, at the nominal dose and at 1.11&times; it &mdash; one dose
+        reaches one of the three. Source: F2.
       </figcaption>
     </figure>
 
@@ -1219,8 +1489,12 @@
       (<var>w</var><sub>2</sub>&nbsp;=&nbsp;0.99) and pyocyanin is close to its
       square root (0.50), and the two intervals do not overlap. Halving the
       <em>rhl</em> output halves the swarm radius but reduces pyocyanin by only
-      about 30&nbsp;%. Biofilm sits with pyocyanin but its interval spans
-      almost everything, which is what two plates buys.
+      about 30&nbsp;%. <strong>Biofilm is shallower still at 0.30 [0.15,
+      0.46]</strong> &mdash; overlapping pyocyanin, well clear of swarming, and
+      resolved away from zero, where under the plate reading of
+      <a href="#model-inhibition-data">1.2</a> the same exponent had spanned
+      almost everything. That makes it a test rather than a formality, and
+      below it is the one the model misses by the most.
       &beta; was fixed at 1 by assumption in
       <a href="#model-inhibition-model">1.3</a>, and this analysis recovers
       0.99 without being told to &mdash; not independent evidence, since the
@@ -1237,26 +1511,30 @@
         <tbody>
           <tr><td>Swarming</td><td class="md-n">0.992</td><td class="md-n">0.820 [0.697, 0.964]</td><td>outside</td></tr>
           <tr><td>Pyocyanin</td><td class="md-n">0.996</td><td class="md-n">0.716 [0.641, 0.799]</td><td>outside</td></tr>
-          <tr><td>Biofilm</td><td class="md-n">0.995</td><td class="md-n">0.745 [0.422, 1.316]</td><td>inside, but only because the interval is enormous</td></tr>
+          <tr><td>Biofilm</td><td class="md-n">0.997</td><td class="md-n">0.633 [0.563, 0.712]</td><td><strong>outside</strong> &mdash; the largest miss of the three</td></tr>
         </tbody>
       </table>
     </div>
 
     <p class="hw-aside">
-      Intervals in this table are the mixed-model ones, because the
-      cross-phenotype fit works from each effect size's own standard error;
-      <a href="#model-inhibition-data">1.2</a> and the held-out table above
-      quote the plate-level bootstrap instead. For swarming Cb-2 the two differ
+      Intervals in this table are the ones each effect size's own standard
+      error gives, because that is what the cross-phenotype fit works from;
+      <a href="#model-inhibition-data">1.2</a> quotes them for biofilm and the
+      plate-level bootstrap for the other two, and the held-out table above
+      uses the bootstrap throughout. For swarming Cb-2 the two differ
       noticeably &mdash; [0.697, 0.964] here against [0.760, 0.865] there
       &mdash; and the prediction falls outside both.
+      Source: <code>cross_phenotype.csv</code>.
     </p>
 
     <p>
       The model says Cb-2 should do almost nothing &mdash; at equal mass it
       supplies 2.1&times; fewer molecules and splits them between two ligands
       &mdash; and the measurements say it does the most in two assays out of
-      three. The failure runs the same way every time and is of comparable
-      size (log residual &minus;0.19, &minus;0.33, &minus;0.29).
+      three. <strong>The failure runs the same way every time and grows across
+      the three</strong> (log residual &minus;0.19, &minus;0.33,
+      &minus;0.45): biofilm, where Cb-2 removes 36.7&nbsp;% and the model
+      expects nothing, is now the model's largest miss.
     </p>
 
     <p>
@@ -1276,13 +1554,14 @@
             <th scope="col">Phenotype</th>
             <th scope="col" class="md-n">At 1.11&times; the dose</th>
             <th scope="col" class="md-n">Measured</th>
+            <th scope="col">Inside?</th>
             <th scope="col">Reachable at any dose?</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Swarming</td><td class="md-n">0.662</td><td class="md-n">0.820 [0.697, 0.964]</td><td><strong>No</strong> &mdash; over-corrected</td></tr>
-          <tr><td>Pyocyanin</td><td class="md-n">0.784</td><td class="md-n">0.716 [0.641, 0.799]</td><td>Yes &mdash; inside</td></tr>
-          <tr><td>Biofilm</td><td class="md-n">0.763</td><td class="md-n">0.745 [0.422, 1.316]</td><td>Yes &mdash; inside</td></tr>
+          <tr><td>Swarming</td><td class="md-n">0.662</td><td class="md-n">0.820 [0.697, 0.964]</td><td>No &mdash; over-corrected</td><td><strong>No</strong> &mdash; the switching gap</td></tr>
+          <tr><td>Pyocyanin</td><td class="md-n">0.784</td><td class="md-n">0.716 [0.641, 0.799]</td><td><strong>Yes</strong></td><td>Yes</td></tr>
+          <tr><td>Biofilm</td><td class="md-n">0.864</td><td class="md-n">0.633 [0.563, 0.712]</td><td>No &mdash; still well short</td><td>Yes, but not at this dose</td></tr>
         </tbody>
       </table>
     </div>
@@ -1290,26 +1569,139 @@
     <p class="hw-aside">Source: <code>cross_phenotype_dose.csv</code>.</p>
 
     <p>
-      A dose 1.11&times; the convention brings pyocyanin and biofilm inside
-      their measured intervals and pushes swarming past its lower bound. The
-      last column says why swarming cannot be fixed by any dose: the
-      measurement sits inside the switching gap above. That gap is also why the
-      other two can be reached &mdash; swarming is linear in <em>rhl</em>
-      occupancy and inherits the jump at full size, while pyocyanin and biofilm
-      read the same occupancy through an exponent near 0.5, which compresses
-      the jump from 0.33 wide to 0.18.
+      <strong>One dose accounts for one phenotype out of three.</strong> A
+      dose 1.11&times; the convention brings pyocyanin inside its measured
+      interval, pushes swarming past its lower bound, and leaves biofilm &mdash;
+      the biggest measured effect of the three &mdash; still a long way short
+      at 0.864 against 0.633. The least-squares residual over the three is
+      0.151. Swarming cannot be fixed by any dose at all: the measurement sits
+      inside the switching gap above. Biofilm can be, in principle, but not at
+      the same dose as pyocyanin, which is the point &mdash; that was the one
+      parameter the three observations were supposed to share.
+    </p>
+
+    <p>
+      The reason the three react so differently to a change in dose is the
+      exponents above. Swarming is linear in <em>rhl</em> occupancy and
+      inherits the switch's jump at full size, while pyocyanin and biofilm read
+      the same occupancy through exponents of 0.50 and 0.30, which compress
+      that jump before any dose is changed.
     </p>
 
     <div class="hw-caution">
       <p>
-        <em>So the dose explanation accounts for two phenotypes out of three
-        and is structurally unable to account for the third.</em> Three
-        readings are left and this design cannot separate them: Cb-2's
-        affinities differ from the specialists'; the model's switch is too
-        abrupt; or Cb-2's swarming estimate is displaced by having been
-        measured on five plates it shares with nothing else
-        (<a href="#model-inhibition-data">1.2</a>). The experiment that bears
-        on all three is in <a href="#model-inhibition-changed">1.8</a>.
+        <em>So the dose explanation accounts for one phenotype out of three,
+        is structurally unable to account for swarming, and does not reach
+        biofilm.</em> Three readings are left and this design cannot separate
+        them: Cb-2's affinities differ from the specialists'; the model's
+        switch is too abrupt, or more generally its one-compartment structure
+        is wrong; or Cb-2's estimates are displaced by the plates they sit on
+        &mdash; five swarming plates it shares with nothing else, and ten of
+        twelve biofilm wells on a single-treatment plate
+        (<a href="#model-inhibition-data">1.2</a>). The next part takes the
+        second of those apart; the experiment that bears on all three is in
+        <a href="#model-inhibition-changed">1.8</a>.
+      </p>
+    </div>
+
+    <h3 id="model-inhibition-structure">One compartment, or a plate of patches?</h3>
+
+    <p>
+      Everything above rests on a jump. The model treats a swarm plate as a
+      single well-mixed volume, autoinduction makes that volume bistable, and
+      the whole of it crosses the switch at once &mdash; which is why no dose
+      lands on the measured 0.820. <strong>No real plate can be discontinuous
+      in dose.</strong> A swarm is a spreading front, so a plate reading is an
+      aggregate over patches that do not all switch together, and the jump may
+      belong to the assumption rather than to the biology. Nothing in the
+      repository said which, so the whole analysis is run again over a plate of
+      patches: a lognormal spread of local dose, averaged over 32
+      equal-probability strata, with both free parameters re-fitted at every
+      spread and Cb-2 still held out of all three phenotypes.
+    </p>
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table md-keep">
+        <caption>The same analysis over a plate of patches &mdash; the spread is swept, not fitted</caption>
+        <thead>
+          <tr>
+            <th scope="col">Spread (log sd)</th>
+            <th scope="col" class="md-n">&theta;<sub>las</sub></th>
+            <th scope="col" class="md-n"><var>K</var><sub>d</sub>(A16-2)</th>
+            <th scope="col" class="md-n">Cb-2 swarming</th>
+            <th scope="col" class="md-n">Cb-2 pyocyanin</th>
+            <th scope="col" class="md-n">Cb-2 biofilm</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>0 &mdash; one compartment</td><td class="md-n">14.81</td><td class="md-n">5571&nbsp;nM</td><td class="md-n">0.992</td><td class="md-n">0.996</td><td class="md-n">0.997</td></tr>
+          <tr><td>0.2</td><td class="md-n">14.79</td><td class="md-n">5533&nbsp;nM</td><td class="md-n"><strong>0.884</strong></td><td class="md-n">0.925</td><td class="md-n">0.952</td></tr>
+          <tr><td>0.3</td><td class="md-n">14.76</td><td class="md-n">5508&nbsp;nM</td><td class="md-n"><strong>0.852</strong></td><td class="md-n">0.904</td><td class="md-n">0.939</td></tr>
+          <tr><td>0.5</td><td class="md-n">14.35</td><td class="md-n">5489&nbsp;nM</td><td class="md-n"><strong>0.812</strong></td><td class="md-n">0.877</td><td class="md-n">0.921</td></tr>
+          <tr><td>0.7</td><td class="md-n">13.62</td><td class="md-n">5521&nbsp;nM</td><td class="md-n"><strong>0.784</strong></td><td class="md-n">0.857</td><td class="md-n">0.908</td></tr>
+          <tr><td><strong>measured</strong></td><td class="md-n">&mdash;</td><td class="md-n">&mdash;</td><td class="md-n">0.820 [0.697, 0.964]</td><td class="md-n">0.716 [0.641, 0.799]</td><td class="md-n">0.633 [0.563, 0.712]</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      Bold is inside the measured interval. The intervals in the last row are
+      the ones the two tables above use &mdash; each effect size with its own
+      standard error &mdash; so that all three phenotypes are scored the same
+      way; against the narrower plate-level bootstrap for swarming,
+      [0.760, 0.865], the 0.2 row would fall just outside and 0.3 to 0.7 would
+      still be inside. The quadrature
+      error on the swarming column, measured by doubling the strata rather than
+      assumed, is about 0.005. Source: <code>structure_comparison.csv</code>.
+    </p>
+
+    <p>
+      <strong>The swarming miss is structural, and not a matter of
+      tuning.</strong> Every spread from 0.2 to 0.7 puts the held-out swarming
+      prediction inside the measured interval while the spread itself moves
+      over a factor of three and a half; the log residual runs from
+      &minus;0.075 to +0.045 and crosses zero near 0.5. A prediction that
+      landed on the measurement at one spread and nowhere else would be a
+      fitted parameter wearing a structural hat, and this is not that. So the
+      reachability verdict above turns over with it: <strong>under one
+      compartment no dose reproduces 0.820; over patches it is reproduced at
+      the nominal dose.</strong>
+    </p>
+
+    <p>
+      <strong>The other two misses are not structural.</strong> Pyocyanin
+      reaches 0.857 at the widest spread against a measured 0.716, and biofilm
+      0.908 against 0.633; both sit outside at every spread, and the residuals
+      shrink by about a third without closing. Their sub-linear exponents had
+      already compressed the jump before any averaging, so smoothing it buys
+      them almost nothing. <strong>The model still has no held-out test that it
+      passes in all three phenotypes.</strong>
+    </p>
+
+    <p>
+      <strong>What does not move is worth as much as what does.</strong> The
+      fit is nearly indifferent to the structure &mdash; &theta;<sub>las</sub>
+      goes from 14.8 to 13.6 and the A16-2 affinity stays inside 1.5&nbsp;%
+      &mdash; and so does the headline dose claim: the dose for 50&nbsp;%
+      swarming inhibition is 1.55&times; the nominal yield under one
+      compartment and 1.65&times; at a spread of 0.5, and for 90&nbsp;% it is
+      25.8&times; against 27.1&times;.
+      <a href="#model-inhibition-switch">Result&nbsp;1</a> does not depend on
+      the structure.
+    </p>
+
+    <div class="hw-caution">
+      <p>
+        <em>What this does not license.</em> Nothing here measures plate
+        heterogeneity, so the spread is an assumption swept over a plausible
+        range, not a parameter with a value. The swarming prediction landing
+        inside its interval under that assumption says what the structure can
+        accommodate; <strong>it is not a held-out test the model passed, and
+        the failed test above is not withdrawn.</strong> The spread also acts
+        only on the dose, which leaves the untreated reference alone; a spread
+        in cell density would move the control too, and this design cannot tell
+        those apart. Every number published elsewhere in this part is the
+        one-compartment model.
       </p>
     </div>
   </section>
@@ -1392,6 +1784,20 @@
       ALS-5 swarming effect as large as the one measured, at any gating
       strength. That is a bound the experiment could not give, and it comes
       from the measurement rather than from the model.
+    </p>
+
+    <p class="hw-aside">
+      One qualification applies to every number in this section. The quantiles
+      and the correlations below are computed on the draws that calibrated, and
+      whether a draw calibrates is not independent of the dose it assumed:
+      47&nbsp;% of the draws in the lowest quarter of the dose range calibrate
+      against 98&nbsp;% in the highest, by the same mechanism as the floor
+      above. The calibrated draws do still span 1.0 to 30.0&nbsp;ng/&micro;L,
+      so this is a weighting rather than a truncation, and it runs in the
+      direction that would understate a low-dose effect. Nothing here corrects
+      for it; the dose and the calibration flag are both columns of
+      <code>uncertainty_samples.csv</code>, which is what makes the weighting
+      checkable rather than implicit.
     </p>
 
     <h3>Which parameters matter</h3>
@@ -1485,12 +1891,19 @@
         artefact of exactly that isolation. One shared-plate run separates them.
       </li>
       <li>
-        <strong>Biofilm needs more plates, not more wells.</strong> Three
-        plates is the minimum for any plate-level interval and each treatment
-        has two; detecting a 20&nbsp;% effect at this assay's plate-to-plate
-        spread needs about nine. The wells within a plate are already plentiful
-        and are not what the assay is short of.
-        Source: <code>power_requirements.csv</code>.
+        <strong>Biofilm needs its treatments on shared plates, not more
+        replicates.</strong> The assay has 24 independent replicates and
+        resolves two of its three treatments against their controls, so
+        replication is not what it is short of. What it cannot do is compare
+        the treatments with each other: ten of Cb-2's twelve replicates sit on
+        a plate carrying nothing else, so both significant biofilm folds are
+        across-plate comparisons, and on <code>bf-P2</code> &mdash; the one
+        plate carrying all three &mdash; neither reproduces. That plate also
+        disagrees with <code>bf-P1</code> about Cb-2 itself
+        (<var>p</var>&nbsp;=&nbsp;0.002). One run with all three treatments
+        replicated on every plate fixes both, and it is the same
+        recommendation as 6 for the same reason.
+        Source: <code>plate_split.csv</code>, <code>contrasts.csv</code>.
       </li>
     </ol>
   </section>
@@ -1539,9 +1952,55 @@
         plate-to-plate variation that the paired contrasts do not.
       </li>
       <li>
-        <strong>Biofilm has two plates per treatment</strong> and supports no
-        interval. Its point estimates are consistent with the other assays and
-        that is all they are.
+        <strong>Biofilm rests on the wet lab's statement that its wells are
+        independent biological replicates</strong> (2026-10-15). Read as plates
+        instead, the assay has two units per treatment and resolves nothing
+        (<var>p</var>&nbsp;=&nbsp;0.13&ndash;0.45); every biofilm number in
+        this part would change, and only the biofilm numbers. The reading is
+        recorded in the code with its source so that it can be checked rather
+        than inferred from the output.
+      </li>
+      <li>
+        <strong>Biofilm Cb-2's two plates disagree, and its interval is
+        computed as if they did not.</strong> <code>bf-P1</code> gives
+        40.6&nbsp;% inhibition on ten wells and <code>bf-P2</code>
+        13.3&nbsp;% on two (<var>p</var>&nbsp;=&nbsp;0.002), after each well
+        was divided by the control on its own plate. The reported
+        36.7&nbsp;% [28.8, 43.7] treats the twelve wells as twelve independent
+        experiments; the plate-level standard error of the same rows is
+        3.5&times; wider. No other treatment in the data set shows this
+        (<a href="#model-inhibition-data">1.2</a>).
+      </li>
+      <li>
+        <strong>The two biofilm treatments that differ significantly from each
+        other are not plate-controlled</strong>, for the same reason, and more
+        generally <strong>no contrast in this part survives holding the plate
+        fixed</strong>: five of the nine are significant pooled and none of the
+        five is at <var>p</var>&nbsp;&lt;&nbsp;0.05 when the comparison is
+        restricted to the plates both treatments were on. The honest summary of
+        the aptamer comparisons is that the swarming ordering is consistent in
+        direction and not resolved in size.
+      </li>
+      <li>
+        <strong>The control mean a biofilm row divides by carries error that no
+        interval here contains.</strong> Every well of a block is normalised to
+        the mean of that block's control wells, so one number divides all of
+        them and its own sampling error cancels out of the spread of the ratios.
+        That is the convention, and it is what the wet lab's one-sample tests
+        do, but it is an approximation: carrying it through widens Cb-2 from
+        [28.8, 43.7] to [25.4, 46.3] and turns over the two equivalence
+        verdicts in <a href="#model-inhibition-data">1.2</a>. No verdict
+        against no effect moves. The sensitivity is reported beside the
+        headline columns and feeds nothing downstream.
+      </li>
+      <li>
+        <strong>Nineteen of the workbook's own 68 stated percentages are
+        divided by the wrong control</strong>, which is why every ratio here is
+        recomputed from the raw readings. Re-pairing each swarming Cb-2 well
+        with the control on its own plate is the difference between the
+        18.0&nbsp;% reported here and the 19.3&nbsp;% the workbook's column
+        gives; the raw millimetres are identical either way
+        (<a href="#model-inhibition-data">1.2</a>).
       </li>
       <li>
         <strong>The two calibration targets are resampled
@@ -1557,8 +2016,11 @@
         <strong>The reconciling dose in 1.6 sits on a discontinuity.</strong>
         The least-squares optimum lands at 8.6932&nbsp;ng/&micro;L, the first
         dose past the switch; at 8.6930 the model predicts 0.991 for swarming
-        instead of 0.659. The fold is the edge of a jump, not an interior
+        instead of 0.662. The fold is the edge of a jump, not an interior
         optimum, and should not be quoted to more than the two decimals given.
+        Over a plate of patches the gap is not there and the optimum is
+        interior, which is the last part of
+        <a href="#model-inhibition-structure">1.6</a>.
       </li>
       <li>
         <strong>The workbook records no dates</strong>, so a plate is
@@ -1569,25 +2031,36 @@
         rather than two.
       </li>
       <li>
-        <strong>Whether a numbered row is a plate or a well is an assay-level
-        judgement.</strong> Read the other way, biofilm would clear the
-        three-plate floor and report intervals; the reading taken here is the
-        one that claims less
-        (<a href="#model-inhibition-data">1.2</a>).
+        <strong>Whether a numbered row is a plate or a replicate is not
+        something the sheet states</strong>, and it decides what counts as
+        <var>n</var>. The workbook's own percentages fix how the ratios were
+        formed but say nothing about how the cultures were grown. That came
+        from the wet lab, and until 2026-10-15 this analysis had assumed the
+        other answer (<a href="#model-inhibition-data">1.2</a>).
       </li>
       <li>
         <strong>Two Cb-2 biofilm percentages have no raw reading</strong>
         anywhere in the workbook and are excluded by a traceability rule fixed
         before they were looked at. They sit above the values that can be
-        traced, so excluding them makes the Cb-2 biofilm result look stronger;
-        in the event it moves the well-level mean only from 64.3&nbsp;% to
-        65.6&nbsp;% of control, and changes nothing that is significant.
+        traced, so excluding them makes the Cb-2 biofilm result
+        <em>larger</em>, not smaller; in the event it moves the well-level mean
+        only from 64.3&nbsp;% to 65.6&nbsp;% of control. It is also the whole
+        of the <var>n</var>&nbsp;=&nbsp;14 against <var>n</var>&nbsp;=&nbsp;12
+        difference from the wet lab's own test
+        (<a href="#model-inhibition-data">1.2</a>).
       </li>
       <li>
         <strong>The swarm plate is treated as one well-mixed
         compartment.</strong> A real swarm is a spreading front with gradients
         in cell density and signal; the model replaces that with a single
-        effective concentration, and 1.6 shows where that bites.
+        effective concentration.
+        <a href="#model-inhibition-structure">1.6</a> measures what this costs:
+        averaging over patches of one plate accounts for the failed swarming
+        prediction and for nothing else, leaves the fit and the dose
+        requirement where they were, and turns &ldquo;no dose reaches
+        it&rdquo; into a statement that holds for one compartment only. The
+        spread it sweeps is not measured, so the alternative structure is a
+        sensitivity and not a correction.
       </li>
       <li>
         <strong>Whether the aptamer acts inside or outside the cell is not
@@ -1600,8 +2073,12 @@
       <li>
         <strong>104 of 400 joint draws failed to calibrate</strong>, almost all
         of them (102) where a wide parameter draw makes the observed ALS-5
-        effect unreachable at any gating strength. Those draws carry no
-        prediction and are excluded from every quantile above.
+        effect unreachable at any gating strength; the other two left the fit
+        with more than one root. The single-source modes fail the same way: 30
+        of 200 for the parameters and 66 of 200 for the dose, the latter all
+        below 3.1&nbsp;ng/&micro;L. Those draws carry no prediction and are
+        excluded from every quantile above, which is the weighting
+        <a href="#model-inhibition-uncertainty">1.7</a> qualifies.
       </li>
       <li>
         <strong>Everything here comes from one workbook.</strong> A self-check
@@ -1614,7 +2091,7 @@
     <details class="hw-fold md-fold">
       <summary class="hw-fold-head">
         <span class="hw-fold-title">Reproducing it</span>
-        <span class="hw-fold-meta">one command &middot; 38 self-checks &middot; CI on every push</span>
+        <span class="hw-fold-meta">one command &middot; 53 self-checks &middot; CI on every push</span>
         <span class="hw-fold-state" aria-hidden="true">
           <span class="hw-fold-verb" data-open="false">Show</span>
           <span class="hw-fold-verb" data-open="true">Hide</span>
@@ -1629,10 +2106,10 @@
           figures on this page come from those.
         </p>
         <ul class="hw-steps">
-          <li><strong>One command rebuilds every number and figure in this part</strong>, in order: parse the workbook into tidy tables, compute effect sizes, calibrate, carry the uncertainty through.</li>
+          <li><strong>One command rebuilds every number and figure in this part</strong>, in order: parse the workbook into tidy tables, compute effect sizes, cross-check them against the wet lab's own test, calibrate, carry the uncertainty through, and run the whole thing again over a plate of patches.</li>
           <li><strong>Without the data the mechanistic half still runs end to end</strong> from the published effect sizes and bootstrap draws, which is how continuous integration runs it.</li>
-          <li><strong>38 self-checks run first and always</strong>, with or without data: model invariants, the tidy schema, and the statistics exercised on synthetic plates with a known injected effect.</li>
-          <li><strong>Every push re-runs the model on a clean machine</strong> and checks that the outputs match the published ones to a relative tolerance of 1&times;10<sup>&minus;6</sup>. The four outputs that come from 1000 integrated draws are too slow for that budget and are verified by a deliberate full run before release; the check names them rather than leaving the omission to be noticed.</li>
+          <li><strong>53 self-checks run first and always</strong>, with or without data: model invariants, the tidy schema, and the statistics exercised on synthetic plates with a known injected effect &mdash; including one that runs both replicate readings over the same table and asserts that the point estimate does not move while the degrees of freedom and the <var>p</var>-values do.</li>
+          <li><strong>Every push re-runs the model on a clean machine</strong> and checks that the seven cheap outputs match the published ones to a relative tolerance of 1&times;10<sup>&minus;6</sup>. The other five &mdash; the four from the sampling and the structure comparison &mdash; do not fit the runner's ten-minute budget and are verified by a deliberate full run before release; the check names them rather than leaving the omission to be noticed.</li>
           <li><strong>Each row of the tidy tables carries the spreadsheet cell it came from</strong>, and every ratio is recomputed from the raw readings rather than read from the workbook's own percentage columns.</li>
         </ul>
         <p>
