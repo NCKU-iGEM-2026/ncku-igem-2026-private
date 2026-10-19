@@ -1,18 +1,18 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Required meta tags -->
+    {# Required meta tags #}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 浮水印小圖示。只留 static.igem.wiki 上的 AVIF：原本另有兩張 PNG 放在
+    {# 浮水印小圖示。只留 static.igem.wiki 上的 AVIF：原本另有兩張 PNG 放在
          repo 的 static/img/（64px favicon 與 apple-touch-icon），但 iGEM 規定
          圖片要用 uploads tool 放上 static.igem.wiki，而該工具會把上傳的圖一律
-         轉成 AVIF，PNG 兜底因此無法成立，已整組移除。 -->
+         轉成 AVIF，PNG 兜底因此無法成立，已整組移除。 #}
     <link rel="shortcut icon" href="https://static.igem.wiki/teams/6379/wiki/logo/logo-only.avif"/>
-    <!-- 社群分享預覽卡（LINE／Telegram／Facebook／X）。沒有 og:image：預覽卡會
+    {# 社群分享預覽卡（LINE／Telegram／Facebook／X）。沒有 og:image：預覽卡會
          只剩標題與描述，或由平台自行抓圖。原本指向 repo 裡的 og-cover.png，
          基於上述同一個理由移除；twitter:card 也從 summary_large_image 改回
-         summary，大圖卡沒有圖可放。 -->
+         summary，大圖卡沒有圖可放。 #}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="NCKU-Tainan iGEM 2026">
     <meta property="og:title" content="{% block og_title %}NCKU-Tainan iGEM 2026{% endblock %}">
@@ -21,38 +21,38 @@
     <meta name="twitter:card" content="summary">
     <link rel="license" href="https://creativecommons.org/licenses/by/4.0/"/>
 
-    <!-- Every page pulls its banner, photos and fonts from static.igem.wiki.
+    {# Every page pulls its banner, photos and fonts from static.igem.wiki.
          Opening that connection while the HTML is still being parsed gets the
          DNS lookup and the TLS handshake out of the way before the first image
-         is even asked for. -->
+         is even asked for. #}
     <link rel="preconnect" href="https://static.igem.wiki" crossorigin>
 
-    <!-- Bootstrap CSS -->
+    {# Bootstrap CSS #}
     <link href="{{ url_for('static', filename = 'bootstrap.min.css') }}" rel="stylesheet">
 
-    <!-- Custom CSS -->
+    {# Custom CSS #}
     <link href="{{ url_for('static', filename = 'style.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename = 'page-toc.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename = 'site-loader.css') }}" rel="stylesheet">
-    <!-- The loading screen's bacterium is asked for first, so it is there when
-         the screen is. Without JavaScript the screen is not drawn at all. -->
+    {# The loading screen's bacterium is asked for first, so it is there when
+         the screen is. Without JavaScript the screen is not drawn at all. #}
     <link rel="preload" as="image" href="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria2.avif" fetchpriority="high">
     <noscript><style>.site-loader { display: none !important; }</style></noscript>
 
-    <!-- Redesign layers: tokens → base → components → shell（順序即覆蓋順序） -->
+    {# Redesign layers: tokens → base → components → shell（順序即覆蓋順序） #}
     <link href="{{ url_for('static', filename = 'css/tokens.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename = 'css/base.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename = 'css/components.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename = 'css/shell.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename = 'css/editorial.css') }}" rel="stylesheet">
-    <!-- 全站深夜覆蓋層：舊淺色面板→Collaboration 深夜綠家族（僅 dark 生效）-->
+    {# 全站深夜覆蓋層：舊淺色面板→Collaboration 深夜綠家族（僅 dark 生效）#}
     <link href="{{ url_for('static', filename = 'css/pages/nexus-dark.css') }}" rel="stylesheet">
     {% block page_css %}{% endblock %}
 
     <title>{% block title %}{% endblock %} | NCKU-Tainan - iGEM 2026</title>
 
-    <!-- 深淺色：首幀前定色，避免閃白。全站預設 Collaboration 深夜綠；
-         使用者手動切過淺色才記住淺色 -->
+    {# 深淺色：首幀前定色，避免閃白。全站預設 Collaboration 深夜綠；
+         使用者手動切過淺色才記住淺色 #}
     <script>
       (function () {
         var RX_THEME_TOGGLE = false; /* 暫時關閉深淺色切換，固定深色；與 motion.js 的 THEME_TOGGLE_ENABLED 同步 */
@@ -68,9 +68,9 @@
 
 </head>
 <body class="{% block body_class %}{% endblock %}">
-  <!-- Loading screen: a large P. aeruginosa with a ring of AHL under it, the
+  {# Loading screen: a large P. aeruginosa with a ring of AHL under it, the
        large disc stepping clockwise. Shown until the page has fully loaded;
-       see static/site-loader.css. -->
+       see static/site-loader.css. #}
   <div class="site-loader" id="siteLoader" role="status" aria-busy="true">
     <div class="site-loader-stage">
       <img class="site-loader-germ" src="https://static.igem.wiki/teams/6379/wiki/onlinegame/bacteria2.avif" alt="" width="858" height="1163" decoding="async" fetchpriority="high">
@@ -89,10 +89,10 @@
   </div>
   <script src="{{ url_for('static', filename = 'site-loader.js') }}"></script>
 
-  <!-- Navigation -->
+  {# Navigation #}
   {% include 'menu.html' %}
 
-  <!-- Header -->
+  {# Header #}
   {% block header %}
   <header class="bg-hero page-hero py-5 mb-5">
     <div class="page-hero-bg {% block hero_class %}{% endblock %}" style="--hero-img: url('{% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/education.avif{% endblock %}');"></div>
@@ -108,16 +108,16 @@
   </header>
   {% endblock %}
 
-  <!-- Page Content -->
+  {# Page Content #}
   <div class="container">
     {% block page_content %}{% endblock %}
   </div>
 
-  <!-- Footer: MUST mention license AND have a link to team wiki's repository on gitlab.igem.org -->
+  {# Footer: MUST mention license AND have a link to team wiki's repository on gitlab.igem.org #}
   {% include 'footer.html' %}
 
-  <!-- Back to top: sits outside the footer so position:fixed is not affected
-       by any transformed ancestor. Hidden until the page is scrolled. -->
+  {# Back to top: sits outside the footer so position:fixed is not affected
+       by any transformed ancestor. Hidden until the page is scrolled. #}
   <button type="button" id="backToTop" class="back-to-top" aria-label="Back to top" title="Back to top">
     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 16 16" fill="none"
          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -125,21 +125,21 @@
     </svg>
   </button>
 
-  <!-- Bootstrap Bundle with Popper -->
+  {# Bootstrap Bundle with Popper #}
   <script src="{{ url_for('static', filename = 'bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename = 'navbar-scroll.js') }}"></script>
-  <!-- Redesign motion: vendor Lenis（自架）+ 全站動態。GSAP/ScrollTrigger 目前沒有頁面
+  {# Redesign motion: vendor Lenis（自架）+ 全站動態。GSAP/ScrollTrigger 目前沒有頁面
        需要（拆字與章節軌道已改由 motion.js 自己做）；哪一頁真的要用，再由
-       block motion_vendor 載入 static/vendor/ 裡的檔案，其他頁不必付這 116 KB。 -->
+       block motion_vendor 載入 static/vendor/ 裡的檔案，其他頁不必付這 116 KB。 #}
   {% block motion_vendor %}{% endblock %}
   <script src="{{ url_for('static', filename = 'vendor/lenis.min.js') }}" defer></script>
   <script src="{{ url_for('static', filename = 'js/motion.js') }}" defer></script>
   <script src="{{ url_for('static', filename = 'js/editorial.js') }}" defer></script>
-  <!-- 全站動態底圖：網格＋DNA（Collaboration 同款；engineering/board-game 自行跳過）-->
+  {# 全站動態底圖：網格＋DNA（Collaboration 同款；engineering/board-game 自行跳過）#}
   <script src="{{ url_for('static', filename = 'js/pages/hp-mesh.js') }}" defer></script>
-  <!-- 區塊級螢網：data-glow 元素内長出一層螢網（见 glow-mesh.js 檔頭規格）-->
+  {# 區塊級螢網：data-glow 元素内長出一層螢網（见 glow-mesh.js 檔頭規格）#}
   <script src="{{ url_for('static', filename = 'js/glow-mesh.js') }}" defer></script>
-  <!-- 永不停止的 CSS 動畫在畫面外暫停（見 anim-gate.js 檔頭）-->
+  {# 永不停止的 CSS 動畫在畫面外暫停（見 anim-gate.js 檔頭）#}
   <script src="{{ url_for('static', filename = 'js/anim-gate.js') }}" defer></script>
   <script src="{{ url_for('static', filename = 'page-toc.js') }}"></script>
   {% block extra_scripts %}{% endblock %}

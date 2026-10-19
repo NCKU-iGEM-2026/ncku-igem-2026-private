@@ -14,122 +14,6 @@
 {# A fraction, typeset. Same macro as the Software page. #}
 {% macro frac(n, d) %}<span class="sw-frac"><span>{{ n|safe }}</span><span>{{ d|safe }}</span></span>{% endmacro %}
 
-{#
-  === 給團隊的說明，發布前請讀 ===
-
-  本頁分成三個 Part（2026-10-07 改版）：
-    Part 1  Inhibition model          #model-inhibition   佔位，內容待補
-    Part 2  Imaging model             #model-zone         骨架已搭，內容待補
-    Part 3  Reader model              #model-reader       讀取器的量測模型（原本整頁的內容）
-    Summary                           #model-impact       What modelling changed（三個 Part 的總表）
-  Part 3 裡原本的 Model 1/2/3 已改成 3.2/3.3/3.4，其餘各節也編成 3.1–3.8；section 的 id 沒有改。
-  2026-10-08：Part 3 精簡過一次（硬體負責人的決定，因為前面還要放兩個模型）。現在是 3.1–3.7：
-    原本的 3.6 A prediction on the record 併進 3.3（id model-prediction 還在，在那一段上）；
-    原本的 3.7、3.8 改成 3.6、3.7；3.5 後半的兩個小標收進收合列；Part 3 開頭少說一次它做了什麼。
-    沒有刪任何數字、表或圖，離開正文的內容都在收合列裡。
-
-  導覽：
-    - 頁首三張卡片（md-parts）同時是目錄和「三個模型怎麼串起來」的關係圖，卡片之間有箭頭。
-    - 寬螢幕（≥1200px）左邊會自動出現 On this page 側邊目錄（static/page-toc.js），
-      Part 的標題用 data-toc-group 標成分組，各節標題用 data-toc-title 給短名。
-      新增一節時，h2 加上 data-toc-title="X.Y 短名" 即可，目錄會自己更新。
-      2026-10-11：container 加上 data-toc-style="parts"（與 Software 頁同一套），
-      目錄改成每個 Part 一列、只展開正在讀的那個 Part，上面有閱讀進度條。
-      原本 29 條連結同時攤開、在 1440x900 下會溢出內捲；現在同時只看到 11-13 列。
-      Part 的 data-toc-no 是左邊的圓形編號；Summary 用 data-toc-icon="summary"（線條圖示，原本是 ★）並加 data-toc-apart，
-      讓它與三個 Part 之間隔一條虛線。
-      同一天把兩個沒編號的節補上編號，讓目錄每一列都對齊：
-      Part 1 的參考文獻改成編號的一節，Part 3 開頭的 Three questions 改成 3.0。
-      （2026-10-19：Part 1 只留 F1、F4、F7 三張圖，與圖綁在一起的
-      原 1.5、1.7 兩節整節移除，其餘重編為 1.1–1.8，參考文獻是 1.8。）
-
-  評審（Best Model）看的是：假設、用到的數據、結果、任何人都看得懂的說明、
-  以及模型有沒有實際影響專案設計。所以每個 Part 都照同一套小標題寫：
-    X.1 The question       這個模型要回答什麼、為什麼專案需要它
-    X.2 Assumptions
-    X.3 The model          公式或方法
-    X.4 Data & parameters  參數從哪來（實驗或文獻，要標出處）
-    X.5 Results
-    X.6 Validation         跟實驗比對
-    X.7 What it changed    這個模型讓我們改了什麼設計或決定
-    X.8 Limits
-  Part 1（2026-10-19 重寫成簡化版）是：
-  1.1 The question、1.2 What the data show、1.3 The model（含校正與參數表）、
-  1.4 How much more aptamer、1.5 Testing it、1.6 What it changed、1.7 Limits、
-  1.8 References。
-  先講資料再講模型，驗證放在建議之前——那個模型沒有通過它自己的 held-out 測試，
-  而建議的可信度正是建立在這件事說清楚上面。
-  各節的來源檔名與發布前待辦寫在 Part 1 自己的註解裡。
-  Part 2 的骨架寫在它自己的註解裡，照著填即可。
-  Part 3 是先寫好的，沒有照這套標題，改用標題下的「Part 3 at a glance」對照到各節。
-
-  Part 2 放內容之前請先確認：
-    - 頁首卡片的一句話說明（md-parts-q）請改成該模型真正回答的問題，並拿掉卡片上的
-      In preparation（md-parts-state）與 Part 底下的 In preparation 段落。Part 1 已經這樣改過。
-    - 頁首 hw-lead 那一段的描述已改過（2026-10-09）：原本寫「抑制 → 抑制圈 → 讀取器」
-      的因果鏈，但 Part 2 量的是菌落、是給 wet lab 的量測工具，那條鏈不成立。
-    - 卡片下方「三個模型怎麼串起來」那一句（md-parts-link）還是 In preparation，要寫成
-      真正的關係。這是科學內容，必須由團隊確認，不可推測。
-    - 最後的 What modelling changed 總表：Part 1 的列在 2026-10-19 清空時刪掉了，
-      要從新的 1.6 重新整理補回（寫成「交回給 wet lab 的建議」而不是「已經做了」；
-      若已經執行請改寫並補上結果）；Part 2 那列要補；
-      Part 3 那幾列是從本頁既有文字整理的，請確認它們確實反映團隊當時的決定。
-    - 正式提交（wiki freeze）前，不可留下任何 In preparation 的佔位文字。
-
-  以下說明都是針對 Part 3。
-
-  內容來源（全部在硬體資料夾 C:\IGEM\prototype_1\_AI_REFACTOR_WORK\，本頁沒有加入
-  這些文件以外的數據、結果或引用）：
-
-    P1_CLOSING_REPORT_2026-09-29/REPORT.md        §4.2–4.5、§6、§7
-    P1_DATA_ANALYSIS_2026-09-30/ANALYSIS.md       修訂 2，§1–§8 與附錄
-    P1_COMPREHENSIVE_ML_2026-09-30/revision2/     修訂 2（build_concise_pdf.py 的文字、
-                                                  OD_PERMUTATIONS.csv、EXACT_FORMULAS.json、
-                                                  FIGURE_SOURCE_DATA.json、REVIEW_DISPOSITION.json）
-    P1_ML_CALIBRATION_2026-09-30/STUDENT_RESULTS.md
-
-  用語依收尾報告 §7 與 9/15 交接包的 00_CLAUDE_PROMPT.txt：不寫校正曲線、LOD、SNR、
-  絕對濃度、sfGFP 特異性、AHL 劑量反應；cycle 不當獨立樣本；ML 的主結果只用固定
-  Ridge 的 20.73 → 8.24，7.60 / 5.75 只當事後最低值。
-
-  圖 1–3 的點是 ANALYSIS.md §4.4 的逐管數值，抄在 static/model-charts.js 裡；斜率、
-  直線與留一場次誤差由那支程式從這 20 個點現算，已核對與報告一致。圖 4（OD 對調，
-  七個數字）與圖 5（18 個模型家族，取自 FIGURE_SOURCE_DATA.json 的 family_minima）
-  是引用值。圖 5 每個家族取 norm4／norm12 中較低的那個，屬事後排名，頁面上有寫明。
-  那邊的圖檔沒有複製進來。
-
-  發布前請確認或補上：
-
-  A. 有效列數：ANALYSIS.md 寫 657 列中 631 有效，ML 報告寫 628 個有效循環。
-     本頁用 631（它的定義寫得最清楚），兩個數字的差別請硬體負責人確認。
-
-  B. 「不再重複 C − A」：報告寫的是「建議」，決定權在負責人。本頁寫成
-     "the analysis recommended against repeating it"。如果已經正式決定，可以改成決定。
-
-  C. 事前預測（A prediction on the record）：本頁寫「尚未檢驗」。10/3 若有做，
-     把實測值、比值與判定補進去；不管支持或不支持都照實寫。
-
-  D. 程式與原始資料沒有公開，本頁沒有放任何連結。2026-10-08 硬體負責人決定不公開：
-     2026 Judge Handbook 的 Model 獎沒有要求公開程式或原始資料（只有 Software 獎要求原始碼放 iGEM GitLab），
-     所以最後一節那句從「not published yet」改成「not published」。日後若要公開，
-     上傳 iGEM GitLab 並決定授權後，把那句話換成連結。
-
-     2026-10-11 更新：Part 1（抑制模型）的程式已開源在
-     https://gitlab.igem.org/2026/software/ncku-tainan/inhibition-model（MIT），
-     Part 1 開頭已加上連結。原始數據仍不公開。
-     Part 3 的程式與原始紀錄維持不公開，3.8 不變。
-     （上面 2026-10-08 的紀錄保留；其中「最後一節那句」的處理已過時。）
-
-  E. 與 Software 頁不一致的地方（Software 頁的團隊說明 C 也記著）：
-     感測器設定本頁是 ATIME 255 / ASTEP 280（ANALYSIS.md §1.2：所有有效列同一組），
-     Software 頁是 ATIME 59 / ASTEP 999。
-
-  F. ML 報告引用了 Stevenson et al. 2016（OD 校正的限制）與 scikit-learn 文件。
-     本頁沒有放參考文獻；要放的話請團隊自己核對出處後加上。
-
-  G. 這些分析有用到 AI 工具（報告本身記載了 Codex 與 Claude 的角色），
-     請記得寫進 Attributions。
-#}
 
 <div class="hw-orbs" aria-hidden="true">
   <span class="hw-orb hw-orb-a"><span></span></span>
@@ -139,10 +23,6 @@
 
 <div class="container my-4 hw sw md" data-toc-style="parts">
 
-  {# 三張入口卡片，是本頁的目錄。每張連到下面一個 Part 的 id，改了 id 要一起改。
-     三個模型不是一條鏈（2026-10-19 團隊確認）：抑制模型自成一組，Part 2 跟著
-     Software 頁，Part 3 跟著 Hardware 頁，所以卡片之間不畫箭頭。
-     Part 2、3 底部的 md-parts-pair 標出它跟哪一頁一組。 #}
   <ul class="md-parts" aria-label="The three models on this page">
     <li>
       <a href="#model-inhibition">
@@ -169,65 +49,6 @@
     </li>
   </ul>
 
-  {# ======================================================================
-     Part 1：抑制模型（2026-10-19 重寫，簡化版）
-
-     內容來源只有一個：C:\Users\user\Desktop\iGEM Code\inhibition_model
-     （iGEM GitLab：https://gitlab.igem.org/2026/software/ncku-tainan/inhibition-model ，
-     commit b1d454c）。本頁沒有加入這個 repo 以外的數據、結果或引用。
-       results/*.csv            每一個數字（表格或圖說下方都標了檔名）
-       results/model_report.md  論述與寫法
-       params/parameters.csv    參數、範圍、出處
-       METHOD_CHANGES.md        哪些方法被收回、為什麼
-       figures/wiki-upload/     頁面上的圖（檔名帶 hash）。2026-10-19 團隊決定只留
-                                F1、F4、F7 三張，F2、F3、F5、F6 連同圖說一起拿掉；
-                                repo 裡的圖檔都還在，要加回來照原檔名與 hash 補 src 即可。
-
-     數字一律取自 results/*.csv，不取自散文。表格用混合模型的值
-     （effect_sizes.csv 的 ratio_gm / ci_low / ci_high），F1 畫的是 bootstrap，
-     兩者差不到一個百分點，圖說有寫。
-
-     這一版比 10-15 版短很多（原本約 2000 行）：每一節只留判斷、一個表或一張圖、
-     以及該節的來源檔名。被拿掉的細節（配對對比、等價檢定、分盤檢查、PRCC 全表、
-     plate-of-patches 全表）都還在 inhibition_model 的 results/ 與 model_report.md 裡，
-     1.6、1.7 有指過去。若之後要加回來，請從 CSV 重新核對數字再寫。
-
-     圖檔：run_all.py 的最後一步會把 PNG 轉成 AVIF 放進 figures/wiki-upload/，
-     檔名帶內容 hash。圖若更新，hash 會變，請照它印出的名字換掉 src。
-
-     LasReader（團隊的 software）與這一個模型是兩個 repo，這一節沒有用到 LasReader
-     的任何輸出。若 swarming 的盤徑其實是用 Agar Vision 量的，請團隊告知，
-     那是一條真的關聯，可以加在 1.2；但不可由 AI 推測。
-
-     === 發布前請處理（PUBLISH BLOCKERS，沿用 10-19 清單）===
-
-     N. 樣本數與 Results 頁對不上。必須由 wet lab 回答，不可由 AI 代填。
-        Results 頁：swarming 每組 n = 5，biofilm 每組 n = 6。
-        本頁（模型讀的 workbook）：swarming A16-2 11 列、ALS-5 10 列、Cb-2 10 列（5 盤）；
-        biofilm 6 / 6 / 12 個生物重複。兩頁的百分比一致（差距都在 2.5 個百分點內），
-        但 n 不一致，不可能描述同一批資料。請 wet lab 說明 Results 的圖用了哪些列。
-        p 值因此也不同，本頁不引用 Results 的 p 值。
-
-     O. Results / Engineering 的 BL21 萃取物對照組不在 workbook 裡，模型沒有用到，
-        本頁因此沒有提到它。要納入就把資料加進 workbook 重跑。
-
-     P. params/parameters.csv 的 Cb-2 長度寫「confirmed on gel at ~93 nt」，
-        但 Engineering 寫那條帶在沒有 plasmid 的 BL21 也有、加 RNase 會消失，
-        不能當成 Cb-2 的證據。本頁只寫「設計長度 93 nt」，沒有引用那條膠；
-        模型 repo 的 parameters.csv 也要改掉這句。
-
-     C. 參考文獻 [1][2] 的身分認定。parameters.csv 寫 ALS-5 的 Kd 來自 Zhao et al. 2013；
-        但 Engineering 頁與 Results 頁都寫三支 aptamer 全部出自 Wu et al. 2025。
-        本頁的做法：Wu et al. 2025 列為三支 aptamer 的來源研究，Kd 照 parameters.csv
-        標成 Zhao et al. 2013，並在 1.3 明寫這個出處待核。請去讀那篇 Wu et al.，
-        如果它有報 Kd（尤其是 Cb-2），1.3 就多一個文獻值、1.7 就少一條限制。
-        這一條不可以由 AI 代填。
-
-     D. 幾筆文獻還不完整（LC-MS 2023 沒有作者等），照 Description 頁的做法標
-        citation to be completed，請團隊自己核對後補齊。
-
-     E. 這份分析用到 AI 工具，請寫進 Attributions（與 Part 3 的註記 G 同）。
-     ====================================================================== #}
   <header class="md-part" id="model-inhibition" data-toc-group data-toc-no="1" data-toc-start>
     <p class="md-part-no">Part 1</p>
     <h2 data-toc-title="Part 1 · Inhibition">Inhibition model</h2>
@@ -260,9 +81,6 @@
     </p>
   </div>
 
-  {# 兩個數字就是 1.1 兩個問題的答案。第二格用 is-null：它說的是模型沒通過測試，
-     不是好消息，所以不用強調色。來源：dose_requirements.csv 與
-     uncertainty_summary.csv（1.6×）、cross_phenotype.csv（0 of 3）。 #}
   <ul class="md-val-kpis" aria-label="Part 1 in two numbers">
     <li>
       <span class="md-val-n">1.6<span class="md-val-u">&times;</span></span>
@@ -277,7 +95,7 @@
   </ul>
 
 
-  <!-- ========================= 1.1 the question ========================= -->
+  {# ========================= 1.1 the question ========================= #}
   <section id="model-inhibition-question">
     <h2 data-toc-title="1.1 The question">1.1 The question</h2>
 
@@ -303,7 +121,7 @@
   </section>
 
 
-  <!-- ========================= 1.2 what the data show ========================= -->
+  {# ========================= 1.2 what the data show ========================= #}
   <section id="model-inhibition-data">
     <h2 data-toc-title="1.2 What the data show">1.2 What the data show</h2>
 
@@ -411,7 +229,7 @@
   </section>
 
 
-  <!-- ========================= 1.3 the model ========================= -->
+  {# ========================= 1.3 the model ========================= #}
   <section id="model-inhibition-model">
     <h2 data-toc-title="1.3 The model">1.3 The model</h2>
 
@@ -562,7 +380,7 @@
   </section>
 
 
-  <!-- ========================= 1.4 how much more aptamer ========================= -->
+  {# ========================= 1.4 how much more aptamer ========================= #}
   <section id="model-inhibition-switch">
     <h2 data-toc-title="1.4 How much more">1.4 How much more aptamer would finish the job</h2>
 
@@ -632,7 +450,7 @@
   </section>
 
 
-  <!-- ========================= 1.5 testing it ========================= -->
+  {# ========================= 1.5 testing it ========================= #}
   <section id="model-inhibition-validation">
     <h2 data-toc-title="1.5 Testing it">1.5 Testing it: the model fails its own held-out test</h2>
 
@@ -751,7 +569,7 @@
   </section>
 
 
-  <!-- ========================= 1.6 what it changed ========================= -->
+  {# ========================= 1.6 what it changed ========================= #}
   <section id="model-inhibition-changed">
     <h2 data-toc-title="1.6 What it changed">1.6 What it changed</h2>
 
@@ -813,7 +631,7 @@
   </section>
 
 
-  <!-- ========================= 1.7 limits ========================= -->
+  {# ========================= 1.7 limits ========================= #}
   <section id="model-inhibition-limits">
     <h2 data-toc-title="1.7 Limits">1.7 Limits</h2>
 
@@ -875,7 +693,7 @@
   </section>
 
 
-  <!-- ========================= 1.8 references ========================= -->
+  {# ========================= 1.8 references ========================= #}
   <section id="model-inhibition-refs">
     <h2 data-toc-title="1.8 References">1.8 References</h2>
 
@@ -1098,7 +916,6 @@
       </li>
     </ol>
 
-    {# 只留流程圖沒帶到的理由，並點名用到的 CV 技術。流程本身不要在這裡重述一次。 #}
     <p>
       The pipeline is OpenCV throughout. A <strong>Hough circle transform</strong><sup><a href="#mdzref2">[2]</a></sup>
       finds the dish, run on a downscaled copy &mdash; the dish is the largest
@@ -1182,9 +999,6 @@
   <section id="model-zone-results">
     <h2 data-toc-title="2.4 Results">2.4 Results</h2>
 
-    {# 四張不是四個範例，而是四個測試，由易到難：一般情況 → 不規則形狀加筆跡 →
-       眩光 → UV。圖說寫的是「這張證明了什麼」，不是「這是第幾張」。
-       圖說裡的毫米數都是圖上讀得到的，但團隊仍請核對一次。 #}
     <p>
       Each plate below is shown twice: the photograph as it was taken, and the
       same photograph with what the program found drawn onto it. They are not
@@ -1252,8 +1066,6 @@
   <section id="model-zone-validation">
     <h2 data-toc-title="2.5 Validation">2.5 Validation</h2>
 
-    {# 結論先行：一句判定 + 四個數字磚，原始 14 對數據與統計摘要收進折疊列
-       （.hw-fold，本頁既有的慣例）。每個統計量都由折疊列裡的 14 對重算。 #}
 
     <p class="md-val-verdict">
       On the fourteen colonies we pulled out and measured by hand to check it
@@ -1351,10 +1163,6 @@
   <section id="model-zone-changed">
     <h2 data-toc-title="2.6 What it changed">2.6 What it changed</h2>
 
-    {# 三點都是團隊給的。第 1、3 點描述的是程式實際的行為與架構（標註輸出、
-       無學習模型），第 2 點指回 2.5 的數字而不另外下形容詞。
-       「免費方案的主機」是團隊告知的部署方式——站內其他頁目前沒有寫到部署環境，
-       之後 Software 頁若補上部署說明，這裡要跟它一致。 #}
 
     <p>Three things this changed about how the wet lab measures a plate.</p>
 
@@ -1388,10 +1196,6 @@
   <section id="model-zone-limits">
     <h2 data-toc-title="2.7 Limits">2.7 Limits</h2>
 
-    {# 兩點都是團隊給的。第 2 點末尾那句「同一盤內的比較不受影響」是從
-       「比例尺是全盤共用的一個係數」推出來的：係數錯了，盤上每顆都錯同樣的
-       倍率，所以盤內的相對比較不變。這是推論，不是量測結果，寫法上沒有
-       當成已驗證的結論。 #}
 
     <ul class="hw-steps">
       <li>
@@ -1426,9 +1230,6 @@
   <section id="model-zone-refs">
     <h2 data-toc-title="2.8 References">2.8 References</h2>
 
-    {# Part 2 自己的編號（mdzref*），與 Part 1 的 mdref* 分開，兩邊都是從 [1] 起算。
-       [2] 與 [3] 由 2.2 的正文引用；[1] 目前沒有正文標註，等團隊決定要在哪裡提到
-       OpenCFU（它是這類工作的既有免費工具，提它的地方應該由團隊自己寫）。 #}
 
     <ol class="hw-refs">
       <li id="mdzref1">
@@ -1455,15 +1256,12 @@
     </ol>
   </section>
 
-  {# ======================================================================
-     Part 3：讀取器的量測模型（原本整頁的內容）
-     ====================================================================== #}
   <header class="md-part" id="model-reader" data-toc-group data-toc-no="3">
     <p class="md-part-no">Part 3</p>
     <h2 data-toc-title="Part 3 · Reader">Reader model: lessons from the first prototype</h2>
   </header>
 
-  <!-- ========================= the questions ========================= -->
+  {# ========================= the questions ========================= #}
   <section id="model-questions">
     <h2 data-toc-title="3.0 Two questions">3.0 The question we met</h2>
 
@@ -1516,7 +1314,7 @@
     </div>
   </section>
 
-  <!-- ========================= the data ========================= -->
+  {# ========================= the data ========================= #}
   <section id="model-data">
     <h2 data-toc-title="3.1 Data">3.1 The data behind it</h2>
 
@@ -1529,10 +1327,6 @@
       fractions into 200&nbsp;&micro;L tubes.
     </p>
 
-    {# 2026-10-06（夜）：實驗改用名字稱呼，不再用日期（與 Hardware 頁一致）。三場混合實驗叫
-       mixing session 1、2、3，日期只留在這張表的最後一欄；圖例、圖上的提示與其餘表格都用名字
-       （圖在 static/model-charts.js）。較早的幾場叫 stability read（09-03）、first fluorescence（09-04）、
-       re-insertion test 1、2（09-09、09-14），對照表在 Hardware 頁 3D 列印機那一塊的 Data and documentation。 #}
     <div class="hw-figure">
       <table class="hw-table md-keep">
         <caption>The three mixing sessions</caption>
@@ -1606,7 +1400,7 @@
 
   </section>
 
-  <!-- ========================= 3.2 within a session ========================= -->
+  {# ========================= 3.2 within a session ========================= #}
   <section id="model-within">
     <h2 data-toc-title="3.2 How steep">3.2 How steep the line is</h2>
 
@@ -1657,7 +1451,7 @@
     </details>
   </section>
 
-  <!-- ===================== 3.3 what shape ===================== -->
+  {# ===================== 3.3 what shape ===================== #}
   <section id="model-shape">
     <h2 data-toc-title="3.3 What shape">3.3 What shape the relationship has</h2>
 
@@ -1761,7 +1555,7 @@
     </details>
   </section>
 
-  <!-- ========================= 3.3 across sessions ========================= -->
+  {# ========================= 3.3 across sessions ========================= #}
   <section id="model-across">
     <h2 data-toc-title="3.4 Across sessions">3.4 Across sessions, most of the difference is the stock</h2>
 
@@ -1870,9 +1664,6 @@
       reading that session produced.
     </p>
 
-    {# 2026-10-08 建立、2026-10-17 壓縮：原本這裡有整段預測、五項條件的收合列
-       與改版說明。團隊決定只留一句 —— 預測沒有被檢驗，細節留在團隊的結案報告裡。
-       id 留著，頁尾總表仍然連到這一段。 #}
     <p id="model-prediction">
       A prediction for a new stock was written into our closing report on
       2026-09-30, with the rule for judging it fixed in advance. The reader
@@ -1939,17 +1730,7 @@
     </details>
   </section>
 
-  <!-- ========================= after the rebuild ========================= -->
-  {# 2026-10-10：模型在改版後的機台（P1-PROTO-02）上的兩件事，都是事後、探索性的。
-     來源（硬體資料夾 _AI_REFACTOR_WORK/）：
-       P1_AHL_EVIDENCE_2026-10-09/EVIDENCE.md revision 2 的 §7（模型、每一筆的拆分、已知答案的檢驗；表 T7a–T7f）；
-       P1_AHL_MODEL_FIT_2026-10-09/SUMMARY.md；同資料夾 ml_transfer/REPORT.md §1–§3（9-30 存下的三個不需要 OD 的
-       模型原封不動套到 10-05 的稀釋系列；那份報告由 subagent 產生，證據檔沒有重算，數字全部由程式算出）。
-     證據檔 §10 明定：背景模型不是校正、不能用來扣背景、不能說它已被驗證；不能說偵測極限或讀值代表多少 GFP；
-     不能說背景就是散射漏光；不能說濃菌液會放大螢光。這一節照這條線寫，限制只在最後一段寫一次。
-     用 OD 正規化的那個模型（8.24）沒有在新機台的資料上跑過（ml_transfer/REPORT.md §1：not run），所以這裡沒有說它。
-     表的第三列只列「目視有誘導」的六筆：目視沒有誘導的兩筆與不含報導基因的那一筆是用來定 c 的點，
-     它們接近 0 是擬合的結果，不是獨立的檢驗（證據檔 §7.2）。 #}
+  {# ========================= after the rebuild ========================= #}
   <section id="model-rebuilt">
     <h2 data-toc-title="3.5 After the rebuild">3.5 After the rebuild: what carried over</h2>
 
@@ -2044,15 +1825,6 @@
     </div>
 
 
-    {# 2026-10-11：10-11 的濁度場次量了不含報導基因的菌，背景不必再靠 10-09 自己的三個點。
-       來源：_AI_REFACTOR_WORK/P1_TURBIDITY_BACKCAST_2026-10-11/BACKCAST.md（事後、探索性；Codex 審過，沒有意見）：
-       §1 參考曲線與留一誤差、§2 10-09 各杯的回推、§3 已知答案的檢驗、§4 可以說與不能說。
-       表的最後一列（其他三種背景的形式）出自同一資料夾 CODEX_REVIEW_REPORT.md 的 B 部分，是 Codex 審查時由兩張 CSV
-       手算的；BACKCAST.md §5 註明作者沒有重算。硬體負責人 2026-10-11 授權使用（「我授權用codex的計算」）。
-       寫進來之前用程式由同兩張 CSV 重算過一次核對：R 套在 F2 上，c 的最佳值 0.0638、誤差 0.163 counts
-       （Codex：約 0.0636、約 0.16）；F3 的折線 s 0.0864、F0 45.05、誤差 0.146（與 Codex 相同）。頁面上寫的是約數。
-       §4 明定不能寫：那些盤沒有被誘導、螢光低於某個量；這條曲線是校正、可以拿來扣背景；背景的成因；
-       兩天的儀器刻度相同、兩天的菌相同；任何關於 AHL 的結論。這裡都沒有寫，請不要加。 #}
     <h3>Two days later, the background measured on its own</h3>
 
     <p>
@@ -2096,7 +1868,7 @@
     </p>
   </section>
 
-  <!-- ========================= limits ========================= -->
+  {# ========================= limits ========================= #}
   <section id="model-limits">
     <h2 data-toc-title="3.6 Limits">3.6 Assumptions and limits</h2>
 
@@ -2176,13 +1948,6 @@
     </ul>
   </section>
 
-  {# ======================================================================
-     總結：三個模型各改變了什麼。評審最看重「模型有沒有影響專案設計」，這張表一次回答。
-     Part 1 的列（2026-10-19 隨 Part 1 清空一併刪除），重寫後再補上（同樣只寫實際發生的決定）。
-     Part 2 的列等內容進來後補上（同樣只寫實際發生的決定）。
-     Part 3 的四列是從 3.3–3.6 既有文字整理的，請團隊確認。
-     2026-10-10：加了第五列（3.6，改版後的機台）；原本的 3.6、3.7 改成 3.7、3.8。
-     ====================================================================== #}
   <header class="md-part" id="model-impact" data-toc-group data-toc-icon="summary" data-toc-apart>
     <p class="md-part-no">Summary</p>
     <h2 data-toc-title="Summary · What changed">What modelling changed</h2>
