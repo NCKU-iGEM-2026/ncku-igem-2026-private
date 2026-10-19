@@ -33,6 +33,7 @@
         <span class="md-parts-no">Part 1</span>
         <span class="md-parts-name">Inhibition model</span>
         <span class="md-parts-q">How much aptamer it takes to hold down a signal the bacteria keep remaking.</span>
+        <span class="md-parts-pair">Built for our wet lab</span>
       </a>
     </li>
     <li>
@@ -63,13 +64,6 @@
     could not explain.
   </p>
 
-  <p class="hw-aside">
-    Code: <a href="https://gitlab.igem.org/2026/software/ncku-tainan/inhibition-model"
-       target="_blank" rel="noopener noreferrer">GitLab</a> (MIT). Every number
-    in this part comes from a file in that repository's <code>results/</code>,
-    named under the table or figure that uses it.
-  </p>
-
   <div class="hw-lead">
     <p>
       Our inhibition module releases single-stranded DNA aptamers that bind the
@@ -82,24 +76,28 @@
     </p>
   </div>
 
-  <ul class="md-inhibition-overview" aria-label="Part 1 at a glance">
-    <li><strong>Observed</strong><span>The treatments reduce the measured phenotypes, with effects that differ between assays. <a href="#model-inhibition-data">See the data</a>.</span></li>
-    <li><strong>Predicted</strong><span>A higher A16-2 dose may reach half swarming inhibition, under the model's assumptions. <a href="#model-inhibition-switch">See the dose estimate</a>.</span></li>
-    <li><strong>Unresolved</strong><span>Cb-2 inhibits more than predicted in all three assays. This gap guides the proposed follow-up experiments. <a href="#model-inhibition-validation">See the prediction check</a>.</span></li>
-  </ul>
-
-  <ul class="md-val-kpis" aria-label="Dose hypothesis and held-out treatment">
-    <li>
-      <span class="md-val-n">1.6<span class="md-val-u">&times;</span></span>
-      <span class="md-val-k">Model-estimated dose to test</span>
-      <span class="md-val-s">About 1.6&times; the nominal A16-2 dose for 50&nbsp;% swarming inhibition (90&nbsp;% range 1.0&ndash;2.6&times;). This is an unvalidated estimate: applied plate concentration was not recorded and &beta; is assumed. <a href="#model-inhibition-switch">1.4</a></span>
-    </li>
+  <ul class="md-val-kpis" aria-label="Held-out treatment and dose hypothesis">
     <li class="is-null">
       <span class="md-val-n">Cb-2</span>
       <span class="md-val-k">Inhibition underestimated in all three assays</span>
-      <span class="md-val-s">One held-out treatment, checked across three phenotypes. The baseline predictions miss each measured interval; these are not three independent validation experiments. <a href="#model-inhibition-validation">1.5</a></span>
+      <span class="md-val-s">One held-out treatment, checked across three phenotypes. The baseline predictions miss each measured interval; these are not three independent validation experiments. <a href="#model-inhibition-validation">1.4</a></span>
+    </li>
+    <li>
+      <span class="md-val-n">1.6<span class="md-val-u">&times;</span></span>
+      <span class="md-val-k">Model-estimated dose to test</span>
+      <span class="md-val-s">About 1.6&times; the nominal A16-2 dose for 50&nbsp;% swarming inhibition (90&nbsp;% range 1.0&ndash;2.6&times;). This is an unvalidated estimate: applied plate concentration was not recorded and &beta; is assumed. <a href="#model-inhibition-switch">1.5</a></span>
     </li>
   </ul>
+
+  <p class="hw-aside">
+    Code: <a href="https://gitlab.igem.org/2026/software/ncku-tainan/inhibition-model"
+       target="_blank" rel="noopener noreferrer">GitLab</a> (MIT). Every number
+    in this part comes from a file in that repository's <code>results/</code>,
+    named under the table or figure that uses it. The measurements themselves
+    are the wet lab's, and are reported on the
+    <a href="{{ url_for('pages', page='results') }}#res-inhibition">Results</a>
+    page.
+  </p>
 
 
   {# ========================= 1.1 the question ========================= #}
@@ -111,8 +109,23 @@
       3-oxo-C12-HSL, the <em>las</em> signal), <strong>A16-2</strong>
       (44&nbsp;nt, binds C4-HSL, the <em>rhl</em> signal) and
       <strong>Cb-2</strong> (93&nbsp;nt, binds both).<sup><a href="#mdref1">[1]</a></sup>
-      All three reduced swarming, pyocyanin and biofilm, and none of them came
-      close to switching the system off.
+      <strong>They did not arrive the same way.</strong> ALS-5 and A16-2 are
+      chemically synthesised reference oligonucleotides; Cb-2 is the construct
+      this project built, applied as a TRIzol extract of the retron culture
+      rather than as a purified oligonucleotide. That asymmetry runs through
+      everything below, and
+      <a href="#model-inhibition-validation">1.4</a> is where it bites.
+    </p>
+
+    <p>
+      Every treatment reduced swarming and pyocyanin, and two of the three
+      reduced biofilm &mdash; ALS-5's biofilm effect is borderline
+      (<a href="#model-inhibition-data">1.2</a>). None of them came close to
+      switching the system off. The wet lab's own account of these assays,
+      with the plate photographs and its own statistics, is on the
+      <a href="{{ url_for('pages', page='results') }}#res-inhibition">Results</a>
+      page; this part is a separate re-analysis of the same wells
+      (<a href="#model-inhibition-data">1.2</a>).
     </p>
 
     <p>
@@ -122,9 +135,16 @@
     </p>
 
     <ol>
-      <li>What higher A16-2 dose should the next experiment test? <a href="#model-inhibition-switch">1.4</a></li>
-      <li>Does the model predict a treatment it was never fitted to? <a href="#model-inhibition-validation">1.5</a></li>
+      <li>Does the model predict a treatment it was never fitted to? <a href="#model-inhibition-validation">1.4</a></li>
+      <li>What higher A16-2 dose should the next experiment test? <a href="#model-inhibition-switch">1.5</a></li>
     </ol>
+
+    <p>
+      They are answered in that order on purpose. A model that has not been put
+      against a measurement it did not see has not earned the right to
+      extrapolate, so the held-out test comes first and the dose estimate
+      afterwards &mdash; carrying whatever the test leaves of it.
+    </p>
   </section>
 
 
@@ -138,23 +158,6 @@
       swarming only. ALS-5's biofilm result is borderline: its interval includes
       no effect in the table below, but just excludes it in F1's resampling
       analysis.
-    </p>
-
-    <details class="hw-fold md-fold">
-      <summary class="hw-fold-head">
-        <span class="hw-fold-title">Exact effect sizes, replicate units and statistical methods</span>
-        <span class="hw-fold-caret" aria-hidden="true"></span>
-      </summary>
-      <div class="hw-fold-body hw-fold-prose">
-    <p>
-      Every treated well is normalised to a control on the same plate, so each
-      reading is a ratio and is analysed on the log scale. What counts as one
-      experiment differs between the assays: for swarming and pyocyanin the
-      plate is the unit and plates enter the model as a random intercept, so
-      repeated readings on one plate are not counted as independent
-      experiments; for biofilm every row is a separately grown biological
-      replicate, which is the wet lab's own reading of its own assay
-      (2026-10-15), and the replicates are the units.
     </p>
 
     <div class="hw-figure hw-figure-table">
@@ -178,6 +181,50 @@
       replicates. Independent units per treatment: swarming 10, 11 and 5 plates
       (Cb-2's ten readings sit on five plates); pyocyanin 4, 3 and 3 plates;
       biofilm 6, 6 and 12 replicates across three plates.
+    </p>
+
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Replicate units, statistical methods, and how these numbers relate to the Results page</span>
+        <span class="hw-fold-caret" aria-hidden="true"></span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+    <p>
+      Every treated well is normalised to a control on the same plate, so each
+      reading is a ratio and is analysed on the log scale. What counts as one
+      experiment differs between the assays: for swarming and pyocyanin the
+      plate is the unit and plates enter the model as a random intercept, so
+      repeated readings on one plate are not counted as independent
+      experiments; for biofilm every row is a separately grown biological
+      replicate, which is the wet lab's own reading of its own assay
+      (2026-10-15), and the replicates are the units.
+    </p>
+
+    <p>
+      <strong>These are not the same numbers the
+      <a href="{{ url_for('pages', page='results') }}#res-inhibition">Results</a>
+      page reports, and they should not be.</strong> Results gives each
+      treatment's arithmetic mean against its untreated control with a
+      one-sample <var>t</var> test, which is the wet lab's own analysis. This
+      part re-reads the same wells on the log scale with the plate as a random
+      intercept, which is what the model needs as a calibration target. The two
+      readings were recomputed side by side and agree in direction and
+      significance for all nine treatment&ndash;assay pairs; the largest
+      disagreement in inhibition is 2.5 percentage points (Cb-2 biofilm,
+      34.2&nbsp;% there against 36.7&nbsp;% here), and the one verdict that is
+      close enough to move is ALS-5's biofilm result
+      (<var>p</var>&nbsp;=&nbsp;0.053 there, 0.057 here &mdash; borderline
+      under either). Source: <code>prism_crosscheck.csv</code>.
+    </p>
+
+    <p>
+      Two row counts differ as well, and the reason is traceability rather than
+      analysis. Cb-2's biofilm series has fourteen wells on the wet lab's
+      sheet; two of them could not be traced to a control, so this part uses
+      twelve. Cb-2's swarming series has ten readings, of which seven are read
+      against the first control on their plate rather than their own row and
+      one is ambiguous. Those decisions are recorded cell by cell in
+      <code>prism_crosscheck.csv</code> rather than left to the reader to infer.
     </p>
 
       </div>
@@ -247,6 +294,23 @@
       phenotype was measured, so <strong>nothing here excludes a growth
       effect</strong>. The model cannot argue this away, and it is the first
       thing <a href="#model-inhibition-changed">1.6</a> asks for.
+    </p>
+
+    <p>
+      <strong>One control the assays did carry is worth stating, because it
+      narrows the alternatives even though it does not close this
+      gap.</strong> Every assay included a BL21 extract control &mdash;
+      <em>E.&nbsp;coli</em> BL21(DE3) without the retron plasmid, taken through
+      the same culture, harvest and TRIzol extraction as Cb-2 &mdash; and it
+      was not significantly different from the untreated control in any of the
+      three phenotypes (&minus;2.3&nbsp;% swarming, +1.4&nbsp;% pyocyanin,
+      &minus;6.9&nbsp;% biofilm, all not significant;
+      <a href="{{ url_for('pages', page='results') }}#res-inhibition">Results</a>).
+      That makes the extraction background an unlikely explanation for the
+      effects. It says nothing about growth, because the extract control is not
+      a quorum-sensing-independent phenotype, so the paragraph above stands.
+      The model does not use this control: it enters nowhere in the
+      calibration.
     </p>
 
     <p class="hw-aside">
@@ -336,14 +400,14 @@
       the thing that gets measured. Pyocyanin and biofilm are regulated by
       <em>las</em>, <em>rhl</em> and <em>pqs</em> together, and mapping them
       directly would mean inventing parameters no measurement here could fix.
-      <a href="#model-inhibition-validation">1.5</a> tests them a different
+      <a href="#model-inhibition-validation">1.4</a> tests them a different
       way instead.
     </p>
 
     <p>
       Four assumptions carry the rest, and each of them is a place the model
       can be wrong: the plate is <strong>one well-mixed compartment</strong>
-      (<a href="#model-inhibition-validation">1.5</a> measures what that
+      (<a href="#model-inhibition-validation">1.4</a> measures what that
       costs); binding is <strong>fast</strong> compared with synthesis;
       <strong>&beta;&nbsp;=&nbsp;1</strong>, so a halving of <em>rhl</em>
       occupancy halves the swarm radius; and Cb-2's affinities
@@ -373,34 +437,65 @@
 
     <div class="hw-figure hw-figure-table">
       <table class="hw-table">
-        <caption>The two fitted parameters, and the two that carry the most weight beside them</caption>
+        <caption>The two fitted parameters, and the two that carry the most weight beside them. The 90&nbsp;% column is the spread across the 296 calibrated joint draws, not a confidence interval on a single fit.</caption>
         <thead>
-          <tr><th scope="col">Parameter</th><th scope="col">Value</th><th scope="col">Where it comes from</th></tr>
+          <tr><th scope="col">Parameter</th><th scope="col">Point fit</th><th scope="col">90&nbsp;% of draws</th><th scope="col">Where it comes from</th></tr>
         </thead>
         <tbody>
           <tr>
             <td>&theta;<sub>las</sub>, <em>las</em>-to-<em>rhl</em> gating strength</td>
             <td class="md-n">14.8</td>
+            <td class="md-n">0.22&ndash;15.4</td>
             <td><strong>Fitted</strong> to the ALS-5 swarming ratio (0.766).</td>
           </tr>
           <tr>
             <td><var>K</var><sub>d</sub>(A16-2, C4-HSL)</td>
             <td class="md-n">5571&nbsp;nM</td>
-            <td><strong>Fitted</strong> to the A16-2 swarming ratio (0.639). The only affinity taken from our own data; weak for an aptamer, and <a href="#model-inhibition-limits">1.7</a> says why it should be read as an effective parameter.</td>
+            <td class="md-n">48&ndash;10&thinsp;500&nbsp;nM</td>
+            <td><strong>Fitted</strong> to the A16-2 swarming ratio (0.639). The only affinity taken from our own data; weak for an aptamer, and <a href="#model-inhibition-limits">1.7</a> says why it should be read as an effective parameter. The underlying aptamer study reports no dissociation constant, which is why this is fitted at all.<sup><a href="#mdref3">[3]</a></sup></td>
           </tr>
           <tr>
             <td><var>K</var><sub>d</sub>(ALS-5, 3-oxo-C12-HSL)</td>
             <td class="md-n">27.5&nbsp;nM</td>
+            <td class="md-n">fixed</td>
             <td>Literature, fixed and not fitted: 20&ndash;35&nbsp;nM.<sup><a href="#mdref2">[2]</a></sup> This attribution is the one still to be checked &mdash; see the note under this table.</td>
           </tr>
           <tr>
             <td>&beta;, occupancy to radius</td>
             <td class="md-n">1</td>
+            <td class="md-n">assumed</td>
             <td>Assumed. Fixed at 1 so that two observations determine two free parameters &mdash; and it is the most influential parameter in the model.</td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <p class="hw-caution">
+      <strong>Read the point fits beside that 90&nbsp;% column, not on their
+      own.</strong> Both fitted parameters are pinned by two swarming
+      observations and nothing else, so once the literature parameters and the
+      applied dose are swept as well they are barely constrained:
+      &theta;<sub>las</sub> ranges over about two orders of magnitude with a
+      median of 1.9 against a point fit of 14.8, and the A16-2 affinity over
+      more than two, with a median of 1117&nbsp;nM against a point fit of
+      5571&nbsp;nM. <strong>Neither should be quoted as a measured
+      affinity or a measured gating strength.</strong> What survives the sweep
+      is not these values but the dose ratio built from them
+      (<a href="#model-inhibition-switch">1.5</a>), which is why that is the
+      only quantity this part puts forward. Source:
+      <code>uncertainty_summary.csv</code>.
+    </p>
+
+    <p>
+      <strong>The two calibration targets are not the two ratios in
+      <a href="#model-inhibition-data">1.2</a>, and the difference is
+      deliberate.</strong> Calibration takes the plate-resampled estimates
+      (0.766 and 0.639) rather than the mixed model's (0.768 and 0.642),
+      because the fit runs once per bootstrap resample and has to take its
+      target from the same resampling that generates the draws. The two
+      readings differ by less than a third of a percentage point and nothing in
+      this part turns on which is used.
+    </p>
 
     <p>
       The rest are literature or stated assumption, and each is swept over its
@@ -413,23 +508,38 @@
       levels that the synthesis rates are back-calculated from rather than
       guessed (1000&nbsp;nM each, over 60&ndash;2600 and
       56&ndash;5000<sup><a href="#mdref4">[4]</a></sup><sup><a href="#mdref5">[5]</a></sup>),
-      and the applied dose &mdash; 7.797&nbsp;ng/&micro;L by Nanodrop of
-      extracted retron ssDNA, the only aptamer quantity ever measured, swept
-      over 1&ndash;30&nbsp;ng/&micro;L because what reached a plate was never
-      recorded. The three design lengths, 35, 44 and 93&nbsp;nt, turn that
-      dose into 675, 537 and 254&nbsp;nM.
+      the two AHL removal rates, set from the lactonolysis half-lives and the
+      faster loss of the shorter acyl chain (0.014 and 0.087&nbsp;h<sup>&minus;1</sup>,
+      which cancel at steady state once synthesis is calibrated to those signal
+      levels<sup><a href="#mdref9">[9]</a></sup>), and the applied dose.
+    </p>
+
+    <p class="hw-caution">
+      <strong>That applied dose is one number, measured on one of the three
+      treatments, and used for all of them.</strong> It is
+      7.797&nbsp;ng/&micro;L by Nanodrop of TRIzol-extracted retron ssDNA
+      (2026-07-31), the only aptamer quantity ever measured in this project. It
+      is applied in the model to ALS-5 and A16-2 as well, which were
+      chemically synthesised and never quantified here, and for Cb-2 it is
+      <em>total</em> extracted single-stranded DNA rather than Cb-2 aptamer, so
+      it is an upper bound on the Cb-2 aptamer actually present. The
+      concentration that reached a plate was never recorded for any treatment,
+      which is why the dose is swept over 1&ndash;30&nbsp;ng/&micro;L and
+      carried as its own source of uncertainty rather than fixed. The three
+      design lengths, 35, 44 and 93&nbsp;nt, turn the nominal dose into 675,
+      537 and 254&nbsp;nM. <a href="#model-inhibition-validation">1.4</a> is
+      where this assumption is tested, and
+      <a href="#model-inhibition-limits">1.7</a> is where it is booked as a
+      limit.
     </p>
 
     <p class="hw-aside">
       Source: <code>params/parameters.csv</code> (every parameter, with its
-      units, range and citation) and <code>model_calibration.csv</code>.
-      <strong>One attribution is unresolved and is flagged rather than
-      smoothed over:</strong> the parameter table takes ALS-5's
-      <var>K</var><sub>d</sub> from Zhao et&nbsp;al. 2013, while our
-      Engineering and Results pages describe all three aptamers as coming from
-      Wu et&nbsp;al. 2025.<sup><a href="#mdref1">[1]</a></sup> Until the team
-      reconciles those, ALS-5 is taken to be the published ALSAP-5 aptamer and
-      Cb-2's affinities stay assumptions.
+      units, range and citation) and <code>model_calibration.csv</code>. One
+      attribution is unresolved &mdash; which paper ALS-5 comes from, and
+      therefore which <var>K</var><sub>d</sub> is the right one to fix. It is
+      booked as a limit in <a href="#model-inhibition-limits">1.7</a> rather
+      than settled here.
     </p>
 
     <p>
@@ -438,7 +548,19 @@
       uncertainty in the data reaches the predictions instead of stopping at a
       point estimate. The two parameters are pinned by the <em>difference</em>
       between ALS-5 and A16-2, and that difference is resolvable on nine shared
-      plates, which is what makes the rest of this part worth reading. Source:
+      plates, which is what makes the rest of this part worth reading.
+    </p>
+
+    <p>
+      <strong>104 of those 400 draws do not calibrate, and every quantile on
+      this page is taken over the 296 that do.</strong> Almost all of them
+      (102) are draws where the literature parameters came out wide enough that
+      the observed ALS-5 effect is unreachable at any gating strength; the
+      other two left the solver with more than one root. Those draws carry no
+      prediction, so excluding them is the only option &mdash; but it is a
+      selection, and it runs in one direction: the discarded draws are the ones
+      the model fits worst. The counts are reported rather than smoothed, here
+      and in <code>uncertainty_summary.csv</code>. Source:
       <code>calibration_draws.csv</code>.
     </p>
       </div>
@@ -446,86 +568,9 @@
   </section>
 
 
-  {# ========================= 1.4 how much more aptamer ========================= #}
-  <section id="model-inhibition-switch">
-    <h2 data-toc-title="1.4 Dose hypothesis">1.4 A higher dose to test</h2>
-
-    <p>
-      At the yield the wet lab reached, A16-2 took about a third off swarming.
-      Sweeping the applied dose across the calibrated draws says how much
-      further that yield would have to go.
-    </p>
-
-    <div class="hw-figure hw-figure-table">
-      <table class="hw-table">
-        <caption>Dose of A16-2 needed, against the yield already achieved</caption>
-        <thead>
-          <tr><th scope="col">Target</th><th scope="col">Dose</th><th scope="col">Fold over the nominal yield</th><th scope="col">90&nbsp;% range</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>50&nbsp;% swarming inhibition</td><td class="md-n">12.1&nbsp;ng/&micro;L</td><td class="md-n"><strong>1.55&times;</strong></td><td class="md-n"><strong>1.0&ndash;2.6&times;</strong></td></tr>
-          <tr><td>90&nbsp;% swarming inhibition</td><td class="md-n">201&nbsp;ng/&micro;L</td><td class="md-n">25.8&times;</td><td class="md-n">1.0&ndash;49&times;</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p class="hw-aside">
-      Source: <code>dose_requirements.csv</code>,
-      <code>uncertainty_summary.csv</code>. The fold column is the point
-      estimate; the 90&nbsp;% range is taken across the 296 calibrated joint
-      draws, whose medians are 1.6&times; and 11&times;.
-    </p>
-
-    <p>
-      <strong>Half suppression is a hypothesis for the next dose experiment.</strong>
-      Across 296 draws spanning three orders of magnitude in the LasR constant,
-      more than an order of magnitude in both signal levels and 1&ndash;30
-      ng/&micro;L of applied dose, the requirement for half suppression stays
-      inside 2.6&times;. The requirement for 90&nbsp;% runs to 49&times;, which
-      is not an engineering target but a statement that the model cannot say.
-    </p>
-
-    <figure class="hw-figure">
-      <div class="md-plate">
-        <img src="https://static.igem.wiki/teams/6379/wiki/model/inhibition-f4-dose-requirement-426b0ade.avif"
-             alt="Predicted swarm radius ratio against applied aptamer concentration on a log axis, one curve per aptamer, with the nominal yield marked at 7.797 nanograms per microlitre and the three measured swarming effects plotted on it with their bars. The A16-2 curve falls smoothly through its measured point at about 0.64 and keeps falling towards zero at large doses. The Cb-2 curve stays near 1 up to just past the nominal yield, drops almost vertically to about 0.65, then falls away smoothly; its measured point at 0.82 sits inside that drop. The ALS-5 curve steps down once near 3 nanograms per microlitre to about 0.8 and then stays flat at about 0.75 however large the dose. A shaded band from the nominal yield to about 20 nanograms per microlitre marks where 90 percent of draws reach 50 percent inhibition."
-             loading="lazy" decoding="async" width="1520" height="980">
-      </div>
-      <figcaption>
-        <strong>F4 &middot; Three aptamers, three shapes.</strong> A16-2 falls
-        smoothly through its measured point. Cb-2 sits just before a near
-        vertical drop, and its measurement lands inside that drop &mdash; the
-        gap <a href="#model-inhibition-validation">1.5</a> has to deal with.
-        ALS-5 flattens out: in the model, no dose of a C12-only aptamer reaches
-        half inhibition of swarming. Source:
-        <code>dose_requirements.csv</code>.
-      </figcaption>
-    </figure>
-
-    <p>
-      <strong>That flat ALS-5 curve is a prediction, not a result.</strong>
-      ALS-5 reaches swarming only indirectly, through the <em>las</em>-to-<em>rhl</em>
-      gate, and in the model that route saturates: no dose reaches 50&nbsp;%
-      inhibition in 269 of 296 calibrated draws (91&nbsp;%). The data cannot
-      test it. Testing it needs a dose series, and what exists is one dose: the
-      measured ALS-5&ndash;A16-2 difference is consistent with saturation, but
-      consistency at a single dose does not separate &ldquo;ALS-5
-      saturates&rdquo; from &ldquo;ALS-5 is simply weaker here&rdquo;.
-      <a href="#model-inhibition-changed">1.6</a> says what would settle it.
-    </p>
-    <p class="hw-caution">
-      <strong>This dose estimate has not been experimentally validated.</strong>
-      It depends on the assumed occupancy-to-radius mapping and a nominal
-      ssDNA concentration rather than a recorded applied plate dose. The Cb-2
-      prediction check below also exposes limits of the model. Use the estimate
-      to choose a dose series, rather than as a demonstrated yield requirement.
-    </p>
-  </section>
-
-
-  {# ========================= 1.5 testing it ========================= #}
+  {# ========================= 1.4 testing it ========================= #}
   <section id="model-inhibition-validation">
-    <h2 data-toc-title="1.5 Prediction check">1.5 Cb-2: where the predictions miss</h2>
+    <h2 data-toc-title="1.4 Where predictions miss">1.4 Cb-2: where the predictions miss</h2>
 
     <p>
       Cb-2 was excluded from calibration and is the only measured held-out
@@ -535,6 +580,19 @@
       treatment, rather than three independent validation experiments. The
       applied plate concentration was not recorded, so the check is conditional
       on the model's dosing convention.
+    </p>
+
+    <p class="hw-caution">
+      <strong>Cb-2 is the weakest of the three as a held-out test, and it is
+      the one we have.</strong> It is the only treatment applied as a crude
+      extract: its nominal dose is total TRIzol-extracted ssDNA, not quantified
+      Cb-2 aptamer (<a href="#model-inhibition-params">1.3</a>). Its affinities
+      are assumed rather than measured. And it is the treatment whose swarming
+      plates it shares with nothing else. A held-out test is only as strong as
+      the number fed into it, and this one is conditional on three assumptions
+      at once &mdash; which is why the paragraphs below work through what each
+      of them would have to be for the miss to go away, instead of reading the
+      miss as a finding about Cb-2's biology.
     </p>
 
     <div class="hw-figure hw-figure-table">
@@ -579,16 +637,32 @@
       </figcaption>
     </figure>
 
-    <h3>What survives the failure</h3>
+    <h3>Part of the miss is the model's own fault</h3>
 
     <p>
-      Swarming's miss has a second reading, and it is the model's own fault.
-      One well-mixed compartment crosses the autoinduction switch all at once:
-      at 8.69&nbsp;ng/&micro;L the model predicts 0.991 and at
-      8.70&nbsp;ng/&micro;L it predicts 0.658, jumping straight over the
-      measured 0.820. No real plate can be discontinuous in dose, so the whole
-      analysis was run again over a plate of patches &mdash; a spread of local
-      dose, swept rather than fitted.
+      Swarming's miss has a second reading. One well-mixed compartment crosses
+      the autoinduction switch all at once: at 8.69&nbsp;ng/&micro;L the model
+      predicts 0.991 and at 8.70&nbsp;ng/&micro;L it predicts 0.658, jumping
+      straight over the measured 0.820. No real plate can be discontinuous in
+      dose, so the whole analysis was run again over a plate of patches &mdash;
+      a spread of local dose, swept rather than fitted. Every spread in a
+      plausible range puts the held-out swarming prediction back inside its
+      measured interval, so <strong>that one miss is a structural artefact
+      rather than a result</strong>. The other two are not: pyocyanin and
+      biofilm sit outside at every spread.
+    </p>
+
+    <p>
+      <strong>What the smoothing does not move matters as much.</strong> The
+      fit barely notices it &mdash; &theta;<sub>las</sub> goes from 14.8 to
+      13.6 and the A16-2 affinity stays inside 1.5&nbsp;% &mdash; and neither
+      does the dose ratio: at the single calibration, 1.55&times; for half
+      suppression under one compartment against 1.65&times; at a spread of 0.5.
+      That matters for what comes next. The one quantity this part carries
+      forward out of a failed test is the dose estimate of
+      <a href="#model-inhibition-switch">1.5</a>, and it does not rest on the
+      compartment assumption that the swarming miss turned out to be about.
+      The model still has no held-out test it passes in all three phenotypes.
     </p>
 
     <details class="hw-fold md-fold" id="model-inhibition-structure">
@@ -632,6 +706,61 @@
       </div>
     </details>
 
+    <h3>The simplest explanation, and why it does not work</h3>
+
+    <p>
+      Before any claim about Cb-2's binding, there is a duller candidate that
+      has to be ruled out first: <strong>the applied Cb-2 dose was simply
+      higher than the model assumes.</strong> It is the explanation the
+      experiment most invites, because Cb-2's nominal dose is total extracted
+      ssDNA rather than quantified aptamer
+      (<a href="#model-inhibition-params">1.3</a>), and because a single wrong
+      dose would push all three predictions the same way &mdash; which is
+      exactly what the residuals do.
+    </p>
+
+    <p>
+      That makes it a test rather than an excuse: one free parameter against
+      three observations. Fitting the dose that best reconciles all three gives
+      1.11&times; the assumption, and at that dose the three phenotypes do not
+      come into line together.
+    </p>
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table">
+        <caption>One dose, refitted against all three phenotypes at once</caption>
+        <thead>
+          <tr><th scope="col">Phenotype</th><th scope="col">Predicted at 1.11&times;</th><th scope="col">Measured</th><th scope="col">Verdict</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Swarming</td><td class="md-n">0.662</td><td class="md-n">0.820 [0.697, 0.964]</td><td>Over-corrected &mdash; and unreachable at any dose</td></tr>
+          <tr><td>Pyocyanin</td><td class="md-n">0.784</td><td class="md-n">0.716 [0.641, 0.799]</td><td>Inside</td></tr>
+          <tr><td>Biofilm</td><td class="md-n">0.864</td><td class="md-n">0.633 [0.563, 0.712]</td><td>Outside, but reachable at some dose</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      Source: <code>cross_phenotype_dose.csv</code>. The refitted dose is
+      8.69&nbsp;ng/&micro;L against a nominal 7.797. The least-squares residual
+      rises from 0.055 to 0.151 once biofilm is read by replicate, because
+      biofilm then pulls against the other two instead of agreeing with
+      whichever way they go.
+    </p>
+
+    <p>
+      <strong>So an under-stated dose does not account for the miss.</strong>
+      It brings pyocyanin inside its interval, pushes swarming past its lower
+      bound, and still leaves biofilm short. The last column separates two
+      different failures: swarming's measurement falls inside the switching gap
+      of the one-compartment structure and no dose reaches it, while biofilm's
+      is attainable &mdash; at some dose, just not the one that best fits all
+      three at once. This does not mean the dose is right; it means the dose
+      alone cannot be what is wrong.
+    </p>
+
+    <h3>What is left</h3>
+
     <p>
       <strong>Two explanations survive, and this experiment cannot separate
       them.</strong> Either Cb-2 really binds C4-HSL more tightly than A16-2
@@ -641,6 +770,120 @@
       swarming estimate is displaced by having been measured on five plates it
       shares with nothing else. Both are testable, and
       <a href="#model-inhibition-changed">1.6</a> says how.
+    </p>
+
+    <p class="hw-caution">
+      <strong>A third possibility sits outside the model entirely and the data
+      cannot exclude it.</strong> Cb-2 was applied as a crude cellular extract.
+      The BL21 extract control makes a generic extraction artefact unlikely
+      (<a href="#model-inhibition-data">1.2</a>), but it does not establish that
+      the aptamer is what acts, nor that the 93&nbsp;nt species on the gel is
+      the whole of what was applied. Resolving that is a purification and
+      quantification question for the wet lab, not something a sequestration
+      model can settle.
+    </p>
+
+    <p>
+      <strong>So the model fails the only held-out test it has.</strong> That
+      is the honest headline of this part, and the next section has to be read
+      with it in hand.
+    </p>
+  </section>
+
+
+  {# ========================= 1.5 how much more aptamer ========================= #}
+  <section id="model-inhibition-switch">
+    <h2 data-toc-title="1.5 A higher dose">1.5 A higher dose to test</h2>
+
+    <p>
+      A model that has just missed its held-out treatment is not entitled to
+      much. What it is still entitled to is the comparison it was actually
+      calibrated on: ALS-5 against A16-2, on nine shared swarming plates, with
+      Cb-2 nowhere in the fit. That comparison is untouched by the Cb-2 miss,
+      and it is the only thing the estimate below rests on.
+    </p>
+
+    <p>
+      At the yield the wet lab reached, A16-2 took about a third off swarming.
+      Sweeping the applied dose across the calibrated draws says how much
+      further that yield would have to go.
+    </p>
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table">
+        <caption>Dose of A16-2 needed, against the yield already achieved. The point fit and the median of the draws are two different readings of the same sweep, and this page quotes the median.</caption>
+        <thead>
+          <tr><th scope="col">Target</th><th scope="col">Dose at the point fit</th><th scope="col">Point fit</th><th scope="col">Median of 296 draws</th><th scope="col">90&nbsp;% range</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>50&nbsp;% swarming inhibition</td><td class="md-n">12.1&nbsp;ng/&micro;L</td><td class="md-n">1.55&times;</td><td class="md-n"><strong>1.6&times;</strong></td><td class="md-n"><strong>1.0&ndash;2.6&times;</strong></td></tr>
+          <tr><td>90&nbsp;% swarming inhibition</td><td class="md-n">201&nbsp;ng/&micro;L</td><td class="md-n">25.8&times;</td><td class="md-n">11&times;</td><td class="md-n">1.0&ndash;49&times;</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="hw-aside">
+      Source: <code>dose_requirements.csv</code>,
+      <code>uncertainty_summary.csv</code>. The point fit is the single
+      calibration at the nominal parameter values; the median and the
+      90&nbsp;% range are taken across the 296 calibrated joint draws. For half
+      suppression the two readings agree to within a twentieth, which is why
+      the estimate is quoted at all. For 90&nbsp;% they differ by more than a
+      factor of two, which is why it is not.
+    </p>
+
+    <p>
+      <strong>Half suppression is a hypothesis for the next dose experiment.</strong>
+      Across 296 draws spanning three orders of magnitude in the LasR constant,
+      more than an order of magnitude in both signal levels and 1&ndash;30
+      ng/&micro;L of applied dose, 95&nbsp;% of draws put the requirement for
+      half suppression at or below 2.6&times; &mdash; a 95th percentile, not a
+      bound: the remaining draws run higher. The same percentile for
+      90&nbsp;% inhibition is 49&times;, which is not an engineering target but
+      a statement that the model cannot say.
+    </p>
+
+    <figure class="hw-figure">
+      <div class="md-plate">
+        <img src="https://static.igem.wiki/teams/6379/wiki/model/inhibition-f4-dose-requirement-426b0ade.avif"
+             alt="Predicted swarm radius ratio against applied aptamer concentration on a log axis, one curve per aptamer, with the nominal yield marked at 7.797 nanograms per microlitre and the three measured swarming effects plotted on it with their bars. The A16-2 curve falls smoothly through its measured point at about 0.64 and keeps falling towards zero at large doses. The Cb-2 curve stays near 1 up to just past the nominal yield, drops almost vertically to about 0.65, then falls away smoothly; its measured point at 0.82 sits inside that drop. The ALS-5 curve steps down once near 3 nanograms per microlitre to about 0.8 and then stays flat at about 0.75 however large the dose. A shaded band from the nominal yield to about 20 nanograms per microlitre marks where 90 percent of draws reach 50 percent inhibition."
+             loading="lazy" decoding="async" width="1520" height="980">
+      </div>
+      <figcaption>
+        <strong>F4 &middot; Three aptamers, three shapes.</strong> A16-2 falls
+        smoothly through its measured point. Cb-2 sits just before a near
+        vertical drop, and its measurement lands inside that drop &mdash; the
+        gap <a href="#model-inhibition-validation">1.4</a> traced to the
+        one-compartment assumption.
+        ALS-5 flattens out: in the model, no dose of a C12-only aptamer reaches
+        half inhibition of swarming. Source:
+        <code>dose_requirements.csv</code>.
+      </figcaption>
+    </figure>
+
+    <p>
+      <strong>That flat ALS-5 curve is a prediction, not a result.</strong>
+      ALS-5 reaches swarming only indirectly, through the <em>las</em>-to-<em>rhl</em>
+      gate, and in the model that route saturates: no dose reaches 50&nbsp;%
+      inhibition in 269 of 296 calibrated draws (91&nbsp;%). The data cannot
+      test it. Testing it needs a dose series, and what exists is one dose: the
+      measured ALS-5&ndash;A16-2 difference is consistent with saturation, but
+      consistency at a single dose does not separate &ldquo;ALS-5
+      saturates&rdquo; from &ldquo;ALS-5 is simply weaker here&rdquo;.
+      <a href="#model-inhibition-changed">1.6</a> says what would settle it.
+    </p>
+    <p class="hw-caution">
+      <strong>This dose estimate has not been experimentally validated.</strong>
+      It depends on the assumed occupancy-to-radius mapping and a nominal
+      ssDNA concentration rather than a recorded applied plate dose. Use it to
+      choose a dose series, not as a demonstrated yield requirement.
+    </p>
+
+    <p>
+      Read beside <a href="#model-inhibition-validation">1.4</a>, that is the
+      whole of what this model offers: one dose series worth running, and a
+      held-out test it did not pass. <a href="#model-inhibition-changed">1.6</a>
+      turns both into experiments.
     </p>
   </section>
 
@@ -661,8 +904,8 @@
         <thead><tr><th scope="col">Observation or model gap</th><th scope="col">What remains unresolved</th><th scope="col">Proposed measurement</th></tr></thead>
         <tbody>
           <tr><td>Several phenotypes decrease together.</td><td>A growth effect has not been excluded.</td><td>Include a quorum-sensing-independent control alongside swarming.</td></tr>
-          <tr><td>The A16-2 dose sweep predicts half inhibition near 1.6&times; nominal dose.</td><td>The dose response and occupancy-to-radius mapping are unmeasured.</td><td>Run a recorded dose series and measure rhamnolipid alongside swarm radius.</td></tr>
-          <tr><td>Cb-2 inhibits more than the baseline model predicts.</td><td>Dosing, assumed affinity, plate differences and spatial structure can affect the comparison.</td><td>Record molar dose and compare all three constructs on shared plates.</td></tr>
+          <tr><td>Cb-2 inhibits more than the baseline model predicts (<a href="#model-inhibition-validation">1.4</a>).</td><td>Dosing, assumed affinity, plate differences and spatial structure can affect the comparison.</td><td>Record molar dose and compare all three constructs on shared plates.</td></tr>
+          <tr><td>The A16-2 dose sweep predicts half inhibition near 1.6&times; nominal dose (<a href="#model-inhibition-switch">1.5</a>).</td><td>The dose response and occupancy-to-radius mapping are unmeasured.</td><td>Run a recorded dose series and measure rhamnolipid alongside swarm radius.</td></tr>
         </tbody>
       </table>
     </div>
@@ -699,7 +942,7 @@
         <strong>Run a dose series of A16-2 on swarm plates</strong> (0, 0.25&times;,
         1&times;, 4&times; the current yield, same plate). The model predicts a
         steep transition between 1&times; and 2&times;: a falsifiable shape
-        rather than a number, and the test of 1.4's claim that a C12-only
+        rather than a number, and the test of 1.5's claim that a C12-only
         aptamer saturates.
       </li>
       <li>
@@ -711,9 +954,10 @@
       <li>
         <strong>Put Cb-2 on the same plates as the other two.</strong> Every
         Cb-2 swarming comparison is currently across different plates, which
-        costs more than any extra replicate would buy back &mdash; and 1.5
-        leaves a residual that is either a real difference in Cb-2's
-        affinities or an artefact of exactly that isolation.
+        costs more than any extra replicate would buy back &mdash; and
+        <a href="#model-inhibition-validation">1.4</a> leaves a residual that
+        is either a real difference in Cb-2's affinities or an artefact of
+        exactly that isolation.
       </li>
       <li>
         <strong>Biofilm needs its treatments on shared plates, not more
@@ -745,6 +989,16 @@
         Everything above inherits this.
       </li>
       <li>
+        <strong>The three treatments are not comparable in the way the model
+        treats them.</strong> ALS-5 and A16-2 are chemically synthesised
+        oligonucleotides; Cb-2 is a crude TRIzol extract whose nominal dose is
+        total ssDNA rather than quantified aptamer. The model applies one
+        measured concentration to all three. A model that compares constructs
+        per unit mass is only as good as that assumption, and here it is an
+        assumption about two treatments that were never quantified and one
+        whose quantity is an upper bound.
+      </li>
+      <li>
         <strong>The applied aptamer concentration on a swarm plate was never
         recorded.</strong> The model uses the one measured ssDNA concentration
         as its nominal dose and sweeps it over 1&ndash;30&nbsp;ng/&micro;L.
@@ -757,7 +1011,21 @@
         inferred from a single effect size rather than measured. Its fitted
         value (&asymp;&nbsp;5.6&nbsp;&micro;M) is weak for an aptamer and
         should be read as an effective parameter that also absorbs any error in
-        the assumed dose.
+        the assumed dose. Across the calibrated draws it ranges over more than
+        two orders of magnitude (<a href="#model-inhibition-params">1.3</a>),
+        so it is not a measurement of anything.
+      </li>
+      <li>
+        <strong>ALS-5's literature affinity is attributed to a paper our other
+        pages do not cite for it.</strong> The parameter table takes it from
+        Zhao et&nbsp;al. 2013 (ALSAP-5),<sup><a href="#mdref2">[2]</a></sup>
+        while our Engineering and Results pages describe all three aptamers as
+        coming from Wu et&nbsp;al. 2025.<sup><a href="#mdref1">[1]</a></sup>
+        The two cannot both be the provenance of the same molecule. Until the
+        team settles it, ALS-5 is taken to be the published ALSAP-5 aptamer and
+        Cb-2's affinities stay assumptions. This is flagged rather than
+        smoothed over because it is the one input that is fixed from the
+        literature and never swept.
       </li>
       <li>
         <strong>&beta; is assumed, not measured</strong>, and is the most
@@ -776,12 +1044,12 @@
     <p class="hw-aside">
       Three more are stated where they bite rather than repeated here: Cb-2's
       affinities are assumed equal to the specialists'
-      (<a href="#model-inhibition-model">1.3</a>, which leaves 1.5 an affinity
+      (<a href="#model-inhibition-model">1.3</a>, which leaves 1.4 an affinity
       explanation the data cannot rule out), every Cb-2 swarming comparison is
       unpaired
-      (<a href="#model-inhibition-validation">1.5</a>), and the plate is one
+      (<a href="#model-inhibition-validation">1.4</a>), and the plate is one
       well-mixed compartment, which is what makes the model's switch sharper
-      than any real plate's (<a href="#model-inhibition-structure">1.5</a>).
+      than any real plate's (<a href="#model-inhibition-structure">1.4</a>).
       Eleven further limitations on the data handling and the statistics are in
       section 4 of <code>model_report.md</code>, and
       <code>METHOD_CHANGES.md</code> records the methods that were withdrawn
@@ -798,7 +1066,10 @@
     <p class="hw-refs-note">
       The entry marked <span class="desc-pending">citation to be completed</span>
       still needs its full bibliographic details before the wiki freeze; the
-      rest were resolved through Crossref and carry their DOI.
+      rest were resolved through Crossref and carry their DOI. That entry
+      supplies the upper end of the two uninhibited signal-level ranges that
+      <a href="#model-inhibition-params">1.3</a> sweeps over; no point estimate
+      on this page depends on it alone, but the width of the sweep does.
       Parameter-by-parameter sources are in the repository's
       <code>params/parameters.csv</code>.
     </p>
@@ -2100,4 +2371,5 @@
 
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename = 'model-charts.js') }}"></script>
+<script src="{{ url_for('static', filename = 'edu-lightbox.js') }}"></script>
 {% endblock %}
