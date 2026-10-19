@@ -185,7 +185,26 @@
     nav.appendChild(list);
     aside.appendChild(nav);
     host.classList.add("has-page-toc");
+    place();
     mark();
+  }
+
+  /* Opt-in: an element marked data-toc-start sets where the list begins, so a
+     page can keep its sidebar clear of an introduction that is not one of its
+     entries. The offset is measured rather than written into the CSS, because
+     the introduction's height changes with the window, and it is measured
+     again on every resize and once the page has loaded. */
+  function place() {
+    if (!aside) return;
+    var start = host.querySelector("[data-toc-start]");
+    if (!start) { aside.style.top = ""; return; }
+    /* Line the list's own rule (the progress bar under the All control) up
+       with the start element's top edge, rather than the top of the list.
+       offsetTop is taken inside the sticky nav, so it is the same whether or
+       not the nav is stuck at the moment of measuring. */
+    var bar = aside.querySelector(".page-toc-progress");
+    var shift = bar ? bar.offsetTop : 0;
+    aside.style.top = (start.getBoundingClientRect().top - host.getBoundingClientRect().top - shift) + "px";
   }
 
   /* Parts: each group heading opens an <li> holding its badge and title, and
@@ -333,6 +352,6 @@
     window.addEventListener(t, function () { pinned = null; }, { passive: true });
   });
   /* a page that shows or hides sections (an opened fold, a build switch) fires resize; rebuild if its headings changed */
-  window.addEventListener("resize", function () { build(); onScroll(); });
-  window.addEventListener("load", function () { build(); onScroll(); });
+  window.addEventListener("resize", function () { build(); place(); onScroll(); });
+  window.addEventListener("load", function () { build(); place(); onScroll(); });
 })();
