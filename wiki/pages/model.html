@@ -452,13 +452,13 @@
             <td><var>K</var><sub>d</sub>(A16-2, C4-HSL)</td>
             <td class="md-n">5571&nbsp;nM</td>
             <td class="md-n">48&ndash;10&thinsp;500&nbsp;nM</td>
-            <td><strong>Fitted</strong> to the A16-2 swarming ratio (0.639). The only affinity taken from our own data; weak for an aptamer, and <a href="#model-inhibition-limits">1.7</a> says why it should be read as an effective parameter. The underlying aptamer study reports no dissociation constant, which is why this is fitted at all.<sup><a href="#mdref3">[3]</a></sup></td>
+            <td><strong>Fitted</strong> to the A16-2 swarming ratio (0.639). The only affinity taken from our own data, and <a href="#model-inhibition-limits">1.7</a> says why it should be read as an effective parameter. The paper that screened A16 reports no dissociation constant for it, which is why this is fitted rather than inherited.<sup><a href="#mdref3">[3]</a></sup> Wu et&nbsp;al. later measured A16-2 by ITC at 2.66&nbsp;&plusmn;&nbsp;1.96&nbsp;&micro;M,<sup><a href="#mdref1">[1]</a></sup> about half this fit and inside the 90&nbsp;% column.</td>
           </tr>
           <tr>
             <td><var>K</var><sub>d</sub>(ALS-5, 3-oxo-C12-HSL)</td>
             <td class="md-n">27.5&nbsp;nM</td>
             <td class="md-n">fixed</td>
-            <td>Literature, fixed and not fitted: 20&ndash;35&nbsp;nM.<sup><a href="#mdref2">[2]</a></sup> This attribution is the one still to be checked &mdash; see the note under this table.</td>
+            <td>Literature, fixed and not fitted: 20&ndash;35&nbsp;nM.<sup><a href="#mdref2">[2]</a></sup> Wu et&nbsp;al. remeasure the same aptamer and report 179.8&nbsp;&plusmn;&nbsp;81.31&nbsp;nM by SYBR Green&nbsp;I and 7.26&nbsp;&plusmn;&nbsp;6.35&nbsp;&micro;M by ITC,<sup><a href="#mdref1">[1]</a></sup> so this is the input most likely to move &mdash; see the note under this table.</td>
           </tr>
           <tr>
             <td>&beta;, occupancy to radius</td>
@@ -535,11 +535,15 @@
 
     <p class="hw-aside">
       Source: <code>params/parameters.csv</code> (every parameter, with its
-      units, range and citation) and <code>model_calibration.csv</code>. One
-      attribution is unresolved &mdash; which paper ALS-5 comes from, and
-      therefore which <var>K</var><sub>d</sub> is the right one to fix. It is
-      booked as a limit in <a href="#model-inhibition-limits">1.7</a> rather
-      than settled here.
+      units, range and citation) and <code>model_calibration.csv</code>.
+      ALS-5's provenance is settled: Wu et&nbsp;al. attribute the
+      3-oxo-C12-HSL aptamer to Zhao et&nbsp;al. 2013 and the C4-HSL one to
+      Zhao et&nbsp;al. 2019, truncate the second to A16-2, and fuse the two
+      into Cb-2.<sup><a href="#mdref1">[1]</a></sup> What is unresolved is not
+      which paper but which measurement: the value fixed here is 6.5&times;
+      tighter than Wu et&nbsp;al.'s own SYBR Green&nbsp;I figure for the same
+      sequence, and the model has not been re-run on it. Booked as a limit in
+      <a href="#model-inhibition-limits">1.7</a> rather than settled here.
     </p>
 
     <p>
@@ -587,7 +591,9 @@
       the one we have.</strong> It is the only treatment applied as a crude
       extract: its nominal dose is total TRIzol-extracted ssDNA, not quantified
       Cb-2 aptamer (<a href="#model-inhibition-params">1.3</a>). Its affinities
-      are assumed rather than measured. And it is the treatment whose swarming
+      are assumed rather than measured here, though Wu et&nbsp;al. report them
+      and <em>What is left</em> below reads the miss against those
+      numbers.<sup><a href="#mdref1">[1]</a></sup> And it is the treatment whose swarming
       plates it shares with nothing else. A held-out test is only as strong as
       the number fed into it, and this one is conditional on three assumptions
       at once &mdash; which is why the paragraphs below work through what each
@@ -816,6 +822,22 @@
       swarming estimate is displaced by having been measured on five plates it
       shares with nothing else. Both are testable, and
       <a href="#model-inhibition-changed">1.6</a> says how.
+    </p>
+
+    <p>
+      <strong>The published affinities argue against the first.</strong> Wu
+      et&nbsp;al. measured Cb-2 and the specialists side by side. Against
+      C4-HSL, Cb-2's <var>K</var><sub>d</sub> is
+      2.21&nbsp;&plusmn;&nbsp;1.05&nbsp;&micro;M to A16-2's
+      2.66&nbsp;&plusmn;&nbsp;1.96&nbsp;&micro;M by ITC, and by SYBR
+      Green&nbsp;I 85.72&nbsp;&plusmn;&nbsp;13.15&nbsp;nM to the parent A16's
+      105.8&nbsp;&plusmn;&nbsp;15.14&nbsp;nM.<sup><a href="#mdref1">[1]</a></sup>
+      Both assays put Cb-2 about 1.2&times; tighter than the C4-HSL
+      specialist, not 35&times;. Only the <em>ratio</em> carries over &mdash;
+      the fitted 5571&nbsp;nM is an effective plate parameter and those are
+      in-vitro constants &mdash; but a 35-fold gap is not something either
+      assay sees, which leaves the plate-isolation explanation and the one
+      below carrying more of the weight.
     </p>
 
     <p class="hw-caution">
@@ -1057,23 +1079,35 @@
       <li>
         <strong>No dose-response data exist</strong>, so A16-2's affinity is
         inferred from a single effect size rather than measured. Its fitted
-        value (&asymp;&nbsp;5.6&nbsp;&micro;M) is weak for an aptamer and
-        should be read as an effective parameter that also absorbs any error in
-        the assumed dose. Across the calibrated draws it ranges over more than
-        two orders of magnitude (<a href="#model-inhibition-params">1.3</a>),
-        so it is not a measurement of anything.
+        value (&asymp;&nbsp;5.6&nbsp;&micro;M) should be read as an effective
+        parameter that also absorbs any error in the assumed dose. It is about
+        twice Wu et&nbsp;al.'s ITC figure for the same sequence
+        (2.66&nbsp;&plusmn;&nbsp;1.96&nbsp;&micro;M), and their ITC values for
+        every aptamer in this family fall between 1.7 and
+        18.3&nbsp;&micro;M,<sup><a href="#mdref1">[1]</a></sup> so a
+        micromolar fit is not the anomaly it looks like. It is still not a
+        measurement of anything: across the calibrated draws it ranges over
+        more than two orders of magnitude
+        (<a href="#model-inhibition-params">1.3</a>).
       </li>
       <li>
-        <strong>ALS-5's literature affinity is attributed to a paper our other
-        pages do not cite for it.</strong> The parameter table takes it from
-        Zhao et&nbsp;al. 2013 (ALSAP-5),<sup><a href="#mdref2">[2]</a></sup>
-        while our Engineering and Results pages describe all three aptamers as
-        coming from Wu et&nbsp;al. 2025.<sup><a href="#mdref1">[1]</a></sup>
-        The two cannot both be the provenance of the same molecule. Until the
-        team settles it, ALS-5 is taken to be the published ALSAP-5 aptamer and
-        Cb-2's affinities stay assumptions. This is flagged rather than
-        smoothed over because it is the one input that is fixed from the
-        literature and never swept.
+        <strong>ALS-5's fixed affinity has not been reconciled with the paper
+        the rest of this project works from.</strong> The two citations turn
+        out not to conflict: Wu et&nbsp;al. attribute the 3-oxo-C12-HSL
+        aptamer to Zhao et&nbsp;al. 2013 and the C4-HSL one to Zhao
+        et&nbsp;al. 2019, then truncate the second to A16-2 and fuse the two
+        into Cb-2,<sup><a href="#mdref1">[1]</a></sup> so ALS-5 is Zhao
+        et&nbsp;al.'s aptamer carried over
+        unchanged.<sup><a href="#mdref2">[2]</a></sup> What is unreconciled is
+        the number. The table fixes 20&ndash;35&nbsp;nM from the screening
+        paper, while Wu et&nbsp;al. measure the same sequence at
+        179.8&nbsp;&plusmn;&nbsp;81.31&nbsp;nM by SYBR Green&nbsp;I and
+        7.26&nbsp;&plusmn;&nbsp;6.35&nbsp;&micro;M by ITC &mdash; and those
+        two assays disagree by 19 to 62 times on every sequence the study
+        reports both ways, so there is no single right value to swap in. The
+        model has not been re-run on any of them, and this input is fixed and
+        never swept, so the cost of the choice does not appear in the
+        90&nbsp;% column.
       </li>
       <li>
         <strong>&beta; is assumed, not measured</strong>, and is the most
@@ -1152,9 +1186,11 @@
         analysis. <em>PLOS ONE</em>, 14(2), e0212041.
         <a href="https://doi.org/10.1371/journal.pone.0212041"
            target="_blank" rel="noopener noreferrer">https://doi.org/10.1371/journal.pone.0212041</a>
-        &mdash; reports no dissociation constant, which is why A16-2's is
-        fitted. (The title is quoted as published; PLOS set &ldquo;qurom&rdquo;
-        for &ldquo;quorum&rdquo;.)
+        &mdash; the C4-HSL aptamer screen that A16 comes from, and that Wu
+        et&nbsp;al. truncated to A16-2. It reports no dissociation constant
+        for A16, which is why A16-2's is fitted here rather than inherited.
+        (The title is quoted as published; PLOS set &ldquo;qurom&rdquo; for
+        &ldquo;quorum&rdquo;.)
       </li>
       <li id="mdref4">
         Pearson, J. P., Van Delden, C., &amp; Iglewski, B. H. (1999). Active
