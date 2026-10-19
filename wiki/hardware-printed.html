@@ -1,82 +1,7 @@
-{#
-  === 3D 列印機（3D-printed build）的全部內容 ===
 
-  這個檔案由 wiki/pages/hardware.html 用 include 放進 Hardware 頁的 <div id="printed"> 裡，
-  不是獨立的網頁（wiki/pages/ 以外的檔案不會被 build 成頁面）。
-  共同的部分（為什麼做、怎麼量、十個波段、兩張卡片）在 hardware.html；
-  雷切機在 wiki/hardware-laser-cut.html。
-  給團隊的完整說明、資料來源與還沒補的東西，都寫在 hardware.html 開頭的註解。
-
-  這裡的每一節原本就在 Hardware 頁上，2026-10-06 拆檔時原樣搬過來，各節的 id 沒有變。
-
-  同一天又照「講故事的順序」重排了一次（硬體負責人：往下滑突然出現電路、又出現工作日誌，不連貫；
-  也看不出第二版比第一版好在哪裡）。參考 2025 Best Hardware 得獎與入圍頁面的寫法
-  （NUDT-CHINA：Preliminary Device → Problem Identification → Design Solution → Results；
-  GEC-Guangzhou：Generation 1 → 2 → 3 → Comparison；SHSBNU-China：v1.0 Design & Build → Test → What we Learned；
-  電路與零件都放在 Building／Construction 裡，沒有人把開發日誌獨立成一節）。現在的順序：
-
-    The instrument                這一台長什麼樣（CAD 組裝圖）
-    Version 1 on the bench        第一版量到什麼（原 What it has measured，不含第二版那一場）
-    What using version 1 taught us 用了之後發現的問題
-    Version 2: what got better    第二版改了什麼、好在哪裡（新的一節，說明在它上方的註解）
-    Building one                  怎麼做一台；電路圖與時序收進這裡的摺疊
-    Timeline                      開發日誌與五個決定，都收成摺疊
-
-  拿掉的只有 The instrument 裡的兩張版本卡（內容併進 Version 2 的第一張表）。
-  id 都沒有變：#hardware-v2 現在是第二版那一節，#hardware-circuit 在 Building one 裡，
-  #hardware-history 是 Timeline。
-  標題下面的摘要與三個數字原本在頁首；它們講的是這一台，所以搬到這裡，並補上第二版 10-05 那一場。
-
-  2026-10-06（晚）第三次整理。這次只動「怎麼呈現」，沒有新增任何數據或宣稱。
-  起因：組員覺得版面雜亂；硬體負責人覺得字太多、收合的表格太多，重點出不來。
-  參考科技公司的產品頁（Apple 的產品頁：每一節一句大標加一兩個數字；Raspberry Pi 5 的產品頁：
-  前面講重點，Specification 與 Documents 放在同一頁的最後）。做法：
-    - 每一節開頭是一句重點（class="hw-point"），接著一張圖，最多兩三句話。
-      不能說的話用一行小字標出來（class="hw-limit"），不再各自一個框。
-    - 原本散在各節的 16 個收合表格，全部集中到最後一節 Data and documentation（#hardware-data），
-      併成 13 列、分三組。表格與說明一個字都沒有刪，只有搬動。前面各節用 class="hw-more" 的連結
-      指過去，點了會自動展開那一列（static/hardware-docs.js）。
-    - Timeline 不再是獨立的一節：開發日誌與五個決定在最後一節的 History 底下。
-      #hardware-history 現在是那個小標，#hardware-circuit 是電路那一列，其餘 id 沒有變。
-    - wet lab 的回饋從表格改成兩張卡片，句子照舊（仍是轉述，沒有引號）。
-    - 兩個黃色警語（One session, one batch／In use, not validated）併成 Where version 2 stands 一個；
-      「空杯先偏低、調整後回到範圍」那一句在 The LED current 那一列的圖說裡本來就有。
-    - Building one 改成 Print／Wire／Run 三張卡片，零件表、電路、操作步驟都在最後一節。
-    - 標題下面原本那一長段拿掉了：它的每一句都在三個數字、Version 1 與 Version 2 兩節裡。
-      三個數字多了一格「4 → 1」（放 UVette 的步驟數，依據見 Version 2 那一節上方的註解）。
-
-  2026-10-06（夜）實驗改用名字稱呼，不再用日期（組員的建議，硬體負責人同意；雷切機那一塊已經這樣寫）。
-  頁面上的名字與日期的對照：
-    first light 08-25／room-light test 08-27／first fluorescence 09-02 到 09-04／stability read 09-03／
-    re-insertion test 1、2 是 09-09、09-14／mixing session 1、2、3 是 09-16、09-21、09-29／
-    LED current test 10-03／dilution series 10-05（那一場的五次重插叫 re-insertion test 3）。
-  這張對照表在頁面上也有：Data and documentation 的第一列 The experiments, by name（#hw-doc-names），
-  實驗的日期只留在那裡和 The development log。「事件」的日期沒有動（第二版哪一天裝上、電阻哪一天換、
-  電路數值哪一天量的）。名字只說做了什麼，不說證明了什麼：10-05 在硬體資料夾裡叫 low-end calibration，
-  頁面明講它不是校正，所以叫 dilution series。Model 頁、hardware-bench.js、model-charts.js 一起改了。
-  這個檔案與 hardware.html 其他註解裡仍然用日期，那是給團隊對紀錄用的，沒有改。
-
-  同一晚標題改成較正式的寫法（左側目錄用的就是這些標題）：Version 1: bench tests、User feedback、
-  Version 2: improvements、Construction and operation；小標 Light shielding、Interactive bench、
-  Status of version 2。id 都沒有變。新舊對照寫在 hardware.html 開頭的註解；這個檔案上面的註解仍用舊標題。
-#}
   <header class="hw-build-head" data-toc-group data-toc-no="4">
     <h2 class="hw-build-title" id="hw-build-printed">The 3D-printed build</h2>
 
-    {# 這一台量到什麼。前三個數字出自 "Across three sessions" 那張表（第一版三場；27 個不含 GFP 的讀值；
-       38 管含 GFP）。第二版那一句出自 P1_CAL_LOWEND_ANALYSIS_2026-10-05/EVIDENCE.md 的 §0：
-       無 GFP 的 12 列全為 0；12.5 µL 三管 27 個 cycle 全部讀到。
-       （這一段講的是 2026-10-07 夜之前的開頭；現在的開頭見下方註解。） #}
-    {# 2026-10-12（硬體負責人同意；Codex 複審與我都建議）：開頭先講它做得到什麼（讀得到 GFP），再講好用在哪裡。
-       原本四個子句都是「好用」（快、穩、無 GFP 讀 0、便宜），評審第三項要看的「功能」要捲到 Functional testing 才有。
-       下面四格是同樣的四格，只是把無 GFP 讀 0 那一格排到最前面；「隨 GFP 的量上升」連到 dilution series。 #}
-    {# 2026-10-13（硬體負責人：「那個 0 什麼 gfp 的有點不直觀」；也要強調不用濾光片就分得開、以及模組化）：
-       第一句改成講它分得開什麼，第一格改成同一天、密度相近的兩管對照（86 對 0），不再只給一個 0。
-       86.44 與 0：2026-10-12 和 SpectraMax M3 並排那一場的 100% sfGFP 管與不含 GFP 的對照，
-       OD600（扣空白）0.861 與 0.721，各 9 個 cycle（P1_PR_COMPARE_EVIDENCE_2026-10-12/WIKI_EVIDENCE.md 表 1）。
-       原本這一格的「第一版 27 個讀值、第二版 4 管都是 0」仍在 Functional testing 兩個小節的重點句。
-       「不用發射濾光片」只寫在這一台：雷切機的空白不是 0，它用的是比值再減去無 GFP 的管子。
-       最後一個子句（模組）沒有自己的一格，依據在 The instrument 的 Built to be changed。 #}
     <p class="hw-point">
       It tells a culture with GFP from one without, using no emission
       filter, and its reading
@@ -86,33 +11,14 @@
       changed one at a time</a>.
     </p>
 
-    {# 2026-10-07（夜）：硬體負責人要這一台先講優勢（操作快、量得穩、便宜），不要照開發歷程先給第一版的數字。
-       所以開頭一句講四個優勢，下面四格各給一個依據，順序相同。原本前兩格（27 of 27、35 of 38）是第一版三場的
-       計數，仍在 Functional testing；4 → 1 仍在 Design advantages 的第一張卡片。
-         3–5 s   放 UVette 的時間，計時過；第一版 30–40 s（硬體負責人 2026-10-07，見 User feedback 的註解）。
-         0.76%   10-05 同一管五次重插：5 次平均之間的標準差 0.380058 counts ÷ 平均 49.866667 = 0.7621 %
-                 （EVIDENCE.md §6.3；REINSERTION_COMPARISON.json 的 cv_pct）。這一格原本寫 49–51（15 個讀值的範圍），
-                 因為同一份紀錄的 §9 把「重插重複性是 0.76 %」列在不能說。硬體負責人 2026-10-07（夜）：
-                 「那個49-51改成0.76%…我授權你直接改 數據已經證實」。所以照改；格子裡寫明它是什麼（一管、五次重插、
-                 約 50 counts），連到 Data and documentation 裡那張表。硬體資料夾的紀錄沒有動，§9 那一列還在。
-         0       無 GFP：第一版三場 27 個讀值、第二版 dilution series 4 管，F4 都是 0。
-         US$161  成本表的合計（估算）。
-       同一晚：負責人覺得只有數字不直觀，要加一小段字、字放大（「像是幾秒操作一次」）。所以每一格在數字下面
-       多了一行白話（class="hw-key-say"：to load、variation when put back、counts without GFP、to build），
-       用的是頁面上卡片內陳述句本來的字級（1.12rem），沒有新增字級；條件與出處留在最下面的小字，內容沒有變。
-       四行白話和開頭那一句的四個優勢一一對應。 #}
+    
     <dl class="hw-keys">
       <div><dt>86 vs 0</dt><dd><span class="hw-key-say">counts, with GFP and without</span> <a href="#hardware-v2-m3">Two cultures of similar density</a>, read the same day with no emission filter. Dense suspensions <a href="#hardware-v2-turbidity">read above zero</a>.</dd></div>
       <div><dt>3&ndash;5&nbsp;s</dt><dd><span class="hw-key-say">to load</span> Placing the cuvette, timed. Version 1 took 30&ndash;40&nbsp;s.</dd></div>
       <div><dt>0.76%</dt><dd><span class="hw-key-say">variation when put back</span> Standard deviation between <a href="#hw-doc-reinsert">five re-insertions of one tube</a>, at about 50 counts.</dd></div>
       <div><dt>US$161</dt><dd><span class="hw-key-say">to build</span> Our estimate of <a href="#hardware-cost-printed">the cost as built</a>, with the printing bought from a shop.</dd></div>
     </dl>
-    {# 2026-10-07：第四格原本是「4 sessions」，和上面那句 read over four sessions 重複。硬體負責人問價格是不是
-       該主打的特色、是不是該放進正文；評審手冊舉的兩個 Hardware 例子都把價錢寫在最前面（under $400、270 USD），
-       所以第四格換成估算的成本。數字出自 Parts and files 的成本表（合計 $160.62），是估算，格子裡寫明了。 #}
-
-    {# 2026-10-11：這一行連到兩處：AHL 那一小節，以及濁度那一小節最後的「還沒做的」（#hardware-v2-next）。
-       限制本身仍然只在各自的小節寫一次。 #}
+    
     <p class="hw-limit">
       <b>Not yet</b> It has
       <a href="#hardware-v2-ahl">not resolved AHL induction</a>, and it has
@@ -120,7 +26,6 @@
       or calibrated against a fluorescence standard.
     </p>
 
-    {# 這一台各節的捷徑。每個連結對應一節的 id，改了 id 要一起改。 #}
     <nav class="hw-jump" aria-label="In the 3D-printed build">
       <ul class="sw-links">
         <li><a href="#hardware-instrument">The instrument</a></li>
@@ -134,20 +39,7 @@
       </ul>
     </nav>
 
-    {# 2026-10-12（硬體負責人：「看不出來你說類似一個循環的東西，還是藏在裡面了」）：把循環畫出來。
-       原本只靠 User feedback 的卡片和濃懸浮液那一小節最後的卡片用同一組樣式來暗示，頁面上沒有任何地方直接說。
-       現在是兩列、每列三格（Build、Test、Learn），同樣的三個標題走兩次，下面一行是還沒走的第三圈。
-       2026-10-12（同一天，硬體負責人：和 Design advantages 的字卡大小差太多）：每一格改用頁面本來的那一種卡片
-       （User feedback、Construction 用的同一組：底色、框線、圓角、內距、標籤），一列三張和 .hw-do 一樣，
-       內文是改進卡片的 0.95rem。沒有自己的尺寸。
-       2026-10-12（再後來，硬體負責人同意）：每一格縮成一行、不帶數字。Codex 複審指出這一塊每一句都是別處講過的；
-       它是導覽不是第二份摘要，數字留給上面四格與下面各節。
-       每一格都是下面某一節已經寫過的事，只是排在一起，並連到那一節；沒有新的內容、沒有新的數字：
-         第一版 Build：Design advantages 第一張卡片的「4 steps → 1」；Test：Version 1 三場與 User feedback；
-         Learn：User feedback 第一張卡片的 They told us、第二張的 30–40 s。
-         第二版 Build：User feedback 第一張卡片的 What followed；Test：dilution series、AHL 培養盤、濁度場次，3–5 s；
-         Learn：濃懸浮液那一小節的重點句與卡片。
-       位置在四格優勢與 Not yet 之後：仍然先講優勢（硬體負責人 2026-10-07），再講是怎麼走到這裡的。 #}
+
     <div class="hw-loop" role="group" aria-label="How the reader got here: two turns of build, test and learn">
       <p class="hw-point hw-point-sub">How it got here: the same loop, twice.</p>
       <p class="hw-loop-who">Version&nbsp;1</p>
@@ -166,7 +58,7 @@
     </div>
   </header>
 
-  <!-- ========================= the instrument ========================= -->
+  {# ========================= the instrument ========================= #}
   <section id="hardware-instrument">
     <h2>The instrument</h2>
 
@@ -183,62 +75,7 @@
       parts side by side.
     </p>
 
-    {#
-      === 給團隊：真正的 CAD（2026-10-04 新增，取代剖視圖成為主要的 3D 圖）===
-      下面摺疊起來的剖視圖是用光路座標畫的示意圖，不是 CAD。這一塊畫的是真正拿去列印的 STL，
-      而且每一件都放在 CAD 組裝檔指定的位置上。畫圖的是 static/hardware-parts.js
-      （WebGL，沒有外部函式庫）。三種看法：
-
-        Assembled      組裝起來的樣子（預設，第二版）
-        Pulled apart   拉開：照 CAD 自己的爆炸組裝檔移動
-        Laid out       把一個模組的檔案並排攤在 10 mm 格線上（沒進組裝的零件只在這裡看得到）
-
-      位置從哪裡來：STL 各自在自己的座標裡（多半是躺在列印床上的方向），檔案本身沒有位置資訊。
-      位置是從硬體資料夾的 STEP 組裝檔讀出來的，再逐點核對：組裝檔裡每個實體的所有頂點，
-      都要落在移動後的 STL 頂點上；外框誤差最大 0.05 mm。結果就是下面那段 JSON（id="hwPartsPlan"），
-      程式只照著擺，不自己算位置。
-        第一版    output/capture_screen_optical_core_base_plate_v0_7/optical_core_full_assembly_v0_7_angled_wedge.step
-        拉開      同資料夾 optical_core_exploded_assembly_v0_7.step（設計者自己的爆炸圖）
-        第二版    _AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/exports/v0_8_round2_reference_assembly.step
-                  （五件新零件的位置；其餘沿用第一版組裝檔。新零件在「拉開」時跟著它取代的舊件移動）
-
-      組裝圖裡有、但這裡沒畫的：8 支 M3 螺絲、LED 的兩支接腳、偵測器的 optional aperture mask
-      （有 STL，但列印包明寫不含）。UVette、LED、感測器板是買的，沒有 STL，照 CAD 給的外框
-      畫成一個方塊或圓柱（藍色）。
-      第一版用「只畫外框」標出五件當時不在機器上的零件：沒到貨的 LED-holder cap 和 retainer clip、
-      只做了一片所以缺的那片 leaf（+X 那一側；裝上的是 +Y 那片）、設計圖裡有但從沒裝過的兩片光闌片。
-      第二版畫的是「設計上的樣子」。硬體負責人 2026-10-07 確認：「第二版的零件已經全部裝上了」
-      （硬體資料夾的紀錄裡沒有逐件回報），頁面上已改成肯定句。
-
-      沒有出現在組裝圖裡的零件（只在 Laid out 看得到）：1.5／6 mm 光闌片、gate B、collar gauge、
-      三片 shim、圓形與方形濾片 insert、fit coupons。
-
-      檔案放在哪裡：iGEM 的 uploads tool 不收 .stl（422 Unable to determine file type）、不收 .zip
-      （mime-type not allowed），把 STL 改名成 .json 也會被擋（會檢查內容是不是 JSON）。.glb 收。
-      所以 53 個 STL 被包成一個 glTF 模型（.glb），傳到
-        https://static.igem.wiki/teams/6379/wiki/hardware-cad/
-      網址寫在下面 <div id="hwParts"> 的 data-model，還有 "Every file" 裡那個下載連結，共兩處。
-      這個 .glb 不是簡化過的版本：每個 STL 是一個 mesh，名字就是 STL 檔名，頂點是原檔的 32 位元
-      浮點數，三角形順序也一樣。打包時讀回來逐個三角形比對過，全部相同。
-      所以頁面上的下載按鈕可以在瀏覽器裡把零件還原成 STL（單一零件，或全部包成一個 ZIP）。
-      repo 裡沒有任何 STL 或 .glb，build 不依賴它們。
-      ⚠ static.igem.wiki 的快取是兩年。模型要更新時不要覆蓋同名檔，請換檔名（檔名裡有日期），
-        再把上面兩處網址一起改掉。
-
-      下面的清單是文字資料的來源：名稱、件數、尺寸、說明都寫在這裡，程式只負責畫。
-      沒有 JavaScript 或 WebGL 的時候，這份清單和那個模型的下載連結照樣能用。
-      檔案來源（原檔名沒有改）：
-        第一版 59 件／46 檔  output/CAPTURE_Screen_P1_PRINT_ONLY_v0_6（紀錄裡指定 59 件的那個列印包）
-                             其中底板那一組用 output/capture_screen_optical_core_base_plate_v0_7 的 v0.7 檔
-                             （只有 detector_locator_frame 跟 v0.6 不同，其餘逐位元相同）
-        第二版 5 件          _AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/exports
-        第二版試配件 2 件    _AI_REFACTOR_WORK/P1_MECH_V08_ROUND1_HANDOFF_2026-09-25/vendor_package
-      尺寸是每個檔案在自己的 X、Y、Z 上的範圍，由檔案算出來，取到 0.05 mm。
-
-      ⚠ 英文零件名稱多半是從檔名寫的，請硬體負責人看一遍。
-      ⚠ 授權還沒決定。頁面上沒有另外寫授權聲明；要標硬體授權請告訴我。
-      ⚠ CAD 是用 AI 工具協助寫出來的（CadQuery 原始碼），Attributions 要寫。
-    #}
+    
     <div class="hwx-rig hwp" id="hwParts"
          data-model="https://static.igem.wiki/teams/6379/wiki/hardware-cad/capture-screen-printed-parts-20261004.glb">
       <div class="hwx-rig-head">
@@ -269,17 +106,11 @@
 
       <div class="hwx-rig-body hwp-readout" hidden aria-live="polite"></div>
 
-      {# 每種看法底下那一句話。程式從這裡拿字，改這裡就會改到畫面上。 #}
       <div class="hwp-says" hidden>
         <p data-for="v2">Version 2 as designed: 38 printed pieces. The five replacement parts are in green, and all five are fitted on our reader. Pick a part for its size and its file.</p>
         <p data-for="v1">Version 1 as designed: 45 printed pieces. The five in outline were specified but not on the instrument: a cap and a clip that never arrived, a second leaf that was never made, and two aperture disks that were never fitted. Pick a part for its size and its file.</p>
         <p data-for="laid">Every file of the module, side by side as it was exported. Pick a part for its size and its file.</p>
-        {# Take a reading（2026-10-09）：3D 圖畫出一個 cycle 的光路。五句照韌體的順序（暗、亮、暗），
-           程式依光走到哪裡點亮哪一句；句子改這裡就好，句數要維持五句。
-           來源：操作流程與 Acquisition timing（dark、lit、dark；LED 亮 551–552 ms；一次 run 三個 cycle）、
-           Measurement principle（2 mm／10 mm 光程、90°、光阱）、光阱模組的 README 與 geometry_validation.json
-           （末端斜面與光軸約 40.6°；軸向光第一次理想鏡面反射仍有正 X 分量，不直接返回 UVette）。
-           圖是示意，不是模擬，也沒有任何讀值；光阱裡只畫兩次理想反射，黑壁吸收多少沒有量過，圖下那句話有寫。 #}
+
         <ol data-for="reading">
           <li>Dark read. The LED is off and the detector reads: under the shield every channel must be zero, or the cycle is void.</li>
           <li>LED on. Blue 470&nbsp;nm light passes the baffle and crosses the sample's 2&nbsp;mm path.</li>
@@ -290,13 +121,7 @@
         <p data-for="reading-note">A drawing of the light path, slowed down.</p>
       </div>
 
-      {# 每一件的位置（由 STEP 組裝檔讀出、逐點核對過）。f 檔名、t 位移、r 旋轉（沒有就是不轉）、
-         x 拉開時移動多少、a 表示當時不在機器上。p1／p2 是買來的零件，只有外框。
-         light 是 Take a reading 用的光阱內腔（2026-10-09），數字是光阱模組自己的設計參數
-         （output/capture_screen_optical_light_trap_v0_1/geometry_validation.json）：以光阱檔案自己的座標，
-         x 從入口算、z 從比色管底面算。ramp 是末端斜壁的下緣到上緣（x 10.5, z 2.5 → x 24.5, z 14.5，
-         即 depth 27 − back_wall 2.5 − angled_wedge_run 14；與光軸夾 40.6°），roof 是內腔頂面 z 14.5，
-         half 是內腔半寬 7。程式用這幾個數字算出光打到斜壁的位置和兩次理想反射，沒有另外假設。 #}
+      
       <script type="application/json" id="hwPartsPlan">{% raw %}{"light":{"trap":"optical_light_trap_angled_wedge_v0_1.stl","ramp":[10.5,2.5,24.5,14.5],"roof":14.5,"half":7.0},"v1":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"uvette_datum_riser_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_LED_holder_v0_7.stl","t":[-37.5,0.0,8.5],"x":[0.0,0.0,28.8],"a":1},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"capture_screen_led_holder_v0_1_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"capture_screen_led_holder_v0_1_retainer_clip.stl","t":[-44.0,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,38.4],"a":1},{"f":"capture_screen_aperture_baffle_body.stl","t":[-33.25,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-11.2,0.0,16.0]},{"f":"aperture_disk_2p5mm.stl","t":[-30.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"aperture_disk_4mm.stl","t":[-22.25,0.0,8.5],"r":[0,0,1,0,1,0,-1,0,0],"x":[-11.2,0.0,32.0],"a":1},{"f":"uvette_holder_common_body.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_orientation_gate_A.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,48.0]},{"f":"uvette_preload_leaf.stl","t":[6.45,0.0,13.0],"x":[0.0,0.0,40.0],"a":1},{"f":"uvette_preload_leaf.stl","t":[0.0,6.45,13.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,40.0]},{"f":"uvette_index_collar.stl","t":[0.0,0.0,25.5],"x":[0.0,0.0,58.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]}],"v2":[{"f":"optical_core_base_plate_v0_7.stl","t":[0.0,0.0,-15.5]},{"f":"light_trap_adapter_riser_v0_7.stl","t":[18.25,0.0,-11.5]},{"f":"excitation_cradle_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"excitation_cap_baffle_v0_7.stl","t":[-25.75,0.0,8.5],"x":[0.0,0.0,28.8]},{"f":"detector_locator_frame_v0_7.stl","t":[0.0,0.0,-11.5]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,21.0],"x":[0.0,8.0,19.2]},{"f":"replacement_filter_cassette_clamp_bar_print_two_v0_7.stl","t":[0.0,29.0,-4.0],"x":[0.0,8.0,-19.2]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,37.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"detector_side_clamp_print_two_v0_7.stl","t":[20.25,49.0,-11.5],"x":[16.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[-10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[10.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[23.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"locator_pin_print_four_v0_7.stl","t":[41.25,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,31.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"detector_locator_pin_print_two_v0_7.stl","t":[-22.1,53.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-46.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"excitation_locator_key_print_two_v0_7.stl","t":[-25.0,0.0,-13.5],"x":[0.0,0.0,16.0]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,-16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_x_hold_down_clip_print_two_v0_7.stl","t":[-23.0,16.0,0.0],"r":[0,-1,0,1,0,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[-6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"uvette_y_hold_down_clip_print_two_v0_7.stl","t":[6.0,-22.0,0.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,25.6]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,15.0,4.0],"x":[0.0,0.0,22.4]},{"f":"light_trap_clamp_plate_print_two_v0_7.stl","t":[33.95,-15.0,4.0],"r":[-1,0,0,0,-1,0,0,0,1],"x":[0.0,0.0,22.4]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[-57.0,72.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,-22.0,-20.0]},{"f":"bench_foot_print_four_v0_7.stl","t":[49.0,72.0,-20.0]},{"f":"common_cassette_body.stl","t":[0.0,21.0,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-38.4,9.6,12.8]},{"f":"blank_open_control_insert.stl","t":[0.0,22.25,8.5],"r":[-1,0,0,0,0,1,0,1,0],"x":[-64.4,9.6,12.8]},{"f":"as7341_detector_body.stl","t":[0.0,29.0,8.5],"x":[0.0,35.2,16.0]},{"f":"as7341_pcb_carrier.stl","t":[0.0,36.0,8.5],"x":[0.0,61.2,16.0]},{"f":"as7341_pcb_retainer.stl","t":[0.0,39.2,8.5],"x":[0.0,81.2,16.0]},{"f":"optical_light_trap_angled_wedge_v0_1.stl","t":[18.25,0.0,0.0],"x":[16.0,0.0,28.8]},{"f":"uvette_holder_body_v0_3.stl","t":[0.0,0.0,0.0],"x":[0.0,0.0,40.0]},{"f":"uvette_seat_riser_v0_2.stl","t":[0.0,0.0,-11.5]},{"f":"led_holder_body_v0_3.stl","t":[-52.8,0.0,8.5],"r":[0,0,1,0,-1,0,1,0,0],"x":[-28.8,-11.2,22.4]},{"f":"aperture_baffle_body_v0_2.stl","t":[-33.25,0.0,13.5],"r":[1,0,0,0,-1,0,0,0,-1],"x":[-11.2,0.0,16.0]},{"f":"excitation_cap_LED_holder_v0_7_roof_down.stl","t":[-37.5,0.0,20.95],"r":[1,0,0,0,-1,0,0,0,-1],"x":[0.0,0.0,28.8]}],"p1":[{"id":"led","shape":"cyl","lo":[-42.55,-2.9,5.6],"hi":[-33.75,2.9,11.4],"x":[-50.8,-11.2,22.4]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]}],"p2":[{"id":"board","shape":"box","lo":[-10.0,36.55,1.0],"hi":[8.0,38.95,15.0],"x":[0.0,71.2,16.0]},{"id":"uvette","shape":"box","lo":[-6.25,-6.25,0.0],"hi":[6.25,6.25,36.0],"x":[0.0,0.0,82.0]},{"id":"led","shape":"cyl","lo":[-42.5,-2.9,5.6],"hi":[-33.7,2.9,11.4],"x":[-50.8,-11.2,22.4]}]}{% endraw %}</script>
 
       <details class="hwp-files">
@@ -309,8 +134,6 @@
           </span>
         </summary>
         <div class="hwp-files-body">
-          {# 沒有 JavaScript 時只有這個連結；有的話程式會在後面加一顆「全部存成 STL」的按鈕，
-             清單裡每個檔名也會變成下載該零件 STL 的按鈕。 #}
           <p class="hwp-get">
             iGEM's file server takes neither STL nor ZIP files, so the 53 STL
             files are kept as one glTF model, triangle for triangle:
@@ -633,8 +456,6 @@
               </li>
             </ul>
           </section>
-          {# 買來的零件沒有 STL，但畫面上點得到，所以在清單裡也有一行（程式用 data-standin 對應）。
-             尺寸是 CAD 組裝檔裡那個替身的外框。 #}
           <section class="hwp-group hwp-bought">
             <h4>Bought, not printed <span>3 parts, drawn as plain shapes in the assembly</span></h4>
             <ul>
@@ -665,27 +486,11 @@
     </div>
 
 
-    {# PHOTO: 量測時的樣子（3D 列印機構與遮光紙箱），上傳到 static.igem.wiki 後插在這裡 #}
 
   </section>
 
-  <!-- ========================= what the design gives ========================= -->
-  {# 2026-10-13（硬體負責人：「design advantages 現在看起來是把版本一跟版本二比較然後說版本二的優點，
-     但不是應該是說我們整個機構的設計優點嗎？」）。他說得對：這一節原本叫 Version 2: improvements，10-07 只改了
-     標題，四張卡片仍然是「第一版 → 第二版」。現在這一節講現在這台機器的四個設計決定各帶來什麼；
-     原本那四張比較卡片、照片與放比色管的步驟原封不動，在 User feedback 後面，標題是 From version 1 to version 2
-     （id 仍是 hardware-v2，Model 頁的連結不用改）。
-     每張卡片的依據都是頁面別處已經有的：
-       1 不用發射濾光片   86.44 與 0：2026-10-12 和 SpectraMax M3 並排那一場（最上面第一格的註解）。
-                         「分開藍與綠靠角度與感測器自己的色帶」是 Measurement principle 的句子。
-                         只寫「這個配置下量到」，沒有歸因給光阱：它吸收多少沒有量過。
-       2 座              八條肋、四個角台是設計值（Part by part 的表）；3–5 s 計時過（User feedback）；
-                         五次重插各自離平均的百分比與 0.76% 出自 The re-insertion numbers（re-insertion test 3）。
-       3 自己檢查         每個 cycle 是暗、亮、暗；遮光下暗讀值全為 0，不為 0 的那個 cycle 作廢
-                         （Light shielding 的 The operating rule）。56 與 0 是 Run 卡片 LOW_D_1 那一列；
-                         1 是 2026-10-05 6.25 µL 那一次（Run 卡片的 AMBIENT_PRESENT）。
-       4 一次換一個       Part by part 的表與說明；圖在下面的 Built to be changed。
-     成本在自己的一節與最上面第四格，這裡不放。 #}
+  {# ========================= what the design gives ========================= #}
+
   <section id="hardware-design">
     <h2>Design advantages</h2>
 
@@ -709,8 +514,6 @@
           <text class="hw-vis-strong" x="200" y="127" text-anchor="middle">without</text>
           <text x="200" y="141" text-anchor="middle">OD600 0.72</text>
         </svg>
-        {# 2026-10-14：加上兩管的 F2。10-12 那一場 XC_G100 的 F2 是 21.44、XC_NEG 是 21.67（各 9 個 cycle 的平均，
-           由原始 log 算出，互動台顯示的是同一組數字）。只寫 F2：F3 兩管不同（31.56 與 16.56），所以沒有寫「散射相同」。 #}
         <p>The detector looks at the sample from 90&deg;, and its own colour bands keep the blue apart from the green. The two cultures read alike beside the source, 21.4 and 21.7 counts on F2; only the green differs. <a href="#hardware-v2-turbidity">Dense suspensions</a> are where this stops.</p>
         <span class="hw-gain-basis">Measured, <a href="#hardware-v2-m3">one session</a> &middot; <a href="#hardware-bench-try">every channel of both reads</a></span>
       </li>
@@ -760,17 +563,7 @@
       </li>
     </ul>
 
-    {# 2026-10-13（硬體負責人：要強調模組化，讓之後的人可以在這個架構上改，例如換感測器或激發 LED）。
-       這一小節只寫頁面別處已經有依據的事，排成一張表：換過的、留了位置但沒用過的、還沒試過的。
-         四組零件與底板：上面 3D 檢視的分組（Excitation end、Cuvette seat、Detection side、Light trap、Base plate）。
-         定位銷與鍵：Assembly, step by step 的 Pins and keys（兩個 riser 各兩支圓銷、偵測框兩支窄銷、cradle 兩個方鍵）。
-         第二版換五件與一顆電阻、底板／偵測端／光阱／韌體沒動：Version 1 against version 2: part by part 的表與說明。
-         四個夾片：Assembly 的 Cuvette holder。5.55 → 約 10 mA：The LED current。
-         濾光片抽屜與 insert（圓 12.5 mm、方 6 mm）：3D 檢視的零件清單；沒放過濾光片。
-         十個通道：Measurement principle；每一列都記全部通道（Run 卡片的說明）。只讀過 sfGFP：Background。
-         LED 座照 5 mm 圓形 LED 畫：Decisions 的 470 nm 那一則與參考資料 3（Cree 5-mm Round LED）；第二版的夾持量是試配件定的。
-         感測器板的 carrier 是獨立的一件：零件清單 as7341_pcb_carrier.stl；韌體自己帶 AS7341 驅動：Parts and files 的 The files。
-       沒試過的兩列寫的是「要做什麼」，不是「做得到」：換 LED、換感測器都沒有做過。 #}
+
     <h3 id="hardware-modules">Built to be changed</h3>
 
     <p class="hw-point hw-point-sub">
@@ -778,23 +571,18 @@
       what has not been tried.
     </p>
 
-    {# 2026-10-13（同一天，硬體負責人：「感覺有點過多文字敘述，可以有點視覺化」）：原本的一段字與六列的表
-       改成一張俯視示意圖，內容相同：每一塊用外框標出狀態（第二版換過／在機器上但沒用過／沒試過／沒動），
-       狀態同時寫成字，不只靠顏色。配置照 Measurement principle 那張圖：LED 在左、光束往右進光阱、
-       偵測器在比色管的側邊（圖上方）。不是按比例畫的。八個色塊是 AS7341 八個濾色通道的標稱中心波長，
-       顏色只是示意。 #}
     <figure class="hw-figure hw-chart">
       <svg class="hw-vis hw-mod" viewBox="0 0 640 300" role="img" aria-label="Plan view of the reader's parts on its base plate, marked by what has been changed. Changed for version 2: the excitation end, whose LED holder, baffle and cap were redrawn; the cuvette seat; and the LED's current, set by one resistor and raised from 5.55 to about 10 milliamps. On the reader but not yet used: the filter drawer in front of the detector, which is empty and takes a 12.5 millimetre round or a 6 millimetre square filter; and the detector's ten channels, all recorded on every read, of which only sfGFP has been read. Not tried: another LED, for which the holder is drawn around a 5 millimetre round LED; and another detector board, which would need a new carrier and a new driver in the firmware. Unchanged from version 1: the base plate and the light trap.">
         <rect class="hw-mod-same" x="24" y="20" width="592" height="244" rx="10"/>
         <text x="38" y="38">Base plate &#183; unchanged</text>
 
-        <!-- the two light paths -->
+        {# the two light paths #}
         <path class="hw-mod-ex" d="M200 190H285M355 190H436"/>
         <path class="hw-mod-ex-head" d="M436 185l9 5l-9 5z"/>
         <path class="hw-mod-em" d="M320 155V110"/>
         <path class="hw-mod-em-head" d="M315 110l5 -9l5 9z"/>
 
-        <!-- excitation end -->
+        {# excitation end #}
         <rect class="hw-mod-changed" x="50" y="160" width="150" height="60" rx="6"/>
         <circle class="hw-mod-untried" cx="72" cy="190" r="10"/>
         <text class="hw-vis-strong" x="92" y="186">Excitation end</text>
@@ -806,30 +594,30 @@
         <text x="65" y="239"><tspan class="hw-vis-strong">LED current</tspan> &#183; one resistor</text>
         <text class="hw-mod-tag" x="65" y="252">changed, 5.55 to about 10 mA</text>
 
-        <!-- cuvette seat -->
+        {# cuvette seat #}
         <rect class="hw-mod-changed" x="285" y="155" width="70" height="70" rx="6"/>
         <text class="hw-vis-strong" x="320" y="187" text-anchor="middle">Cuvette</text>
         <text class="hw-vis-strong" x="320" y="200" text-anchor="middle">seat</text>
         <text class="hw-mod-tag" x="320" y="241" text-anchor="middle">changed for version 2</text>
 
-        <!-- light trap -->
+        {# light trap #}
         <rect class="hw-mod-same" x="446" y="164" width="140" height="52" rx="6"/>
         <text class="hw-vis-strong" x="516" y="187" text-anchor="middle">Light trap</text>
         <text x="516" y="201" text-anchor="middle">unchanged</text>
 
-        <!-- filter drawer -->
+        {# filter drawer #}
         <rect class="hw-mod-ready" x="285" y="119" width="70" height="16" rx="3"/>
         <text x="372" y="124"><tspan class="hw-vis-strong">Filter drawer</tspan> &#183; <tspan class="hw-mod-tag">on the reader, empty</tspan></text>
         <text x="372" y="137">for a 12.5 mm round or 6 mm square filter</text>
 
-        <!-- detector -->
+        {# detector #}
         <rect class="hw-mod-untried" x="275" y="40" width="90" height="62" rx="6"/>
         <text class="hw-vis-strong" x="320" y="75" text-anchor="middle">Detector</text>
         <text x="380" y="58"><tspan class="hw-vis-strong">The board</tspan> &#183; in a carrier of its own</text>
         <text x="380" y="71">another board: a new carrier, a new driver</text>
         <text x="380" y="84">not tried</text>
 
-        <!-- the detector's channels -->
+        {# the detector's channels #}
         <g class="hw-mod-bands">
           <rect x="148" y="56" width="12" height="12" rx="2" fill="#7a4fd6"/>
           <rect x="163" y="56" width="12" height="12" rx="2" fill="#3f5fe0"/>
@@ -844,7 +632,7 @@
         <text x="265" y="84" text-anchor="end"><tspan class="hw-vis-strong">Ten channels</tspan> &#183; all recorded on every read</text>
         <text class="hw-mod-tag" x="265" y="97" text-anchor="end">only sfGFP read so far</text>
 
-        <!-- legend -->
+        {# legend #}
         <rect class="hw-mod-changed" x="24" y="279" width="12" height="12" rx="2"/>
         <text x="42" y="289">Changed for version 2</text>
         <rect class="hw-mod-ready" x="176" y="279" width="12" height="12" rx="2"/>
@@ -863,25 +651,9 @@
     </figure>
   </section>
 
-  {# 2026-10-17：組員審稿（硬體負責人轉達）後改的五處：From version 1 to version 2 的第一段改成以 we 為主詞；
-     第一張卡片的依據行原本寫「from our own video」，頁面上看不到影片，改成連到下面的照片；
-     0.19 那句改寫得好讀一點，但沒有改成「below 0.19」：第一版四管裡最高的是 0.1921875，寫 below 不對；
-     照片那一小節的引言說明照片是影片的畫格；稀釋系列的 Not yet 改成先講「還沒有的是偵測極限」。 #}
-  <!-- ========================= what its users told us ========================= -->
-  {# 這一節回答評審第二題（使用者測試、從回饋學到什麼）。
-     第一張表是 wet lab 隊員對兩版的回饋，出自硬體負責人 2026-10-06 的說明：
-       - wet lab 用過第一版，當時就對「放 cuvette 要這麼多步、而且有誤差」存疑，也覺得操作很久；
-         這是第二版改成直接放入的原因之一。
-       - 10-05 那一場最後的五次重插是 wet lab 的人做的。他們覺得只要放入就好、很快、幾乎沒有人為誤差的空間；
-         看到原本用電工膠帶修補的地方換成新件，也更相信這台儀器。
-     這是負責人的轉述，沒有逐字紀錄，所以頁面寫成轉述（they told us），沒有用引號，也沒有編造任何一句話。
-     硬體資料夾的紀錄沒有寫那一場由誰操作。讀值是有紀錄的：五次重插 49.33–50.33；同一管 39.6 分鐘前
-     由負責人量到 50.33（P08_LOW_D_2.log；REINSERTION_COMPARISON.json 的 earlier_read_of_new_series_tube）。
-     人數：硬體負責人 2026-10-06 說明，至少三位 wet lab 隊員用過，頁面上寫的就是他們的共識；頁面照這樣寫了。
-     放 UVette 花多久是計時過的（負責人 2026-10-07 更正），頁面寫成不同的人之間的範圍；計時了幾個人沒有說。
-     得獎頁面的寫法是「誰、說了什麼、我們改了什麼」，通常只有 3 到 7 個人。
-     第二張表（操作紀錄）的來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.6；10-03 的兩次拒絕執行與
-     偵測器接觸不良在 PROJECT_STATE/CURRENT_STATE.md「Electronics State」。 #}
+
+  {# ========================= what its users told us ========================= #}
+  
   <section id="hardware-use">
     <h2>User feedback</h2>
 
@@ -890,23 +662,7 @@
       What they said about the first set the brief for the second.
     </p>
 
-    {# 2026-10-06（晚）：原本是一張三欄的表，改成兩張卡片；每一句都是表格裡原來的句子。
-       這是轉述，不是引言，所以沒有引號，卡片上的小標寫的是 They told us。
-       2026-10-07：硬體負責人要回饋的字大一點、像 Version 2: improvements 的卡片那樣呈現。所以每張卡片最上面加了
-       一行大字（說了什麼 → 後來怎麼了），用的是改進卡片同一組樣式（hw-gain-fig）；那一行的字都取自下面兩句，
-       沒有新的內容。下面兩句左右並排、字放大。
-       同一天：這一節曾經拆成兩處（第一版的回饋留在這裡，第二版的回饋搬到 dilution series 後面）。硬體負責人覺得
-       拆開很怪：左側目錄只帶得到一半。這一節回答的是評審的「使用者測試、從回饋學到什麼」，得獎頁面也都把
-       「誰、說了什麼、我們改了什麼」放在同一處，所以兩張卡片合回這一節，整節移到 Version 2: improvements 之後，
-       這樣第二版的回饋不會在第二版還沒介紹之前出現。
-       第二版卡片的大字：硬體負責人 2026-10-07 說「大概是30-40秒跟3-5秒的差異」。我的理解是放 UVette 所花的時間，
-       第一版對第二版；如果指的是整次量測的時間，請改那一句說明。
-       我原本把它寫成「估計，沒有人計時」。負責人同一天更正：「那個時間就是計時過的，有人手腳比較慢的就是落於
-       那個時間」。所以改成：計時過，範圍是不同的人之間的快慢。計時了幾個人、每人幾次，負責人沒有說，頁面也沒有寫。
-       Limits 仍然保留「不是對照試驗」這一點，因為它是使用中的回饋。
-       同一天硬體負責人轉述：「他們也有提到箭頭的標示有幫助」。我的理解是第二版座頂面刻的雙向箭頭
-       （Fitting the version 2 parts 的 Cuvette 那一步；CAD 原始碼 capture_screen_uvette_seat_v0_2.py 的 arrow_solid），
-       所以加在 They told us 的最後一句。"it shows how the cuvette should face" 是設計上的事實，不是他們的原話。 #}
+    
     <ul class="hw-said is-one">
       <li>
         <span class="hw-said-who">Wet-lab members, on version 1</span>
@@ -925,12 +681,7 @@
           <p class="hw-said-then"><b>What followed</b> They made that session's five re-insertions themselves, and every reading stayed within one count of 50.</p>
         </div>
       </li>
-      {# 2026-10-13：硬體負責人轉述（原話）：「我們 WET 的人操作過一次操作卡，認為我們操作卡寫得很清楚，
-         出現錯誤也可以對照我們給的解方來處理。」是轉述不是引言，所以沒有引號。
-         同一天補充（原話）：「REJECTED sample_id 當時出現這個，有讓兩個人操作，其中一個有遇到問題，
-         另一個照順序做沒有問題。」所以寫成：兩個人各做一次，一個沒有問題，一個遇到 REJECTED sample_id。
-         還不知道、所以沒有寫：哪一天。知道了請補在這裡，不要自己推測。
-         「操作卡」指 Construction and operation 的 Run 卡片；「解方」指它下面的 When the reader says something else。 #}
+
       <li>
         <span class="hw-said-who">Two wet-lab members, each running the reader from the Run card</span>
         <div class="hw-said-pair">
@@ -951,7 +702,7 @@
     </p>
   </section>
 
-  <!-- =====================================================================
+  {# =====================================================================
        Everything below this line was rebuilt in September 2026.
 
        The shape of it: the instrument is documented by what it was measured
@@ -981,49 +732,10 @@
        The closing provenance note sits under the decision cards rather than
        in a section of its own. It is about every number on the page, not
        about the section that used to contain it.
-       ===================================================================== -->
+       ===================================================================== #}
 
-  <!-- ========================= version 2 ========================= -->
-  {# 2026-10-06 重排：第二版自成一節，開頭四張卡片回答「比第一版好在哪裡」。
-     這一節的內容原本散在四處：What using it taught us（What version 2 changes、Version 2 so far）、
-     The circuit（The LED current, before and after）、What it has measured（10-05 那一場）、
-     The instrument（兩張版本卡，已拿掉，內容併進下面第一張表的第一列）。
-
-     四張卡片的依據：
-       1 放杯子      零件數出自 CAD 清單（第一版：座體、gate A／B、index collar、collar gauge、preload leaf；
-                     第二版：一件）。「對齊箭頭、垂直放入、推到底」出自
-                     P1_MECH_V08_ROUND2_2026-10-02/README.md 的組裝提示。
-                     第一版的四個步驟出自硬體負責人的影片（硬體資料夾 demo_video/IMG_0551.MOV，77 秒）。
-                     2026-10-06 每 2 秒抽一張畫面、共 39 張，交給 Codex 看（也是 AI 工具的使用）：
-                     杯子放進座的方孔（12–14 秒）、把一個帶凸片的方框套在杯子外並壓下（14–18 秒）、
-                     把一個小 C 形夾壓到杯子旁（30–32 秒）、把整個座放到機台上（72–76 秒）。
-                     硬體負責人原本就說「大概要四步」；第二版他的說法是「就放進去而已」。
-                     硬體負責人 2026-10-06 確認：四步都是每次要做的；42–66 秒只是把杯子連同夾在上面的零件
-                     拿出來展示，不是步驟。方框是 index collar（24 × 20 × 5 mm，有一個向下的 key tooth），
-                     小夾是 collar setting gauge（7 × 3 × 8.5 mm，上端靠住杯子頂緣、下端頂住 collar，用來定 collar 的高度）：
-                     依據是 ai_shared_workspace/reference/components/uvette_holder/README_zh-TW.md 的
-                     「Z 定位」與「B. Collar 設定」，並對照影片 22、32、46 秒的畫面。第一版杯子的高度由 collar 決定，
-                     第二版杯子直接落在座的四個角台上，所以卡片寫 the seat sets its height and position。
-                     2026-10-06 改用照片呈現：影片的五張畫格在 Placing the cuvette, step by step 那一小節。
-       2 同一管重插  P1_CAL_LOWEND_ANALYSIS_2026-10-05/BUILD_COMPARISON.json 的 S_left_alone_vs_reinserted，
-                     以及同資料夾的 REINSERTION_COMPARISON.json（硬體負責人 10-06 要求整理的新舊機對照，
-                     數字由原始 log 重算）。0.6 mm 與 0.05 mm 是設計值（SYSTEM_SPECS.md SYS-C023；
-                     v0.8 README），印出來的尺寸沒有量。那份對照自己寫明不能把差異全部歸給座：
-                     批次、杯子、LED 電流、放置時間都不同，而且 10-05 那天 wet lab 用了冰塊
-                     （硬體負責人的說明）。頁面上照實寫了。
-       3 光變強      P1_LED_CURRENT_STAGE6_2026-10-03（同一顆空杯、同一天、只換電阻）；
-                     10-05 無 GFP 全為 0 出自 EVIDENCE.md §5.2、§6.4。
-       4 低濃度      EVIDENCE.md §6.5：第一版三場中 x 不超過 0.1921875 的 4 管只有 1 管讀到；
-                     第二版 x = 0.1925 的 3 管每個 cycle 都讀到。同一段寫明這不是受控比較，
-                     不得寫成偵測極限或靈敏度的倍數，所以卡片寫的是讀值，不是倍數。
-     每張卡片最下面那一行小字標明依據（設計／量測／不同場次的觀察），請不要拿掉：
-     有了它，上面的數字才是可以站得住的宣稱。
-     2026-10-06 請 Codex 以唯讀方式對照上述紀錄審過這一節（1 項用詞不符、3 項說得太滿、1 項語意不清），
-     都已改掉：0.19 是「濃度指標」（原液顯示 OD × 稀釋），不是那一管的顯示 OD；五件零件印了幾件沒有紀錄；
-     冰塊是 wet lab 的說法、細節不明；光那一段講的是散射通道的 counts。這也是 AI 工具的使用，請寫進 Attributions。
-     第一版與第二版的整機照已於 2026-10-06 放上，在這一節開頭、四張卡片之前（class="hw-shots"）。 #}
-  {# 2026-10-13：這一節的標題由 Design advantages 改成 From version 1 to version 2，並移到 User feedback 之後
-     （回饋說了什麼 → 改了什麼 → 量到什麼）。內容一個字都沒有動；設計本身的優點在上面的 #hardware-design。 #}
+  {# ========================= version 2 ========================= #}
+ 
   <section id="hardware-v2">
     <h2>From version 1 to version 2</h2>
 
@@ -1032,11 +744,7 @@
       and fainter samples in reach.
     </p>
 
-    {# 2026-10-07（夜）：這一節原本叫 Version 2: improvements，排在 Version 1: bench tests 之後。
-       硬體負責人：要強調的是儀器的優勢（更穩、操作更快、便宜、量得穩），照開發歷程排，讀者先看到的反而是
-       第一版比較差的地方。所以這一節改名、提到 The instrument 之後，開頭那句改成講優勢；四張卡片、照片、
-       Limits 一個字都沒有動。dilution series 與 Status of version 2 搬到 Functional testing。
-       成本是另一項優勢，在自己的一節（Cost）與最上面第四格，這裡不放字卡。id 沒有變（hardware-v2）。 #}
+
     <p>
       All four come from version 2, fitted on 2026-10-03. We redrew five
       printed parts around
@@ -1045,11 +753,7 @@
       changed one resistor to bring the LED up to its design current.
     </p>
 
-    {# 2026-10-06（夜）：兩版的實機照，硬體負責人拍攝並上傳。第一版那張原圖是直的，逆時針轉 90 度後裁成 4:3，
-       方向與第二版一致（LED 在左、光陷阱在右、偵測器在後）。圖說只寫照片上看得到、頁面其他地方也有依據的事：
-       第一版 LED 端的膠帶與 UVette 外的 collar（下方 Part by part 那張表）、第二版的單件座與蓋子。
-       第二版照片上，蓋子旁邊那一塊纏著的黑色膠帶是防滑用的，不是修補（硬體負責人的說明），圖說沒有提。
-       要換照片請換檔名（static.igem.wiki 的快取很久），不要覆蓋同名檔。 #}
+
     <div class="hw-shots">
       <figure class="hw-shot">
         <img src="https://static.igem.wiki/teams/6379/wiki/hardware/printed-v1-overview-20261006.avif" loading="lazy" alt="Version 1 from above. On the left the LED end is wrapped in black tape. In the middle a square collar sits around the UVette in its holder. The light-trap block is on the right and the detector block behind.">
@@ -1061,21 +765,7 @@
       </figure>
     </div>
 
-    {# 2026-10-06：硬體負責人覺得字太多，問能不能用動畫。每張卡片現在是一張會動的小圖加一句話，
-       原本的段落與表格都收進下面四個摺疊，數字一個都沒有少。
-         1 放杯子   兩排步驟，一秒亮一格；第二版第一拍就完成。步驟出自影片（見上方註解）。
-         2 重插     每個點是同一管的一次插入，畫的是「離這一管自己的平均百分之幾」（2026-10-08 由 counts 改成百分比，
-                    大字也是：3.6–6.3% → 0.76%，三組的訊號都在 33 到 50 counts）。數字就是下面
-                    The re-insertion numbers 那張表的各次平均與 % of mean 一欄。原本的灰帶（第一版「放著不動」）
-                    拿掉了：那一管只有 22 counts，換成百分比會被量化刻度放大，不能和另外三組並排。
-                    約 6 counts 的兩組重插（mixing session 1、2）同樣因為刻度而不放進來。
-         3 光變強   同一顆空杯、同一天，換電阻前後的 F2 與 F4（9 個 cycle 的平均）。
-         4 低濃度   沒有圖，只有讀值。
-       動畫由 static/hardware-gains.js 觸發：圖捲進畫面才播；沒有 JavaScript、或系統設定了「減少動態效果」時，
-       圖就是畫好的樣子。圖上的點與長條都有 data-tip，滑鼠移上去會顯示那一筆的讀值（提示框是 hardware-bench.js 的）。
-       顏色：第一版用灰、第二版用亮綠（頁面本來的兩個 token）。用 dataviz 的檢查程式驗過：色覺異常下可分辨
-       （ΔE 19.8）、對背景的對比足夠；亮度與彩度兩項不在它給「多系列配色」的範圍內，因為這裡是
-       「一個重點色加一個灰」，而且每個標記旁邊都有文字，不靠顏色辨認。 #}
+   
     <ul class="hw-gains">
       <li class="hw-gain" data-hw-anim>
         <span class="hw-gain-what">Placing the cuvette</span>
@@ -1122,8 +812,7 @@
           <text x="252" y="146" text-anchor="middle">+5%</text>
         </svg>
         <p>Each dot shows one insertion relative to the tube's own mean; the percentage is the standard deviation divided by that mean. Version 1's tubes were put back by the reader's builder, version 2's by wet-lab members.</p>
-        {# 2026-10-17 硬體負責人：第一版也給 wet lab 的人試用過（User feedback 第一張卡片），但沒有任何一次登記在試驗紀錄裡；
-           紀錄裡第一版的兩次重插（09-09、09-14）是他自己做的。所以這句寫的是有紀錄的那幾次由誰放。 #}
+
         <span class="hw-gain-basis">Observed, in different sessions</span>
       </li>
       <li class="hw-gain" data-hw-anim>
@@ -1169,8 +858,7 @@
       </li>
     </ul>
 
-    {# 這裡原本留給第一版放 UVette 的影片。2026-10-06 改用照片呈現（影片要先通過 video.igem.org 的審核），
-       在下面 Placing the cuvette, step by step 那一小節。 #}
+
 
 
     <p class="hw-more">
@@ -1179,13 +867,6 @@
       <a href="#hw-doc-led">The LED current</a>
     </p>
 
-    {# 2026-10-06（夜）：放 UVette 的步驟，用照片呈現。硬體負責人的決定：影片要先通過 video.igem.org 的審核，
-       所以不放影片，改放照片；第一版用影片的畫格逐步播放，第二版放兩張新拍的照片。
-       第一版五張取自他的影片（硬體資料夾 demo_video/IMG_0551.MOV）的 10.0、14.5、19.0、33.0、76.5 秒，
-       各裁成 4:3；四個步驟與零件名稱的依據寫在這一節最上方的註解（卡片 1）。第二版兩張是 2026-10-06 拍的。
-       七張都由硬體負責人上傳到 static.igem.wiki 的 hardware 資料夾。要換照片請換檔名，不要覆蓋同名檔。
-       每一張照片與圖說都寫在這裡；static/hardware-steps.js 只負責一次顯示一張、兩邊同步往下走。
-       沒有 JavaScript 時，兩邊各是一排小圖。第二版在第 1 步就到最後一張並停在那裡，這就是要比的事。 #}
     <h3 id="hardware-v2-placing">Placing the cuvette, step by step</h3>
 
     <p>
@@ -1236,12 +917,8 @@
     </div>
   </section>
 
-  <!-- ========================= the bench ========================= -->
-  {# 2026-10-16（硬體負責人：「這是介紹我們的優點以及開發歷程，有些趨勢存在就是存在，不用因為過度注重嚴謹而捨棄
-     反而用一大段的文字來陳述」）：這一台看得到的但書一律縮到一句或拿掉。拿掉的：User feedback 與
-     From version 1 to version 2 的 Limits、三場混合圖說最後兩句、3D 檢視動畫說明的後半。縮短的：稀釋系列的
-     圖說與 Not yet、plate reader 的 Not yet、濃懸浮液的 Not yet。細節都還在 Data and documentation 的折疊裡。
-     沒有因此加上紀錄不支持的說法（已校正、偵測極限、讀到誘導）。 #}
+  {# ========================= the bench ========================= #}
+
   <section id="hardware-bench">
     <h2>Functional testing</h2>
 
@@ -1253,20 +930,7 @@
       resolved AHL induction.
     </p>
 
-    {# 2026-10-13（硬體負責人同意）：這一節的敘述順序改了三處。
-       (1) 樣品是什麼搬到最前面：原本到第四個小節才說「上面讀的 GFP 菌是測試菌」，讀者會先以為讀的是感測菌。
-           這一段的兩句原本在濃懸浮液那一小節（依據與負責人的確認寫在那裡的註解），那裡現在只留 AHL 盤的來歷。
-       (2) Light shielding 搬到濃懸浮液之前：它是前面每一個「0」的前提；極限與「接下來」的卡片收在最後，
-           後面只剩互動台。
-       (3) 小節標題先寫測了什麼、版本放後面（原本是 Version 2、Version 2、Version 1、Version 2 開頭）。
-       同一天稍晚，硬體負責人說明為什麼先用 GFP 菌：「我們預想 WET 的 AHL 如果誘導成功且明顯，螢光的濃度應該是
-       會與 GFP 相當的，故我們第一階段都以 GFP 來測試做預備」。下面第二句照這個意思寫（stood in for … expected）。
-       第三句原本寫「感測菌在液體培養裡兩個版本都沒有測到螢光」（負責人 10-12 的口頭確認）。Engineering 頁的 Detect
-       後來補上第三輪：兩個版本在液體裡加 1 µM AHL 都比空載體對照亮（plate reader，p < 0.001），但對照不是
-       「同一株不加 AHL」，所以 wet lab 自己的結論是 AHL-dependent induction 沒有被確實證明。這一句改成照那一頁寫；
-       wet lab 的結果以他們的頁面為準，那一頁再改，這裡要跟著改。
-       現在的順序：Dilution series、Beside a plate reader、Three mixing sessions、Light shielding、
-       Where it stops、Interactive bench。數字與圖都沒有動；id 都沒有變。 #}
+  
     <p>
       The GFP cultures read in this section are a test strain:
       <i>E.&nbsp;coli</i> TOP10 with a plasmid that makes sfGFP without
@@ -1278,26 +942,7 @@
       (<a href="{{ url_for('pages', page='engineering') }}#eng-detect">Engineering</a>).
     </p>
 
-    {# 2026-10-07（夜）：這一節原本叫 Version 1: bench tests，排在 The instrument 之後、只放第一版。
-       現在是兩版的量測放在一起，照「問什麼」排，現行的第二版在前；每一張圖旁邊都寫了是哪一版量的。
-       dilution series 與 Status of version 2 是從原本的第二版那一節整段搬來的，一個數字都沒有動；
-       第一版三場的那一句重點原本是這一節的開頭，現在是它自己小節的開頭。id 沒有變（hardware-bench）。 #}
-    {# 來源：_AI_REFACTOR_WORK/P1_CAL_LOWEND_ANALYSIS_2026-10-05/EVIDENCE.md（revision 4）：§1 條件、
-       §2 擷取清單、§3 偏離（D2、D3、事後追加）、§5.2 無 GFP、§6.1 各濃度、§6.2 正比區、§6.3 重插、
-       §6.4 空座。原始 log 在 P1_CAL_LOWEND_LOGS_2026-10-05。那份紀錄的數字由程式從 log 產生並另行重算核對。
-       同一份紀錄的 §9 列了哪些話不能說：偵測極限、線性範圍、重複性規格、靈敏度是第一版的幾倍、
-       專一性、低端偏低的成因、任何與 AHL 有關的結論。這裡都沒有寫，請不要加。
-       那一場另外讀了一管 wet lab 給的、來歷不明的樣品（§8）：不是 AHL 誘導的量測，所以沒有放上來。
-       圖上的曲線是那份紀錄 §7 的 gated proportional：F4 = k·x／(1 + (x0／x)^n)，k = 0.519751、x0 = 12.661154、
-       n = 5.497174，x 是 GFP 原液的 µL。§7 寫明它只是事後畫的描述曲線，不得用來換算濃度、不得稱為最佳模型，
-       轉折位置只靠 12.5 µL 一階；圖說照實寫了。硬體負責人記得的那張圖（同資料夾 fit_widget.html）也是這條曲線。
-       這是 P1-PROTO-02 上一場探索性的量測，只有一批菌；canonical 的 TEST_STATUS.md 沒有任何一列因此成立。
-       2026-10-06 請 Codex 以唯讀方式對照這份紀錄與收尾報告審過一次（1 項數字說法、1 項說得太滿、
-       3 項該揭露而沒寫、2 項語意不清），都已改掉；這也是 AI 工具的使用，請寫進 Attributions。
-       其中一項不是這次新加的：原本寫 "Within a session the reading rose in proportion"，
-       收尾報告 §4.3 只說訊號夠高的兩場（09-16、09-29）成正比，所以改成 "In the two sessions with enough signal"。
-       紀錄裡沒有寫這一場是誰操作的；硬體負責人 2026-10-06 確認是他自己操作的，所以
-       What using version 1 taught us 第一段的 "every measurement here was taken by one member of the team" 仍然成立。 #}
+
     <h3 id="hardware-v2-session">The dilution series (version&nbsp;2)</h3>
 
     <p class="hw-point hw-point-sub">
@@ -1356,18 +1001,7 @@
       </figcaption>
     </figure>
 
-    {# 2026-10-10：這一行原本是本節最後的「Status of version 2」（橘色的框，獨立一個小標）。硬體負責人：
-       「有點醜且不知道放在這裡有什麼意義，可以讓它轉化一下嗎」。所以改成這一小節自己的 Not yet，和其他小節同一個寫法。
-       不能說的話都還在，各寫一次：不是偵測極限、線性範圍、重複性規格，不能說比第一版靈敏幾倍，在這一行；
-       第二版的配合度與對位沒有另外檢查，在 Design advantages 的 Limits。
-       拿掉的只有兩句已經過時的話：「讀過一場、一批菌」（現在還有 AHL 培養盤那一場）、
-       「這一節其餘的都是第一版讀的」（各小節的標題已經寫明是哪一版）。 #}
-    {# 2026-10-14：每個 cycle 都讀得到的最低一階。雷切機那一段有 3σ 偵測極限，這一台沒有對應的說法；
-       不能給偵測極限，但可以說測過、每次都非零的最低一階。單位統一用這一小節的 µL（200 µL 裡的 GFP 菌液量）：
-         10-05：12.5 µL 三管（LOW_R2_1、LOW_R2_2 重做的那一次、EXT_R2_3）27 個 cycle 全部非零；
-                6.25 µL 兩管（LOW_R3_1 重讀的那一次、LOW_R3_2）18 個 cycle 有 4 個非零。逐管在 TUBE_TABLE.md。
-         10-12：最稀的一階 6.25%（也就是 12.5 µL）9 個 cycle 全部非零（各 cycle 2 到 3），那一場沒有測更稀的。
-       兩場的菌液不是同一批，所以只寫「兩場都是這一階」，沒有把讀值合併。這不是偵測極限：下面的 Not yet 已經寫了。 #}
+
     <p>
       The smallest amount read above zero on every cycle was
       12.5&nbsp;&micro;L of GFP culture in 200&nbsp;&micro;L, here and in
@@ -1385,18 +1019,7 @@
       <a href="#hardware-use">What the wet lab said</a>
     </p>
 
-    {# 2026-10-12：第二版與 plate reader 的對照（同一天量的；SpectraMax M3）。
-       來源：_AI_REFACTOR_WORK/P1_PR_COMPARE_EVIDENCE_2026-10-12/EVIDENCE.md 第 2 版（Codex 審過一次，PASS WITH CONDITIONS，
-       一項 MINOR 已改）：§1 本機的擷取、§3 一張表、§4 照登記的判定、§5.1 F4 對 OD600、§6 可以說、§7 不能說。
-       相關係數出自同資料夾 ADDENDUM_1.md：事後、描述性，硬體負責人看過資料後要求的，沒有送審。
-       同資料夾 WIKI_EVIDENCE.md 列了寫 wiki 時可以寫與不要寫的。事前登記在 P1_PR_COMPARE_PREREG_2026-10-11。
-       兩層都要在頁面上：(1) 照登記，「兩台的螢光讀值是否成比例」沒有得到判定（M3 的較濃樣品是稀釋後才讀的，
-       只有三管可比，而這三管之間不成比例）；(2) 事後來看，F4 與 M3 的 OD600 高度相關，25% 到 100% 三管每單位 OD 的 F4
-       相差不到 10%。第 (1) 層寫在下面的 Not yet 與收合的那一段，沒有因為第 (2) 層好看就拿掉。
-       不要寫（WIKI_EVIDENCE.md 與 EVIDENCE.md §7）：已校正；經 plate reader 驗證；與 plate reader 的螢光成比例；
-       可以換算成絕對濃度；偵測極限；線性範圍的規格；對其他菌株或報導基因也成立；任何重複性的數字。
-       M3 的數值是操作者抄錄的，沒有匯出檔，孔數與 gain 沒有紀錄；寫在收合的那一段。
-       圖上的點由程式從證據檔 §3 的表算出；虛線是三管的平均比例（104 counts／OD），不是校正線，圖說寫明了。 #}
+
     <h3 id="hardware-v2-m3">Beside a plate reader (version&nbsp;2)</h3>
 
     <p class="hw-point hw-point-sub">
@@ -1416,10 +1039,7 @@
       to background on the M3. Even the thinnest tube, at an OD600 of 0.07,
       gave a reading on every cycle; we did not try anything thinner.
     </p>
-    {# 2026-10-14：最稀那一管的 OD。6.25% 那一管 M3 的 OD600 扣空白是 0.069，本機 F4 平均 2.44，9 個 cycle 全部非零
-       （各 cycle 2 到 3；WIKI_EVIDENCE.md 表 1）。只寫「測過的最低一階、每個 cycle 都非零、沒有測更稀的」，
-       沒有寫成 OD 下限或偵測極限：更稀的沒有測；低端不在直線上（每單位 OD 35 與 60，濃的三管約 100）；
-       OD 量的是菌，這個數字只對這一株、這個表現量成立。 #}
+
 
     <figure class="hw-figure hw-chart">
       <svg class="hw-vis" viewBox="0 0 640 230" role="img" aria-label="F4 on our reader against OD600 on a SpectraMax M3 plate reader, blank taken off, for five dilutions of one sfGFP culture. The points rise from 2.44 counts at OD 0.069 to 86.44 at OD 0.861. The three denser tubes lie along one line through the origin, about 104 counts per unit OD; the two thinnest lie below it. A culture without GFP at OD 0.721 read 0. The numbers are in the table under Data and documentation.">
@@ -1476,15 +1096,11 @@
       zero for 35 of the 38 tubes with it.
     </p>
 
-    {# 來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §4.2（偵測與散射通道）、§4.4（重複性）。
-       三場結果是探索性證據，沒有同步進 canonical 的 TEST_STATUS.md。 #}
     <p>
       Three mixing sessions each combined a GFP stock, a
       non-GFP stock and medium at set fractions into 200&nbsp;&micro;L tubes.
     </p>
 
-    {# 2026-10-06：原本這裡是一張表，現在畫成「一格一筆」的圖，表收在下面的摺疊裡，數字相同。
-       空心是 F4 為 0、實心是 F4 大於 0；09-21 那三管讀到 0 的 GFP 管畫在該列最前面。 #}
     <figure class="hw-figure hw-chart" data-hw-anim>
       <svg class="hw-vis" viewBox="0 0 640 158" role="img" aria-label="One mark for each reading in the three mixing sessions. Without GFP: 16, 8 and 3 readings, none above zero. With GFP: 10 of 10 tubes above zero in mixing session 1, 9 of 12 in session 2 and 16 of 16 in session 3.">
         <text class="hw-vis-strong" x="84" y="16">Without GFP: 27 readings, none above zero</text>
@@ -1619,19 +1235,12 @@
       not remove it.
     </p>
 
-    {# 2026-10-14：第二版四場的培養基空白合計。10-05 兩次各 3 個 cycle，10-09、10-11、10-12 各兩次、每次 9 個，
-       共 8 次讀取、60 個有效 cycle，F4 全為 0（硬體資料夾 P1_HARDWARE_WEB_EVIDENCE_2026-10-14 的 CAPTURE_SUMMARY.csv
-       與 METRICS.json，由原始 log 重算）。這是 60 個 cycle，不是 60 個獨立的空白；不能寫成零背景、專一性或偵測極限。
-       只說 F4：10-05 開場那一次的 F2、F3、Clear 不是 0。 #}
     <p>
       With the LED on, plain medium has read zero on the emission channel
       every time on version 2: eight blank readings across four sessions,
       60 valid cycles in all.
     </p>
 
-    {# 2026-10-12（硬體負責人：尺寸與樣式不一致的一併修正）：原本是一個有色底、左邊一條粗線的框（hw-caution），
-       原本改成一行小字（hw-limit）；硬體負責人同一天：不喜歡那種小字很多。這是一條操作規則不是限制，
-       所以改成一般的內文段落，開頭粗體；內容一個字都沒有動。 #}
     <p>
       <b>The operating rule:</b> Measure in a darkened room or under an
       opaque shield. Because a shielded dark read is exactly zero, a dark
@@ -1641,43 +1250,6 @@
       series.
     </p>
 
-    {# 2026-10-12（硬體負責人：「不喜歡 limit 那種小字很多」）：這一台看得到的小字註記都縮到一兩行，
-       只留「這不能當成什麼」；條件的細節（幾杯、幾天、有沒有 OD、登記的區間）搬到 Data and documentation 裡
-       那一場自己的表格下方，一樣只寫一次。濃懸浮液這一小節的 Not yet 原本有十二行。
-       背景成因那一句不在小字裡重複，因為下面的卡片（Still open）已經說了。 #}
-    {# 2026-10-12（硬體負責人同意）：AHL 培養盤那一場（10-09）與濁度那一場（10-11）併成這一個小節。
-       原因：Functional testing 佔這一台的四成，其中講「做不到」的兩個小節比講「做得到」的還長，又夾在中間。
-       現在的順序是 Dilution series、Version 1 三場（做得到的）、這一小節（做不到的界線）、Light shielding、互動台。
-       兩張圖合成一張：上面是濁度那一場的 21 筆加上 AHL 那一場的九杯，下面是 AHL 那一場的三個 sfGFP 對照。
-       兩行 Not yet 併成一行。沒有任何數字被改或被拿掉；逐筆的表仍在 Data and documentation。
-       三個 id 都有別處連過來，請不要改：h3 是 hardware-v2-ahl，第三段是 hardware-v2-turbidity，
-       卡片前那一句是 hardware-v2-next。下面三段註解是兩個小節原本的來源與限制，照原樣保留。 #}
-    {# 2026-10-10：第二版讀 AHL 培養盤的那一場（2026-10-09）。
-       來源：_AI_REFACTOR_WORK/P1_AHL_EVIDENCE_2026-10-09/EVIDENCE.md revision 2（Codex 審過兩次）：
-       §2 擷取清單、§5 登記的規則、§6 依散射排列的比較、§8 重插、§10 可以說與不能說。
-       給人讀的整理在 P1_AHL_REPORT_2026-10-09/REPORT.md；原始 log 在 P1_AHL_SESSION_LOGS_2026-10-09。
-       每個讀值是該杯 9 個有效 cycle 的平均。induced／not induced 一律是 wet lab 的目視判斷（由硬體負責人轉述），
-       不是這台機器量到的。
-       證據檔 §10 明定不能寫：那幾盤有或沒有被誘導、讀值隨 AHL 上升或不上升所以 AHL 有無效果、偵測極限或定量範圍、
-       劑量反應、背景就是散射漏光、濃菌液會放大螢光、背景模型是校正。這裡都沒有寫，請不要加。
-       限制只在這一小節下方的 Not yet 寫一次（硬體負責人 2026-10-10：不要為了強調限制而重複）；
-       頁面開頭的數字格與 Not yet 只連到這裡。
-       還不知道、所以沒有寫的：AHL 的種類與受體、wet lab 說的「舊」菌是哪一株、不含報導基因的是哪一株。
-       圖上每一個點與長條的位置由程式從證據檔的表 T6 算出，不是手畫的。 #}
-    {# 2026-10-11：第二版的濁度場次（同一天量的）。AHL 那一場之後要回答的一件事：不含報導基因的菌液稀到什麼程度，F4 會讀 0。
-       來源：_AI_REFACTOR_WORK/P1_TURBIDITY_LIMIT_EVIDENCE_2026-10-11/EVIDENCE.md revision 1（Codex 審過，PASS）：
-       §0 摘要、§2 擷取清單、§3 偏離、§5 登記分析的結果、§6 逐筆依散射排列（表 T6）、§7 與既有資料的對照、§8 可以說與不能說。
-       事前登記在 P1_TURBIDITY_LIMIT_PREREG_2026-10-11；原始 log 在 P1_TURBIDITY_LIMIT_SESSION_LOGS_2026-10-11。
-       每個點是一次放入的 9 個有效 cycle 的平均；圖上每一個點的位置由程式從表 T6 算出，不是手畫的。
-       兩種說法都要在：登記的結果是 BRACKETED（F3 14.50 與 46.28 之間，中途換了一份懸浮液所以很寬）；
-       「約 33 以下讀 0、46 以上不讀 0」是事後逐筆整理的，其中 6 筆是看過結果後才加讀的。兩者都寫在下面的 Not yet。
-       證據檔 §8 明定不能寫：偵測極限、定量範圍、校正；F3 的數字是規格或可以套到別台機器、別的設定、別的日子；
-       背景的成因；這個門檻適用於報導菌或誘導過的菌；任何關於 AHL 的結論；「稀到這個濁度以下背景就不影響螢光讀值」
-       或「背景為零」（加 sfGFP 的對照沒有做）；門檻的確切位置；以 OD 或原液佔比表示的門檻（沒有 OD，梯度跨了兩份懸浮液）；
-       限制濁度是有效的對策、或比濾光片好或差。這裡都沒有寫，請不要加。
-       §8 另外要求：任何一句「讀 0」都要接「讀 0 表示低於這台機器的讀取下限，不表示沒有背景」；寫在第一段的最後一句。
-       限制只在這一小節下方的 Not yet 寫一次（硬體負責人 2026-10-10）。
-       還不知道、所以沒有寫的：菌株、是否與 10-09 那一株相同、兩份懸浮液的濃度。 #}
     <h3 id="hardware-v2-ahl">Where it stops: dense suspensions (version&nbsp;2)</h3>
 
     <p class="hw-point hw-point-sub">
@@ -1686,18 +1258,6 @@
       channel stayed under about 33 counts, and no longer did from 46.
     </p>
 
-    {# 2026-10-12（硬體負責人同意）：交代為什麼讀的是盤上刮下來的菌。第二句出自 Engineering 頁的 Detect：
-       第一輪（ProD）與第二輪（J23101）在液體裡加合成 AHL、與 PAO1 共培養，都沒有偵測到螢光，只有洋菜覆蓋法看得到。
-       這裡只把兩件事並排：感測菌在液體裡沒有訊號；我們拿到的 AHL 樣品是盤上刮下來的。沒有寫「所以」：
-       wet lab 是不是因為前者才改用盤，我沒有向他們確認過。
-       硬體負責人 2026-10-12 口頭確認三件事：(1) 感測菌在液體培養裡加 AHL 從來沒有亮過，只有洋菜盤上看得到；
-       (2) AHL 盤上的菌與其他場次的 sfGFP 菌，宿主都是 E. coli TOP10；(3) 其他場次那株 sfGFP 菌帶的是另一個質體，
-       不是感測器的質體。所以「讀得到 GFP」與「感測菌在液體裡沒有螢光」說的是兩株不同的菌，這一段寫明了。
-       同一天補充：那個質體不是感測器兩個版本的任何一個，是不需誘導就會發光的 sfGFP，純粹測試用（負責人原話：
-       「不是那兩個版本其中一個，是不需誘導會自發光的gfp，單純測試用」）。我把這句理解成在講測試用的那株菌，
-       不是在講 AHL 盤上的菌；盤上那些懸浮液的讀值只有 1 到 5，和不含報導基因的菌一樣，也不像是會自發光的菌。
-       還不知道、所以沒有寫：盤上是哪一個版本的感測質體（ProD 或 J23101；證據檔只記「舊的」）；測試用質體的名稱。
-       請 wet lab 看過這一段；有出入請改這裡，不要動下面的數字。 #}
     <p>
       We met this on suspensions scraped from AHL plates, the samples we
       were given for an AHL test, in the same <i>E.&nbsp;coli</i> TOP10. The wet
@@ -1716,7 +1276,6 @@
       what this reader can register, not that nothing is there.
     </p>
 
-    {# 2026-10-12（硬體負責人）：這張圖不要進場動畫，直接畫出來，所以沒有 data-hw-anim。 #}
     <figure class="hw-figure hw-chart">
       <svg class="hw-vis" viewBox="0 0 640 382" role="img" aria-label="Above: F4 against the scatter channel F3. Circles are 21 readings of a culture without the reporter gene, diluted in medium. The 13 with F3 from 5 to 42 all read zero. Three with F3 from 46 to 56 read between 0.11 and 0.89, with some cycles at zero and some at 1 or 2. Five with F3 from 75 to 89 read 2.67 to 3.89, every cycle above zero. Six of the readings at zero, with F3 from 26 to 33, were added after the first result was seen. Squares are the nine suspensions of the AHL plate session two days earlier, from 1.00 at F3 57 to 5.22 at F3 104. They continue the same trend, whether the plate was judged induced, judged not induced, or the culture had no reporter. Below: three bars. A dense suspension alone read 5.22, the same suspension with sfGFP culture added read 23.56, and sfGFP culture in medium read 66.56. The numbers are in the tables under Data and documentation.">
         <path class="hw-vis-rule" d="M58 206.0H622"></path>
@@ -1797,12 +1356,6 @@
       </figcaption>
     </figure>
 
-    {# 2026-10-11：把 10-09 那一場放到這條背景上看。來源：_AI_REFACTOR_WORK/P1_TURBIDITY_BACKCAST_2026-10-11/BACKCAST.md
-       （事後、探索性；Codex 審過，沒有意見）§0、§2、§3、§4。圖上的方塊是 10-09 的九杯懸浮液（不含加了 sfGFP 的兩杯），
-       兩天的 count 照原樣畫，沒有縮放（那份報告以不縮放為準，這個選擇是看過資料之後做的；寫在收合的那一段）。
-       那份報告 §4 明定不能寫：那些盤沒有被誘導、螢光低於某個量；這條曲線是校正、可以拿來扣背景；背景的成因；
-       兩天的儀器刻度相同、兩天的菌相同；任何關於 AHL 的結論。這裡都沒有寫，請不要加。
-       「這不代表那些盤沒有被誘導」在 AHL 那一小節的 Not yet 已經說過一次，這裡不重複。 #}
     <p>
       Where the two days overlap, the readings from plates judged induced
       lie within about a tenth of a count of a curve drawn through the
@@ -1815,14 +1368,6 @@
       figures are not a specification.
     </p>
 
-    {# 2026-10-11（硬體負責人：敘事要接得上實驗的結果）：這兩場之後改了什麼、還剩什麼。
-       版型用 User feedback 那兩張卡片的同一組樣式（hw-said）：那裡是「使用者說了什麼 → 後來改了什麼」，
-       這裡是「兩場量測顯示了什麼 → 現在怎麼看讀值、還沒做的是什麼」，兩處讀起來是同一個循環的兩圈。
-       沒有上面那一行大字（hw-gain-fig），因為這裡沒有「從多少變成多少」可以寫。
-       左邊那一句是把不含報導基因的菌當對照來讀：在那個散射以上它自己就會讀到幾個 count，所以單看 F4 不能當作有 GFP；
-       沒有說這個門檻適用於報導菌。右邊的濾光片沒有測；抽屜是機器上本來就有的零件（Parts 清單的 Filter cassette body
-       與三種 insert，組裝步驟寫 "ours holds no filter"）。「讀值消失就是散射的藍光、還在就是樣品自己的綠光」
-       是這個測試的判讀方式，不是已經知道的結果。硬體負責人 2026-10-11：這是最後一場實驗。 #}
     <p class="hw-point hw-point-sub" id="hardware-v2-next">
       Using version 1 changed the seat. These two sessions point to the
       next change: an emission filter.
@@ -1858,24 +1403,6 @@
         <p class="hwx-rig-sub">Top view, schematic &middot; both versions, named by session</p>
       </div>
 
-      {#
-        三個測試的分頁與各自的按鈕都由 static/hardware-bench.js 產生（TESTS），
-        所以這兩個容器在這裡是空的；程式沒載入時不會留下按不動的按鈕。
-
-        為什麼分成三個測試：這些量測本來就不是一張可以任意組合的表，而是三個
-        各自只改動一兩件事的測試。分開之後每個選項都有數據，不會按到「沒有紀錄」。
-        每場只放三筆具名的參考讀值（未稀釋 GFP 原液、未稀釋非 GFP 原液、培養基空白），
-        其餘各管在 Model 頁。
-
-        要加新場次：在 hardware-bench.js 的 REC 加紀錄、SESSION 加日期、
-        TESTS 裡 Fluorescence 的 session 選項加一顆。
-        2026-10-13（硬體負責人：「有點太占版面」「可以加後來的讀值」）：
-        (1) Fluorescence 多了第二版的兩場：dilution series（10-05）與和 plate reader 並排那一場（10-12），
-            預設開在 10-12。這兩場十個通道都有數字，由原始 log 逐列算出（每列的亮讀值取平均；暗讀值全為 0）：
-            10-12 的 XC_G100、XC_NEG、XC_BLK_1 各 9 列；10-05 的 EXT_GFP200_1、LOW_F_1、LOW_BLK_1 各 3 列。
-            F4 與 F3 和證據檔、逐管的表相同（86.44、16.56、98.33、23.00）。
-        (2) 圖與讀值左右並排（原本上下疊，整塊約 1000 px 高），圖裁掉左右的空白；窄螢幕仍然上下疊。
-      #}
       <div class="hwx-tabs" id="hwxTabs" role="group" aria-label="Which test to show"></div>
       <div class="hwx-ctrls" id="hwxCtrls"></div>
 
@@ -1981,7 +1508,7 @@
     </p>
   </section>
 
-  <!-- ========================= reproducing ========================= -->
+  {# ========================= reproducing ========================= #}
   <section id="hardware-reproduce">
     <h2>Construction and operation</h2>
 
@@ -1989,8 +1516,6 @@
       Print it, wire it, and run it under a shield. Build version 2.
     </p>
 
-    {# 2026-10-06（晚）：三張卡片只是下面 Data and documentation 的入口，每一句都出自那裡的表格與說明。
-       38 件：CAD 圖下方那句 Version 2 as designed: 38 printed pieces。 #}
     <ol class="hw-do hw-do-two">
       <li>
         <h3>Print</h3>
@@ -2017,39 +1542,6 @@
           <a href="#hardware-circuit">The circuit</a>
         </p>
       </li>
-      {#
-        === 給團隊：Run 這一格（2026-10-09）===
-        原本「怎麼用」分在三處：這裡的三句話、收合的 Operating protocol（七個步驟加 row flag 表）、
-        以及只在硬體資料夾裡的操作卡。現在合成這一格，Operating protocol 那一列已拿掉，內容都在這裡。
-
-        每一句的出處：
-          步驟、規則、故障排除：_AI_REFACTOR_WORK/P1_BENCH_OPERATING_CARD_2026-09-15.md。
-          右欄「機器回什麼」：_AI_REFACTOR_WORK/P1_CAL_LOWEND_LOGS_2026-10-05/ 的原始序列埠紀錄。
-            # 開頭的行逐字照抄；dark／F4／flag 那一條是由程式從資料列讀出的（每一列有 66 個欄位）：
-            第 1 步 00_id.log；
-            第 2 步 01_G1_EMPTY_WM_noarm.log：1 列，predark、on、postdark 共 36 個值全 0，
-              NO_SIGNAL;LED_DISABLED、fault NOT_ARMED，cycle 1 後 abort（預期）；
-            第 3 步 02_G2_EMPTY_WM.log：F4 0, 0, 0，三個 cycle 的 predark、postdark 十二通道全 0；
-            第 4 步 P01_LOW_BLK_1.log：同上；
-            第 5 步 P06_LOW_D_1.log：F4 56, 57, 55，predark、postdark 全 0，
-              就是 The dilution series 表裡 100 µL 的 56.00 那一管。
-          「You type」那一欄是該步驟必要的指令，不是當天送出的全部：擷取工具 serial_read_tool.ps1 每一次擷取
-            都先送 id、sample、ahl、rep，再 arm、run、disarm。圖下方的小字有寫明。
-          燒錄指令：_AI_REFACTOR_WORK/P1_FIRMWARE_BUILD_EVIDENCE_2026-08-28.md 記錄的 gate 1 建置指令。
-            韌體的 CAPTURE_LED_HARDWARE_ENABLE 預設是 0（esp32_fluorescence_reader.ino 第 73–74 行）。
-          115200：esp32_fluorescence_reader.ino 的 Serial.begin(115200)，擷取工具的預設值也是。
-          AMBIENT_PRESENT 的例子：P02_LOW_R3_1.log 的 t4 c2，predark_NIR0 = 1；重讀 P02b 九列全乾淨（NOTES.md）。
-          REFUSED 的例子：P1_V08_FIRST_READ_LOGS_2026-10-03/ 的 09、11 兩筆，各自在重置後恢復（SESSION_NOTE.md）。
-          十個通道、十二個值：感測器有十個通道（F1–F8、Clear、NIR），韌體一次讀取分兩半（各四個 F 通道加 Clear、NIR），
-            所以每次讀取有十二個值，欄位是 F1…F4、Clear0、NIR0、F5…F8、Clear、NIR（firmware/README.md 的 CSV schema）。
-            頁面上方共同的原理圖講「ten channels」，這裡講十二個值，圖下方的小字有說明。
-          HW_ENABLE_COMPILED_OFF、REJECTED 的訊息文字出自韌體原始碼，不是出自紀錄；我們的紀錄裡沒有發生過，
-            所以那兩格沒有寫 Seen。SATURATED 也沒有寫 Seen。
-
-        2026-10-09：擷取工具 serial_read_tool.ps1 已放上 GitLab（capture-screen-hardware 的 firmware/host/，
-        commit 9cd096b；從 GitLab 取回的檔案 SHA-256 與硬體紀錄一致），圖下方的小字已加連結。
-        同一個 commit 也在那份 README 的編譯指令補上了 LED 閘門的旗標。
-      #}
       <li class="hw-do-wide" id="hardware-run">
         <h3>Run</h3>
         <p class="hw-run-lead">
@@ -2212,15 +1704,6 @@
       </li>
     </ol>
 
-    {# 2026-10-12（硬體負責人）：實機操作的照片，當天在實驗台上拍的，六張。用途是讓讀者看到這台機器實際被操作的樣子
-       （評審第三題；之前頁面上只有零件和放比色管的照片）。版型是 Design advantages 那兩張整機照的同一個元件（hw-shots），
-       一列三張。照片中的人是隊員，本人同意公開（負責人確認）；說明與替代文字都沒有寫名字。
-       說明只寫畫面上看得到的事：
-         第 4 張的螢幕上是一次讀取，樣品名稱是 PHOTO-GFP，三列的綠光通道是 0、藍光散射是 8。說明沒有說讀的是什麼樣品，
-         請不要把它寫成「GFP 的讀值」；畫面上兩行 REFUSED 是指令打錯被韌體拒絕，說明照實寫了。
-         第 2 張寫成操作示範，沒有寫成使用者測試：這次是不是只照文件獨立操作，沒有紀錄。
-       這幾張拍攝前，板子重新燒錄過同一份韌體原始碼（LED 閘門以編譯旗標打開；ESP32 核心 3.3.12，紀錄裡的正式建置是 3.3.8）。
-       另有兩張沒有用（printed-run-x1-arm-command、printed-run-x2-two-commands）：畫面上是打錯的指令。 #}
     <h3 id="hardware-run-photos">A session, in photographs</h3>
 
     <div class="hw-shots is-three">
@@ -2250,10 +1733,6 @@
       </figure>
     </div>
 
-    {# 2026-10-07：檔案已公開。CAD 原始碼與匯出檔、韌體、零件清單放在隊伍的 iGEM GitLab 程式庫（MIT 授權），
-       所以原本 Not yet 那句「檔案尚未公開」換成連結；還沒有的只剩完整的組裝步驟。
-       核對過：3D 圖兩個版本用到的每一個 STL 檔（第一版 31 個、第二版 25 個）都在程式庫裡，
-       韌體檔的 SHA-256 與硬體資料夾的紀錄一致。 #}
     <p>
       The CAD sources and exports, the firmware and the parts list are
       published under the MIT licence in the team's repository on iGEM
@@ -2261,15 +1740,6 @@
       <a href="https://gitlab.igem.org/2026/software/ncku-tainan/capture-screen-hardware">capture-screen-hardware</a>.
     </p>
 
-    {# 2026-10-13：3D 列印機也接得上 LasReader。韌體在 lasreader repo 的 firmware/capture_screen_3d
-       （capture_screen_3d.ino，883 行；開頭的註解寫明它和雷切機的韌體講同一套通訊協定、送出的是未處理的原始計數）。
-       硬體負責人同一天的說明：
-         腳位：這一頁所有的數據都是用 GPIO25 量的（10-12 的 log 仍印 LED gate pin GPIO25）。之後換了一台，
-           確定那一台的腳位 25 不能用，才改用 26（負責人原話：「在這台所有的數據當時都是用 25，是換一台後確定
-           腳位 25 不能使用才換為 26」）。所以這份韌體的 LED 閘極在 GPIO26；序列埠韌體與這一頁的接線仍是 GPIO25。
-           照這一頁接線的人要燒這份韌體，得改線或改 LED_PIN。「換一台」換的是什麼（控制板或整台），頁面上沒有寫。
-         讀值：「是真的有讀取到數據的，但主要問題是讀值都是零，因為樣本的螢光低於儀器下限且散射程度不高，故沒有保留數據」。
-           所以只寫「連上並回傳讀值」，沒有寫量到什麼；這一頁的數據沒有一筆是用它量的。 #}
     <p>
       A second sketch runs the same reader from
       <a href="{{ url_for('pages', page='software') }}">LasReader</a>, our
@@ -2282,22 +1752,15 @@
       not kept, so no numbers are given here; every reading on this page
       with a number was taken with the serial firmware.
     </p>
-    {# 2026-10-14：3D 列印機也讀過感測菌。硬體負責人本人的說明（原話）：「當時的 F4 跟雷切一起測的時候，我是全部都 0，
-       因為螢光不明顯且當時樣品沒有很濃稠，故也沒有散射影響」；「這是用軟體測的，然後也因為都是零當時沒有留紀錄檔，
-       所以是由我本人現在直接寫入」。所以這是負責人的陳述，不是紀錄檔：頁面上寫明沒有留下讀值、不給數字。
-       用的是 LasReader 那一份韌體（lasreader/firmware/capture_screen_3d）。和雷切機同一批樣品；雷切機的數字在它自己的 #lc-sensor。 #}
 
     <p class="hw-limit">
       <b>Not yet</b> The assembly order was checked by the reader's
       builder. Nobody has yet built a second reader from it.
     </p>
 
-    {# 這裡原本留給組裝的逐步照與 UVette 的安裝方向照。硬體負責人 2026-10-06：組裝時沒有拍，機器已經組好，
-       拍不了。所以不放照片，改在 Fitting the version 2 parts 那一列寫明沒有組裝照片，並指向可以拉開的 3D 圖。
-       之後如果重組一次，照片可以補在那一列。 #}
   </section>
 
-  <!-- ========================= cost ========================= -->
+  {# ========================= cost ========================= #}
   <section id="hardware-cost-printed">
     <h2>Cost</h2>
 
@@ -2307,21 +1770,6 @@
       PLA.
     </p>
 
-    {# 2026-10-07（續）：負責人看了之後說一行字帶過還是不夠突出，但不要字卡。所以成本升成自己的一節：
-       左側目錄有它，開頭是每一節都有的那種重點句。雷切那一台本來就有自己的成本一節，兩台因此對稱。
-       id 沒有變（hardware-cost-printed），最上面第四格數字的連結照舊。
-    {# 2026-10-07：價格的優勢要展示出來，不能只放在敘述裡（硬體負責人）。試過三個大數字的字卡，負責人說這一段
-       「不要用字卡，寫我們的成本就好，剩餘的用原本的長條圖」，而且整頁的字級要統一。所以：一句話寫我們的成本
-       （用每一節都有的那種重點句），下面是和頁面上其他圖同一種樣式的長條圖。
-       圖裡每一個數字都已經在頁面上或在引用的論文裡，長條照比例畫（350 px 代表 3,500 美元）：
-         $54：雷切那一台成本表的合計 $53.54。 $161：這一台成本表的合計 $160.62（估算）。
-         under $3,500：Szymula 等人 2019 的摘要原文 "The total system costs less than $3500, a fraction of the cost of
-           commercial plate readers"（PubMed 30511843，2026-10-07 查）。它示範的正是 quorum sensing 的報導基因。
-           圖說寫明只比價錢：那台讀整盤、驗證過；我們的讀一支 cuvette，沒有跟它比過效能。
-         沒有放商用儀器的價錢：查得到的數字無法從原廠頁面核對。
-         180 g：第二版 25 個 STL 檔、38 件的體積合計 147.2 cm³（由程式庫裡的 STL 逐檔算）× PLA 1.24 g/cm³ = 183 g，
-           取到 180。這是 100 % 填充、不含支撐的料重；線材價錢沒有寫，因為沒有來源。
-         $38：成本表裡兩塊板子、麵包板、線和小零件的合計 $38.14。 #}
     <figure class="hw-figure hw-chart" data-hw-anim>
       <svg class="hw-vis" viewBox="0 0 640 196" role="img" aria-label="Cost to build one reader, in US dollars, drawn to scale. Our laser-cut build: 54. Our 3D-printed build: 161. A published open-source plate reader: under 3,500. Of the 3D-printed build's 161, 122 is printing bought from a shop, 37 is the boards and wiring, and 1 is the LED, the switch and the resistors.">
         <text x="4" y="12">Cost to build one, US$, to scale</text>
@@ -2357,10 +1805,7 @@
     <p class="hw-more"><a href="#hw-doc-bom">The cost, line by line</a></p>
   </section>
 
-  <!-- ========================= data and documentation ========================= -->
-  {# 2026-10-06（晚）新增的一節：原本散在各節的收合表格都搬到這裡，分三組。
-     每一列的內容是原封不動搬來的；合併的地方只加了小標（h4）。各列的 id 給前面各節的連結用，
-     改了要一起改。來源註解跟著各自的表格走。 #}
+  {# ========================= data and documentation ========================= #}
   <section id="hardware-data" class="hw-docs">
     <h2>Data and documentation</h2>
 
@@ -2382,10 +1827,6 @@
           </span>
         </summary>
         <div class="hw-fold-body hw-fold-prose">
-    {# 2026-10-06（夜）新增。頁面用名字稱呼每一場實驗，這張表是名字與日期的對照，也是實驗日期唯一集中的地方。
-       每一列「做了什麼」都出自本頁其他地方：開發日誌的各站、三場混合的說明、重插那張表、LED 電流那張表；
-       mixing session 1 到 3 各自的用途出自 Model 頁的 The three mixing sessions 那張表。
-       這不是九月時依指示拿掉的 test register（那是各項測試的狀態表）。要加新的實驗，在這裡加一列。 #}
     <p>
       The page calls each experiment by a name. This is the list: what
       was done, on which version of the reader, and the date its records
@@ -2901,9 +2342,6 @@
           </span>
         </summary>
         <div class="hw-fold-body hw-fold-prose">
-    {# 來源：P1_CAL_LOWEND_ANALYSIS_2026-10-05/BUILD_COMPARISON.json（S_left_alone_vs_reinserted）與
-       REINSERTION_COMPARISON.json。只算真正「抽出再插回」的那幾次；09-09、09-14 另外讀的新鮮分裝不算。
-       上升趨勢：09-09 每分鐘 +1.43 %、09-14 +2.15 %、10-05 +0.64 %。 #}
     <p>
       Version 1 held the cuvette against one spring leaf where the design
       called for two, which left it free across about 0.6&nbsp;mm on one
@@ -2980,10 +2418,6 @@
           </span>
         </summary>
         <div class="hw-fold-body hw-fold-prose">
-    {# 來源：PROJECT_STATE/DECISION_LOG.md GOV-011；
-       _AI_REFACTOR_WORK/P1_LED_CURRENT_STAGE6_2026-10-03/SUMMARY_stdout.txt、OWNER_READINGS_2026-10-03.md；
-       firmware/README.md（434 Ω 時短路電流上限 11.89 mA）。
-       空杯那一列的「前」是改版後的機構配 434 Ω，所以欄位用電阻值標示，不是用 version 標示。 #}
     <p>
       Version 1 ran the LED at 5.553&nbsp;mA, under the 8 to 12&nbsp;mA the
       design aims for. On 2026-10-03 one 220&nbsp;&#8486; resistor replaced
@@ -3020,7 +2454,6 @@
       </figcaption>
     </figure>
 
-    {# 2026-10-12：同上，由 hw-caution 的框改成一行 hw-limit；內容沒有動。 #}
     <p class="hw-limit">
       <b>Limits</b> It is scattered
       excitation on an empty cuvette, not a fluorescence result, and it does
@@ -3032,9 +2465,6 @@
 
     <h4>The same empty cuvette on version 2, as first fitted</h4>
 
-    {# 來源：_AI_REFACTOR_WORK/P1_V08_FIRST_READ_LOGS_2026-10-03/COMPARE_own_cup_stdout.txt 與 SESSION_NOTE.md。
-       全部是空杯、R1 = 434 Ω。version 1 那一列是 09-02 到 09-29 七場的範圍（同一支杯子）。
-       「調整了什麼」紀錄裡沒有寫；你補上之後請改掉圖說最後一句。 #}
       <figure class="hw-figure hw-figure-table">
       <table class="hw-table">
         <caption class="visually-hidden">The same empty cuvette, LED on, at the version 1 current</caption>
@@ -3079,11 +2509,6 @@
           </span>
         </summary>
         <div class="hw-fold-body hw-fold-prose">
-    {# 來源：_AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/README.md（五件零件、R3–R8）、
-       validation_v0_8_round2.json（截面比）、P1_MECH_V08_ROUND1_HANDOFF_2026-09-25/records/
-       ROUND1_FIT_RESULT_2026-10-02.md（試配件）、PROJECT_STATE/CURRENT_STATE.md（沿用了什麼）。
-       硬體負責人 2026-10-07 確認五件都已裝上，第一列與圖說已改成肯定句。右欄的尺寸仍是設計值（印出來的尺寸沒有量）；
-       LED 蓋有沒有鎖、10-03 那兩次調整了什麼，仍然沒有紀錄。 #}
     <figure class="hw-figure">
       <table class="hw-table hw-vs">
         <caption class="visually-hidden">What was wrong in version 1 and what version 2 does about it</caption>
@@ -3166,7 +2591,6 @@
         </table>
       </div>
 
-    {# 來源：PROJECT_STATE/CURRENT_STATE.md「Physical Prototype State」。 #}
     <p class="hw-aside">
       Build version 2. Version 1 was never a complete set, for the reasons
       under <a href="#hardware-v2">From version 1 to version 2</a>, and its
@@ -3180,9 +2604,6 @@
       part there carries its size and can be saved as an STL file.
     </p>
 
-    {# 來源：_AI_REFACTOR_WORK/P1_MECH_V08_ROUND2_2026-10-02/README.md「這 5 件是什麼」與
-       vendor_package/PRINT_INSTRUCTIONS_ROUND2_zh-TW.txt（擺放方向、列印規格）。
-       誰印的、實際用的切片設定，紀錄裡是 UNKNOWN，所以這裡寫的是「指定的規格」。 #}
       <figure class="hw-figure hw-figure-table">
         <table class="hw-table">
           <caption class="visually-hidden">The five version 2 parts</caption>
@@ -3221,22 +2642,6 @@
 
     <h4>What it cost</h4>
 
-    {# 2026-10-07：這一台原本寫「沒有總成本，列印費用沒有紀錄」。硬體負責人當天說明：
-       「3d列印的價錢如果含試配件，第一次是1150，第二次的價錢反而比較貴是840+1890。剩餘零件網路上應該有價錢」。
-         列印：第一次 NT$1,150（第一版列印包，含試配件）；第二次 NT$840 + NT$1,890。負責人同一天補充：「840是試配件」，
-           所以 NT$840 是第二版的兩個試配件、NT$1,890 是五件零件，表裡分成兩列。
-           合計是「各列四捨五入後相加」（和雷切那張表同一個做法），所以是 $160.62，不是 5,088 元直接換算的 $160.61。
-         匯率：沿用本頁雷切那一台成本表的 NT$31.68 = US$1（2026-09-22），兩張表才能互相比較。
-         ESP32、AS7341 板、麵包板、杜邦線：隊伍的成本試算表，和雷切那張表同一個數字。
-           負責人 2026-10-07 確認：「金額是真實的，價格與隊伍試算表一樣」。列印的三筆是實際付的金額。
-         LED、MOSFET、電阻：紀錄裡沒有買價（BOM 寫 UNKNOWN），照負責人的意思查網路上的公開單價，
-           2026-10-07 查 DigiKey 美國站、數量 1：Cree C503B-BCN-CV0Z0461 $0.25；onsemi 2N7000 $0.65；
-           1/4 W 碳膜電阻約 $0.10 一顆，三顆。這是牌價，不是我們實際付的錢，表格下方寫明了。
-         螺絲、螺帽、紙箱遮光罩：沒有計價，也沒有估。UVette 是耗材（一盒 80 個），不算在儀器裡。
-       硬體負責人同一天問「你有寫我們估算的價格嗎」：這張表是估算，頁面上三處寫明了（表格的合計列、圖說第一句、
-         正文那句 we estimate it at about US$161）。
-       ⚠ NT$1,150 這個數字也出現在雷切那一台的成本說明裡，寫成「外殼改用 3D 列印要 $36.30」。兩處是同一筆錢，
-         有一處的說法不對。雷切那一節不是我們的，我沒有動，請兩位負責人對一下。 #}
     <figure class="hw-figure hw-figure-table">
       <table class="hw-table">
         <caption class="visually-hidden">Estimated cost of the 3D-printed build as we built it</caption>
@@ -3270,26 +2675,12 @@
 
     <h4>The files</h4>
 
-    {# 2026-10-06（夜）更正：原本寫 "using the Adafruit AS7341 library"，與韌體自己的說明不符。
-       硬體資料夾 firmware/README.md 的 Build 一節：No detector library is required；Adafruit_AS7341 與
-       Adafruit_BusIO 已於 2026-08-28 移除，韌體用自己的最小驅動（As7341Direct）。下面表格那一列一起改了。
-       Software 頁註解 C 記的「兩頁函式庫不一致」因此要重看：這一台不用任何偵測器函式庫。 #}
     <p>
       The mechanical source is parametric CadQuery Python with STEP and STL
       exports; the firmware is an ESP32 sketch with its own minimal AS7341
       driver, and needs no detector library.
     </p>
 
-    {#
-      === 給團隊 ===
-      "Where it is" 那一欄已按要求拿掉。連帶做了一件事：原本有一列是
-      "Assembly procedure / Written build order / Not written"——沒有狀態欄之後，
-      把它留著等於宣稱有一份組裝步驟文件存在，但並沒有。所以那一列也拿掉了，
-      改在表格下方用一句話說明哪些已在本頁、哪些還在你們手上。
-      檔案放上 iGEM GitLab 或 uploads tool 之後，那句話就可以換成連結。
-      2026-10-07：已放上 iGEM GitLab（capture-screen-hardware），表格下方那句已換成連結。
-      下面那句說「3D 圖畫出來的每一件都在」：兩個版本用到的 STL 檔逐一核對過（第一版 31 個、第二版 25 個）。
-    #}
       <div class="hw-figure hw-figure-table">
         <table class="hw-table">
           <caption class="visually-hidden">What you need to build one</caption>
@@ -3322,31 +2713,6 @@
     </p>
         </div>
       </details>
-      {# 2026-10-07：完整的組裝步驟。評審第四題問的是「文件夠不夠讓別的隊伍照著做」，這一列之前頁面只有第二版五件零件的
-         安裝筆記。每一步都出自設計紀錄，沒有一步是憑想像寫的：
-           螺絲位置 26 個：geometry_validation_v0_7.json 的 service_checks → M3_driver_access_checks（26/26 clear）。
-           哪一個銷、鍵、夾做什麼：capture_screen_optical_core_base_plate_v0_7.py 各零件的說明字串，
-             以及 module_coordinate_table_v0_7.csv 的 mount_or_datum、service_direction 兩欄。
-           銷與鍵的位置：這一頁 hwPartsPlan 裡的座標（四支圓銷在激發軸上，兩支給一個墊高座）。
-           螺絲長度：腳 M3×8、墊高座與 UVette 壓夾 M3×12（PHYSICAL_TEST_PLAN_zh-TW.md 第 3、5、6 項）。
-             其餘 14 個位置的長度紀錄裡沒有；BOM 寫的是 exact lengths and head styles UNKNOWN。頁面照實寫了。
-           偵測器那一組：capture_screen_as7341_detector_holder_v0_1/README_zh-TW.md 的「組裝順序」A、B、C。
-           不要補平的開口：base plate README 的「列印與判讀」、PRINT_INSTRUCTIONS_ROUND2_zh-TW.txt。
-         硬體負責人 2026-10-07 核對：「順序對，然後螺絲應該可以藉由設計長度去判斷多長是對的，濾光片我放的應該是
-         正方形的?但因為沒有放濾光片所以不太重要」。所以：
-           開頭改成「組裝者核對過順序」。
-           卡匣那一步只寫「放一片 insert，我們的沒有裝濾光片」，沒有寫是哪一片（負責人自己也不確定）。
-           螺絲長度由 CAD 幾何推出，推法是「不頂到孔底、不碰到桌面的長度」，每一列的依據：
-             蓋子：make_excitation_cap 的 height = 半徑 + excitation_cap_roof 2.0（LED 座蓋 12.45、擋板蓋 10.25），
-               整個高度都是 Ø3.4 通孔；托架上的盲孔深 5.0（make_excitation_cradle，"Blind pilots receive
-               removable upper straps"）。M3×16 進 3.55、M3×14 進 3.75；再長一號就頂到底。
-             光陷阱壓板：壓板 2.0（light_trap_clamp_thickness），壓板底面在墊高座頂面上方 4.0（hwPartsPlan 的 z），
-               盲孔深 8.0（light_trap_clamp_pilot_depth）。M3×12 進 6.0；M3×14 會頂到底。
-             托架、偵測器定位框的耳、側夾：零件上是槽或 Ø3.4 通孔（厚 3.0），底板上也是 Ø3.4 通孔（make_base_plate，
-               厚 4.0），兩邊都沒有螺紋，所以要螺帽。腳高 4.5（bench_foot_height），M3×10 在板下露出 3.0，
-               M3×12 會露出 5.0、碰到桌面。紀錄裡沒有任何地方提到螺帽，這是從幾何讀出來的，請負責人確認實際做法。
-             卡匣壓條 M3×16、載板 M3×8–10 加華司、固定框 M3×6–8：偵測器模組 README 的「建議 M3 五金」。
-         腳、墊高座、UVette 壓夾的長度是紀錄裡寫明的；其餘沒有在機器上核對過，圖說寫明了。 #}
       <details class="hw-fold hw-fold-wide" id="hw-doc-assembly">
         <summary class="hw-fold-head">
           <span class="hw-fold-title">Assembly, step by step</span>
@@ -3509,13 +2875,6 @@
       takes for a dark baseline.
     </p>
 
-    {#
-      電路只有 R1 在 2026-10-03 換過（GOV-011）。圖上方的開關切換兩種狀態：
-      一開始顯示 434 Ω，因為本頁的數據都是在那個狀態量的。
-      兩種狀態的文字都寫在這裡——有 data-v2 的元素換文字，有 data-tip-v2 的節點換提示——
-      static/hardware-bench.js 只負責切換。程式沒載入時開關不會出現，圖停在 434 Ω，
-      下面「The LED current, before and after」的對照表照樣在。
-    #}
     <div class="hwx-rig" id="hwxCircuit">
       <div class="hwx-rig-head">
         <h3>Excitation branch and sensor bus</h3>
@@ -3648,8 +3007,8 @@
         <p class="hwx-rig-sub">Measured 2026-08-25 with a diagnostic sketch, one integration per channel set</p>
       </div>
       <div class="hwx-rig-figure">
-        <!-- Widths are percentages of the 1.0 s ceiling, so the bar is drawn
-             by the numbers rather than by eye. No script needed. -->
+        {# Widths are percentages of the 1.0 s ceiling, so the bar is drawn
+             by the numbers rather than by eye. No script needed. #}
         <div class="hwx-timing">
           <div class="hwx-tseg hwx-t-settle" style="left:0;width:10%">settle 100&nbsp;ms</div>
           <div class="hwx-tseg hwx-t-read" style="left:10%;width:45.16%">all-channel read 451.6&nbsp;ms</div>
@@ -3690,22 +3049,17 @@
           </span>
         </summary>
         <div class="hw-fold-body hw-fold-prose">
-  {# 來源：P1_CLOSING_REPORT_2026-09-29/REPORT.md §3；缺件與斷裂的細節在
-     PROJECT_STATE/CURRENT_STATE.md「Physical Prototype State」；v0.8 在
-     _AI_REFACTOR_WORK/P1_MECH_V08_*（斷裂指標是截面比，不是強度計算）；
-     最後一站（10-03）在 P1_V08_FIRST_READ_LOGS_2026-10-03 與 P1_LED_CURRENT_STAGE6_2026-10-03。
-     九月改版時 build history 曾依指示從本頁拿掉；這一節是 2026-10-01 放回來的精簡版。 #}
     <p>
       The same story, step by step. Each step in the log was a test whose
       result changed what we did next.
     </p>
 
-    <!--
+    {#
       An instrument panel like the bench, so it is dark like the bench. Every
       step is written out here in full; static/hardware-bench.js builds the row
       of stops from the data-when and data-name of each step and then shows one
       at a time. Without the script the steps are simply a list.
-    -->
+    #}
     <div class="hwx-rig hwx-log" id="hwxLog">
       <div class="hwx-rig-head">
         <h3>Development log</h3>
@@ -3920,8 +3274,6 @@
           </span>
         </summary>
         <div class="hw-fold-body hw-fold-prose">
-    {# 原本是獨立的一節 "Decisions that shaped P1"，2026-10-04 收進這個摺疊：
-       它講的是專案過程，不直接回答四道評審題。五張翻面卡原封不動。 #}
     <p>
       Recorded project decisions from 2026-08-09. The marked ones removed
       capability from the prototype on purpose.

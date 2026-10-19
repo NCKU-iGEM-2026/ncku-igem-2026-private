@@ -1,8 +1,9 @@
 from os import path
 from pathlib import Path
 
-from flask import Flask, render_template
+from flask import Flask, abort, render_template
 from flask_frozen import Freezer
+from jinja2 import TemplateNotFound
 
 
 template_folder = path.abspath('./wiki')
@@ -12,7 +13,6 @@ app = Flask(__name__, template_folder=template_folder)
 app.config['FREEZER_DESTINATION'] = 'public'
 app.config['FREEZER_RELATIVE_URLS'] = True
 app.config['FREEZER_IGNORE_MIMETYPE_WARNINGS'] = True
-# 開發期間關掉靜態檔瀏覽器快取（Flask 預設 12h 會咬住舊 CSS）
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 freezer = Freezer(app)
 
@@ -30,7 +30,20 @@ def home():
 
 @app.route('/<page>')
 def pages(page):
-    return render_template(str(Path('pages')) + '/' + page.lower() + '.html')
+    """Render wiki/pages/<page>.html, or 404 when there is no such page.
+
+    Without this guard an unknown URL raises TemplateNotFound and the dev
+    server answers 500, which reads as a broken page rather than a missing
+    one. The built site simply has no file at that path and the iGEM server
+    answers 404, so local preview now behaves the same way.
+    """
+    template = str(Path('pages')) + '/' + page.lower() + '.html'
+    try:
+        return render_template(template)
+    except TemplateNotFound as missing:
+        if missing.name != template:
+            raise  # a real page that includes a template we have lost
+        abort(404)
 
 
 @freezer.register_generator

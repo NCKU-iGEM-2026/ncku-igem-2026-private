@@ -158,7 +158,7 @@ body.show-back-to-top .back-to-top {
   .navbar .container-fluid { padding-left: 12px; padding-right: 12px; }
   .navbar-brand { position: static; top: auto; left: auto; }
   .navbar-brand img,
-  body.navbar-scrolled .navbar-brand img { width: 52px; height: 52px; }
+  body.navbar-scrolled .navbar-brand img { width: 72px; height: 72px; }
 
   .navbar-toggler { position: relative; z-index: 5; margin-left: auto; }
 
@@ -1971,11 +1971,13 @@ body.team-bio-locked { overflow: hidden; }
 .desc-stats {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* The ranking gets the full row; the two rates share the row below. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.75rem 1.5rem;
   margin: 1.75rem 0 1rem;
   padding: 0;
 }
+.desc-stats > li:first-child { grid-column: 1 / -1; }
 .desc-stats > li {
   padding-left: 0.9rem;
   border-left: 3px solid color-mix(in srgb, var(--c-teal-deep) 55%, transparent);
@@ -4118,6 +4120,17 @@ body.edu-cosmos-page .hero-sub {
   color: #6b7a72;
 }
 
+/* marks the team that hosted the event, e.g. NYCU for the iGEMers Meetup */
+.collab-teams .collab-host {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.08rem 0.36rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  opacity: 0.75;
+}
+
 @media print {
   /* Nothing here is clickable on paper, and the three sessions it points at
      are the three headings directly below it. */
@@ -5305,7 +5318,17 @@ html.tgc-overlay-open, html.tgc-overlay-open body { overflow: hidden; }
 .board-game-page .progress-preview { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(90deg, rgba(96,192,40,0.35), rgba(96,192,40,0.35) 4px, rgba(96,192,40,0.12) 4px, rgba(96,192,40,0.12) 8px); border: 2px dashed var(--brand); border-radius: 9px; pointer-events: none; }
 .board-game-page .progress-preview.negative { background: repeating-linear-gradient(90deg, rgba(196,69,54,0.4), rgba(196,69,54,0.4) 4px, rgba(196,69,54,0.15) 4px, rgba(196,69,54,0.15) 8px); border-color: #c44536; }
 .board-game-page .progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; z-index: 2; }
-.board-game-page .progress-labels { display: flex; justify-content: space-between; font-size: 0.58rem; color: var(--muted); margin-top: 1px; padding: 0 2px; }
+/* The bar and its scale share one column beside the badge, so the scale is
+   exactly as wide as the bar it labels. */
+.board-game-page .sdg-track { flex: 1; min-width: 0; }
+/* Each label is placed at the percentage its value sits at (board-game.js) and
+   centred there; the two ends sit flush with the ends of the bar instead, so
+   neither hangs off the side. The height is reserved because the labels
+   themselves are taken out of flow. */
+.board-game-page .progress-labels { position: relative; height: 0.85rem; font-size: 0.58rem; color: var(--muted); margin-top: 1px; }
+.board-game-page .progress-labels span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+.board-game-page .progress-labels span:first-child { transform: none; }
+.board-game-page .progress-labels span:last-child { transform: translateX(-100%); }
 .board-game-page .hand-area { background: #f5f2eb; border-radius: 10px; padding: 12px; margin-top: 10px; border: 1px solid #d5cbb8; }
 .board-game-page .hand-cards { display: flex; flex-wrap: wrap; gap: 10px; min-height: 115px; }
 .board-game-page .hand-card {
@@ -11968,12 +11991,6 @@ body.hw-nexus .hw-spec > div { border-top-color: var(--nx-line); }
   fill: var(--nx-text, #dbe9ee);
   font-variant-numeric: tabular-nums;
 }
-.md-rowlbl {
-  font-size: 13px;
-  fill: var(--nx-text, #dbe9ee);
-  font-variant-numeric: tabular-nums;
-}
-.md-rowlbl.is-true { fill: var(--nx-lime, #a0e860); font-weight: 700; }
 
 .md-pt { stroke: #0a1216; stroke-width: 1.3; }
 .md-pt.md-s16 { fill: var(--nx-blue-up, #5fb3e0); }
@@ -11992,17 +12009,9 @@ body.hw-nexus .hw-spec > div { border-top-color: var(--nx-line); }
 .md-lbl29 { fill: var(--nx-lime, #a0e860); }
 .md-lbl-shared { fill: var(--nx-mint, #49c5b6); }
 
-.md-bar-raw,
-.md-bar-none { fill: #5c7f8c; }
+.md-bar-raw { fill: #5c7f8c; }
 .md-bar-conv { fill: var(--nx-mint, #49c5b6); }
-.md-bar-true { fill: var(--nx-lime, #a0e860); }
-.md-bar-wrong { fill: var(--nx-warm, #e6b060); fill-opacity: 0.82; }
-/* The model-family ranking: everything tried afterwards in one quiet tone,
-   so the one bar that was fixed beforehand is the only thing that stands out. */
-.md-bar-fam { fill: var(--nx-mint, #49c5b6); fill-opacity: 0.55; }
-.md-bar-fixed { fill: var(--nx-lime, #a0e860); }
 .md-ref { stroke: var(--nx-warm, #e6b060); stroke-width: 1.4; stroke-dasharray: 5 5; }
-.md-ref-lbl { font-size: 12.5px; fill: var(--nx-warm, #e6b060); }
 /* The legend swatch for that dashed rule: a dashed rule itself, not a block. */
 .md-key-ref { background: none; border-top: 2px dashed var(--nx-warm, #e6b060); height: 0; align-self: center; }
 
@@ -12042,12 +12051,8 @@ body.hw-nexus .hw .md-legend li {
 }
 .md-key-29 { border-radius: 2px; background: var(--nx-lime, #a0e860); }
 .md-key-bar { width: 20px; height: 9px; border-radius: 2px; }
-.md-key-raw,
-.md-key-none { background: #5c7f8c; }
+.md-key-raw { background: #5c7f8c; }
 .md-key-conv { background: var(--nx-mint, #49c5b6); }
-.md-key-true { background: var(--nx-lime, #a0e860); }
-.md-key-wrong { background: var(--nx-warm, #e6b060); opacity: 0.82; }
-.md-key-fam { background: var(--nx-mint, #49c5b6); opacity: 0.55; }
 .md-key-ref {
   width: 20px;
   height: 0;
@@ -12059,43 +12064,29 @@ body.hw-nexus .hw .md-legend li {
    contents, one per part; each part then opens with a banner that is set
    apart from the sections inside it by a rule and a larger heading, so a
    reader scrolling past can tell where one model ends and the next begins. */
-/* The cards double as a map of how the parts follow one another: an arrow
-   sits in the gap before every card but the first, pointing down while the
-   cards are stacked and across once they stand in a row. */
+/* The three models do not follow one another, so the cards carry no arrows
+   between them. Each instead names, at its foot, the page it belongs with. */
 .md-parts {
   list-style: none;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
+  gap: 1.25rem;
   padding: 0;
-  margin: 0 0 1rem;
-}
-.md-parts > li { position: relative; }
-.md-parts > li + li::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: -1.45rem;
-  width: 0;
-  height: 0;
-  border-left: 7px solid transparent;
-  border-right: 7px solid transparent;
-  border-top: 9px solid var(--nx-mint, #49c5b6);
-  transform: translateX(-50%);
+  margin: 0 0 3.5rem;
 }
 @media (min-width: 768px) {
   .md-parts { grid-template-columns: repeat(3, 1fr); }
-  .md-parts > li + li::before {
-    left: -1.35rem;
-    top: 50%;
-    border-top: 7px solid transparent;
-    border-bottom: 7px solid transparent;
-    border-left: 9px solid var(--nx-mint, #49c5b6);
-    border-right: 0;
-    transform: translateY(-50%);
+}
+/* The sidebar starts at Part 1 (data-toc-start), so nothing sits beside the
+   cards. Pull them back across the 252px the page-toc reserves, so the three
+   span the whole container and sit centred on the page rather than pushed
+   right of an empty column. Same move as the Survey page's intro. */
+@media (min-width: 1200px) {
+  .container.has-page-toc .md-parts {
+    margin-left: -252px;
+    width: calc(100% + 252px);
   }
 }
-body.hw-nexus .hw .md-parts-link { margin: 0 0 3.5rem; }
 .md-parts a {
   display: flex;
   flex-direction: column;
@@ -12130,6 +12121,17 @@ body.hw-nexus .hw .md-parts-link { margin: 0 0 3.5rem; }
   font-size: 0.93rem;
   line-height: 1.6;
   color: var(--nx-text, #dbe9ee);
+}
+/* Which page the model goes with. Pushed to the foot of the card so the three
+   line up across the row whatever the length of the question above. */
+.md-parts-pair {
+  margin-top: auto;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--nx-line, #24596b);
+  font-family: "Changa", sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--nx-mint, #49c5b6);
 }
 .md-parts-state {
   margin-top: auto;
@@ -12168,8 +12170,13 @@ body.hw-nexus .md .md-part-no {
 .md-q {
   display: block;
   font-family: "Changa", sans-serif;
+  /* A step above the answer that follows it, so the question reads as the
+     lead-in it is rather than as one more bold phrase in the paragraph. Kept
+     below the section headings so it does not compete with them. */
+  font-size: 1.2rem;
+  line-height: 1.35;
   color: var(--c-teal-deep);
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.3rem;
 }
 
 /* "Part 3 at a glance": where in the part each thing a judge looks for is. */
@@ -12439,24 +12446,26 @@ html[data-theme="dark"] .edu-pin.is-selected {
   box-shadow: 0 0 0 3px rgba(160, 232, 96, 0.4);
 }
 
-/* ---- the galleries and their controls ---- */
-body.edu-nexus .edu-arrow {
+/* ---- the galleries and their controls ----
+   Collaboration and Promotion are hp-nexus, but they use the same carousel as
+   Education, so the arrows, dots and status share one rule set. */
+body:is(.edu-nexus, .hp-nexus) .edu-arrow {
   color: var(--nx-mint);
   background: var(--nx-panel);
   border-color: var(--nx-line);
 }
-body.edu-nexus .edu-arrow:hover,
-body.edu-nexus .edu-arrow:focus-visible {
+body:is(.edu-nexus, .hp-nexus) .edu-arrow:hover,
+body:is(.edu-nexus, .hp-nexus) .edu-arrow:focus-visible {
   background: var(--nx-raised);
   border-color: var(--nx-mint);
 }
-body.edu-nexus .edu-arrow:focus-visible { outline-color: var(--nx-mint); }
-body.edu-nexus .edu-dot::before { background: var(--nx-line); }
-body.edu-nexus .edu-dot:hover::before,
-body.edu-nexus .edu-dot:focus-visible::before { background: var(--nx-muted); }
-body.edu-nexus .edu-dot[aria-current="true"]::before { background: var(--nx-lime); }
-body.edu-nexus .edu-dot:focus-visible { outline-color: var(--nx-mint); }
-body.edu-nexus .edu-carousel-status { color: var(--nx-muted); }
+body:is(.edu-nexus, .hp-nexus) .edu-arrow:focus-visible { outline-color: var(--nx-mint); }
+body:is(.edu-nexus, .hp-nexus) .edu-dot::before { background: var(--nx-line); }
+body:is(.edu-nexus, .hp-nexus) .edu-dot:hover::before,
+body:is(.edu-nexus, .hp-nexus) .edu-dot:focus-visible::before { background: var(--nx-muted); }
+body:is(.edu-nexus, .hp-nexus) .edu-dot[aria-current="true"]::before { background: var(--nx-lime); }
+body:is(.edu-nexus, .hp-nexus) .edu-dot:focus-visible { outline-color: var(--nx-mint); }
+body:is(.edu-nexus, .hp-nexus) .edu-carousel-status { color: var(--nx-muted); }
 
 /* ---- the PDF and podcast blocks ---- */
 body.edu-nexus .edu-pdf-link a {
@@ -13455,7 +13464,11 @@ body.bg-nexus .sgd-dot-after { fill: #279a8c; stroke: var(--nx-panel); }
 body.bg-nexus { --nx-muted: #c6dde4; }
 
 body.bg-nexus .sgd-list li { color: var(--nx-text); }
-body.bg-nexus .sgd-list li strong { color: #fff; }
+/* The emphasis in these lists is the same kind of mark as .edx-key on
+   Education or .mx-key on Human Practices, so it takes the site's one
+   highlight colour. It used to be white, which made this the only page
+   that marked what matters in a different colour from everywhere else. */
+body.bg-nexus .sgd-list li strong { color: var(--nx-lime); font-weight: 600; }
 body.bg-nexus .sgd-list li::marker { color: var(--nx-mint); }
 
 /* The game's own secondary ink, which drives "choose a game mode" and the
@@ -15046,8 +15059,8 @@ body.hw-nexus .page-hero:has(.hero-hardware) .hero-title {
 /* ---- Board Game: what to notice, in colour ----
    Marks in the write-up:
      .bg-num    a number or a count -- the warm amber, bold
-     .bg-hl     the sentence the section is making -- the lime, with a soft
-                underline of the same colour
+     .bg-hl     the sentence the section is making -- the lime, in text only:
+                no marker stripe behind it
      .bg-key    a named rule, card or place -- the lime too, bolder: the
                 site marks what matters in one colour, and the weight is
                 what separates a named thing from the sentence around it
@@ -15062,18 +15075,14 @@ body.bg-nexus .bg-num {
 body.bg-nexus .bg-hl {
   color: var(--nx-lime);
   font-weight: 600;
-  background-image: linear-gradient(transparent 62%, rgba(160, 232, 96, 0.16) 62%);
-  -webkit-box-decoration-break: clone;
-          box-decoration-break: clone;
 }
 
-/* The second selector is for a .bg-key that is also a <strong> inside a
-   list, where "body.bg-nexus .sgd-list li strong { color: #fff }" is one
-   step more specific and was painting two of them white. */
+/* Same weight as .edx-key and .mx-key elsewhere, so a named thing is marked
+   the same way on every page. */
 body.bg-nexus .bg-key,
 body.bg-nexus .sgd-list li strong.bg-key {
   color: var(--nx-lime);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 body.bg-nexus .bg-quote {

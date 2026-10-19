@@ -1063,12 +1063,21 @@ function log(msg, type) {
 }
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 /* Tick marks under each progress bar, derived from GOAL so the scale and the
-   labels can never drift apart if the goal distance is retuned. */
+   labels can never drift apart if the goal distance is retuned.
+
+   Each label carries the percentage its value sits at, the same ((v+2)/range)
+   the fill width uses, so a label lands exactly on the point of the bar it
+   names. Spacing them with justify-content instead put their edges at the two
+   ends and left every centre short of its mark -- worst on GOAL, the widest
+   of them. */
 var _trackLabelsCache = null;
 function trackLabelsHtml() {
   if (_trackLabelsCache) return _trackLabelsCache;
-  var out = "";
-  for (var v = -2; v <= GOAL; v++) out += "<span>" + (v === GOAL ? "GOAL" : v) + "</span>";
+  var out = "", range = GOAL + 2;
+  for (var v = -2; v <= GOAL; v++) {
+    out += "<span style=\"left:" + ((v + 2) / range) * 100 + "%\">" +
+           (v === GOAL ? "GOAL" : v) + "</span>";
+  }
   _trackLabelsCache = out;
   return out;
 }
@@ -2281,11 +2290,15 @@ function updateUI() {
       var pct = ((cur + 2) / range) * 100;
       var previewPct = ((preview + 2) / range) * 100;
       html += "<div class=\"sdg-row\"><div class=\"sdg-badge " + (cur >= GOAL ? "goal" : "") + "\">SDG " + s.id + "</div>" +
-        "<div class=\"sdg-progress-bar\"><div class=\"progress-fill " + (cur < 0 ? "negative" : "") + "\" style=\"width:" + pct + "%\"></div>" +
+        "<div class=\"sdg-track\"><div class=\"sdg-progress-bar\"><div class=\"progress-fill " + (cur < 0 ? "negative" : "") + "\" style=\"width:" + pct + "%\"></div>" +
         (delta !== 0 ? "<div class=\"progress-preview " + (delta < 0 ? "negative" : "") + "\" style=\"left:0;width:" + Math.max(pct, previewPct) + "%;\"></div>" : "") +
         "<div class=\"progress-text\">" + (cur >= GOAL ? tgcT("goal") : cur) + (delta ? " -> " + preview : "") +
-        (s.immune ? " [immune]" : "") + "</div></div></div>" +
+        (s.immune ? " [immune]" : "") + "</div></div>" +
+        // The scale belongs under the bar, so it shares the bar's column
+        // rather than the whole row: as a sibling of .sdg-row it started at
+        // the row's left edge and ran the badge's width adrift.
         "<div class=\"progress-labels\">" + trackLabelsHtml() + "</div>" +
+        "</div></div>" +
         "<div style=\"font-size:0.66rem;color:var(--muted);margin-bottom:2px;\">" + sdgName(s.id) + "</div>";
     });
     div.innerHTML = html;

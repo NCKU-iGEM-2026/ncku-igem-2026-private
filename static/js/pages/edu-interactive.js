@@ -71,6 +71,12 @@
     var tabs = all('[role="tab"]', box);
     var panels = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
 
+    /* the step button wraps around, so on the last step it must not still say
+       "Next". The markup holds the normal label; we swap it per step. */
+    var nextBtn = box.querySelector('.edx-tabs-next');
+    var nextLabel = nextBtn ? nextBtn.innerHTML : '';
+    var wrapLabel = '&larr; Back to the first step';
+
     function select(i, focus) {
       tabs.forEach(function (t, k) {
         var on = k === i;
@@ -79,6 +85,7 @@
         if (panels[k]) panels[k].hidden = !on;
       });
       box.style.setProperty('--edx-step', String(i));
+      if (nextBtn) nextBtn.innerHTML = i === tabs.length - 1 ? wrapLabel : nextLabel;
       if (focus) tabs[i].focus();
     }
 
@@ -96,7 +103,7 @@
       });
     });
 
-    var next = box.querySelector('.edx-tabs-next');
+    var next = nextBtn;
     if (next) next.addEventListener('click', function () {
       var cur = tabs.findIndex(function (t) { return t.getAttribute('aria-selected') === 'true'; });
       select((cur + 1) % tabs.length, true);
