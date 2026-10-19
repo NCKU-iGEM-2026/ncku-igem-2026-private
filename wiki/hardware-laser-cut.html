@@ -1,71 +1,8 @@
-{#
-  === 雷切機（laser-cut build）的內容：這個檔案請做這一台的組員自己排 ===
-
-  這個檔案由 wiki/pages/hardware.html 用 include 放進 Hardware 頁的 <div id="laser-cut"> 裡。
-  讀者在 The two builds 點「Laser-cut build」那張卡片時，看到的就是這裡的內容；
-  網址是 /hardware#laser-cut，不是獨立的網頁。你改這個檔案不會動到 3D 列印機那一台
-  （wiki/hardware-printed.html），兩個人可以各改各的。
-
-  現在裡面只有 Hardware 頁上原本就寫過的東西，原樣搬過來：
-    What it is      原本「Which build is which」第三張卡的文字與五列規格
-    What it costs   原本在 Building one 裡的成本表（$53.70）與它下面的附註
-
-  ⚠ 請你確認或改掉的地方：
-    - What it costs 最後那段 aside 列的是 3D 列印機電路上的零件（電阻、2N7000、Cree 470 nm LED、
-      Eppendorf UVette）。這一台實際用的 LED、開關、比色管如果不一樣，請改成這一台的。
-    - 頁面上方共同的部分（How it measures、Ten channels）寫兩台原理相同：藍光橫過樣品、
-      偵測器在 90° 看、用 AS7341 讀光譜。那裡的平面圖、剖視圖和感測器設定都是 3D 列印機的。
-      這一台如果有不同的地方（有沒有 light trap、用什麼比色管、光路尺寸、感測器設定），請在這裡寫清楚。
-    - "Data: None on this page"：放上這一台量到的數據之後請改掉，並告訴硬體負責人，
-      hardware.html 兩張卡片上的 Data 那一列要一起改。
-    - 這一台有沒有自己的名字？頁面目前用 "laser-cut build" 稱呼它。
-
-  評審看 Hardware 的四題（2026 Judge Handbook 第 57 頁），這一台各自可以寫什麼：
-    1 解決什麼需求   2 使用者測試、從回饋學到什麼   3 功能有沒有被驗證   4 文件夠不夠讓別隊重做
-  建議至少要有：實機照片、怎麼做（切割檔、材料、組裝步驟）、怎麼操作、量到什麼。
-  只寫這一台實際量到、有紀錄可查的東西；還沒做的就寫還沒做。
-
-  可以直接用這一頁現成的樣式（寫法照 wiki/hardware-printed.html 裡的抄）：
-    <section id="hardware-laser-..."><h2>…</h2> … </section>   一節。id 請用 hardware-laser- 開頭，
-                                                               免得跟另一台的 id 重複
-    <p class="hw-aside">…</p>                                  補充說明（字較小、較淡）
-    <div class="hw-caution"><p>…</p></div>                     需要讀者注意的限制
-    <dl class="hw-spec"><div><dt>…</dt><dd>…</dd></div></dl>   規格列
-    <figure class="hw-figure"> … <figcaption>…</figcaption></figure>   圖或表
-    <details class="hw-fold"> … </details>                     可收合的細節（整段結構請從另一個檔複製）
-  標題下面可以加一排捷徑，寫法看 hardware-printed.html 最上面的 <nav class="hw-jump">。
-
-  照片：用 iGEM uploads tool 上傳，網址是 https://static.igem.wiki/teams/6379/wiki/hardware/<檔名>
-        （請轉成 .webp 或 .avif）。卡片上的縮圖在 hardware.html，請跟硬體負責人一起拍：
-        兩台同一個角度、同一個背景、橫式 4:3。
-  影片：上傳到 https://video.igem.org ，寫法照 home.html 的 promotion video。
-  圖檔、影片、切割檔都不可以 commit 進這個 repo，也不能連到 YouTube、Google Drive 或外部圖床。
-  uploads tool 試過不收 .stl 和 .zip，收 .glb；切割檔（.dxf、.svg）收不收要試了才知道。
-
-  這一塊一開始是隱藏的，讀者點了卡片才顯示。如果你加了會量版面尺寸的 JavaScript，
-  請在顯示之後再量：切換時 static/hardware-builds.js 會對 window 發一次 resize 事件。
-#}
   <header class="hw-build-head" data-toc-group data-toc-no="4">
     <h2 class="hw-build-title" id="hw-build-laser-cut">The laser-cut build</h2>
   </header>
   <p class="hw-aside">Every reading in this section was taken on this build, with its lid closed.</p>
 
-  {#
-    === 2026-10-06 內容來源（排版之後再調，現在先把資料放上來）===
-    全部來自雷切版的組員交來的材料，沒有加入這些以外的數據：
-      報告_驗證_中文（第四輪修正版）、量測設定與欄位說明.md（第 1–12 節）、
-      CIRCUIT_HANDOFF.md、HANDOFF_capture-generator.md 與產生器原始碼、
-      0916/0917/0920/0922 的 CSV（圖上的數字都從這些檔案來，見 static/hardware-laser-figs.js）。
-    使用者確認過的事：9/16–9/22 全部數據是這台、在自己的外殼內蓋上外殼量的；LED 為 Cree C503B 470 nm；
-      UVette 2 mm 光徑對 LED、10 mm 對感測器；R chamber 是 light trap；無發射濾片；感測器模組 DFRobot SEN0364。
-    刻意不寫的：LED 電流（未在這台量過）；菌株／質體名稱（未提供）。
-    2026-10-06 使用者確認：報告物是 sfGFP（全文已統一）；9/17 的批次間隔照 CSV 寫成約 3 分鐘（報告原寫 60 秒）。
-    比原報告保守的兩處（使用者可改回）：
-      - 空倉 F3 那段寫成「consistent with」，不是「only side-on detection gives」——空倉沒有放比色管。
-      - 碰到 LED 線那次寫成「most likely the LED moved」——只有這一次事件，數據分不出是位置還是接觸。
-    尚未放上的：實機照片、兩張電路圖（等 static.igem.wiki 網址）、組裝步驟、韌體與原始數據（使用者決定先不公開）、
-      光譜交叉驗證附錄的其餘部分。
-  #}
 
   <div class="hw-lead hw-lead-tight">
     <p>
@@ -111,11 +48,8 @@
       and the ESP32 and its wiring below, with a deck between them. An OLED shows each
       result and one button starts a measurement.
     </p>
-    {# 照片：第一格是整機照（2026-10-12）；第二格是拿掉頂蓋、LED 亮著的光學層（lightlevel.avif，2026-10-13）。
-       組裝過程的照片在 Building one 的 Assembly, step by step 裡。 #}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:1rem;margin:1.25rem 0;">
       <figure class="hw-figure" style="margin:0">
-        {# 2026-10-12：硬體負責人上傳。要換照片請換檔名，static.igem.wiki 的快取很久。 #}
         <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/with-buttom.avif" loading="lazy"
              style="display:block;width:100%;height:auto;border-radius:8px;"
              alt="The laser-cut reader closed, on a wooden table: a bare plywood box with finger-jointed edges and a small square cover on its lid. Wires come out of an opening low on the front panel to a lit OLED display and a button module.">
@@ -129,10 +63,6 @@
       </figure>
     </div>
 
-    {# 3D 圖：每一片都是產生器（capture-generator.js）切出來的外形，加上板厚，放在 CaptureGen.assembly() 指定的位置；
-       沒有手畫的模型，也沒有上傳任何模型檔。畫圖的是 static/capture-3d.js（WebGL，沒有外部函式庫）。
-       比色管與 LED 是買來的零件，畫成簡單形狀。外殼哪一面朝哪裡、支撐軌的確切位置，圖面沒有給，
-       點那幾片時畫面會說明。沒有 WebGL 時只顯示下面那段文字。 #}
     <div class="hwx-rig lc3d" id="lc3d" data-t="3">
       <div class="hwx-rig-head">
         <h3>The reader in 3D</h3>
@@ -184,8 +114,6 @@
   </section>
 
   {# ========================= design advantages ========================= #}
-  {# 三張卡片的數字都出自本頁：成本那一節（$53.70）、產生器（2.8–3.2 mm）、開頭的關鍵數字（1.5%）。
-     原本的「Easy to load」移到下一節 User feedback。 #}
   <section id="hardware-laser-advantages">
     <h2>Design advantages</h2>
     <p class="hw-point">
@@ -214,8 +142,6 @@
   </section>
 
   {# ========================= user feedback ========================= #}
-  {# 2026-10-12（硬體負責人）：做法是先做初版，給濕實驗組的同學用、收集建議，改出終版，再用終版做實驗。
-     所以本頁的數據都是在終版上量的：25 × 25 開口與定位板都已經在。 #}
   <section id="hardware-laser-feedback">
     <h2>User feedback</h2>
     <p class="hw-point">
@@ -237,8 +163,6 @@
         <span class="hw-gain-basis">From wet-lab use</span>
       </li>
     </ul>
-    {# 2026-10-13：measure3.avif（比色管在槽裡、頂蓋蓋上、沒有定位板）與 with.avif（定位板放上去之後）並排，
-       說明為什麼加了定位板。measure3 上蓋是打開的、LED 亮著，圖說不提讀值。 #}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:1rem;margin:1.25rem 0 0;max-width:46rem;">
       <figure class="hw-figure" style="margin:0">
         <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/measure3.avif" loading="lazy" style="display:block;width:100%;height:auto;border-radius:8px;"
@@ -545,13 +469,6 @@
       </div>
     </details>
 
-    {# 2026-10-14：感測菌測試（硬體負責人自己量的 P1；同一個備份檔裡另外兩個計畫不是他的，不用）。
-       資料：桌面 lasreader-backup-20261013-0130.json，plan RUN-20261012-3911，2026-10-12，現在的 LasReader 韌體（不是 v5.5）。
-       16 筆感測菌讀值：拿掉兩筆測其他東西時的讀值（100 µM r2、10 µM r3）。空白是純培養基。
-       F5/F3 平均 0.0549、範圍 0.0477–0.0604；F4 與 F7、Clear 的相關 0.99、0.92（16 筆）。
-       F5/F3 對 log AHL 的相關是 0.56（10 nM 約 0.050、1 mM 約 0.056），差距和同濃度各管之間的差距相當，
-       所以不寫「沒有變化」，只寫「停在不含 sfGFP 的菌的水準」。參考線取自線性測試（0922）：N ≈ 0.055、H100 ≈ 0.127，
-       是另一場、另一版韌體，圖例有標明。讀盤機上感測菌高於對照，見 Engineering 頁（對照是空載體，AHL 依賴性未確認）。 #}
     <h3 id="lc-sensor">The sensor-strain test: our AHL sensor on this reader</h3>
     <p>
       <span class="lc-tag">Aim</span> Read the AHL-sensing strain our wet lab
@@ -703,8 +620,6 @@
   <section id="hardware-laser-build">
     <h2>Building one</h2>
 
-    {# 三張卡片是這一節的入口，每一句都出自下面的產生器說明、電路段落與 How a reading is made。
-       組裝流程、操作流程寫好後，卡片再加連結。 #}
     <ol class="hw-do">
       <li>
         <h3>Build</h3>
@@ -762,9 +677,6 @@
     <script>CaptureGen.mount('#capture-generator');</script>
 
 
-    {# 組裝步驟：每一步都由硬體負責人逐條確認過（2026-10-09）：先塗再組；牆與頂蓋只靠卡榫；
-       光陷阱的三角形與方片、感測器支撐板、支撐條、外殼指接榫用膠；LED 卡在 4 mm 孔裡，再用膠帶固定位置；
-       ESP32、OLED、按鈕用雙面膠；所有線先接好再放甲板；固定板只是放著，上蓋可拿下。 #}
     <details class="hw-fold hw-fold-wide" id="lc-assembly">
       <summary class="hw-fold-head">
         <span class="hw-fold-title">Assembly, step by step</span>
@@ -797,7 +709,6 @@
             <strong>Light trap.</strong>
             Glue the two triangles against its long walls and the square onto their
             slopes, lower edge against the wall with the 8&nbsp;mm opening.
-            {# 2026-10-12：硬體負責人上傳（innerbroadnew.avif，2026-10-13 取代較鬆的 innerbroad.avif）。替代文字與圖說相同。 #}
             <figure class="hw-figure lc-step-photo" style="margin:0.8rem 0 0;">
               <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/innerbroadnew.avif" loading="lazy"
                    style="display:block;width:100%;max-width:26rem;height:auto;border-radius:8px;"
@@ -825,7 +736,6 @@
             <strong>Deck.</strong>
             Connect all wires to the ESP32 as in the <a href="#lc-wiring">wiring
             table</a>, then lower the deck onto the rails.
-            {# 2026-10-13：lightlevel.avif（同一張也在 The instrument 第二格）。替代文字與圖說相同。 #}
             <figure class="hw-figure lc-step-photo" style="margin:0.8rem 0 0;">
               <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/lightlevel.avif" loading="lazy"
                    style="display:block;width:100%;max-width:26rem;height:auto;border-radius:8px;"
@@ -837,7 +747,6 @@
             <strong>Display and button.</strong>
             Lead their wires out through the long side's opening, connect them, and
             tape both over the opening.
-            {# 2026-10-12：硬體負責人上傳（inner-line.avif；圖說照照片內容改寫，沒有提支撐板，照片上看不清楚）。替代文字與圖說相同。 #}
             <figure class="hw-figure lc-step-photo" style="margin:0.8rem 0 0;">
               <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/inner-line.avif" loading="lazy"
                    style="display:block;width:100%;max-width:26rem;height:auto;border-radius:8px;"
@@ -848,7 +757,6 @@
           <li>
             <strong>Roofs.</strong>
             Press the three roofs into the wall-top notches.
-            {# 2026-10-12：硬體負責人上傳（front.avif，同一張也在上方的雷切選擇卡片）。替代文字與圖說相同。 #}
             <figure class="hw-figure lc-step-photo" style="margin:0.8rem 0 0;">
               <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/front.avif" loading="lazy"
                    style="display:block;width:100%;max-width:26rem;height:auto;border-radius:8px;"
@@ -862,7 +770,6 @@
             opening over the cuvette pocket, and put the lid on; neither is glued.
             Glue the 25&nbsp;mm square under the 27&nbsp;mm one to make the cover
             for the lid's opening.
-            {# 2026-10-12：硬體負責人上傳（with.avif）。替代文字與圖說相同。 #}
             <figure class="hw-figure lc-step-photo" style="margin:0.8rem 0 0;">
               <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/with.avif" loading="lazy"
                    style="display:block;width:100%;max-width:26rem;height:auto;border-radius:8px;"
@@ -881,9 +788,6 @@
       </div>
     </details>
 
-    {# 操作步驟：照量測用的批次韌體 v5.5（桌面 0920/0920.ino）與 0922 的紀錄，硬體負責人確認過（2026-10-09）：
-       USB 接電腦、Serial 115200、輸入編號、按鈕跑五筆、每場次先跑一批暖機再下 k。
-       2026-10-15：不改電池；USB 供電（我們用行動電源），短邊開孔保留給 USB 線。 #}
     <details class="hw-fold hw-fold-wide" id="lc-operating">
       <summary class="hw-fold-head">
         <span class="hw-fold-title">Operating steps</span>
@@ -956,8 +860,6 @@
       computer when the batch firmware sends its readings, but any USB supply
       will do.
     </p>
-    {# 2026-10-15：接線示意圖（breadboard-wiring.avif）與電路圖（schematic.avif）左右並排，窄螢幕自動上下排；兩張都放在同樣 3:2 的框裡（object-fit: contain），高度一致。
-       兩張都依接線表重畫，不是 Tinkercad／Fritzing 匯出檔；對過接線表一致。電路圖上的 ESP32-D0WD-V3 是 WROOM-32 模組裡的晶片。 #}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:1rem;margin:1.25rem 0;align-items:start;">
       <figure class="hw-figure" style="margin:0">
         <img src="https://static.igem.wiki/teams/6379/wiki/haddwarelacerreader/haddwarelacerreader/breadboard-wiring.avif" loading="lazy"
@@ -1009,12 +911,8 @@
       the software is described on the
       <a href="{{ url_for('pages', page='software') }}">Software</a> page.
     </p>
-    {# 2026-10-13（硬體負責人）：GitLab 的 lasreader/firmware（capture_screen 是雷切版）是現在用來量測的韌體，
-       在 v5.5 上加了軟體連線；一次量測讀五筆取後四筆，數據處理在軟體端。v5.5 本身沒有公開。
-       原始數據不公開（頁面呈現的是分析結果）。 #}
   </section>
 
-  {# 成本表的未計價零件：這一台沒有 2N7000（LED 由 GPIO25 經 220 Ω 直接驅動），已從清單拿掉。 #}
 
   {# ========================= what it costs ========================= #}
   <section id="hardware-cost">
@@ -1025,20 +923,6 @@
       enclosure, display and button. All figures are in US dollars.
     </p>
 
-    {#
-      === 給團隊 ===
-      成本只以美元呈現，原始台幣數字與匯率都已拿掉（隊伍決定，2026-10-08）。換算用的匯率是 NT$31.68 兑 US$1（2026-09-22），留在這裡備查，
-      之後要驗算或用別的匯率重算時用。
-      小計是「上面那幾列四捨五入後相加」的結果，不是原始台幣總額再換算：
-      電子零件那欄逐列相加是 $42.18，1336 元直接換算是 $42.17，差一分錢。
-      2026-10-12：LED 與 220 Ω 電阻合併一列，硬體負責人估約 NT$5（÷ 31.68 ≈ $0.16），小計改為 $42.34、總計 $53.70；
-      列印外殼的比較（$36.30、$78.48）依硬體負責人要求拿掉。
-      台幣欄還在時看不出來，現在讀者會自己加那一欄，所以取能加得起來的那個。
-
-      下面「not in this costing」列的是電路上有、但試算表沒有計價的零件
-      （電阻、LED、UVette）。我沒有替它們估價——估錯對要照著重建的
-      隊伍來說比沒有數字更糟。有價格之後補進上表即可。
-    #}
     <details class="hw-fold">
       <summary class="hw-fold-head">
         <span class="hw-fold-title">Cost of one laser-cut build</span>
