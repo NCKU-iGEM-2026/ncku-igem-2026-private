@@ -173,9 +173,9 @@
     <p class="md-data-reading">
       <strong>Reading the table:</strong> A16-2's swarming ratio of 0.642
       corresponds to 35.8&nbsp;% inhibition: (1 &minus; 0.642) &times; 100.
-      ALS-5's biofilm interval includes 1, while F1's resampled interval just
-      excludes it. Its biofilm effect is therefore treated as borderline
-      rather than a robust positive result.
+      ALS-5's biofilm interval includes 1, while the resampled interval in
+      Figure&nbsp;1.1 below excludes it. Its biofilm effect is therefore
+      treated as borderline rather than a robust positive result.
     </p>
 
     <div class="hw-aside md-data-methods">
@@ -195,7 +195,9 @@
         Unlike the <a href="{{ url_for('pages', page='results') }}#res-inhibition">Results</a>
         page's arithmetic means and one-sample <var>t</var> tests, this analysis
         uses log ratios. The estimates therefore differ; ALS-5's biofilm result
-        remains borderline in both analyses.
+        remains borderline in both analyses. The counts above are the readings
+        and plates recorded for each treatment, and are not the same as the
+        <var>n</var> given with each figure on that page.
       </p>
       <p>
         Cb-2 biofilm uses 12 of 14 wells; two lacked traceable controls.
@@ -214,10 +216,15 @@
              loading="lazy" decoding="async" width="1800" height="1480">
       </div>
       <figcaption>
-        <strong>F1 &middot; Inhibition across three assays.</strong>
+        <strong>Figure 1.1 &middot; Inhibition across three assays.</strong>
         Points show geometric-mean ratios; bars show resampled 95&nbsp;% intervals.
         The vertical line at 1 marks no effect; * marks intervals excluding 1.
-        ALS-5 biofilm is borderline: its interval just excludes 1 here but
+        These are the plate-resampled estimates, so the swarming and pyocyanin
+        percentages sit a few tenths of a point from the mixed-model estimates
+        in the table above &mdash; A16-2 swarming is 36.1&nbsp;% here and
+        35.8&nbsp;% there. The biofilm figures agree exactly, because biofilm
+        uses its replicates directly in either analysis.
+        ALS-5 biofilm is borderline: its interval excludes 1 here but
         includes 1 in the table above.
         Source: <code>effect_sizes_bootstrap.csv</code>.
       </figcaption>
@@ -232,8 +239,8 @@
     <p>
       <strong>All three aptamers inhibit swarming and pyocyanin.</strong> All
       six of those intervals exclude no effect
-      (<var>p</var> between 0.000002 and 0.019), and the effects agree in
-      direction and size across two independent phenotypes.
+      (<var>p</var> between 2.4&times;10<sup>&minus;6</sup> and 0.019), and the
+      effects agree in direction and size across two independent phenotypes.
     </p>
 
     <p>
@@ -343,7 +350,7 @@
       d<var>L</var><sub>1</sub>/d<var>t</var> = <var>v</var><sub>1</sub> ( <var>e</var><sub>1</sub> + (1 &minus; <var>e</var><sub>1</sub>) &theta;<sub>1</sub><sup><var>h</var></sup> ) &minus; <var>d</var><sub>1</sub> <var>L</var><sub>1</sub><br>
       d<var>L</var><sub>2</sub>/d<var>t</var> = <var>v</var><sub>2</sub> ( <var>e</var><sub>2</sub> + (1 &minus; <var>e</var><sub>2</sub>) &theta;<sub>2</sub><sup><var>h</var></sup> ) &middot; <var>g</var>(&theta;<sub>1</sub>) &minus; <var>d</var><sub>2</sub> <var>L</var><sub>2</sub><br>
       <var>g</var>(&theta;<sub>1</sub>) = ( &theta;<sub>las</sub> + &theta;<sub>1</sub> ) / ( 1 + &theta;<sub>las</sub> )
-      <span class="md-eqnote"><var>L</var><sub>1</sub> is 3-oxo-C12-HSL and <var>L</var><sub>2</sub> is C4-HSL. <var>e<sub>i</sub></var> is the leaky fraction made without activation, <var>h</var> the cooperativity of the loop, <var>v<sub>i</sub></var> the maximum synthesis rate and <var>d<sub>i</sub></var> the removal rate. The dimensionless parameter &theta;<sub>las</sub> sets the gate's sensitivity to las occupancy; it is distinct from receptor occupancy &theta;<sub>1</sub>.</span>
+      <span class="md-eqnote"><var>L</var><sub>1</sub> is 3-oxo-C12-HSL and <var>L</var><sub>2</sub> is C4-HSL. <var>e<sub>i</sub></var> is the leaky fraction made without activation, <var>h</var> the cooperativity of the loop, <var>v<sub>i</sub></var> the maximum synthesis rate and <var>d<sub>i</sub></var> the removal rate. The dimensionless parameter &theta;<sub>las</sub> sets how far las occupancy can move rhl synthesis, and larger values make the gate <em>less</em> responsive: as &theta;<sub>1</sub> falls to zero, <var>g</var> falls only to &theta;<sub>las</sub>&nbsp;/&nbsp;(1&nbsp;+&nbsp;&theta;<sub>las</sub>). It is distinct from receptor occupancy &theta;<sub>1</sub>.</span>
     </div>
 
     <p>
@@ -482,12 +489,15 @@
     </p>
     <p class="hw-caution">
       <strong>Use the model to propose experiments.</strong>
-      The fitted parameters are not measured biochemical constants, and the
-      dose estimate in <a href="#model-inhibition-switch">1.5</a> remains
-      unvalidated. First, <a href="#model-inhibition-validation">1.4</a>
-      checks where the held-out Cb-2 predictions fail.
+      The fitted parameters are effective values, not measured biochemical
+      constants. <a href="#model-inhibition-validation">1.4</a> checks them
+      first, against the held-out Cb-2 treatment.
     </p>
-    <p class="hw-aside">Sources: <code>calibration_draws.csv</code> and <code>uncertainty_summary.csv</code>.</p>
+    <p class="hw-aside">
+      Sources: <code>uncertainty_summary.csv</code> for the draw counts and
+      quantiles, <code>model_report.md</code> for how the 104 failures split,
+      and <code>calibration_draws.csv</code> for the resampled targets.
+    </p>
   </section>
 
 
@@ -539,7 +549,7 @@
              loading="lazy" decoding="async" width="1680" height="960">
       </div>
       <figcaption>
-        <strong>F7 &middot; Calibration and held-out comparison.</strong>
+        <strong>Figure 1.2 &middot; Calibration and held-out comparison.</strong>
         ALS-5 and A16-2 were fitted to swarming data. For Cb-2, equal-mass
         (0.992) and equal-molar (0.490) predictions lie on opposite sides of
         the measured interval, outside it in both cases.
@@ -563,7 +573,7 @@
              loading="lazy" decoding="async" width="1560" height="920">
       </div>
       <figcaption>
-        <strong>F5 &middot; Specificity and molecular dose.</strong>
+        <strong>Figure 1.3 &middot; Specificity and molecular dose.</strong>
         In this model scenario, dual specificity increases predicted swarming
         inhibition at equal molarity; imposing equal mass reduces it to about
         1&nbsp;%. These are model comparisons, not additional experiments.
@@ -676,6 +686,7 @@
           unresolved here; the inverse estimate cannot distinguish their
           contributions.
         </p>
+        <p class="hw-aside">Source: <code>cb2_inversion.csv</code>.</p>
       </div>
     </details>
     <p class="hw-caution">
@@ -684,8 +695,6 @@
       establish why Cb-2 differs from the baseline prediction. Quantified
       preparations, shared plates and matched growth measurements are needed
       to distinguish the alternatives (<a href="#model-inhibition-changed">1.6</a>).
-      The A16-2 dose estimate in <a href="#model-inhibition-switch">1.5</a>
-      remains an unvalidated hypothesis.
     </p>
   </section>
 
@@ -741,26 +750,35 @@
     <figure class="hw-figure md-dose-figure">
       <div class="md-plate">
         <img src="https://static.igem.wiki/teams/6379/wiki/model/inhibition-f4-dose-requirement-426b0ade.avif"
-             alt="Modelled swarm-radius ratios versus aptamer concentration on a logarithmic axis. A16-2 decreases smoothly, ALS-5 approaches a plateau, and Cb-2 has a sharp switching region. The nominal concentration of 7.797 nanograms per microlitre and measured swarming ratios are marked; a shaded band indicates the A16-2 dose range considered for half inhibition."
+             alt="Modelled swarm-radius ratios versus aptamer concentration on a logarithmic axis. A16-2 decreases smoothly across the whole range. ALS-5 steps down once at a low concentration and then flattens, staying well above half. Cb-2 holds near one, drops sharply around the nominal concentration, and then falls smoothly. The nominal concentration of 7.797 nanograms per microlitre and the measured swarming ratios are marked; a shaded band indicates the A16-2 dose range considered for half inhibition."
              loading="lazy" decoding="async" width="1520" height="980">
       </div>
       <figcaption>
-        <strong>F4 &middot; Modelled dose responses.</strong>
-        A16-2 declines smoothly, ALS-5 approaches a plateau, and Cb-2 shows a
-        sharp switch. These curves extrapolate the model, rather than measured
-        dose series. Cb-2's structural sensitivity is examined in
-        <a href="#model-inhibition-validation">1.4</a>.
+        <strong>Figure 1.4 &middot; Modelled dose responses.</strong>
+        A16-2 declines smoothly. ALS-5 steps down once and then flattens, well
+        above half, for the reason given below. Cb-2 switches sharply near the
+        nominal dose, which is what <a href="#model-inhibition-validation">1.4</a>
+        examines. These curves extrapolate the model; none of them is a measured
+        dose series.
+        The chart carries the column names of the model repository, where
+        7.797&nbsp;ng/&micro;L is written as the &ldquo;nominal yield&rdquo;;
+        on this page it is the nominal dosing convention and not a production
+        yield, and the shaded band carries the sampled inputs only, not every
+        source of uncertainty.
         Source: <code>dose_requirements.csv</code>.
       </figcaption>
     </figure>
     <p>
       In the model's dose analysis, ALS-5 does not reach 50&nbsp;% swarming
       inhibition in 269 of the 296 successful draws (91&nbsp;%). Its effect
-      acts through the assumed las-to-rhl gate, which can limit the predicted
-      response. <strong>This is not evidence of a biological inhibition
-      ceiling.</strong> A single-dose measurement cannot distinguish a
-      saturating response from lower potency; testing that distinction needs
-      a separate ALS-5 dose series.
+      reaches swarming only through the assumed las-to-rhl gate, and at the
+      fitted &theta;<sub>las</sub>&nbsp;=&nbsp;14.8 that gate is nearly closed:
+      removing las occupancy altogether changes rhl synthesis by about
+      6&nbsp;%, so the predicted ALS-5 curve flattens.
+      <strong>This is a property of the assumed gate, not evidence of a
+      biological inhibition ceiling.</strong> A single-dose measurement cannot
+      distinguish a saturating response from lower potency; testing that
+      distinction needs a separate ALS-5 dose series.
     </p>
 
     <h3>What the range does and does not cover</h3>
@@ -2124,8 +2142,8 @@
 
   <section>
     <p>
-      A model belongs on this page because it changed what we did. This is
-      each part's answer to that, in one place.
+      A model belongs on this page because it changed what we did, or what we
+      do next. This is each part's answer to that, in one place.
     </p>
 
     <div class="hw-figure">
@@ -2135,6 +2153,16 @@
           <tr><th scope="col">Model</th><th scope="col">The question</th><th scope="col">What it changed</th></tr>
         </thead>
         <tbody>
+          <tr>
+            <td><a href="#model-inhibition-validation">Part 1 &middot; 1.4</a></td>
+            <td>Whether the sponge picture holds for a treatment it was never fitted to.</td>
+            <td>It does not. The held-out Cb-2 prediction of 0.992 sits above a measured 0.820, and the miss repeats in pyocyanin and biofilm; one shared dose correction cannot pull all three inside their intervals. That ruled out the simplest reading &mdash; that dose alone explains the gap &mdash; and put the preparation itself on the list of things to measure.</td>
+          </tr>
+          <tr>
+            <td><a href="#model-inhibition-switch">Part 1 &middot; 1.5, 1.6</a></td>
+            <td>How much more A16-2 the next swarming experiment should carry.</td>
+            <td>A dose series around 1.6&times; the nominal convention, spanning 1.0&ndash;2.6&times;, written down before the experiment rather than read off afterwards. It also fixed what gets recorded beside it: the applied concentration in both mass and molar units, and matched growth and viability controls, since the three assays on their own cannot separate signal sequestration from a growth effect.</td>
+          </tr>
           <tr>
             <td><a href="#model-zone-validation">Part 2 &middot; 2.5</a></td>
             <td>Whether a photograph could stand in for measuring colonies by hand.</td>
