@@ -1,15 +1,11 @@
-// Model page: the four figures.
+// Model page: the three figures.
 //
 // The points are tube means from our own bench sessions, copied out of the
 // per-tube tables of the team's data analysis (P1_DATA_ANALYSIS_2026-09-30,
-// section 4.4). Nothing else about the first three figures is typed in: every
+// section 4.4). Nothing else about the figures is typed in: every
 // slope, every line and every held-out error is computed here from those
 // twenty points, so a figure cannot drift away from its own data. Add a tube
 // to SESSIONS and all three redraw.
-//
-// The fourth and fifth figures are different. Their numbers are results of
-// model fits that this file does not repeat, so they are quoted, with their
-// source.
 //
 // No library. If the script never runs, each panel keeps the sentence it
 // shipped with, and the same numbers are in the tables beside it.
@@ -36,48 +32,6 @@
       ["ATN_A_4", 0.50, 9.667], ["ATN_A_5", 0.50, 8.667], ["ATN_A_6", 0.50, 10.000],
       ["ATN_D_1", 1.00, 18.000], ["ATN_D_2", 1.00, 20.000],
     ] },
-  ];
-
-  // Four-channel Ridge, whole sessions held out, mean absolute error in
-  // percentage points of G. Source: P1_COMPREHENSIVE_ML_2026-09-30/revision2,
-  // OD_PERMUTATIONS.csv, and 20.73 for the same pipeline given no OD at all.
-  // Each label is the OD handed to session one / two / three.
-  const OD_RUNS = [
-    { label: "1.56 / 0.52 / 1.10", note: "the true pairing", mae: 8.24, kind: "true" },
-    { label: "no OD", note: "channels only", mae: 20.73, kind: "none" },
-    { label: "1.10 / 0.52 / 1.56", note: "wrong", mae: 25.91, kind: "wrong" },
-    { label: "0.52 / 1.56 / 1.10", note: "wrong", mae: 40.37, kind: "wrong" },
-    { label: "1.10 / 1.56 / 0.52", note: "wrong", mae: 43.00, kind: "wrong" },
-    { label: "1.56 / 1.10 / 0.52", note: "wrong", mae: 56.80, kind: "wrong" },
-    { label: "0.52 / 1.10 / 1.56", note: "wrong", mae: 57.24, kind: "wrong" },
-  ];
-
-  // Eighteen model families under the same scoring: whole sessions held out,
-  // settings chosen inside the training sessions, 50 tubes. Each family is
-  // shown at the better of its two feature sets (four or twelve channels,
-  // each divided by the stock OD), so this is a ranking made after the scores
-  // were seen, not a result. Source: the same revision 2,
-  // FIGURE_SOURCE_DATA.json, "family_minima". The ridge row is the pipeline
-  // that was fixed beforehand.
-  const FAMILIES = [
-    { name: "Ordinary least squares", feat: "4 channels", mae: 7.60 },
-    { name: "Elastic net", feat: "4 channels", mae: 8.08 },
-    { name: "Ridge, the fixed pipeline", feat: "4 channels", mae: 8.24, kind: "fixed" },
-    { name: "Linear SVR", feat: "12 channels", mae: 8.56 },
-    { name: "Ridge, zero-constrained", feat: "12 channels", mae: 8.82 },
-    { name: "RBF SVR", feat: "12 channels", mae: 9.03 },
-    { name: "Huber regression", feat: "4 channels", mae: 9.05 },
-    { name: "MLP (convergence warnings)", feat: "12 channels", mae: 9.15 },
-    { name: "Quadratic polynomial", feat: "4 channels", mae: 9.30 },
-    { name: "Gaussian process", feat: "4 channels", mae: 9.32 },
-    { name: "Kernel ridge", feat: "4 channels", mae: 9.71 },
-    { name: "Partial least squares", feat: "4 channels", mae: 9.97 },
-    { name: "Spline", feat: "4 channels", mae: 12.39 },
-    { name: "k-nearest neighbours", feat: "4 channels", mae: 14.34 },
-    { name: "Cubic polynomial", feat: "4 channels", mae: 15.04 },
-    { name: "Boosting", feat: "12 channels", mae: 16.42 },
-    { name: "Extra trees", feat: "4 channels", mae: 16.60 },
-    { name: "Random forest", feat: "4 channels", mae: 17.97 },
   ];
 
   // ---- arithmetic ---------------------------------------------------------
@@ -242,64 +196,7 @@
     });
   }
 
-  // ---- figures 4 and 5: one bar per row -------------------------------------
-  // rows: { label, note, mae, kind, tip }. With o.twoLine the note sits under
-  // the label; otherwise a row is a single line and the note is tooltip only.
-  // o.ref draws one dashed reference line with its own label.
-  function hbars(host, rows, o) {
-    const rowH = o.twoLine ? 38 : 26;
-    const barH = o.twoLine ? 22 : 15;
-    const top = o.heading ? 34 : 26;
-    const p = frame(host, {
-      h: top + rows.length * rowH + 62, margin: { l: o.left, t: top },
-      x: [0, o.max], y: [0, 1], xticks: o.xticks,
-      xtitle: "mean absolute error, percentage points of G",
-      label: o.label + " " + rows.map((r) => `${r.label}${r.note ? " (" + r.note + ")" : ""}: ${r.mae.toFixed(2)}`).join("; ") + ".",
-    });
-    if (o.heading) {
-      p.svg.appendChild(el("text", { class: "md-tick", x: p.m.l - 12, y: 20, "text-anchor": "end" }, o.heading));
-    }
-    if (o.ref) {
-      p.svg.appendChild(el("line", { class: "md-ref", x1: p.X(o.ref.at), x2: p.X(o.ref.at), y1: top - 4, y2: p.H - p.m.b }));
-      // Beside the top rows, which are the shortest bars, so it never sits on a value.
-      p.svg.appendChild(el("text", { class: "md-ref-lbl", x: p.X(o.ref.at) - 8, y: top + 15, "text-anchor": "end" }, o.ref.text));
-    }
-    rows.forEach((r, i) => {
-      const y = p.m.t + i * rowH + (rowH - barH) / 2;
-      const mid = y + barH / 2;
-      const bar = el("rect", { class: "md-bar md-bar-" + r.kind, x: p.X(0), y, width: p.X(r.mae) - p.X(0), height: barH, rx: 3 });
-      bar.appendChild(el("title", {}, `${r.label}${r.note ? " (" + r.note + ")" : ""}: ${r.mae.toFixed(2)} percentage points`));
-      p.svg.appendChild(bar);
-      p.svg.appendChild(el("text", { class: "md-val", x: p.X(r.mae) + 8, y: mid + 4.5 }, r.mae.toFixed(2)));
-      const strong = r.kind === "true" || r.kind === "fixed";
-      p.svg.appendChild(el("text", { class: "md-rowlbl" + (strong ? " is-true" : ""), x: p.m.l - 12,
-        y: o.twoLine ? mid - 2 : mid + 4.5, "text-anchor": "end" }, r.label));
-      if (o.twoLine) {
-        p.svg.appendChild(el("text", { class: "md-tick md-tick-sub", x: p.m.l - 12, y: mid + 13, "text-anchor": "end" }, r.note));
-      }
-    });
-  }
-
-  // ---- figure 4: only the true OD pairing helps ----------------------------
-  function drawOd(host) {
-    hbars(host, OD_RUNS, {
-      twoLine: true, left: 232, max: 62, xticks: [0, 10, 20, 30, 40, 50, 60],
-      heading: "OD given to session 1 / 2 / 3",
-      label: "Mean absolute error of the four-channel model for seven ways of supplying the stock OD.",
-    });
-  }
-
-  // ---- figure 5: eighteen model families under one scoring rule ------------
-  function drawFamilies(host) {
-    hbars(host, FAMILIES.map((f) => ({ label: f.name, note: f.feat, mae: f.mae, kind: f.kind || "fam" })), {
-      left: 250, max: 22, xticks: [0, 5, 10, 15, 20],
-      ref: { at: 20.73, text: "ridge with no OD, 20.73" },
-      label: "Held-out mean absolute error of eighteen model families, each given the stock OD.",
-    });
-  }
-
-  [["mdFigRaw", drawRaw], ["mdFigConverted", drawConverted], ["mdFigHeldOut", drawHeldOut],
-   ["mdFigOd", drawOd], ["mdFigFamilies", drawFamilies]]
+  [["mdFigRaw", drawRaw], ["mdFigConverted", drawConverted], ["mdFigHeldOut", drawHeldOut]]
     .forEach(([id, draw]) => {
       const host = document.getElementById(id);
       if (host) draw(host);
