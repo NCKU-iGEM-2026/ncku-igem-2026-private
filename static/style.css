@@ -4120,6 +4120,17 @@ body.edu-cosmos-page .hero-sub {
   color: #6b7a72;
 }
 
+/* marks the team that hosted the event, e.g. NYCU for the iGEMers Meetup */
+.collab-teams .collab-host {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.08rem 0.36rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  opacity: 0.75;
+}
+
 @media print {
   /* Nothing here is clickable on paper, and the three sessions it points at
      are the three headings directly below it. */
@@ -12435,24 +12446,26 @@ html[data-theme="dark"] .edu-pin.is-selected {
   box-shadow: 0 0 0 3px rgba(160, 232, 96, 0.4);
 }
 
-/* ---- the galleries and their controls ---- */
-body.edu-nexus .edu-arrow {
+/* ---- the galleries and their controls ----
+   Collaboration and Promotion are hp-nexus, but they use the same carousel as
+   Education, so the arrows, dots and status share one rule set. */
+body:is(.edu-nexus, .hp-nexus) .edu-arrow {
   color: var(--nx-mint);
   background: var(--nx-panel);
   border-color: var(--nx-line);
 }
-body.edu-nexus .edu-arrow:hover,
-body.edu-nexus .edu-arrow:focus-visible {
+body:is(.edu-nexus, .hp-nexus) .edu-arrow:hover,
+body:is(.edu-nexus, .hp-nexus) .edu-arrow:focus-visible {
   background: var(--nx-raised);
   border-color: var(--nx-mint);
 }
-body.edu-nexus .edu-arrow:focus-visible { outline-color: var(--nx-mint); }
-body.edu-nexus .edu-dot::before { background: var(--nx-line); }
-body.edu-nexus .edu-dot:hover::before,
-body.edu-nexus .edu-dot:focus-visible::before { background: var(--nx-muted); }
-body.edu-nexus .edu-dot[aria-current="true"]::before { background: var(--nx-lime); }
-body.edu-nexus .edu-dot:focus-visible { outline-color: var(--nx-mint); }
-body.edu-nexus .edu-carousel-status { color: var(--nx-muted); }
+body:is(.edu-nexus, .hp-nexus) .edu-arrow:focus-visible { outline-color: var(--nx-mint); }
+body:is(.edu-nexus, .hp-nexus) .edu-dot::before { background: var(--nx-line); }
+body:is(.edu-nexus, .hp-nexus) .edu-dot:hover::before,
+body:is(.edu-nexus, .hp-nexus) .edu-dot:focus-visible::before { background: var(--nx-muted); }
+body:is(.edu-nexus, .hp-nexus) .edu-dot[aria-current="true"]::before { background: var(--nx-lime); }
+body:is(.edu-nexus, .hp-nexus) .edu-dot:focus-visible { outline-color: var(--nx-mint); }
+body:is(.edu-nexus, .hp-nexus) .edu-carousel-status { color: var(--nx-muted); }
 
 /* ---- the PDF and podcast blocks ---- */
 body.edu-nexus .edu-pdf-link a {
@@ -13451,7 +13464,11 @@ body.bg-nexus .sgd-dot-after { fill: #279a8c; stroke: var(--nx-panel); }
 body.bg-nexus { --nx-muted: #c6dde4; }
 
 body.bg-nexus .sgd-list li { color: var(--nx-text); }
-body.bg-nexus .sgd-list li strong { color: #fff; }
+/* The emphasis in these lists is the same kind of mark as .edx-key on
+   Education or .mx-key on Human Practices, so it takes the site's one
+   highlight colour. It used to be white, which made this the only page
+   that marked what matters in a different colour from everywhere else. */
+body.bg-nexus .sgd-list li strong { color: var(--nx-lime); font-weight: 600; }
 body.bg-nexus .sgd-list li::marker { color: var(--nx-mint); }
 
 /* The game's own secondary ink, which drives "choose a game mode" and the
@@ -15060,13 +15077,12 @@ body.bg-nexus .bg-hl {
   font-weight: 600;
 }
 
-/* The second selector is for a .bg-key that is also a <strong> inside a
-   list, where "body.bg-nexus .sgd-list li strong { color: #fff }" is one
-   step more specific and was painting two of them white. */
+/* Same weight as .edx-key and .mx-key elsewhere, so a named thing is marked
+   the same way on every page. */
 body.bg-nexus .bg-key,
 body.bg-nexus .sgd-list li strong.bg-key {
   color: var(--nx-lime);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 body.bg-nexus .bg-quote {
