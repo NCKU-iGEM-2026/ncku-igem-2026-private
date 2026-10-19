@@ -9,6 +9,10 @@
 
 {% block lead %}{% endblock %}
 
+{% block page_css %}
+<link href="{{ url_for('static', filename='css/pages/model.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block page_content %}
 
 {# A fraction, typeset. Same macro as the Software page. #}
@@ -55,8 +59,8 @@
   </header>
 
   <p class="sw-takeaway">
-    An aptamer sponge is a molar budget, spent against a signal the bacteria
-    keep remaking.
+    Partial inhibition, a dose hypothesis, and a Cb-2 prediction the model
+    could not explain.
   </p>
 
   <p class="hw-aside">
@@ -71,26 +75,29 @@
       Our inhibition module releases single-stranded DNA aptamers that bind the
       acyl-homoserine lactone (AHL) signals of
       <em>Pseudomonas&nbsp;aeruginosa</em>. The idea is a molecular sponge:
-      hold the signal below the threshold and the quorum-sensing switch never
-      turns on. What the wet lab measured was a partial effect &mdash;
-      swarming, pyocyanin and biofilm all down, by a tenth to just over a
-      third. This model was fitted to two of those numbers, and then asked to
-      predict a treatment it had never seen. It misses in all three assays, in
-      the same direction every time, and that failure is the most informative
-      thing on this page.
+      reduce the free signal available to receptors. The experiments show
+      partial inhibition. We fitted a model to ALS-5 and A16-2 swarming data,
+      used it to estimate a higher A16-2 dose to test, and checked its
+      predictions against Cb-2, which was excluded from calibration.
     </p>
   </div>
 
-  <ul class="md-val-kpis" aria-label="Part 1 in two numbers">
+  <ul class="md-inhibition-overview" aria-label="Part 1 at a glance">
+    <li><strong>Observed</strong><span>The treatments reduce the measured phenotypes, with effects that differ between assays. <a href="#model-inhibition-data">See the data</a>.</span></li>
+    <li><strong>Predicted</strong><span>A higher A16-2 dose may reach half swarming inhibition, under the model's assumptions. <a href="#model-inhibition-switch">See the dose estimate</a>.</span></li>
+    <li><strong>Unresolved</strong><span>Cb-2 inhibits more than predicted in all three assays. This gap guides the proposed follow-up experiments. <a href="#model-inhibition-validation">See the prediction check</a>.</span></li>
+  </ul>
+
+  <ul class="md-val-kpis" aria-label="Dose hypothesis and held-out treatment">
     <li>
       <span class="md-val-n">1.6<span class="md-val-u">&times;</span></span>
-      <span class="md-val-k">More aptamer for half</span>
-      <span class="md-val-s">About 1.6&times; the current yield should cross 50&nbsp;% swarming inhibition (90&nbsp;% range 1.0&ndash;2.6&times;). <a href="#model-inhibition-switch">1.4</a></span>
+      <span class="md-val-k">Model-estimated dose to test</span>
+      <span class="md-val-s">About 1.6&times; the nominal A16-2 dose for 50&nbsp;% swarming inhibition (90&nbsp;% range 1.0&ndash;2.6&times;). This is an unvalidated estimate: applied plate concentration was not recorded and &beta; is assumed. <a href="#model-inhibition-switch">1.4</a></span>
     </li>
     <li class="is-null">
-      <span class="md-val-n">0 <span class="md-val-u">of 3</span></span>
-      <span class="md-val-k">Held-out tests passed</span>
-      <span class="md-val-s">Cb-2 does more than the model allows in all three assays; why is the open question. <a href="#model-inhibition-validation">1.5</a></span>
+      <span class="md-val-n">Cb-2</span>
+      <span class="md-val-k">Inhibition underestimated in all three assays</span>
+      <span class="md-val-s">One held-out treatment, checked across three phenotypes. The baseline predictions miss each measured interval; these are not three independent validation experiments. <a href="#model-inhibition-validation">1.5</a></span>
     </li>
   </ul>
 
@@ -115,7 +122,7 @@
     </p>
 
     <ol>
-      <li>How much more aptamer would finish the job? <a href="#model-inhibition-switch">1.4</a></li>
+      <li>What higher A16-2 dose should the next experiment test? <a href="#model-inhibition-switch">1.4</a></li>
       <li>Does the model predict a treatment it was never fitted to? <a href="#model-inhibition-validation">1.5</a></li>
     </ol>
   </section>
@@ -125,6 +132,20 @@
   <section id="model-inhibition-data">
     <h2 data-toc-title="1.2 What the data show">1.2 What the data show</h2>
 
+    <p>
+      A16-2 has the largest estimated swarming effect; Cb-2 has the largest
+      estimated pyocyanin and biofilm effects. The model is calibrated on
+      swarming only. ALS-5's biofilm result is borderline: its interval includes
+      no effect in the table below, but just excludes it in F1's resampling
+      analysis.
+    </p>
+
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Exact effect sizes, replicate units and statistical methods</span>
+        <span class="hw-fold-caret" aria-hidden="true"></span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
     <p>
       Every treated well is normalised to a control on the same plate, so each
       reading is a ratio and is analysed on the log scale. What counts as one
@@ -159,6 +180,9 @@
       biofilm 6, 6 and 12 replicates across three plates.
     </p>
 
+      </div>
+    </details>
+
     <figure class="hw-figure">
       <div class="md-plate md-plate-tall">
         <img src="https://static.igem.wiki/teams/6379/wiki/model/inhibition-f1-effect-sizes-1c5f627f.avif"
@@ -179,6 +203,12 @@
       </figcaption>
     </figure>
 
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Assay-by-assay interpretation and supporting analyses</span>
+        <span class="hw-fold-caret" aria-hidden="true"></span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
     <p>
       <strong>All three aptamers inhibit swarming and pyocyanin.</strong> All
       six of those intervals exclude no effect
@@ -202,6 +232,9 @@
       (<a href="#model-inhibition-model">1.3</a>), and nothing on this page
       explains that reversal.
     </p>
+
+      </div>
+    </details>
 
     <p class="hw-caution">
       <strong>There is no quorum-sensing-independent control, and that limits
@@ -240,6 +273,29 @@
       the model does follows from writing those two sentences down.
     </p>
 
+    <figure class="hw-figure md-mechanism">
+      <ol class="md-mechanism-flow" aria-label="The model's proposed mechanism">
+        <li><span class="md-mechanism-step">01 · Binding</span><strong>Aptamer binds AHL</strong><span>The aptamer pool sequesters signal in rapid equilibrium.</span></li>
+        <li><span class="md-mechanism-step">02 · Free signal</span><strong>Less AHL reaches receptors</strong><span>Receptor occupancy depends on the remaining free ligand.</span></li>
+        <li><span class="md-mechanism-step">03 · Feedback</span><strong>Signal synthesis responds</strong><span>Autoinduction changes production; the model's las gate scales rhl synthesis.</span></li>
+        <li><span class="md-mechanism-step">04 · Output</span><strong>Predict relative swarming</strong><span>Relative rhl occupancy maps to swarm radius through the assumed exponent &beta;.</span></li>
+      </ol>
+      <figcaption><strong>The mechanism represented by the model.</strong> Free AHL drives both receptor occupancy and synthesis feedback. This is an assumed causal structure; the measured phenotypes alone do not establish it.</figcaption>
+    </figure>
+
+    <p>The core link from signalling to the measured output is:</p>
+    <div class="sw-eq sw-eq-key">
+      <var>R</var> / <var>R</var><sub>control</sub> = ( &theta;<sub>2</sub> / &theta;<sub>2,control</sub> )<sup>&beta;</sup>
+    </div>
+    <p>Here <var>R</var> is swarm radius and &theta;<sub>2</sub> is rhl receptor occupancy. We assume &beta;&nbsp;=&nbsp;1; this mapping is not independently measured.</p>
+
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Full equations: receptor occupancy, feedback and binding balance</span>
+        <span class="hw-fold-caret" aria-hidden="true"></span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
+
     <p>Receptor occupancy, with <var>K<sub>i</sub></var> the activation constant:</p>
 
     <div class="sw-eq">
@@ -271,11 +327,8 @@
       <span class="md-eqnote">The shared <var>D<sub>j</sub></var> is the budget constraint: one site, two possible occupants. It is the whole reason a dual binder is not simply two specialists in one molecule.</span>
     </div>
 
-    <p>And the phenotype that is actually measured:</p>
-
-    <div class="sw-eq sw-eq-key">
-      <var>R</var> / <var>R</var><sub>control</sub> = ( &theta;<sub>2</sub> / &theta;<sub>2,control</sub> )<sup>&beta;</sup>
-    </div>
+      </div>
+    </details>
 
     <p>
       <strong>The model is calibrated on swarming only.</strong> It is the one
@@ -298,7 +351,18 @@
       Cb-2 and therefore makes any predicted shortfall a lower bound.
     </p>
 
-    <h3 id="model-inhibition-params">Calibration</h3>
+    <p>
+      Calibration fits two parameters to two swarming observations, ALS-5 and
+      A16-2. Cb-2 is excluded from that fit. Matching the calibration points
+      therefore does not independently validate the model.
+    </p>
+
+    <details class="hw-fold md-fold" id="model-inhibition-params">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Calibration, parameter values and uncertainty propagation</span>
+        <span class="hw-fold-caret" aria-hidden="true"></span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
 
     <p>
       <strong>Exactly two parameters are fitted, to exactly two
@@ -377,12 +441,14 @@
       plates, which is what makes the rest of this part worth reading. Source:
       <code>calibration_draws.csv</code>.
     </p>
+      </div>
+    </details>
   </section>
 
 
   {# ========================= 1.4 how much more aptamer ========================= #}
   <section id="model-inhibition-switch">
-    <h2 data-toc-title="1.4 How much more">1.4 How much more aptamer would finish the job</h2>
+    <h2 data-toc-title="1.4 Dose hypothesis">1.4 A higher dose to test</h2>
 
     <p>
       At the yield the wet lab reached, A16-2 took about a third off swarming.
@@ -411,7 +477,7 @@
     </p>
 
     <p>
-      <strong>Half suppression is a target; full suppression is not.</strong>
+      <strong>Half suppression is a hypothesis for the next dose experiment.</strong>
       Across 296 draws spanning three orders of magnitude in the LasR constant,
       more than an order of magnitude in both signal levels and 1&ndash;30
       ng/&micro;L of applied dose, the requirement for half suppression stays
@@ -447,18 +513,28 @@
       saturates&rdquo; from &ldquo;ALS-5 is simply weaker here&rdquo;.
       <a href="#model-inhibition-changed">1.6</a> says what would settle it.
     </p>
+    <p class="hw-caution">
+      <strong>This dose estimate has not been experimentally validated.</strong>
+      It depends on the assumed occupancy-to-radius mapping and a nominal
+      ssDNA concentration rather than a recorded applied plate dose. The Cb-2
+      prediction check below also exposes limits of the model. Use the estimate
+      to choose a dose series, rather than as a demonstrated yield requirement.
+    </p>
   </section>
 
 
   {# ========================= 1.5 testing it ========================= #}
   <section id="model-inhibition-validation">
-    <h2 data-toc-title="1.5 Testing it">1.5 Testing it: the model fails its own held-out test</h2>
+    <h2 data-toc-title="1.5 Prediction check">1.5 Cb-2: where the predictions miss</h2>
 
     <p>
-      Cb-2 was kept out of every fit, so it is a real test: the model predicts
-      it with no free parameters. It is also the only held-out treatment that
-      was measured. <strong>The prediction misses in all three assays, in the
-      same direction every time, and the miss grows across them.</strong>
+      Cb-2 was excluded from calibration and is the only measured held-out
+      treatment. Under the stated dosing and affinity assumptions,
+      <strong>the baseline prediction underestimates inhibition in all three
+      assays.</strong> These are checks across three phenotypes of one
+      treatment, rather than three independent validation experiments. The
+      applied plate concentration was not recorded, so the check is conditional
+      on the model's dosing convention.
     </p>
 
     <div class="hw-figure hw-figure-table">
@@ -571,13 +647,32 @@
 
   {# ========================= 1.6 what it changed ========================= #}
   <section id="model-inhibition-changed">
-    <h2 data-toc-title="1.6 What it changed">1.6 What it changed</h2>
+    <h2 data-toc-title="1.6 Next experiments">1.6 From model gaps to next experiments</h2>
 
     <p>
       These are the recommendations the model handed back to the wet lab. They
       are written as recommendations because that is their status at the time
       this page was written: none of them has reported a result yet.
     </p>
+
+    <div class="hw-figure hw-figure-table">
+      <table class="hw-table">
+        <caption>How the model informs the proposed follow-up work</caption>
+        <thead><tr><th scope="col">Observation or model gap</th><th scope="col">What remains unresolved</th><th scope="col">Proposed measurement</th></tr></thead>
+        <tbody>
+          <tr><td>Several phenotypes decrease together.</td><td>A growth effect has not been excluded.</td><td>Include a quorum-sensing-independent control alongside swarming.</td></tr>
+          <tr><td>The A16-2 dose sweep predicts half inhibition near 1.6&times; nominal dose.</td><td>The dose response and occupancy-to-radius mapping are unmeasured.</td><td>Run a recorded dose series and measure rhamnolipid alongside swarm radius.</td></tr>
+          <tr><td>Cb-2 inhibits more than the baseline model predicts.</td><td>Dosing, assumed affinity, plate differences and spatial structure can affect the comparison.</td><td>Record molar dose and compare all three constructs on shared plates.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details class="hw-fold md-fold">
+      <summary class="hw-fold-head">
+        <span class="hw-fold-title">Full recommendations and proposed experimental comparisons</span>
+        <span class="hw-fold-caret" aria-hidden="true"></span>
+      </summary>
+      <div class="hw-fold-body hw-fold-prose">
 
     <ol>
       <li>
@@ -589,10 +684,11 @@
         set carrying both settles it.
       </li>
       <li>
-        <strong>Raise the aptamer yield by about 1.6&times;, and expect to
-        cross 50&nbsp;% swarming inhibition</strong> (90&nbsp;% range
-        1.0&ndash;2.6&times;). Full suppression was dropped as a target: the
-        same sweep puts it anywhere up to 49&times;.
+        <strong>Test the model's estimate of about 1.6&times; the nominal
+        A16-2 dose for 50&nbsp;% swarming inhibition</strong> (90&nbsp;% range
+        1.0&ndash;2.6&times;). The estimate is conditional on the model's
+        assumptions. The 90&nbsp;% inhibition estimate ranges up to 49&times;,
+        so it does not provide a precise yield target.
       </li>
       <li>
         <strong>Measure &beta;</strong> &mdash; rhamnolipid quantification
@@ -628,6 +724,8 @@
         all three treatments on every plate fixes this and item 6 together.
       </li>
     </ol>
+      </div>
+    </details>
   </section>
 
 
