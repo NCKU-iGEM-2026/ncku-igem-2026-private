@@ -268,3 +268,43 @@
   .hx-meet-stage.rx-in .hx-meet-mark { animation: none; }
   .hx-meet-title { color: #000 !important; }
 }
+
+/* ---- the run down from the wait --------------------------------------
+   A line of the page's own glow green that leaves the panel above and
+   arrives at the mark. It is drawn by the scroll rather than by a clock:
+   motion.js gives every [data-rx-chapter] a --rx-chap of 0 to 100% across
+   its own travel, and the clip below uncovers the path from the top as that
+   climbs -- the same mechanism the habitats thread uses.
+
+   It hangs above this section's top edge on purpose, so it reads as leaving
+   the panel before rather than starting here; .hx does not clip, so it can.
+   -------------------------------------------------------------------- */
+.hx-meet-trail {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  top: calc(-1 * clamp(130px, 20vh, 240px));
+  height: clamp(240px, 36vh, 420px);
+  width: clamp(70px, 9vw, 120px);
+  z-index: 0;
+  pointer-events: none;
+  clip-path: inset(0 0 calc(100% - var(--rx-chap, 0%)) 0);
+}
+.hx-meet-trail svg { width: 100%; height: 100%; display: block; }
+.hx-meet-trail path {
+  fill: none;
+  stroke: var(--c-glow);
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;   /* the box is stretched; the line is not */
+  filter: drop-shadow(0 0 9px rgba(160, 232, 96, 0.45));
+}
+/* The mark and the word sit over it, never under. */
+.hx-meet .hx-inner { z-index: 1; }
+
+/* A line that draws itself is the kind of thing reduced motion is for, and
+   in print it is an artefact of scrolling that cannot happen. */
+@media (prefers-reduced-motion: reduce) {
+  .hx-meet-trail { clip-path: none; opacity: 0.55; }
+}
+@media print { .hx-meet-trail { display: none; } }
