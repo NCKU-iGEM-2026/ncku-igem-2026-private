@@ -1,25 +1,23 @@
+{% extends "layout.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAPTURE // Classified Terminal</title>
+{% block title %}Classified Terminal{% endblock %}
 
+{% block body_class %}egg-page{% endblock %}
+
+{% block page_css %}
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;800&display=swap');
 
-:root {
+body.egg-page {
   --green: #a6ffcb;
   --cyan: #61f6ff;
   --dark: #030a0a;
 }
 
-* {
+body.egg-page .egg-root * {
   box-sizing: border-box;
 }
 
-body {
+body.egg-page {
   margin: 0;
   min-height: 100vh;
   background: var(--dark);
@@ -28,7 +26,7 @@ body {
   overflow-x: hidden;
 }
 
-canvas {
+body.egg-page .egg-root canvas {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -38,7 +36,7 @@ canvas {
   pointer-events: none;
 }
 
-.scanlines {
+body.egg-page .scanlines {
   position: fixed;
   inset: 0;
   z-index: 5;
@@ -50,7 +48,7 @@ canvas {
   );
 }
 
-main {
+body.egg-page .egg-root main {
   position: relative;
   z-index: 1;
   width: min(900px, 92%);
@@ -58,7 +56,7 @@ main {
   padding: 35px 0 70px;
 }
 
-.topbar {
+body.egg-page .topbar {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -68,23 +66,23 @@ main {
   letter-spacing: 2px;
 }
 
-.status {
+body.egg-page .status {
   color: var(--cyan);
   animation: blink 1.2s infinite;
 }
 
-.hero {
+body.egg-page .hero {
   text-align: center;
   padding: 65px 0 35px;
 }
 
-.eyebrow {
+body.egg-page .eyebrow {
   color: var(--cyan);
   font-size: 12px;
   letter-spacing: 5px;
 }
 
-h1 {
+body.egg-page .egg-root h1 {
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(42px, 10vw, 100px);
   font-weight: 800;
@@ -94,19 +92,19 @@ h1 {
   text-shadow: 0 0 15px #61f6ff80, 0 0 45px #61f6ff30;
 }
 
-.subtitle {
+body.egg-page .subtitle {
   letter-spacing: 5px;
   color: var(--cyan);
   font-size: 14px;
 }
 
-.divider {
+body.egg-page .divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--cyan), transparent);
   margin: 30px 0;
 }
 
-.panel {
+body.egg-page .panel {
   border: 1px solid #3b8c71;
   background: #071411eF;
   padding: 22px;
@@ -115,7 +113,7 @@ h1 {
   box-shadow: 0 0 25px #42ffb00b;
 }
 
-.panel::before {
+body.egg-page .panel::before {
   content: "SYSTEM MODULE";
   position: absolute;
   top: -8px;
@@ -127,37 +125,37 @@ h1 {
   color: var(--cyan);
 }
 
-h2 {
+body.egg-page .egg-root h2 {
   font-family: 'Orbitron', sans-serif;
   font-size: 16px;
   letter-spacing: 2px;
   color: var(--cyan);
 }
 
-p {
+body.egg-page .egg-root p {
   line-height: 1.9;
   color: #b5d6c8;
   font-size: 14px;
 }
 
-.highlight {
+body.egg-page .highlight {
   color: var(--green);
 }
 
-.metrics {
+body.egg-page .metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin: 25px 0;
 }
 
-.metric {
+body.egg-page .metric {
   border: 1px solid #245a48;
   padding: 16px 8px;
   text-align: center;
 }
 
-.metric strong {
+body.egg-page .metric strong {
   display: block;
   font-family: 'Orbitron', sans-serif;
   font-size: 20px;
@@ -165,13 +163,13 @@ p {
   margin-bottom: 8px;
 }
 
-.metric span {
+body.egg-page .metric span {
   font-size: 10px;
   color: #91bca9;
   letter-spacing: 1px;
 }
 
-button {
+body.egg-page .egg-root button {
   font-family: inherit;
   color: var(--green);
   background: #0a2119;
@@ -182,22 +180,22 @@ button {
   transition: .25s;
 }
 
-button:hover {
+body.egg-page .egg-root button:hover {
   background: var(--green);
   color: #00140c;
   box-shadow: 0 0 25px #a6ffcb60;
 }
 
-button:focus-visible {
+body.egg-page .egg-root button:focus-visible {
   outline: 2px solid white;
   outline-offset: 4px;
 }
 
-.center {
+body.egg-page .center {
   text-align: center;
 }
 
-#terminal {
+body.egg-page #terminal {
   min-height: 125px;
   white-space: pre-wrap;
   line-height: 1.9;
@@ -206,23 +204,23 @@ button:focus-visible {
   overflow-wrap: anywhere;
 }
 
-.hidden {
+body.egg-page .hidden {
   display: none !important;
 }
 
-#reveal {
+body.egg-page #reveal {
   text-align: center;
   padding: 30px 10px;
   animation: appear 1.4s ease both;
 }
 
-#reveal h2 {
+body.egg-page #reveal h2 {
   font-size: clamp(20px, 4vw, 32px);
   color: var(--green);
   text-shadow: 0 0 20px #a6ffcb70;
 }
 
-.signature {
+body.egg-page .signature {
   font-family: 'Orbitron', sans-serif;
   font-size: 11px;
   letter-spacing: 3px;
@@ -232,11 +230,11 @@ button:focus-visible {
   margin-top: 50px;
 }
 
-.glitch {
+body.egg-page .glitch {
   animation: glitch .3s linear 2;
 }
 
-.prank-area {
+body.egg-page .prank-area {
   text-align: center;
   margin: 45px 0;
   padding: 25px 10px;
@@ -244,14 +242,14 @@ button:focus-visible {
   background: #16070780;
 }
 
-.prank-label {
+body.egg-page .prank-label {
   color: #ff7777;
   font-size: 11px;
   letter-spacing: 3px;
   margin-bottom: 18px;
 }
 
-.prank-button {
+body.egg-page .prank-button {
   color: #ff7777;
   border: 1px solid #ff5555;
   background: #200808;
@@ -260,13 +258,13 @@ button:focus-visible {
   animation: prankPulse 1.5s infinite;
 }
 
-.prank-button:hover {
+body.egg-page .prank-button:hover {
   background: #ff4444;
   color: white;
   box-shadow: 0 0 25px #ff4444;
 }
 
-.prank-overlay {
+body.egg-page .prank-overlay {
   position: fixed;
   inset: 0;
   z-index: 99999;
@@ -277,11 +275,11 @@ button:focus-visible {
   overscroll-behavior: contain;
 }
 
-.prank-overlay.hidden {
+body.egg-page .prank-overlay.hidden {
   display: none !important;
 }
 
-.prank-header {
+body.egg-page .prank-header {
   max-width: 500px;
   margin: 10px auto 20px;
   padding: 15px;
@@ -295,7 +293,7 @@ button:focus-visible {
   animation: blink 1s infinite;
 }
 
-.prank-window {
+body.egg-page .prank-window {
   position: relative;
   width: min(390px, 100%);
   margin: 18px auto;
@@ -307,39 +305,39 @@ button:focus-visible {
   animation: prankAppear .35s ease-out both;
 }
 
-.prank-window:nth-child(2) {
+body.egg-page .prank-window:nth-child(2) {
   animation-delay: .12s;
 }
 
-.prank-window:nth-child(3) {
+body.egg-page .prank-window:nth-child(3) {
   animation-delay: .24s;
 }
 
-.prank-window:nth-child(4) {
+body.egg-page .prank-window:nth-child(4) {
   animation-delay: .36s;
 }
 
-.prank-window:nth-child(5) {
+body.egg-page .prank-window:nth-child(5) {
   animation-delay: .48s;
 }
 
-.prank-window h3 {
+body.egg-page .prank-window h3 {
   color: #ff7777;
   font-family: 'Orbitron', sans-serif;
   font-size: 13px;
   letter-spacing: 1px;
 }
 
-.prank-window p {
+body.egg-page .prank-window p {
   font-size: 14px;
 }
 
-.prank-window .error-code {
+body.egg-page .prank-window .error-code {
   color: var(--cyan);
   font-size: 11px;
 }
 
-.prank-window .window-bar {
+body.egg-page .prank-window .window-bar {
   display: flex;
   justify-content: space-between;
   color: #ff7777;
@@ -348,7 +346,7 @@ button:focus-visible {
   font-size: 10px;
 }
 
-.escape-area {
+body.egg-page .escape-area {
   max-width: 500px;
   margin: 25px auto 0;
   text-align: center;
@@ -357,11 +355,11 @@ button:focus-visible {
   background: #071411;
 }
 
-.escape-area p {
+body.egg-page .escape-area p {
   font-size: 12px;
 }
 
-.escape-button {
+body.egg-page .escape-button {
   display: inline-block;
   margin: 10px auto;
   background: #163b2d;
@@ -371,7 +369,7 @@ button:focus-visible {
   width: 100%;
 }
 
-.escape-button:hover {
+body.egg-page .escape-button:hover {
   background: var(--green);
   color: #00140c;
 }
@@ -413,51 +411,53 @@ button:focus-visible {
 }
 
 @media (max-width: 500px) {
-  main {
+  body.egg-page .egg-root main {
     padding-top: 20px;
   }
 
-  .hero {
+  body.egg-page .hero {
     padding-top: 45px;
   }
 
-  .topbar {
+  body.egg-page .topbar {
     letter-spacing: 0;
   }
 
-  .metrics {
+  body.egg-page .metrics {
     gap: 6px;
   }
 
-  .metric strong {
+  body.egg-page .metric strong {
     font-size: 15px;
   }
 
-  .panel {
+  body.egg-page .panel {
     padding: 17px;
   }
 
-  .subtitle {
+  body.egg-page .subtitle {
     letter-spacing: 2px;
   }
 
-  .prank-button {
+  body.egg-page .prank-button {
     width: 100%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  body.egg-page .egg-root *, body.egg-page .egg-root *::before, body.egg-page .egg-root *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
   }
 }
 </style>
-</head>
+{% endblock %}
 
-<body>
+{% block header %}{% endblock %}
 
+{% block page_content %}
+<div class="egg-root" lang="en">
 <canvas id="particles" aria-hidden="true"></canvas>
 <div class="scanlines" aria-hidden="true"></div>
 
@@ -598,7 +598,10 @@ button:focus-visible {
     </button>
   </div>
 </div>
+</div>
+{% endblock %}
 
+{% block extra_scripts %}
 <script>
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
@@ -788,6 +791,4 @@ document.addEventListener('keydown', event => {
   }
 });
 </script>
-
-</body>
-</html>
+{% endblock %}
