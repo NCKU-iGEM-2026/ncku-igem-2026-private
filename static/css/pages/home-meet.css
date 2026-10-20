@@ -35,12 +35,15 @@
 /* A screen to itself: the word and the mark, centred in it, with nothing
    else in view. */
 .hx-meet {
-  /* box-sizing is not border-box here, and .hx carries its own vertical
-     padding, so a bare min-height lands 44px over the viewport and the next
-     section starts just off the bottom edge. The padding goes, and svh
-     rather than vh so a phone's collapsing toolbars cannot make it jump. */
+  /* svh rather than vh so a phone's collapsing toolbars cannot make it jump.
+     border-box because .hx is not, and without it the padding below would be
+     added to the min-height and push the next section off the bottom edge.
+     The top padding clears the fixed navbar, which takes the first 96px of
+     every viewport: centring inside the full height instead puts the heading
+     under the bar on any screen short enough for the content to fill it. */
+  box-sizing: border-box;
   min-height: 100svh;
-  padding-block: 0;
+  padding-block: 6rem 0;
   display: grid;
   align-content: center;
 }
@@ -71,7 +74,11 @@
    never has to appear here. */
 .hx-meet-stage {
   position: relative;
-  width: min(100%, 760px, 68vh);
+  /* The third term is what makes the pair fill the screen: the navbar takes
+     6rem off the top and the heading with its margin measures 5.75rem, so
+     the stage is handed what is left, less a little so it does not sit hard
+     against the bottom. 100% caps it on a phone, where width runs out first. */
+  width: min(100%, 1000px, calc(100svh - 13rem));
   aspect-ratio: 1;
   margin: 0 auto;
 }
@@ -190,20 +197,21 @@
 }
 
 /* ---- and this is the only thing that starts any of it ---- */
-.hx-meet-stage.rx-in .hx-meet-l1    { animation: meet-draw 1.5s linear 0.05s both; }
-.hx-meet-stage.rx-in .hx-meet-erase { animation: meet-rub  1.5s linear 1.35s both; }
-.hx-meet-stage.rx-in .hx-meet-l2    { animation: meet-draw 1.5s linear 1.35s both; }
-.hx-meet-stage.rx-in .hx-meet-l3    { animation: meet-draw 1.3s linear 2.65s both; }
+.hx-meet-stage.rx-in .hx-meet-l1    { animation: meet-draw 1.15s linear 0.05s both; }
+.hx-meet-stage.rx-in .hx-meet-erase { animation: meet-rub  1.15s linear 1.05s both; }
+.hx-meet-stage.rx-in .hx-meet-l2    { animation: meet-draw 1.15s linear 1.05s both; }
+.hx-meet-stage.rx-in .hx-meet-l3    { animation: meet-draw 1.0s linear 2.05s both; }
 .hx-meet-stage.rx-in .hx-meet-l5 {
-  animation: meet-swim 1.45s steps(1, end) 3.95s both,
+  animation: meet-swim 1.15s steps(1, end) 3.05s both,
              /* The first pose leaves 14px of the bug on the canvas, so a
                 fade starting with it would spend itself on nothing. It
-                begins with the second pose instead, which also takes the
-                hardness off the step that brings the bug into frame. */
-             meet-surface 0.55s ease-out 4.16s both;
+                begins with the second pose instead -- 3.05 + 1.15/7 -- which
+                also takes the hardness off the step that brings the bug into
+                frame. Retime the swim and this has to follow it. */
+             meet-surface 0.45s ease-out 3.21s both;
 }
-.hx-meet-stage.rx-in .hx-meet-mark { animation: meet-settle 0.85s cubic-bezier(.65,0,.25,1) 5.50s both; }
-.hx-meet-stage.rx-in .hx-meet-type   { animation: meet-wipe 0.9s cubic-bezier(.35,0,.2,1) 6.00s both; }
+.hx-meet-stage.rx-in .hx-meet-mark { animation: meet-settle 0.70s cubic-bezier(.65,0,.25,1) 4.25s both; }
+.hx-meet-stage.rx-in .hx-meet-type   { animation: meet-wipe 0.75s cubic-bezier(.35,0,.2,1) 4.65s both; }
 
 /* motion.js adds .rx-in straight away when reduced motion is asked for, so
    switching the animations off here is what is needed -- and because the
