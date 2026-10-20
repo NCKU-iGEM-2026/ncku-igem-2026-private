@@ -147,6 +147,48 @@
       if (window.ScrollTrigger) {
         lenis.on('scroll', window.ScrollTrigger.update);
       }
+
+      // Lenis drives the scroll itself, so the browser's own jump to #id is
+      // swallowed and every in-page link -- the citation numerals, the table
+      // of contents, the figure links -- does nothing. Route them through
+      // lenis.scrollTo instead. Pages where Lenis is skipped keep the native
+      // behaviour and never reach this.
+      function anchorOffset(el) {
+        var sm = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+        if (sm) return sm;
+        var nav = document.querySelector('.navbar');
+        if (!nav) return 0;
+        var pos = getComputedStyle(nav).position;
+        if (pos !== 'fixed' && pos !== 'sticky') return 0;
+        return nav.getBoundingClientRect().height + 16;
+      }
+      document.addEventListener('click', function (ev) {
+        if (ev.defaultPrevented || ev.button !== 0) return;
+        if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+        var a = ev.target && ev.target.closest && ev.target.closest('a[href]');
+        if (!a || a.target === '_blank') return;
+        var href = a.getAttribute('href');
+        if (!href || href.charAt(0) !== '#' || href.length < 2) return;
+        var el;
+        try { el = document.getElementById(decodeURIComponent(href.slice(1))); }
+        catch (err) { el = document.getElementById(href.slice(1)); }
+        if (!el) return;
+        ev.preventDefault();
+        // The raf loop parks itself after a second of stillness, and
+        // lenis.scrollTo needs it running to animate at all.
+        wake();
+        var startY = window.pageYOffset;
+        lenis.scrollTo(el, { offset: -anchorOffset(el) });
+        // If Lenis does not take -- a parked frame loop, a version that
+        // refuses the call -- the reader still gets there.
+        setTimeout(function () {
+          if (Math.abs(window.pageYOffset - startY) < 2) el.scrollIntoView();
+        }, 700);
+        if (window.history && history.pushState) history.pushState(null, '', href);
+        // Keep the keyboard with the reader, without a second jump.
+        if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+        el.focus({ preventScroll: true });
+      });
     } catch (e) { }
   }
 
