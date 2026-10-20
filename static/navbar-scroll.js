@@ -5,7 +5,56 @@
   // never appears while the top of the page is still in view.
   var backToTopAt = 400;
 
+  // While the mobile drawer is open the page behind it is frozen. Touch
+  // scrolling on iOS ignores overflow:hidden on html/body, so the page is
+  // pinned with position:fixed instead (keeping its scroll offset), and
+  // touch moves that would only drag the page or the drawer are cancelled.
+  // Without this the page scrolled under the drawer, the scroll handler
+  // below slid the whole navbar away, and the burger went with it.
+  var drawer = document.getElementById('navbarSupportedContent');
+  var lockedY = 0;
+
+  function lockPage() {
+    if (document.body.classList.contains('drawer-locked')) return;
+    lockedY = window.scrollY;
+    document.body.classList.remove('navbar-hidden');
+    document.body.classList.add('drawer-locked');
+    document.body.style.position = 'fixed';
+    document.body.style.top = -lockedY + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+  }
+
+  function unlockPage() {
+    if (!document.body.classList.contains('drawer-locked')) return;
+    document.body.classList.remove('drawer-locked');
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    window.scrollTo({ top: lockedY, behavior: 'instant' });
+  }
+
+  if (drawer) {
+    drawer.addEventListener('show.bs.collapse', lockPage);
+    drawer.addEventListener('hidden.bs.collapse', unlockPage);
+    // Leaving the mobile layout (rotate, resize) with the drawer open.
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 992) unlockPage();
+    });
+    document.addEventListener('touchmove', function (e) {
+      if (!document.body.classList.contains('drawer-locked')) return;
+      // The drawer may scroll its own list, but only when that list is
+      // actually taller than the screen.
+      if (drawer.contains(e.target) && drawer.scrollHeight > drawer.clientHeight) return;
+      e.preventDefault();
+    }, { passive: false });
+  }
+
   function onScroll() {
+    if (document.body.classList.contains('drawer-locked')) return;
     var y = window.scrollY;
     var delta = y - lastY;
 
