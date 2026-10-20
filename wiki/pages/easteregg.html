@@ -1,31 +1,19 @@
 {% extends "layout.html" %}
 
-{% block title %}CAPTURE 彩蛋{% endblock %}
+{% block title %}You Found It!{% endblock %}
 
 {% block body_class %}egg-page{% endblock %}
 
 {% block page_css %}
 <style>
-
-  body.egg-page .egg-root * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
   body.egg-page {
     background: #050510;
     color: #e0f7ff;
-    font-family: 'Noto Sans TC', sans-serif;
-    overflow-x: hidden;
-    min-height: 100vh;
-    cursor: crosshair;
   }
 
   body.egg-page #particles {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     z-index: 0;
@@ -34,76 +22,57 @@
 
   body.egg-page .egg-container {
     position: relative;
-    z-index: 10;
-    max-width: 900px;
+    z-index: 1;
+    max-width: 860px;
     margin: 0 auto;
-    padding: 40px 20px 80px;
+    padding: 140px 20px 80px;
     text-align: center;
   }
 
-  body.egg-page .tag {
+  body.egg-page .egg-tag {
     display: inline-block;
-    font-family: 'Orbitron', monospace;
     font-size: 0.75rem;
     letter-spacing: 4px;
     color: #00f0ff;
     border: 1px solid #00f0ff55;
+    background: #00f0ff11;
     padding: 6px 16px;
     border-radius: 999px;
-    margin-bottom: 30px;
-    background: #00f0ff11;
-    animation: pulse-border 2.5s infinite;
+    margin-bottom: 24px;
   }
 
-  @keyframes pulse-border {
-    0%, 100% { box-shadow: 0 0 8px #00f0ff44; }
-    50% { box-shadow: 0 0 20px #00f0ffaa; }
-  }
-
-  body.egg-page .egg-root h1 {
-    font-family: 'Orbitron', monospace;
+  body.egg-page .egg-title {
+    font-size: clamp(3rem, 12vw, 6rem);
     font-weight: 900;
-    font-size: clamp(2.8rem, 10vw, 5.5rem);
-    line-height: 1.05;
+    letter-spacing: 0.08em;
     margin-bottom: 12px;
-    background: linear-gradient(90deg, #00f0ff, #7b61ff, #ff2d95, #00f0ff);
-    background-size: 300% 100%;
+    background: linear-gradient(90deg, #00f0ff, #7b61ff, #ff2d95);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: gradient-shift 6s ease infinite;
-    text-shadow: 0 0 40px #00f0ff33;
   }
 
-  @keyframes gradient-shift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  body.egg-page .subtitle {
-    font-family: 'Orbitron', monospace;
+  body.egg-page .egg-lead {
+    max-width: 620px;
+    margin: 0 auto 48px;
     font-size: 1.1rem;
-    letter-spacing: 6px;
-    color: #7b61ff;
-    margin-bottom: 50px;
-    opacity: 0.9;
+    line-height: 1.7;
+    color: #b8d4e0;
   }
 
-  body.egg-page .typewriter-box {
-    background: rgba(10, 15, 30, 0.7);
-    border: 1px solid #00f0ff33;
-    border-radius: 16px;
-    padding: 28px 32px;
-    margin: 40px 0;
-    text-align: left;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 30px #00f0ff15;
+  body.egg-page .egg-typewriter {
     position: relative;
     overflow: hidden;
+    margin: 0 0 40px;
+    padding: 24px 28px;
+    text-align: left;
+    background: #0a0f1eb3;
+    border: 1px solid #00f0ff33;
+    border-radius: 16px;
+    box-shadow: 0 0 30px #00f0ff15;
   }
 
-  body.egg-page .typewriter-box::before {
+  body.egg-page .egg-typewriter::before {
     content: '';
     position: absolute;
     top: 0;
@@ -113,1021 +82,323 @@
     background: linear-gradient(#00f0ff, #7b61ff);
   }
 
-  body.egg-page #typed-text {
+  body.egg-page #egg-typed {
+    display: inline;
     font-size: 1.05rem;
     line-height: 1.8;
-    min-height: 120px;
     white-space: pre-wrap;
   }
 
-  body.egg-page .cursor {
+  body.egg-page .egg-typewriter-text {
+    min-height: 5.4em;
+  }
+
+  body.egg-page .egg-cursor {
     display: inline-block;
     width: 10px;
     height: 1.2em;
-    background: #00f0ff;
     margin-left: 2px;
-    animation: blink 0.8s step-end infinite;
+    background: #00f0ff;
     vertical-align: text-bottom;
+    animation: egg-blink 0.8s step-end infinite;
   }
 
-  @keyframes blink {
+  @keyframes egg-blink {
     50% { opacity: 0; }
   }
 
-  body.egg-page .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
-    margin: 50px 0;
-  }
-
-  body.egg-page .card {
-    background: linear-gradient(145deg, #0a1225, #0d1a35);
-    border: 1px solid #00f0ff22;
-    border-radius: 18px;
-    padding: 28px 22px;
-    transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
-    overflow: hidden;
-  }
-
-  body.egg-page .card:hover {
-    transform: translateY(-8px) scale(1.03);
-    border-color: #00f0ff88;
-    box-shadow: 0 15px 40px #00f0ff25;
-  }
-
-  body.egg-page .card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #00f0ff15, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  body.egg-page .card:hover::after {
-    opacity: 1;
-  }
-
-  body.egg-page .card-icon {
-    font-size: 2.2rem;
-    margin-bottom: 14px;
-  }
-
-  body.egg-page .card h3 {
-    font-family: 'Orbitron', monospace;
-    font-size: 1.05rem;
-    color: #00f0ff;
-    margin-bottom: 10px;
-    letter-spacing: 1px;
-  }
-
-  body.egg-page .card p {
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: #a8d8e8;
-    opacity: 0.9;
-  }
-
-  body.egg-page .final-quote {
-    margin-top: 60px;
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(1.3rem, 4vw, 1.8rem);
-    letter-spacing: 3px;
-    color: #ff2d95;
-    text-shadow: 0 0 20px #ff2d9566;
-    animation: glow-pink 2.5s ease-in-out infinite alternate;
-  }
-
-  @keyframes glow-pink {
-    from { text-shadow: 0 0 10px #ff2d9544; }
-    to { text-shadow: 0 0 30px #ff2d95aa, 0 0 50px #ff2d9555; }
-  }
-
-  body.egg-page .team {
-    margin-top: 18px;
-    font-size: 0.95rem;
-    color: #7b9fff;
-    letter-spacing: 2px;
-  }
-
-  body.egg-page .secret-hint {
-    margin-top: 50px;
-    font-size: 0.75rem;
-    color: #445566;
-    letter-spacing: 1px;
-  }
-
-  body.egg-page .danger-btn {
-    display: inline-block;
-    margin-top: 40px;
-    padding: 14px 36px;
-    font-family: 'Orbitron', monospace;
-    font-size: 1rem;
-    letter-spacing: 3px;
-    color: #ff2d2d;
-    background: transparent;
-    border: 2px solid #ff2d2d;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-    z-index: 20;
-  }
-
-  body.egg-page .danger-btn:hover {
-    background: #ff2d2d;
-    color: #050510;
-    box-shadow: 0 0 30px #ff2d2d88;
-    transform: scale(1.05);
-  }
-
-  body.egg-page .danger-btn:active {
-    transform: scale(0.97);
-  }
-
-  body.egg-page .trail {
+  body.egg-page .egg-trail,
+  body.egg-page .egg-burst {
     position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1500;
+  }
+
+  body.egg-page .egg-trail {
     width: 8px;
     height: 8px;
-    border-radius: 50%;
+    margin: -4px 0 0 -4px;
     background: #00f0ff;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.7;
     box-shadow: 0 0 12px #00f0ff;
+    opacity: 0.7;
     transition: transform 0.1s, opacity 0.4s;
   }
 
-  body.egg-page .burst {
-    position: fixed;
+  body.egg-page .egg-burst {
     width: 6px;
     height: 6px;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9998;
+    margin: -3px 0 0 -3px;
   }
 
-  body.egg-page #secret-msg {
+  body.egg-page .egg-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    text-align: left;
+  }
+
+  body.egg-page .egg-card {
+    background: #0b1424cc;
+    border: 1px solid #00f0ff33;
+    border-radius: 14px;
+    padding: 24px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  body.egg-page .egg-card:hover {
+    transform: translateY(-4px);
+    border-color: #00f0ffaa;
+  }
+
+  body.egg-page .egg-card-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  body.egg-page .egg-card h3 {
+    font-size: 1.05rem;
+    color: #00f0ff;
+    margin-bottom: 8px;
+  }
+
+  body.egg-page .egg-card p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #c5dbe5;
+    margin: 0;
+  }
+
+  body.egg-page .egg-quote {
+    margin-top: 56px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #ff7ac1;
+  }
+
+  body.egg-page .egg-hint {
+    margin-top: 40px;
+    font-size: 0.8rem;
+    color: #5f7a8c;
+  }
+
+  body.egg-page .egg-secret {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.8);
-    background: rgba(5, 10, 25, 0.95);
-    border: 2px solid #ff2d95;
-    border-radius: 20px;
-    padding: 40px 50px;
-    text-align: center;
-    z-index: 10000;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 0 60px #ff2d9544;
-  }
-
-  body.egg-page #secret-msg.show {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    pointer-events: auto;
-  }
-
-  body.egg-page #secret-msg h2 {
-    font-family: 'Orbitron', monospace;
-    color: #ff2d95;
-    font-size: 1.6rem;
-    margin-bottom: 16px;
-  }
-
-  body.egg-page #secret-msg p {
-    color: #cceeff;
-    line-height: 1.7;
-  }
-
-  body.egg-page .close-btn {
-    margin-top: 24px;
-    background: transparent;
-    border: 1px solid #ff2d95;
-    color: #ff2d95;
-    padding: 8px 24px;
-    border-radius: 999px;
-    cursor: pointer;
-    font-family: 'Orbitron', monospace;
-    letter-spacing: 2px;
-    transition: all 0.3s;
-  }
-
-  body.egg-page .close-btn:hover {
-    background: #ff2d95;
-    color: #050510;
-  }
-
-  body.egg-page .virus-window {
-    position: fixed;
-    width: 380px;
-    background: #c0c0c0;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000, 8px 8px 20px rgba(0,0,0,0.6);
-    z-index: 99999;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    user-select: none;
-    animation: shake 0.4s ease-in-out infinite;
-  }
-
-  @keyframes shake {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    10% { transform: translate(-3px, -2px) rotate(-0.5deg); }
-    20% { transform: translate(3px, 1px) rotate(0.5deg); }
-    30% { transform: translate(-2px, 3px) rotate(-0.3deg); }
-    40% { transform: translate(2px, -1px) rotate(0.4deg); }
-    50% { transform: translate(-1px, 2px) rotate(-0.2deg); }
-    60% { transform: translate(1px, -3px) rotate(0.3deg); }
-    70% { transform: translate(-3px, 1px) rotate(-0.4deg); }
-    80% { transform: translate(3px, 2px) rotate(0.2deg); }
-    90% { transform: translate(-1px, -1px) rotate(-0.1deg); }
-  }
-
-  body.egg-page .virus-titlebar {
-    background: linear-gradient(90deg, #000080, #1084d0);
-    color: white;
-    padding: 4px 8px;
-    font-size: 13px;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: move;
-  }
-
-  body.egg-page .virus-close {
-    width: 18px;
-    height: 18px;
-    background: #c0c0c0;
-    border: 1px solid #000;
-    color: #000;
-    font-size: 12px;
-    font-weight: bold;
-    display: flex;
+    inset: 0;
+    z-index: 2000;
+    display: none;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    line-height: 1;
+    background: #050510dd;
+    padding: 20px;
   }
 
-  body.egg-page .virus-close:hover {
-    background: #ff0000;
-    color: white;
-  }
-
-  body.egg-page .virus-body {
-    padding: 16px;
-    background: #c0c0c0;
+  body.egg-page .egg-secret.show {
     display: flex;
-    gap: 14px;
-    align-items: flex-start;
   }
 
-  body.egg-page .virus-icon {
-    font-size: 42px;
-    flex-shrink: 0;
+  body.egg-page .egg-secret-box {
+    max-width: 440px;
+    padding: 36px 28px;
+    text-align: center;
+    background: #0b1424;
+    border: 1px solid #ff2d95;
+    border-radius: 16px;
+    box-shadow: 0 0 40px #ff2d9555;
   }
 
-  body.egg-page .virus-text {
-    font-size: 13px;
-    color: #000;
-    line-height: 1.5;
-  }
-
-  body.egg-page .virus-text strong {
-    color: #c00000;
-  }
-
-  body.egg-page .virus-buttons {
-    padding: 8px 16px 14px;
-    background: #c0c0c0;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-  }
-
-  body.egg-page .virus-btn {
-    min-width: 80px;
-    padding: 4px 12px;
-    background: #c0c0c0;
-    border: 2px solid;
-    border-color: #fff #000 #000 #fff;
-    font-size: 13px;
-    cursor: pointer;
-  }
-
-  body.egg-page .virus-btn:active {
-    border-color: #000 #fff #fff #000;
-  }
-
-  body.egg-page #toast-stack {
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    z-index: 100001;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    pointer-events: none;
-  }
-
-  body.egg-page .os-toast {
-    width: 364px;
-    max-width: calc(100vw - 32px);
-    background: #2b2b2b;
-    border: 1px solid rgba(255, 255, 255, 0.0837);
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 18px 44px rgba(0, 0, 0, 0.58);
-    font-family: 'Segoe UI Variable Text', 'Segoe UI', 'Noto Sans TC', sans-serif;
-    text-align: left;
-    pointer-events: auto;
-    opacity: 0;
-    transform: translateX(392px);
-    transition: opacity 0.2s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s;
-  }
-
-  body.egg-page .os-toast.show {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  body.egg-page .os-toast:hover {
-    background: #323232;
-  }
-
-  body.egg-page .os-toast-head {
-    display: flex;
-    align-items: flex-start;
+  body.egg-page .egg-secret-box h2 {
+    color: #ff7ac1;
     margin-bottom: 12px;
   }
 
-  body.egg-page .os-toast-app {
-    flex: 1;
-    font-size: 12px;
-    line-height: 16px;
-    color: #c5c5c5;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  body.egg-page .os-toast-close {
-    width: 24px;
-    height: 24px;
-    margin: -5px -8px 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    color: #c5c5c5;
-    font-size: 11px;
-    line-height: 1;
+  body.egg-page .egg-secret-box button {
+    margin-top: 20px;
+    padding: 8px 24px;
+    color: #ff7ac1;
+    background: transparent;
+    border: 1px solid #ff7ac1;
+    border-radius: 999px;
     cursor: pointer;
-    opacity: 0;
-    transition: background 0.1s, opacity 0.1s;
   }
-
-  body.egg-page .os-toast:hover .os-toast-close, body.egg-page .os-toast-close:focus {
-    opacity: 1;
-  }
-
-  body.egg-page .os-toast-close:hover {
-    background: rgba(255, 255, 255, 0.0837);
-  }
-
-  body.egg-page .os-toast-close:active {
-    background: rgba(255, 255, 255, 0.0419);
-  }
-
-  @media (hover: none) {
-    body.egg-page .os-toast-close {
-      opacity: 1;
-    }
-  }
-
-  body.egg-page .chrome-toast {
-    width: 360px;
-    max-width: calc(100vw - 32px);
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 14px 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.26);
-    font-family: Roboto, 'Segoe UI', 'Noto Sans TC', sans-serif;
-    text-align: left;
-    pointer-events: auto;
-    opacity: 0;
-    transform: translateX(392px);
-    transition: opacity 0.2s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  body.egg-page .chrome-toast.show {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  body.egg-page .chrome-toast-row {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
-
-  body.egg-page .chrome-toast-text {
-    flex: 1;
-    min-width: 0;
-  }
-
-  body.egg-page .chrome-toast-title {
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 18px;
-    color: #202124;
-    margin-bottom: 2px;
-  }
-
-  body.egg-page .chrome-toast-body {
-    font-size: 12px;
-    line-height: 17px;
-    color: #5f6368;
-  }
-
-  body.egg-page .chrome-toast-img {
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-  }
-
-  body.egg-page .chrome-toast-img svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-
-  body.egg-page .chrome-toast-actions {
-    display: flex;
-    gap: 2px;
-    margin: -6px -8px 0 0;
-    flex-shrink: 0;
-  }
-
-  body.egg-page .chrome-toast-btn {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    color: #5f6368;
-    font-size: 12px;
-    line-height: 1;
-    cursor: pointer;
-    opacity: 0;
-    transition: background 0.1s, opacity 0.1s;
-  }
-
-  body.egg-page .chrome-toast:hover .chrome-toast-btn {
-    opacity: 0.8;
-  }
-
-  body.egg-page .chrome-toast-btn:hover {
-    background: rgba(32, 33, 36, 0.08);
-    opacity: 1;
-  }
-
-  body.egg-page .chrome-toast-foot {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 10px;
-    font-size: 11px;
-    line-height: 14px;
-    color: #5f6368;
-  }
-
-  body.egg-page .chrome-toast-foot svg {
-    width: 14px;
-    height: 14px;
-    display: block;
-    flex-shrink: 0;
-  }
-
-  @media (hover: none) {
-    body.egg-page .chrome-toast-btn {
-      opacity: 0.8;
-    }
-  }
-
-  body.egg-page .os-toast-main {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
-  }
-
-  body.egg-page .os-toast-icon {
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
-  }
-
-  body.egg-page .os-toast-icon svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-
-  body.egg-page .os-toast-title {
-    font-family: 'Segoe UI Variable Display', 'Segoe UI', 'Noto Sans TC', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: 20px;
-    margin-bottom: 2px;
-  }
-
-  body.egg-page .os-toast-body {
-    font-size: 12px;
-    line-height: 18px;
-    color: #c5c5c5;
-  }
-
 </style>
 {% endblock %}
 
 {% block header %}{% endblock %}
 
 {% block page_content %}
-<div class="egg-root" lang="zh-TW">
 <canvas id="particles"></canvas>
 
 <div class="egg-container">
-  <div class="tag">iGEM 2026 • NCKU-TAINAN</div>
-  
-  <h1>CAPTURE</h1>
-  <div class="subtitle">SECURE THE FUTURE // CAPTURE THE CURE</div>
-
-  <div class="typewriter-box">
-    <div id="typed-text"></div><span class="cursor"></span>
-  </div>
-
-  <div class="cards">
-    <div class="card">
-      <div class="card-icon">🧬</div>
-      <h3>AHL SIGNAL</h3>
-      <p>Pseudomonas aeruginosa 靠 quorum sensing 分子 AHL 互相通訊。我們不正面硬剛，而是精準攔截它的「密碼」。</p>
-    </div>
-    <div class="card">
-      <div class="card-icon">🔬</div>
-      <h3>APTAMER MISSILE</h3>
-      <p>設計高度專一的核酸適體（Aptamer），像精密導彈一樣扣住 AHL，切斷細菌的通訊網路。</p>
-    </div>
-    <div class="card">
-      <div class="card-icon">💡</div>
-      <h3>E. COLI SENSOR</h3>
-      <p>工程大腸桿菌聽到 AHL 就會發出螢光。把看不見的訊號變成肉眼可見的光芒。</p>
-    </div>
-  </div>
-
-  <div class="final-quote">
-    BEFORE IT CAPTURES A LIFE,<br>
-    WE CAPTURE ITS MESSAGE.
-  </div>
-  <div class="team">NCKU-TAINAN • iGEM 2026</div>
-
-  <button class="danger-btn" onclick="launchVirus()">【不要點進來】</button>
-
-  <div class="secret-hint">
-    提示：連續按下鍵盤上的 C-A-P-T-U-R-E 會有驚喜<br>
-    （另外那個紅色按鈕真的不要亂點喔）
-  </div>
-</div>
-
-<div id="secret-msg">
-  <h2>SYSTEM UNLOCKED</h2>
-  <p>
-    你成功攔截了訊號。<br>
-    Project Capture 的核心從來不是消滅細菌，<br>
-    而是<strong>在它出手之前，先奪取它的通訊權</strong>。<br><br>
-    Secure the future.<br>
-    Capture the cure.
+  <div class="egg-tag">NCKU-TAINAN &bull; iGEM 2026</div>
+  <h1 class="egg-title">CAPTURE</h1>
+  <p class="egg-lead">
+    You found our hidden page! Here is our project in a nutshell:
+    instead of fighting <em>Pseudomonas aeruginosa</em> head-on, we listen in
+    on how its cells talk to each other &mdash; and then cut the line.
   </p>
-  <button class="close-btn" onclick="closeSecret()">CLOSE</button>
+
+  <div class="egg-typewriter">
+    <div class="egg-typewriter-text"><span id="egg-typed"></span><span class="egg-cursor"></span></div>
+  </div>
+
+  <div class="egg-cards">
+    <div class="egg-card">
+      <div class="egg-card-icon">🦠</div>
+      <h3>The problem</h3>
+      <p><em>P. aeruginosa</em> causes hard-to-treat hospital infections. Its cells
+        coordinate using a chemical signal called AHL.</p>
+    </div>
+    <div class="egg-card">
+      <div class="egg-card-icon">💡</div>
+      <h3>Detect</h3>
+      <p>Our first system senses the AHL signal and reports it, so the
+        infection becomes visible.</p>
+    </div>
+    <div class="egg-card">
+      <div class="egg-card-icon">🧬</div>
+      <h3>Inhibit</h3>
+      <p>Our second system captures the same signal, so the bacteria never
+        get the message to act together.</p>
+    </div>
+  </div>
+
+  <div class="egg-quote">Before it captures a life, we capture its message.</div>
+
+  <div class="egg-hint">Psst&hellip; try typing C-A-P-T-U-R-E on your keyboard.</div>
 </div>
 
-<div id="toast-stack"></div>
+<div class="egg-secret" id="egg-secret">
+  <div class="egg-secret-box">
+    <h2>Signal captured! 🎉</h2>
+    <p>Thanks for exploring our wiki. You now know the secret of Capture:
+      stop the conversation, not the cell.</p>
+    <button type="button" id="egg-secret-close">Close</button>
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-  const canvas = document.getElementById('particles');
-  const ctx = canvas.getContext('2d');
-  let particles = [];
-  let mouse = { x: null, y: null };
+  (() => {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
 
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  class Particle {
-    constructor() {
-      this.x = Math.random() * canvas.width;
-      this.y = Math.random() * canvas.height;
-      this.size = Math.random() * 2 + 0.5;
-      this.speedX = (Math.random() - 0.5) * 0.4;
-      this.speedY = (Math.random() - 0.5) * 0.4;
-      this.color = `hsla(${180 + Math.random() * 60}, 100%, 70%, ${Math.random() * 0.5 + 0.2})`;
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particles = Array.from({ length: Math.min(80, Math.floor(canvas.width / 15)) }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 0.5,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        color: `hsla(${180 + Math.random() * 60}, 100%, 70%, ${Math.random() * 0.5 + 0.2})`
+      }));
     }
-    update() {
-      this.x += this.speedX;
-      this.y += this.speedY;
-      if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-      if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-    }
-    draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = this.color;
-      ctx.fill();
-    }
-  }
 
-  for (let i = 0; i < 80; i++) particles.push(new Particle());
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
 
-  function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 120) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(0, 240, 255, ${0.15 * (1 - dist / 120)})`;
-          ctx.lineWidth = 0.6;
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-        }
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+
+    const texts = [
+      "Target: Pseudomonas aeruginosa.\nIt infects patients through ventilators, catheters and open wounds.",
+      "Its cells act together by sending and sensing a chemical signal: AHL.",
+      "Capture goes after the signal, not the cell.\nOne system detects it. The other inhibits it."
+    ];
+    const typedEl = document.getElementById('egg-typed');
+    let textIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+      if (charIndex < texts[textIndex].length) {
+        typedEl.textContent += texts[textIndex].charAt(charIndex++);
+        setTimeout(type, 28 + Math.random() * 20);
+      } else {
+        setTimeout(() => {
+          typedEl.textContent = '';
+          charIndex = 0;
+          textIndex = (textIndex + 1) % texts.length;
+          setTimeout(type, 600);
+        }, 3200);
       }
     }
-
-    particles.forEach(p => {
-      p.update();
-      p.draw();
-    });
-    requestAnimationFrame(animateParticles);
-  }
-  animateParticles();
-
-  const texts = [
-    "目標：Pseudomonas aeruginosa\n它在呼吸器、導管、傷口中形成致命生物膜。\n傳統抗生素正在失效……",
-    "解決方案不是更強的抗生素。\n而是切斷它們的通訊網路。\n\n我們捕捉的是 AHL——\n細菌用來協調攻擊的密碼。",
-    "Aptamer 像精密導彈，\n精準鎖定訊號分子。\n工程大腸桿菌則把訊號變成可見的螢光。\n\n兩套系統，同一個目標：Capture。"
-  ];
-
-  let textIndex = 0;
-  let charIndex = 0;
-  const typedEl = document.getElementById('typed-text');
-
-  function type() {
-    if (charIndex < texts[textIndex].length) {
-      typedEl.textContent += texts[textIndex].charAt(charIndex);
-      charIndex++;
-      setTimeout(type, 28 + Math.random() * 20);
-    } else {
-      setTimeout(() => {
-        typedEl.textContent = '';
-        charIndex = 0;
-        textIndex = (textIndex + 1) % texts.length;
-        setTimeout(type, 600);
-      }, 3200);
-    }
-  }
-  setTimeout(type, 800);
-
-  document.addEventListener('mousemove', e => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-
-    const t = document.createElement('div');
-    t.className = 'trail';
-    t.style.left = e.clientX + 'px';
-    t.style.top = e.clientY + 'px';
-    document.body.appendChild(t);
-
-    setTimeout(() => {
-      t.style.opacity = '0';
-      t.style.transform = 'scale(0.3)';
-      setTimeout(() => t.remove(), 400);
-    }, 50);
-
-    document.querySelectorAll('.card').forEach(card => {
-      const rect = card.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      card.style.setProperty('--x', x + '%');
-      card.style.setProperty('--y', y + '%');
-    });
-  });
-
-  document.addEventListener('click', e => {
-    if (e.target.classList.contains('danger-btn')) return;
-    if (e.target.closest('.virus-window') || e.target.closest('.os-toast')) return;
-    
-    const colors = ['#00f0ff', '#7b61ff', '#ff2d95', '#00ff9d'];
-    for (let i = 0; i < 18; i++) {
-      const p = document.createElement('div');
-      p.className = 'burst';
-      p.style.left = e.clientX + 'px';
-      p.style.top = e.clientY + 'px';
-      p.style.background = colors[Math.floor(Math.random() * colors.length)];
-      p.style.boxShadow = `0 0 8px ${p.style.background}`;
-      document.body.appendChild(p);
-
-      const angle = (Math.PI * 2 * i) / 18;
-      const velocity = 2 + Math.random() * 4;
-      const vx = Math.cos(angle) * velocity;
-      const vy = Math.sin(angle) * velocity;
-
-      let x = 0, y = 0, opacity = 1;
-      const anim = () => {
-        x += vx;
-        y += vy;
-        opacity -= 0.025;
-        p.style.transform = `translate(${x}px, ${y}px)`;
-        p.style.opacity = opacity;
-        if (opacity > 0) requestAnimationFrame(anim);
-        else p.remove();
-      };
-      requestAnimationFrame(anim);
-    }
-  });
-
-  const code = ['c','a','p','t','u','r','e'];
-  let codeIndex = 0;
-
-  document.addEventListener('keydown', e => {
-    if (e.key.toLowerCase() === code[codeIndex]) {
-      codeIndex++;
-      if (codeIndex === code.length) {
-        document.getElementById('secret-msg').classList.add('show');
-        codeIndex = 0;
-      }
-    } else {
-      codeIndex = 0;
-    }
-  });
-
-  function closeSecret() {
-    document.getElementById('secret-msg').classList.remove('show');
-  }
-
-  const virusMessages = [
-    {
-      title: "CRITICAL ERROR - SYSTEM INFECTED",
-      icon: "☠️",
-      text: "<strong>警告！</strong><br>您的電腦已被 <strong>AHL_Signal_Virus.exe</strong> 感染！<br>Pseudomonas aeruginosa 正在接管系統核心..."
-    },
-    {
-      title: "SECURITY ALERT",
-      icon: "🚨",
-      text: "<strong>危險！</strong><br>偵測到異常生物訊號外洩。<br>建議立即切斷所有網路連線，否則資料將被加密鎖定。"
-    },
-    {
-      title: "Windows 系統錯誤",
-      icon: "💥",
-      text: "記憶體位置 0x0000CAPTURE 發生嚴重錯誤。<br><strong>錯誤代碼：0xBACTERIA</strong><br>請勿關閉此視窗，否則系統將崩潰。"
-    },
-    {
-      title: "勒索軟體通知",
-      icon: "💀",
-      text: "您的檔案已被 <strong>Quorum Sensing Ransomware</strong> 加密！<br>支付 0.5 BTC 至指定錢包，否則 48 小時後永久刪除。"
-    },
-    {
-      title: "FATAL EXCEPTION",
-      icon: "⚠️",
-      text: "<strong>系統核心損壞</strong><br>偵測到多重 AHL 訊號攻擊。<br>正在嘗試自我修復... 失敗率 99.7%"
-    }
-  ];
-
-  let virusCount = 0;
-
-  function createVirusWindow(index) {
-    const msg = virusMessages[index % virusMessages.length];
-    const win = document.createElement('div');
-    win.className = 'virus-window';
-    
-    const maxX = window.innerWidth - 400;
-    const maxY = window.innerHeight - 220;
-    const x = Math.max(20, Math.random() * maxX);
-    const y = Math.max(20, Math.random() * maxY);
-    
-    win.style.left = x + 'px';
-    win.style.top = y + 'px';
-    win.style.zIndex = 100000 + virusCount;
-
-    win.innerHTML = `
-      <div class="virus-titlebar">
-        <span>${msg.title}</span>
-        <div class="virus-close" onclick="fakeClose(this)">✕</div>
-      </div>
-      <div class="virus-body">
-        <div class="virus-icon">${msg.icon}</div>
-        <div class="virus-text">${msg.text}</div>
-      </div>
-      <div class="virus-buttons">
-        <button class="virus-btn" onclick="fakeClose(this)">確定</button>
-        <button class="virus-btn" onclick="fakeClose(this)">取消</button>
-      </div>
-    `;
-
-    document.body.appendChild(win);
-    virusCount++;
-
-    makeDraggable(win);
-  }
-
-  function fakeClose(btn) {
-    const win = btn.closest('.virus-window');
-    win.style.animation = 'none';
-    win.style.opacity = '0.3';
-    
-    setTimeout(() => {
-      win.remove();
-      createVirusWindow(Math.floor(Math.random() * 5));
-    }, 150);
-  }
-
-  function makeDraggable(el) {
-    const titlebar = el.querySelector('.virus-titlebar');
-    let isDragging = false;
-    let offsetX, offsetY;
-
-    titlebar.addEventListener('mousedown', e => {
-      isDragging = true;
-      offsetX = e.clientX - el.offsetLeft;
-      offsetY = e.clientY - el.offsetTop;
-      el.style.zIndex = 200000;
-    });
+    setTimeout(type, 800);
 
     document.addEventListener('mousemove', e => {
-      if (!isDragging) return;
-      el.style.left = (e.clientX - offsetX) + 'px';
-      el.style.top = (e.clientY - offsetY) + 'px';
-    });
-
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-    });
-  }
-
-  function launchVirus() {
-    showSecurityToast();
-    setTimeout(showChromeToast, 2600);
-
-    for (let i = 0; i < 5; i++) {
+      const t = document.createElement('div');
+      t.className = 'egg-trail';
+      t.style.left = e.clientX + 'px';
+      t.style.top = e.clientY + 'px';
+      document.body.appendChild(t);
       setTimeout(() => {
-        createVirusWindow(i);
-      }, i * 180);
-    }
-
-    setTimeout(() => {
-      createVirusWindow(0);
-      createVirusWindow(2);
-    }, 2500);
-  }
-
-  const SECURITY_TOAST = {
-    app: 'Windows 安全性',
-    title: '發現威脅',
-    body: 'Microsoft Defender 防毒軟體偵測到您的裝置已遭 Pseudomonas aeruginosa（綠膿桿菌）感染。',
-    icon: `
-      <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="ws-dark" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0" stop-color="#b4271a"/>
-            <stop offset="1" stop-color="#7a160d"/>
-          </linearGradient>
-          <linearGradient id="ws-light" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0" stop-color="#e8544a"/>
-            <stop offset="1" stop-color="#c42b1c"/>
-          </linearGradient>
-        </defs>
-        <path d="M16 2.6 5.9 6.0c-.5.2-.9.7-.9 1.2v8.4c0 6.8 4.3 12.2 10.5 14.1.3.1.7.1 1 0
-                 6.2-1.9 10.5-7.3 10.5-14.1V7.2c0-.5-.4-1-.9-1.2L16 2.6z" fill="url(#ws-dark)"/>
-        <path d="M16 2.6 5.9 6.0c-.5.2-.9.7-.9 1.2v8.4c0 6.8 4.3 12.2 10.5 14.1.2.1.3.1.5.1V2.6z"
-              fill="url(#ws-light)"/>
-        <path d="M16 2.6 5.9 6.0c-.5.2-.9.7-.9 1.2v8.4c0 6.8 4.3 12.2 10.5 14.1.3.1.7.1 1 0
-                 6.2-1.9 10.5-7.3 10.5-14.1V7.2c0-.5-.4-1-.9-1.2L16 2.6z"
-              fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="0.8"/>
-        <path d="M12.2 12.2l7.6 7.6M19.8 12.2l-7.6 7.6" stroke="#ffffff"
-              stroke-width="2.6" stroke-linecap="round"/>
-      </svg>`
-  };
-
-  let securityToastShown = false;
-
-  function showSecurityToast() {
-    if (securityToastShown) return;
-    securityToastShown = true;
-
-    const el = document.createElement('div');
-    el.className = 'os-toast';
-    el.innerHTML = `
-      <div class="os-toast-head">
-        <span class="os-toast-app">${SECURITY_TOAST.app}</span>
-        <span class="os-toast-close" title="關閉">✕</span>
-      </div>
-      <div class="os-toast-main">
-        <div class="os-toast-icon">${SECURITY_TOAST.icon}</div>
-        <div>
-          <div class="os-toast-title">${SECURITY_TOAST.title}</div>
-          <div class="os-toast-body">${SECURITY_TOAST.body}</div>
-        </div>
-      </div>
-    `;
-
-    el.querySelector('.os-toast-close').addEventListener('click', () => {
-      el.classList.remove('show');
-      setTimeout(() => {
-        el.remove();
-        securityToastShown = false;
-      }, 450);
+        t.style.opacity = '0';
+        t.style.transform = 'scale(0.3)';
+        setTimeout(() => t.remove(), 400);
+      }, 50);
     });
 
-    document.getElementById('toast-stack').appendChild(el);
-    requestAnimationFrame(() => el.classList.add('show'));
-  }
+    const burstColors = ['#00f0ff', '#7b61ff', '#ff2d95', '#00ff9d'];
+    document.addEventListener('click', e => {
+      for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        const color = burstColors[Math.floor(Math.random() * burstColors.length)];
+        p.className = 'egg-burst';
+        p.style.left = e.clientX + 'px';
+        p.style.top = e.clientY + 'px';
+        p.style.background = color;
+        p.style.boxShadow = `0 0 8px ${color}`;
+        document.body.appendChild(p);
 
-  const CHROME_TOAST = {
-    origin: '2026.igem.wiki',
-    title: '綠膿桿菌已擴散到您的瀏覽器',
-    body: '偵測到 3 個分頁出現生物膜，quorum sensing 訊號仍在增強。建議立即執行掃描。',
-    icon: `
-      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-        <path d="M18.3 5.6 3.2 31.3c-.8 1.3.2 3 1.7 3h30.2c1.5 0 2.5-1.7 1.7-3L21.7 5.6c-.8-1.3-2.6-1.3-3.4 0z"
-              fill="#d93025"/>
-        <path d="M20 14.2v9.2" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/>
-        <circle cx="20" cy="28.6" r="2" fill="#ffffff"/>
-      </svg>`,
-    logo: `
-      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-        <path d="M24 24 6.68 14a20 20 0 0 1 34.64 0z" fill="#ea4335"/>
-        <path d="M24 24 41.32 14a20 20 0 0 1-17.32 30z" fill="#34a853"/>
-        <path d="M24 24 24 44A20 20 0 0 1 6.68 14z" fill="#fbbc05"/>
-        <circle cx="24" cy="24" r="9" fill="#ffffff"/>
-        <circle cx="24" cy="24" r="7.2" fill="#4285f4"/>
-      </svg>`
-  };
-
-  let chromeToastShown = false;
-
-  function showChromeToast() {
-    if (chromeToastShown) return;
-    chromeToastShown = true;
-
-    const el = document.createElement('div');
-    el.className = 'chrome-toast';
-    el.innerHTML = `
-      <div class="chrome-toast-row">
-        <div class="chrome-toast-text">
-          <div class="chrome-toast-title">${CHROME_TOAST.title}</div>
-          <div class="chrome-toast-body">${CHROME_TOAST.body}</div>
-        </div>
-        <div class="chrome-toast-img">${CHROME_TOAST.icon}</div>
-        <div class="chrome-toast-actions">
-          <span class="chrome-toast-btn chrome-toast-settings" title="設定">⚙</span>
-          <span class="chrome-toast-btn chrome-toast-close" title="關閉">✕</span>
-        </div>
-      </div>
-      <div class="chrome-toast-foot">
-        ${CHROME_TOAST.logo}
-        <span>${CHROME_TOAST.origin}</span>
-      </div>
-    `;
-
-    el.querySelector('.chrome-toast-close').addEventListener('click', () => {
-      el.classList.remove('show');
-      setTimeout(() => {
-        el.remove();
-        chromeToastShown = false;
-      }, 450);
+        const angle = (Math.PI * 2 * i) / 18;
+        const speed = 2 + Math.random() * 4;
+        let x = 0, y = 0, opacity = 1;
+        const step = () => {
+          x += Math.cos(angle) * speed;
+          y += Math.sin(angle) * speed;
+          opacity -= 0.025;
+          p.style.transform = `translate(${x}px, ${y}px)`;
+          p.style.opacity = opacity;
+          if (opacity > 0) requestAnimationFrame(step);
+          else p.remove();
+        };
+        requestAnimationFrame(step);
+      }
     });
 
-    document.getElementById('toast-stack').appendChild(el);
-    requestAnimationFrame(() => el.classList.add('show'));
-  }
+    const secret = document.getElementById('egg-secret');
+    const code = 'capture';
+    let index = 0;
 
-  setTimeout(showSecurityToast, 2000);
-  setTimeout(showChromeToast, 4600);
+    document.addEventListener('keydown', e => {
+      const key = e.key.toLowerCase();
+      index = key === code[index] ? index + 1 : (key === code[0] ? 1 : 0);
+      if (index === code.length) {
+        secret.classList.add('show');
+        index = 0;
+      }
+    });
+
+    document.getElementById('egg-secret-close').addEventListener('click', () => {
+      secret.classList.remove('show');
+    });
+  })();
 </script>
 {% endblock %}
