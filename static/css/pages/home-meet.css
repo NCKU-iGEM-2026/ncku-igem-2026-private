@@ -29,37 +29,50 @@
 @property --meet-erase { syntax: '<number>'; initial-value: 1; inherits: false; }
 @property --meet-wipe  { syntax: '<percentage>'; initial-value: 102%; inherits: false; }
 
+/* A screen to itself: the word and the mark, centred in it, with nothing
+   else in view. */
+.hx-meet {
+  /* box-sizing is not border-box here, and .hx carries its own vertical
+     padding, so a bare min-height lands 44px over the viewport and the next
+     section starts just off the bottom edge. The padding goes, and svh
+     rather than vh so a phone's collapsing toolbars cannot make it jump. */
+  min-height: 100svh;
+  padding-block: 0;
+  display: grid;
+  align-content: center;
+}
+/* home.css draws a soft band of light between every pair of .hx sections.
+   This one opens on an empty screen, so the band is the only thing in it
+   until the mark starts, and it reads as a stray rule rather than a seam.
+   The sibling combinator has to be repeated: home.css's rule is .hx + .hx,
+   two classes, and a lone .hx-meet does not outweigh it. */
+.hx + .hx-meet::before { content: none; }
+
 .hx-meet .hx-inner { display: grid; justify-items: center; text-align: center; }
 
+/* The mark says "Capture" itself, so the heading does not repeat it. */
 .hx-meet-title {
   font-family: "Changa", sans-serif;
   font-weight: 800;
   letter-spacing: -0.01em;
   line-height: 1.08;
-  font-size: clamp(2rem, 4.4vw, 3.4rem);
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
   color: #f2fff8;
-  margin: 0 0 clamp(1.5rem, 3vw, 2.5rem);
+  margin: 0 0 clamp(1rem, 2.5vh, 2rem);
 }
 
-/* The artwork is a 1350 square; the stage scales it, so every measurement
-   below stays in the coordinates it was taken in. */
+/* Every measurement in this file is a percentage -- the mask centres, the
+   swim, the settle -- so the stack needs no fixed size to be measured
+   against and simply fills whatever the stage is. The artwork's 1350 square
+   is still the coordinate system those percentages were taken in; it just
+   never has to appear here. */
 .hx-meet-stage {
   position: relative;
-  width: min(560px, 100%);
+  width: min(100%, 760px, 68vh);
   aspect-ratio: 1;
   margin: 0 auto;
 }
-.hx-meet-root {
-  position: absolute;
-  left: 50%; top: 50%;
-  width: 1350px; height: 1350px;
-  margin: -675px 0 0 -675px;
-  transform: scale(0.4148);            /* 560 / 1350 */
-}
-@media (max-width: 620px) {
-  /* narrower than the stage's own width, so the scale follows the viewport */
-  .hx-meet-root { transform: scale(calc((100vw - 2.5rem) / 1350)); }
-}
+.hx-meet-root { position: absolute; inset: 0; }
 
 /* --a0 sits here so the sweeps and the eraser share one angle: the strand's
    upper-right tip, measured from the ring's centre. */
