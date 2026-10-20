@@ -299,30 +299,62 @@
 html.rx-meet-holding { scrollbar-gutter: stable; }
 html.rx-meet-holding body { cursor: default; }
 
-/* ---- the section before goes out as this one comes in ----------------
-   home-meet.js writes --meet-clear on #hx-problem, 0 while it is the only
-   thing on screen and 1 by the time this section is nearly all of it. The
-   panel and its words dissolve rather than scrolling away, so the mark
-   arrives on a clear screen.
+/* ---- the wait panel gets a screen of its own -------------------------
+   The same turn as below, one section earlier. The panel is pinned for the
+   length of --meet-exit while it goes out, and Meet is pulled up over it, so
+   the hours do not scroll away -- they stay put and the mark replaces them.
 
-   pointer-events go with the last of it: a panel at opacity 0 that still
-   takes a click is a trap, and the wait panel has a slider in it.
+   The room for that travel has to be inside .hx-inner, not on the section:
+   a sticky child only sticks within its own containing block, so padding on
+   the section would let go of it a screen too early.
 
-   No script, print and reduced motion all leave --meet-clear unset, so the
-   fallback 0 keeps the section exactly as it was.                      */
-#hx-problem {
-  opacity: calc(1 - var(--meet-clear, 0));
+   It sits low in the screen rather than centred, so on the way in the
+   figures above are still what is being read.                           */
+.hx-problem .hx-inner { padding-bottom: var(--meet-exit); }
+
+.hx-wait-stage {
+  position: sticky;
+  top: 0;
+  min-height: 100svh;
+  display: grid;
+  align-content: end;
+  padding-bottom: clamp(2rem, 7vh, 5rem);
+  opacity: calc(1 - var(--wait-leave, 0));
   will-change: opacity;
 }
-/* pointer-events are set from the script alongside the number rather than
-   matched out of the style attribute here: [style*="--meet-clear: 1"] works
-   until someone writes 1.0, or the browser reserialises it.
 
-   There is no reduced-motion or print rule for this. The script returns
-   before it writes --meet-clear in either case, and the fallback 0 in the
-   calc above leaves the section exactly as it was -- a rule forcing opacity
-   back to 1 would be saying the same thing twice, and the first version of
-   it quietly defeated the screenshot that was meant to check the fade. */
+/* Whatever follows rises through the screen the panel is fading out of --
+   the same pull the mark uses on the section after it. */
+.hx-problem + .hx { margin-top: calc(-1 * var(--meet-exit)); }
+
+/* While the hours are still running, the page is held. The cue says so,
+   because a page that will not scroll and does not explain itself is just
+   broken. It goes as soon as the gate lifts. */
+.hx-wait-gate {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(1.25rem, 4vh, 2.5rem);
+  translate: -50% 0;
+  z-index: 40;
+  margin: 0;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--c-line-2);
+  background: rgba(8, 26, 32, 0.92);
+  font-size: 0.86rem;
+  color: var(--c-text-2);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+html.rx-wait-holding .hx-wait-gate { opacity: 1; }
+
+@media print {
+  .hx-problem .hx-inner { padding-bottom: 0; }
+  .hx-wait-stage { position: static; min-height: 0; opacity: 1; padding-bottom: 0; }
+  .hx-problem + .hx { margin-top: 0; }
+  .hx-wait-gate { display: none; }
+}
 
 /* ---- and out the other side -----------------------------------------
    Once the mark has played, it goes the way the panel went: home-meet.js

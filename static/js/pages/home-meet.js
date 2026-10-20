@@ -76,72 +76,119 @@
        halfway: the class stays on and the animations have fill: both. */
   }
 
+  /* ------------------------------------------------- the hours gate -- */
+
+  /* The page is held at the wait panel until the hours have run to 72. They
+     run on their own the first time the panel is seen -- home.js does that
+     -- so nobody has to touch anything to get past; the gate is only in the
+     way of someone who scrolls faster than the four and a half seconds it
+     takes, or who grabbed the slider and stopped short, which cancels the
+     automatic run.
+     
+     Not under reduced motion. The automatic run is switched off there too,
+     so the slider would sit at zero and the gate would never lift: a hold
+     with no way out is the one thing this must not be. */
+  var stage = document.querySelector('[data-wait-stage]');
+  var range = document.querySelector('.hx-wait-range');
+  var cue = document.querySelector('[data-wait-gate]');
+  var gateOpen = false, gateHolding = false, gateCeiling = null;
+
+  function gateDone() {
+    return !range || +range.value >= +range.max;
+  }
+
+  function gateRelease() {
+    if (gateOpen) return;
+    gateOpen = true;
+    gateUnhold();
+    if (gateCeiling) { clearTimeout(gateCeiling); gateCeiling = null; }
+  }
+
+  function gateHold() {
+    if (gateHolding || gateOpen) return;
+    gateHolding = true;
+    if (window.rxLenis && window.rxLenis.stop) window.rxLenis.stop();
+    window.addEventListener('wheel', swallow, { passive: false });
+    window.addEventListener('touchmove', swallow, { passive: false });
+    window.addEventListener('keydown', onGateKey, true);
+    document.documentElement.classList.add('rx-wait-holding');
+    /* However this goes wrong, it lets go of the page. */
+    if (!gateCeiling) gateCeiling = setTimeout(gateRelease, 20000);
+  }
+
+  function gateUnhold() {
+    if (!gateHolding) return;
+    gateHolding = false;
+    window.removeEventListener('wheel', swallow, { passive: false });
+    window.removeEventListener('touchmove', swallow, { passive: false });
+    window.removeEventListener('keydown', onGateKey, true);
+    document.documentElement.classList.remove('rx-wait-holding');
+    if (window.rxLenis && window.rxLenis.start) window.rxLenis.start();
+  }
+
+  function onGateKey(e) {
+    if (e.keyCode === 27 || e.keyCode === 9) { gateRelease(); return; }
+    /* The arrows belong to the slider while it has the focus -- taking them
+       would make the one thing the reader is being asked to do impossible. */
+    if (d_owns(e.target)) return;
+    if (SCROLL_KEYS.indexOf(e.keyCode) !== -1) e.preventDefault();
+  }
+  function d_owns(el) { return el === range; }
+
+  if (range) {
+    range.addEventListener('input', function () { if (gateDone()) gateRelease(); });
+    /* The automatic run writes .value without raising input, so it has to be
+       watched rather than listened to -- and the watch stops the moment it
+       has its answer, rather than ticking for the rest of the visit. */
+    var watch = setInterval(function () {
+      if (gateDone()) { gateRelease(); clearInterval(watch); }
+    }, 200);
+  } else {
+    gateOpen = true;
+  }
+
   /* --------------------------------------------- clearing the way -- */
 
-  /* The section before goes out as this one comes in, so by the time the
-     mark has the screen there is nothing else on it. One number, written to
-     that section, and the stylesheet turns it into opacity.
+  /* The wait panel does not scroll away: it is pinned for one screen while
+     it goes out, and Meet is pulled up over it. So the number written here
+     is how far through that pinned screen the reader is -- 0 with the panel
+     whole, 1 with it gone and Meet exactly filling the screen.
 
-     Both ends of that fade are worked out from the page rather than picked:
-     it ENDS exactly where the mark takes over, and begins LEAD_VH of
-     scrolling before that. Tying the end to the trigger is the point --
-     measured before, the panel had finished dissolving 247px before the mark
-     started, and that was 247px of scrolling with nothing on screen and
-     nothing happening.
-
-     LEAD_VH is the whole lead-in now, so it is the one number to change if
-     this wants to be longer or shorter. Measured on a 1440x900 screen, it
-     decides where the panel has got to when the dissolve starts:
-
-         0.40  360px   panel's middle at 23% of the screen
-         0.50  450px   at 33%
-         0.60  540px   at 43%
-         0.70  630px   at 53% -- the middle
-
-     which is the trade: beginning with the panel dead centre is 630px of
-     scrolling, and there is no way to have both that and a short lead-in.
-     0.5 is the compromise, nearer the short end. */
-  var LEAD_VH = 0.5;        /* how much scrolling the dissolve takes */
-  var FIRE_VH = 0.15;       /* the mark takes over with its top this far down */
-
+     The gate rides on the same measurement. While the panel is pinned and
+     the hours have not finished, the page is held; the moment they do, it
+     is let go. */
   var before = document.getElementById('hx-problem');
   var clear = -1, leave = -1;
 
-  function ends() {
-    var vh = window.innerHeight || 1;
-    var y = window.pageYOffset || document.documentElement.scrollTop;
-    var endY = section.getBoundingClientRect().top + y - vh * FIRE_VH;
-    return { vh: vh, y: y, endY: endY, startY: endY - vh * LEAD_VH };
-  }
-
   function fade() {
-    var e = ends();
+    var vh = window.innerHeight || 1;
 
-    if (before) {
-      var c = (e.y - e.startY) / Math.max(1, e.endY - e.startY);
+    if (stage) {
+      var sr = stage.getBoundingClientRect();
+      var exit = Math.max(1, (before ? before.getBoundingClientRect().bottom : sr.bottom) - sr.bottom);
+      var c = -sr.top / Math.max(1, exit);
       c = c < 0 ? 0 : c > 1 ? 1 : c;
       c = Math.round(c * 100) / 100;
       if (c !== clear) {
         clear = c;
-        before.style.setProperty('--meet-clear', String(c));
+        stage.style.setProperty('--wait-leave', String(c));
         /* A panel at opacity 0 that still takes a click is a trap, and this
-           one has a slider in it. */
-        before.style.pointerEvents = c >= 1 ? 'none' : '';
+           one is the slider. */
+        stage.style.pointerEvents = c >= 1 ? 'none' : '';
+      }
+      /* Pinned, and the hours unfinished: hold. Pinned begins the moment its
+         top reaches the viewport top. */
+      if (!gateOpen) {
+        if (sr.top <= 0) gateHold(); else gateUnhold();
       }
       if (c >= 1) begin();
     }
 
-    /* And out the other side. The screen is pinned by then, so this is not
-       the section leaving -- it stays exactly where it is and goes out on
-       the spot while the next one climbs over it.
-
-       Measured against how far through the pinned stretch the reader is:
-       the section is one screen plus the exit tall, so that stretch begins
-       when its top passes the viewport top and ends a whole exit later. */
+    /* And the mark out the other side, the same way. */
     if (played && !holding) {
       var top = section.getBoundingClientRect().top;
-      var exit = Math.max(1, section.offsetHeight - stop.offsetHeight);
-      var l = -top / exit;
+      var mexit = Math.max(1, section.offsetHeight - stop.offsetHeight);
+      var l = -top / mexit;
       l = l < 0 ? 0 : l > 1 ? 1 : l;
       l = Math.round(l * 100) / 100;
       if (l !== leave) {
@@ -156,11 +203,9 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   /* Lenis as well as the window, because not every move it makes raises a
-     scroll event: its own scrollTo with immediate fires none at all, which
-     is how this was found -- a page moved to the right place with the
-     dissolve still reading zero. A wheel does fire them, so this was never
-     wrong for a reader, but an anchor jump or a restored scroll position
-     would have left it stale. */
+     scroll event: its own scrollTo with immediate fires none at all. A wheel
+     does raise them, so this was never wrong for a reader, but an anchor
+     jump or a restored scroll position would have left it stale. */
   if (window.rxLenis && window.rxLenis.on) window.rxLenis.on('scroll', onScroll);
 
   /* ------------------------------------------------------- the moment -- */
