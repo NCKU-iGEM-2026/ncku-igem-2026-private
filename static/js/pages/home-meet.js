@@ -32,6 +32,13 @@
 
   var played = false, holding = false, timer = null, ceiling = null;
 
+  /* Nothing of the mark shows before it plays -- the point is that it draws
+     itself, and a reader who has already seen the finished logo sitting
+     there has had the ending first. The stylesheet's resting state is still
+     the finished mark, which is what no script, print and reduced motion
+     get; this only hides it for the one case where it is about to be drawn. */
+  stop.classList.add('is-armed');
+
   /* ---------------------------------------------------- holding still -- */
 
   function swallow(e) { e.preventDefault(); }
@@ -77,17 +84,26 @@
      turns it into opacity -- doing it here rather than in a second observer
      keeps it on the same frame as everything else.
 
-     It is fully gone by the time this section is 85% of the way up, which is
-     before the hold begins at 90%: the mark should never start over a panel
-     that is still dissolving. */
+     Measured against the wait panel itself rather than against this section,
+     because the panel is what the reader is looking at: it starts going when
+     the panel reaches the middle of the screen and is gone by the time the
+     panel's middle is near the top. Reading it off this section's top edge
+     instead made the start depend on however much padding happened to sit
+     between the two.
+
+     That also leaves room: the panel is gone well before the hold begins at
+     90% of this section, so the mark never starts over something that is
+     still dissolving. */
   var before = document.getElementById('hx-problem');
+  var panel = document.querySelector('.hx-wait') || before;
   var clear = -1;
 
   function fade() {
-    if (!before) return;
+    if (!before || !panel) return;
     var vh = window.innerHeight || 1;
-    var top = section.getBoundingClientRect().top;
-    var c = (vh - top) / (vh * 0.85);
+    var r = panel.getBoundingClientRect();
+    var mid = r.top + r.height / 2;          /* the panel's own middle */
+    var c = (vh / 2 - mid) / (vh * 0.45);
     c = c < 0 ? 0 : c > 1 ? 1 : c;
     c = Math.round(c * 100) / 100;
     if (c === clear) return;
@@ -118,6 +134,7 @@
     } else {
       window.scrollTo(0, y);
     }
+    stop.classList.remove('is-armed');
     stop.classList.add('is-playing');
     hold();
     timer = setTimeout(release, PLAY_MS);
@@ -134,7 +151,10 @@
     }, { threshold: [0.9] });
     io.observe(section);
   } else {
-    stop.classList.add('is-playing');       /* no observer: play, do not hold */
+    /* No observer: show it and play, but do not hold -- a page that cannot
+       tell when the reader arrived should not be taking their scroll. */
+    stop.classList.remove('is-armed');
+    stop.classList.add('is-playing');
   }
 
   /* Leaving the page with the scroll still taken would be the one way to

@@ -216,6 +216,13 @@
   to   { transform: translate(-20.08%, 0.70%) scale(0.6379); }
 }
 
+/* Armed: the script has it and is waiting for the reader. Nothing of the
+   mark shows, because the whole point is that it draws itself -- seeing the
+   finished logo sitting there first gives away the ending. visibility rather
+   than display so nothing reflows when it comes back, and the stage keeps
+   the size it will play at. */
+.is-armed .hx-meet-stage { visibility: hidden; }
+
 /* ---- the beats ------------------------------------------------------
    Played once, on their own clock, when home-meet.js adds .is-playing --
    which is also when it takes the scroll, so the mark cannot be scrolled
@@ -246,64 +253,6 @@
 /* While the page is held, nothing on it should look like it would scroll. */
 html.rx-meet-holding { scrollbar-gutter: stable; }
 html.rx-meet-holding body { cursor: default; }
-
-/* ---- the run down from the wait --------------------------------------
-   A line of the page's own glow green that leaves the panel above and
-   arrives at the mark. It is drawn by the scroll rather than by a clock:
-   motion.js gives every [data-rx-chapter] a --rx-chap of 0 to 100% across
-   its own travel, and the clip below uncovers the path from the top as that
-   climbs -- the same mechanism the habitats thread uses.
-
-   It hangs above this section's top edge on purpose, so it reads as leaving
-   the panel before rather than starting here; .hx does not clip, so it can.
-   -------------------------------------------------------------------- */
-.hx-meet-trail {
-  position: absolute;
-  left: 50%;
-  translate: -50% 0;
-  top: calc(-1 * clamp(130px, 20vh, 240px));
-  height: clamp(240px, 36vh, 420px);
-  width: 6px;
-  z-index: 0;
-  pointer-events: none;
-  /* Two things at once: the clip is the line being drawn downward as the
-     reader approaches, and the mask is both its ends dissolving, so it
-     appears out of nothing below the panel and is gone again before it
-     reaches the mark rather than stopping dead. */
-  clip-path: inset(0 0 calc(100% - var(--rx-chap, 0%)) 0);
-  --trail-mask: linear-gradient(to bottom,
-    transparent 0, #000 22%, #000 68%, transparent 100%);
-  -webkit-mask-image: var(--trail-mask);
-  mask-image: var(--trail-mask);
-}
-.hx-meet-trail svg { width: 100%; height: 100%; display: block; }
-.hx-meet-trail path {
-  fill: none;                          /* without this the box fills black */
-  stroke: var(--c-glow);
-  stroke-width: 3;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;   /* the box is stretched; the line is not */
-  filter: drop-shadow(0 0 9px rgba(160, 232, 96, 0.45));
-}
-/* The mark and the word sit over it, never under. */
-.hx-meet-stop { position: relative; z-index: 1; }
-
-/* A line that draws itself is the kind of thing reduced motion is for. */
-@media (prefers-reduced-motion: reduce) {
-  .hx-meet-trail { clip-path: none; opacity: 0.55; }
-}
-
-/* Reduced motion and print both want the finished mark, standing still,
-   which is the resting state above -- so there is nothing to switch off.
-   home-meet.js returns before adding .is-scrubbed when reduced motion is
-   asked for, so none of the seeked beats exist in that case either, and the
-   track stays one screen tall rather than asking for scroll that would do
-   nothing. */
-@media print {
-  .hx-meet-stop { min-height: 0; padding-block: 0; }
-  .hx-meet-trail { display: none; }
-  .hx-meet-title { color: #000 !important; }
-}
 
 /* ---- the section before goes out as this one comes in ----------------
    home-meet.js writes --meet-clear on #hx-problem, 0 while it is the only
