@@ -214,8 +214,13 @@ body:not(.hw-nexus):not(.edu-nexus):not(.hp-nexus):not(.engineering-page) .navba
      included, same element) up by -110px, and the drawer reads as having
      scrolled away. Locking body scroll for as long as the drawer is open
      means there is nothing behind it left to scroll. */
+  /* html has to be locked too: style.css gives it overflow-x: clip, which
+     stops body's overflow from propagating up to the viewport, so locking
+     body alone leaves the page scrolling behind the drawer. */
+  html:has(.navbar-collapse.show),
   body:has(.navbar-collapse.show) {
     overflow: hidden;
+    overscroll-behavior: none;
   }
   .navbar-collapse .navbar-nav { margin-top: 0 !important; margin-bottom: 0 !important; }
   .navbar-collapse.show, .navbar-collapse.collapsing.show {
