@@ -96,6 +96,7 @@
      way, and then tried to scroll; the ceiling below is all they have, so
      it is short rather than generous. */
   var stage = document.querySelector('[data-wait-stage]');
+  var panel = document.querySelector('.hx-wait');
   var range = document.querySelector('.hx-wait-range');
   var gateOpen = false, gateHolding = false, gateCeiling = null;
 
@@ -171,12 +172,13 @@
     var vh = window.innerHeight || 1;
 
     if (stage) {
-      /* Progress is read off the room box below the stage, not off the stage
-         itself. The stage is pinned: its top sits at 0 for the whole turn,
-         so measuring it gave 0 all the way through and nothing faded. The
-         room box does move -- its top travels from the foot of the screen up
-         by its own height -- and it is the same box the pin travels through,
-         so the fade and the pin cannot disagree. */
+      /* Read off the room box below the panel rather than off the panel, so
+         the fade and the mark's arrival are measured against the same thing:
+         the room is exactly the distance the mark climbs through, so the
+         panel reaches nothing at the moment the mark reaches the top of the
+         screen. The panel's own travel over that distance takes it from low
+         on the screen to well above the middle, which is where it has
+         finished going. */
       var room = document.querySelector('.hx-wait-room');
       var exit = Math.max(1, room ? room.offsetHeight : 1);
       var c = room ? (vh - room.getBoundingClientRect().top) / exit : 0;
@@ -189,10 +191,22 @@
            one is the slider. */
         stage.style.pointerEvents = c >= 1 ? 'none' : '';
       }
-      /* Pinned, and the hours unfinished: hold. */
+      /* The hours run as the panel comes into view, and the page is held for
+         as long as they have not finished. Measured on the panel itself, not
+         on the screen it sits in: it is the panel the reader is watching. */
       if (!gateOpen) {
-        if (stage.getBoundingClientRect().top <= 0) gateHold(); else gateUnhold();
+        var pr = panel ? panel.getBoundingClientRect() : null;
+        var seen = pr && pr.top < vh * 0.72 && pr.bottom > 0;
+        if (seen) gateHold(); else gateUnhold();
       }
+      /* The mark is only ever on screen once the panel's turn is finished.
+         Going down that is the moment it starts; going back up it is the
+         moment it should leave again, because the two sections overlap by a
+         whole screen and the mark, having played, would otherwise sit on top
+         of the panel with both fully opaque. Tying it to the same number
+         covers both directions without either knowing about the other. */
+      stop.classList.toggle('is-behind', c < 1);
+
       if (c >= 1) begin();
     }
 

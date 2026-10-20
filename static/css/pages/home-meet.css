@@ -73,7 +73,15 @@
    at 70svh it was left 270px short. Any longer and it would already be
    showing from under the mark while the mark is still drawing. */
 :root {
-  --wait-exit: 55svh;    /* the panel's turn into the mark */
+  /* The panel's fade, and the distance the mark climbs through -- one
+     number, so the panel reaches nothing exactly as the mark reaches the top
+     of the screen, with no snap between them.
+
+     40svh is where that lands the panel at about a third of the way up.
+     It enters with its middle at 75% of the screen and rises by whatever
+     this is: at 55svh it was still going at 20%, higher than it should
+     finish. */
+  --wait-exit: 40svh;
   --meet-exit: 100svh;   /* the mark's turn into two systems */
 }
 .hx-meet { min-height: calc(100svh + var(--meet-exit)); }
@@ -272,7 +280,16 @@
    finished logo sitting there first gives away the ending. visibility rather
    than display so nothing reflows when it comes back, and the stage keeps
    the size it will play at. */
-.is-armed .hx-meet-stage { visibility: hidden; }
+/* Armed: the script has it and is waiting for the reader. Behind: the panel
+   above has not finished its turn, so the mark has no business being on
+   screen -- the two sections overlap by a whole screen, and once the mark
+   has played it would otherwise sit on the panel with both fully opaque,
+   which is what scrolling back up used to show.
+
+   visibility rather than display in both cases, so nothing reflows and the
+   stage keeps the size it plays at. */
+.is-armed .hx-meet-stage,
+.is-behind .hx-meet-stage { visibility: hidden; }
 
 /* ---- the beats ------------------------------------------------------
    Played once, on their own clock, when home-meet.js adds .is-playing --
@@ -335,9 +352,12 @@ html.rx-wait-holding body { cursor: default; }
    room comes from a min-height, which does grow the content box. */
 .hx-wait-room { height: var(--wait-exit); }
 
+/* Not pinned. The panel travels with the page and goes out as it rises, so
+   by the time it reaches the upper part of the screen there is nothing left
+   of it -- and the mark starts on the clear screen that leaves. It keeps a
+   screen of height with its content at the foot, which is what puts it low
+   on the way in. */
 .hx-wait-stage {
-  position: sticky;
-  top: 0;
   height: 100svh;
   display: grid;
   align-content: end;
@@ -381,7 +401,6 @@ html.rx-wait-holding body { cursor: default; }
   .hx-problem { padding-bottom: clamp(4rem, 9vw, 7.5rem); }
   .hx-wait-room { display: none; }
   .hx-wait-stage {
-    position: static;
     height: auto;
     margin-top: 0;
     padding-bottom: 0;
