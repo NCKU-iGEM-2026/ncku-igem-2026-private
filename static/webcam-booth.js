@@ -14,6 +14,7 @@
     { name: "june",   label: "Chun" },
     { name: "leo",    label: "Leo" },
     { name: "luna",   label: "Luna" },
+    { name: "mella",  label: "Mella" },
     { name: "miklos", label: "Miklos" },
     { name: "ryan",   label: "Ryan" },
     { name: "simon",  label: "Simon" },
@@ -26,7 +27,7 @@
 
   // 人像要畫進畫面的哪一個方框，數字是相對畫面的比例 (0~1)。
   // 圖會「等比例縮到塞得進這個方框」，再貼齊方框底部、水平置中 —— 不是拉伸填滿。
-  // 這 16 張的長寬比從 0.40 (alan) 到 0.88 (leo) 都有，差了 2.2 倍，
+  // 這 17 張的長寬比從 0.40 (alan) 到 0.88 (leo) 都有，差了 2.2 倍，
   // 若直接拉伸填滿同一個方框，每個人被壓扁的程度都不一樣。
   var FRAME_RECT = { x: 0.02, y: 0.06, width: 0.46, height: 0.94 };
 
@@ -45,6 +46,7 @@
     alston: standing(RIGHT),
     jason:  standing(RIGHT),
     leo:    standing(RIGHT),
+    mella:  standing(RIGHT),
     miklos: standing(RIGHT),
     simon:  standing(RIGHT),
     vane:   standing(RIGHT),

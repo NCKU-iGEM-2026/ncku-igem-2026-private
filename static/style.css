@@ -8,7 +8,12 @@ html {
   overflow-x: clip;
 }
 
-body { padding-top: 104px; }
+body {
+  padding-top: 104px;
+  /* iOS Safari lets the page pan sideways to anything that sticks out
+     even with the html rule above; the same clip on body stops it. */
+  overflow-x: clip;
+}
 .navbar {
   height: 80px;
   overflow: visible;
@@ -158,7 +163,7 @@ body.show-back-to-top .back-to-top {
   .navbar .container-fluid { padding-left: 12px; padding-right: 12px; }
   .navbar-brand { position: static; top: auto; left: auto; }
   .navbar-brand img,
-  body.navbar-scrolled .navbar-brand img { width: 52px; height: 52px; }
+  body.navbar-scrolled .navbar-brand img { width: 72px; height: 72px; }
 
   .navbar-toggler { position: relative; z-index: 5; margin-left: auto; }
 
@@ -1925,6 +1930,11 @@ body.team-bio-locked { overflow: hidden; }
    it; .desc -- Description, Results, Safety -- was the one place it went
    lime, so a reader met two conventions for the same mark. */
 .desc sup { color: inherit; font-weight: 700; font-size: 0.72em; }
+/* Results makes its numerals links into the reference list. The anchor must
+   not take the link colour back, or the lime returns by the back door. */
+.desc sup a { color: inherit; text-decoration: none; }
+.desc sup a:hover,
+.desc sup a:focus-visible { text-decoration: underline; }
 
 .desc-lead p {
   font-size: 1.12rem;
@@ -2201,6 +2211,12 @@ body.team-bio-locked { overflow: hidden; }
 
 /* ---- the selectivity table ---- */
 .desc-figure { margin: 1.75rem 0; }
+
+/* A table with more columns than a phone has width for (the organism table
+   on Safety has five) is pushed wider than the screen, and the whole page
+   can then be dragged sideways. Let the table scroll inside its figure
+   instead. */
+.desc-figure:has(> .desc-table) { overflow-x: auto; max-width: 100%; }
 
 .desc-table {
   width: 100%;
@@ -4797,6 +4813,10 @@ html[data-theme="dark"] .tngs-chat-msg p { color: #e7f2ea; }
      collaboration wall. The html rule at the top of this file carries the
      overflow-x: clip that 100vw needs. */
   margin-inline: calc(50% - 50vw);
+  /* The stops slide and tilt in from the side as they are revealed; until
+     they arrive they stick a few pixels past the screen edge. clip, not
+     hidden, so nothing inside becomes a scroll container. */
+  overflow-x: clip;
   padding: 3rem clamp(1rem, 5vw, 3rem) 3.5rem;
   background:
     radial-gradient(120% 120% at 50% -10%, #fffdf7 0%, #f6faf7 45%, #eef6f1 100%);
@@ -11991,12 +12011,6 @@ body.hw-nexus .hw-spec > div { border-top-color: var(--nx-line); }
   fill: var(--nx-text, #dbe9ee);
   font-variant-numeric: tabular-nums;
 }
-.md-rowlbl {
-  font-size: 13px;
-  fill: var(--nx-text, #dbe9ee);
-  font-variant-numeric: tabular-nums;
-}
-.md-rowlbl.is-true { fill: var(--nx-lime, #a0e860); font-weight: 700; }
 
 .md-pt { stroke: #0a1216; stroke-width: 1.3; }
 .md-pt.md-s16 { fill: var(--nx-blue-up, #5fb3e0); }
@@ -12015,17 +12029,9 @@ body.hw-nexus .hw-spec > div { border-top-color: var(--nx-line); }
 .md-lbl29 { fill: var(--nx-lime, #a0e860); }
 .md-lbl-shared { fill: var(--nx-mint, #49c5b6); }
 
-.md-bar-raw,
-.md-bar-none { fill: #5c7f8c; }
+.md-bar-raw { fill: #5c7f8c; }
 .md-bar-conv { fill: var(--nx-mint, #49c5b6); }
-.md-bar-true { fill: var(--nx-lime, #a0e860); }
-.md-bar-wrong { fill: var(--nx-warm, #e6b060); fill-opacity: 0.82; }
-/* The model-family ranking: everything tried afterwards in one quiet tone,
-   so the one bar that was fixed beforehand is the only thing that stands out. */
-.md-bar-fam { fill: var(--nx-mint, #49c5b6); fill-opacity: 0.55; }
-.md-bar-fixed { fill: var(--nx-lime, #a0e860); }
 .md-ref { stroke: var(--nx-warm, #e6b060); stroke-width: 1.4; stroke-dasharray: 5 5; }
-.md-ref-lbl { font-size: 12.5px; fill: var(--nx-warm, #e6b060); }
 /* The legend swatch for that dashed rule: a dashed rule itself, not a block. */
 .md-key-ref { background: none; border-top: 2px dashed var(--nx-warm, #e6b060); height: 0; align-self: center; }
 
@@ -12065,12 +12071,8 @@ body.hw-nexus .hw .md-legend li {
 }
 .md-key-29 { border-radius: 2px; background: var(--nx-lime, #a0e860); }
 .md-key-bar { width: 20px; height: 9px; border-radius: 2px; }
-.md-key-raw,
-.md-key-none { background: #5c7f8c; }
+.md-key-raw { background: #5c7f8c; }
 .md-key-conv { background: var(--nx-mint, #49c5b6); }
-.md-key-true { background: var(--nx-lime, #a0e860); }
-.md-key-wrong { background: var(--nx-warm, #e6b060); opacity: 0.82; }
-.md-key-fam { background: var(--nx-mint, #49c5b6); opacity: 0.55; }
 .md-key-ref {
   width: 20px;
   height: 0;
@@ -15077,8 +15079,8 @@ body.hw-nexus .page-hero:has(.hero-hardware) .hero-title {
 /* ---- Board Game: what to notice, in colour ----
    Marks in the write-up:
      .bg-num    a number or a count -- the warm amber, bold
-     .bg-hl     the sentence the section is making -- the lime, with a soft
-                underline of the same colour
+     .bg-hl     the sentence the section is making -- the lime, in text only:
+                no marker stripe behind it
      .bg-key    a named rule, card or place -- the lime too, bolder: the
                 site marks what matters in one colour, and the weight is
                 what separates a named thing from the sentence around it
@@ -15093,9 +15095,6 @@ body.bg-nexus .bg-num {
 body.bg-nexus .bg-hl {
   color: var(--nx-lime);
   font-weight: 600;
-  background-image: linear-gradient(transparent 62%, rgba(160, 232, 96, 0.16) 62%);
-  -webkit-box-decoration-break: clone;
-          box-decoration-break: clone;
 }
 
 /* Same weight as .edx-key and .mx-key elsewhere, so a named thing is marked
