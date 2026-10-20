@@ -489,6 +489,17 @@ img.hx-why-icon {
     min-height: 0;
   }
 
+  /* The drawings are drawn 175% wide with a negative margin, and the first
+     and fourth are scaled up and nudged sideways on top of that, so on a
+     phone they run well past the screen edge and the whole page can be
+     dragged sideways. Held to the column here. */
+  .hx-why-list > li .hx-why-art.is-bare .hx-why-icon {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    transform: none;
+  }
+
   .hx-why-hook { min-height: 0; }
   .hx-why-hook-inner { position: static; min-height: 92svh; }
   .hx-why-blobs { width: min(100%, 30rem); }
@@ -530,8 +541,15 @@ html.rx-js .hx-why-list > li .hx-why-text[data-reveal].rx-in { transform: none; 
 
 @media (max-width: 767.98px) {
   /* Stacked, there is no side for it to come from. */
-  html.rx-js .hx-why-list > li .hx-why-text[data-reveal] { transform: translateY(26px); }
-  html.rx-js .hx-why-list > li .hx-why-text[data-reveal].rx-in { transform: none; }
+  /* The nth-child forms are needed: the desktop rules above name them, and
+     without them they out-rank this and the text still slides 52px in from
+     the side, past the screen edge. */
+  html.rx-js .hx-why-list > li .hx-why-text[data-reveal],
+  html.rx-js .hx-why-list > li:nth-child(odd) .hx-why-text[data-reveal],
+  html.rx-js .hx-why-list > li:nth-child(even) .hx-why-text[data-reveal] { transform: translateY(26px); }
+  html.rx-js .hx-why-list > li .hx-why-text[data-reveal].rx-in,
+  html.rx-js .hx-why-list > li:nth-child(odd) .hx-why-text[data-reveal].rx-in,
+  html.rx-js .hx-why-list > li:nth-child(even) .hx-why-text[data-reveal].rx-in { transform: none; }
   .hx-why-list > li:nth-child(even) .hx-why-art { order: 0; }
 }
 

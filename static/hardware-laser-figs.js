@@ -134,8 +134,7 @@
     },
 
     /* The sensor-strain test: lasreader-backup-20261013-0130.json, plan RUN-20261012-3911 (P1), F5/F3 of each
-       reading, current firmware. Two readings taken while testing something else are left out (100 µM r2,
-       10 µM r3). Blanks are medium alone. Reference lines from 0922 (linearity test): the tube without
+       reading, current firmware. Blanks are medium alone. Reference lines from 0922 (linearity test): the tube without
        sfGFP, F5/F3 ≈ 0.055, and the undiluted sfGFP culture H100, ≈ 0.127. */
     sensor: function (host) {
       var pts = [[1,0.0477],[1,0.0485],[1,0.0547],[2,0.0537],[2,0.0557],[2,0.0572],[3,0.0538],[3,0.0541],[3,0.0542],
@@ -147,7 +146,7 @@
       var W = 680, H = 300, L = 56, R = 18, T = 14, B = 48, pw = W - L - R, ph = H - T - B;
       function X(i) { return L + pw * (i + 0.5) / cats.length; }
       function Y(v) { return T + ph - v / 0.14 * ph; }
-      var s = svg(host, W, H, 'F5 over F3 of the AHL sensor strain at seven AHL concentrations, 10 nanomolar to 1 millimolar. Every reading lies between 0.048 and 0.060, on the level of a culture without sfGFP and far below the undiluted sfGFP test culture at 0.127.');
+      var s = svg(host, W, H, 'F5 over F3 of the AHL sensor strain at six AHL concentrations, 10 nanomolar to 1 millimolar. Every reading lies between 0.048 and 0.060, on the level of a culture without sfGFP and far below the undiluted sfGFP test culture at 0.127.');
       [0, 0.04, 0.08, 0.12].forEach(function (v) {
         el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: C.rule, 'stroke-dasharray': v === 0 ? '' : '3 4' }, s);
         text(s, v.toFixed(2), L - 8, Y(v) + 4, { anchor: 'end', size: 10 });
