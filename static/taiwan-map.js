@@ -1,22 +1,10 @@
 (function () {
-  // 自己寫的最小 TopoJSON 解碼器（不引入外部函式庫），只處理畫地圖需要的
-  // Polygon / MultiPolygon 兩種 geometry，把 arcs 還原成經緯度座標。
-  // Kinmen, Matsu and Penghu sit far off the main island; their bounding
-  // boxes would otherwise stretch the projection out and shrink the main
-  // island down. The map is now the whole main island, not just the 5
-  // counties the sessions happened in, so this needs leaving out explicitly
-  // rather than just filtering down to a short list like before.
   var OUTLYING_ISLAND_IDS = ['09007', '09020', '10016'];
 
-  // The only two counties any session pin actually sits in -- these are the
-  // ones with a clickable overlay group that zooms in. Everywhere else on
-  // the island is just geographic context.
   var INTERACTIVE_COUNTY_IDS = ['10007', '67000'];
   var INTERACTIVE_COLOR = '#f7f1de';      /* 淡米黃白：有活動的縣市 */
   var DEFAULT_COUNTY_COLOR = '#0b4a33';   /* 整島不透明深綠（適配 Collaboration 主視覺） */
 
-  // 縣市名稱，滑鼠移到該縣市時顯示。英文取自 topojson 自己的 properties.name，
-  // 中文是另外對照標準行政區代碼填的。
   var COUNTY_NAME = {
     '09007': { en: 'Lienchiang', zh: '連江' },
     '09020': { en: 'Kinmen', zh: '金門' },
@@ -42,9 +30,6 @@
     '64000': { en: 'Kaohsiung', zh: '高雄' }
   };
 
-  // 每場活動地點的概略經緯度（依鄉鎮位置估算，用於地圖圖釘定位，非精確地址）
-  // 順序跟 .edu-map 裡的圖釘 DOM 順序（1~14）一一對應，用 index 配對而不是用連結
-  // 配對，因為西港、和順各去了兩次，兩支圖釘會連到同一個 session 錨點。
   var SESSIONS = [
     { lon: 120.4737, lat: 23.9581, county: '10007' },  // 1 溪湖高中，彰化縣溪湖鎮
     { lon: 120.4353, lat: 23.9384, county: '10007' },  // 2 埔鹽國小，彰化縣埔鹽鄉
@@ -65,10 +50,6 @@
     { lon: 120.2250, lat: 22.9800, county: '67000' }   // 17 幼兒園，台南市（確切地點未提供，暫放市區）
   ];
 
-  // 圖釘要顯示的學校名稱直接讀它連到的那一段的標題，不另外抄一份，
-  // 以後改標題名稱時提示框會跟著改，不會兩邊對不起來。少數幾支圖釘（像
-  // 展心底下那些國小）共用同一個 section，標題讀到的會是整個 section 的
-  // 大標題而不是個別學校，這種情況才需要 data-title 覆蓋掉。
   function schoolNameFor(pin) {
     var override = pin.getAttribute('data-title');
     if (override) return override;
@@ -115,12 +96,6 @@
     return coords;
   }
 
-  // skipSmallParts drops individual polygons within a MultiPolygon that are
-  // tiny offshore islets (Green Island, Orchid Island, Turtle Island, the
-  // Diaoyutai Islands out past 123°E that were stretching the whole main-
-  // island map to fit them in) rather than part of the main island's own
-  // coastline -- real coastline has hundreds of points from all the inlets
-  // and headlands; a standalone islet this small has a handful.
   function geometryToRings(geometry, arcs, skipSmallParts) {
     var rings = [];
     if (geometry.type === 'Polygon') {
@@ -157,11 +132,6 @@
     var geometries = topo.objects.map.geometries.filter(function (g) {
       return OUTLYING_ISLAND_IDS.indexOf(g.properties.id) === -1;
     });
-
-    // ---- 全島輪廓 hover 發光的資料準備 ------------------------------
-    // （舊版曾用「海岸弧段拼接」畫描邊，但這份 TopoJSON 的海岸弧拆得
-    //   不完整，任何容差都會在島上留下橫穿直線——已改用 SVG filter 從
-    //   填色剪影生成光暈，見下方 twHaloWide／twHaloRim，這裡不再需要。）
 
     var minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
     var geoRings = geometries.map(function (g) {
@@ -209,12 +179,6 @@
       svg.appendChild(path);
     });
 
-    // ---- 全島輪廓 hover 發光（呼吸光暈）-----------------------------
-    // 不做弧段拼接（這份資料的海岸弧拆得不完整，拼接必出橫穿直線）。
-    // 改用 SVG filter：把整組縣市填色看作一個 alpha 形體，
-    // feMorphology dilate 膨漲出外擴帶 → out 減掉原形體 → 只剩島的外圈
-    // → blur 暈開 → flood 螢光綠上色。輪廓自動是「島_union_的邊」，
-    // 縣市內界線不會出現。CSS 再加呼吸明暗動畫。
     var defs = document.createElementNS(svgNS, 'defs');
     defs.innerHTML =
       '<filter id="twHaloWide" x="-20%" y="-20%" width="140%" height="140%">' +
@@ -251,10 +215,6 @@
     glowLayer.setAttribute('aria-hidden', 'true');
     glowLayer.appendChild(silhouetteCopy('twHaloWide'));
     glowLayer.appendChild(silhouetteCopy('twHaloRim'));
-    // The glow is invisible until the pointer is over the map, but its two
-    // blur filters are rasterised as soon as the layer is in the page -- that
-    // alone froze the page for over a second on arrival. So the layer joins
-    // the SVG on the first hover instead.
 
     container.insertBefore(svg, container.firstChild);
 
@@ -270,13 +230,6 @@
 
     var pinEls = Array.prototype.slice.call(container.querySelectorAll('.edu-pin'));
 
-    // 把投影後的座標算出來，再確保任何兩支圖釘都不會疊在一起。
-    //
-    // 原本只把「同一群」的點沿小圓周展開，展開後沒有再檢查一次，所以被推出去
-    // 的點可能正好落在另一群的點上——西港的圖釘就這樣整個蓋住學甲那支，讓它
-    // 完全點不到也 hover 不到。另外原本的 30 是地圖座標，圖釘卻是固定 26 CSS
-    // px，地圖在手機上縮小之後 30 個單位還不到一顆圖釘寬。
-    // 現在依實際渲染尺寸換算需要的間距，再把所有太近的成對推開。
     function requiredGap() {
       var rendered = container.clientWidth || width;
       var unitsPerPx = width / rendered;
@@ -284,8 +237,6 @@
       return (pinPx + 4) * unitsPerPx;
     }
 
-    // 每個縣市投影後的多邊形，供下面「把圖釘收回自己縣市」用。
-    // 與 <path> 同樣採 even-odd：一個點落在奇數條邊的左side即視為在內部。
     var countyPolys = {};
     geoRings.forEach(function (g) {
       countyPolys[g.id] = g.rings.map(function (ring) {
@@ -401,18 +352,6 @@
       }, 150);
     });
 
-    // ---- Hover preview -------------------------------------------------
-    // Clicking a pin jumps to that session further down the page; its details
-    // are already always shown on the orbiting cards below, so there's no
-    // hover tooltip here any more.
-
-    // ---- Orbiting session cards (wide screens only; see .edu-map-row CSS) --
-    // All 14 cards continuously circle the map on a fixed ellipse. The two
-    // that land in the fixed left/right slots (angle 0 and pi, since 14 is
-    // even every card has one directly opposite it) expand to full,
-    // readable cards with a leader line to their pin; everywhere else on the
-    // ellipse a card is just a small shrunk chip, so nothing overlaps no
-    // matter how the rotation lines up.
     var row = container.closest('.edu-map-row');
     var orbitEl = row && row.querySelector('.edu-map-orbit');
     var leaderLayer = row && row.querySelector('.edu-map-leaders');
@@ -467,13 +406,6 @@
     var ACTIVE_THRESHOLD = (10 * Math.PI) / 180;
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // 效能：每一幀都在跑，所以 (1) 所有量測（getBoundingClientRect）都放在
-    // 寫入之前，避免「寫了又讀」逼瀏覽器每幀重排版；(2) 卡片位置改用
-    // transform 移動（只需合成，不觸發 layout），不再改 left/top；
-    // (3) class 與連線透明度只在狀態真的改變時才寫。
-    // (4) 這一列的尺寸與每個圖釘相對這一列的位置，最多一秒量一次：圖釘
-    //     不會相對地圖移動，每幀都量就是每幀一次強制排版。一秒一次也接得住
-    //     地圖晚畫好、版面改變。
     var geom = null, geomAt = -1e9;
     var LEADER_MAX = 1400;   // 連線的固定寬度（px），與 CSS .edu-map-leader-line 一致
     function measureOrbit() {
@@ -545,15 +477,6 @@
     var rafId = null, lastTs = null, elapsed = 0;
     var ORBIT_FRAME_MS = 1000 / 30, orbitTimer = null;
 
-    // The ring holds still while the mouse is on one of its cards (or one has
-    // keyboard focus), so it can be read and clicked.
-    //
-    // What holds it is the mouse moving onto a card, and what lets it go is the
-    // mouse moving off again -- both told by pointermove, not by :hover. A card
-    // drifting under a mouse that is resting on the page is not someone
-    // reaching for it, and stopping for that made the ring halt out of
-    // nowhere. And while the ring glides to a stop the card can slide a little
-    // way out from under the pointer; it stays held until the mouse moves.
     var reached = false;
     document.addEventListener('pointermove', function (e) {
       reached = e.pointerType === 'mouse' && !!(e.target.closest &&
