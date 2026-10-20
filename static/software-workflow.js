@@ -1,9 +1,3 @@
-// Software page: the interactive workflow.
-//
-// The seven steps are written out in full in the page; this turns them into
-// tabs. One panel shows at a time, chosen from the step bar, the Previous /
-// Next buttons, or the arrow keys on the step bar. Without JavaScript every
-// panel stays visible, one after another, and nothing is lost.
 (function () {
   "use strict";
 
