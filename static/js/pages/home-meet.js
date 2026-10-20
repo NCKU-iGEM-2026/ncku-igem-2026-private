@@ -131,11 +131,17 @@
       if (c >= 1) begin();
     }
 
-    /* And out the other side: once it has played, the mark goes the way the
-       panel went, so the next section arrives on a clear screen too. */
+    /* And out the other side. The screen is pinned by then, so this is not
+       the section leaving -- it stays exactly where it is and goes out on
+       the spot while the next one climbs over it.
+
+       Measured against how far through the pinned stretch the reader is:
+       the section is one screen plus the exit tall, so that stretch begins
+       when its top passes the viewport top and ends a whole exit later. */
     if (played && !holding) {
       var top = section.getBoundingClientRect().top;
-      var l = -top / (e.vh * 0.55);
+      var exit = Math.max(1, section.offsetHeight - stop.offsetHeight);
+      var l = -top / exit;
       l = l < 0 ? 0 : l > 1 ? 1 : l;
       l = Math.round(l * 100) / 100;
       if (l !== leave) {

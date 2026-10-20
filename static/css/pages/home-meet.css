@@ -50,13 +50,46 @@
    carries two classes and a lone .hx-meet does not outweigh it. */
 .hx + .hx-meet::before,
 .hx-meet + .hx::before { content: none; }
+/* The section is one screen plus the exit. The screen is pinned inside it,
+   so once the mark has played it does not scroll away: it stays where it is
+   and goes out on the spot, and the section after climbs over it through the
+   same stretch of scrolling. That is the page turning rather than the page
+   moving.
+
+   --meet-exit is the length of that turn, and the one number to change. It
+   is used twice -- the section's height and the pull on the section after --
+   so the two cannot drift apart.
+
+   It lives on :root, not on .hx-meet. Custom properties reach descendants,
+   not siblings, so declared on the section itself the rule below read its
+   own fallback and the pull came out 0px: no error, no warning, the turn
+   simply did not happen.
+
+   One screen exactly, and that is not a taste: with the section 100svh plus
+   the exit, the screen pinned at 100svh, and the next section pulled up by
+   the exit, the next section's top sits at 100svh down the screen when the
+   pin begins and reaches the top of it after exactly 100svh of scrolling.
+   Any shorter and the turn ends with the next page still part way down --
+   at 70svh it was left 270px short. Any longer and it would already be
+   showing from under the mark while the mark is still drawing. */
+:root { --meet-exit: 100svh; }
+.hx-meet { min-height: calc(100svh + var(--meet-exit)); }
+
 .hx-meet-stop {
   box-sizing: border-box;
-  min-height: 100svh;
+  position: sticky;
+  top: 0;
+  height: 100svh;
   padding-block: 6rem 0;
   display: grid;
   align-content: center;
 }
+
+/* Whatever follows is pulled up by the length of the turn, so it rises
+   through the screen the mark is still fading out of rather than waiting
+   below for it to finish. Scoped to the sibling, not to #hx-systems, so
+   reordering the page does not leave this pointing at nothing. */
+.hx-meet + .hx { margin-top: calc(-1 * var(--meet-exit)); }
 
 /* The stage is positioned against this, and the word inside it is centred by
    this. Both were lost once already when the block above was rewritten, and
