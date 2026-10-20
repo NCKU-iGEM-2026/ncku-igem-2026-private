@@ -327,7 +327,13 @@ html.rx-wait-holding body { cursor: default; }
    the section ended, and the turn finished with the mark still that far down
    the screen. .hx-inner's padding is the whole of the gap now. */
 .hx-problem { padding-bottom: 0; }
-.hx-problem .hx-inner { padding-bottom: var(--wait-exit); }
+/* The travel is a box, not padding. A sticky child is held inside its
+   container's CONTENT box, so padding on .hx-inner sat outside the range
+   entirely and bought no travel: the panel had a sticky position, a sticky
+   top, and nowhere to stick, so it scrolled away like any other box while
+   the mark climbed over it. The mark's own pin never had this, because its
+   room comes from a min-height, which does grow the content box. */
+.hx-wait-room { height: var(--wait-exit); }
 
 .hx-wait-stage {
   position: sticky;
@@ -373,7 +379,7 @@ html.rx-wait-holding body { cursor: default; }
    ---------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce), print {
   .hx-problem { padding-bottom: clamp(4rem, 9vw, 7.5rem); }
-  .hx-problem .hx-inner { padding-bottom: 0; }
+  .hx-wait-room { display: none; }
   .hx-wait-stage {
     position: static;
     height: auto;

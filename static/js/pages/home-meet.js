@@ -171,9 +171,15 @@
     var vh = window.innerHeight || 1;
 
     if (stage) {
-      var sr = stage.getBoundingClientRect();
-      var exit = Math.max(1, (before ? before.getBoundingClientRect().bottom : sr.bottom) - sr.bottom);
-      var c = -sr.top / Math.max(1, exit);
+      /* Progress is read off the room box below the stage, not off the stage
+         itself. The stage is pinned: its top sits at 0 for the whole turn,
+         so measuring it gave 0 all the way through and nothing faded. The
+         room box does move -- its top travels from the foot of the screen up
+         by its own height -- and it is the same box the pin travels through,
+         so the fade and the pin cannot disagree. */
+      var room = document.querySelector('.hx-wait-room');
+      var exit = Math.max(1, room ? room.offsetHeight : 1);
+      var c = room ? (vh - room.getBoundingClientRect().top) / exit : 0;
       c = c < 0 ? 0 : c > 1 ? 1 : c;
       c = Math.round(c * 100) / 100;
       if (c !== clear) {
@@ -183,10 +189,9 @@
            one is the slider. */
         stage.style.pointerEvents = c >= 1 ? 'none' : '';
       }
-      /* Pinned, and the hours unfinished: hold. Pinned begins the moment its
-         top reaches the viewport top. */
+      /* Pinned, and the hours unfinished: hold. */
       if (!gateOpen) {
-        if (sr.top <= 0) gateHold(); else gateUnhold();
+        if (stage.getBoundingClientRect().top <= 0) gateHold(); else gateUnhold();
       }
       if (c >= 1) begin();
     }
