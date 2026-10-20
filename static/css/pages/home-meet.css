@@ -32,47 +32,26 @@
 
 /* A screen to itself: the word and the mark, centred in it, with nothing
    else in view. */
+/* One screen, with the mark centred in it. The top padding clears the fixed
+   navbar, which takes the first 96px of every viewport; border-box because
+   .hx is not, and without it that padding would be added to the height and
+   push the next section off the bottom edge. svh rather than vh so a phone's
+   collapsing toolbars cannot make it jump. */
 .hx-meet { padding-block: 0; }
-
-/* A tall track with the view pinned inside it. The track's extra height is
-   the travel that plays the mark; home-meet.js turns how far through it the
-   reader is into --meet-prog, and every beat below is seeked to that.
-
-   So there is nothing to lock. Getting past this section and watching it are
-   the same act, which is what was wanted, and the reader keeps their scroll:
-   stopping stops the mark, going back takes it back.
-
-   Without the script the track is one screen and the stylesheet's resting
-   state -- the finished mark -- is simply there, so no one scrolls through
-   empty space to reach nothing. */
-.hx-meet-track { min-height: 100svh; }
-.hx-meet-track.is-scrubbed { min-height: 260svh; }
-
-.hx-meet-pin {
-  /* svh rather than vh so a phone's collapsing toolbars cannot make it jump.
-     border-box because .hx is not, and without it the padding would be added
-     to the height. The top padding clears the fixed navbar, which takes the
-     first 96px of every viewport: centring inside the full height instead
-     puts the heading under the bar on a screen short enough for the content
-     to fill it. */
+.hx-meet-stop {
   box-sizing: border-box;
-  position: sticky;
-  top: 0;
-  height: 100svh;
+  min-height: 100svh;
   padding-block: 6rem 0;
   display: grid;
   align-content: center;
 }
-/* home.css draws a soft band of light between every pair of .hx sections.
-   This one opens on an empty screen, so the band is the only thing in it
-   until the mark starts, and it reads as a stray rule rather than a seam.
-   The sibling combinator has to be repeated: home.css's rule is .hx + .hx,
-   two classes, and a lone .hx-meet does not outweigh it. */
-.hx + .hx-meet::before { content: none; }
 
+/* The stage is positioned against this, and the word inside it is centred by
+   this. Both were lost once already when the block above was rewritten, and
+   the mark went on looking right while the heading slid to the left margin --
+   so: the stage needs the positioned ancestor, the word needs the alignment. */
 .hx-meet .hx-inner {
   position: relative;
-  min-height: calc(100svh - 7rem);
   display: grid;
   justify-items: center;
   text-align: center;
@@ -237,63 +216,36 @@
   to   { transform: translate(-20.08%, 0.70%) scale(0.6379); }
 }
 
-/* ---- the beats, seeked rather than played -----------------------------
-   Each is the animation it always was, paused, with its delay standing in
-   for the clock. A paused animation with a negative delay renders the frame
-   at that point in its own time, so
+/* ---- the beats ------------------------------------------------------
+   Played once, on their own clock, when home-meet.js adds .is-playing --
+   which is also when it takes the scroll, so the mark cannot be scrolled
+   past half-drawn. The whole run is 4.65s.
 
-       delay = (when this beat used to start) - (how far we are) * 6.2s
-
-   puts it exactly where the 6.2s timeline would have had it. fill: both
-   clamps it at either end, so a beat that has not begun holds its first
-   frame and one that is over holds its last.
-
-   These only exist while the track is being scrubbed. Without the script
-   there is no --meet-prog and no .is-scrubbed, and the resting state above
-   -- the finished mark -- stands.
+   Without the script there is no .is-playing, and the resting state above --
+   the finished mark -- stands. Reduced motion is the same: the script
+   returns before it adds anything.
    -------------------------------------------------------------------- */
-.is-scrubbed .hx-meet-stage [class*="hx-meet-"],
-.is-scrubbed .hx-meet-mark,
-.is-scrubbed .hx-meet-title { animation-play-state: paused; }
-
-.is-scrubbed .hx-meet-l1 {
-  animation: meet-draw 1.15s linear both;
-  animation-delay: calc(0.05s - var(--meet-prog, 0) * 6.2s);
+.is-playing .hx-meet-l1    { animation: meet-draw 0.85s linear 0.05s both; }
+.is-playing .hx-meet-erase { animation: meet-rub  0.85s linear 0.80s both; }
+.is-playing .hx-meet-l2    { animation: meet-draw 0.85s linear 0.80s both; }
+.is-playing .hx-meet-l3    { animation: meet-draw 0.75s linear 1.55s both; }
+.is-playing .hx-meet-l5 {
+  animation: meet-swim 0.85s steps(1, end) 2.30s both,
+             /* The fade is pinned to the swim's second pose, 2.30 + 0.85/7:
+                the first leaves 14px of the bug on the canvas, so a fade
+                starting with it would spend itself on nothing. Retime the
+                swim and this has to follow. */
+             meet-surface 0.35s ease-out 2.42s both;
 }
-.is-scrubbed .hx-meet-erase {
-  animation: meet-rub 1.15s linear both;
-  animation-delay: calc(1.05s - var(--meet-prog, 0) * 6.2s);
-}
-.is-scrubbed .hx-meet-l2 {
-  animation: meet-draw 1.15s linear both;
-  animation-delay: calc(1.05s - var(--meet-prog, 0) * 6.2s);
-}
-.is-scrubbed .hx-meet-l3 {
-  animation: meet-draw 1.0s linear both;
-  animation-delay: calc(2.05s - var(--meet-prog, 0) * 6.2s);
-}
-.is-scrubbed .hx-meet-l5 {
-  animation: meet-swim 1.15s steps(1, end) both,
-             meet-surface 0.45s ease-out both;
-  /* The swim's own delay, then the fade's: the fade is pinned to the swim's
-     second pose, 3.05 + 1.15/7, and retiming the swim drags it along. */
-  animation-delay: calc(3.05s - var(--meet-prog, 0) * 6.2s),
-                   calc(3.21s - var(--meet-prog, 0) * 6.2s);
-}
-.is-scrubbed .hx-meet-mark {
-  animation: meet-settle 0.70s cubic-bezier(.65,0,.25,1) both;
-  animation-delay: calc(4.25s - var(--meet-prog, 0) * 6.2s);
-}
-.is-scrubbed .hx-meet-type {
-  animation: meet-wipe 0.75s cubic-bezier(.35,0,.2,1) both;
-  animation-delay: calc(4.65s - var(--meet-prog, 0) * 6.2s);
-}
+.is-playing .hx-meet-mark  { animation: meet-settle 0.55s cubic-bezier(.65,0,.25,1) 3.20s both; }
+.is-playing .hx-meet-type  { animation: meet-wipe 0.55s cubic-bezier(.35,0,.2,1) 3.50s both; }
 /* Last, on a mark that is complete and still: the word is a caption rather
    than another moving part. */
-.is-scrubbed .hx-meet-title {
-  animation: meet-name 0.8s ease-out both;
-  animation-delay: calc(5.40s - var(--meet-prog, 0) * 6.2s);
-}
+.is-playing .hx-meet-title { animation: meet-name 0.60s ease-out 4.05s both; }
+
+/* While the page is held, nothing on it should look like it would scroll. */
+html.rx-meet-holding { scrollbar-gutter: stable; }
+html.rx-meet-holding body { cursor: default; }
 
 /* ---- the run down from the wait --------------------------------------
    A line of the page's own glow green that leaves the panel above and
@@ -311,10 +263,18 @@
   translate: -50% 0;
   top: calc(-1 * clamp(130px, 20vh, 240px));
   height: clamp(240px, 36vh, 420px);
-  width: clamp(70px, 9vw, 120px);
+  width: 6px;
   z-index: 0;
   pointer-events: none;
+  /* Two things at once: the clip is the line being drawn downward as the
+     reader approaches, and the mask is both its ends dissolving, so it
+     appears out of nothing below the panel and is gone again before it
+     reaches the mark rather than stopping dead. */
   clip-path: inset(0 0 calc(100% - var(--rx-chap, 0%)) 0);
+  --trail-mask: linear-gradient(to bottom,
+    transparent 0, #000 22%, #000 68%, transparent 100%);
+  -webkit-mask-image: var(--trail-mask);
+  mask-image: var(--trail-mask);
 }
 .hx-meet-trail svg { width: 100%; height: 100%; display: block; }
 .hx-meet-trail path {
@@ -326,7 +286,7 @@
   filter: drop-shadow(0 0 9px rgba(160, 232, 96, 0.45));
 }
 /* The mark and the word sit over it, never under. */
-.hx-meet-pin { z-index: 1; }
+.hx-meet-stop { position: relative; z-index: 1; }
 
 /* A line that draws itself is the kind of thing reduced motion is for. */
 @media (prefers-reduced-motion: reduce) {
@@ -340,8 +300,7 @@
    track stays one screen tall rather than asking for scroll that would do
    nothing. */
 @media print {
-  .hx-meet-track, .hx-meet-track.is-scrubbed { min-height: 0; }
-  .hx-meet-pin { position: static; height: auto; }
+  .hx-meet-stop { min-height: 0; padding-block: 0; }
   .hx-meet-trail { display: none; }
   .hx-meet-title { color: #000 !important; }
 }

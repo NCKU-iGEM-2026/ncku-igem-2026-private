@@ -160,6 +160,11 @@
   if (!skipLenis && !reduceMotion && typeof window.Lenis === 'function') {
     try {
       var lenis = new window.Lenis({ duration: 0.9, smoothWheel: true });
+      /* Reachable so a page can hand the scroll back and forth. The home
+         page's Meet section stops it while the mark plays; without this the
+         only way to hold the page still would be to fight Lenis for every
+         wheel event. Nothing else should need it. */
+      window.rxLenis = lenis;
       /* Lenis needs a frame only while a scroll is under way. The loop starts
          on the first wheel, touch, key or scroll, and stops once the page has
          been still for a second, instead of running every frame for the

@@ -1,68 +1,106 @@
 (function () {
   'use strict';
 
-  /* Meet Capture, scrubbed by the scroll.
+  /* Meet Capture: the mark plays once, and the page is held still while it
+   * does, so nobody scrolls past a half-drawn logo.
    *
-   * The mark's beats are ordinary CSS animations on a 6.2s timeline. This
-   * does not re-implement them; it pauses them and seeks them. A paused
-   * animation with a negative delay renders the frame at that point in its
-   * own time, so writing one number -- how far the reader is through this
-   * section -- is enough to put every beat where it belongs. The arithmetic
-   * per beat is in the stylesheet, next to the beat it belongs to.
+   * Holding a reader still is a thing worth doing carefully, so:
+   *   - reduced motion never starts it, and neither does a second visit to
+   *     the section; it happens once,
+   *   - Esc, Tab and the back/forward keys all end it on the spot,
+   *   - a hard ceiling ends it regardless, so a bug here cannot strand
+   *     anyone on this section,
+   *   - and the scroll is given back exactly as it was taken.
    *
-   * The section is a tall track with a view pinned inside it. Scrolling the
-   * track's length is what plays the piece, which is also what stops the
-   * reader leaving before it has finished: there is nothing to prevent,
-   * because getting past it is the same act as watching it.
-   *
-   * Without this script nothing is paused and nothing is seeked, and the
-   * stylesheet's resting state -- the finished mark -- is simply there. The
-   * track collapses to one screen so there is no empty scrolling to do.
+   * With no script the stylesheet's resting state -- the finished mark --
+   * is simply there and nothing is ever held.
    */
 
-  var track = document.querySelector('[data-meet-track]');
-  if (!track) return;
+  var PLAY_MS = 4650;          /* the timeline in home-meet.css */
+  var CEILING_MS = 7000;       /* never hold longer than this, whatever happens */
 
-  var pin = track.querySelector('.hx-meet-pin');
-  if (!pin) return;
+  var stop = document.querySelector('[data-meet-stop]');
+  if (!stop) return;
+  var section = stop.closest('.hx-meet') || stop.parentNode;
 
   var reduce = false;
   try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
-  if (reduce) return;        /* the stylesheet already holds the finished mark */
+  if (reduce) return;
 
-  track.classList.add('is-scrubbed');
+  var played = false, holding = false, timer = null, ceiling = null;
 
-  var prog = -1, raf = null, top = 0, span = 1;
+  /* ---------------------------------------------------- holding still -- */
 
-  function measure() {
-    var y = window.pageYOffset || document.documentElement.scrollTop;
-    var r = track.getBoundingClientRect();
-    top = r.top + y;
-    /* The pinned view fills the screen, so the travel that actually scrubs
-       is whatever the track has over and above it. */
-    span = Math.max(1, r.height - pin.offsetHeight);
+  function swallow(e) { e.preventDefault(); }
+
+  /* Space, page up/down, home/end and the arrows are the keys that scroll.
+     Everything else is let through, Tab especially: a reader who wants out
+     by keyboard gets out, and taking the focus elsewhere ends the hold. */
+  var SCROLL_KEYS = [32, 33, 34, 35, 36, 37, 38, 39, 40];
+  function onKey(e) {
+    if (e.keyCode === 27 || e.keyCode === 9) { release(); return; }
+    if (SCROLL_KEYS.indexOf(e.keyCode) !== -1) e.preventDefault();
   }
 
-  function write() {
-    raf = null;
-    var y = window.pageYOffset || document.documentElement.scrollTop;
-    var p = (y - top) / span;
-    p = p < 0 ? 0 : p > 1 ? 1 : p;
-    /* Three decimals is finer than a frame at this length and keeps the
-       property from being rewritten on every pixel of scroll. */
-    p = Math.round(p * 1000) / 1000;
-    if (p === prog) return;
-    prog = p;
-    pin.style.setProperty('--meet-prog', String(p));
+  function hold() {
+    if (holding) return;
+    holding = true;
+    if (window.rxLenis && window.rxLenis.stop) window.rxLenis.stop();
+    window.addEventListener('wheel', swallow, { passive: false });
+    window.addEventListener('touchmove', swallow, { passive: false });
+    window.addEventListener('keydown', onKey, true);
+    document.documentElement.classList.add('rx-meet-holding');
   }
 
-  function onScroll() { if (raf === null) raf = requestAnimationFrame(write); }
+  function release() {
+    if (!holding) return;
+    holding = false;
+    if (timer) { clearTimeout(timer); timer = null; }
+    if (ceiling) { clearTimeout(ceiling); ceiling = null; }
+    window.removeEventListener('wheel', swallow, { passive: false });
+    window.removeEventListener('touchmove', swallow, { passive: false });
+    window.removeEventListener('keydown', onKey, true);
+    document.documentElement.classList.remove('rx-meet-holding');
+    if (window.rxLenis && window.rxLenis.start) window.rxLenis.start();
+    /* Whatever was skipped, the mark ends up finished rather than frozen
+       halfway: the class stays on and the animations have fill: both. */
+  }
 
-  measure();
-  write();
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', function () { measure(); prog = -1; onScroll(); });
-  /* The images decide the section's height as they land, and the track is
-     measured in svh, so one pass after load is not enough. */
-  window.addEventListener('load', function () { measure(); prog = -1; onScroll(); });
+  /* ------------------------------------------------------- the moment -- */
+
+  function begin() {
+    if (played) return;
+    played = true;
+    /* Square the section to the viewport first, so the mark is not held
+       half off the top of the screen. */
+    var y = (window.pageYOffset || document.documentElement.scrollTop) +
+            section.getBoundingClientRect().top;
+    if (window.rxLenis && window.rxLenis.scrollTo) {
+      window.rxLenis.scrollTo(y, { immediate: true });
+    } else {
+      window.scrollTo(0, y);
+    }
+    stop.classList.add('is-playing');
+    hold();
+    timer = setTimeout(release, PLAY_MS);
+    ceiling = setTimeout(release, CEILING_MS);
+  }
+
+  /* Starts when the section has all but filled the screen, so it begins on
+     a reader who has arrived rather than one still passing the panel above. */
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.intersectionRatio >= 0.9) { io.disconnect(); begin(); }
+      });
+    }, { threshold: [0.9] });
+    io.observe(section);
+  } else {
+    stop.classList.add('is-playing');       /* no observer: play, do not hold */
+  }
+
+  /* Leaving the page with the scroll still taken would be the one way to
+     strand someone. */
+  window.addEventListener('pagehide', release);
+  window.addEventListener('blur', release);
 })();
