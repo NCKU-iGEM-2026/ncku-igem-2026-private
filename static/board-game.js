@@ -1,29 +1,10 @@
-/* ========== CONSTANTS ========== */
-var GOAL = 3; // track runs -2..GOAL
+var GOAL = 3;
 var HAND_LIMIT = 5;
 
-/* Dealing to a human. Their hand is the part of the game they actually touch,
-   so it gets two nudges a bot does not:
-     GOAL_BIAS       how often the deal skips past cards that do nothing for
-                     them, to the next one they can use
-     GOAL_LOOKAHEAD  how far down the deck that look goes -- kept short, so it
-                     stays luck leaning their way rather than a search
-     SPECIAL_PITY    and a function card is never more than this many apart,
-                     as long as one is still in the deck to deal
-
-   These are deliberately moderate. The deck is one shared pile, so every card
-   steered to a human is one a bot does not get: at a bias of 0.75 the bots end
-   up holding almost no function cards (3.5% against the deck's natural 17%),
-   which is not a better game for anyone. At 0.45 a human sees roughly twice
-   the useful cards a bot does and the bots still get a playable hand.
-
-   Both only reorder what was already coming. No card is invented, and a bot
-   always takes whatever is on top. */
 var GOAL_BIAS = 0.45;
 var GOAL_LOOKAHEAD = 8;
 var SPECIAL_PITY = 10;
 
-/* ========== i18n ========== */
 var translations = {
   zh: {
     title: "The Green Cabinet", chooseMode: "選擇遊戲模式",
@@ -135,18 +116,12 @@ var SDG_NAMES = {
   en: {1:"No Poverty",2:"Zero Hunger",3:"Good Health",4:"Quality Education",5:"Gender Equality",6:"Clean Water",7:"Affordable Energy",8:"Decent Work",9:"Industry Innovation",10:"Reduced Inequalities",11:"Sustainable Cities",12:"Responsible Consumption",13:"Climate Action",14:"Life Below Water",15:"Life on Land",16:"Peace & Justice",17:"Partnerships"}
 };
 
-// English by default: the wiki is written in English and the judges read
-// it first. A reader who switches is remembered from then on.
 var currentLang = localStorage.getItem("tgc_lang") || "en";
-/* Named for this widget, not t(): a global single letter is the first
-   thing a bundled vendor script overwrites. */
 function tgcT(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.zh[key] || key; }
 function sdgName(id) { return (SDG_NAMES[currentLang] && SDG_NAMES[currentLang][id]) || id; }
 function cardTitle(c) { return currentLang === "en" ? (c.title_en || c.title_zh) : (c.title_zh || c.title_en); }
 function cardSub(c) { return currentLang === "en" ? (c.subtitle_en || "") : (c.subtitle_zh || ""); }
 function cardDesc(c) { return currentLang === "en" ? (c.description_en || c.description_zh || "") : (c.description_zh || c.description_en || ""); }
-/* The team's Wikipedia reference for this event, in the language being read.
-   Cards with no link for the current language simply render as plain text. */
 function cardLink(c) {
   var url = currentLang === "en" ? c.link_en : c.link_zh;
   return typeof url === "string" && /^https?:\/\//.test(url) ? url : "";
@@ -169,7 +144,6 @@ document.getElementById("langSelect").onchange = function() {
   applyI18n();
 };
 
-/* ========== CARD DATABASE ========== */
 var eventCards = [
   {
     title_zh:"金融海嘯", title_en:"Financial Crisis",
@@ -866,8 +840,6 @@ var eventCards = [
   }
 ];
 
-/* Annotations live on each card in eventCards (notes: {sdgId: {zh, en}}),
-   generated verbatim from the team's bilingual card spreadsheet. */
 function sdgNote(card, sdgId) {
   var entry = card && card.notes ? card.notes[sdgId] : null;
   if (!entry) return "";
@@ -917,40 +889,28 @@ var specialCards = [
   }
 ];
 
-/* ========== STATE ========== */
 var state = {
   mode: "local", isGameOver: false, timers: [], inputLocked: false,
   players: [], currentPlayer: 0, phase: "action",
   deck: [], discard: [], unusedSDGs: [],
   selectedCards: [], modeAction: null, maxPlay: 2,
   capacityActive: false, isAIThinking: false, paused: false,
-  stage: "lobby",   // lobby | draft | game — drives which screen every device shows
+  stage: "lobby",
   draftCounts: {}, draftCurrentPlayer: 0, draftSelected: [], aiDraftPending: false,
   previewDeltas: {},
   cardNextResolver: null
 };
 
-/* ---- Shared-state plumbing for online play ----
-   Only the host runs the rules; everyone else mirrors what the host publishes.
-   Snapshots carry the authoritative game data and leave purely local UI state
-   (timers, the pending Next resolver, the current selection) alone. */
-/* draftSelected and selectedCards are deliberately absent: they are what the
-   person in front of this device has highlighted but not committed, so sharing
-   them would light up other people's screens with someone else's half-made
-   choice — and enable their confirm button. */
 var SHARED_KEYS = [
   "isGameOver", "players", "currentPlayer", "phase",
   "deck", "discard", "unusedSDGs", "maxPlay", "capacityActive",
   "draftCounts", "draftCurrentPlayer", "stage"
 ];
-/* Keys the game expects to be arrays. Firebase drops empty arrays on write, so
-   a missing one has to come back as [] rather than leaving a stale value. */
 var SHARED_ARRAY_KEYS = ["players", "deck", "discard", "unusedSDGs"];
 
 function snapshotState() {
   var out = {};
   SHARED_KEYS.forEach(function(k) { out[k] = state[k]; });
-  // Firebase drops empty arrays/objects, so mark them to rebuild faithfully.
   return JSON.parse(JSON.stringify(out));
 }
 
@@ -959,7 +919,6 @@ function applySnapshot(snap) {
   SHARED_KEYS.forEach(function(k) {
     var isArr = SHARED_ARRAY_KEYS.indexOf(k) !== -1;
     if (snap[k] === undefined) {
-      // An absent array means the host emptied it, not that it is unchanged.
       if (isArr) state[k] = [];
       return;
     }
@@ -976,9 +935,6 @@ function applySnapshot(snap) {
   state.unusedSDGs = objectToArray(state.unusedSDGs);
 }
 
-/* Firebase stores no key at all for an empty array, so a card whose forward or
-   backward list is empty arrives without those fields — and the renderer reads
-   .length off them. Put the empty lists back before anything touches a card. */
 function normaliseCard(card) {
   if (!card || typeof card !== "object") return card;
   card.forward = objectToArray(card.forward);
@@ -986,7 +942,6 @@ function normaliseCard(card) {
   return card;
 }
 
-/* Firebase turns sparse arrays into objects keyed by index; turn them back. */
 function objectToArray(obj) {
   if (Array.isArray(obj)) return obj;
   if (!obj || typeof obj !== "object") return [];
@@ -995,9 +950,6 @@ function objectToArray(obj) {
     .map(function(k) { return obj[k]; });
 }
 
-/* Whose hand this device is allowed to see. Offline the device is passed
-   around, so that is whoever is taking their turn; online it is fixed to the
-   seat this device joined as, which is what keeps hands private. */
 function viewerIndex() {
   if (online.active && online.seat !== null && online.seat !== undefined) return online.seat;
   return state.currentPlayer;
@@ -1005,11 +957,6 @@ function viewerIndex() {
 function viewerPlayer() { return state.players[viewerIndex()]; }
 function isViewersTurn() { return viewerIndex() === state.currentPlayer; }
 
-/* Every wait the game makes goes through here -- a bot thinking, a card on
-   screen, the step between two turns -- which is what lets the game be held:
-   a pause clears what is pending and keeps how much of each was left, and
-   resuming sets them again for that much. A timer set while held waits for
-   the resume rather than starting its own clock. */
 function trackTimeout(fn, ms) {
   if (state.isGameOver) return null;
   var rec = { fn: fn, ms: ms, start: Date.now(), id: null };
@@ -1062,14 +1009,6 @@ function log(msg, type) {
   el.scrollTop = el.scrollHeight;
 }
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-/* Tick marks under each progress bar, derived from GOAL so the scale and the
-   labels can never drift apart if the goal distance is retuned.
-
-   Each label carries the percentage its value sits at, the same ((v+2)/range)
-   the fill width uses, so a label lands exactly on the point of the bar it
-   names. Spacing them with justify-content instead put their edges at the two
-   ends and left every centre short of its mark -- worst on GOAL, the widest
-   of them. */
 var _trackLabelsCache = null;
 function trackLabelsHtml() {
   if (_trackLabelsCache) return _trackLabelsCache;
@@ -1087,19 +1026,10 @@ function showScreen(id) {
   syncPauseButton();
 }
 
-/* ========== PAUSE ==========
-   The button is pinned over the board and sits above the pop-ups, because the
-   moment you most want to stop the game is while one of them is waiting for
-   you. Holding the game stops its clock and takes the board out of reach;
-   the button itself stays live. Local games only: an online table runs on
-   the host's clock, and one player's pause would only stall their own
-   screen while the rest of the table moved on. */
 function syncPauseButton() {
   var btn = document.getElementById("btnPause");
   if (!btn) return;
   var playing = document.getElementById("gameScreen").classList.contains("active");
-  /* online is declared further down; before it is assigned this reads as
-     undefined, which is the right answer for a game that has not started. */
   btn.hidden = !playing || !!(online && online.active);
   if (btn.hidden && state.paused) setPaused(false);
 }
@@ -1115,7 +1045,6 @@ function setPaused(on) {
     btn.classList.toggle("is-paused", on);
     btn.setAttribute("aria-pressed", on ? "true" : "false");
     var label = btn.querySelector(".tgc-pause-label");
-    /* The label is the action; applyI18n() reads the key back off it. */
     label.setAttribute("data-i18n", on ? "resume" : "pause");
     label.textContent = tgcT(on ? "resume" : "pause");
   }
@@ -1153,8 +1082,6 @@ function showAINotice(text) {
 }
 function hideAINotice() { document.getElementById("ai-notice").classList.remove("show"); }
 
-/* One sticky note per moved SDG, carrying the step change and, where the team
-   has supplied one, the annotation for that SDG on that card. */
 function makeStickyNote(card, sdgId, delta) {
   var note = document.createElement("span");
   var text = sdgNote(card, sdgId);
@@ -1185,9 +1112,6 @@ function makeStickyNote(card, sdgId, delta) {
   return note;
 }
 
-/* Paint the announcement. Kept separate from waiting on it, because online
-   every device renders the same card but only the host drives what happens
-   after everyone has acknowledged it. */
 function renderAnnouncement(playerName, card, options) {
   options = options || {};
   {
@@ -1198,7 +1122,6 @@ function renderAnnouncement(playerName, card, options) {
     var wikiUrl = cardLink(card);
     nameEl.innerHTML = "";
     if (wikiUrl) {
-      // Built as a node with textContent so a card title can never inject markup.
       var wikiLink = document.createElement("a");
       wikiLink.className = "card-announce-link";
       wikiLink.href = wikiUrl;
@@ -1254,9 +1177,6 @@ function hideAnnouncement() {
   state.cardNextResolver = null;
 }
 
-/* Offline this resolves on this device's own Next click. Online the host
-   publishes the step, every device shows it, and it only resolves once every
-   seat has acknowledged — so nobody's screen races ahead of the table. */
 function showCardAnnouncement(playerName, card, options) {
   options = options || {};
   if (state.isGameOver) return Promise.resolve();
@@ -1276,7 +1196,6 @@ document.getElementById("btnCardNext").onclick = function() {
   if (state.cardNextResolver) state.cardNextResolver();
 };
 
-/* ========== NAV ========== */
 document.getElementById("btnPVC").onclick = function() {
   state.mode = "local";
   showScreen("setupScreen");
@@ -1291,25 +1210,20 @@ document.getElementById("btnLocal").onclick = function() {
 };
 document.getElementById("btnOnline").onclick = openOnlineMenu;
 
-/* ========== ONLINE ROOMS ==========
-   One device is the host and owns the game state; the others send intents and
-   render what they receive. Everything degrades to a message rather than an
-   error when the database is unset or unreachable, so a frozen wiki with a
-   dead backend still looks intact. */
 var online = {
-  active: false,     // playing over the network rather than on one device
+  active: false,
   code: null,
   playerId: null,
-  seat: null,        // this device's index into state.players
+  seat: null,
   isHost: false,
   roomSub: null,
   room: null,
-  stepId: null,      // announcement currently awaiting acknowledgement
-  order: [],         // playerId per seat, so seat <-> device stays stable
+  stepId: null,
+  order: [],
   pendingStep: null,
   pendingPrompt: null,
   shownPromptId: null,
-  doneActions: {}    // guest intents already applied, so none runs twice
+  doneActions: {}
 };
 
 function setStatus(elId, msg, kind) {
@@ -1410,7 +1324,6 @@ function enterLobby() {
 
     if (room.phase === "lobby") { renderLobby(room); return; }
 
-    // Game running: adopt the host's state, then reconcile the shared step.
     if (!online.active) beginOnlineGame(room);
     if (!online.isHost && room.state) {
       applySnapshot(room.state);
@@ -1428,8 +1341,6 @@ function enterLobby() {
   });
 }
 
-/* The host turns the lobby roster into real players and starts the game;
-   everyone else follows the published state. */
 document.getElementById("btnLobbyStart").onclick = function() {
   if (!online.isHost) return;
   var roster = lobbyRoster(online.room);
@@ -1465,12 +1376,8 @@ function beginOnlineGame(room) {
   startTutorial();
 }
 
-/* Guests follow the host from screen to screen. Anyone still reading the
-   tutorial is left alone; they catch up the moment they finish it. */
 function followHostStage(leavingTutorial) {
   if (!state.players.length || state.isGameOver) return;
-  // Don't yank someone out of the tutorial mid-read — unless they just finished
-  // it, in which case this call is exactly how they leave it.
   if (!leavingTutorial &&
       document.getElementById("tutorialScreen").classList.contains("active")) return;
 
@@ -1483,17 +1390,11 @@ function followHostStage(leavingTutorial) {
   }
 }
 
-/* Host mirrors its authoritative state out after every change. */
 function publishState() {
   if (!online.active || !online.isHost || !online.code) return;
   Net.put("rooms/" + online.code + "/state", snapshotState()).catch(function() {});
 }
 
-/* ---- Guest intents ----
-   Only the host runs the rules, so a guest never mutates the game directly.
-   It posts what it wants to do and the host validates and performs it. Cards
-   are named by id rather than by hand position, because the guest's view of
-   the hand can be a moment behind the host's. */
 function sendIntent(intent) {
   if (!online.code) return;
   intent.playerId = online.playerId;
@@ -1518,7 +1419,7 @@ function applyIntent(a) {
   if (seat < 0) return;
 
   if (a.type === "draft") {
-    if (seat !== state.draftCurrentPlayer) return;   // not their pick to make
+    if (seat !== state.draftCurrentPlayer) return;
     confirmDraftPick(objectToArray(a.ids));
     return;
   }
@@ -1539,7 +1440,6 @@ function applyIntent(a) {
   else if (a.type === "play") { state.modeAction = "play"; executePlay(); }
 }
 
-/* Card ids for the current selection, so an intent survives reordering. */
 function selectedCardIds() {
   var p = viewerPlayer();
   return state.selectedCards.map(function(i) { return p.hand[i] && p.hand[i].id; })
@@ -1577,10 +1477,6 @@ function renderLobby(room) {
   else setStatus("lobbyStatus", enough ? tgcT("lobbyHostHint") : tgcT("lobbyNeedMore"), enough ? "" : "error");
 }
 
-/* ---- Synchronised "everyone presses Next" barrier ----
-   The host writes the step it wants shown; every device renders it and writes
-   its own acknowledgement. The host's promise resolves only when the count of
-   acknowledgements reaches the number of seats. */
 function hostPublishStep(playerName, card, options) {
   var stepId = "s" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
   var payload = {
@@ -1602,7 +1498,6 @@ function hostPublishStep(playerName, card, options) {
   return new Promise(function(resolve) {
     online.pendingStep = { id: stepId, resolve: resolve };
     Net.put("rooms/" + online.code + "/step", payload).catch(function() {});
-    // The host acknowledges through the same path as everyone else.
     renderAckStatus(0);
   });
 }
@@ -1622,8 +1517,6 @@ function renderAckStatus(count) {
   el.textContent = tgcT("ackProgress") + " " + count + " / " + total;
 }
 
-/* Called on every room update: drives the announcement for guests, keeps the
-   ack counter live for everyone, and lets the host continue once all are in. */
 function syncStep(room) {
   var step = room && room.step;
   var acks = (room && room.acks && step && room.acks[step.id]) || {};
@@ -1636,7 +1529,6 @@ function syncStep(room) {
   }
 
   if (online.stepId !== step.id) {
-    // A step this device has not shown yet.
     online.stepId = step.id;
     state.inputLocked = true;
     document.getElementById("btnCardNext").disabled = false;
@@ -1674,14 +1566,10 @@ function leaveRoom() {
     var players = (room && room.players) || {};
     var others = Object.keys(players).filter(function(id) { return id !== pid; });
     if (!others.length) {
-      // Last one out bins the whole room; otherwise abandoned rooms pile up in
-      // the database forever, since nothing server-side ever sweeps them.
       Net.remove("rooms/" + code).catch(function() {});
     } else {
       Net.remove("rooms/" + code + "/players/" + pid).catch(function() {});
       if (room && room.host === pid) {
-        // Don't strand the others with a room nobody can start: hand the host
-        // role to whoever joined earliest among those still here.
         others.sort(function(a, b) { return (players[a].joinedAt || 0) - (players[b].joinedAt || 0); });
         Net.patch("rooms/" + code, { host: others[0] }).catch(function() {});
       }
@@ -1752,9 +1640,6 @@ function startDraft() {
   startTutorial();
 }
 
-/* ========== RULES WALKTHROUGH ==========
-   Shown between setup and the draft, so finishing it drops straight into play.
-   Both languages sit on the page together rather than following the toggle. */
 var TUTORIAL_STEPS = [
   {
     zh: { title: "歡迎來到 The Green Cabinet", body: [
@@ -1930,15 +1815,11 @@ function renderTutorial() {
   });
 
   document.getElementById("btnTutorialNext").textContent = last ? "開始遊戲 Start game" : "下一步 Next";
-  // Disabled rather than hidden on the first step, so the row does not shift
-  // under the cursor as you move through the walkthrough.
   document.getElementById("btnTutorialPrev").disabled = tutorialIndex === 0;
   document.getElementById("tutorialScreen").scrollIntoView({ block: "start" });
 }
 
 function finishTutorial() {
-  // Online, the host may already have moved past the draft while this player
-  // was still reading, so land on whatever stage the table is actually at.
   if (online.active && !online.isHost) { followHostStage(true); return; }
   showScreen("draftScreen");
   renderDraft();
@@ -1957,11 +1838,8 @@ document.getElementById("btnTutorialPrev").onclick = function() {
 };
 document.getElementById("btnTutorialSkip").onclick = finishTutorial;
 
-/* ========== DRAFT: same SDG may be picked by up to 2 players ========== */
 function renderDraft() {
   if (state.isGameOver) return;
-  // The draft has its own render path, so it needs its own mirror-out; without
-  // this the host would draft alone while everyone else stayed on seat 0.
   if (online.active && online.isHost) publishState();
   var p = state.players[state.draftCurrentPlayer];
   document.getElementById("draftStatus").textContent = tgcT("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "") + " - " + tgcT("select2");
@@ -1976,7 +1854,6 @@ function renderDraft() {
     div.className = "sdg-pick" + (full && !sel ? " disabled" : "") + (sel ? " selected" : "");
     div.innerHTML = "<strong>SDG " + id + "</strong><br><span style=\"font-size:0.72rem;color:var(--muted);\">" + sdgName(id) + "</span>" +
       "<div class=\"pick-count\">" + (full ? tgcT("max2") : cnt + " " + tgcT("picks")) + "</div>";
-    // Online, only the device whose seat is drafting may touch the grid.
     if (!full && !p.isAI && (!online.active || state.draftCurrentPlayer === viewerIndex())) {
       (function(sid) { div.onclick = function() { toggleDraftSelect(sid); }; })(id);
     }
@@ -1988,8 +1865,6 @@ function renderDraft() {
   document.getElementById("btnConfirmDraft").disabled =
     state.draftSelected.length !== 2 || p.isAI ||
     (online.active && state.draftCurrentPlayer !== viewerIndex());
-  // aiDraftPick() re-renders to show its picks highlighted, so only arm the
-  // timer once per bot — otherwise a stale one fires after the draft moved on.
   if (p.isAI && !state.aiDraftPending) {
     state.aiDraftPending = true;
     showAINotice("[" + p.name + "] " + tgcT("aiDraft"));
@@ -2026,9 +1901,6 @@ function confirmDraftPick(ids) {
   if (state.draftCurrentPlayer >= state.players.length) { startGame(); return; }
   renderDraft();
 }
-/* How the deck actually treats each goal: event cards that push it forward,
-   less those that push it back. Counted once off the card table, so it stays
-   true if the cards change. */
 var sdgScoreCache = null;
 function sdgScores() {
   if (sdgScoreCache) return sdgScoreCache;
@@ -2042,19 +1914,12 @@ function sdgScores() {
   return out;
 }
 
-/* Two goals, drawn without replacement, weighted towards the ones the deck
-   favours. `sharpness` is how hard the bot leans that way.
-
-   Picking by score alone is what made every basic and advance bot open with
-   SDG 9 and SDG 8 in every single game: sorting all seventeen by distance
-   from 9 is a total order, so the top two never moved. */
 function pickGoalsWeighted(avail, sharpness) {
   var score = sdgScores();
   var pool = avail.slice();
   var out = [];
   while (out.length < 2 && pool.length) {
     var weights = pool.map(function(id) {
-      // net score runs about +2..+6; the offset keeps the weakest goal in play
       return Math.pow(Math.max(1, (score[id] || 0) + 4), sharpness);
     });
     var total = 0;
@@ -2136,7 +2001,6 @@ function startGame() {
   updateUI();
   maybeTriggerAI();
 }
-/* Does this card move one of this player's own goals forward? */
 function advancesOwnGoal(card, p) {
   if (!card || card.kind !== "event") return false;
   var f = card.forward || [];
@@ -2146,16 +2010,10 @@ function advancesOwnGoal(card, p) {
   return false;
 }
 
-/* A card this player can do something with: one that moves a goal of theirs,
-   or a function card. Looking for goal cards alone made it worse, not better
-   -- events got pulled out from in front of the function cards and a human
-   ended up with fewer of those than a bot. */
 function isInteresting(card, p) {
   return card.kind === "special" || advancesOwnGoal(card, p);
 }
 
-/* Index of the first card from the top matching `match`, looking at most
-   `depth` cards down. The top of the deck is the last entry in the array. */
 function findFromTop(match, depth) {
   var stop = Math.max(0, state.deck.length - depth);
   for (var i = state.deck.length - 1; i >= stop; i--) {
@@ -2164,8 +2022,6 @@ function findFromTop(match, depth) {
   return -1;
 }
 
-/* Deal one card. Bots take the top of the deck; a human gets the nudges
-   described at GOAL_BIAS. */
 function drawCardFor(p) {
   if (!state.deck.length) reshuffle();
   if (!state.deck.length) return null;
@@ -2174,8 +2030,6 @@ function drawCardFor(p) {
   if (p && !p.isAI) {
     var found = -1;
     if ((p.sinceSpecial || 0) >= SPECIAL_PITY - 1) {
-      // The promise is "at least one in ten", so this one searches the whole
-      // deck rather than a window -- otherwise it would not be a promise.
       found = findFromTop(function(c) { return c.kind === "special"; }, state.deck.length);
     } else if (Math.random() < GOAL_BIAS) {
       found = findFromTop(function(c) { return isInteresting(c, p); }, GOAL_LOOKAHEAD);
@@ -2194,7 +2048,6 @@ function reshuffle() {
   log(tgcT("reshuffle"), "sys");
 }
 
-/* ========== UI ========== */
 function computePreview() {
   state.previewDeltas = {};
   var p = getCurrentPlayer();
@@ -2229,15 +2082,12 @@ function updateUI() {
   if (state.isGameOver) return;
   var p = getCurrentPlayer();
   if (!p) return;
-  // The host redraws after every rules change, which makes this the one place
-  // that reliably mirrors the authoritative state out to the other devices.
   if (online.active && online.isHost) publishState();
   var viewer = viewerPlayer() || p;
   document.getElementById("turnInfo").textContent = tgcT("turnOf") + " " + p.name + (p.isAI ? " (Bot)" : "");
   document.getElementById("deckCount").textContent = state.deck.length;
   document.getElementById("discardCount").textContent = state.discard.length;
   document.getElementById("handCount").textContent = "(" + viewer.hand.length + "/" + HAND_LIMIT + ")";
-  // Online, the hand shown is always this device's own, so label it.
   var handOwner = document.getElementById("handOwner");
   if (handOwner) handOwner.textContent = online.active ? "· " + viewer.name : "";
   var phaseText = tgcT("actionPhase");
@@ -2249,8 +2099,6 @@ function updateUI() {
   document.getElementById("phaseLabel").textContent = phaseText;
   document.getElementById("phaseLabel").className = "phase-label" + (state.isAIThinking ? " ai-thinking" : "");
 
-  // Online, only the device whose seat is up may act; offline the device is
-  // handed around, so the current player is always the one holding it.
   var humanTurn = !p.isAI && isViewersTurn() && state.phase === "action" &&
     !state.isAIThinking && !state.inputLocked && !state.isGameOver;
   var btnD = document.getElementById("btnDiscardMode");
@@ -2269,7 +2117,7 @@ function updateUI() {
   computePreview();
   var grid = document.getElementById("playersGrid");
   grid.innerHTML = "";
-  var range = GOAL + 2; // -2 to GOAL
+  var range = GOAL + 2;
   state.players.forEach(function(pl, idx) {
     var div = document.createElement("div");
     div.className = "player-card" + (idx === state.currentPlayer ? " current" : "") +
@@ -2279,7 +2127,6 @@ function updateUI() {
     var html = "<div class=\"player-name\">" + pl.name + (idx === state.currentPlayer ? " (current)" : "") +
       (pl.isAI ? " [" + pl.difficulty + "]" : "") +
       (online.active && idx === viewerIndex() ? " <span class=\"you-tag\">" + tgcT("youTag") + "</span>" : "") +
-      // Hands stay hidden online; only the size is public.
       (online.active && idx !== viewerIndex()
         ? " <span class=\"hand-count-tag\">" + tgcT("handsLabel") + " " + pl.hand.length + "</span>" : "") +
       "</div>";
@@ -2294,9 +2141,6 @@ function updateUI() {
         (delta !== 0 ? "<div class=\"progress-preview " + (delta < 0 ? "negative" : "") + "\" style=\"left:0;width:" + Math.max(pct, previewPct) + "%;\"></div>" : "") +
         "<div class=\"progress-text\">" + (cur >= GOAL ? tgcT("goal") : cur) + (delta ? " -> " + preview : "") +
         (s.immune ? " [immune]" : "") + "</div></div>" +
-        // The scale belongs under the bar, so it shares the bar's column
-        // rather than the whole row: as a sibling of .sdg-row it started at
-        // the row's left edge and ran the badge's width adrift.
         "<div class=\"progress-labels\">" + trackLabelsHtml() + "</div>" +
         "</div></div>" +
         "<div style=\"font-size:0.66rem;color:var(--muted);margin-bottom:2px;\">" + sdgName(s.id) + "</div>";
@@ -2305,8 +2149,6 @@ function updateUI() {
     grid.appendChild(div);
   });
 
-  // Always this device's own hand — never the current player's, or an online
-  // opponent could read your cards simply by waiting for their turn.
   var handEl = document.getElementById("handCards");
   handEl.innerHTML = "";
   viewer.hand.forEach(function(card, idx) {
@@ -2330,16 +2172,6 @@ function updateUI() {
   });
 }
 
-/* ========== OVERLAYS STAY ON THE BOARD ==========
-   The card announcement, the choice dialog and the bot notice are fixed
-   elements. Fixed to the window they covered the whole wiki, and a wheel
-   scroll while one was up carried the page away under them. Each is now
-   pinned to the part of this widget that is on screen, written into
-   --tgc-ov-* and read by the rules in style.css, and while one of the two
-   that want an answer is open the page is held still.
-
-   Watched with a MutationObserver rather than hooked into each show/hide:
-   the online game opens the same overlays down other paths. */
 var tgcOverlayLocked = false;
 var tgcOverlayPad = '';
 var tgcPinRaf = null;
@@ -2354,9 +2186,6 @@ function tgcShown(sel) {
 function tgcPinOverlays() {
   var page = tgcBoard();
   if (!page) return;
-  /* clientWidth/clientHeight, not innerWidth/innerHeight: a fixed box is laid
-     out against the viewport without its scrollbar, which is the same frame
-     getBoundingClientRect() reports in. */
   var vw = document.documentElement.clientWidth, vh = document.documentElement.clientHeight;
   var r = page.getBoundingClientRect();
   var left = Math.max(0, r.left), right = Math.min(vw, r.right);
@@ -2365,7 +2194,6 @@ function tgcPinOverlays() {
   page.style.setProperty('--tgc-ov-top', Math.round(top) + 'px');
   page.style.setProperty('--tgc-ov-width', Math.round(Math.max(0, right - left)) + 'px');
   page.style.setProperty('--tgc-ov-height', Math.round(Math.max(0, bottom - top)) + 'px');
-  /* From the other two edges, for anything pinned to the board's corners. */
   page.style.setProperty('--tgc-ov-right', Math.round(Math.max(0, vw - right)) + 'px');
   page.style.setProperty('--tgc-ov-bottom', Math.round(Math.max(0, vh - bottom)) + 'px');
 }
@@ -2381,10 +2209,6 @@ function tgcSyncOverlays() {
   var waiting = tgcShown('#card-play-modal') || tgcShown('#modal');
   var root = document.documentElement;
   if (waiting && !tgcOverlayLocked) {
-    /* Asked for an answer while the board is nearly off screen: bring it
-       back first, so the question is put where the player is looking. At
-       once, not smoothly, because the box measured next is the box that
-       then stays put. */
     var r = page.getBoundingClientRect();
     var seen = Math.min(window.innerHeight, r.bottom) - Math.max(0, r.top);
     if (seen < Math.min(r.height, window.innerHeight * 0.6)) {
@@ -2404,10 +2228,6 @@ function tgcSyncOverlays() {
   tgcPinOverlays();
 }
 
-/* overflow: hidden holds a wheel the reader turns, but not a scroll a script
-   asks for, and the site's smooth scrolling (Lenis) answers the wheel by
-   scrolling the page itself. So the event is taken at the window, before it
-   reaches that listener. A tall announcement still scrolls inside itself. */
 function tgcBlockScroll(e) {
   if (!tgcOverlayLocked) return;
   var inner = e.target && e.target.closest &&
@@ -2425,8 +2245,6 @@ function tgcBlockScroll(e) {
       if (el) mo.observe(el, { attributes: true, attributeFilter: ['class'] });
     });
   }
-  /* Whatever moves the page -- the bot notice is up and not holding it, or a
-     smooth scroll already under way when the hold began -- the box follows. */
   window.addEventListener('scroll', tgcPinSoon, { passive: true });
   window.addEventListener('wheel', tgcBlockScroll, { capture: true, passive: false });
   window.addEventListener('touchmove', tgcBlockScroll, { capture: true, passive: false });
@@ -2435,7 +2253,6 @@ function tgcBlockScroll(e) {
   tgcPinOverlays();
 })();
 
-/* ========== ACTIONS ========== */
 document.getElementById("btnDiscardMode").onclick = function() {
   if (state.inputLocked || state.isGameOver) return;
   var p = getCurrentPlayer();
@@ -2549,7 +2366,6 @@ function askVeto(card, caster) {
       }, 1000);
       return;
     }
-    // Any holder may counter, so offer it to each in turn until one accepts.
     var i = 0;
     (function askNext() {
       if (state.isGameOver || i >= holders.length) { resolve(false); return; }
@@ -2577,7 +2393,6 @@ function endActionPhase() {
   doFlipPhase();
 }
 
-/* Flip phase: reveal top deck event; skip specials */
 async function doFlipPhase() {
   if (state.isGameOver) return;
   updateUI();
@@ -2642,8 +2457,6 @@ function finishTurn() {
   var next = (state.currentPlayer + 1) % state.players.length;
   getCurrentPlayer().sanctioned = false;
   state.currentPlayer = next;
-  // Policy Exemption covers "this round", so it holds through the caster's own
-  // reveal phase and every opponent's turn, and lapses as their next turn opens.
   state.players[next].sdgs.forEach(function(s) { s.immune = false; });
   state.phase = "action";
   state.modeAction = null;
@@ -2652,14 +2465,10 @@ function finishTurn() {
   if (!state.isGameOver) { updateUI(); maybeTriggerAI(); }
 }
 
-/* ========== TURN START ========== */
 async function maybeTriggerAI() {
   if (state.isGameOver) return;
   var p = getCurrentPlayer();
   if (!p || state.phase !== "action") return;
-  // A sanctioned player may neither play nor discard, so there is no action for
-  // them to take — skip straight to the reveal phase. Without this a sanctioned
-  // human is stuck: both action buttons refuse, and nothing ends the turn.
   if (p.sanctioned) {
     log(p.name + " " + tgcT("sanctionSkip"), p.isAI ? "ai" : "sys");
     showAINotice(p.name + " " + tgcT("sanctionSkip"));
@@ -2714,7 +2523,6 @@ async function maybeTriggerAI() {
   if (!state.isGameOver) endActionPhase();
 }
 
-/* ========== RESOLVE ========== */
 function isValidNeg(s) { return s.progress < GOAL && !s.immune; }
 
 function resolveCard(card, isAI, done) {
@@ -2869,9 +2677,6 @@ function resolveSpecial(card, isAI, done) {
         done();
       }, 1000);
     } else {
-      // Remember the offered cards themselves, not their positions: the pile
-      // can grow between showing this list and the player choosing, and a
-      // stale index would then take the wrong card.
       askChoice(state.currentPlayer, tgcT("selectFromDiscard"), top.map(function(c, i) {
         return { label: cardTitle(c), value: i };
       }), function(i) {
@@ -2887,9 +2692,6 @@ function resolveSpecial(card, isAI, done) {
   }
 
   if (card.type === "sustain") {
-    // Draw from the unused-goal deck, skipping any goal this player already
-    // tracks so nobody ends up holding the same SDG twice. The replaced goal
-    // goes back to the bottom, and the new one inherits its step position.
     var takeUnused = function(player) {
       for (var i = state.unusedSDGs.length - 1; i >= 0; i--) {
         var id = state.unusedSDGs[i];
@@ -2921,12 +2723,6 @@ function resolveSpecial(card, isAI, done) {
   done();
 }
 
-/* Selection helpers */
-/* ---- One primitive behind every choice the rules ask a player to make ----
-   Offline it is just a modal. Online the choice belongs to a specific seat, so
-   it is published for that device to answer while everyone else waits: the
-   player who played the card is the one who picks its target, even though the
-   host is the machine actually running the rules. */
 function askChoice(seat, title, options, cb) {
   if (!options.length) { cb(null); return; }
 
@@ -2935,7 +2731,7 @@ function askChoice(seat, title, options, cb) {
   if (seat === viewerIndex()) showChoiceModal(title, options, cb);
   else showWaitingForChoice(title, seat);
 
-  if (!online.isHost) return;   // only the host waits on the answer
+  if (!online.isHost) return;
   var pid = "q" + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
   online.pendingPrompt = { id: pid, cb: cb, seat: seat };
   Net.put("rooms/" + online.code + "/prompt", {
@@ -2960,7 +2756,6 @@ function showChoiceModal(title, options, cb) {
   }, 30);
 }
 
-/* Everyone who is not choosing sees who they are waiting on. */
 function showWaitingForChoice(title, seat) {
   var who = (state.players[seat] && state.players[seat].name) || "";
   showModal(title, "<p>" + tgcT("waitingChoice") + "<br><strong>" + who + "</strong></p>", []);
@@ -2971,7 +2766,7 @@ function answerChoice(value, cb) {
     Net.put("rooms/" + online.code + "/promptReply",
             { id: (online.room && online.room.prompt && online.room.prompt.id) || "", value: value })
       .catch(function() {});
-    return;   // the host applies it and the result comes back in the state
+    return;
   }
   if (online.active && online.isHost) {
     Net.remove("rooms/" + online.code + "/prompt").catch(function() {});
@@ -2980,8 +2775,6 @@ function answerChoice(value, cb) {
   cb(value);
 }
 
-/* Guests render whatever prompt is addressed to their seat, and clear it when
-   the host takes it down. */
 function syncPrompt(room) {
   var p = room && room.prompt;
   if (!p) {
@@ -2998,7 +2791,6 @@ function syncPrompt(room) {
   }
 }
 
-/* Host side: a guest answered, so finish the rule that was waiting. */
 function syncPromptReply(room) {
   if (!online.isHost) return;
   var reply = room && room.promptReply;
@@ -3026,8 +2818,6 @@ function pickSDG(player, title, cb) {
   }), function(v) { cb(v); });
 }
 
-/* Targets for Back to Square One / Stance Reversal. GOAL-locked cards and cards
-   under Policy Exemption cannot be hit, so they are not offered as choices. */
 function pickAnySDG(title, cb, onNoTarget) {
   var options = [];
   state.players.forEach(function(pl, pi) {
@@ -3042,17 +2832,11 @@ function pickAnySDG(title, cb, onNoTarget) {
     cb(state.players[Number(parts[0])], Number(parts[1]));
   });
 }
-/* "A, B and C" in English, "A、B、C" in Chinese -- the separator before the
-   last name is its own string because the two languages disagree about it. */
 function joinNames(names) {
   if (names.length <= 1) return names[0] || "";
   return names.slice(0, -1).join(tgcT("winJoin")) + tgcT("winJoinLast") + names[names.length - 1];
 }
 
-/* A single card can push more than one player over the line at once -- a
-   reversal, or an event that moves several goals in the same direction. When
-   that happens everyone who finished shares the win, so collect them all
-   instead of stopping at the first seat that qualifies. */
 function checkWin() {
   var winners = state.players.filter(function(pl) {
     return pl.sdgs.every(function(s) { return s.progress >= GOAL; });
@@ -3072,11 +2856,8 @@ function checkWin() {
   log(names + " " + tgcT(winners.length > 1 ? "winLogMulti" : "winLog"), "win");
 }
 
-/* Play Again was an inline onclick. Wiring it here keeps every handler in
-   this file, so the page carries no executable attributes. */
 document.getElementById("playAgain").addEventListener("click", function () {
   location.reload();
 });
 
-/* init */
 applyI18n();

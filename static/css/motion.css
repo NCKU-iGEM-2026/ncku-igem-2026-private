@@ -1,36 +1,21 @@
-/* ============================================================
-   MOTION — 動效層：Lenis 平滑捲動需要的位置修正與工具類
-   （真正的動畫驅動在 static/js/motion.js）
-   ============================================================ */
-
-/* Lenis 平滑捲動 */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
 .lenis.lenis-stopped { overflow: hidden; }
 
-/* 敘事段落＋綁定滾動的 progress 條（pin 失敗時 CSS 降級版） */
-
-/* 大字 kinetic typography：逐字包裹（JS 包字） */
 .rx-split .rx-word { display: inline-block; overflow: hidden; vertical-align: bottom; }
 .rx-split .rx-char { display: inline-block; transform: translateY(110%); }
 html.rx-done .rx-split .rx-char { transform: translateY(0); }
-/* 逐字升起：原本 GSAP 的 0.9 秒 expo.out，延遲由 motion.js 寫進 --rx-d */
 @keyframes rx-rise { from { transform: translateY(110%); } to { transform: translateY(0); } }
 .rx-split.rx-go .rx-char { animation: rx-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--rx-d, 0s) both; }
 @media (prefers-reduced-motion: reduce) {
   .rx-split .rx-char { transform: none !important; }
 }
 
-/* 章節標題漸顯已交給 data-reveal，自動完成 */
-
-/* 綠色光暈呼吸（用於 hero 裝飾菌落） */
 @keyframes rx-breathe {
   0%, 100% { opacity: 0.55; transform: scale(1); }
   50%      { opacity: 0.95; transform: scale(1.06); }
 }
-
-/* hero ScrollIndicator */
 
 @keyframes rx-cue-drop {
   0% { transform: translateY(0); opacity: 1; }

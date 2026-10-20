@@ -3,28 +3,16 @@
 {% block title %}Notebook{% endblock %}
 {% block hero_image %}https://static.igem.wiki/teams/6379/wiki/banner/notebook2.avif{% endblock %}
 
-{# The deep-teal treatment, the same one Hardware, Education and the Board
-   Game use. Every rule it turns on lives under body.nb-nexus in style.css
-   and overrides the light theme rather than replacing it, so deleting this
-   one line puts the page back exactly as it was. #}
 {% block body_class %}nb-nexus{% endblock %}
 
 {% block page_content %}
 
-{# Links used inside the entry text below. Built once here so the week table
-   stays readable and still goes through url_for. #}
 {% set lnk_board = '<a href="' ~ url_for('pages', page='board-game') ~ '">board game</a>' %}
 
-{# A link straight to the section an entry is about:
-   go('education', 'session-xihu', 'Xihu Senior High School').
-   An entry that joins go() must use literal characters -- “ ” – ’ --
-   and not HTML entities: the macro returns markup, so Jinja escapes the plain
-   string beside it and an entity would show as its own source text. #}
 {% macro go(page, frag, text) -%}
 <a href="{{ url_for('pages', page=page) }}#{{ frag }}">{{ text|safe }}</a>
 {%- endmacro %}
 
-{# ======================= the record, one row per week ======================= #}
 {% set weeks = [
   { "n": "0", "dates": "before May",
     "wet": ["Researched and brainstormed possible project topics.",
@@ -222,7 +210,6 @@
             "Held a team meeting with Prof. Lin, Prof. Ng, and Prof. Masayuki."] }
 ] %}
 
-{# Totals, counted from the table rather than written by hand. #}
 {% set c = namespace(wet=0, dry=0, hp=0) %}
 {% for w in weeks %}
   {% set c.wet = c.wet + w.wet|length %}
@@ -232,9 +219,6 @@
 
 {% set TRACKS = [("wet", "Wet Lab"), ("dry", "Dry Lab"), ("hp", "Human Practices")] %}
 
-{# Cells carrying a photo, shown after a brief hover -- see .nb-hover-img /
-   notebook-hover-image.js. Keyed by "week:track" since these are one-offs
-   rather than a data field every week would otherwise have to carry empty. #}
 {% set HOVER_IMAGES = {
   "1:wet": "https://static.igem.wiki/teams/6379/wiki/notebook/wetlab-w1.avif",
   "1:dry": "https://static.igem.wiki/teams/6379/wiki/notebook/drylab-w1.avif"
@@ -285,8 +269,6 @@
         <span class="nb-dates">{{ w.dates|safe }}</span>
       </div>
 
-      {# Every track gets a cell whether or not it has anything in it, so the
-         columns stay in line all the way down the page. #}
       {% for key, label in TRACKS %}
       {% set hover_img = HOVER_IMAGES.get(w.n ~ ':' ~ key, '') %}
       <section class="nb-col{{ ' is-empty' if not w[key] }}" data-track="{{ key }}"{% if hover_img %} data-hover-img="{{ hover_img }}"{% endif %}>

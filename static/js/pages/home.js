@@ -1,19 +1,3 @@
-/* ============================================================
-   HOME.JS -- the home page's moving parts
-   1. the dish in the banner: P. aeruginosa releasing AHL until it
-      reaches quorum, and a pointer that is either the aptamer
-      (Capture: it takes the signal away) or the biosensor (Detect:
-      it glows where the signal is). An illustration, not a model.
-   2. the hours slider in "The answer arrives too late"
-   3. the two systems, step by step
-   4. the tilt on the tool cards and the board-game card
-   5. the panel that names the page being pointed at in the map
-
-   The dish is the only thing that draws every frame. It draws from
-   sprites made once, stops whenever the banner is off screen or the
-   tab is hidden, and keeps to about 60 frames a second however fast
-   the display is. With reduced motion it draws one still frame.
-   ============================================================ */
 (function () {
   'use strict';
 
@@ -22,9 +6,6 @@
   try { coarse = window.matchMedia('(hover: none), (pointer: coarse)').matches; } catch (e) {}
   var now = function () { return (window.performance && performance.now) ? performance.now() : Date.now(); };
 
-  /* ------------------------------------------------------------------
-     1. the dish
-     ------------------------------------------------------------------ */
   (function dish() {
     var stage = document.getElementById('rxHeroStage');
     var canvas = document.getElementById('qsCanvas');
@@ -33,10 +14,6 @@
     if (!ctx) return;
 
     var hud = stage.querySelector('.qs-hud');
-    /* The meter and the hint line were taken off the banner; the mode buttons
-       stayed. These three are therefore optional, and everything that writes
-       to them below checks first -- the signal and the quorum state are still
-       computed, because the dish's own appearance is driven from them. */
     var fill = stage.querySelector('.qs-meter-fill');
     var stateEl = stage.querySelector('.qs-meter-state');
     var hint = stage.querySelector('.qs-hint');
@@ -48,13 +25,10 @@
     var mode = 'capture';
     var ptr = { x: -1e4, y: -1e4, on: false, touch: false, until: 0 };
 
-    /* the signal is the AHL in the dish over the count we call quorum; the
-       population switches on above 1 and back off below QUIET (hysteresis) */
     var QUORUM_N = 125, QUIET = 0.9, MAX_AHL = 300;
     var R_CAPTURE = 160, R_SENSE = 120;
     var signal = 0, vir = 0, quorate = false, glow = 0, captured = 0, brokeAt = -1e9;
 
-    /* ---- sprites, drawn once ---- */
     function sprite(w, h, draw) {
       var c = document.createElement('canvas');
       c.width = Math.ceil(w * DPR); c.height = Math.ceil(h * DPR);
@@ -88,7 +62,6 @@
         g.fillStyle = body; g.fill();
         g.shadowBlur = 0;
         g.lineWidth = 1.6; g.strokeStyle = edge; g.stroke();
-        /* a nucleoid smudge, so it reads as a cell and not a pill */
         g.fillStyle = 'rgba(255,255,255,0.10)';
         capsule(g, w / 2 - 12, h / 2 - 3, 24, 6); g.fill();
       });
@@ -102,7 +75,6 @@
     var SP_GFP = glowDot(260, [[0, 'rgba(184,245,126,0.55)'], [0.4, 'rgba(184,245,126,0.18)'], [1, 'rgba(184,245,126,0)']]);
     var SP_FLASH = glowDot(40, [[0, 'rgba(255,248,220,0.95)'], [0.4, 'rgba(238,203,134,0.45)'], [1, 'rgba(238,203,134,0)']]);
 
-    /* ---- the world ---- */
     function size() {
       var r = canvas.getBoundingClientRect();
       W = Math.max(1, r.width); H = Math.max(1, r.height);
@@ -135,18 +107,14 @@
     }
     function ring(x, y, max, color, life) { if (fx.length < 40) fx.push({ x: x, y: y, r: 4, max: max, color: color, life: life, left: life }); }
 
-    /* ---- one step of the dish ---- */
     function step(dt, t) {
-      /* the total release rate is about 18 a second, so an untouched dish
-         reaches quorum in eight or nine seconds */
       var rate = 18 / bugs.length;
-      var speedUp = 1 + 1.8 * vir;                       /* swarming */
+      var speedUp = 1 + 1.8 * vir;
       for (var i = 0; i < bugs.length; i++) {
         var b = bugs[i];
         b.next -= dt;
         if (b.next <= 0) { emit(b); b.next = (0.6 + Math.random() * 0.8) / rate; }
         b.a += (Math.random() - 0.5) * (1.2 + 3 * vir) * dt * 2;
-        /* turn back toward the dish when near its edge */
         var m = 50;
         if (b.x < m || b.x > W - m || b.y < m || b.y > H - m) {
           var to = Math.atan2(H / 2 - b.y, W / 2 - b.x), d = to - b.a;
@@ -170,8 +138,6 @@
         if (capturing) {
           var dx = ptr.x - p.x, dy = ptr.y - p.y, dd = Math.sqrt(dx * dx + dy * dy) || 1;
           if (dd < R_CAPTURE) {
-            /* inside the aptamer's reach the signal is drawn straight in,
-               closer ones faster, so a sweep takes what it passes over */
             var k = Math.min(1, dt * (9 + 22 * (1 - dd / R_CAPTURE)));
             p.x += dx * k; p.y += dy * k;
             p.vx *= 0.5; p.vy *= 0.5;
@@ -195,7 +161,6 @@
       else if (quorate && signal < QUIET) { quorate = false; brokeAt = t; ring(W / 2, H / 2, Math.max(W, H) * 0.75, '184,245,126', 1.6); }
       vir += ((quorate ? 1 : 0) - vir) * Math.min(1, dt * (quorate ? 0.9 : 0.6));
 
-      /* the sensor's response is switch-like: little until the signal is there */
       var target = sensing ? (near * near) / (near * near + 49) : 0;
       glow += (target - glow) * Math.min(1, dt * (target > glow ? 4 : 1.6));
 
@@ -208,13 +173,11 @@
       if (ptr.touch && ptr.on && t > ptr.until) ptr.on = false;
     }
 
-    /* ---- drawing ---- */
     function draw(t) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       var i, b;
 
-      /* the biofilm: a haze that gathers round the cells once they switch on */
       if (vir > 0.02) {
         ctx.globalAlpha = 0.65 * vir;
         for (i = 0; i < bugs.length; i++) {
@@ -224,7 +187,6 @@
         }
       }
 
-      /* the signal */
       ctx.globalCompositeOperation = 'lighter';
       for (i = 0; i < ahl.length; i++) {
         var p = ahl[i];
@@ -234,8 +196,6 @@
       }
       ctx.globalCompositeOperation = 'source-over';
 
-      /* the cells: calm teal crossing over to red as they switch on, each
-         with a flagellum that beats faster when they swarm */
       for (i = 0; i < bugs.length; i++) {
         b = bugs[i];
         var c = Math.cos(b.a) * b.s, s = Math.sin(b.a) * b.s;
@@ -255,13 +215,11 @@
       }
       ctx.globalAlpha = 1;
 
-      /* the pointer */
       if (ptr.on) {
         if (mode === 'capture') {
           ctx.setTransform(DPR, 0, 0, DPR, DPR * ptr.x, DPR * ptr.y);
           ctx.strokeStyle = 'rgba(238,203,134,0.18)'; ctx.lineWidth = 1;
           ctx.beginPath(); ctx.arc(0, 0, R_CAPTURE, 0, Math.PI * 2); ctx.stroke();
-          /* the aptamer: a strand curled into a ring, turning */
           ctx.rotate(t / 900);
           ctx.strokeStyle = 'rgba(246,220,164,0.95)'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
           ctx.beginPath();
@@ -287,7 +245,6 @@
         }
       }
 
-      /* flashes and the wave when the dish changes state */
       for (i = 0; i < fx.length; i++) {
         var f = fx[i], k = f.left / f.life;
         ctx.setTransform(DPR, 0, 0, DPR, DPR * f.x, DPR * f.y);
@@ -303,14 +260,11 @@
       ctx.globalAlpha = 1;
     }
 
-    /* ---- the readout, a few times a second rather than every frame ---- */
     var lastState = '', lastHud = 0;
     function hudUpdate(t, force) {
       if (!force && t - lastHud < 100) return;
       lastHud = t;
       if (fill) fill.style.transform = 'scaleX(' + Math.min(1, signal / 1.5).toFixed(3) + ')';
-      /* for a few seconds after the pointer has pulled the dish back out of
-         quorum, say so; that is the moment the whole thing is about */
       var st = quorate ? 'Quorum reached' : (t - brokeAt < 3000 ? 'Quorum broken' : (signal > 0.5 ? 'Building' : 'Quiet'));
       if (st !== lastState) {
         lastState = st;
@@ -320,7 +274,6 @@
       }
     }
 
-    /* ---- the loop: only while the banner is on screen and the tab is shown ---- */
     var visible = true, rafId = null, sleep = null, last = 0;
     function frame(t) {
       rafId = null;
@@ -330,11 +283,6 @@
       step(dt, t);
       draw(t);
       hudUpdate(t);
-      /* About 60 a second. Sleep until the next frame is due rather than ask
-         for every one and skip: on a 120 or 144 Hz screen, asking every frame
-         wakes the whole page (style, layout, paint) twice as often as the dish
-         draws. Timed from this frame's start, so a slow frame does not halve
-         the rate. */
       sleep = setTimeout(function () {
         sleep = null;
         if (visible && !document.hidden) rafId = requestAnimationFrame(frame);
@@ -342,7 +290,6 @@
     }
     function run() { if (!rafId && !sleep && visible && !document.hidden) { last = 0; rafId = requestAnimationFrame(frame); } }
 
-    /* ---- the controls ---- */
     function hintFor(m) {
       if (!hint) return '';
       return hint.getAttribute('data-hint-' + (coarse ? 'touch-' : '') + m) || hint.getAttribute('data-hint-' + m);
@@ -371,20 +318,16 @@
       at(e); ptr.on = true; ptr.touch = false;
     });
     stage.addEventListener('pointerleave', function (e) { if (e.pointerType !== 'touch') ptr.on = false; });
-    /* on a touch screen a drag scrolls the page, so a tap puts the pointer
-       down where it lands for a moment and a half */
     stage.addEventListener('pointerdown', function (e) {
       if (e.pointerType !== 'touch') return;
       if (e.target.closest('a, button')) return;
       at(e); ptr.on = true; ptr.touch = true; ptr.until = now() + 1500;
     });
 
-    /* ---- start ---- */
     size(); populate();
     if (hint) hint.textContent = hintFor('capture');
 
     if (reduce) {
-      /* a still dish: let it run a few seconds out of sight, then draw it once */
       for (var w = 0; w < 120; w++) step(1 / 30, w * 33);
       fx.length = 0;
       draw(0);
@@ -407,9 +350,6 @@
     run();
   })();
 
-  /* ------------------------------------------------------------------
-     2. the hours after the sample
-     ------------------------------------------------------------------ */
   (function wait() {
     var box = document.querySelector('.hx-wait');
     if (!box) return;
@@ -417,7 +357,6 @@
     var out = box.querySelector('.hx-wait-out');
     if (!range || !out) return;
     var hours = out.querySelector('.hx-wait-hours');
-    /* the sentence after the hours gets its own element, so only it changes */
     var said = document.createElement('span');
     while (hours.nextSibling) said.appendChild(hours.nextSibling);
     out.appendChild(said);
@@ -439,7 +378,6 @@
     range.addEventListener('input', function () { touched = true; render(+range.value); });
     render(+range.value);
 
-    /* the first time it comes into view, the hours run once on their own */
     if (reduce || !('IntersectionObserver' in window)) return;
     var io = new IntersectionObserver(function (es) {
       if (!es[0].isIntersecting) return;
@@ -458,9 +396,6 @@
     setTimeout(function () { io.observe(box); }, 400);
   })();
 
-  /* ------------------------------------------------------------------
-     3. two systems, one signal
-     ------------------------------------------------------------------ */
   (function systems() {
     var root = document.querySelector('.hx-sys');
     if (!root) return;
@@ -520,8 +455,6 @@
     setSys('detect');
     if (reduce) return;
 
-    /* the steps play on their own while the section is in view, one every
-       1.8 seconds, and the other system follows when one is done */
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (es) { inView = es[0].isIntersecting; }, { threshold: 0.35 }).observe(root);
     } else { inView = true; }
@@ -532,9 +465,6 @@
     }, 1800);
   })();
 
-  /* ------------------------------------------------------------------
-     4. cards that lean toward the pointer
-     ------------------------------------------------------------------ */
   (function tilt() {
     if (reduce || coarse) return;
     document.querySelectorAll('.hx-stage > a, .hx-game-card').forEach(function (card) {
@@ -553,9 +483,6 @@
     });
   })();
 
-  /* ------------------------------------------------------------------
-     5. the map of the wiki: the panel names the page pointed at
-     ------------------------------------------------------------------ */
   (function map() {
     var spot = document.querySelector('.hx-map-spot');
     if (!spot) return;
@@ -574,7 +501,7 @@
       k.textContent = a.getAttribute('data-map-section');
       name.textContent = a.querySelector('.hx-map-name').textContent;
       text.textContent = a.querySelector('.hx-map-desc').textContent;
-      void spot.offsetWidth;          /* restart the swap animation */
+      void spot.offsetWidth;
       spot.classList.add('is-swap');
     }
     links.forEach(function (a) {

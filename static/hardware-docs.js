@@ -1,22 +1,9 @@
 (function () {
   "use strict";
 
-  /* Hardware page — links into the folded tables.
-   *
-   * The tables behind each section sit folded at the end of the build, under
-   * "Data and documentation", and the sections link to them. A link that
-   * lands on a closed fold would show its title and nothing else, so this
-   * opens the fold a link points at (or the fold around what it points at)
-   * before the browser jumps there. The same on arrival with an address that
-   * names one, and on Back and Forward.
-   *
-   * Without this file the links still land on the right row; it stays shut
-   * until it is opened by hand.
-   */
-
   function named(hash) {
     var id = (hash || "").replace(/^#/, "");
-    try { id = decodeURIComponent(id); } catch (e) { /* keep it as written */ }
+    try { id = decodeURIComponent(id); } catch (e) { }
     return id ? document.getElementById(id) : null;
   }
 

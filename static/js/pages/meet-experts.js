@@ -1,9 +1,3 @@
-/* Meet with Experts: the lineup at the top of the page.
- *
- * Each stop is a plain link to its card and works without this script. Here
- * the link scrolls smoothly, and the stop whose card is being read lights up
- * (.is-active) as the page scrolls.
- */
 (function () {
   'use strict';
 
