@@ -304,3 +304,28 @@ html.rx-meet-holding body { cursor: default; }
   .hx-meet-trail { display: none; }
   .hx-meet-title { color: #000 !important; }
 }
+
+/* ---- the section before goes out as this one comes in ----------------
+   home-meet.js writes --meet-clear on #hx-problem, 0 while it is the only
+   thing on screen and 1 by the time this section is nearly all of it. The
+   panel and its words dissolve rather than scrolling away, so the mark
+   arrives on a clear screen.
+
+   pointer-events go with the last of it: a panel at opacity 0 that still
+   takes a click is a trap, and the wait panel has a slider in it.
+
+   No script, print and reduced motion all leave --meet-clear unset, so the
+   fallback 0 keeps the section exactly as it was.                      */
+#hx-problem {
+  opacity: calc(1 - var(--meet-clear, 0));
+  will-change: opacity;
+}
+/* pointer-events are set from the script alongside the number rather than
+   matched out of the style attribute here: [style*="--meet-clear: 1"] works
+   until someone writes 1.0, or the browser reserialises it.
+
+   There is no reduced-motion or print rule for this. The script returns
+   before it writes --meet-clear in either case, and the fallback 0 in the
+   calc above leaves the section exactly as it was -- a rule forcing opacity
+   back to 1 would be saying the same thing twice, and the first version of
+   it quietly defeated the screenshot that was meant to check the fade. */

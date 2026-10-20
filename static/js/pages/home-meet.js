@@ -12,8 +12,11 @@
    *     anyone on this section,
    *   - and the scroll is given back exactly as it was taken.
    *
+   * It also takes the section before out as this one comes in, so the mark
+   * never starts over something that is still on screen.
+   *
    * With no script the stylesheet's resting state -- the finished mark --
-   * is simply there and nothing is ever held.
+   * is simply there, nothing is ever held, and nothing fades.
    */
 
   var PLAY_MS = 4650;          /* the timeline in home-meet.css */
@@ -65,6 +68,41 @@
     /* Whatever was skipped, the mark ends up finished rather than frozen
        halfway: the class stays on and the animations have fill: both. */
   }
+
+  /* --------------------------------------------- clearing the way -- */
+
+  /* The section before does not simply scroll away: it goes out as this one
+     comes in, so by the time the mark has the screen there is nothing else
+     left on it. One number, written to that section, and the stylesheet
+     turns it into opacity -- doing it here rather than in a second observer
+     keeps it on the same frame as everything else.
+
+     It is fully gone by the time this section is 85% of the way up, which is
+     before the hold begins at 90%: the mark should never start over a panel
+     that is still dissolving. */
+  var before = document.getElementById('hx-problem');
+  var clear = -1;
+
+  function fade() {
+    if (!before) return;
+    var vh = window.innerHeight || 1;
+    var top = section.getBoundingClientRect().top;
+    var c = (vh - top) / (vh * 0.85);
+    c = c < 0 ? 0 : c > 1 ? 1 : c;
+    c = Math.round(c * 100) / 100;
+    if (c === clear) return;
+    clear = c;
+    before.style.setProperty('--meet-clear', String(c));
+    /* A panel at opacity 0 that still takes a click is a trap, and this one
+       has a slider in it. */
+    before.style.pointerEvents = c >= 1 ? 'none' : '';
+  }
+
+  var fading = null;
+  function onScroll() { if (fading === null) fading = requestAnimationFrame(function () { fading = null; fade(); }); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  fade();
 
   /* ------------------------------------------------------- the moment -- */
 
