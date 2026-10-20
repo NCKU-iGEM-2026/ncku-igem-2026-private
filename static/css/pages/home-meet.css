@@ -54,35 +54,59 @@
    two classes, and a lone .hx-meet does not outweigh it. */
 .hx + .hx-meet::before { content: none; }
 
-.hx-meet .hx-inner { display: grid; justify-items: center; text-align: center; }
-
-/* The mark says "Capture" itself, so the heading does not repeat it. */
-.hx-meet-title {
-  font-family: "Changa", sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  line-height: 1.08;
-  font-size: clamp(2.2rem, 5.5vw, 4rem);
-  color: #f2fff8;
-  margin: 0 0 clamp(1rem, 2.5vh, 2rem);
+.hx-meet .hx-inner {
+  position: relative;
+  min-height: calc(100svh - 7rem);
+  display: grid;
+  justify-items: center;
+  text-align: center;
 }
 
 /* Every measurement in this file is a percentage -- the mask centres, the
    swim, the settle -- so the stack needs no fixed size to be measured
    against and simply fills whatever the stage is. The artwork's 1350 square
    is still the coordinate system those percentages were taken in; it just
-   never has to appear here. */
+   never has to appear here.
+
+   The stage is out of flow and centred, and is deliberately allowed to stand
+   taller than the space it sits in. The artwork is a square but the mark
+   only uses the middle of it -- 15.4% to 79.0% of the height while the ring
+   is at full size, 28.7% to 69.2% once it has settled -- so the square's top
+   and bottom are empty and can hang outside with nothing cut. Sizing it by
+   that square's height instead, as it was, threw away the width the page had
+   going spare, and the settled mark, being wide and short, is what paid: it
+   came out 319px tall on a 1440x900 screen.
+
+   1.57 is 1 / 0.636, the share of the square the ring fills at its tallest.
+   It lets the stage grow until the ring, rather than the empty margin above
+   it, reaches the height available. */
 .hx-meet-stage {
-  position: relative;
-  /* The third term is what makes the pair fill the screen: the navbar takes
-     6rem off the top and the heading with its margin measures 5.75rem, so
-     the stage is handed what is left, less a little so it does not sit hard
-     against the bottom. 100% caps it on a phone, where width runs out first. */
-  width: min(100%, 1000px, calc(100svh - 13rem));
+  position: absolute;
+  top: 50%; left: 50%;
+  translate: -50% -50%;
+  width: min(100%, calc((100svh - 7rem) * 1.57));
   aspect-ratio: 1;
-  margin: 0 auto;
 }
 .hx-meet-root { position: absolute; inset: 0; }
+
+/* The mark says "Capture" itself, so the heading does not repeat it.
+
+   It is pinned to the mark, not to the section: 71.3% is 100% - 28.7%, the
+   settled mark's own top edge, so the word sits just above it however large
+   the stage has grown. Being inside the stage also means the fade can hang
+   off the same .rx-in as everything else. */
+.hx-meet-title {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: calc(71.3% + 0.6rem);
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
+  color: #f2fff8;
+}
 
 /* --a0 sits here so the sweeps and the eraser share one angle: the strand's
    upper-right tip, measured from the ring's centre. */
@@ -190,6 +214,7 @@
   100%   { transform: translate(0, 0) rotate(0deg); }
 }
 @keyframes meet-surface { from { opacity: 0; } to { opacity: 1; } }
+@keyframes meet-name { from { opacity: 0; transform: translateY(0.35em); } to { opacity: 1; transform: none; } }
 
 @keyframes meet-settle {
   from { transform: none; }
@@ -212,6 +237,11 @@
 }
 .hx-meet-stage.rx-in .hx-meet-mark { animation: meet-settle 0.70s cubic-bezier(.65,0,.25,1) 4.25s both; }
 .hx-meet-stage.rx-in .hx-meet-type   { animation: meet-wipe 0.75s cubic-bezier(.35,0,.2,1) 4.65s both; }
+/* Last, once the mark is complete and still: the word is a caption on a
+   finished thing rather than another moving part. 5.40s is where the wipe
+   ends. Its resting state is visible, as everything here is, so no script
+   and no animation simply leave it there. */
+.hx-meet-stage.rx-in .hx-meet-title  { animation: meet-name 0.8s ease-out 5.40s both; }
 
 /* motion.js adds .rx-in straight away when reduced motion is asked for, so
    switching the animations off here is what is needed -- and because the
@@ -223,6 +253,7 @@
   .hx-meet-stage.rx-in .hx-meet-l5,
   .hx-meet-stage.rx-in .hx-meet-type,
   .hx-meet-stage.rx-in .hx-meet-erase,
+  .hx-meet-stage.rx-in .hx-meet-title,
   .hx-meet-stage.rx-in .hx-meet-mark { animation: none; }
 }
 
@@ -233,6 +264,7 @@
   .hx-meet-stage.rx-in .hx-meet-l5,
   .hx-meet-stage.rx-in .hx-meet-type,
   .hx-meet-stage.rx-in .hx-meet-erase,
+  .hx-meet-stage.rx-in .hx-meet-title,
   .hx-meet-stage.rx-in .hx-meet-mark { animation: none; }
   .hx-meet-title { color: #000 !important; }
 }
