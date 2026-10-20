@@ -14345,7 +14345,8 @@ body.hw-nexus .page-hero:has(.hero-hardware) .hero-title {
      .bg-key    a named rule, card or place -- the lime too, bolder: the
                 site marks what matters in one colour, and the weight is
                 what separates a named thing from the sentence around it
-     .bg-quote  what the playtesters wrote -- italic, in light blue
+     .bg-quote  what the playtesters wrote -- bold, in light blue, smaller
+                than body text
    Nothing else on the page changes. */
 body.bg-nexus .bg-num {
   color: var(--nx-warm);
@@ -14368,5 +14369,60 @@ body.bg-nexus .sgd-list li strong.bg-key {
 
 body.bg-nexus .bg-quote {
   color: var(--nx-blue-up);
-  font-style: italic;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
+
+/* ---- Board Game: playtest feedback language switch ----
+   Same mechanism as the Education Handbook switch (two hidden radios, two
+   labels, two panels hidden by sibling selector), in the page's own dark
+   nexus palette instead of the handbook's cream/green. */
+.bg-fb-switch-wrap { position: relative; margin: 0.25rem 0 1rem; }
+
+.bg-fb-radio {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.bg-fb-switch {
+  display: inline-flex;
+  padding: 3px;
+  border: 2px solid var(--nx-mint);
+  border-radius: 999px;
+  background: var(--nx-panel);
+  margin-bottom: 0.75rem;
+}
+
+.bg-fb-switch label {
+  margin: 0;
+  padding: 0.4rem 1.15rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  color: var(--nx-mint);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.bg-fb-switch label:hover { background: var(--nx-raised); }
+
+#bg-fb-en:checked ~ .bg-fb-switch label[for="bg-fb-en"],
+#bg-fb-zh:checked ~ .bg-fb-switch label[for="bg-fb-zh"] {
+  background: var(--nx-mint);
+  color: var(--nx-panel);
+  cursor: default;
+}
+
+#bg-fb-en:focus-visible ~ .bg-fb-switch label[for="bg-fb-en"],
+#bg-fb-zh:focus-visible ~ .bg-fb-switch label[for="bg-fb-zh"] {
+  outline: 2px solid var(--nx-mint);
+  outline-offset: 3px;
+}
+
+#bg-fb-en:checked ~ .bg-fb-panel-zh,
+#bg-fb-zh:checked ~ .bg-fb-panel-en { display: none; }
