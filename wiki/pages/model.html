@@ -61,16 +61,18 @@
 
   <div class="hw-lead md-inhibition-intro">
     <p>
-      Our inhibition strategy uses single-stranded DNA aptamers designed to bind
-      the acyl-homoserine lactone (AHL) signals of
+      Our inhibition strategy uses published single-stranded DNA aptamers that
+      bind the acyl-homoserine lactone (AHL) signals of
       <em>Pseudomonas&nbsp;aeruginosa</em>. The model represents these aptamers as
       <strong>molecular sponges</strong> that reduce the free signal available
       to receptors.
     </p>
     <p>
       We calibrated the model using <strong>ALS-5 and A16-2 swarming data</strong>,
-      tested its predictions against the held-out <strong>Cb-2 treatment</strong>,
-      and estimated a higher A16-2 dose for future testing.
+      tested its predictions against the held-out <strong>Cb-2 treatment</strong>
+      &mdash; where they <strong>under-predicted the measured inhibition in all
+      three assays</strong> &mdash; and estimated a higher A16-2 dose for future
+      testing.
     </p>
   </div>
 
@@ -187,15 +189,16 @@
       </p>
       <p>Analysis units, in ALS-5 / A16-2 / Cb-2 order:</p>
       <ul>
-        <li><strong>Swarming:</strong> 5 / 5 / 5. Cb-2's ten readings come from five plates.</li>
-        <li><strong>Pyocyanin:</strong> 4 / 3 / 4.</li>
-        <li><strong>Biofilm:</strong> 6 / 6 / 6 biological replicates, across three plates in total.</li>
+        <li><strong>Swarming:</strong> 10 / 11 / 5 plates. Cb-2's ten readings come from five plates.</li>
+        <li><strong>Pyocyanin:</strong> 4 / 3 / 3 plates.</li>
+        <li><strong>Biofilm:</strong> 6 / 6 / 12 biological replicates, across three plates in total.</li>
       </ul>
       <p>
         Unlike the <a href="{{ url_for('pages', page='results') }}#res-inhibition">Results</a>
         page's arithmetic means and one-sample <var>t</var> tests, this analysis
         uses log ratios. The estimates therefore differ; ALS-5's biofilm result
-        remains borderline in both analyses. The counts above are the same
+        remains borderline in both analyses. The counts above are the readings
+        and plates recorded for each treatment, and are not the same as the
         <var>n</var> given with each figure on that page.
       </p>
       <p>
@@ -218,6 +221,12 @@
         <strong>Figure 1.1 &middot; Inhibition across three assays.</strong>
         Points show geometric-mean ratios; bars show resampled 95&nbsp;% intervals.
         The vertical line at 1 marks no effect; * marks intervals excluding 1.
+        The <var>n</var> printed beside each row is the wet lab's grouping, the
+        same count given with the figures on the
+        <a href="{{ url_for('pages', page='results') }}#res-inhibition">Results</a>
+        page. The intervals themselves are resampled over the analysis units
+        listed above: 10 / 11 / 5 swarming plates, 4 / 3 / 3 pyocyanin plates
+        and 6 / 6 / 12 biofilm replicates.
         These are the plate-resampled estimates, so the swarming and pyocyanin
         percentages sit a few tenths of a point from the mixed-model estimates
         in the table above &mdash; A16-2 swarming is 36.1&nbsp;% here and
@@ -244,11 +253,10 @@
 
     <p>
       <strong>Biofilm resolves for Cb-2 and for A16-2, and not for
-      ALS-5.</strong> Cb-2 removes 36.7&nbsp;% of the biofilm [28.8, 43.7]
-      (<var>p</var>&nbsp;=&nbsp;3&times;10<sup>&minus;6</sup>)
-      and A16-2 12.6&nbsp;% [2.7, 21.5]
-      (<var>p</var>&nbsp;=&nbsp;0.023), both on six replicates;
-      ALS-5's 11.5&nbsp;% does not clear the
+      ALS-5.</strong> Cb-2 removes 36.7&nbsp;% of the biofilm [28.8, 43.7] on
+      twelve replicates (<var>p</var>&nbsp;=&nbsp;3&times;10<sup>&minus;6</sup>)
+      and A16-2 12.6&nbsp;% [2.7, 21.5] on six
+      (<var>p</var>&nbsp;=&nbsp;0.023); ALS-5's 11.5&nbsp;% does not clear the
       line (<var>p</var>&nbsp;=&nbsp;0.057).
     </p>
 
@@ -382,15 +390,15 @@
 
     <div class="hw-figure hw-figure-table md-model-parameters" id="model-inhibition-params">
       <table class="hw-table">
-        <caption>Fitted parameters and key fixed inputs. The 90&nbsp;% ranges describe the 296 successful joint draws, not confidence intervals for measured biochemical constants.</caption>
+        <caption>Fitted parameters and key fixed inputs, with what each one does across the 296 successful joint draws. For the two fitted parameters the range is the 5th to 95th percentile of their refitted values; for the two inputs below it is the bounds they were sampled over. Neither is a confidence interval for a measured biochemical constant.</caption>
         <thead>
-          <tr><th scope="col">Parameter</th><th scope="col">Role</th><th scope="col">Point value</th><th scope="col">90&nbsp;% range</th></tr>
+          <tr><th scope="col">Parameter</th><th scope="col">Role</th><th scope="col">Point value</th><th scope="col">Range in the 296 joint draws</th></tr>
         </thead>
         <tbody>
           <tr><th scope="row">&theta;<sub>las</sub>, las-to-rhl gate</th><td>Fitted to ALS-5 swarming</td><td class="md-n">14.8</td><td class="md-n">0.22&ndash;15.4</td></tr>
           <tr><th scope="row"><var>K</var><sub>d</sub>, A16-2 / C4-HSL</th><td>Fitted effective affinity</td><td class="md-n">5571&nbsp;nM</td><td class="md-n">48&ndash;10&thinsp;500&nbsp;nM</td></tr>
-          <tr><th scope="row"><var>K</var><sub>d</sub>, ALS-5 / 3-oxo-C12-HSL</th><td>Fixed, literature-informed assumption<sup><a href="#mdref2">[2]</a></sup></td><td class="md-n">27.5&nbsp;nM</td><td>Not varied</td></tr>
-          <tr><th scope="row">&beta;, occupancy-to-radius exponent</th><td>Fixed assumption</td><td class="md-n">1</td><td>Not varied</td></tr>
+          <tr><th scope="row"><var>K</var><sub>d</sub>, ALS-5 / 3-oxo-C12-HSL</th><td>Fixed for calibration; literature-informed assumption<sup><a href="#mdref2">[2]</a></sup></td><td class="md-n">27.5&nbsp;nM</td><td class="md-n">Swept 20&ndash;35&nbsp;nM</td></tr>
+          <tr><th scope="row">&beta;, occupancy-to-radius exponent</th><td>Fixed for calibration; assumed mapping</td><td class="md-n">1</td><td class="md-n">Swept 0.5&ndash;2.0</td></tr>
         </tbody>
       </table>
     </div>
@@ -456,8 +464,10 @@
           Zhao et&nbsp;al.'s abstract reports a 20&ndash;35&nbsp;nM range for
           3-oxo-C12-HSL-binding aptamers.<sup><a href="#mdref2">[2]</a></sup>
           The model fixes 27.5&nbsp;nM within that range; it is not a directly
-          verified ALS-5 measurement under the assay conditions. Alternative
-          affinity inputs have not been propagated. A16-2's fitted value is
+          verified ALS-5 measurement under the assay conditions. The joint
+          sweep varies it across that whole 20&ndash;35&nbsp;nM range, where it
+          moves no reported output appreciably
+          (|PRCC|&nbsp;&le;&nbsp;0.03). A16-2's fitted value is
           likewise an effective model parameter, not a biochemical measurement.
         </p>
         <p class="hw-aside">
@@ -481,9 +491,14 @@
     </p>
     <p>
       All reported draw-based medians and ranges are conditional on the
-      <strong>296 successful draws</strong>. They exclude incompatible or
-      ambiguous draws and do not cover every source of uncertainty, including
-      the fixed occupancy-to-radius mapping and alternative ALS-5 affinities.
+      <strong>296 successful draws</strong> and exclude incompatible or
+      ambiguous ones. The sweep varies the occupancy-to-radius exponent
+      &beta; over 0.5&ndash;2.0 and the ALS-5 affinity over 20&ndash;35&nbsp;nM
+      along with the other inputs; &beta; is the strongest single influence on
+      the dose required for 90&nbsp;% inhibition (PRCC&nbsp;&minus;0.54), and
+      it remains assumed rather than measured. What the sweep does not cover
+      is the one-site competitive binding, the assumption that Cb-2 matches
+      each specialist's affinity, and the single well-mixed compartment.
       The fitted-parameter medians are 1.9 for the gate and 1117&nbsp;nM for
       A16-2 affinity, illustrating their dependence on the input assumptions.
     </p>
@@ -790,9 +805,14 @@
       excluded, as described in <a href="#model-inhibition-model">1.3</a>.
     </p>
     <p>
-      The sweep varies nominal dose and other uncertain inputs, but keeps the
-      occupancy-to-radius exponent at &beta;&nbsp;=&nbsp;1 and the ALS-5
-      affinity fixed. The point-fit A16-2 multiplier also changes from
+      The sweep varies the nominal dose, the occupancy-to-radius exponent
+      &beta; and the ALS-5 affinity along with the other uncertain inputs. For
+      the 50&nbsp;% dose quoted here the uninhibited C4-HSL level leads the
+      ranking (PRCC&nbsp;&minus;0.35), ahead of &beta;
+      (&minus;0.16); &beta; leads only for the 90&nbsp;% dose. What the sweep
+      keeps fixed is the one-site competitive binding, the assumed Cb-2
+      affinities and the single compartment.
+      The point-fit A16-2 multiplier also changes from
       1.55&times; to 1.65&times; in the spatial comparison in
       <a href="#model-inhibition-structure">1.4</a>. That comparison tests
       one structural assumption; it does not establish robustness to all
