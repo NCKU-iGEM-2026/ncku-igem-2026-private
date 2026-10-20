@@ -87,10 +87,16 @@
      
      Not under reduced motion. The automatic run is switched off there too,
      so the slider would sit at zero and the gate would never lift: a hold
-     with no way out is the one thing this must not be. */
+     with no way out is the one thing this must not be.
+
+     Nothing on screen says the page is being held -- that line was taken
+     out. For almost everyone there is nothing to explain, since the hours
+     run by themselves and the hold is over before it is noticed. The one
+     who is left guessing is the reader who grabbed the slider, stopped part
+     way, and then tried to scroll; the ceiling below is all they have, so
+     it is short rather than generous. */
   var stage = document.querySelector('[data-wait-stage]');
   var range = document.querySelector('.hx-wait-range');
-  var cue = document.querySelector('[data-wait-gate]');
   var gateOpen = false, gateHolding = false, gateCeiling = null;
 
   function gateDone() {
@@ -112,8 +118,9 @@
     window.addEventListener('touchmove', swallow, { passive: false });
     window.addEventListener('keydown', onGateKey, true);
     document.documentElement.classList.add('rx-wait-holding');
-    /* However this goes wrong, it lets go of the page. */
-    if (!gateCeiling) gateCeiling = setTimeout(gateRelease, 20000);
+    /* However this goes wrong, it lets go of the page -- and with no line on
+       screen to explain the hold, sooner rather than later. */
+    if (!gateCeiling) gateCeiling = setTimeout(gateRelease, 9000);
   }
 
   function gateUnhold() {
