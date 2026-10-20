@@ -72,7 +72,10 @@
    Any shorter and the turn ends with the next page still part way down --
    at 70svh it was left 270px short. Any longer and it would already be
    showing from under the mark while the mark is still drawing. */
-:root { --meet-exit: 100svh; }
+:root {
+  --wait-exit: 55svh;    /* the panel's turn into the mark */
+  --meet-exit: 100svh;   /* the mark's turn into two systems */
+}
 .hx-meet { min-height: calc(100svh + var(--meet-exit)); }
 
 .hx-meet-stop {
@@ -310,22 +313,41 @@ html.rx-meet-holding body { cursor: default; }
 
    It sits low in the screen rather than centred, so on the way in the
    figures above are still what is being read.                           */
-.hx-problem .hx-inner { padding-bottom: var(--meet-exit); }
+/* The room for the pin goes inside .hx-inner, because a sticky child only
+   sticks within its own containing block. The section's own bottom padding
+   has to go with it: it sits after .hx-inner, so the pin let go 120px before
+   the section ended, and the turn finished with the mark still that far down
+   the screen. .hx-inner's padding is the whole of the gap now. */
+.hx-problem { padding-bottom: 0; }
+.hx-problem .hx-inner { padding-bottom: var(--wait-exit); }
 
 .hx-wait-stage {
   position: sticky;
   top: 0;
-  min-height: 100svh;
+  height: 100svh;
   display: grid;
   align-content: end;
   padding-bottom: clamp(2rem, 7vh, 5rem);
+  /* A full screen with its content at the foot leaves most of a screen of
+     nothing above it, and that nothing landed between the figures and the
+     panel. The box has to stay a screen tall -- it is what gets pinned --
+     so it is pulled back up instead, and only the empty part of it covers
+     the figures. 30rem is what is left below the pull: the panel's own
+     height and its padding come out of that, leaving a normal gap. */
+  margin-top: calc(-100svh + 30rem);
   opacity: calc(1 - var(--wait-leave, 0));
   will-change: opacity;
 }
 
-/* Whatever follows rises through the screen the panel is fading out of --
-   the same pull the mark uses on the section after it. */
-.hx-problem + .hx { margin-top: calc(-1 * var(--meet-exit)); }
+/* The pull is a whole screen even though the travel is shorter, and the two
+   are allowed to differ here for a reason that does not hold one section
+   further down: Meet is armed and invisible until it plays, so it can
+   already be behind the panel without being seen. That buys a shorter turn
+   -- the panel's fade is --wait-exit of scrolling, not a full screen -- and
+   the arithmetic still lands, because a pull of exactly one screen is what
+   puts the next section's top at the top of the screen when the pin lets
+   go. The mark's own exit cannot do this: what follows it is visible. */
+.hx-problem + .hx { margin-top: -100svh; }
 
 /* While the hours are still running, the page is held. The cue says so,
    because a page that will not scroll and does not explain itself is just
@@ -349,10 +371,32 @@ html.rx-meet-holding body { cursor: default; }
 }
 html.rx-wait-holding .hx-wait-gate { opacity: 1; }
 
-@media print {
+
+
+/* ---- neither pinned nor overlapped -----------------------------------
+   Reduced motion and print both get the page as a plain stack: no pins, no
+   pulls, nothing overlapping anything.
+
+   This is not tidiness. The pulls lay each section over the one before, and
+   what makes that invisible is the script hiding the mark until it plays --
+   and the script is exactly what does not run under reduced motion. Left
+   as it was, those readers got the finished logo sitting on top of the wait
+   panel, both at once. Caught in a screenshot, not by reasoning.
+   ---------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce), print {
+  .hx-problem { padding-bottom: clamp(4rem, 9vw, 7.5rem); }
   .hx-problem .hx-inner { padding-bottom: 0; }
-  .hx-wait-stage { position: static; min-height: 0; opacity: 1; padding-bottom: 0; }
-  .hx-problem + .hx { margin-top: 0; }
+  .hx-wait-stage {
+    position: static;
+    height: auto;
+    margin-top: 0;
+    padding-bottom: 0;
+    opacity: 1;
+  }
+  .hx-problem + .hx,
+  .hx-meet + .hx { margin-top: 0; }
+  .hx-meet { min-height: 100svh; }
+  .hx-meet-stop { position: static; height: auto; min-height: 100svh; }
   .hx-wait-gate { display: none; }
 }
 
