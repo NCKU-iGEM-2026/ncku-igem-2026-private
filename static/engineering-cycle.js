@@ -53,6 +53,8 @@
       if (spark) spark.setAttribute("transform", "rotate(" + edge + " 200 200)");
       figure.classList.toggle("is-started", p > 0);
       figure.classList.toggle("is-complete", p >= sections.length);
+      var lit = clamp(p / sections.length);
+      figure.style.setProperty("--lit", (1 - Math.pow(1 - lit, 3)).toFixed(3));
 
       figure.setAttribute("data-active", sections[current].getAttribute("data-stage"));
       steps.forEach(function (step, index) {
