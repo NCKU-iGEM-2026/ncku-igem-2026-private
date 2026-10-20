@@ -1,31 +1,12 @@
-// Software page: "Try it with your data".
-//
-// Everything numeric goes through CurveFit (static/lasreader-curve-fit.js), which is
-// LasReader's own curve_fit.js, so a curve drawn here is the curve the tool would give
-// for the same readings. This file only reads the table, draws the result and asks
-// CurveFit to convert a reading. Nothing is sent anywhere and nothing is stored.
-//
-// The table has three reading columns and grows downward as it fills: there is always
-// one empty row at the bottom. A block copied from a spreadsheet can be pasted into any
-// cell and fills the table from there; readings past the third are left out. The
-// checklist ticks as the table meets what a curve needs, and the curve is refitted as
-// you type. A sample can be converted by typing its reading or by clicking the plot.
 (function () {
   "use strict";
 
   const root = document.getElementById("swTry");
   if (!root || typeof CurveFit === "undefined") return;
 
-  // A real calibration from the team, to be added later: rows of
-  // [concentration, reading, reading, ...] plus a line saying where it comes from.
-  // While it is null the "Load our calibration" button stays out of the page.
-  const EXAMPLE = null; // { source: "…", unit: "nM", rows: [[0, …], …] }
+  const EXAMPLE = null;
 
-  // Grey hints, one in every cell, to show the layout: row 1 is a blank (0), then each
-  // row's concentration is ten times the last, with replicate readings across that rise
-  // with it. They are placeholders only: made-up round numbers from a fixed curve, never
-  // read or fitted. Each cell shows its own hint whenever it is empty.
-  const HINT_SPREAD = [0, 0.03, -0.03]; // replicate scatter, per column
+  const HINT_SPREAD = [0, 0.03, -0.03];
   function hint(r, c) {
     const concentration = r === 0 ? 0 : 10 ** r;
     if (c === 0) return String(concentration);
@@ -33,7 +14,7 @@
     return String(Math.round((signal * (1 + HINT_SPREAD[c - 1])) / 5) * 5);
   }
 
-  const READINGS = 3; // replicate columns
+  const READINGS = 3;
   const MIN_ROWS = 6;
   const SVG = "http://www.w3.org/2000/svg";
   const $ = (id) => document.getElementById(id);
@@ -51,12 +32,11 @@
   const needBlanks = $("swTryNeedBlanks");
   const needStd = $("swTryNeedStd");
 
-  let note = ""; // said when the table has no problem, e.g. that a paste was trimmed
-  let current = null; // { points, fit, weighted }
-  let toPlotY = null; // plot y (viewBox units) -> reading, set by renderPlot
+  let note = "";
+  let current = null;
+  let toPlotY = null;
   let timer = 0;
 
-  // ---- formatting -------------------------------------------------------
   const unit = () => unitInput.value.trim() || "units";
   function num(x) {
     if (!Number.isFinite(x)) return "--";
@@ -65,14 +45,11 @@
   const conc = (c) => num(c) + " " + unit();
   const sig = (x) => (Number.isFinite(x) ? Number(x.toPrecision(4)).toString() : "--");
 
-  // A number as a spreadsheet copies it: "1,234.5" (thousands commas) reads as 1234.5;
-  // anything else that is not a plain number gives NaN.
   function parseNum(v) {
     const s = /^[-+]?\d{1,3}(,\d{3})+(\.\d*)?$/.test(v) ? v.replace(/,/g, "") : v;
     return s === "" ? NaN : Number(s);
   }
 
-  // ---- the table --------------------------------------------------------
   const indexIn = (parent, child) => Array.prototype.indexOf.call(parent.children, child);
 
   function newCell() {
@@ -98,8 +75,6 @@
     }
     head.replaceChildren(...ths);
   }
-  // Every cell gets its label and its grey hint from its position, so rows added as
-  // the table grows get theirs too.
   function relabel() {
     Array.from(rows.children).forEach((tr, i) => {
       Array.from(tr.children).forEach((td, j) => {
@@ -120,7 +95,6 @@
     return rows.children[r].children[c].firstChild;
   }
   const filled = (input) => input.value.trim() !== "";
-  // Keep one empty row at the bottom.
   function grow() {
     if (Array.from(rows.lastElementChild.querySelectorAll("input")).some(filled)) addRow();
     relabel();
@@ -133,13 +107,11 @@
     relabel();
   }
 
-  // A block pasted from a spreadsheet: tab-separated cells, one line per row. A block
-  // typed by hand may use commas, semicolons or spaces instead.
   rows.addEventListener("paste", (e) => {
     const target = e.target;
     if (!(target instanceof HTMLInputElement)) return;
     const text = (e.clipboardData || window.clipboardData).getData("text").replace(/\r/g, "");
-    if (!/[\t\n,; ]/.test(text.trim())) return; // a single value: let the browser paste it
+    if (!/[\t\n,; ]/.test(text.trim())) return;
     e.preventDefault();
     const td = target.parentElement;
     const r0 = indexIn(rows, td.parentElement);
@@ -160,7 +132,6 @@
     schedule();
   });
   rows.addEventListener("input", () => { note = ""; grow(); schedule(); });
-  // Enter moves down the column, as in a spreadsheet.
   rows.addEventListener("keydown", (e) => {
     if (e.key !== "Enter" || !(e.target instanceof HTMLInputElement)) return;
     e.preventDefault();
@@ -178,7 +149,6 @@
       const inputs = Array.from(tr.querySelectorAll("input"));
       const values = inputs.map((x) => x.value.trim());
       if (values.every((v) => v === "")) return;
-      // A header row copied along with the data: skip it quietly.
       if (i === 0 && values[0] !== "" && !Number.isFinite(parseNum(values[0]))) return;
       const c = parseNum(values[0]);
       if (values[0] === "") {
@@ -199,7 +169,6 @@
     return { points, problems };
   }
 
-  // ---- fitting ----------------------------------------------------------
   function schedule() {
     clearTimeout(timer);
     timer = setTimeout(run, 250);
@@ -240,9 +209,6 @@
       show(false);
       return;
     }
-    // The panel's readings carry no read-noise SD, so each weight is 1 / (a + b·y²): the weights
-    // differ only when the replicates show the spread growing with the signal (b > 0). Replicated
-    // blanks alone give b = 0, an equal weight for every reading.
     const weighted = fit.noise.b > 0;
     current = { points, fit, weighted };
     show(true);
@@ -288,7 +254,6 @@
     );
   }
 
-  // ---- converting a sample ----------------------------------------------
   function invert() {
     if (!current) return;
     const raw = invF.value.trim();
@@ -317,7 +282,6 @@
   invF.addEventListener("input", invert);
   invN.addEventListener("input", invert);
 
-  // Clicking the plot converts the reading at that height.
   plot.addEventListener("click", (e) => {
     if (!current || !toPlotY) return;
     const ctm = plot.getScreenCTM();
@@ -331,9 +295,6 @@
     invert();
   });
 
-  // ---- the plot ----------------------------------------------------------
-  // Log concentration axis. Blanks have no place on a log axis, so they sit in
-  // a column of their own to the left of a break, labelled 0.
   function el(name, attrs, text) {
     const n = document.createElementNS(SVG, name);
     for (const k in attrs) n.setAttribute(k, attrs[k]);
@@ -353,7 +314,7 @@
     const pad = (y1 - y0) * 0.08 || Math.abs(y1) * 0.1 || 1;
     y0 -= pad; y1 += pad;
 
-    const x0px = L + ZERO; // where the log axis starts
+    const x0px = L + ZERO;
     const X = (c) => x0px + ((Math.log10(c) - lx0) / (lx1 - lx0)) * (W - R - x0px);
     const Y = (y) => TOP + (1 - (y - y0) / (y1 - y0)) * (H - TOP - BOT);
     const XB = L + 20;
@@ -372,7 +333,6 @@
       plot.append(el("line", { class: "sw-plot-grid", x1: x, x2: x, y1: TOP, y2: H - BOT }));
       plot.append(el("text", { class: "sw-plot-tick", x, y: H - BOT + 18, "text-anchor": "middle" }, num(10 ** d)));
     }
-    // Round ticks: a step of 1, 2 or 5 times a power of ten, about five of them.
     const raw = (y1 - y0) / 5;
     const mag = 10 ** Math.floor(Math.log10(raw));
     const step = [1, 2, 5, 10].map((m) => m * mag).find((s) => s >= raw);
@@ -418,7 +378,6 @@
     }
   }
 
-  // ---- buttons ------------------------------------------------------------
   $("swTryClear").addEventListener("click", () => {
     clearTable();
     invF.value = "";

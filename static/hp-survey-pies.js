@@ -1,29 +1,15 @@
 (function () {
   "use strict";
 
-  /* Human Practices, survey: each figure's table holds the numbers, and this
-   * draws them as a donut with a legend beside it. The table stays in the page
-   * for screen readers (and is what shows if this script does not run); the
-   * drawing and the legend are hidden from them so nothing is read twice.
-   *
-   * Colour follows what the answers are, not their order on the page:
-   *   nominal    unordered categories        the categorical slots 1..4
-   *   ordinal    an ordered scale             one blue ramp, darker to lighter
-   *   diverging  a 1-5 scale from no to yes   warm arm, grey middle, cool arm
-   * Every palette was checked against the panel the figures sit on (#16323f)
-   * with the data-viz validator: the categorical slots pass every check, and
-   * each ramp and arm runs monotone in lightness with its lightest-on-dark end
-   * at 2:1 or better; the grey middle is 3.8:1.
-   */
   var PALETTES = {
     nominal: ["#3987e5", "#d95926", "#199e70", "#c98500"],
     ordinal: ["#1c5cab", "#2a78d6", "#5598e7", "#86b6ef", "#b7d3f6"],
     diverging: ["#d95926", "#f2a07e", "#7d8a8f", "#86b6ef", "#3987e5"]
   };
-  var SURFACE = "#16323f";             /* the panel: also the 2px gap between slices */
+  var SURFACE = "#16323f";
   var INK_DARK = "#0e242e", INK_LIGHT = "#ffffff";
   var NS = "http://www.w3.org/2000/svg";
-  var R = 100, R_IN = 55, LABEL_MIN = 0.09;   /* print a share on a slice of 9% or more */
+  var R = 100, R_IN = 55, LABEL_MIN = 0.09;
 
   function lum(hex) {
     var c = [1, 3, 5].map(function (i) {
@@ -36,7 +22,6 @@
     var la = lum(a), lb = lum(b);
     return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
   }
-  /* the ink that reads better on a slice's own colour */
   function inkFor(fill) {
     return contrast(fill, INK_LIGHT) >= contrast(fill, INK_DARK) ? INK_LIGHT : INK_DARK;
   }
@@ -48,11 +33,10 @@
     return e;
   }
 
-  /* one ring segment, clockwise from 12 o'clock */
   function arc(a0, a1) {
     var big = a1 - a0 > Math.PI ? 1 : 0;
     function pt(r, a) { return [r * Math.sin(a), -r * Math.cos(a)]; }
-    if (a1 - a0 >= 2 * Math.PI - 1e-9) {        /* a whole ring */
+    if (a1 - a0 >= 2 * Math.PI - 1e-9) {
       return "M0," + (-R) + "A" + R + "," + R + " 0 1 1 0," + R + "A" + R + "," + R + " 0 1 1 0," + (-R) +
              "M0," + (-R_IN) + "A" + R_IN + "," + R_IN + " 0 1 0 0," + R_IN + "A" + R_IN + "," + R_IN + " 0 1 0 0," + (-R_IN) + "Z";
     }
@@ -145,8 +129,6 @@
     });
     box.appendChild(legend);
 
-    /* hover: the slice and its legend row light up together, and the tooltip
-       gives the count as well as the share */
     function on(r, ev) {
       fig.classList.add("is-focusing");
       rows.forEach(function (o) { o.g.classList.toggle("is-on", o === r); o.li.classList.toggle("is-on", o === r); });

@@ -1,23 +1,8 @@
 (function () {
   'use strict';
 
-  /* The two teaching items as tabs, and inside each one a pair of cards the
-   * reader turns through left and right.
-   *
-   * Both follow what the rest of the site already does: the tabs are the
-   * home page's (roving tabindex, arrow keys, panels hidden rather than
-   * merely unpainted), and the deck is the Education gallery's (arrows, and
-   * a live region that only speaks when the reader worked the control).
-   *
-   * Nothing here runs without JavaScript, and nothing is hidden by the
-   * stylesheet until it does: both panels and all their cards are stacked
-   * and readable, and the controls that would do nothing are not shown.
-   */
-
   var root = document.querySelector('[data-ctb-teach]');
   if (!root) return;
-
-  /* ---------------------------------------------------------- the tabs -- */
 
   var tabs = [].slice.call(root.querySelectorAll('[role="tab"]'));
   var panels = tabs.map(function (t) {
@@ -53,8 +38,6 @@
 
   select(0);
 
-  /* --------------------------------------------------------- the decks -- */
-
   [].forEach.call(root.querySelectorAll('[data-ctb-deck]'), function (deck) {
     var slides = [].slice.call(deck.querySelectorAll('.ctb-slide'));
     if (slides.length < 2) return;
@@ -73,8 +56,6 @@
         d.setAttribute('aria-current', on ? 'true' : 'false');
       });
       if (status) {
-        /* Only speak when the reader asked for the change; announcing the
-           first card as the page settles is noise. */
         status.setAttribute('aria-live', byHand ? 'polite' : 'off');
         status.textContent = (at + 1) + ' of ' + slides.length + ': ' +
           (slides[at].getAttribute('data-label') || '');

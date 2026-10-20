@@ -1,13 +1,3 @@
-/* "On this page": the list static/page-toc.js builds down the left side.
-   Wide screens only; below 1200px the page is already narrow and the list is
-   not shown. The page gets room for it by padding, so nothing on the page has
-   to know it is there.
-
-   Two forms, one look. A page split into parts (.is-parts: Model, Software,
-   Hardware...) gets a numbered badge per part with that part's sections on a
-   rail under it. Every other page (.is-rail) puts its sections straight on
-   the same rail. Both carry the reading-progress bar on top and mark the
-   section being read with a mint bar on the rail and a tinted pill. */
 .page-toc { display: none; }
 
 @media (min-width: 1200px) {
@@ -24,8 +14,6 @@
 
   .page-toc-inner {
     position: sticky;
-    /* 浮動導覽列（捲動往上時會重新出現）底緣約在 96px，目錄要貼在它下面，
-       不然最上面的「On this page」會被導覽列蓋住 */
     top: 112px;
     max-height: calc(100vh - 132px);
     overflow-y: auto;
@@ -34,7 +22,6 @@
   }
   .page-toc-inner::-webkit-scrollbar { display: none; }
 
-  /* the row above the list; holds the Expand all control on a parts list */
   .page-toc-title {
     position: relative;
     margin: 0 0 0.5rem;
@@ -50,7 +37,6 @@
   }
   .page-toc-list li { margin: 0; }
 
-  /* each entry */
   .page-toc-list a {
     position: relative;
     display: block;
@@ -59,18 +45,10 @@
     font-family: "Changa", sans-serif;
     font-size: 1rem;
     line-height: 1.3;
-    /* A token, not the warm #6b6055 this started as. That brown was picked for
-       the paper background the wiki used to have; on the dark ground it reads
-       at 2.62:1, under the 4.5 floor, and it reads brown next to the cool grey
-       the nexus pages override it with. --c-text-2 follows the theme: the same
-       7.45:1 in light, 8.51:1 in dark. */
     color: var(--c-text-2);
     text-decoration: none;
     transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
   }
-  /* Not selected: a thin grey, lighter than --c-text-2's accessibility-tuned
-     value. The site is fixed to dark mode for now (RX_THEME_TOGGLE is off in
-     wiki/layout.html), so this only needs to hold up on the dark ground. */
   html[data-theme="dark"] .page-toc-list a:not(.is-active) {
     color: rgb(231, 242, 234);
   }
@@ -81,7 +59,6 @@
     transform: translateX(8px);
   }
 
-  /* the one being read */
   .page-toc-list a.is-active {
     background: rgba(7, 90, 62, 0.12);
     color: #075a3e;
@@ -90,8 +67,6 @@
 
   .page-toc-list a:focus-visible { outline: 2px solid var(--nx-mint, var(--c-teal-deep)); outline-offset: 1px; }
 
-  /* A part of a page split into parts (data-toc-group): a small uppercase
-     title with room above it, so the entries under it read as its own. */
   .page-toc-list li.page-toc-group { margin-top: 0.9rem; }
   .page-toc-list li.page-toc-group:first-child { margin-top: 0; }
   .page-toc-list li.page-toc-group > a {
@@ -101,13 +76,6 @@
     text-transform: uppercase;
   }
 
-  /* ---- Parts (data-toc-style="parts": Model, Software, Hardware...) ----
-     A numbered badge per part, filled for the part being read and outlined
-     once a part is behind the reader. The part being read opens its
-     sections, on a rail with a bar beside the one being read; each part also
-     has its own open / close button, and the title an Expand all. A thin bar on top shows how far down
-     the page the reader is. One accent (mint) and greys; the light theme's
-     greens are fallbacks for a page not on the deep-teal theme. */
   .page-toc.is-parts .page-toc-progress,
   .page-toc.is-rail .page-toc-progress {
     height: 2px;
@@ -131,7 +99,6 @@
     border-top: 1px dashed var(--nx-line, var(--c-line));
   }
 
-  /* the part's own line: badge and name, no arrow */
   .page-toc.is-parts a.page-toc-part-head {
     display: flex;
     align-items: center;
@@ -161,12 +128,10 @@
     border-radius: 50%;
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
-  /* a part already read: outlined in the accent */
   .page-toc.is-parts .page-toc-part:not(.is-current) > a.is-passed .page-toc-no {
     color: var(--nx-mint, var(--c-teal-deep));
     border-color: var(--nx-mint, var(--c-teal-deep));
   }
-  /* the part being read: filled */
   body .page-toc.is-parts .page-toc-part.is-current > a.page-toc-part-head {
     color: var(--nx-text, var(--c-text));
     background: none;
@@ -177,21 +142,7 @@
     border-color: var(--nx-mint, var(--c-teal-deep));
   }
 
-  /* "Expand all / Collapse all", at the end of the list's title */
-  /* The "On this page" label is gone (static/page-toc.js). On an ungrouped
-     list that leaves the row with nothing in it, so it goes; on a grouped one
-     the All control is still a child, so the row is not :empty and stays. */
   .page-toc-title:empty { display: none; }
-
-  /* The grouped list reads --nx-* first and falls back to the global tokens.
-     The nexus pages declare --nx-* on the body, so they keep their own palette;
-     a page without one of those classes -- Lab Book, which is grouped too --
-     gets the --c-* equivalents, which flip with the theme. The fallbacks used
-     to be fixed light-mode values (#6b6055, #1f2a24, #075a3e, #fff), so Lab
-     Book's contents list came out brown and dark green on the dark ground while
-     Model's, two clicks away, was mint and cool grey. In dark the pairs are all
-     but the same colour: --nx-mint and --c-teal-deep are both #49c5b6, and
-     --nx-ground and --c-dark are both #0e242e. Keep any new fallback a token. */
 
   .page-toc.is-parts .page-toc-title { display: flex; align-items: center; gap: 0.5rem; }
   .page-toc-all {
@@ -208,7 +159,6 @@
   }
   .page-toc-all:hover { color: var(--nx-text, var(--c-text)); border-color: var(--nx-mint, var(--c-teal-deep)); }
 
-  /* the part's line: its link, then its own open / close button */
   .page-toc-part-row { display: flex; align-items: center; }
   .page-toc-part-row > a { flex: 1; min-width: 0; }
   .page-toc-toggle {
@@ -231,9 +181,6 @@
   .page-toc-all:focus-visible,
   .page-toc-toggle:focus-visible { outline: 2px solid var(--nx-mint, var(--c-teal-deep)); outline-offset: 1px; }
 
-  /* The rail. On a parts list it carries a part's sections under its badge,
-     shown while the part is open (the part being read, or one the reader
-     opened); on every other page it carries the whole list. */
   .page-toc.is-parts .page-toc-sub,
   .page-toc.is-rail .page-toc-list {
     list-style: none;
@@ -243,9 +190,6 @@
   .page-toc.is-parts .page-toc-sub { margin: 0.1rem 0 0.45rem 1.2rem; }
   .page-toc.is-rail .page-toc-list { margin: 0 0 0 0.2rem; }
   .page-toc.is-parts .page-toc-part:not(.is-open) > .page-toc-sub { display: none; }
-  /* Muted until hovered or read: the site's dark theme colours every link
-     teal, which would leave no difference between a section and the one
-     being read. */
   .page-toc.is-parts .page-toc-sub a,
   .page-toc.is-rail .page-toc-list a {
     display: flex;
@@ -254,8 +198,6 @@
     font-size: 0.95rem;
     color: var(--nx-muted, var(--c-text-2));
   }
-  /* On its own the rail is the top level, so its entries are set at the size
-     of a part's name rather than of a section under one. */
   .page-toc.is-rail .page-toc-list a { font-size: 1rem; }
   .page-toc.is-parts .page-toc-sub a:hover,
   .page-toc.is-parts .page-toc-sub a:focus-visible,
@@ -275,7 +217,6 @@
     color: var(--nx-muted, var(--c-text-2));
   }
   .page-toc.is-parts .page-toc-sub a.is-active .page-toc-sec { color: var(--nx-mint, var(--c-teal-deep)); }
-  /* the mint bar on the rail beside the section being read */
   .page-toc.is-parts .page-toc-sub a::before,
   .page-toc.is-rail .page-toc-list a::before {
     content: "";

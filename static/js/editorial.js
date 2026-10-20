@@ -1,10 +1,3 @@
-/* ============================================================
-   EDITORIAL.JS — 內頁編輯式互動（自動偵測，不改各頁 HTML）
-   1) 章節 ≥3 的內頁：注入 sticky 導覽條 + scroll-spy
-   2) 空白頁：注入「即將上線」骨架（不改原文，不改寫內容）
-   3) 通用：給 .container 直下章節補 data-reveal（純裝飾）
-   保護名單：engineering / hw-nexus / edu-nexus（自有互動）一律跳過。
-   ============================================================ */
 (function () {
   'use strict';
 
@@ -19,33 +12,12 @@
 
   var isHome = location.pathname.replace(/\/+$/, '') === '' || /\/index\.html$/.test(location.pathname);
 
-  /* 內容容器：layout.html 的 page_content 是 body 直下的 .container；
-     hero 裡那個 .container 只有標題文字——若誤拿它判空白，會在每頁
-     hero 誤插「coming soon」骨架並讓整頁失去章節導航。 */
   var contentMain = document.querySelector('body > .container') || main;
 
-  /* ---- 空白頁偵測：page_content 無任何實質內容 → 注入骨架 ---- */
-  var content = contentMain.textContent.replace(/\s+/g, '');
-  var hasInteractive = contentMain.querySelector('canvas, iframe, table, .cap-game, svg, img');
-  if (!isHome && content.length < 40 && !hasInteractive) {
-    var mount = document.createElement('div');
-    mount.className = 'rx-empty-mount';
-    mount.innerHTML =
-      '<div class="rx-coming-soon">' +
-      '<strong>Content coming soon</strong>' +
-      'This page is part of the redesigned wiki shell. Its content is still with the team.' +
-      '<br><span class="rx-todo">TODO: 內容待團隊提供</span>' +
-      '</div>';
-    main.insertBefore(mount, main.firstChild);
-    return; /* 空白頁不準再加 spy/reveal，視覺保持安靜 */
-  }
+  if (isHome) return;
 
-  if (isHome) return; /* 首頁有自己的沉浸式腳本 */
-
-  /* 已有自製側欄（education 三件套）或整頁遊戲（桌遊）的頁面不再注入第二套導航 */
   if (main.querySelector('.edu-sidebar, aside, .board-game-page')) return;
 
-  /* ---- 收集章節標題 ---- */
   var heads = [];
   var seen = {};
   main.querySelectorAll(':scope > section > h2, :scope > div > h2, :scope > h2, :scope > section > h3:not([class*="page-tag"]), :scope > div > h3:not([class*="page-tag"])').forEach(function (h) {
@@ -62,7 +34,6 @@
   });
   if (heads.length < 3) return;
 
-  /* ---- 注入 sticky 導覽條 ---- */
   var bar = document.createElement('nav');
   bar.className = 'rx-tocbar';
   bar.setAttribute('aria-label', 'On this page');
@@ -75,20 +46,17 @@
     inner.appendChild(a);
   });
   bar.appendChild(inner);
-  if (reduce) { /* 靜態模式下仍給導航，但不吸頂（CSS 覆蓋） */ bar.style.position = 'relative'; }
+  if (reduce) { bar.style.position = 'relative'; }
 
-  /* 放在 .container 內最前面（hero 在 .container 之外） */
   main.insertBefore(bar, main.firstChild);
   body.classList.add('rx-editorial');
 
-  /* ---- scroll-spy ---- */
   var links = bar.querySelectorAll('a');
   function setActive(id) {
     links.forEach(function (l) {
       var on = l.getAttribute('href') === '#' + id;
       l.classList.toggle('active', on);
       if (on && !reduce && bar.getBoundingClientRect) {
-        /* 讓 active chip 維持在可視範圍 */
         try { l.scrollIntoView({ block: 'nearest', inline: 'center', behavior: reduce ? 'auto' : 'smooth' }); } catch (e) {}
       }
     });
@@ -100,7 +68,6 @@
     heads.forEach(function (h) { spy.observe(h); });
   }
 
-  /* ---- 平滑滾到錨點（統一點擊體驗；reduced 則直跳）---- */
   bar.addEventListener('click', function (ev) {
     var a = ev.target.closest('a[href^="#"]');
     if (!a) return;
@@ -112,7 +79,6 @@
     setActive(a.getAttribute('href').slice(1));
   });
 
-  /* ---- 章節漸顯：給頂層 section 加 data-reveal（裝飾性）---- */
   if (!reduce && 'IntersectionObserver' in window) {
     var secs = main.querySelectorAll(':scope > section');
     secs.forEach(function (s) { s.setAttribute('data-reveal', ''); });
@@ -124,7 +90,6 @@
       });
     }, { threshold: 0.08 });
     secs.forEach(function (s) { io.observe(s); });
-    /* 沒有章節容器的直接子元素們也給一次淡入節奏 */
     var kids = main.querySelectorAll(':scope > article, :scope > .row');
     kids.forEach(function (s) {
       s.setAttribute('data-reveal', '');

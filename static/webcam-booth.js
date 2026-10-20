@@ -1,8 +1,4 @@
 (function () {
-  // 一個濾鏡一個人。name 是 static.igem.wiki 上的檔名，label 是按鈕上的字。
-  // 兩者通常相同，june 是唯一的例外：檔名 june，按鈕寫 Chun。
-  // 這個陣列的順序就是 team.html 裡 .webcam-filter-btn 的順序，
-  // 要增減人必須兩邊一起改，否則按鈕會對到別人的圖。
   var FILTERS = [
     { name: "alan",   label: "Alan" },
     { name: "alston", label: "Alston" },
@@ -14,6 +10,7 @@
     { name: "june",   label: "Chun" },
     { name: "leo",    label: "Leo" },
     { name: "luna",   label: "Luna" },
+    { name: "mella",  label: "Mella" },
     { name: "miklos", label: "Miklos" },
     { name: "ryan",   label: "Ryan" },
     { name: "simon",  label: "Simon" },
@@ -24,27 +21,19 @@
 
   var FRAME_BASE = "https://static.igem.wiki/teams/6379/wiki/photobooth/";
 
-  // 人像要畫進畫面的哪一個方框，數字是相對畫面的比例 (0~1)。
-  // 圖會「等比例縮到塞得進這個方框」，再貼齊方框底部、水平置中 —— 不是拉伸填滿。
-  // 這 16 張的長寬比從 0.40 (alan) 到 0.88 (leo) 都有，差了 2.2 倍，
-  // 若直接拉伸填滿同一個方框，每個人被壓扁的程度都不一樣。
   var FRAME_RECT = { x: 0.02, y: 0.06, width: 0.46, height: 0.94 };
 
-  // 三個站位：預設的左側，與它左右對稱的右側，以及置中。
-  // 三者只差水平位置，高度與大小都沿用 FRAME_RECT，所以之後要把人像調大調小
-  // 或上下挪動，只要改 FRAME_RECT 一處，三個站位會一起跟著動。
   function standing(x) {
     return { x: x, y: FRAME_RECT.y, width: FRAME_RECT.width, height: FRAME_RECT.height };
   }
   var RIGHT = 1 - FRAME_RECT.width - FRAME_RECT.x;
   var CENTRE = (1 - FRAME_RECT.width) / 2;
 
-  // 個別站位。鍵用檔名，不是按鈕上的字（所以是 june 不是 chun）。
-  // 沒有列在這裡的人就是預設的左側。
   var FRAME_RECT_BY_NAME = {
     alston: standing(RIGHT),
     jason:  standing(RIGHT),
     leo:    standing(RIGHT),
+    mella:  standing(RIGHT),
     miklos: standing(RIGHT),
     simon:  standing(RIGHT),
     vane:   standing(RIGHT),
@@ -55,7 +44,6 @@
   var startBtn, shutterBtn, closeBtn, filterBtns;
   var review, reviewImg, reviewHint, retakeBtn, saveBtn, downloadBtn;
   var stream = null;
-  // 剛拍的那張：預覽用的 blob URL，以及分享到相簿用的 File。
   var shotUrl = null;
   var shotFile = null;
   var activeFilter = 0;
@@ -65,8 +53,6 @@
   function loadFrameImages() {
     FILTERS.forEach(function (f, i) {
       var img = new Image();
-      // 拍照時要把這張圖畫進 canvas 再 toBlob，跨網域的圖沒有這一行會
-      // 污染 canvas，存檔那一步就會丟 SecurityError。
       img.crossOrigin = 'anonymous';
       img.src = FRAME_BASE + f.name + '.avif';
       frameImages[i] = img;
@@ -95,8 +81,6 @@
     var boxW = rect.width * width;
     var boxH = rect.height * height;
 
-    // 等比例縮到塞得進方框（contain），再貼齊方框底部、水平置中。
-    // 這些是站姿的去背人像，底部對齊才會像站在畫面裡，而不是浮在半空。
     var scale = Math.min(boxW / frame.naturalWidth, boxH / frame.naturalHeight);
     var drawW = frame.naturalWidth * scale;
     var drawH = frame.naturalHeight * scale;
@@ -185,9 +169,6 @@
     shot.height = canvas.height;
     var shotCtx = shot.getContext('2d');
 
-    // 預覽是 object-fit: cover（等比例放大填滿、裁掉多的），存檔也要照同一套裁法。
-    // 以前直接把整段影像拉伸成 canvas 的大小：桌機鏡頭剛好 16:9 看不出來，
-    // 但手機前鏡頭是 4:3 或直式，存下來的照片會整個被壓扁。
     var vw = video.videoWidth || shot.width;
     var vh = video.videoHeight || shot.height;
     var cover = Math.max(shot.width / vw, shot.height / vh);
@@ -218,7 +199,6 @@
   }
 
   function photoName() {
-    // 檔名帶拍照時間，連拍好幾張才不會互相覆蓋。
     var d = new Date();
     function pad(n) { return (n < 10 ? '0' : '') + n; }
     return 'ncku-tainan-photobooth-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
@@ -231,10 +211,6 @@
     shotFile = new File([blob], photoName(), { type: 'image/png' });
     reviewImg.src = shotUrl;
 
-    // 網頁沒辦法直接寫進手機相簿，只能透過系統的分享選單：
-    // iOS 選「儲存影像」就會進「照片」，Android 可以分享到相簿 / Google 相簿。
-    // 所以只有觸控裝置、而且瀏覽器能分享檔案時，才顯示「Save to Photos」。
-    // 不能分享的手機（舊版瀏覽器）就提示長按照片，iOS 與 Android 長按圖片都能存。
     var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     var canShare = !!(navigator.canShare && navigator.canShare({ files: [shotFile] }));
     saveBtn.hidden = !(touch && canShare);
@@ -255,7 +231,6 @@
     var link = document.createElement('a');
     link.download = shotFile.name;
     link.href = shotUrl;
-    // Firefox 只認得已經放進文件裡的連結。
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -263,11 +238,7 @@
 
   function savePhoto() {
     if (!shotFile) return;
-    // 必須在點擊當下直接呼叫 share，中間不能先 await 別的東西，
-    // 否則 iOS 會認定不是使用者觸發而拒絕。只放檔案、不帶文字，
-    // 帶了文字 iOS 的分享選單會少掉「儲存影像」。
     navigator.share({ files: [shotFile] }).catch(function (err) {
-      // 使用者自己關掉分享選單是 AbortError，不用處理。
       if (err.name !== 'AbortError') downloadPhoto();
     });
   }

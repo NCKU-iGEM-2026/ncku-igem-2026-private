@@ -1,15 +1,3 @@
-/* ============================================================
-   Human Practices hub and its subpages
-   human-practices.html (the compass), meet-with-experts.html (.mx-*),
-   survey.html (.sv-*). All three wear body.edu-nexus, so the --nx-*
-   palette from style.css is in scope: mint for headings, lime for
-   highlights, the lifted blue and the warm amber as second accents.
-
-   Each direction keeps one colour wherever it appears -- its card on the
-   hub, its kicker on its subpage:
-     downward  lime     upward  mint     forward  blue     backward  amber
-   ============================================================ */
-
 body.edu-nexus {
   --hpx-down: var(--nx-lime);
   --hpx-up:   var(--nx-mint);
@@ -17,7 +5,6 @@ body.edu-nexus {
   --hpx-back: var(--nx-warm);
 }
 
-/* ---------- shared: kicker, back link, next/previous ---------- */
 .hpx-kicker {
   font-family: "Changa", sans-serif;
   font-weight: 700;
@@ -68,8 +55,10 @@ body.edu-nexus .hpx-back a:focus-visible { color: var(--nx-lime); }
 .hpx-next a:hover,
 .hpx-next a:focus-visible { color: var(--nx-lime); }
 
-/* ---------- the hub ---------- */
-.hpx-overview { max-width: 72ch; }
+.hpx-overview { max-width: none; }
+@media (min-width: 1200px) {
+  body.edu-nexus .container.has-page-toc > .toc-fullwidth { margin-left: -252px; width: calc(100% + 252px); }
+}
 
 body.edu-nexus .hpx-overview h2 {
   font-family: "Changa", sans-serif;
@@ -80,10 +69,6 @@ body.edu-nexus .hpx-overview h2 {
 
 body.edu-nexus .hpx-overview .hp-slogan { color: var(--nx-lime); }
 
-/* The ring. A square stage; the circle the four discs sit on is inset 17%
-   from each side, so its radius is 33% of the stage's width -- 33cqw, since
-   the stage is the container the units measure. The discs are centred on
-   the circle at top, right, bottom and left; the core sits in the middle. */
 .hpx-compass {
   position: relative;
   width: min(880px, 100%);
@@ -92,7 +77,6 @@ body.edu-nexus .hpx-overview .hp-slogan { color: var(--nx-lime); }
   container-type: inline-size;
 }
 
-/* A faint inner orbit, for depth. */
 .hpx-compass::before {
   content: "";
   position: absolute;
@@ -102,9 +86,6 @@ body.edu-nexus .hpx-overview .hp-slogan { color: var(--nx-lime); }
   pointer-events: none;
 }
 
-/* The ring itself, in the four directions' colours, each blending into the
-   next: upward at the top, forward at the right, downward at the bottom,
-   backward at the left. A conic gradient cut to a 4px band by a mask. */
 .hpx-ring {
   position: absolute;
   inset: 17%;
@@ -117,8 +98,6 @@ body.edu-nexus .hpx-overview .hp-slogan { color: var(--nx-lime); }
   pointer-events: none;
 }
 
-/* AHL dots travelling round the ring, half-way between the discs, as on the
-   loading screen. */
 .hpx-orbit {
   position: absolute;
   inset: 17%;
@@ -153,14 +132,9 @@ body.edu-nexus .hpx-overview .hp-slogan { color: var(--nx-lime); }
 .hpx-fwd      { --hpx-dir: var(--hpx-fwd);  left: 83%; top: 50%; }
 .hpx-back-dir { --hpx-dir: var(--hpx-back); left: 17%; top: 50%; }
 
-/* One disc per direction. Sized and lettered in cqw so the whole ring scales
-   as one drawing. The dark halo (the first shadow) cuts the coloured ring
-   where the disc crosses it, so the disc reads as sitting on the ring. */
 .hpx-card {
   position: absolute;
   z-index: 1;
-  /* width and height both in cqw: aspect-ratio alone gives way to the
-     content and draws an ellipse */
   width: 32cqw;
   height: 32cqw;
   transform: translate(-50%, -50%);
@@ -169,7 +143,7 @@ body.edu-nexus .hpx-overview .hp-slogan { color: var(--nx-lime); }
   align-items: center;
   justify-content: center;
   gap: 0.3em;
-  padding: 0 2.4cqw;   /* cqw: a % here would be of the whole ring */
+  padding: 0 2.4cqw;
   border-radius: 50%;
   border: 2px solid var(--hpx-dir);
   background: radial-gradient(circle at 50% 28%,
@@ -295,8 +269,6 @@ body.edu-nexus .hpx-link:focus-visible {
 }
 .hpx-closing { text-align: center; }
 
-/* The closing line: the page's one sentence to remember, so it is set as a
-   statement -- large, centred, with the slogan in the slogan's lime. */
 body.edu-nexus .hpx-statement {
   max-width: 34ch;
   margin: 3.5rem auto 2.5rem;
@@ -318,8 +290,6 @@ body.edu-nexus .hpx-statement em {
 }
 body.edu-nexus .hpx-also { color: var(--nx-muted); font-size: 0.95rem; }
 
-/* Narrow screens: no ring. The discs become cards, one under another, in
-   the order the overview gives them. */
 @media (max-width: 991.98px) {
   .hpx-compass {
     width: auto;
@@ -351,7 +321,6 @@ body.edu-nexus .hpx-also { color: var(--nx-muted); font-size: 0.95rem; }
   body.edu-nexus .hpx-card .hpx-links { justify-content: flex-start; }
 }
 
-/* ---------- Meet with Experts ---------- */
 .mx-intro { max-width: 72ch; margin-bottom: 2.5rem; }
 .mx-intro { --hpx-dir: var(--hpx-up); }
 
@@ -379,8 +348,6 @@ body.edu-nexus .mx-intro-lead {
   margin-bottom: 1.75rem;
 }
 
-/* The photo sits in an .edu-gallery only so edu-lightbox.js opens it full
-   size on click; none of the gallery's strip layout applies here. */
 .edu-gallery.mx-photo {
   display: block;
   margin: 0;
@@ -520,32 +487,15 @@ body.edu-nexus .mx-advice-link { margin: 1rem 0 0; color: var(--nx-muted); font-
   .mx-head { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
 }
 
-/* ---------- Survey ---------- */
 .sv-intro { --hpx-dir: var(--hpx-back); margin-bottom: 1rem; }
 .sv-intro > p:not(.hpx-kicker) { max-width: 150ch; }
 
-/* This page's sections are h2s on purpose, so page-toc.js's "On this page"
-   list picks them up (see the comment at the top of survey.html) -- but its
-   padding-left:252px lands on the whole container, which also narrows and
-   indents the intro (title, stats, the two lead paragraphs) above the
-   sections, which is not one of the list's entries (its own heading is an
-   h3, not an h2). Pull the intro back out to the container's full width, and
-   push the sidebar down to start level with the first real section
-   (Population Sample) instead of floating beside the intro. The margin is an
-   estimate of the intro's own height and may need a small adjustment once
-   checked in the browser. */
 @media (min-width: 1200px) {
   body.edu-nexus .container.has-page-toc .sv-intro {
     margin-left: -252px;
     width: calc(100% + 252px);
   }
-  /* :has(.sv-intro) 把這條綁在 Survey 自己身上。body.edu-nexus 另外還有
-     human-practices 與 meet-with-experts 兩頁在用，它們沒有這個 intro，卻一樣
-     吃到這個偏移，目錄上方因此空出一大塊。
-     36rem 是原作者估的 intro 高度，實測在瀏覽器裡多推了約 86px，所以收到
-     30.6rem，讓目錄第一項跟 Population Sample 同一個水平。這個值只決定靜止時
-     的位置：一旦往下捲，sticky 的 top: 112px 就接手。 */
-  body.edu-nexus .container.has-page-toc:has(.sv-intro) .page-toc-inner { margin-top: 30.6rem; }
+  body.edu-nexus .container.has-page-toc:has(.sv-intro) .page-toc-inner { margin-top: 28.2rem; }
 }
 
 body.edu-nexus .sv-title,
@@ -631,8 +581,6 @@ body.edu-nexus .sv-section h2 {
   .hpx-card,
   .edu-gallery.mx-photo img { transition: none; }
   .hpx-orbit { animation: none; }
-  /* The discs are centred on the ring by their transform, so hovering keeps
-     that and only drops the grow. */
   .hpx-card:hover,
   .hpx-card:focus-within { transform: translate(-50%, -50%); }
   .edu-gallery.mx-photo img:hover { transform: none; }
@@ -643,11 +591,6 @@ body.edu-nexus .sv-section h2 {
   .hpx-card:focus-within { transform: none; }
 }
 
-/* ============================================================
-   The hub's lower half: figures, what we heard / what we did,
-   the year, and photos. Every item carries its direction's colour
-   as --hpx-dir, set inline.
-   ============================================================ */
 .hpx-section {
   margin: 5rem 0 0;
   scroll-margin-top: 104px;
@@ -680,7 +623,6 @@ body.edu-nexus .hpx-section-lead {
   line-height: 1.6;
 }
 
-/* ---------- figures ---------- */
 .hpx-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -722,7 +664,6 @@ body.edu-nexus .hpx-stat-label {
   line-height: 1.4;
 }
 
-/* ---------- what we heard, what we did ---------- */
 .hpx-loop {
   list-style: none;
   margin: 0;
@@ -762,11 +703,10 @@ body.edu-nexus .hpx-loop-when { color: var(--nx-muted); font-size: 0.85rem; }
 .hpx-loop-heard,
 .hpx-loop-did { position: relative; }
 
-/* the arrow from what we heard to what we did */
 .hpx-loop-did::before {
   content: "\2192";
   position: absolute;
-  left: -1.25rem;            /* the middle of the 2.5rem column gap */
+  left: -1.25rem;
   top: 50%;
   transform: translate(-50%, -50%);
   color: var(--hpx-dir);
@@ -814,7 +754,6 @@ body.edu-nexus .hpx-loop-go:focus-visible {
   color: var(--nx-ground);
 }
 
-/* ---------- the year ---------- */
 .hpx-legend {
   list-style: none;
   display: flex;
@@ -844,9 +783,6 @@ body.edu-nexus .hpx-legend li {
   box-shadow: 0 0 8px var(--hpx-dir);
 }
 
-/* Two columns either side of a spine. Each event spans two grid rows and
-   the next one starts a row lower on the other side, so the two columns
-   interlock instead of leaving a gap beside every card. */
 .hpx-year {
   --hpx-gap: 4rem;
   position: relative;
@@ -878,7 +814,6 @@ body.edu-nexus .hpx-legend li {
 .hpx-event:nth-child(odd)  { grid-column: 1; }
 .hpx-event:nth-child(even) { grid-column: 2; }
 
-/* the dot on the spine, level with the date */
 .hpx-event::after {
   content: "";
   position: absolute;
@@ -941,10 +876,6 @@ body.edu-nexus .hpx-event-what {
   line-height: 1.4;
 }
 
-/* ---------- moments ----------
-   Two rows drifting opposite ways; each photo carries its direction's
-   colour, its date, and a "read the story" line that rises on hover.
-   Three widths in turn (.hpx-moment-0/1/2) so the strip has a rhythm. */
 .hpx-moments-filter {
   display: flex;
   flex-wrap: wrap;
@@ -1089,7 +1020,6 @@ body.edu-nexus .hpx-event-what {
 .hpx-moment:hover .hpx-moment-go,
 .hpx-moment:focus-visible .hpx-moment-go { max-height: 1.4em; opacity: 1; margin-top: 0.2rem; }
 
-/* one direction chosen: the rest step back */
 .hpx-moments-section[data-filter="down"] .hpx-moment:not([data-dir="down"]),
 .hpx-moments-section[data-filter="up"]   .hpx-moment:not([data-dir="up"]),
 .hpx-moments-section[data-filter="fwd"]  .hpx-moment:not([data-dir="fwd"]),
@@ -1098,7 +1028,6 @@ body.edu-nexus .hpx-event-what {
   filter: grayscale(1);
 }
 
-/* ---------- narrow screens ---------- */
 @media (max-width: 991.98px) {
   .hpx-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -1109,7 +1038,6 @@ body.edu-nexus .hpx-event-what {
   .hpx-loop-did::before { content: none; }
   body.edu-nexus .hpx-loop-go { justify-self: end; }
 
-  /* one column, the spine down the left */
   .hpx-year {
     grid-template-columns: minmax(0, 1fr);
     padding-left: 1.75rem;
@@ -1143,26 +1071,18 @@ body.edu-nexus .hpx-event-what {
   .hpx-moment:focus-visible img,
   .hpx-moment:hover,
   .hpx-moment:focus-visible { transform: none; }
-  /* no drift: one copy of the photos, scrolled by hand */
   .hpx-moments { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
   .hpx-moments-track { animation: none; }
   .hpx-moments-set[aria-hidden="true"] { display: none; }
 }
 
-/* ---------- Meet with Experts, 2026-10-09: lineup, photo sets, flip advice ----------
-   Later in the file than the first .mx-* rules on purpose: these refine them. */
-
-/* the lineup: one stop per expert, in date order */
 .mx-lineup { margin: 0 0 2.75rem; }
-/* Three to a row (2026-10-17): with six experts, five across left one
-   stranded on a second row. The list is capped and centred so three cards
-   stay about the width they were rather than stretching to fill the page. */
 .mx-lineup ol {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   max-width: 760px;
   gap: 0.8rem;
-  margin: 0 auto;          /* centred; must come after any margin shorthand */
+  margin: 0 auto;
   padding: 0;
   list-style: none;
 }
@@ -1229,7 +1149,6 @@ body.edu-nexus .mx-lineup a.is-active {
 }
 .mx-lineup-tag.is-industry { color: var(--nx-blue-up); }
 
-/* the card: a hint of its direction's colour along the top */
 .mx-card { position: relative; overflow: hidden; }
 .mx-card::before {
   content: "";
@@ -1240,14 +1159,12 @@ body.edu-nexus .mx-lineup a.is-active {
 }
 .mx-head { align-items: start; }
 
-/* several photos: the first large, the rest as a row of thumbnails */
 .edu-gallery.mx-photo { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.5rem; overflow: visible; }
 .edu-gallery.mx-photo img:first-child { grid-column: 1 / -1; }
 .edu-gallery.mx-photo img:not(:first-child) { aspect-ratio: 1 / 1; border-radius: 10px; opacity: 0.8; transition: opacity 0.25s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
 .edu-gallery.mx-photo img:not(:first-child):hover { opacity: 1; }
 .edu-gallery.mx-photo img:only-child { grid-column: 1 / -1; }
 
-/* no photo: a drawing of a folding aptamer instead */
 .mx-illustration {
   position: relative;
   display: grid;
@@ -1280,7 +1197,6 @@ body.edu-nexus .mx-lineup a.is-active {
 
 .mx-tag-clinic { border-color: var(--nx-warm); color: var(--nx-warm); }
 
-/* the date, as the same chip on every card */
 body.edu-nexus .mx-meta-date {
   display: inline-flex;
   align-items: center;
@@ -1295,13 +1211,11 @@ body.edu-nexus .mx-meta-date {
 }
 .mx-meta-date svg { width: 0.95em; height: 0.95em; color: var(--nx-mint); }
 
-/* key phrases in the story */
 body.edu-nexus .mx-body .mx-hl  { color: var(--nx-lime); font-weight: 600; }
 body.edu-nexus .mx-body .mx-key { color: var(--nx-lime); font-weight: 600; }
 
 .mx-kpis { margin: 1.5rem 0 0; }
 
-/* "In short", as three flip cards */
 .mx-flips {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1325,9 +1239,6 @@ body.edu-nexus .mx-body .mx-key { color: var(--nx-lime); font-weight: 600; }
   .mx-avatar { transition: none; }
 }
 
-/* ---------- Survey: the seven street interviews (2026-10-12) ----------
-   The counts are out of seven, so the page never shows a percentage; the
-   caveat panel says so in the text as well. */
 .sv-caveat {
   margin: 1.2rem 0 1.6rem;
   padding: 0.9rem 1.15rem;
@@ -1394,7 +1305,6 @@ body.edu-nexus .sv-section .sv-finding p {
   color: var(--nx-muted);
 }
 
-/* the question list: the text wraps, so the row is two lines on narrow screens */
 .sv-section .edx-fb summary { grid-template-columns: 1fr auto; }
 body.edu-nexus .sv-section .edx-fb-q { line-height: 1.4; }
 
@@ -1402,11 +1312,6 @@ body.edu-nexus .sv-section .edx-fb-q { line-height: 1.4; }
   .sv-finding, .sv-finding::after { transition: none; }
 }
 
-/* ---------- responsibility and implementation ----------
-   Each point is one panel: a question as its heading, then one quiet line
-   saying where the point came from (an expert, our results, the literature
-   or another page), then the text. The source line is there so nothing we
-   asked ourselves reads as if an expert said it. */
 .hpx-risks {
   display: grid;
   gap: 1rem;
@@ -1447,11 +1352,9 @@ body.edu-nexus .hpx-refs {
 body.edu-nexus .hpx-refs h3 { color: var(--nx-mint); font-size: 1.1rem; }
 body.edu-nexus .hpx-refs li { color: var(--nx-muted); font-size: 0.86rem; }
 
-/* The row where we took part of the advice and declined part of it. */
 body.edu-nexus .hpx-loop-tradeoff .hpx-loop-did .hpx-loop-k { color: var(--nx-lime); }
 body.edu-nexus .hpx-loop-tradeoff .hpx-loop-when { color: var(--nx-lime); }
 
-/* Marks a card title as an expert's own words rather than our claim. */
 .mx-flip-src {
   display: block;
   margin-top: 0.3rem;
@@ -1461,5 +1364,4 @@ body.edu-nexus .hpx-loop-tradeoff .hpx-loop-when { color: var(--nx-lime); }
   color: var(--nx-muted);
 }
 
-/* The one row that records advice we have not acted on yet. */
 body.edu-nexus .hpx-loop-open .hpx-loop-did .hpx-loop-k { color: var(--nx-warm); }

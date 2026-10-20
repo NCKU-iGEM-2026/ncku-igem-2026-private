@@ -1,42 +1,3 @@
-/* The printed parts, drawn from the meshes of the STL files themselves.
- *
- * hardware-cutaway.js is a schematic: boxes placed from the optical
- * coordinates, to show where the light goes. This is the other half, the
- * geometry that was prepared for printing, shown three ways:
- *
- *   assembled     every part where the CAD assembly puts it
- *   pulled apart  the same, moved as the CAD's own exploded assembly moves it
- *   laid out      one module's files side by side on a 10 mm grid
- *
- * The geometry is one glTF model on static.igem.wiki, named in the panel's
- * data-model. iGEM's upload tool takes neither STL nor ZIP files, so the STL
- * files were packed into that model: one mesh per file, under the file's
- * name, with the file's own vertices and triangles in the file's own order.
- * Nothing was simplified, which is what lets a part be handed back here as
- * the STL it came from.
- *
- * The STL files are exported in their own frames, most of them lying on the
- * print bed, so a file does not say where its part goes. The placements are
- * in hardware.html, in the JSON block inside the panel: one position and one
- * rotation per piece, read out of the STEP assemblies and checked against
- * the files point by point. This script applies them; it does not work any
- * of them out.
- *
- * Everything the panel says about a part is in hardware.html as well, in the
- * list under the view: the names, counts, notes and links are taken from
- * there. Without WebGL, or without this script, that list is the whole
- * panel, with a link to the model.
- *
- * A small WebGL 1 renderer, no library: flat-shaded triangles, the edges
- * where two faces meet at more than 25 degrees drawn over them, an orbit
- * camera, and picking by casting a ray at the triangles.
- *
- * "Take a reading" draws the light path through the assembly. The printed
- * parts go to outline, a blue box grows from the LED into the light trap and
- * a green one from the cuvette to the sensor board. Both boxes take their
- * ends from where the assembly puts those parts, and the steps beside them
- * are sentences from the page. It is a drawing, not a simulation.
- */
 (function () {
   "use strict";
 
@@ -70,9 +31,6 @@
   var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var IDENT = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 
-  /* ------------------------------------------------------------------
-     THE PARTS, READ FROM THE PAGE
-     ------------------------------------------------------------------ */
   var byFile = {};
   var groups = $$(".hwp-group", root).map(function (sec) {
     var g = {
@@ -100,12 +58,9 @@
   }).filter(function (g) { return g.parts.length; });
   if (!groups.length) return;
 
-  // The bought parts: no file, but a line in the list like any other.
   var bought = {};
   $$("li[data-standin]", root).forEach(function (li) { bought[li.getAttribute("data-standin")] = li; });
 
-  /* Where each piece goes. Anything wrong with the list and it is not used
-     at all: the laid-out view needs none of it and is what is left. */
   var plan = null;
   try {
     plan = JSON.parse(document.getElementById("hwPartsPlan").textContent);
@@ -134,10 +89,6 @@
     });
   } catch (e) { plan = null; }
 
-  /* The light trap, for "Take a reading": which file it is, and the three
-     numbers of its cavity that decide where the beam goes. In the file's own
-     frame, x from its entrance and z from the cuvette's base: the sloped end
-     wall from its foot to its top, the roof, and half the cavity's width. */
   var LIGHT = null;
   try {
     var lt = plan && plan.light;
@@ -148,9 +99,6 @@
     }
   } catch (e) { LIGHT = null; }
 
-  /* ------------------------------------------------------------------
-     COLOUR, FROM THE STYLESHEET
-     ------------------------------------------------------------------ */
   var cssOf = getComputedStyle(root);
   function colour(name, fallback) {
     var m = /^#([0-9a-f]{6})$/i.exec((cssOf.getPropertyValue(name) || "").trim());
@@ -173,12 +121,6 @@
     return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
   }
 
-  /* ------------------------------------------------------------------
-     THE MESHES
-     A part's triangles, as its STL had them. The coordinates are kept as
-     they are, because the placements are written for those. Normals are
-     taken from the vertices.
-     ------------------------------------------------------------------ */
   var EDGE_COS = Math.cos(25 * Math.PI / 180);
 
   function finish(pos) {
@@ -206,10 +148,6 @@
     };
   }
 
-  /* The model is binary glTF, read by hand. Only what this page's own model
-     uses is understood: one primitive per mesh, positions as floats, indices
-     of 16 or 32 bits. What comes back gives a part's triangles, nine numbers
-     each, by the name of its STL file. */
   function readModel(buf) {
     var dv = new DataView(buf);
     if (buf.byteLength < 28 || dv.getUint32(0, true) !== 0x46546C67 ||
@@ -236,9 +174,6 @@
     };
   }
 
-  /* The edges worth drawing: where a face ends, or where two faces meet at
-     an angle. Vertices are matched to a micron, which is how an STL has to
-     be stitched since it shares nothing between triangles. */
   function edges(pos, nor, n) {
     var ids = new Map(), where = [], vid = new Uint32Array(n * 3), count = 0;
     var t, e, key, id;
@@ -275,8 +210,6 @@
     return new Float32Array(out);
   }
 
-  /* The bought parts have no file. The CAD gives each an extent, and that
-     is all that is drawn: a block, or a cylinder along its longest side. */
   function standIn(shape, lo, hi) {
     var p = [];
     function quad(a, b, c, d) { p.push.apply(p, a.concat(b, c, a, c, d)); }
@@ -305,18 +238,12 @@
     return finish(new Float32Array(p));
   }
 
-  /* ------------------------------------------------------------------
-     GL
-     ------------------------------------------------------------------ */
   var VS_SOLID =
     "attribute vec3 aPos;attribute vec3 aNor;" +
     "uniform mat4 uProj;uniform mat4 uView;uniform mat3 uRot;uniform vec3 uOff;" +
     "varying vec3 vN;varying vec3 vV;varying float vUp;" +
     "void main(){vec3 n=uRot*aNor;vec4 v=uView*vec4(uRot*aPos+uOff,1.0);vV=v.xyz;" +
     "vN=(uView*vec4(n,0.0)).xyz;vUp=n.z;gl_Position=uProj*v;}";
-  /* Two lights fixed to the camera, so a part keeps its modelling as it
-     turns, and a little extra on faces that look up, so the top of a part
-     reads as its top from every side. */
   var FS_SOLID =
     "precision mediump float;uniform vec3 uCol;" +
     "varying vec3 vN;varying vec3 vV;varying float vUp;" +
@@ -331,7 +258,6 @@
     "attribute vec3 aPos;uniform mat4 uProj;uniform mat4 uView;uniform mat3 uRot;uniform vec3 uOff;" +
     "void main(){gl_Position=uProj*(uView*vec4(uRot*aPos+uOff,1.0));}";
   var FS_FLAT = "precision mediump float;uniform vec3 uCol;void main(){gl_FragColor=vec4(uCol,1.0);}";
-  // the light and the cuvette it passes through: one colour, with its own alpha
   var FS_GLOW = "precision mediump float;uniform vec4 uCol;void main(){gl_FragColor=uCol;}";
 
   function program(vs, fs) {
@@ -344,8 +270,6 @@
     var p = gl.createProgram();
     gl.attachShader(p, shader(gl.VERTEX_SHADER, vs));
     gl.attachShader(p, shader(gl.FRAGMENT_SHADER, fs));
-    // The same slots in both programs, so turning the normals off after the
-    // solid pass cannot turn the positions off for the flat one.
     gl.bindAttribLocation(p, 0, "aPos");
     gl.bindAttribLocation(p, 1, "aNor");
     gl.linkProgram(p);
@@ -387,13 +311,9 @@
   }
   if (!setup()) return;
 
-  /* ------------------------------------------------------------------
-     LOADING
-     ------------------------------------------------------------------ */
   var modelURL = root.getAttribute("data-model");
   if (!modelURL) return;
   var model = null;
-  // One fetch for everything; a failure is forgotten so the next ask tries again.
   function fetchModel() {
     if (!model) {
       model = fetch(modelURL).then(function (r) {
@@ -424,12 +344,6 @@
     });
   }
 
-  /* ------------------------------------------------------------------
-     A SCENE
-     A list of pieces, each a part with a rotation, a place, and how far
-     pulling the assembly apart moves it. The rotations only ever swap or
-     flip axes, which keeps the box of a turned part a box.
-     ------------------------------------------------------------------ */
   var GAP = 8, MARGIN = 12, GRID = 10;
   var scene = null;
   var spread = 0, spreadGoal = 0;
@@ -446,7 +360,6 @@
     }
     return {
       part: part, rows: rows, base: base, pull: pull || [0, 0, 0], absent: !!absent,
-      // GL wants the matrix by columns
       rot: new Float32Array([rows[0], rows[3], rows[6], rows[1], rows[4], rows[7], rows[2], rows[5], rows[8]]),
       lo: lo, hi: hi, off: base.slice()
     };
@@ -454,7 +367,6 @@
   function place(it, k) {
     for (var i = 0; i < 3; i++) it.off[i] = it.base[i] + it.pull[i] * k;
   }
-  /* The box round some of the pieces, with the assembly pulled apart by k. */
   function boxOf(pick, k) {
     var lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
     scene.items.forEach(function (it) {
@@ -482,9 +394,6 @@
     };
   }
 
-  /* One module's files, left to right in the order the page lists them,
-     front row first, every copy drawn. Nothing is rotated: each part is
-     only moved so that it stands on the grid. */
   function layOut(group) {
     var items = [], area = 0, widest = 0;
     group.parts.forEach(function (p) {
@@ -527,7 +436,6 @@
     return g;
   }
 
-  /* A version of the instrument, each piece where the placement list says. */
   var standIns = {};
   function assemble(version) {
     var out = plan[version].map(function (e) {
@@ -564,23 +472,11 @@
     return out;
   }
 
-  /* ------------------------------------------------------------------
-     A READING, DRAWN
-     One cycle of the firmware's dark, lit, dark, slowed down so that it can
-     be followed. Nothing is simulated. The blue box runs from the front of
-     the LED, along the excitation axis, to just short of the far end of the
-     light trap; the green one from that axis to the face of the sensor
-     board. Each end is read off the piece it belongs to, as the assembly
-     places it.
-     ------------------------------------------------------------------ */
   var reading = null, unit = null, rod = null;
-  var READ = { az: -118, el: 44 };       // the whole path
-  var TRAP_VIEW = { az: -90, el: 7 };    // the trap from the side, nearly level, so its sloped wall is seen as a slope
-  // seconds: the dark read, the blue front reaching the sample, the green
-  // reaching the board, each reflection inside the trap, the LED held on
-  // after the last of them, its fade, and the dark read after
+  var READ = { az: -118, el: 44 };
+  var TRAP_VIEW = { az: -90, el: 7 };
   var T_DARK = 1.8, T_REACH = 1.3, T_GREEN = 1.5, T_BOUNCE = 0.45, T_HOLD = 2.6, T_FADE = 0.4, T_AFTER = 1.8;
-  var BEAM = 1.6;   // mm, the radius the beams are drawn at: they pass the 4 mm ports of version 2's cuvette holder
+  var BEAM = 1.6;
 
   function lightPath() {
     var at = {};
@@ -588,7 +484,6 @@
       if (it.part.standin) at[it.part.standin] = it;
       else if (LIGHT && it.part.file === LIGHT.trap) at.trap = it;
     });
-    // the trap's numbers are in its own frame, so it has to stand unturned
     if (!at.led || !at.uvette || !at.board || !at.trap || at.trap.rows !== IDENT) return null;
     var lo = function (it, k) { return it.lo[k] + it.base[k]; };
     var hi = function (it, k) { return it.hi[k] + it.base[k]; };
@@ -602,11 +497,6 @@
       cupSize: [0, 1, 2].map(function (k) { return hi(at.uvette, k) - lo(at.uvette, k); }),
       trap: at.trap.part
     };
-    /* The sloped end wall, in the vertical plane the beam travels in: a is
-       its foot, b its top, n points off it into the cavity. The axial ray
-       meets it at the beam's height, is turned up to the roof, and from the
-       roof comes back down onto the wall. Two ideal reflections and no more:
-       what the matte black walls absorb at each one was not measured. */
     var ox = at.trap.base[0], oz = at.trap.base[2];
     var a = [LIGHT.ramp[0] + ox, LIGHT.ramp[1] + oz], b = [LIGHT.ramp[2] + ox, LIGHT.ramp[3] + oz];
     var roof = LIGHT.roof + oz, k = (b[1] - a[1]) / (b[0] - a[0]);
@@ -622,7 +512,6 @@
     p.x1 = hit[0];
     p.wall = { a: a, b: b, n: n, half: LIGHT.half };
     p.bounces = [{ from: hit, to: q1, a: 0.6, thin: 0.8 }, { from: q1, to: q2, a: 0.36, thin: 0.62 }];
-    // one speed for the blue front: it reaches the sample after T_REACH
     p.tBlue = T_REACH * (p.x1 - p.x0) / (p.cup[0] - p.x0);
     p.tCup = T_DARK + T_REACH;
     p.tTrap = T_DARK + p.tBlue;
@@ -631,8 +520,6 @@
     return p;
   }
 
-  /* What the light is doing t seconds into the cycle, and which of the
-     page's steps that is. Once the cycle is over the path stays drawn. */
   function lightAt(p, t) {
     if (t >= p.tEnd) return { blue: 1, green: 1, b1: 1, b2: 1, lit: 1, read: 0, focus: 0, step: -1, done: true };
     var u = function (v) { return Math.max(0, Math.min(1, v)); };
@@ -643,22 +530,14 @@
       b1: u((t - p.tTrap) / T_BOUNCE),
       b2: u((t - p.tTrap - T_BOUNCE) / T_BOUNCE),
       lit: t < T_DARK ? 0 : (t < p.tOff ? 1 : u(1 - (t - p.tOff) / T_FADE)),
-      // the detector reads with the LED off as well, before and after
       read: Math.max(bump(0.3, T_DARK - 0.2), bump(p.tOff + T_FADE + 0.1, p.tEnd - 0.2)),
-      // while the light is in the trap the other parts' outlines step back
       focus: u((t - p.tTrap) / 0.5) * (1 - u((t - p.tOff) / 0.5)),
       step: t < T_DARK ? 0 : t < p.tCup + 0.15 ? 1 : t < p.tTrap ? 2 : t < p.tOff ? 3 : 4,
       done: false
     };
   }
 
-  /* ------------------------------------------------------------------
-     CAMERA
-     Z is up. az and el are where the eye sits, seen from the target.
-     ------------------------------------------------------------------ */
   var FOV = 30 * Math.PI / 180;
-  // The assembly is seen from the LED end, so the light runs left to right
-  // as it does in the plan view; a tray of parts is seen nearly square on.
   var HOME = { built: { az: -122, el: 30 }, laid: { az: -76, el: 36 } };
   var cam = { az: HOME.built.az, el: HOME.built.el, dist: 200, t: [0, 0, 0] };
   var goal = null;
@@ -668,7 +547,6 @@
   function axes(az, elv) {
     az *= Math.PI / 180; elv *= Math.PI / 180;
     var out = [Math.cos(elv) * Math.cos(az), Math.cos(elv) * Math.sin(az), Math.sin(elv)];
-    // right = up x out, normalised; up' = out x right
     var rl = Math.sqrt(out[0] * out[0] + out[1] * out[1]) || 1;
     var right = [-out[1] / rl, out[0] / rl, 0];
     var up = [
@@ -680,16 +558,10 @@
   }
   function dot3(a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
 
-  /* Where the eye has to stand, looking from this direction, for some
-     pieces to fill the given share of the view. The corners of each piece's
-     own box are pushed back until every one is inside: fitting one box
-     round the lot would leave most of the frame empty, since the tall
-     parts stand in the middle of a wide, flat plate. */
   function frameOf(target, az, elv) {
     if (az == null) { az = cam.az; elv = cam.el; }
     var chosen = function (it) { return !target || it.part === target; };
     var all = boxOf(chosen, spreadGoal), i;
-    // A shim is 2 mm across; without a floor the camera would end up inside it.
     var pad = [0, 0, 0];
     for (i = 0; i < 3; i++) pad[i] = Math.max(0, 12 - (all[1][i] - all[0][i])) / 2;
     var t = [(all[0][0] + all[1][0]) / 2, (all[0][1] + all[1][1]) / 2, (all[0][2] + all[1][2]) / 2];
@@ -746,9 +618,6 @@
     return { view: view, proj: proj, basis: b };
   }
 
-  /* ------------------------------------------------------------------
-     DRAWING
-     ------------------------------------------------------------------ */
   var selected = null, hovered = null, raf = 0;
 
   function invalidate() {
@@ -785,9 +654,6 @@
   function tint(it) {
     var c = COL[it.part.state] || COL.both;
     if (reading && it.part.standin) {
-      // Grey, so that blue and green are the light and nothing else. The LED
-      // whitens while it is on. The board shows each of the cycle's three
-      // reads: pale for the two in the dark, green once the green has reached it.
       var L = reading.light || { lit: 0, green: 0, read: 0, focus: 0 };
       if (it.part.standin === "led") return mix(COL.both, [1, 1, 1], 0.8 * L.lit);
       if (it.part.standin === "board") {
@@ -799,11 +665,7 @@
     if (hovered && hovered.part === it.part) return mix(c, [1, 1, 1], 0.3);
     return c;
   }
-  /* A part that was never on the instrument is an outline. So is every
-     other part of the assembly while one is chosen, which is what lets a
-     part buried inside it be seen. */
   function hollow(it) {
-    // during a reading every printed part is an outline, so the light inside shows
     if (reading) return !it.part.standin;
     if (selected && it.part === selected) return false;
     return it.absent || (selected && scene.built);
@@ -824,8 +686,6 @@
       if (L.step !== reading.step) {
         reading.step = L.step;
         tellStep();
-        // The view goes to the trap while the light is in it and comes back
-        // after, unless the reader has taken hold of the view.
         if (!reading.manual && !calm) {
           if (L.step === 3) travel(trapFrame(), false);
           else if (L.step === 4 || L.done) travel(readFrame(), false);
@@ -845,7 +705,6 @@
       gl.uniform3fv(flat.uOff, off);
       gl.drawArrays(mode, 0, count);
     }
-    // The bed sits a hair under the parts so their undersides do not fight it.
     flatDraw(scene.bBed, gl.TRIANGLES, 6, COL.bed, IDENT, [0, 0, -0.25]);
     flatDraw(scene.bGrid, gl.LINES, scene.gridCount, COL.grid, IDENT, [0, 0, -0.2]);
 
@@ -856,7 +715,7 @@
     gl.enableVertexAttribArray(solid.aNor);
     scene.items.forEach(function (it) {
       if (hollow(it)) return;
-      if (reading && it.part.standin === "uvette") return;   // drawn as glass, with the light
+      if (reading && it.part.standin === "uvette") return;
       var mesh = it.part.mesh;
       gl.bindBuffer(gl.ARRAY_BUFFER, mesh.bPos);
       gl.vertexAttribPointer(solid.aPos, 3, gl.FLOAT, false, 0, 0);
@@ -874,7 +733,6 @@
     scene.items.forEach(function (it) {
       var col;
       if (reading) {
-        // the trap's outline takes the light's colour once the light is in it
         var inTrap = reading.light.blue >= 1 ? reading.light.lit : 0, back = reading.manual ? 0 : reading.light.focus;
         col = it.part.standin === "uvette" ? COL.both
           : it.part.standin ? mix(tint(it), [0, 0, 0], 0.68)
@@ -894,11 +752,6 @@
     }
   }
 
-  /* The cuvette as glass, the trap's sloped wall, then the light. Drawn last
-     and blended, without writing depth, so the outlines behind stay. The
-     alpha is blended separately so the canvas stays opaque where a part
-     already is. Everything is one of two unit shapes, a cube and a rod,
-     with the rotation slot carrying its three edges. */
   function drawLight(m, p, L) {
     gl.useProgram(glow.id);
     gl.uniformMatrix4fv(glow.uProj, false, m.proj);
@@ -916,9 +769,6 @@
       gl.uniform4f(glow.uCol, col[0], col[1], col[2], a);
       gl.drawArrays(gl.TRIANGLES, 0, count);
     }
-    /* A beam from one point towards another, drawn `part` of the way: a core
-       of the beam's radius, and round it a wider, much fainter glow. What is
-       left after a reflection is drawn thinner as well as fainter. */
     function beam(from, to, part, col, a, thin) {
       var u = [(to[0] - from[0]) * part, (to[1] - from[1]) * part, (to[2] - from[2]) * part];
       var len = Math.sqrt(dot3(u, u));
@@ -938,9 +788,6 @@
     var lit = 0.92 * L.lit, inTrap = L.blue >= 1 ? L.lit : 0, W = p.wall;
 
     shape(unit.bPos, unit.tris * 3, [p.cupSize[0], 0, 0, 0, p.cupSize[1], 0, 0, 0, p.cupSize[2]], p.cup, COL.both, 0.13);
-    // The wall the beam ends on: a thin slab along the slope, across the
-    // cavity. It stays grey, a little brighter once it is lit, so that the
-    // only blue in the trap is the light itself.
     shape(unit.bPos, unit.tris * 3,
       [W.b[0] - W.a[0], 0, W.b[1] - W.a[1], 0, 2 * W.half, 0, -W.n[0] * 0.5, 0, -W.n[1] * 0.5],
       [W.a[0], p.y - W.half, W.a[1]], mix(COL.both, [1, 1, 1], 0.35 * inTrap), 0.2 + 0.1 * inTrap);
@@ -955,7 +802,6 @@
     gl.disable(gl.BLEND);
   }
 
-  /* A rod along +X, one long and one in radius, with its ends closed. */
   function makeRod() {
     var N = 20, q = [], i;
     for (i = 0; i < N; i++) {
@@ -968,12 +814,6 @@
     return { pos: pos, count: pos.length / 3, bPos: buffer(pos) };
   }
 
-  /* ------------------------------------------------------------------
-     PICKING
-     A ray from the eye through the pointer, taken into each piece's own
-     frame and tested against its box and then its triangles, so a part is
-     picked by its shape and not by the empty corner of its box.
-     ------------------------------------------------------------------ */
   function rayAt(x, y) {
     var r = canvas.getBoundingClientRect();
     var nx = (x - r.left) / r.width * 2 - 1, ny = 1 - (y - r.top) / r.height * 2;
@@ -1026,7 +866,6 @@
     if (!scene) return null;
     var ray = rayAt(x, y), best = [Infinity, Infinity], found = [null, null];
     scene.items.forEach(function (it) {
-      // into the piece's frame: the rows of a rotation are its inverse's columns
       var q = [ray.o[0] - it.off[0], ray.o[1] - it.off[1], ray.o[2] - it.off[2]], r = it.rows;
       var o = [r[0] * q[0] + r[3] * q[1] + r[6] * q[2], r[1] * q[0] + r[4] * q[1] + r[7] * q[2],
                r[2] * q[0] + r[5] * q[1] + r[8] * q[2]];
@@ -1038,16 +877,9 @@
       var t = hitMesh(o, d, mesh.pos, mesh.tris), k = hollow(it) ? 1 : 0;
       if (t < best[k]) { best[k] = t; found[k] = it; }
     });
-    // What is drawn solid comes before what is only an outline, so a part
-    // seen through the outline of another can be reached.
     return found[0] || found[1];
   }
 
-  /* ------------------------------------------------------------------
-     THE PANEL AROUND THE VIEW
-     What is on show is three choices: assembled or laid out, which version
-     when assembled, which module when laid out.
-     ------------------------------------------------------------------ */
   var FAILED = "The model did not load. It is linked under Every file, below.";
   var want = { built: !!plan, pulled: false, version: "v2", group: groups[0] };
   var shown = null, ticket = 0;
@@ -1118,15 +950,12 @@
     if (versionSeg) versionSeg.box.hidden = !want.built;
     if (readSeg) readSeg.box.hidden = !want.built;
     moduleSeg.box.hidden = want.built;
-    // the legend only names what the view on show can contain
     var key = reading ? "reading" : (want.built ? want.version : "laid");
     $$(".hwp-legend li", root).forEach(function (li) {
       li.hidden = (li.getAttribute("data-in") || key).split(" ").indexOf(key) < 0;
     });
   }
 
-  /* Closer than the whole assembly, and centred on the light: the plate's
-     corners can leave the view, the two beams cannot. */
   function readFrame() {
     var f = frameOf(null, READ.az, READ.el), p = reading && reading.path;
     f.az = READ.az; f.el = READ.el;
@@ -1136,13 +965,9 @@
     }
     return f;
   }
-  /* The trap alone, from the side: the slope of its end wall is only a slope
-     seen from there. */
   function trapFrame() {
     var f = frameOf(reading.path.trap, TRAP_VIEW.az, TRAP_VIEW.el);
     f.az = TRAP_VIEW.az; f.el = TRAP_VIEW.el;
-    // frameOf leaves a part half the view, measured over its flange as well;
-    // the cavity is what is to be seen, so come in closer than that
     f.dist *= 0.72;
     return f;
   }
@@ -1156,13 +981,11 @@
     selected = null;
     hovered = null;
     hud.textContent = "";
-    // with reduced motion there is no cycle to watch: the path is simply drawn
     reading = { path: path, t0: performance.now(), step: -2, done: calm, light: null, manual: false };
     press();
     tell();
     travel(readFrame(), false);
   }
-  /* Quietly when something else is about to redraw the panel anyway. */
   function stopReading(quiet) {
     if (!reading) return;
     reading = null;
@@ -1187,8 +1010,6 @@
     invalidate();
   }
 
-  /* What the panel says is the page's own: the sentence for each view, and
-     for a chosen part its size, note and link, are copied from the markup. */
   var readSteps = $$('.hwp-says [data-for="reading"] li', root).map(function (li) {
     return li.textContent.replace(/\s+/g, " ").trim();
   });
@@ -1224,7 +1045,6 @@
     if (note) readout.appendChild(el("p", "hwp-r-lead", note.textContent.replace(/\s+/g, " ").trim()));
     tellStep();
   }
-  /* The step the light has reached is lit; the ones before it stay read. */
   function tellStep() {
     $$(".hwp-r-steps li", readout).forEach(function (li, i) {
       var on = !!reading && !reading.done && i === reading.step;
@@ -1270,7 +1090,6 @@
   }
 
   function select(part) {
-    // choosing a part ends the reading: the part is what is wanted now
     if (part && reading) { reading = null; press(); }
     if (selected) selected.li.classList.remove("is-on");
     selected = part;
@@ -1281,8 +1100,6 @@
     if (scene) travel(frameOf(part), false);
   }
 
-  /* Bring the view to what is wanted, loading what it needs first. Asking
-     again before that has finished simply supersedes it. */
   function go(part) {
     var mine = ++ticket;
     var w = { built: want.built, pulled: want.pulled, version: want.version, group: want.group };
@@ -1321,8 +1138,6 @@
     });
   }
 
-  // Each name in the list becomes the way to that part in the view: where it
-  // sits in the assembly if it is in the one on show, its module's tray if not.
   groups.forEach(function (g) {
     g.parts.forEach(function (p) {
       var name = p.li.querySelector(".hwp-name");
@@ -1338,7 +1153,6 @@
     });
   });
 
-  // A bought part is only ever in the assembly, so its name leads there.
   if (plan) {
     Object.keys(bought).forEach(function (id) {
       var name = bought[id].querySelector(".hwp-name");
@@ -1358,12 +1172,6 @@
     });
   }
 
-  /* ------------------------------------------------------------------
-     HANDING THE FILES BACK
-     The model holds each STL's triangles exactly, so a part can be written
-     out again as a binary STL, and all of them as one ZIP. Both are made
-     here in the browser from what was already fetched.
-     ------------------------------------------------------------------ */
   function stlOf(name, pos) {
     var n = pos.length / 9, out = new ArrayBuffer(84 + n * 50), dv = new DataView(out);
     var head = "CAPTURE-Screen, NCKU-Tainan iGEM 2026: " + name, i, k, o = 84;
@@ -1398,10 +1206,8 @@
     for (n = 0; n < bytes.length; n++) c = CRC[(c ^ bytes[n]) & 255] ^ (c >>> 8);
     return (c ^ 0xFFFFFFFF) >>> 0;
   }
-  /* A ZIP with nothing compressed: for each file a header and its bytes,
-     then the index of them, then where the index is. */
   function zipOf(files) {
-    var body = [], index = [], at = 0, size = 0, day = (46 << 9) | (10 << 5) | 4;   // 2026-10-04
+    var body = [], index = [], at = 0, size = 0, day = (46 << 9) | (10 << 5) | 4;
     files.forEach(function (f) {
       var name = new TextEncoder().encode(f.name), crc = crc32(f.data);
       var head = new DataView(new ArrayBuffer(30)), entry = new DataView(new ArrayBuffer(46));
@@ -1444,7 +1250,6 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
   }
 
-  // The file name in each line of the list becomes the button that saves it.
   $$(".hwp-dl[data-stl]", root).forEach(function (span) {
     var b = el("button", "hwp-dl");
     b.type = "button";
@@ -1453,7 +1258,6 @@
     while (span.firstChild) b.appendChild(span.firstChild);
     span.parentNode.replaceChild(b, span);
   });
-  // One listener for all of them, since the readout shows copies of these buttons.
   root.addEventListener("click", function (e) {
     var b = e.target.closest ? e.target.closest("button.hwp-dl[data-stl]") : null;
     if (!b) return;
@@ -1482,12 +1286,6 @@
     getAll.appendChild(zipButton);
   }
 
-  /* ------------------------------------------------------------------
-     POINTER AND KEYBOARD
-     One pointer turns the view; two pinch it. A press that does not move
-     is a pick. Scrolling only zooms with ctrl held, which is also what a
-     trackpad pinch sends, so the page can always be scrolled past.
-     ------------------------------------------------------------------ */
   var held = {}, drag = null, pinch = 0;
   function heldList() { return Object.keys(held).map(function (k) { return held[k]; }); }
   function gap() {
@@ -1496,7 +1294,7 @@
   }
 
   canvas.addEventListener("pointerdown", function (e) {
-    try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* already gone */ }
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) { }
     held[e.pointerId] = { x: e.clientX, y: e.clientY };
     var n = heldList().length;
     drag = n === 1 ? { x: e.clientX, y: e.clientY, moved: 0 } : null;
@@ -1533,8 +1331,6 @@
     var wasDrag = drag;
     delete held[e.pointerId];
     var left = heldList();
-    // A finger lifted from a pinch leaves the other one turning the view,
-    // and what it does next is not a pick.
     drag = left.length === 1 ? { x: left[0].x, y: left[0].y, moved: 99 } : null;
     pinch = 0;
     if (e.type === "pointerup" && wasDrag && wasDrag.moved < 5) {
@@ -1569,7 +1365,6 @@
     invalidate();
   });
 
-  // A lost context takes the buffers with it; the arrays are still here.
   canvas.addEventListener("webglcontextlost", function (e) { e.preventDefault(); });
   canvas.addEventListener("webglcontextrestored", function () {
     if (!setup()) return;
@@ -1590,8 +1385,6 @@
     invalidate();
   });
 
-  /* The fit depends on the shape of the view, so a change of shape frames
-     the same thing again, from the same direction. */
   var shape = 0;
   function resized() {
     fitCanvas();
@@ -1603,18 +1396,12 @@
   if (window.ResizeObserver) new ResizeObserver(resized).observe(stage);
   else window.addEventListener("resize", resized);
 
-  /* ------------------------------------------------------------------
-     START
-     An assembly is a few megabytes of files, so nothing is fetched until
-     the panel is nearly on screen.
-     ------------------------------------------------------------------ */
   root.classList.add("hwp-on");
   ctrls.hidden = false;
   stage.hidden = false;
   readout.hidden = false;
   press();
 
-  // Unless something was asked for before the panel scrolled into view.
   function begin() { if (!ticket) go(null); }
   if (window.IntersectionObserver) {
     var watch = new IntersectionObserver(function (entries) {

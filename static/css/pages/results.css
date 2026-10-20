@@ -1,13 +1,3 @@
-/* Results page -------------------------------------------------------- */
-
-/* Every figure is a framed card, so a chart on white and a photograph on
-   black sit on the page the same way.
-
-   A figure on its own lays its caption beside the picture: the picture keeps
-   to the left edge of the text, and a long caption has room to run.
-   Two figures in a pair are two equal cards. Each picture sits in a square of
-   the same size, so the two captions start on one line whatever the shapes of
-   the pictures. */
 .res-figure {
   display: grid;
   grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
@@ -20,20 +10,12 @@
   background: var(--surface);
 }
 
-/* A landscape photograph takes more of the row. */
 .res-figure--wide { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
 
-/* A chart whose axis labels have to be read keeps its caption beside it, but
-   takes most of the row rather than the 21rem a photograph's chart gets: the
-   caption needs a few lines, the chart needs the width, and nothing is left
-   empty. The caption is set a little larger here because its column is
-   narrow. */
 .res-figure--chart {
   grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr);
   align-items: center;
 }
-/* The cap on .res-figure img.res-chart is set further down the file at the
-   same weight, so this one carries the extra class to outrank it. */
 .res-figure.res-figure--chart img.res-chart { max-width: 100%; width: 100%; }
 .res-figure--chart figcaption { font-size: 0.95rem; }
 @media (max-width: 767.98px) {
@@ -47,8 +29,6 @@
   border-radius: 8px;
 }
 
-/* The charts are drawn on white: they keep near their own size, on a white
-   ground that runs to the edge of their place. */
 .res-figure img.res-chart {
   max-width: 21rem;
   margin: 0 auto;
@@ -61,10 +41,7 @@
   color: var(--c-text-2);
 }
 .res-figure figcaption strong { display: block; margin-bottom: 0.3rem; color: var(--c-text); }
-/* A trailing note that belongs to the caption but reads as an aside. */
-.res-figure figcaption .res-figure-ps { display: block; margin-top: 0.45rem; }
 
-/* Two figures side by side. */
 .res-figure-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -84,32 +61,14 @@
 .res-figure-pair .res-figure img.res-chart { background: #fff; }
 .res-figure-pair .res-figure figcaption { padding-top: 0.8rem; }
 
-/* Narrow screens: one figure to a row, caption under its picture. */
 @media (max-width: 719.98px) {
   .res-figure,
   .res-figure--wide { grid-template-columns: minmax(0, 1fr); gap: 0.8rem; }
   .res-figure-pair { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* A "Figure 2A" link in the text lands on its figure clear of the fixed
-   navbar (the highlight on arrival is set per part, below). */
 .res-figure { scroll-margin-top: 100px; }
 
-
-/* ---- the four parts, in the same voice as Engineering ------------------
-
-   Each part is numbered (01-04) and carries one colour, taken from what the
-   wet lab sees at the bench: the green of the swarming plates, the purple of
-   crystal violet, and the blue of pyocyanin. The colour runs through the
-   heading, the figure frames and the figure links of that part, so a reader
-   who lands on a chart knows which assay it belongs to. */
-/* ---- the two systems, as on Engineering ------------------------------
-
-   The page is Detection then Inhibition, the same two parts Engineering is
-   built from and in the same two colours, so a reader meets one identity
-   across both pages. Engineering's own --part values are tuned for its dark
-   ground; here each system carries a deep version for the light page and
-   those bright ones for the dark. */
 .res-system { --sys: #0f766e; }
 .res-system[data-part="inhibition"] { --sys: #9a5b00; }
 html[data-theme="dark"] .res-system { --sys: #49c5b6; }
@@ -149,9 +108,6 @@ html[data-theme="dark"] .res-systems-nav a[data-part="inhibition"] { --sys: #e6b
   letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--sys); opacity: 0.85;
 }
-/* editorial.css gives the first h2 of a section in .container its own lime
-   short line; the :not(#res-x) (no element has that id) outranks that chain
-   so a system keeps its own colour and no second rule above it. */
 .desc .res-system > .res-system-head .res-system-title:not(#res-x) {
   margin: 0.15rem 0 0;
   font-family: "Changa", sans-serif; font-weight: 800;
@@ -160,18 +116,8 @@ html[data-theme="dark"] .res-systems-nav a[data-part="inhibition"] { --sys: #e6b
 }
 .desc .res-system > .res-system-head .res-system-title:not(#res-x)::before { content: none; }
 
-/* A system nobody has written yet says so, rather than reading as a system
-   with nothing in it. Delete the div once the sections are written. */
-.res-empty {
-  min-height: 14rem; border-radius: 14px;
-  border: 1.5px dashed color-mix(in srgb, var(--sys) 38%, transparent);
-  background: color-mix(in srgb, var(--sys) 4%, transparent);
-}
-
-/* Each system numbers its own sections from 01. */
 .res-system { counter-reset: res-part; }
 
-/* Light page: deep versions of the four colours, readable on paper. */
 .res-part {
   --stage: #3f7d1c;
   counter-increment: res-part;
@@ -181,28 +127,17 @@ html[data-theme="dark"] .res-systems-nav a[data-part="inhibition"] { --sys: #e6b
 .res-part[data-assay="biofilm"]   { --stage: #6a4fb3; }
 .res-part[data-assay="pyocyanin"] { --stage: #1f72a8; }
 .res-part[data-assay="overall"]   { --stage: #a8571f; }
-/* Dark page: the bright versions, as on Engineering. */
 html[data-theme="dark"] .res-part                          { --stage: #a0e860; }
 html[data-theme="dark"] .res-part[data-assay="swarming"]  { --stage: #4fd48f; }
 html[data-theme="dark"] .res-part[data-assay="biofilm"]   { --stage: #b39ddb; }
 html[data-theme="dark"] .res-part[data-assay="pyocyanin"] { --stage: #5bb6e6; }
 html[data-theme="dark"] .res-part[data-assay="overall"]   { --stage: #e8a05b; }
 
-/* Detection keeps to its system's teal rather than borrowing the Inhibition
-   assays' colours, so a reader moving between the two parts sees the same
-   identity the nav and the headings already gave them. The frames (overview,
-   closing) take the system colour; the two sections between them step one
-   hue apart so they read as two readouts, not one. */
 .res-system[data-part="detect"] .res-part { --stage: #0f766e; }
 .res-system[data-part="detect"] .res-part[data-assay="timecourse"] { --stage: #0e7490; }
 html[data-theme="dark"] .res-system[data-part="detect"] .res-part { --stage: #4fd4c8; }
 html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="timecourse"] { --stage: #5bc8e6; }
 
-/* The heading: number, title, and a rule under both.
-   editorial.css gives the first heading of every section the ink colour and,
-   on the light page, its own short line in ::before, through a long chain of
-   :not()s. The :not(#res-x) below (no element has that id) lifts these rules
-   above that chain so the part keeps its number and colour in both themes. */
 .desc .res-part > h3:not(#res-x) {
   position: relative;
   display: flex;
@@ -226,7 +161,6 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
   color: var(--stage);
   opacity: 0.8;
 }
-/* A short bar of the part's colour over the start of the rule. */
 .desc .res-part > h3:not(#res-x)::after {
   content: "";
   position: absolute;
@@ -238,15 +172,11 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
   background: var(--stage);
 }
 
-/* The overview and the closing summary frame the assays rather than being
-   assays themselves: neither takes a number nor advances the count, so the
-   three between them run 01, 02, 03. */
 .res-part[data-assay="overview"],
 .res-part[data-assay="overall"] { counter-increment: none; }
 .desc .res-part[data-assay="overview"] > h3:not(#res-x)::before,
 .desc .res-part[data-assay="overall"] > h3:not(#res-x)::before { content: none; }
 
-/* The overview reads as the lead: its two paragraphs in a tinted panel. */
 .res-part[data-assay="overview"] > p {
   margin: 0;
   padding: 0 1.4rem;
@@ -258,7 +188,6 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
 .res-part[data-assay="overview"] > p:last-of-type  { padding-bottom: 1.2rem; border-bottom-right-radius: 12px; }
 .res-part[data-assay="overview"] > p + p { padding-top: 0.9rem; }
 
-/* Figures take the part's colour along their top edge and in their title. */
 .res-part .res-figure {
   border-top: 3px solid color-mix(in srgb, var(--stage) 70%, transparent);
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -266,7 +195,6 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
 .res-part .res-figure:hover { box-shadow: 0 6px 24px rgba(0, 0, 0, 0.22); }
 .res-part .res-figure figcaption strong { color: var(--stage); }
 
-/* "Figure 2A" in the text: the part's colour, no underline until hovered. */
 .desc .res-part a[href^="#fig-"] {
   color: var(--stage);
   text-decoration: none;
@@ -274,7 +202,6 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
 }
 .desc .res-part a[href^="#fig-"]:hover { border-bottom-style: solid; }
 
-/* Landing on a figure lights its frame in the part's colour. */
 .res-part .res-figure:target { animation: res-part-found 1.6s ease-out; }
 @keyframes res-part-found {
   0%, 30% { border-color: var(--stage); box-shadow: 0 0 0 3px color-mix(in srgb, var(--stage) 35%, transparent); }
@@ -290,13 +217,6 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
   .res-part[data-assay="overview"] > p { padding-left: 1rem; padding-right: 1rem; }
 }
 
-/* ---------------------------------------------------------------------------
-   The readout: the numbers a judge should be able to take in without reading
-   the prose around them. Cb-2 is the subject of the page, so it takes the
-   wide tile and the part's colour; the two reference aptamers sit beside it
-   at a smaller size, there to give its value a scale. The prose no longer
-   repeats these figures.
-   --------------------------------------------------------------------------- */
 .res-readout {
   display: flex;
   flex-wrap: wrap;
@@ -317,8 +237,6 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
   border-color: color-mix(in srgb, var(--stage) 55%, transparent);
   background: color-mix(in srgb, var(--stage) 10%, transparent);
 }
-/* The aptamer's name, which is what the reader is looking for first. Not
-   uppercased: Cb-2 is not spelled CB-2. */
 .res-readout-k {
   display: block;
   font-size: 1.35rem;
@@ -328,7 +246,6 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
   color: var(--c-text);
 }
 .res-readout-lead .res-readout-k { font-size: 1.65rem; color: var(--stage); }
-/* Where the aptamer came from -- the one distinction that matters here. */
 .res-readout-src {
   display: block;
   margin-top: 0.1rem;
@@ -360,12 +277,6 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
   .res-readout > li, .res-readout > li.res-readout-lead { flex: 1 1 100%; }
   .res-readout-lead .res-readout-v { font-size: 1.8rem; }
 }
-/* The inhibition assays carry a fourth tile -- the BL21 extract control --
-   so the three plain tiles are narrower than they were with three. Give them
-   a wider basis, take a little back from the lead, and step the value down,
-   so a figure like 66.26 +/- 18.44% stays on one line. nowrap is safe here:
-   flex items will not shrink below their content. Three-tile lists, including
-   the one closing the detection part, are untouched. */
 .res-readout:has(> li:nth-child(4)) > li { flex: 1 1 10rem; }
 .res-readout:has(> li:nth-child(4)) > li.res-readout-lead { flex: 1.3 1 13rem; }
 .res-readout:has(> li:nth-child(4)) .res-readout-v { font-size: 1.05rem; white-space: nowrap; }
@@ -375,7 +286,5 @@ html[data-theme="dark"] .res-system[data-part="detect"] .res-part[data-assay="ti
   .res-readout:has(> li:nth-child(4)) > li.res-readout-lead { flex: 1 1 100%; }
 }
 
-/* The reference list, under both parts. It uses the shared .desc-refs rules
-   and only needs placing: it belongs to the page, not to either system. */
 .res-refs { margin-top: 5rem; }
 .res-refs h2 { margin-bottom: 1.25rem; font-size: 1.6rem; }

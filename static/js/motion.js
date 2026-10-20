@@ -1,15 +1,3 @@
-/* ============================================================
-   MOTION.JS — 全站動態引擎
-   這裡只做「裝飾層」：任何一支失敗或被擋，頁面都必須照常可讀。
-   - 深淺色切換（localStorage + 系統偏好）
-   - 閲讀進度條 #rxProgress
-   - [data-reveal] 進場動畫（IO；reduced-motion 下 CSS 已直接顯示）
-   - 自訂遊標（僅 pointer:fine + 無 reduced-motion）
-   - .rx-magnetic 磁吸鈕
-   - Lenis 平滑捲動（engineering/hardware 頁停用：
-     dbtl 的滾輪翻頁與剖面圖有自己的 wheel 處理）
-   - [data-rx-chapter] 章節軌道與 [data-rx-split] 拆字（不需 GSAP，見檔尾）
-   ============================================================ */
 (function () {
   'use strict';
 
@@ -17,9 +5,6 @@
   var reduceMotion = false;
   try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
 
-  /* ---------- 深淺色切換 ----------
-     暫時關閉：false＝不顯示太陽/月亮鈕、全站固定深夜綠。
-     要恢復時改回 true，並把 wiki/layout.html 首幀腳本的 RX_THEME_TOGGLE 一起改回 true。 */
   var THEME_TOGGLE_ENABLED = false;
   function applyTheme(t) {
     root.setAttribute('data-theme', t);
@@ -31,7 +16,6 @@
   }
   var current = THEME_TOGGLE_ENABLED ? (root.getAttribute('data-theme') || 'dark') : 'dark';
 
-  /* 把切換鈕塞進導覽列（burger 旁邊；不碰 Bootstrap 結構） */
   var nav = THEME_TOGGLE_ENABLED ? document.querySelector('.navbar .container-fluid') : null;
   if (nav) {
     var btn = document.createElement('button');
@@ -52,16 +36,10 @@
   }
   applyTheme(current);
 
-  /* ---------- 閲讀進度條 ---------- */
   var bar = document.createElement('div');
   bar.id = 'rxProgress';
   bar.setAttribute('aria-hidden', 'true');
   document.body.appendChild(bar);
-  /* Once per frame, not once per scroll event: a wheel or a trackpad can fire
-     several scroll events in one frame, and each read of scrollHeight right
-     after the last width was written made the browser lay the page out
-     again on the spot. The page's height is read once a frame, before the
-     bar is written. */
   var progressQueued = false;
   function progress() {
     progressQueued = false;
@@ -81,7 +59,6 @@
     progress();
   });
 
-  /* ---------- reveal 進場（可重複掃描：其他腳本動態加入 data-reveal 後呼叫 window.rxRevealScan）---------- */
   var revealIO = null;
   if (!reduceMotion && 'IntersectionObserver' in window) {
     revealIO = new IntersectionObserver(function (entries) {
@@ -100,7 +77,6 @@
   revealScan();
   window.rxRevealScan = revealScan;
 
-  /* ---------- 磁吸按鈕（pointer:fine）---------- */
   var fine = false;
   try { fine = window.matchMedia('(pointer: fine)').matches; } catch (e) {}
   if (fine && !reduceMotion) {
@@ -114,7 +90,6 @@
       el.addEventListener('pointerleave', function () { el.style.transform = ''; });
     });
 
-    /* ---------- 自訂遊標 ---------- */
     var cur = document.createElement('div');
     cur.id = 'rxCursor';
     cur.setAttribute('aria-hidden', 'true');
@@ -130,11 +105,6 @@
       cx = ev.clientX; cy = ev.clientY;
       if (!ticking) { ticking = true; requestAnimationFrame(move); }
     });
-    /* 大圈＝點得下去；小實心點＝點了沒反應。
-       只認真正能點的東西：有 href 的連結、沒停用的按鈕與表單元件、summary、
-       選單項目、帶 role/Bootstrap 開關的元件，以及 CSS 自己標成 cursor:pointer 的
-       元素（拍立得卡、難度格、翻牌卡……）。純展示用的 .rx-card 不算——
-       首頁那兩張文字卡本身點不下去，要點的是卡片裡的按鈕。 */
     var CLICKABLE = 'a[href],button:not([disabled]),input:not([type="hidden"]):not([disabled]),' +
                     'select,textarea,summary,label[for],.dropdown-item,' +
                     '[role="button"],[role="tab"],[role="link"],[data-bs-toggle]';
@@ -153,22 +123,14 @@
     document.addEventListener('pointerup', function () { cur.style.opacity = '1'; });
   }
 
-  /* ---------- Lenis 平滑捲動 ---------- */
-  /* engineering（dbtl wheel 翻頁）、hardware（剖面 wheel）、
-     board-game（內部捲動區）跳過，避免干擾既有互動。 */
   var skipLenis = /(^|\s)(engineering-page|hw-nexus|edu-nexus|board-game-page)(\s|$)/.test(' ' + document.body.className + ' ');
   if (!skipLenis && !reduceMotion && typeof window.Lenis === 'function') {
     try {
       var lenis = new window.Lenis({ duration: 0.9, smoothWheel: true });
-      /* Reachable so a page can hand the scroll back and forth. The home
-         page's Meet section stops it while the mark plays; without this the
-         only way to hold the page still would be to fight Lenis for every
-         wheel event. Nothing else should need it. */
+      // Reachable so a page can hand the scroll back and forth: the home
+      // page's Meet section stops it while the mark plays. Nothing else
+      // should need it.
       window.rxLenis = lenis;
-      /* Lenis needs a frame only while a scroll is under way. The loop starts
-         on the first wheel, touch, key or scroll, and stops once the page has
-         been still for a second, instead of running every frame for the
-         whole visit. */
       var rafOn = false, stillSince = 0;
       function raf(t) {
         lenis.raf(t);
@@ -189,18 +151,52 @@
       if (window.ScrollTrigger) {
         lenis.on('scroll', window.ScrollTrigger.update);
       }
-    } catch (e) { /* 平滑捲動是.decor bonus，壞了就裸跑原生捲動 */ }
+
+      // Lenis drives the scroll itself, so the browser's own jump to #id is
+      // swallowed and every in-page link -- the citation numerals, the table
+      // of contents, the figure links -- does nothing. Route them through
+      // lenis.scrollTo instead. Pages where Lenis is skipped keep the native
+      // behaviour and never reach this.
+      function anchorOffset(el) {
+        var sm = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+        if (sm) return sm;
+        var nav = document.querySelector('.navbar');
+        if (!nav) return 0;
+        var pos = getComputedStyle(nav).position;
+        if (pos !== 'fixed' && pos !== 'sticky') return 0;
+        return nav.getBoundingClientRect().height + 16;
+      }
+      document.addEventListener('click', function (ev) {
+        if (ev.defaultPrevented || ev.button !== 0) return;
+        if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+        var a = ev.target && ev.target.closest && ev.target.closest('a[href]');
+        if (!a || a.target === '_blank') return;
+        var href = a.getAttribute('href');
+        if (!href || href.charAt(0) !== '#' || href.length < 2) return;
+        var el;
+        try { el = document.getElementById(decodeURIComponent(href.slice(1))); }
+        catch (err) { el = document.getElementById(href.slice(1)); }
+        if (!el) return;
+        ev.preventDefault();
+        // The raf loop parks itself after a second of stillness, and
+        // lenis.scrollTo needs it running to animate at all.
+        wake();
+        var startY = window.pageYOffset;
+        lenis.scrollTo(el, { offset: -anchorOffset(el) });
+        // If Lenis does not take -- a parked frame loop, a version that
+        // refuses the call -- the reader still gets there.
+        setTimeout(function () {
+          if (Math.abs(window.pageYOffset - startY) < 2) el.scrollIntoView();
+        }, 700);
+        if (window.history && history.pushState) history.pushState(null, '', href);
+        // Keep the keyboard with the reader, without a second jump.
+        if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+        el.focus({ preventScroll: true });
+      });
+    } catch (e) { }
   }
 
-  /* ---------- 章節軌道 + hero 拆字（不再用 GSAP）----------
-     兩件事原本靠 GSAP + ScrollTrigger（116 KB），而 ScrollTrigger 只要存在，
-     它的 ticker 就每一幀都要一次畫面更新，整頁跟著每幀重算。現在：
-     章節進度由一個捲動監聽算，只在捲動、或進度還在追上時跑；拆字由 CSS。 */
   if (!reduceMotion) {
-    /* [data-rx-chapter]：捲動綁定 --rx-chap 0→100%，CSS 依此揭開。
-       起點＝區塊頂端到達視窗 75% 處，終點＝區塊底端到達視窗 55% 處（原
-       ScrollTrigger 的 start/end），進度以約 0.25 秒的時間常數追上捲動
-       （原 scrub: 0.6 的那點延遲）。 */
     var chapters = Array.prototype.slice.call(document.querySelectorAll('[data-rx-chapter]')).map(function (el) {
       return { el: el, cur: -1, top: 0, bottom: 0 };
     });
@@ -218,12 +214,6 @@
         chapRaf = null;
         var dt = chapLast ? Math.min(0.1, (t - chapLast) / 1000) : 1;
         chapLast = t;
-        /* The scroll position and the window height are read where they are
-           free -- in the scroll and resize handlers -- not here. Read inside
-           the frame, after the reading-progress bar has just written its
-           width, each one forced the browser to lay the page out again on
-           the spot: measured on the home page, 119 layouts in two seconds of
-           scrolling past the video, for a tick that writes nothing there. */
         var y = lastY, vh = lastVh, moving = false;
         chapters.forEach(function (c) {
           var start = c.top - 0.75 * vh, end = c.bottom - 0.55 * vh;
@@ -234,9 +224,6 @@
         });
         if (moving) chapRaf = requestAnimationFrame(chapTick); else chapLast = 0;
       };
-      /* Nothing to schedule once every chapter has reached the end it is
-         heading for: below the habitats section -- which is most of the
-         page -- the tick had nothing to write and still ran every frame. */
       var chapSettled = function () {
         for (var i = 0; i < chapters.length; i++) {
           var c = chapters[i];
@@ -251,10 +238,6 @@
         chapRaf = requestAnimationFrame(chapTick);
       };
       measureChapters(); chapKick();
-      /* The listener itself is only attached while the section is within a
-         couple of screens: reading the scroll position costs something on
-         every scroll event, and on the rest of the page -- which is most of
-         it -- there is no chapter to move. */
       var onChapScroll = function () {
         lastY = window.pageYOffset;
         chapKick();
@@ -283,12 +266,9 @@
       };
       window.addEventListener('resize', remeasure);
       window.addEventListener('load', remeasure);
-      /* 圖片晚到、區塊長高時，章節的位置也會變 */
       if ('ResizeObserver' in window) new ResizeObserver(remeasure).observe(document.body);
     }
 
-    /* [data-rx-split]：kinetic typography，逐字升起（motion.css 的 rx-rise）。
-       延遲照原本：0.25 秒起，每字 0.035 秒、每詞 0.05 秒。 */
     document.querySelectorAll('[data-rx-split]').forEach(function (el) {
       var text = el.textContent;
       el.textContent = '';
@@ -309,7 +289,6 @@
       el.classList.add('rx-go');
     });
   } else {
-    /* reduced-motion：拆字容器保持靜態可讀 */
     document.querySelectorAll('[data-rx-split]').forEach(function (el) { el.classList.add('rx-done'); });
   }
 })();

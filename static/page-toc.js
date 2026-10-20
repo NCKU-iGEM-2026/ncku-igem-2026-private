@@ -1,46 +1,16 @@
 (function () {
   "use strict";
 
-  /* "On this page": a short list of the page's headings down the left side,
-   * each a link that jumps to its section. Built from the h2s the page
-   * already has, so a page is never out of step with its own contents and
-   * nothing is written twice.
-   *
-   * Left out on purpose:
-   *   - pages that carry their own sidebar (.edu-sidebar), which is the same
-   *     thing already;
-   *   - the home page, whose map of the wiki is its own way in, and any page
-   *     with a full-width band (see below);
-   *   - a page with fewer than two headings, where a list has nothing to say.
-   *
-   * Without JavaScript there is no list, and nothing on the page is lost.
-   * page-toc.css keeps it to wide screens, where there is room beside the page.
-   */
   var host = document.querySelector("body > .container");
   if (!host || document.getElementById("rxHeroStage") || document.querySelector(".edu-sidebar")) return;
-  /* A band that runs the full width of the screen (the board game's story, the
-     collaboration wall) would sit under the list, so those pages go without.
-     Engineering's DBTL cycle stands in the same place and does the same job. */
   if (document.querySelector(".sgd, .story, .collab-wall, .eng-dbtl")) return;
 
   var MIN = 2;
-  var OFFSET = 130;          /* a heading counts as "reached" this far below the top */
-  /* data-toc-icon on a part's heading: a summary or reference matter, in place
-     of a character in the badge. Both are drawn as the same lines of text, so
-     every part set apart from the numbered run carries one mark across the
-     site (the open book reference matter had is gone). */
+  var OFFSET = 130;
   var LINES = "M4 4.5h8M4 8h8M4 11.5h5";
   var ICONS = { summary: LINES, refs: LINES };
   var aside = null, list = null, items = [], signature = "", ticking = false, pinned = null;
-  /* A page that is split into numbered parts can ask for them to be drawn as
-     parts (data-toc-style="parts" anywhere on the page, the Software page for
-     one): a numbered badge per part, the sections of the part being read on
-     a rail under it, and a bar for how far down the page the reader is.
-     Every other page gets the same rail and bar with its sections straight
-     on it -- no badges, nothing to open -- so the two read as one design. */
   var parts = !!host.querySelector('[data-toc-style="parts"]'), bar = null;
-  /* Each part's sections open with the part being read, unless the reader has
-     opened or closed that part by hand (open: true / false), which then holds. */
   var partList = [], allBtn = null;
 
   function titleOf(h) {
@@ -58,26 +28,15 @@
     return id;
   }
 
-  /* h3s are listed too on a page that asks for them with data-toc-depth="3".
-     Only Safety and Security does: its subsections are h3s inside the same
-     section as their h2, rather than h2s in sections of their own the way the
-     Model page writes them, and promoting them to h2 to get them listed would
-     have misstated the document's outline. Every other page is unaffected --
-     without the attribute this still collects h2 alone. */
   var depth3 = !!host.querySelector('[data-toc-depth="3"]');
 
   function collect() {
     var taken = {}, out = [];
     Array.prototype.forEach.call(host.querySelectorAll(depth3 ? "h2, h3" : "h2"), function (h) {
-      /* a heading you cannot see (a closed fold, a build that is not showing) is not one to jump to */
       if (!h.getClientRects().length) return;
-      /* A page split into parts (the Model page) marks each part's banner with
-         data-toc-group; its heading is listed as a group title even though it
-         sits in a <header>. */
       var group = h.closest("[data-toc-group]");
       if (h.closest("aside, nav, .modal, .quiz-pages")) return;
       if (!group && h.closest("header")) return;
-      /* data-toc-title gives a long heading a short name in the list */
       var t = h.getAttribute("data-toc-title") || titleOf(h);
       if (!t) return;
       var id = h.id;
@@ -93,12 +52,6 @@
         icon: group ? group.getAttribute("data-toc-icon") || "" : "",
         apart: !!(group && group.hasAttribute("data-toc-apart")) });
     });
-    /* Headings that sit side by side (the team's columns) are not a sequence to
-       jump along; a page laid out that way goes without. Compared within a
-       level only: a section heading followed immediately by its first
-       subheading is a handful of pixels away and perfectly ordinary, and
-       measured across levels it used to read as a column layout and take the
-       whole list away. */
     var levels = {};
     out.forEach(function (f) {
       var k = f.el.tagName;
@@ -136,18 +89,7 @@
     aside.textContent = "";
     var nav = document.createElement("nav");
     nav.className = "page-toc-inner";
-    // This is the element that scrolls when the list is longer than the
-    // viewport (max-height + overflow-y in page-toc.css). Lenis takes the
-    // wheel over for the whole page and calls preventDefault on it unless the
-    // pointer is inside something carrying this attribute, so without it a
-    // long contents list -- the Lab Book's, for one -- cannot be scrolled at
-    // all: the page scrolls instead and the tail of the list is unreachable.
     nav.setAttribute("data-lenis-prevent", "");
-    /* No visible label. The list is plainly a list of this page's headings and
-       did not need telling. The element stays because on a grouped list it is
-       the row the All control sits in, and page-toc.css hides it while it is
-       empty. The aside keeps aria-label="On this page", so the landmark is
-       still named for anyone navigating by landmark. */
     var p = document.createElement("p");
     p.className = "page-toc-title";
     list = document.createElement("ol");
@@ -189,26 +131,15 @@
     mark();
   }
 
-  /* Opt-in: an element marked data-toc-start sets where the list begins, so a
-     page can keep its sidebar clear of an introduction that is not one of its
-     entries. The offset is measured rather than written into the CSS, because
-     the introduction's height changes with the window, and it is measured
-     again on every resize and once the page has loaded. */
   function place() {
     if (!aside) return;
     var start = host.querySelector("[data-toc-start]");
     if (!start) { aside.style.top = ""; return; }
-    /* Line the list's own rule (the progress bar under the All control) up
-       with the start element's top edge, rather than the top of the list.
-       offsetTop is taken inside the sticky nav, so it is the same whether or
-       not the nav is stuck at the moment of measuring. */
     var bar = aside.querySelector(".page-toc-progress");
     var shift = bar ? bar.offsetTop : 0;
     aside.style.top = (start.getBoundingClientRect().top - host.getBoundingClientRect().top - shift) + "px";
   }
 
-  /* Parts: each group heading opens an <li> holding its badge and title, and
-     the sections after it go in a nested list on a rail. */
   function isOpen(e) {
     return e.open !== null ? e.open : e.li.classList.contains("is-current");
   }
@@ -239,8 +170,6 @@
         var no = document.createElement("span");
         no.className = "page-toc-no";
         no.setAttribute("aria-hidden", "true");
-        /* a part outside the numbered run (data-toc-apart) can name an icon
-           instead of a character; drawn like the open / close chevron */
         if (ICONS[f.icon]) no.innerHTML = '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="' + ICONS[f.icon] + '"/></svg>';
         else no.textContent = f.no;
         var name = document.createElement("span");
@@ -257,7 +186,6 @@
         entry = { li: li, row: row, sub: null, btn: null, open: null, name: f.title };
         partList.push(entry);
       } else {
-        /* a numbered section ("1.2 The workflow") keeps its number in a column of its own */
         var m = /^(\d+(?:\.\d+)*)\s+(.+)$/.exec(f.title);
         if (m) {
           var sec = document.createElement("span");
@@ -275,7 +203,6 @@
             sub.className = "page-toc-sub";
             sub.id = "page-toc-sub-" + partList.length;
             partLi.appendChild(sub);
-            /* the part's own open / close button, at the end of its line */
             var btn = document.createElement("button");
             btn.type = "button";
             btn.className = "page-toc-toggle";
@@ -306,20 +233,15 @@
     for (var i = 0; i < items.length; i++) {
       if (items[i].el.getBoundingClientRect().top <= OFFSET) current = items[i];
     }
-    /* at the very bottom the last heading may never get as far as the top */
     if (window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 4) {
       current = items[items.length - 1];
-      /* on a short page a click on an early entry can only scroll as far as the bottom: keep the one that was clicked */
       if (pinned && pinned.el.getBoundingClientRect().top < window.innerHeight - 40) current = pinned;
     }
-    /* read before the classes below are written, so the browser does not have
-       to lay the page out a second time within this frame */
     var room = document.documentElement.scrollHeight - window.innerHeight;
     var at = items.indexOf(current);
     items.forEach(function (f, i) {
       var on = f === current;
       f.link.classList.toggle("is-active", on);
-      /* scrolled past already, as on the Human Practices sidebar */
       f.link.classList.toggle("is-passed", i < at);
       if (on) f.link.setAttribute("aria-current", "location");
       else f.link.removeAttribute("aria-current");
@@ -331,7 +253,6 @@
       applyOpen();
     }
     if (bar) bar.style.width = (room > 0 ? Math.min(100, Math.max(0, window.pageYOffset / room * 100)) : 100) + "%";
-    /* keep the active entry in view when the list is longer than the screen */
     var a = current.link, l = list;
     if (l && l.scrollHeight > l.clientHeight) {
       if (a.offsetTop < l.scrollTop) l.scrollTop = a.offsetTop - 8;
@@ -347,11 +268,9 @@
 
   build();
   window.addEventListener("scroll", onScroll, { passive: true });
-  /* the pin is for the scroll a click causes; the reader's own scrolling lets it go */
   ["wheel", "touchstart", "keydown"].forEach(function (t) {
     window.addEventListener(t, function () { pinned = null; }, { passive: true });
   });
-  /* a page that shows or hides sections (an opened fold, a build switch) fires resize; rebuild if its headings changed */
   window.addEventListener("resize", function () { build(); place(); onScroll(); });
   window.addEventListener("load", function () { build(); place(); onScroll(); });
 })();

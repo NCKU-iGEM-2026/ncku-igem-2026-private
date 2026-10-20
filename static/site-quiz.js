@@ -1,9 +1,4 @@
 (function () {
-  // Home page: four questions, then two or three pages this visitor is most
-  // likely to want. It is a way in, not a personality test -- nothing is
-  // stored about the answers and nothing is sent anywhere.
-  //
-  // No library, no inline script: everything the wiki loads comes from here.
   var quiz = document.getElementById('siteQuiz');
   var pool = document.getElementById('quizPages');
   if (!quiz || !pool) return;
@@ -23,20 +18,6 @@
     quiz.querySelectorAll('[data-quiz-lang]')
   );
 
-  // ---------------------------------------------------------------- the model
-  //
-  // Every answer adds weight to some traits; every page carries the traits it
-  // serves. The recommendation is the dot product of the two. Six traits:
-  //
-  //   build   making a physical thing work
-  //   think   why the project exists at all
-  //   talk    people, teaching, working with others
-  //   data    numbers, code, evidence
-  //   play    something you can actually play with
-  //   people  the team and how the season ran
-  //
-  // To add a page later: give it an <a data-quiz-page> in the markup (so
-  // url_for builds the link), then add a row here and its copy in COPY.pages.
   var PAGES = {
     hardware:      { section: 'dry',     tags: { build: 3, data: 1 } },
     software:      { section: 'dry',     tags: { data: 3, build: 1 } },
@@ -51,7 +32,6 @@
     team:          { section: 'team',    tags: { people: 3 } }
   };
 
-  // Answer weights, in the order the options are written in COPY.
   var WEIGHTS = [
     [{ data: 2, play: 1 }, { build: 3 }, { build: 2, people: 2 }, { talk: 3 }],
     [{ build: 3 }, { think: 3 }, { talk: 3 }, { data: 3 }],
@@ -193,32 +173,19 @@
     }
   };
 
-  // ---------------------------------------------------------------- the state
-  // The wiki is written in English and its first readers are the judges, so
-  // every visit starts in English. One tap switches the whole quiz to Chinese
-  // and it stays Chinese while the page is open, but the choice is deliberately
-  // not remembered across visits: the home page should never greet a reader in
-  // a language they did not ask for on this visit.
   var lang = 'en';
   var at = 0;
   var answers = [];
   var returnTo = null;
-  // Which of the two screens is up. Inferring it from `at` does not work:
-  // answering the last question calls renderResults() directly and leaves `at`
-  // on that question, so switching language at the results threw the reader
-  // back to question four.
   var showingResults = false;
 
   function t() { return COPY[lang]; }
 
-  // Links live in the markup so url_for builds them and the static build keeps
-  // them; the script only reads the href back out.
   function hrefFor(key) {
     var a = pool.querySelector('[data-quiz-page="' + key + '"]');
     return a ? a.getAttribute('href') : null;
   }
 
-  // ---------------------------------------------------------------- scoring
   function score() {
     var traits = {};
     answers.forEach(function (choice, qi) {
@@ -228,7 +195,7 @@
     });
 
     var ranked = Object.keys(PAGES)
-      .filter(hrefFor)                       // never offer a page that is not linked
+      .filter(hrefFor)
       .map(function (key) {
         var tags = PAGES[key].tags;
         var total = 0;
@@ -239,9 +206,6 @@
       })
       .sort(function (a, b) { return b.score - a.score || a.key.localeCompare(b.key); });
 
-    // Three pages from the same corner of the wiki is a worse answer than three
-    // that between them cover more of it, so a page whose section is already
-    // represented is discounted while the next pick is chosen.
     var picks = [];
     var used = {};
     while (picks.length < 3 && ranked.length) {
@@ -259,7 +223,6 @@
     return picks;
   }
 
-  // ---------------------------------------------------------------- rendering
   function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
 
   function renderQuestion() {
@@ -354,7 +317,6 @@
     if (!quiz.hidden) render();
   }
 
-  // ---------------------------------------------------------------- open/close
   function open() {
     returnTo = document.activeElement;
     at = 0;
@@ -372,7 +334,6 @@
     returnTo = null;
   }
 
-  // ---------------------------------------------------------------- wiring
   langButtons.forEach(function (b) {
     b.addEventListener('click', function () {
       setLang(b.getAttribute('data-quiz-lang'));
@@ -399,8 +360,6 @@
     if (e.key === 'Escape') { e.preventDefault(); close(); return; }
     if (e.key !== 'Tab') return;
 
-    // Keep Tab inside the dialog: it is modal, and everything behind it is
-    // covered, so tabbing out would put the focus ring somewhere invisible.
     var focusable = card.querySelectorAll(
       'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
     );
@@ -417,11 +376,10 @@
     }
   });
 
-  // ---------------------------------------------------------------- entry
   setLang(lang);
 
   if (opener) {
-    opener.hidden = false;                 // only offer it once the script is here
+    opener.hidden = false;
     opener.addEventListener('click', open);
   }
 })();
