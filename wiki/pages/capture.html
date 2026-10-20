@@ -1,0 +1,404 @@
+{% extends "layout.html" %}
+
+{% block title %}You Found It!{% endblock %}
+
+{% block body_class %}egg-page{% endblock %}
+
+{% block page_css %}
+<style>
+  body.egg-page {
+    background: #050510;
+    color: #e0f7ff;
+  }
+
+  body.egg-page #particles {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  body.egg-page .egg-container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 140px 20px 80px;
+    text-align: center;
+  }
+
+  body.egg-page .egg-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: #00f0ff;
+    border: 1px solid #00f0ff55;
+    background: #00f0ff11;
+    padding: 6px 16px;
+    border-radius: 999px;
+    margin-bottom: 24px;
+  }
+
+  body.egg-page .egg-title {
+    font-size: clamp(3rem, 12vw, 6rem);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, #00f0ff, #7b61ff, #ff2d95);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  body.egg-page .egg-lead {
+    max-width: 620px;
+    margin: 0 auto 48px;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #b8d4e0;
+  }
+
+  body.egg-page .egg-typewriter {
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 40px;
+    padding: 24px 28px;
+    text-align: left;
+    background: #0a0f1eb3;
+    border: 1px solid #00f0ff33;
+    border-radius: 16px;
+    box-shadow: 0 0 30px #00f0ff15;
+  }
+
+  body.egg-page .egg-typewriter::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(#00f0ff, #7b61ff);
+  }
+
+  body.egg-page #egg-typed {
+    display: inline;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+
+  body.egg-page .egg-typewriter-text {
+    min-height: 5.4em;
+  }
+
+  body.egg-page .egg-cursor {
+    display: inline-block;
+    width: 10px;
+    height: 1.2em;
+    margin-left: 2px;
+    background: #00f0ff;
+    vertical-align: text-bottom;
+    animation: egg-blink 0.8s step-end infinite;
+  }
+
+  @keyframes egg-blink {
+    50% { opacity: 0; }
+  }
+
+  body.egg-page .egg-trail,
+  body.egg-page .egg-burst {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1500;
+  }
+
+  body.egg-page .egg-trail {
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    background: #00f0ff;
+    box-shadow: 0 0 12px #00f0ff;
+    opacity: 0.7;
+    transition: transform 0.1s, opacity 0.4s;
+  }
+
+  body.egg-page .egg-burst {
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 -3px;
+  }
+
+  body.egg-page .egg-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    text-align: left;
+  }
+
+  body.egg-page .egg-card {
+    background: #0b1424cc;
+    border: 1px solid #00f0ff33;
+    border-radius: 14px;
+    padding: 24px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  body.egg-page .egg-card:hover {
+    transform: translateY(-4px);
+    border-color: #00f0ffaa;
+  }
+
+  body.egg-page .egg-card-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  body.egg-page .egg-card h3 {
+    font-size: 1.05rem;
+    color: #00f0ff;
+    margin-bottom: 8px;
+  }
+
+  body.egg-page .egg-card p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #c5dbe5;
+    margin: 0;
+  }
+
+  body.egg-page .egg-quote {
+    margin-top: 56px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #ff7ac1;
+  }
+
+  body.egg-page .egg-hint {
+    margin-top: 40px;
+    font-size: 0.8rem;
+    color: #5f7a8c;
+  }
+
+  body.egg-page .egg-secret {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: #050510dd;
+    padding: 20px;
+  }
+
+  body.egg-page .egg-secret.show {
+    display: flex;
+  }
+
+  body.egg-page .egg-secret-box {
+    max-width: 440px;
+    padding: 36px 28px;
+    text-align: center;
+    background: #0b1424;
+    border: 1px solid #ff2d95;
+    border-radius: 16px;
+    box-shadow: 0 0 40px #ff2d9555;
+  }
+
+  body.egg-page .egg-secret-box h2 {
+    color: #ff7ac1;
+    margin-bottom: 12px;
+  }
+
+  body.egg-page .egg-secret-box button {
+    margin-top: 20px;
+    padding: 8px 24px;
+    color: #ff7ac1;
+    background: transparent;
+    border: 1px solid #ff7ac1;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+</style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block page_content %}
+<canvas id="particles"></canvas>
+
+<div class="egg-container">
+  <div class="egg-tag">NCKU-TAINAN &bull; iGEM 2026</div>
+  <h1 class="egg-title">CAPTURE</h1>
+  <p class="egg-lead">
+    You found our hidden page! Here is our project in a nutshell:
+    instead of fighting <em>Pseudomonas aeruginosa</em> head-on, we listen in
+    on how its cells talk to each other &mdash; and then cut the line.
+  </p>
+
+  <div class="egg-typewriter">
+    <div class="egg-typewriter-text"><span id="egg-typed"></span><span class="egg-cursor"></span></div>
+  </div>
+
+  <div class="egg-cards">
+    <div class="egg-card">
+      <div class="egg-card-icon">🦠</div>
+      <h3>The problem</h3>
+      <p><em>P. aeruginosa</em> causes hard-to-treat hospital infections. Its cells
+        coordinate using a chemical signal called AHL.</p>
+    </div>
+    <div class="egg-card">
+      <div class="egg-card-icon">💡</div>
+      <h3>Detect</h3>
+      <p>Our first system senses the AHL signal and reports it, so the
+        infection becomes visible.</p>
+    </div>
+    <div class="egg-card">
+      <div class="egg-card-icon">🧬</div>
+      <h3>Inhibit</h3>
+      <p>Our second system captures the same signal, so the bacteria never
+        get the message to act together.</p>
+    </div>
+  </div>
+
+  <div class="egg-quote">Before it captures a life, we capture its message.</div>
+
+  <div class="egg-hint">Psst&hellip; try typing C-A-P-T-U-R-E on your keyboard.</div>
+</div>
+
+<div class="egg-secret" id="egg-secret">
+  <div class="egg-secret-box">
+    <h2>Signal captured! 🎉</h2>
+    <p>Thanks for exploring our wiki. You now know the secret of Capture:
+      stop the conversation, not the cell.</p>
+    <button type="button" id="egg-secret-close">Close</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (() => {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particles = Array.from({ length: Math.min(80, Math.floor(canvas.width / 15)) }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2 + 0.5,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        color: `hsla(${180 + Math.random() * 60}, 100%, 70%, ${Math.random() * 0.5 + 0.2})`
+      }));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+
+    const texts = [
+      "Target: Pseudomonas aeruginosa.\nIt infects patients through ventilators, catheters and open wounds.",
+      "Its cells act together by sending and sensing a chemical signal: AHL.",
+      "Capture goes after the signal, not the cell.\nOne system detects it. The other inhibits it."
+    ];
+    const typedEl = document.getElementById('egg-typed');
+    let textIndex = 0;
+    let charIndex = 0;
+
+    function type() {
+      if (charIndex < texts[textIndex].length) {
+        typedEl.textContent += texts[textIndex].charAt(charIndex++);
+        setTimeout(type, 28 + Math.random() * 20);
+      } else {
+        setTimeout(() => {
+          typedEl.textContent = '';
+          charIndex = 0;
+          textIndex = (textIndex + 1) % texts.length;
+          setTimeout(type, 600);
+        }, 3200);
+      }
+    }
+    setTimeout(type, 800);
+
+    document.addEventListener('mousemove', e => {
+      const t = document.createElement('div');
+      t.className = 'egg-trail';
+      t.style.left = e.clientX + 'px';
+      t.style.top = e.clientY + 'px';
+      document.body.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'scale(0.3)';
+        setTimeout(() => t.remove(), 400);
+      }, 50);
+    });
+
+    const burstColors = ['#00f0ff', '#7b61ff', '#ff2d95', '#00ff9d'];
+    document.addEventListener('click', e => {
+      for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        const color = burstColors[Math.floor(Math.random() * burstColors.length)];
+        p.className = 'egg-burst';
+        p.style.left = e.clientX + 'px';
+        p.style.top = e.clientY + 'px';
+        p.style.background = color;
+        p.style.boxShadow = `0 0 8px ${color}`;
+        document.body.appendChild(p);
+
+        const angle = (Math.PI * 2 * i) / 18;
+        const speed = 2 + Math.random() * 4;
+        let x = 0, y = 0, opacity = 1;
+        const step = () => {
+          x += Math.cos(angle) * speed;
+          y += Math.sin(angle) * speed;
+          opacity -= 0.025;
+          p.style.transform = `translate(${x}px, ${y}px)`;
+          p.style.opacity = opacity;
+          if (opacity > 0) requestAnimationFrame(step);
+          else p.remove();
+        };
+        requestAnimationFrame(step);
+      }
+    });
+
+    const secret = document.getElementById('egg-secret');
+    const code = 'capture';
+    let index = 0;
+
+    document.addEventListener('keydown', e => {
+      const key = e.key.toLowerCase();
+      index = key === code[index] ? index + 1 : (key === code[0] ? 1 : 0);
+      if (index === code.length) {
+        secret.classList.add('show');
+        index = 0;
+      }
+    });
+
+    document.getElementById('egg-secret-close').addEventListener('click', () => {
+      secret.classList.remove('show');
+    });
+  })();
+</script>
+{% endblock %}
