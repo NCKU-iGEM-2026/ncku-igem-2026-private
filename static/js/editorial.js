@@ -14,21 +14,6 @@
 
   var contentMain = document.querySelector('body > .container') || main;
 
-  var content = contentMain.textContent.replace(/\s+/g, '');
-  var hasInteractive = contentMain.querySelector('canvas, iframe, table, .cap-game, svg, img');
-  if (!isHome && content.length < 40 && !hasInteractive) {
-    var mount = document.createElement('div');
-    mount.className = 'rx-empty-mount';
-    mount.innerHTML =
-      '<div class="rx-coming-soon">' +
-      '<strong>Content coming soon</strong>' +
-      'This page is part of the redesigned wiki shell. Its content is still with the team.' +
-      '<br><span class="rx-todo">TODO: 內容待團隊提供</span>' +
-      '</div>';
-    main.insertBefore(mount, main.firstChild);
-    return;
-  }
-
   if (isHome) return;
 
   if (main.querySelector('.edu-sidebar, aside, .board-game-page')) return;
