@@ -111,9 +111,21 @@
     if (gateCeiling) { clearTimeout(gateCeiling); gateCeiling = null; }
   }
 
-  function gateHold() {
+  function gateHold(over) {
     if (gateHolding || gateOpen) return;
     gateHolding = true;
+    /* The reader's own momentum carries the page some way past the panel's
+       resting place before this runs, and a panel held with its foot off the
+       bottom of the screen is not the panel being read. So it is put back
+       where the stylesheet puts it -- whole, and low -- and held there. */
+    if (over < -1) {
+      var y = Math.max(0, (window.pageYOffset || 0) + over);
+      if (window.rxLenis && window.rxLenis.scrollTo) {
+        window.rxLenis.scrollTo(y, { immediate: true });
+      } else {
+        window.scrollTo(0, y);
+      }
+    }
     if (window.rxLenis && window.rxLenis.stop) window.rxLenis.stop();
     window.addEventListener('wheel', swallow, { passive: false });
     window.addEventListener('touchmove', swallow, { passive: false });
@@ -157,14 +169,11 @@
 
   /* --------------------------------------------- clearing the way -- */
 
-  /* The wait panel does not scroll away: it is pinned for one screen while
-     it goes out, and Meet is pulled up over it. So the number written here
-     is how far through that pinned screen the reader is -- 0 with the panel
-     whole, 1 with it gone and Meet exactly filling the screen.
-
-     The gate rides on the same measurement. While the panel is pinned and
-     the hours have not finished, the page is held; the moment they do, it
-     is let go. */
+  /* The wait panel scrolls away on its own, rising out of the screen over
+     the room box below it while Meet is pulled up behind. So the number
+     written here is how far through that room the reader is -- 0 with the
+     panel whole and low, 1 with it gone and Meet exactly filling the
+     screen. The gate above holds the page at 0 until the hours finish. */
   var before = document.getElementById('hx-problem');
   var clear = -1, leave = -1;
 
@@ -172,6 +181,20 @@
     var vh = window.innerHeight || 1;
 
     if (stage) {
+      /* The hours run as the panel comes into view, and the page is held for
+         as long as they have not finished -- but not a moment before the
+         panel is all on screen, or the page freezes on a panel with its
+         bottom still below the fold. The place it is held is the one the
+         stylesheet lays out: the stage's top at the top of the screen, which
+         puts the panel whole and low. A panel too tall for that is held by
+         its own top edge instead, so nothing is ever cut off. */
+      if (!gateOpen) {
+        var sr = stage.getBoundingClientRect();
+        var pr = panel ? panel.getBoundingClientRect() : sr;
+        var low = Math.min(sr.top, pr.top);
+        if (low <= 0 && sr.bottom > 0) gateHold(low); else gateUnhold();
+      }
+
       /* Read off the room box below the panel rather than off the panel, so
          the fade and the mark's arrival are measured against the same thing:
          the room is exactly the distance the mark climbs through, so the
@@ -190,14 +213,6 @@
         /* A panel at opacity 0 that still takes a click is a trap, and this
            one is the slider. */
         stage.style.pointerEvents = c >= 1 ? 'none' : '';
-      }
-      /* The hours run as the panel comes into view, and the page is held for
-         as long as they have not finished. Measured on the panel itself, not
-         on the screen it sits in: it is the panel the reader is watching. */
-      if (!gateOpen) {
-        var pr = panel ? panel.getBoundingClientRect() : null;
-        var seen = pr && pr.top < vh * 0.72 && pr.bottom > 0;
-        if (seen) gateHold(); else gateUnhold();
       }
       /* The mark is only ever on screen once the panel's turn is finished.
          Going down that is the moment it starts; going back up it is the
