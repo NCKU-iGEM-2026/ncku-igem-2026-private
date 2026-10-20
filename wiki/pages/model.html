@@ -1126,10 +1126,10 @@
     </ol>
 
     <p>
-      The pipeline is OpenCV throughout. A <strong>Hough circle transform</strong><sup><a href="#mdzref2">[2]</a></sup>
+      The pipeline is OpenCV throughout. A <strong>Hough circle transform</strong><sup><a href="#mdzref1">[1]</a></sup>
       finds the dish, run on a downscaled copy &mdash; the dish is the largest
       thing in the frame, so the search does not need full resolution &mdash;
-      with <strong>Otsu thresholding</strong><sup><a href="#mdzref3">[3]</a></sup> as the fallback. Subtracting a
+      with <strong>Otsu thresholding</strong><sup><a href="#mdzref2">[2]</a></sup> as the fallback. Subtracting a
       <strong>large-&sigma; Gaussian</strong> flattens the lighting. White light
       and UV are then two problems rather than one with a switch: brightness
       against the agar is a question of intensity, answered by Otsu; fluorescence
@@ -1355,7 +1355,7 @@
             <caption>Agreement between the two readings</caption>
             <thead><tr><th scope="col">Measure</th><th scope="col">Value</th></tr></thead>
             <tbody>
-              <tr><td>Colonies compared</td><td>14, from 8 to 26&nbsp;mm</td></tr>
+              <tr><td>Colonies compared</td><td>15, from 8 to 26&nbsp;mm</td></tr>
               <tr><td>Mean absolute difference</td><td>0.61&nbsp;mm (3.6%)</td></tr>
               <tr><td>Within 1 / 1.5 / 2&nbsp;mm</td><td>12 of 15 / 15 of 15 / 15 of 15</td></tr>
               <tr><td>Largest single difference</td><td>1.3&nbsp;mm</td></tr>
@@ -1399,7 +1399,13 @@
         a convex hull &mdash; so there is no learned model, no weights to load
         and no inference step. It needs no GPU and runs on a free hosting tier,
         which is what let it go to the people doing the measuring rather than
-        staying on one machine in the lab.
+        staying on one machine in the lab. Classical methods are enough for
+        this kind of picture: OpenCFU, built on OpenCV with thresholding and a
+        watershed, counted colonies faster than the other open-source tools it
+        was tested against and made no more errors than people counting by
+        hand.<sup><a href="#mdzref3">[3]</a></sup> That test was of counting;
+        how well our pipeline measures size is what
+        <a href="#model-zone-validation">2.5</a> checks.
       </li>
     </ol>
 
@@ -1443,25 +1449,25 @@
 
     <ol class="hw-refs">
       <li id="mdzref1">
-        Geissmann, Q. (2013). OpenCFU, a new free and open-source software to
-        count cell colonies and other circular objects. <em>PLoS ONE</em>,
-        <strong>8</strong>(2), e54072.
-        <a href="https://doi.org/10.1371/journal.pone.0054072"
-           target="_blank" rel="noopener noreferrer">https://doi.org/10.1371/journal.pone.0054072</a>
-      </li>
-      <li id="mdzref2">
         Duda, R. O., &amp; Hart, P. E. (1972). Use of the Hough transformation
         to detect lines and curves in pictures. <em>Communications of the
         ACM</em>, <strong>15</strong>(1), 11&ndash;15.
         <a href="https://doi.org/10.1145/361237.361242"
            target="_blank" rel="noopener noreferrer">https://doi.org/10.1145/361237.361242</a>
       </li>
-      <li id="mdzref3">
+      <li id="mdzref2">
         Otsu, N. (1979). A threshold selection method from gray-level
         histograms. <em>IEEE Transactions on Systems, Man, and
         Cybernetics</em>, <strong>9</strong>(1), 62&ndash;66.
         <a href="https://doi.org/10.1109/TSMC.1979.4310076"
            target="_blank" rel="noopener noreferrer">https://doi.org/10.1109/TSMC.1979.4310076</a>
+      </li>
+      <li id="mdzref3">
+        Geissmann, Q. (2013). OpenCFU, a new free and open-source software to
+        count cell colonies and other circular objects. <em>PLoS ONE</em>,
+        <strong>8</strong>(2), e54072.
+        <a href="https://doi.org/10.1371/journal.pone.0054072"
+           target="_blank" rel="noopener noreferrer">https://doi.org/10.1371/journal.pone.0054072</a>
       </li>
     </ol>
   </section>
