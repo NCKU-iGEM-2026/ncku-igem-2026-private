@@ -13,13 +13,11 @@
    down from the top right, the mark shrinking into its place beside the
    type, and the type wiping in from the left.
 
-   The resting state of everything below is the FINISHED mark. The animation
-   is what .rx-in turns on -- the class static/js/motion.js adds when
-   [data-reveal] comes into view. Written that way round, the three cases
-   that are not "someone scrolled to it" all land somewhere sensible without
-   a rule each: no JavaScript means no .rx-in and the finished mark simply
-   sits there, print gets the same, and reduced motion only has to switch
-   the animations off.
+   The resting state of everything below is the FINISHED mark, and the
+   animation is what scrubbing turns on. Written that way round, the three
+   cases that are not "someone is scrolling through it" need no rule each:
+   with no JavaScript, in print, and with reduced motion asked for, the
+   finished mark is simply there.
 
    The same piece exists as a standalone file with a frame exporter in
    tools/logo-animation/, which is where the geometry here was measured.
@@ -34,15 +32,33 @@
 
 /* A screen to itself: the word and the mark, centred in it, with nothing
    else in view. */
-.hx-meet {
+.hx-meet { padding-block: 0; }
+
+/* A tall track with the view pinned inside it. The track's extra height is
+   the travel that plays the mark; home-meet.js turns how far through it the
+   reader is into --meet-prog, and every beat below is seeked to that.
+
+   So there is nothing to lock. Getting past this section and watching it are
+   the same act, which is what was wanted, and the reader keeps their scroll:
+   stopping stops the mark, going back takes it back.
+
+   Without the script the track is one screen and the stylesheet's resting
+   state -- the finished mark -- is simply there, so no one scrolls through
+   empty space to reach nothing. */
+.hx-meet-track { min-height: 100svh; }
+.hx-meet-track.is-scrubbed { min-height: 260svh; }
+
+.hx-meet-pin {
   /* svh rather than vh so a phone's collapsing toolbars cannot make it jump.
-     border-box because .hx is not, and without it the padding below would be
-     added to the min-height and push the next section off the bottom edge.
-     The top padding clears the fixed navbar, which takes the first 96px of
-     every viewport: centring inside the full height instead puts the heading
-     under the bar on any screen short enough for the content to fill it. */
+     border-box because .hx is not, and without it the padding would be added
+     to the height. The top padding clears the fixed navbar, which takes the
+     first 96px of every viewport: centring inside the full height instead
+     puts the heading under the bar on a screen short enough for the content
+     to fill it. */
   box-sizing: border-box;
-  min-height: 100svh;
+  position: sticky;
+  top: 0;
+  height: 100svh;
   padding-block: 6rem 0;
   display: grid;
   align-content: center;
@@ -94,7 +110,7 @@
    It is pinned to the mark, not to the section: 71.3% is 100% - 28.7%, the
    settled mark's own top edge, so the word sits just above it however large
    the stage has grown. Being inside the stage also means the fade can hang
-   off the same .rx-in as everything else. */
+   off the same scrub as everything else. */
 .hx-meet-title {
   position: absolute;
   left: 0; right: 0;
@@ -221,52 +237,62 @@
   to   { transform: translate(-20.08%, 0.70%) scale(0.6379); }
 }
 
-/* ---- and this is the only thing that starts any of it ---- */
-.hx-meet-stage.rx-in .hx-meet-l1    { animation: meet-draw 1.15s linear 0.05s both; }
-.hx-meet-stage.rx-in .hx-meet-erase { animation: meet-rub  1.15s linear 1.05s both; }
-.hx-meet-stage.rx-in .hx-meet-l2    { animation: meet-draw 1.15s linear 1.05s both; }
-.hx-meet-stage.rx-in .hx-meet-l3    { animation: meet-draw 1.0s linear 2.05s both; }
-.hx-meet-stage.rx-in .hx-meet-l5 {
-  animation: meet-swim 1.15s steps(1, end) 3.05s both,
-             /* The first pose leaves 14px of the bug on the canvas, so a
-                fade starting with it would spend itself on nothing. It
-                begins with the second pose instead -- 3.05 + 1.15/7 -- which
-                also takes the hardness off the step that brings the bug into
-                frame. Retime the swim and this has to follow it. */
-             meet-surface 0.45s ease-out 3.21s both;
-}
-.hx-meet-stage.rx-in .hx-meet-mark { animation: meet-settle 0.70s cubic-bezier(.65,0,.25,1) 4.25s both; }
-.hx-meet-stage.rx-in .hx-meet-type   { animation: meet-wipe 0.75s cubic-bezier(.35,0,.2,1) 4.65s both; }
-/* Last, once the mark is complete and still: the word is a caption on a
-   finished thing rather than another moving part. 5.40s is where the wipe
-   ends. Its resting state is visible, as everything here is, so no script
-   and no animation simply leave it there. */
-.hx-meet-stage.rx-in .hx-meet-title  { animation: meet-name 0.8s ease-out 5.40s both; }
+/* ---- the beats, seeked rather than played -----------------------------
+   Each is the animation it always was, paused, with its delay standing in
+   for the clock. A paused animation with a negative delay renders the frame
+   at that point in its own time, so
 
-/* motion.js adds .rx-in straight away when reduced motion is asked for, so
-   switching the animations off here is what is needed -- and because the
-   resting state is the finished mark, that is all that is needed. */
-@media (prefers-reduced-motion: reduce) {
-  .hx-meet-stage.rx-in .hx-meet-l1,
-  .hx-meet-stage.rx-in .hx-meet-l2,
-  .hx-meet-stage.rx-in .hx-meet-l3,
-  .hx-meet-stage.rx-in .hx-meet-l5,
-  .hx-meet-stage.rx-in .hx-meet-type,
-  .hx-meet-stage.rx-in .hx-meet-erase,
-  .hx-meet-stage.rx-in .hx-meet-title,
-  .hx-meet-stage.rx-in .hx-meet-mark { animation: none; }
-}
+       delay = (when this beat used to start) - (how far we are) * 6.2s
 
-@media print {
-  .hx-meet-stage.rx-in .hx-meet-l1,
-  .hx-meet-stage.rx-in .hx-meet-l2,
-  .hx-meet-stage.rx-in .hx-meet-l3,
-  .hx-meet-stage.rx-in .hx-meet-l5,
-  .hx-meet-stage.rx-in .hx-meet-type,
-  .hx-meet-stage.rx-in .hx-meet-erase,
-  .hx-meet-stage.rx-in .hx-meet-title,
-  .hx-meet-stage.rx-in .hx-meet-mark { animation: none; }
-  .hx-meet-title { color: #000 !important; }
+   puts it exactly where the 6.2s timeline would have had it. fill: both
+   clamps it at either end, so a beat that has not begun holds its first
+   frame and one that is over holds its last.
+
+   These only exist while the track is being scrubbed. Without the script
+   there is no --meet-prog and no .is-scrubbed, and the resting state above
+   -- the finished mark -- stands.
+   -------------------------------------------------------------------- */
+.is-scrubbed .hx-meet-stage [class*="hx-meet-"],
+.is-scrubbed .hx-meet-mark,
+.is-scrubbed .hx-meet-title { animation-play-state: paused; }
+
+.is-scrubbed .hx-meet-l1 {
+  animation: meet-draw 1.15s linear both;
+  animation-delay: calc(0.05s - var(--meet-prog, 0) * 6.2s);
+}
+.is-scrubbed .hx-meet-erase {
+  animation: meet-rub 1.15s linear both;
+  animation-delay: calc(1.05s - var(--meet-prog, 0) * 6.2s);
+}
+.is-scrubbed .hx-meet-l2 {
+  animation: meet-draw 1.15s linear both;
+  animation-delay: calc(1.05s - var(--meet-prog, 0) * 6.2s);
+}
+.is-scrubbed .hx-meet-l3 {
+  animation: meet-draw 1.0s linear both;
+  animation-delay: calc(2.05s - var(--meet-prog, 0) * 6.2s);
+}
+.is-scrubbed .hx-meet-l5 {
+  animation: meet-swim 1.15s steps(1, end) both,
+             meet-surface 0.45s ease-out both;
+  /* The swim's own delay, then the fade's: the fade is pinned to the swim's
+     second pose, 3.05 + 1.15/7, and retiming the swim drags it along. */
+  animation-delay: calc(3.05s - var(--meet-prog, 0) * 6.2s),
+                   calc(3.21s - var(--meet-prog, 0) * 6.2s);
+}
+.is-scrubbed .hx-meet-mark {
+  animation: meet-settle 0.70s cubic-bezier(.65,0,.25,1) both;
+  animation-delay: calc(4.25s - var(--meet-prog, 0) * 6.2s);
+}
+.is-scrubbed .hx-meet-type {
+  animation: meet-wipe 0.75s cubic-bezier(.35,0,.2,1) both;
+  animation-delay: calc(4.65s - var(--meet-prog, 0) * 6.2s);
+}
+/* Last, on a mark that is complete and still: the word is a caption rather
+   than another moving part. */
+.is-scrubbed .hx-meet-title {
+  animation: meet-name 0.8s ease-out both;
+  animation-delay: calc(5.40s - var(--meet-prog, 0) * 6.2s);
 }
 
 /* ---- the run down from the wait --------------------------------------
@@ -292,7 +318,7 @@
 }
 .hx-meet-trail svg { width: 100%; height: 100%; display: block; }
 .hx-meet-trail path {
-  fill: none;
+  fill: none;                          /* without this the box fills black */
   stroke: var(--c-glow);
   stroke-width: 3;
   stroke-linecap: round;
@@ -300,11 +326,22 @@
   filter: drop-shadow(0 0 9px rgba(160, 232, 96, 0.45));
 }
 /* The mark and the word sit over it, never under. */
-.hx-meet .hx-inner { z-index: 1; }
+.hx-meet-pin { z-index: 1; }
 
-/* A line that draws itself is the kind of thing reduced motion is for, and
-   in print it is an artefact of scrolling that cannot happen. */
+/* A line that draws itself is the kind of thing reduced motion is for. */
 @media (prefers-reduced-motion: reduce) {
   .hx-meet-trail { clip-path: none; opacity: 0.55; }
 }
-@media print { .hx-meet-trail { display: none; } }
+
+/* Reduced motion and print both want the finished mark, standing still,
+   which is the resting state above -- so there is nothing to switch off.
+   home-meet.js returns before adding .is-scrubbed when reduced motion is
+   asked for, so none of the seeked beats exist in that case either, and the
+   track stays one screen tall rather than asking for scroll that would do
+   nothing. */
+@media print {
+  .hx-meet-track, .hx-meet-track.is-scrubbed { min-height: 0; }
+  .hx-meet-pin { position: static; height: auto; }
+  .hx-meet-trail { display: none; }
+  .hx-meet-title { color: #000 !important; }
+}
