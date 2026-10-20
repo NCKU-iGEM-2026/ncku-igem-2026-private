@@ -1,32 +1,12 @@
 (function () {
   "use strict";
 
-  /* Hardware page — the instrument panels.
-   *
-   * Four things live here: a shared tooltip, the light-path bench, the
-   * development log and the switch between the circuit's two states.
-   *
-   * No library, no network request, nothing from outside iGEM infrastructure.
-   * The page is written so that losing this file costs a reader the
-   * interaction and as little of the content as can be managed: each panel
-   * built here carries a written fallback until it is replaced, and the light
-   * path itself is drawn in the markup rather than by this script.
-   */
-
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) {
     return Array.prototype.slice.call((r || document).querySelectorAll(s));
   };
 
-  /* Nothing on this page? Then this is not the hardware page. */
   if (!$(".hwx-rig")) return;
-
-  /* ======================================================================
-     A SHARED TOOLTIP
-     One element, moved around, rather than one per channel: the ten channels
-     of the map are never explained two at a time. Focus opens it as well as
-     hover, so the map is readable from the keyboard.
-     ====================================================================== */
 
   var tip = document.createElement("div");
   tip.className = "hwx-tip";
@@ -38,19 +18,12 @@
     var w = tip.offsetWidth;
     var h = tip.offsetHeight;
     var left = Math.max(8, Math.min(window.innerWidth - w - 8, x - w / 2));
-    /* Above the pointer, unless that would put it off the top. */
     var top = (y - h - 14 < 8) ? y + 22 : y - h - 14;
-    /* Clamped on both axes, not just across. The tooltip is position:fixed, so
-       an anchor the browser has not finished scrolling into view hands us a
-       top of two or three thousand pixels and the tooltip lands below the
-       window with nothing to say it is there. */
     top = Math.max(8, Math.min(window.innerHeight - h - 8, top));
     tip.style.left = Math.round(left) + "px";
     tip.style.top = Math.round(top) + "px";
   }
 
-  /* What the tooltip is currently describing, so a scroll can tell a tooltip
-     that is following the pointer from one anchored to a focused node. */
   var tipFor = null;
 
   function anchorTip(el) {
@@ -79,11 +52,6 @@
       el.addEventListener("mousemove", function (e) {
         if (!tip.hidden) placeTip(e.clientX, e.clientY);
       });
-      /* Only the element the tooltip currently belongs to may close it.
-         Without this, tabbing to a channel scrolls the page, whatever the
-         mouse was resting on slides out from under a pointer that never
-         moved, and that stale mouseleave shuts the tooltip the focus had just
-         opened. */
       el.addEventListener("mouseleave", function () {
         if (tipFor === el) hideTip();
       });
@@ -91,7 +59,6 @@
       el.addEventListener("blur", function () {
         if (tipFor === el) hideTip();
       });
-      /* A node reached by keyboard has to be dismissable by keyboard. */
       el.addEventListener("keydown", function (e) {
         if (e.key === "Escape") hideTip();
       });
@@ -102,18 +69,9 @@
 
   window.addEventListener("scroll", function () {
     if (tip.hidden) return;
-    /* Tabbing to a channel scrolls it into view, and that scroll must not
-       close the tooltip the focus just opened -- which is the entire keyboard
-       path through the map. A tooltip anchored to the focused channel follows
-       it; one that was following the pointer goes, because after a scroll the
-       pointer is no longer over what it was describing. */
     if (tipFor && tipFor === document.activeElement) { anchorTip(tipFor); return; }
     hideTip();
   }, { passive: true });
-
-  /* ======================================================================
-     1. THE LIGHT-PATH BENCH
-     ====================================================================== */
 
   (function () {
     var rig = $("#hwxBench");
@@ -126,8 +84,6 @@
     var verdict = $("#hwxVerdict");
     if (!tabs || !ctrls || !readout || !verdict) return;
 
-    /* Ten named channels. An all-channel read returns twelve values; these are
-       the ten the sessions reported by name. */
     var CHANNELS = [
       ["F1", "415 nm", "v"], ["F2", "445 nm", "b"], ["F3", "480 nm", "b"],
       ["F4", "515 nm", "g"], ["F5", "555 nm", "g"], ["F6", "590 nm", "o"],
@@ -135,11 +91,6 @@
       ["Clear", "unfiltered", "k"], ["NIR", "910 nm", "k"]
     ];
 
-    /* The record. Keys are led-sample-light, with @session after the sample
-       for the cultures. A missing key is not an omission: it is a state
-       nobody measured. The panel is built so that such a state cannot be
-       selected in the first place -- see TESTS below -- rather than offered
-       and then refused. */
     var REC = {
       "off-none-dark": {
         zero: true, tone: "ok",
@@ -212,20 +163,6 @@
         src: "First fluorescence, with its correction appendix"
       },
 
-      /* The three mixing sessions, all at the 200 uL the assay uses.
-
-         Each session contributes the same three reference samples and no
-         more: its undiluted GFP stock, its undiluted non-GFP stock and its
-         medium blank. That is one named acquisition per sample, with any
-         replicate quoted in the text rather than averaged in, because a
-         number on this panel is a recorded reading and not a summary. The
-         other tubes of each session, fifty in the fits, are on the Model
-         page; putting them here would turn a bench into a spreadsheet.
-
-         Four channels are reported for these sessions. Source for 09-21 and
-         09-29: the per-tube appendices of the team's data analysis
-         (P1_DATA_ANALYSIS_2026-09-30, revision 2) and, for the 09-29 blanks,
-         the control list of the four-channel study. */
       "off-gfp@0916-dark": {
         zero: true, tone: "ok",
         text: "Pre-dark reads were zero on every channel in all three cycles of this acquisition.",
@@ -319,11 +256,6 @@
         src: "Mixing session 3, BLANK_MEDIUM_OPEN · closing blank BLANK_MEDIUM_CLOSE"
       },
 
-      /* Version 2, from 2026-10-03. The same three reference samples a
-         session, and here all ten channels: each figure is the mean of the
-         lit read over every row of that acquisition, worked out from the raw
-         log. In every one of these rows the dark reads before and after the
-         flash were zero on all twelve values. */
       "off-gfp@1005-dark": {
         zero: true, tone: "ok",
         text: "Dark reads before and after each flash were zero on all twelve values in every cycle of this acquisition.",
@@ -387,8 +319,6 @@
       }
     };
 
-    /* The samples that were read in more than one session. For these the
-       sample position alone does not name a record; the session does. */
     var CULTURE = { gfp: true, ctrl: true, med: true };
 
     var SESSION = {
@@ -408,8 +338,6 @@
       light: { dark: "darkened or shielded", room: "room light, unshielded" }
     };
 
-    /* What the sample well is filled with, per state. Not a measurement --
-       it is the diagram telling you which state you are looking at. */
     var FILL = {
       none: "none",
       uvette: "rgba(140,190,215,.10)",
@@ -420,27 +348,6 @@
       med: "rgba(120,180,220,.14)"
     };
 
-    /* ------------------------------------------------------------------
-       THE THREE TESTS
-
-       The bench used to offer four free switches -- lamp, sample, session,
-       lighting -- and most of the hundred-odd combinations they allowed
-       were never measured, so a reader could switch their way into "no
-       dataset" in two clicks. The measurements were never a grid. They
-       were three tests, each of which moved a couple of things and held
-       the rest still, and that is how the panel is laid out: choose a
-       test, and it shows only the switches that test actually moved.
-
-       `fixed` is what a test held constant. `state` is where its switches
-       stand, kept per test, so coming back to a test finds it as it was
-       left. `scale` is the count the bars are drawn against: one scale per
-       test, so bars compare within a test, where the comparison means
-       something, and a culture's 18 counts is not drawn as a sliver against
-       a paper scatterer's 116.
-
-       An option with no record, the other switches being where they are,
-       is greyed out instead of being left to lead nowhere.
-       ------------------------------------------------------------------ */
     var LED = ["led", "Excitation LED", [["off", "Off"], ["on", "On", "hwx-hot"]]];
 
     var TESTS = [
@@ -448,9 +355,6 @@
         id: "fluor", name: "Fluorescence", hint: "a GFP culture against one without",
         ask: "Does the emission channel tell a culture with GFP from one without? Every reading in this test was taken shielded, at 200 µL.",
         scale: 40,
-        /* Version 2 runs the LED at about twice the current and reads higher,
-           so its sessions get a scale of their own. Bars still compare within
-           a session, which is the comparison that means something. */
         scaleFor: { "1005": 140, "1012": 140 },
         fixed: { light: "dark" },
         groups: [
@@ -486,9 +390,6 @@
 
     var test = TESTS[0];
 
-    /* The whole state of the instrument for the test on show: what the test
-       held fixed, where its switches stand, and optionally one switch moved,
-       which is how an option is tried before it is offered. */
     function fullState(over) {
       var s = {}, k;
       for (k in test.fixed) s[k] = test.fixed[k];
@@ -560,14 +461,10 @@
       var loaded = s.sample !== "none";
 
       beamEx.style.opacity = on ? 1 : 0;
-      /* Paper stops the beam; everything else lets some of it through to the
-         trap. */
       beamTh.style.opacity = (on && s.sample !== "paper") ? 0.9 : 0;
       scatter.style.opacity = (on && loaded) ? 0.85 : 0;
       scatter.setAttribute("r", (on && loaded) ? (s.sample === "paper" ? 18 : 10) : 0);
 
-      /* The emission arm lights only where the record actually shows light on
-         the emission channel. It is drawn from the data, not from the state. */
       var emitting = on && rec && rec.vals && rec.vals.F4 > 1;
       beamEm.style.opacity = emitting ? 1 : 0;
 
@@ -605,8 +502,6 @@
           bar.style.width = Math.min(100, v / scale * 100) + "%";
           return;
         }
-        /* Not a zero. The record has no figure for this channel, and a dash
-           is quieter than the words "not reported" six times in a row. */
         el.classList.add("is-blank");
         val.innerHTML = '<span aria-hidden="true">–</span>' +
                         '<span class="visually-hidden">not reported</span>';
@@ -631,9 +526,6 @@
           '<p class="hwx-verdict-text">' + rec.text + "</p>" +
           '<p class="hwx-verdict-src">' + rec.src + "</p>";
       } else {
-        /* Not reachable through the controls, which only offer what was
-           measured. Kept so that a record removed by mistake shows up as a
-           gap and not as a row of zeros. */
         verdict.className = "hwx-verdict is-none";
         verdict.innerHTML =
           '<p class="hwx-verdict-title">No recorded dataset</p>' +
@@ -663,23 +555,6 @@
     buildControls();
     render();
   })();
-
-  /* ======================================================================
-     2. THE AS7341 CHANNEL MAP
-     Moved into the markup on 2026-10-08: the ten channels are now the lower
-     inset of the Measurement principle drawing (wiki/pages/hardware.html),
-     written out there with their data-tip texts. The shared tooltip above
-     still serves them, through bindTips(document).
-     ====================================================================== */
-
-  /* ======================================================================
-     3. THE DEVELOPMENT LOG
-     The steps are written out in the markup, every one of them, so the
-     section is a plain list if this never runs. Here they become a row of
-     stops with one step shown at a time: the stop's label comes from the
-     step's own data attributes, so there is nothing to keep in step with the
-     text but the text.
-     ====================================================================== */
 
   (function () {
     var log = $("#hwxLog");
@@ -720,8 +595,6 @@
       });
       if (count) count.textContent = "Step " + (at + 1) + " of " + items.length;
 
-      /* On a narrow screen the row of stops scrolls sideways. Bring the
-         chosen one to the middle of it by moving the row, never the page. */
       var stop = stops[at];
       track.scrollLeft = stop.offsetLeft - (track.clientWidth - stop.offsetWidth) / 2;
       if (focus) stop.focus({ preventScroll: true });
@@ -740,24 +613,12 @@
       });
     });
 
-    /* On paper there is nothing to click, so every step is printed, as the
-       plain list it is without this script. */
     window.addEventListener("beforeprint", function () { log.classList.remove("is-live"); });
     window.addEventListener("afterprint", function () { log.classList.add("is-live"); });
 
     log.classList.add("is-live");
     show(0, false);
   })();
-
-  /* ======================================================================
-     4. THE CIRCUIT, BEFORE AND AFTER
-     One resistor was changed on 2026-10-03. Both states are written out in
-     the markup: an element with data-v2 carries the later wording, a node
-     with data-tip-v2 the later tooltip. All this does is swap between them.
-     The switch itself is hidden until this runs, so a page without the
-     script shows the circuit the readings were taken on and no dead buttons;
-     the table under the schematic has both columns either way.
-     ====================================================================== */
 
   (function () {
     var rig = $("#hwxCircuit");
@@ -769,7 +630,6 @@
     var buttons = $$("button[data-circ]", ctrls);
     if (!buttons.length) return;
 
-    /* The first state is whatever the markup says. Keep it to come back to. */
     texts.forEach(function (el) { el.setAttribute("data-v1", el.textContent); });
     tips.forEach(function (el) { el.setAttribute("data-tip-v1", el.getAttribute("data-tip")); });
 
@@ -779,7 +639,6 @@
       buttons.forEach(function (b) {
         b.setAttribute("aria-pressed", String(b.getAttribute("data-circ") === v));
       });
-      /* A tooltip left open would go on describing the other state. */
       hideTip();
     }
 
@@ -790,14 +649,6 @@
 
     ctrls.hidden = false;
   })();
-
-  /* ======================================================================
-     FOLDED TABLES ON PAPER
-     A shut <details> prints as a single line where the table should be. The
-     stylesheet can override the display of a closed one in Chrome, but how a
-     closed <details> hides its content is not the same in every engine --
-     opening them outright is. The reader's own state is put back after.
-     ====================================================================== */
 
   (function () {
     var folds = $$(".hw-fold");

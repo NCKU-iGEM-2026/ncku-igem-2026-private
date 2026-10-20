@@ -1,20 +1,3 @@
-// Copied unchanged from LasReader, frontend/js/curve_fit.js (commit b208edc),
-// https://gitlab.igem.org/2026/software/ncku-tainan/lasreader
-// MIT License, Copyright (c) 2026 iGEM Team NCKU-Tainan (National Cheng Kung University).
-// Keep it byte-for-byte in step with the repository: the Software page's demo
-// claims to run the same code the tool runs. Everything below this block is the original.
-
-// =========================================================
-// The 4PL standard-curve model shared by both tools: weighted 4PL fitting (Levenberg-Marquardt),
-// LOD/LOQ, the usable range, and inversion with a 95% CI (delta method). CAPTURE-Screen's
-// calibration (js/hardware_local.js) and the Plate Reader Assay (js/plate_assay.js) both call it,
-// so the same readings give the same curve on either page. docs/capture_screen_model.md §7–11
-// describes it step by step; change a formula here and the matching section there in one change.
-//
-// Pure functions only: no DOM, storage, fetch, or clock.
-// =========================================================
-
-// Upper bound on the inversion range: past 95% of the 4PL span the curve is too flat, and inversion error blows up.
 const CURVE_RANGE_SPAN_FRACTION = 0.95;
 
 function curveMean(values) {
@@ -27,10 +10,6 @@ function curveSampleSd(values) {
   return Math.sqrt(values.reduce((acc, v) => acc + (v - m) ** 2, 0) / (values.length - 1));
 }
 
-// ---- 4PL -------------------------------------------------------------
-
-// The parameter vector during fitting is [top, bottom, ln(ec50_nM), hill]: using ln(EC50)
-// keeps LM stepping on a log scale and stops EC50 from ever being pushed negative.
 function curveModel(c, p) {
   if (c <= 0) return p[1];
   const u = Math.exp(p[3] * (p[2] - Math.log(c)));
@@ -40,13 +19,11 @@ function curveModel(c, p) {
 function curveGradient(c, p) {
   if (c <= 0) return [0, 1, 0, 0];
   const lnRatio = p[2] - Math.log(c);
-  const s = 1 / (1 + Math.exp(p[3] * lnRatio)); // still safe when u overflows to Infinity, giving s = 0
+  const s = 1 / (1 + Math.exp(p[3] * lnRatio));
   const span = p[0] - p[1];
-  const ds = s * (1 - s); // = u / (1 + u)^2, more numerically stable than computing it directly
+  const ds = s * (1 - s);
   return [s, 1 - s, -span * ds * p[3], -span * ds * lnRatio];
 }
-
-// ---- Linear algebra (4x4 is enough) ---------------------------------------
 
 function curveSolve(matrix, rhs) {
   const n = rhs.length;
@@ -77,8 +54,6 @@ function curveInverse(matrix) {
   return Array.from({ length: n }, (_, i) => columns.map((col) => col[i]));
 }
 
-// ---- Fitting ------------------------------------------------------------
-
 function curveGroupByConcentration(points) {
   const groups = new Map();
   for (const pt of points) {
@@ -90,8 +65,6 @@ function curveGroupByConcentration(points) {
     .map(([c, ys]) => ({ c, ys, mean: curveMean(ys) }));
 }
 
-// Variance model for a single reading, var(F) = a + b*F^2 (additive + proportional noise),
-// estimated from the actual spread across replicates. Used both for fit weights and for inversion CI.
 function curveNoiseModel(points) {
   const groups = curveGroupByConcentration(points).filter((g) => g.ys.length >= 2);
   if (groups.length === 0) {
@@ -117,10 +90,6 @@ function curveNoiseModel(points) {
   return { a, b };
 }
 
-// Weighted least squares. Each point's standard deviation is the larger of "that reading's own
-// read-noise estimate" and "the replicate-spread model": CAPTURE-Screen's fluorescence_sd
-// only captures read noise (no shot noise), so using it alone as the weight would let a few
-// tubes with an unusually stable dark level get distorted, oversized weight.
 function curveFit4PL(points) {
   const groups = curveGroupByConcentration(points);
   const bottom0 = groups[0].mean;
@@ -176,7 +145,6 @@ function curveFit4PL(points) {
     if (!accepted || converged) break;
   }
 
-  // Parameter covariance = (J^T W J)^-1 * reduced chi^2
   const { A } = normalEquations(p);
   const inv = curveInverse(A);
   const dof = points.length - 4;
@@ -189,16 +157,10 @@ const CurveFit = {
   mean: curveMean,
   sampleSd: curveSampleSd,
 
-  // The 4PL at concentration c for a fit's params ({top, bottom, ec50_nM, hill}).
   model(c, params) {
     return curveModel(c, [params.top, params.bottom, Math.log(params.ec50_nM), params.hill]);
   },
 
-  // points: [{ c, y, sd }], one per reading. c is the concentration in nM, 0 for a blank; sd is the
-  // reading's own read-noise estimate, 0 when there is none. The caller's points are not changed.
-  // Returns { params, lod_nM, loq_nM, rmse, range_nM, cov, noise }: cov (4x4, over
-  // [top, bottom, ln EC50, hill]) and noise ({a, b}) are what invert() needs for the CI.
-  // Throws an Error saying why when no usable curve can be built.
   fit(input) {
     const points = input.map((pt) => ({ c: pt.c, y: pt.y, sd: pt.sd }));
     const blanks = points.filter((pt) => pt.c === 0);
@@ -207,8 +169,6 @@ const CurveFit = {
     if (standardConcs.length < 4) throw new Error("Keep at least 4 distinct standard concentrations for a 4PL fit.");
 
     const noise = curveNoiseModel(points);
-    // No replicate spread and no read-noise estimate to weight by (one reading per concentration,
-    // none with a read-noise SD): fit unweighted, and take the reading variance for the CI from the residuals.
     const unweighted = noise.a === 0 && noise.b === 0 && points.every((pt) => pt.sd === 0);
     const spanScale = Math.max(...points.map((pt) => Math.abs(pt.y)), 1e-12);
     for (const pt of points) {
@@ -226,7 +186,6 @@ const CurveFit = {
     const residualSs = points.reduce((acc, pt) => acc + (pt.y - curveModel(pt.c, p)) ** 2, 0);
     const readingNoise = unweighted ? { a: residualSs / (points.length - 4), b: 0 } : noise;
 
-    // LOD / LOQ: blank mean + 3 / 10 times the blank SD, then converted to a concentration through the curve.
     const blankYs = blanks.map((pt) => pt.y);
     const blankSd = curveSampleSd(blankYs) || (unweighted ? Math.sqrt(readingNoise.a) : curveMean(blanks.map((pt) => pt.sd)));
     const blankLevel = Math.max(curveMean(blankYs), bottom);
@@ -236,8 +195,6 @@ const CurveFit = {
     const lod_nM = concentrationAt(lodSignal);
     const loq_nM = concentrationAt(loqSignal);
 
-    // Trusted inversion range: the lower bound is never below the LOD or the lowest standard;
-    // the upper bound never exceeds the highest standard, nor 95% of the span (beyond that the curve is too flat).
     const range_nM = {
       min: Math.max(lod_nM, standardConcs[0]),
       max: Math.min(
@@ -250,10 +207,6 @@ const CurveFit = {
     return { params, lod_nM, loq_nM, rmse: Math.sqrt(residualSs / points.length), range_nM, cov, noise: readingNoise };
   },
 
-  // Signal -> concentration. Only gives a point estimate within the curve's trusted range; outside
-  // it, only status comes back, never an extrapolation. F is the mean of n readings, so the reading's
-  // own variance is divided by n; the curve's parameter uncertainty is not, since every reading shares it.
-  // fit needs { params, range_nM, cov, noise }.
   invert(F, fit, n = 1) {
     const { top, bottom, ec50_nM, hill } = fit.params;
     if (!(F > bottom)) return { status: "below_lod" };
@@ -265,7 +218,6 @@ const CurveFit = {
     if (c < fit.range_nM.min) return { status: "below_lod" };
     if (c > fit.range_nM.max) return { status: "above_range" };
 
-    // delta method on ln(c): the reading's own variance plus the parameter covariance
     const gF = (1 / hill) * (1 / (F - bottom) + 1 / (top - F));
     const gTheta = [-(1 / hill) / (top - F), -(1 / hill) / (F - bottom), 1, -lnRatio / (hill * hill)];
     let variance = (gF * gF * (fit.noise.a + fit.noise.b * F * F)) / n;

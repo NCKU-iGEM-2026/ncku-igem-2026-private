@@ -1,31 +1,13 @@
-/* ============================================================
-   EDUCATION — interactive layer (.edx-*), on the edu-nexus petrol bed.
-   Colours are the page's own --nx-* tokens (style.css, body:is(.edu-nexus, .hp-nexus)).
-   Text inside .edu-session-block is set at body:is(.edu-nexus, .hp-nexus) .edu-session-block p
-   (0,2,2), so text rules here carry the same prefix to win.
-   Anything hidden or zeroed for an effect is only so under html.edx-js
-   (static/js/pages/edu-interactive.js); without the script it all shows.
-   ============================================================ */
-
-/* One highlight colour across the wiki: the lime marks what matters,
-   whether the mark is .edx-hl (the sentence) or .edx-key (the thing named
-   in it), and a reader learns it once. The two keep separate names because
-   they still mean different things in the markup. Numbers stay amber, so a
-   figure is still told apart from a phrase at a glance. */
 body:is(.edu-nexus, .hp-nexus) {
   --edx-hl:  var(--nx-lime);
   --edx-key: var(--nx-lime);
   --edx-num: var(--nx-warm);
 }
 
-/* ---- highlighted words ---- */
 body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-hl  { color: var(--edx-hl);  font-weight: 600; }
 body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-key { color: var(--edx-key); font-weight: 600; }
 body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-num { color: var(--edx-num); font-weight: 700; font-variant-numeric: tabular-nums; }
 
-/* ============================================================
-   Timeline (overview)
-   ============================================================ */
 .edx-timeline {
   --edx-progress: 0;
   margin: 2.2rem 0 0.5rem;
@@ -52,7 +34,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-timeline-title {
   overflow-x: auto;
   scrollbar-width: thin;
 }
-/* the rail, and its lit part up to the event being read */
 .edx-timeline ol::before,
 .edx-timeline ol::after {
   content: "";
@@ -62,11 +43,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-timeline-title {
   height: 2px;
   border-radius: 2px;
 }
-/* 一道光沿著軌道在各站之間跑。做在軌道自己的背景上，不另外加元素或偽元素：
-   ol 的 ::before 與 ::after 已經分別是軌道和進度條，而 <ol> 只能放 <li>。
-   進度條（::after）疊在軌道之上，所以光條走在「還沒讀到」的那一段，像在指路；
-   在頁面頂端時 --edx-progress 是 0，整條軌道都看得到它。
-   這是無限動畫，離開畫面時 static/js/anim-gate.js 會自動暫停。 */
 .edx-timeline ol::before {
   right: 6px;
   background-color: var(--nx-line);
@@ -129,9 +105,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-timeline a.is-active { co
   box-shadow: 0 0 0 5px color-mix(in srgb, var(--nx-lime) 22%, transparent);
 }
 
-/* ============================================================
-   Per-event fact chips + figures
-   ============================================================ */
 .edx-facts {
   display: flex;
   flex-wrap: wrap;
@@ -202,9 +175,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-facts li {
   color: var(--nx-muted);
 }
 
-/* ============================================================
-   Bilingual quotes
-   ============================================================ */
 .edx-q-switch {
   display: inline-flex;
   gap: 0.25rem;
@@ -231,9 +201,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-facts li {
 .edx-q.is-zh .edx-q-zh { animation: edx-fade 0.35s ease; }
 @keyframes edx-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-/* ============================================================
-   HP safety certificates
-   ============================================================ */
 .edx-certs {
   margin: 0.6rem 0 1.6rem;
   padding: 1.1rem;
@@ -366,9 +333,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-cert-open:focus-visible {
 .edx-cert-dialog-close:hover { border-color: var(--nx-lime); color: var(--nx-lime); }
 .edx-cert-dialog iframe { flex: 1; width: 100%; border: 0; background: #fff; }
 
-/* ============================================================
-   Kindergarten — Germ Detective Team
-   ============================================================ */
 body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-kg-badge {
   display: inline-flex;
   align-items: center;
@@ -393,7 +357,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-kg-sub {
   color: var(--nx-mint);
 }
 
-/* mission stepper */
 .edx-tabs {
   --edx-step: 0;
   margin: 0.4rem 0 1.4rem;
@@ -462,10 +425,8 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-tabpanel p { margin: 0; }
   cursor: pointer;
 }
 .edx-tabs-next:hover { border-color: var(--nx-mint); }
-/* without the script the panels simply stack, each under its own heading */
 html:not(.edx-js) .edx-tablist { display: none; }
 
-/* flip cards */
 .edx-flips {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -525,7 +486,6 @@ html:not(.edx-js) .edx-flip-hint { display: none; }
 .edx-flip:hover .edx-flip-front { border-color: var(--nx-warm); }
 .edx-flip:focus-visible { outline: 2px solid var(--nx-lime); outline-offset: 3px; border-radius: 14px; }
 
-/* feedback rows */
 .edx-fb { display: grid; gap: 0.55rem; margin: 0.4rem 0 1.2rem; }
 .edx-fb details {
   border: 1px solid var(--nx-line);
@@ -578,7 +538,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-fb-body p { margin: 0 0 0
 .edx-fb-split div { display: grid; grid-template-columns: 9.5rem 1fr auto; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: var(--nx-text); }
 .edx-fb-split .edx-bar { grid-column: auto; }
 
-/* germ doodles the children described */
 .edx-germs {
   display: flex;
   flex-wrap: wrap;
@@ -604,32 +563,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-germs li {
 .edx-germs svg { width: 52px; height: 40px; color: var(--nx-lime); transition: transform 0.4s ease; }
 .edx-germs li:hover svg { transform: rotate(-10deg) scale(1.12); }
 
-/* the children's words */
-.edx-bubbles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem 0.9rem;
-  margin: 0.5rem 0 1.3rem;
-  padding: 0;
-  list-style: none;
-}
-body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-bubbles li {
-  position: relative;
-  padding: 0.6rem 1rem;
-  border-radius: 18px 18px 18px 4px;
-  background: color-mix(in srgb, var(--nx-warm) 20%, var(--nx-panel));
-  border: 1px solid color-mix(in srgb, var(--nx-warm) 50%, transparent);
-  color: var(--nx-text);
-  font-size: 0.95rem;
-  transition: transform 0.25s ease;
-}
-.edx-bubbles li:nth-child(2) { transform: rotate(1.5deg); }
-.edx-bubbles li:nth-child(3) { transform: rotate(-1.2deg); }
-body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-bubbles li:hover { transform: translateY(-3px) rotate(0); }
-
-/* ============================================================
-   Handbook intro
-   ============================================================ */
 .edx-hb {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -718,9 +651,6 @@ body:is(.edu-nexus, .hp-nexus) .edu-session-block .edx-hb-relay {
 }
 @keyframes edx-relay { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 
-/* ============================================================
-   Closing quote
-   ============================================================ */
 .edx-finale {
   position: relative;
   margin: 3.5rem 0 1rem;
@@ -767,14 +697,11 @@ body:is(.edu-nexus, .hp-nexus) .edx-finale .edx-finale-note {
   text-shadow: 0 0 22px color-mix(in srgb, var(--nx-warm) 45%, transparent);
 }
 
-/* ============================================================
-   Small screens
-   ============================================================ */
 @media (max-width: 640px) {
   .edx-tablist { grid-template-columns: repeat(var(--edx-n, 5), minmax(0, 1fr)); }
   .edx-tab { font-size: 0.64rem; padding: 0.65rem 0.1rem 0.55rem; }
   .edx-tab svg { width: 24px; height: 24px; }
-  .edx-tab-label {   /* still read out, just not drawn */
+  .edx-tab-label {
     position: absolute; width: 1px; height: 1px; overflow: hidden;
     clip: rect(0 0 0 0); white-space: nowrap;
   }
@@ -787,8 +714,6 @@ body:is(.edu-nexus, .hp-nexus) .edx-finale .edx-finale-note {
   .edx-kg-badge svg,
   .edx-hb-count,
   .edx-hb-relay i { animation: none; }
-  /* The track goes back to a plain line: the travelling light carried no
-     information the dots and the progress fill do not already give. */
   .edx-timeline ol::before { animation: none; background-image: none; }
   .edx-flip-face,
   .edx-bar > i,
@@ -797,43 +722,16 @@ body:is(.edu-nexus, .hp-nexus) .edx-finale .edx-finale-note {
   .edx-kpi { transition: none; }
 }
 
-/* ---- Education's auto-built "On this page" sidebar (page-toc.js,
-   static/page-toc.css) ----
-   Overview (stats + map + timeline) is full-width content that sits before
-   the nine tracked sessions; it is not one of them (it has no h2, so
-   page-toc.js never lists it). But .has-page-toc's padding-left:252px lands
-   on the whole container, which would also push Overview's map off centre.
-   Pull Overview back out to the container's full width so the map stays
-   centred on the page, the way it was before this page had a TOC sidebar.
-   The sidebar itself starts at the top of the container by default, which
-   would float it beside Overview; push it down to start level with the
-   first tracked session (Xihu) instead. Both numbers are estimates of
-   Overview's own height (the map's aspect-ratio and the orbit layout both
-   vary with width) and may need a small adjustment once checked in the
-   browser. */
 @media (min-width: 1200px) {
   body.edu-nexus .container.has-page-toc #session-overview {
     margin-left: -252px;
     width: calc(100% + 252px);
   }
-  /* 同樣綁到註解裡講的那個元素。這個檔也被 meet-with-experts 載入，而它同為
-     edu-nexus 卻沒有 Overview，原本會吃到這 64rem 的偏移。 */
   body.edu-nexus .container.has-page-toc:has(#session-overview) .page-toc-inner { margin-top: 64rem; }
 }
 
-/* None of the nine parts above has sub-sections, so this button (page-toc.js
-   adds it unconditionally in "parts" mode) never has anything to expand or
-   collapse -- it always reads "Collapse all" and does nothing. Hidden here
-   rather than in page-toc.js itself, since Model's own parts do have
-   sub-sections and the button does real work there. */
 body.edu-nexus .page-toc-all { display: none; }
 
-/* ============================================================
-   Next page
-   Education, Collaboration and Promotion read in that order, so each
-   closes with one link onward. Scoped to the two nexus themes that use
-   this stylesheet, like everything else here.
-   ============================================================ */
 body:is(.edu-nexus, .hp-nexus) .edx-nextpage {
   display: flex;
   align-items: center;

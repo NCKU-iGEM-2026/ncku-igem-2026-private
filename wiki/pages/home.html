@@ -9,18 +9,6 @@
 {% endblock %}
 
 {% block header %}
-{#
-  The opening is a dish you can put your hand in. P. aeruginosa drifts in it
-  and keeps releasing AHL; left alone, the signal builds until the population
-  reaches quorum and turns on swarming, virulence and the biofilm. The pointer
-  is Capture's two systems: in Capture it is the aptamer and takes the signal
-  out of circulation, in Detect it is the biosensor cell, which glows as the
-  signal around it rises.
-
-  Drawn by static/js/pages/home.js. The controls stay hidden until that script
-  has started the dish; without it, or with reduced motion, this is the same
-  title on the plain gradient it always had.
-#}
 <header class="rx-hero qs-hero" id="rxHeroStage" data-mode="capture">
   <canvas id="qsCanvas" aria-hidden="true"></canvas>
   <div class="rx-hero-inner">
@@ -38,59 +26,12 @@
       <button type="button" class="qs-mode is-on" data-mode="capture" aria-pressed="true"><span class="qs-mode-dot" aria-hidden="true"></span>Capture</button>
       <button type="button" class="qs-mode" data-mode="detect" aria-pressed="false"><span class="qs-mode-dot" aria-hidden="true"></span>Detect</button>
     </div>
-    {# 這裡原本還有 quorum signal 量表與一行操作提示，已移除，只留模式切換。
-       static/js/pages/home.js 仍會算出 signal 與 quorate 狀態（培養皿本身的
-       is-quorate / is-broken 外觀靠它），只是不再有地方顯示讀數。 #}
   </div>
 </header>
 {% endblock %}
 
 {% block page_content %}
 
-{#
-  The home page tells the project in the order the promotion video does: the
-  problem, the two systems, the tools that turn the light into a number, the
-  year outside the lab. Then the game, the video, and a map of the wiki.
-
-  Nothing here is new. Every figure, name and claim restates one of our other
-  pages, in that page's wording, and links back to it; if a fact changes
-  there, change it here too. Where each one comes from is noted section by
-  section below.
-#}
-
-{#
-  ======================== 1. the problem ========================
-  From Project Description. Its wording rather than the promotion video's,
-  which is looser and in one place is now unsupported:
-    * the video puts "over 140,000 patients a year in Taiwan" on
-      P. aeruginosa. That figure was all healthcare-associated infections,
-      not that organism's, and it traced only to a consumer magazine, so it
-      was taken off this page and off Description on 2026-10-13. The video
-      cannot be re-cut, so do not reintroduce the figure here to match it.
-    * the video also calls P. aeruginosa one of the top three pathogens
-      behind those infections. Taiwan CDC's own surveillance report puts it
-      sixth overall in intensive care, second in pneumonia and first in
-      surgical-site infections in regional hospitals. Description now says
-      that instead, and this page follows.
-    * it says "20-40% mortality in ICU". The Description page is narrower:
-      critically ill patients who go on to severe pneumonia or bacteraemia.
-  Every figure here is one Description carries with a full citation, so the
-  references live there and this page stays clean. That only holds while the
-  two move together: changing a figure on Description means changing it here
-  in the same commit.
-
-  The four everyday habitats are the exception, and the only reference list
-  on this page. Those paragraphs are written here and nowhere else, so
-  Description cannot hold their sources; they sit under the habitats, in the
-  same form Description, Engineering and Results use: .desc-refs with a
-  modifier, an <h2>References</h2>, and plain [n] superscripts in the text.
-
-  The 48-72 hours, "before anything has grown on a plate" and the shield
-  being up by the time a culture comes back are Description's too ("The
-  signal we are after", "Why the answer arrives too late"). The slider only
-  walks through those sentences; the shield filling up with the hours is a
-  picture of them, not a growth curve.
-#}
 <section class="hx hx-problem" id="hx-problem" aria-labelledby="hx-problem-title">
   <div class="hx-inner">
     <p class="hx-kicker" data-reveal>The organism we are after</p>
@@ -102,64 +43,21 @@
       ventilators, catheters and open wounds.
     </p>
 
-    {#
-      The background beat: why the organism matters before the numbers do.
-      Section 1's lead has just put it in intensive care, so this steps back
-      to the ordinary places it is already living and escalates from there
-      into the figures below. Styles in static/css/pages/home-why.css; the
-      four icons and the colony behind the question are placeholders waiting
-      on the team's own drawings, each marked ARTWORK.
-
-      Everyday habitats and the AHL sentence are Project Description's
-      ("The signal we are after"); no figure or claim is added here that the
-      page below does not already carry.
-    #}
     <div class="hx-why" id="hx-why">
       <div class="hx-why-hook" data-reveal>
         <div class="hx-why-hook-inner">
-        {# The colony: six circles drifting on their own clocks through a
-             gooey filter. The filter blurs the group, then throws the alpha
-             channel hard against a threshold, so where two circles overlap
-             the blurred edges clear the threshold together and they read as
-             one body; as they drift apart the bridge thins, falls under the
-             threshold and snaps. Nothing is drawn merging -- the merge is
-             what the threshold does to the blur. #}
         <div class="hx-why-blobs" aria-hidden="true">
           <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice">
             <defs>
-              {# Generous region: the halo at the end of the chain reaches
-                   well past the shape, and the default -10%/120% box would
-                   cut it off square. #}
               <filter id="hxwGoo" x="-35%" y="-35%" width="170%" height="170%">
                 <feGaussianBlur in="SourceGraphic" stdDeviation="27" result="blur"/>
-                {# alpha * 26 - 12: everything under about 0.46 alpha goes
-                     to nothing, everything over it goes solid. That cliff is
-                     the whole effect. #}
                 <feColorMatrix in="blur" mode="matrix" result="goo"
                   values="1 0 0 0 0
                           0 1 0 0 0
                           0 0 1 0 0
                           0 0 0 26 -12"/>
-                {# A last, much gentler blur. The threshold above gives a
-                     hard edge, which is what makes two circles snap apart
-                     cleanly; this takes the worst of that edge off again so
-                     the mass settles into the page instead of sitting on it
-                     as a cut-out. The merge still happens at the threshold,
-                     under the softening. Keep it small -- at 9 the shape
-                     lost its outline altogether. #}
                 <feGaussianBlur in="goo" stdDeviation="4.5"/>
               </filter>
-              {# Radial, not a ramp across the mass: the colour has to come
-                   from the middle and disperse outwards. userSpaceOnUse so
-                   it is one gradient over the whole group rather than one
-                   per circle, which would show its seams through the goo. #}
-              {# Radial, not a ramp across the mass: the colour has to come
-                   from the middle and disperse outwards. The radius is
-                   deliberately smaller than the shape -- at 330 every dark
-                   stop fell outside the visible silhouette and the whole
-                   thing came out one flat teal. userSpaceOnUse so it is one
-                   gradient over the group rather than one per circle, which
-                   would show its seams through the goo. #}
               <radialGradient id="hxwBlobFill" gradientUnits="userSpaceOnUse"
                               cx="300" cy="288" r="248">
                 <stop offset="0"    stop-color="#4ec480"/>
@@ -170,29 +68,10 @@
               </radialGradient>
             </defs>
             <g filter="url(#hxwGoo)" fill="url(#hxwBlobFill)">
-              {# The body. It only breathes. #}
               <circle class="hxw-body" cx="300" cy="300" r="128"/>
-              {# Lobes: part of the body, never off it. They are what keeps
-                   the silhouette irregular, which the satellites below used
-                   to do as a side effect of drifting half out. Now that each
-                   satellite is either all the way in or gone, something has
-                   to hold the shape off a plain circle, and this is it. #}
               <circle class="hxw-lobe l1" cx="190" cy="240" r="92"/>
               <circle class="hxw-lobe l2" cx="405" cy="355" r="84"/>
               <circle class="hxw-lobe l3" cx="310" cy="430" r="74"/>
-              {# Satellites, and each one only goes one way. Three leave
-                   the body and keep going until they are off the frame;
-                   three arrive from beyond it and are absorbed. Nothing is
-                   ever pulled back the way it came.
-
-                   The loop seam is hidden by where it falls: one end of
-                   every path is the dead centre of the body, where a circle
-                   is inside the mass and contributes nothing the eye can
-                   pick out, and the other end is off the frame entirely.
-                   Both ends are invisible, so the jump between them is too.
-
-                   Distances are percentages of each circle's own box, which
-                   is why the small ones carry the larger numbers. #}
               <circle class="hxw-sat out-a" cx="300" cy="300" r="87"/>
               <circle class="hxw-sat in-b"  cx="300" cy="300" r="67"/>
               <circle class="hxw-sat out-c" cx="300" cy="300" r="53"/>
@@ -203,8 +82,6 @@
           </svg>
         </div>
         <h3 class="hx-why-q">
-          {# 第一個 captures 是細菌的動作，維持小寫；第二個是專案名，大寫。
-             這一句的雙關就建立在這個大小寫差異上。 #}
           <span>Before it captures a life,</span>
           <span>can we <span class="hx-why-capture">Capture</span> its message?</span>
         </h3>
@@ -215,32 +92,9 @@
         </div>
       </div>
 
-      {# The stretch of spine above the first habitat is this block's
-           own top padding; the spine spans the whole of it. #}
       <div class="hx-why-weave" data-rx-chapter>
-        {# The spine the bubbles are strung on; see home-why.css for why it
-             is a straight line and not the woven curve it started as. #}
         <div class="hx-why-thread" aria-hidden="true">
           <svg viewBox="0 0 240 1000" preserveAspectRatio="none">
-            {# Leaves the colony at dead centre, then swings to each icon in
-                 turn: x=57 is the centre of the left-hand column, x=183 the
-                 right-hand one; odd rows put their drawing on the left, so
-                 the weave starts to the left and the values alternate from
-                 there. Both measured against this svg's own box
-                 rather than worked out from the grid: the box is not the
-                 same width as the column track it sits over, and deriving
-                 them put the line 25px inside each icon, and the y values are where the four blocks
-                 centre their content.
-
-                 Those y values hold at any window height because every part
-                 of the stack is sized in vh -- the blocks, the gaps and the
-                 run above them all scale together, so the fractions between
-                 them do not move. They do depend on the blocks staying equal
-                 height, which is why none of them may outgrow 112svh.
-
-                 non-scaling-stroke keeps the line an even weight; the box is
-                 stretched, though only slightly, since x and y here end up
-                 scaled within a few per cent of each other. #}
             <path vector-effect="non-scaling-stroke"
                   d="M120 0 L120 90
                      C120 132 57 150 57 187
@@ -251,41 +105,9 @@
           </svg>
         </div>
 
-        {# Three of these four paragraphs were rewritten on 2026-10-14, after
-           their sources were read. What changed, so that nobody puts it back:
-
-             green nail  named pyocyanin alone and had it diffusing "directly
-                         into the keratin matrix". The clinical literature
-                         attributes chloronychia to pyocyanin AND pyoverdine
-                         together, and describes the colour reaching the plate
-                         from the infected tissue around it.
-             damp sink   had the bacteria "release AHL signals to coordinate"
-                         the biofilm. Neither source says that, and no study
-                         we could find has measured AHLs or quorum-sensing
-                         expression in a drain biofilm at all -- that evidence
-                         is from lab strains, wastewater and catheters. The
-                         splash now reads as Doring 1991 describes it:
-                         tap water striking the standing water in the trap.
-             lens case   said "severe tissue damage within 24 hours". Nothing
-                         supports that for a human eye. The 24 hours traces to
-                         purified proteases injected into mouse corneas, and to
-                         grafts inoculated directly; reported human courses run
-                         to days. It now says days.
-
-           The summary below used to count quorum signaling among the four
-           powers. With the AHL sentence gone there was nothing here showing
-           it, so the list now names the four these cards do show: adhesion
-           (lens case), protease attack (lens case), pigment toxicity (green
-           nail) and biofilm formation (damp sink). Quorum sensing is still
-           what this project's biosensor reads -- that case is made on
-           Description, with its citations, which is where it belongs.
-        #}
         <ul class="hx-why-list">
           <li style="--rx-d:0">
             <span class="hx-why-art is-bare" data-reveal>
-              {# The team's drawing. alt is empty on purpose: the heading
-                   beside it already says "Green nail", and repeating that to
-                   a screen reader only adds noise. #}
               <img class="hx-why-icon" alt=""
                    src="https://static.igem.wiki/teams/6379/wiki/homepage-icon/hand.avif"
                    width="2752" height="1536" loading="lazy" decoding="async">
@@ -305,9 +127,6 @@
 
           <li style="--rx-d:90">
             <span class="hx-why-art is-bare" data-reveal>
-              {# alt is empty on purpose: the heading beside it already
-                   says "Damp sink", and repeating that to a screen reader
-                   only adds noise. #}
               <img class="hx-why-icon" alt=""
                    src="https://static.igem.wiki/teams/6379/wiki/homepage-icon/sink.avif"
                    width="2752" height="1536" loading="lazy" decoding="async">
@@ -326,9 +145,6 @@
 
           <li style="--rx-d:180">
             <span class="hx-why-art is-bare" data-reveal>
-              {# alt is empty on purpose: the heading beside it already
-                   says "Lens case", and repeating that to a screen reader
-                   only adds noise. #}
               <img class="hx-why-icon" alt=""
                    src="https://static.igem.wiki/teams/6379/wiki/homepage-icon/lens.avif"
                    width="2752" height="1536" loading="lazy" decoding="async">
@@ -347,9 +163,6 @@
 
           <li style="--rx-d:270">
             <span class="hx-why-art is-bare" data-reveal>
-              {# alt is empty on purpose: the heading beside it already
-                   says "Swimmer's ear", and repeating that to a screen reader
-                   only adds noise. #}
               <img class="hx-why-icon" alt=""
                    src="https://static.igem.wiki/teams/6379/wiki/homepage-icon/ear.avif"
                    width="2752" height="1536" loading="lazy" decoding="async">
@@ -375,31 +188,6 @@
         <strong>life-threatening crisis</strong>.
       </p>
 
-
-      {#
-        The HAIs panel. All three figures are from p18 of the WHO Global
-        report on infection prevention and control 2024. They replaced
-        4.9 million cases and 700,000 deaths, neither of which that report
-        supports: 4.8 million is the ECDC's figure for Europe alone, and
-        4.95 million is the count of deaths associated with bacterial AMR,
-        not a count of HAI cases.
-
-        A cost figure stood here for a while -- >$855bn, read as the sum
-        of $412bn in health care and $443bn in lost productivity -- and was
-        taken out: the only source for it is a secondary news piece whose
-        own text gives the amounts in yuan rather than dollars, and does not
-        say whether they are current or projected. If an economic figure is
-        wanted here, the World Bank's working paper 10708 has one that holds
-        up (US$6bn a year across Eastern and Southern Africa, 1.14% of the
-        region's GDP), though it is regional rather than global.
-
-        The four figures immediately below narrow from here to Taiwan and to
-        P. aeruginosa in particular, and those are the team's own.
-
-        They roll to their value on scroll like a slot machine landing --
-        see static/js/pages/hais-reels.js. count-up.js could not do it:
-        that only animates whole numbers, and two of these three are not.
-      #}
       <section class="hx-hais" aria-labelledby="haisTitle">
         <div class="hx-hais-stage">
           <div class="hx-hais-bg" aria-hidden="true" data-reveal></div>
@@ -437,22 +225,10 @@
     </div>
 
     <ul class="hx-figures">
-      {# Removed 2026-10-13: the two US figures, "32,000 infections a year ...
-           by multidrug-resistant strains" and "2,700 deaths a year". They were
-           attributed to the CDC Antibiotic Resistance Threats Report without an
-           edition, and the pathogen-level numbers are inside the full report
-           rather than on CDC's web pages, so neither could be checked. Removed
-           from Project Description for the same reason on the same day; this
-           page mirrors that page's figures, so it has to move with it. #}
       <li data-reveal style="--rx-d:0">
         <span class="hx-figure"><span data-count-to="20">20</span>&ndash;<span data-count-to="40">40</span>%</span>
         <span class="hx-figure-note">reported mortality in critically ill patients who go on to severe pneumonia or bacteraemia</span>
       </li>
-      {# The "140,000+ healthcare-associated infections a year in Taiwan" tile
-           was removed 2026-10-13: it traced only to Common Health, a consumer
-           magazine, with no article link. It is replaced below by a figure from
-           Taiwan CDC's own surveillance report, which the Description page now
-           cites with its page number. #}
       <li data-reveal style="--rx-d:90">
         <span class="hx-figure"><span data-count-to="26">26</span>%</span>
         <span class="hx-figure-note">of <em>P.&nbsp;aeruginosa</em> isolated in Taiwanese medical-centre intensive care is resistant to carbapenems</span>
@@ -488,26 +264,15 @@
             <rect class="hx-shield-level" x="0" y="0" width="64" height="72" clip-path="url(#hxShieldClip)"/>
           </svg>
           <p class="hx-wait-out" id="hxWaitRead"
-             data-early="The signal is already there, before anything has grown on a plate. It is specific to the organism sending it."
+             data-early="The signal is already there, before anything has grown on a plate, and 3-oxo-C12-HSL is characteristic of the organism sending it."
              data-wait="Still waiting on the culture. For those two or three days treatment has to be empirical, which is itself part of what drives resistance."
-             data-late="The culture comes back, roughly 48&ndash;72 hours later. By then the biofilm, the shield antibiotics struggle to cross, is already up."><span class="hx-wait-hours">0&nbsp;h</span> The signal is already there, before anything has grown on a plate. It is specific to the organism sending it.</p>
+             data-late="The culture comes back, roughly 48&ndash;72 hours later. By then the biofilm, the shield antibiotics struggle to cross, is already up."><span class="hx-wait-hours">0&nbsp;h</span> The signal is already there, before anything has grown on a plate, and 3-oxo-C12-HSL is characteristic of the organism sending it.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-{#
-  ======================== 2. two systems, one signal ========================
-  Project Description, "Capture: two systems, one signal", step for step:
-  System 1 is LasR in E. coli BL21(DE3) switching on sfGFP from pLasRV when
-  3-oxo-C12-HSL binds; System 2 is the retron Ec67 on pET28a writing the
-  aptamer (msr-msd) as single-stranded DNA, which we extract from the cells
-  ourselves, holding the signal away from its receptor.
-  The pictures are diagrams of those sentences, not data. The steps play on
-  their own while the section is in view; a click on a tab or a step takes
-  over (static/js/pages/home.js).
-#}
 <section class="hx hx-systems" id="hx-systems" aria-labelledby="hx-systems-title">
   <div class="hx-inner">
     <p class="hx-kicker" data-reveal>Capture</p>
@@ -536,9 +301,6 @@
             </radialGradient>
             <g id="hxAhl"><circle r="7"/><path d="M7 0h12l5-4" fill="none"/></g>
             <g id="hxAhlL"><circle r="7"/><path d="M-7 0h-12l-5 4" fill="none"/></g>
-            {# A folded nucleic acid, after the mfold structure the wet lab
-                 folded Cb-2 into: stems drawn as two rails with base pairs
-                 between them, and an unpaired loop at the end of each. #}
             <g id="hxApt" fill="none">
               <path d="M-5 36V6M5 36V6"/>
               <path d="M-5 31H5M-5 25H5M-5 19H5M-5 13H5"/>
@@ -549,9 +311,6 @@
             </g>
           </defs>
 
-          {# System 1: detect. Badges 1-4 match the four steps beside it:
-               the signal enters, sits in LasR's pocket, the pair lands on
-               pLasRV and turns it on, and sfGFP is made from the gene. #}
           <g class="art art-detect">
             <ellipse class="a-glow" cx="544" cy="146" rx="96" ry="100" fill="url(#hxGfp)"/>
             <rect class="a-cell" x="150" y="30" width="470" height="262" rx="64"/>
@@ -603,11 +362,6 @@
             <g class="a-badge a-badge-4" transform="translate(500 88)"><circle r="11"/><text y="4.5" text-anchor="middle">4</text></g>
           </g>
 
-          {# System 2: inhibition. The signal is what is targeted, so the
-               picture is of two P. aeruginosa talking to each other and the
-               aptamer taking one AHL out of that conversation: the retron
-               writes it, we extract it, one aptamer holds one AHL, and the
-               line between the two cells is struck through. #}
           <g class="art art-capture">
             <rect class="a-cell a-cell-open" x="20" y="100" width="240" height="120" rx="60"/>
             <text class="a-label" x="128" y="126" text-anchor="middle">E. coli</text>
@@ -632,9 +386,6 @@
               <rect class="a-pa-cell" x="440" y="44" width="120" height="72" rx="36"/>
               <rect class="a-pa-cell" x="440" y="212" width="120" height="72" rx="36"/>
               <path class="a-talk" d="M500 116V212"/>
-{# Three of the five are struck out and two are not. The aptamer takes
-                   signal out of the water rather than cutting the line, so what the
-                   picture should say is less, not none. #}
               <g class="a-drift"><g class="a-ahl-caught"><use href="#hxAhl" class="a-ahl a-ahl-talk" x="500" y="128"/><path class="a-x" d="M493 121l14 14M507 121l-14 14"/></g></g>
               <g class="a-drift a-drift-2"><use href="#hxAhl" class="a-ahl a-ahl-talk" x="500" y="162"/></g>
               <g class="a-drift a-drift-3"><g class="a-ahl-caught"><use href="#hxAhl" class="a-ahl a-ahl-talk" x="500" y="198"/><path class="a-x" d="M493 191l14 14M507 191l-14 14"/></g></g>
@@ -673,14 +424,6 @@
   </div>
 </section>
 
-{#
-  ======================== 3. from light to a number ========================
-  One line per tool, each in its own page's words: Parts (the detection
-  parts), Hardware (CAPTURE-Screen: 470 nm in, read at 90 degrees, ten
-  channels, two builds at US$54 and US$161 by our own costing), Software
-  (LasReader's lead: in the browser, nothing to install) and Model (its three
-  models, in the order its opening paragraph gives them).
-#}
 <section class="hx hx-pipe" id="hx-pipe" aria-labelledby="hx-pipe-title">
   <div class="hx-inner">
     <p class="hx-kicker" data-reveal>Wet lab to dry lab</p>
@@ -732,14 +475,6 @@
   </div>
 </section>
 
-{#
-  ======================== 4. out of the lab ========================
-  The question is Human Practices' own (its Overview). The figures: 17
-  sessions and 450+ students are Education's tiles; 376 is the Survey; 14 is
-  everyone on the Collaboration page's wall, each with their logo; 9 is the
-  SDGs page's count, as Human Practices has it. The six conversations are
-  Meet with Experts' lineup, in the order it has them.
-#}
 <section class="hx hx-world" id="hx-world" aria-labelledby="hx-world-title">
   <div class="hx-inner">
     <p class="hx-kicker" data-reveal>Human practices</p>
@@ -764,7 +499,7 @@
         <span class="hx-stat-n"><span data-count-to="14">14</span></span>
         <span class="hx-stat-l">teams and schools we worked with</span></a></li>
       <li data-reveal style="--rx-d:320"><a href="{{ url_for('pages', page='sustainability') }}">
-        <span class="hx-stat-n"><span data-count-to="9">9</span></span>
+        <span class="hx-stat-n"><span data-count-to="6">6</span></span>
         <span class="hx-stat-l">UN Sustainable Development Goals our work moves toward</span></a></li>
     </ul>
 
@@ -819,17 +554,11 @@
 
 <div class="container hx-play">
 
-  {# The game, unchanged; only this heading is new. #}
   <div class="hx-play-head">
     <p class="hx-kicker" data-reveal>Your turn</p>
     <h2 class="hx-title" data-reveal>Catch the signal</h2>
   </div>
 
-  {#
-    Capture, moved here from its own Online Game page so the home page carries
-    it directly. The markup and the script are unchanged: capture-game.js finds
-    its root by .cap-game, not by which page it is on.
-  #}
   <section class="cap-page mx-auto mt-5" id="captureGame">
     <h3 class="font-weight-bold text-center">Capture</h3>
 
@@ -846,11 +575,6 @@
       </p>
     </div>
 
-    {#
-      One component, three states, switched by data-state on .cap-game: idle
-      shows the difficulty panel, playing shows the field, over shows the result.
-      The score and clock sit in the top-right corner of the field throughout.
-    #}
     <div class="cap-game" data-state="idle">
 
       <div class="cap-field" data-lenis-prevent>
@@ -868,15 +592,6 @@
           </button>
         </div>
 
-        {#
-          Before the round: what the two things in the dish are and what each
-          one does to the score, then the difficulty, then start. The rules
-          belong here because here is where they are read -- once the minute
-          is running there is no looking them up.
-
-          The bacterium below is the same file capture-game.js drops into the
-          dish (GERM_URL there). If one moves, both move.
-        #}
         <div class="cap-panel cap-panel-start">
           <h2>How to play</h2>
 
@@ -926,7 +641,6 @@
           <p class="cap-note">Bacteria you leave alone cost nothing.</p>
         </div>
 
-        {# After the round. #}
         <div class="cap-panel cap-panel-end" role="dialog" aria-modal="true"
              aria-labelledby="cap-end-title">
           <h2 id="cap-end-title">Time&rsquo;s up</h2>
@@ -941,8 +655,6 @@
           </div>
         </div>
 
-        {# Mid-round, while paused: the clock and the dish both freeze,
-             nothing in the field can be caught until Resume. #}
         <div class="cap-panel cap-panel-pause" role="dialog" aria-modal="true"
              aria-labelledby="cap-pause-title">
           <h2 id="cap-pause-title">Paused</h2>
@@ -954,37 +666,17 @@
 
       </div>
 
-      {# Only the final score is announced; a score read out once a second for
-           a minute would be unusable. #}
       <p class="cap-live visually-hidden" role="status" aria-live="polite"></p>
     </div>
   </section>
 
-  {#
-    Promotion video: the reader has been through the abstract and the game, and
-    this is the short version of all of it. Only the quiz invitation follows,
-    for anyone who still does not know where to go next.
-
-    Served from video.igem.org, which is what the rules ask for -- see README.
-    It was on YouTube first and would not play there: YouTube allowed the
-    embed at the account level but refused it at playback (error 152), so the
-    box was dead for every visitor. Video Universe is both the compliant
-    answer and the working one. The sandbox and allow attributes are the ones
-    video.igem.org hands out with the embed code; the player needs them.
-  #}
   {% set promo_embed = 'https://video.igem.org/videos/embed/iYpxBDZEuVNLo43WbhzPxK' %}
   {% set promo_watch = 'https://video.igem.org/w/918b84bd-33de-4aa9-9de0-c548ad2b8eb5' %}
 
   <section class="home-video" aria-labelledby="promoVideoHeading">
     <h3 class="home-video-title text-center" id="promoVideoHeading">Promotion video</h3>
 
-    {# Bootstrap's .ratio holds the 16:9 box, so the iframe needs no width or
-       height of its own and cannot letterbox on a narrow screen. #}
     <div class="ratio ratio-16x9 home-video-frame">
-      {# data-src, not src: the player is only given its address once the page
-         has loaded (script at the bottom), so a slow video host cannot hold
-         the loading screen up. loading="lazy" then keeps it from being
-         fetched before the reader scrolls near it. #}
       <iframe data-src="{{ promo_embed }}" loading="lazy"
               title="NCKU-Tainan: Capture &mdash; Striking Back at Pseudomonas aeruginosa with Dual-Action Engineered E. coli (2026), project promotion"
               sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
@@ -992,8 +684,6 @@
               allowfullscreen></iframe>
     </div>
 
-    {# A framed player can still be blocked at the reader's end, and then the
-         box above is simply empty. This is the way out of that. #}
     <p class="home-video-note">
       Cannot see it? <a href="{{ promo_watch }}" rel="noopener">Watch it on video.igem.org</a>.
     </p>
@@ -1001,19 +691,6 @@
 
 </div>
 
-{#
-  ======================== the map of the wiki ========================
-  Every page in the menu, in the menu's order, with one line on what is in
-  it. Each line restates that page (its lead, its headings or its own
-  figures); the pages still waiting on their content get a line on what they
-  are for and nothing more. Pointing at a page shows its line in the panel on
-  the right; on a narrow screen the lines sit under the links instead.
-
-  A number here is a copy and goes stale: Notebook counts its own entries
-  (c.wet + c.dry + c.hp, over weeks|length) and had reached 132 across 26
-  weeks while this line still read 114. Check a page's own figure before
-  trusting the one written here.
-#}
 {% set wiki_map = [
   ("Project", "glow", [
     ("description", "Description", "Why P. aeruginosa, the signal we are after, and Capture: two systems, one signal."),
@@ -1040,7 +717,7 @@
     ("collaboration", "Collaboration", "14 teams and schools, from Taiwan to Israel and Brazil, and the Mini-Jamboree."),
     ("promotion", "Promotion", "Sharing sessions, a Lund University podcast, and clinical promotion in Qigu District."),
     ("board-game", "Board Game", "The Green Cabinet, our board game about the UN Sustainable Development Goals, playable here."),
-    ("sustainability", "SDGs", "The nine Sustainable Development Goals our work moves toward, and how."),
+    ("sustainability", "SDGs", "The six Sustainable Development Goals our work moves toward, and how."),
   ]),
   ("Team", "coral", [
     ("team", "Team", "The people behind Capture."),
@@ -1081,12 +758,6 @@
 
 <div class="container">
 
-  {#
-    The tour in the banner shows everything. This asks four questions instead
-    and names two or three pages, for a reader who has reached the bottom of
-    the page and still does not know where to start. It sits last for that
-    reason: it is the second offer, not a competing one.
-  #}
   <div class="quiz-invite">
     <button type="button" class="quiz-open" id="quizOpen" hidden>
       <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m0-1A7 7 0 1 1 8 1a7 7 0 0 1 0 14"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/></svg>
@@ -1094,31 +765,6 @@
     </button>
   </div>
 
-  {# The one reference list this page carries. The rule above -- figures
-     live on Description, with their citations, and this page stays clean
-     -- holds for the figures, because Description states every one of
-     them. It cannot hold for the four habitats: those paragraphs exist
-     only here, so there is nowhere else for their sources to live.
-
-     Every entry below was checked against its PubMed record on
-     2026-10-14, which is where the DOIs and the author lists come from.
-     Two were wrong as first written down and are corrected here:
-
-       ref3  was given the title "Distribution and transmission of
-             Pseudomonas aeruginosa in a hospital ward". That title
-             belongs to a different paper (Doring et al. 1996, Pediatr
-             Pulmonol 21(2):90-100, and it is about P. aeruginosa AND
-             Burkholderia cepacia). The paper actually at Zentralbl Hyg
-             Umweltmed 191(5-6):494-505 is the one below, on aerosols
-             raised from contaminated sink drains during handwashing --
-             which is the better source for the damp sink anyway. It
-             predates DOIs, so it is linked by PMID.
-       ref4  was attributed to Carstens. PubMed has no such author on it:
-             the first author is Anantharajah. The title is also a little
-             longer than written down ("of carbapenemase-producing
-             organisms"), and the organisms include VIM-producing
-             P. aeruginosa.
-  #}
   <section class="desc-refs hx-why-refs" id="hx-why-refs" aria-labelledby="hx-why-refs-title">
     <h2 id="hx-why-refs-title">References</h2>
     <ol>
@@ -1151,11 +797,6 @@
 
 </div>
 
-{#
-  Four questions, then two or three pages. All of its wording lives in
-  static/site-quiz.js in both languages; only the links live here, so url_for
-  builds them and the static build keeps them.
-#}
 <div class="quiz" id="siteQuiz" hidden>
   <div class="quiz-backdrop" data-quiz-dismiss></div>
 
@@ -1176,10 +817,6 @@
       <div class="quiz-results" id="quizResults" hidden></div>
     </div>
 
-    {# These three carry their English text in the markup even though the
-         script overwrites it on every render: it is what they are called if
-         the script never arrives, and it keeps them from being nameless
-         controls in the meantime. #}
     <div class="quiz-foot">
       <button type="button" class="quiz-btn quiz-back" id="quizBack">Back</button>
       <button type="button" class="quiz-btn quiz-restart" id="quizRestart" hidden>Start over</button>
@@ -1187,18 +824,6 @@
   </div>
 </div>
 
-{#
-  The pages the quiz is allowed to recommend. Only pages that have something
-  on them are listed: sending a curious reader to an empty page is worse than
-  not answering at all. As a page gets written, add it here and give it a row
-  in PAGES and a blurb in COPY.pages in static/site-quiz.js.
-
-  Not listed yet, because they are still empty: Result, Contribution, Parts,
-  Safety and Security, Model. Human Practices has its first entry but
-  only that one, so it waits here until there is more than one thing to find
-  on it. Online Game is not listed either: the game is on this page now, so
-  there is nowhere to send anyone.
-#}
 <div class="quiz-pages" id="quizPages" hidden>
   <a data-quiz-page="hardware"      href="{{ url_for('pages', page='hardware') }}">Hardware</a>
   <a data-quiz-page="software"      href="{{ url_for('pages', page='software') }}">Software</a>
@@ -1222,15 +847,6 @@
 <script src="{{ url_for('static', filename = 'js/pages/home.js') }}" defer></script>
 <script src="{{ url_for('static', filename = 'js/pages/hais-reels.js') }}" defer></script>
 <script>
-/* The player is given its address only once the reader has come to rest on
-   it. Booting it costs about a tenth of a second of main thread, and with
-   loading="lazy" that landed exactly as the reader scrolled past the box --
-   the frame rate through this part of the page halved. Waiting for the box
-   to be a quarter on screen, and for a short pause after that, means
-   scrolling past costs nothing and the player still loads by itself for
-   anyone who stops to watch. The dark panel behind it is what shows in the
-   meantime, as it already did while the player was loading.
-   Without IntersectionObserver, the old behaviour. */
 (function () {
   var frame = document.querySelector(".home-video-frame iframe[data-src]");
   if (!frame) return;

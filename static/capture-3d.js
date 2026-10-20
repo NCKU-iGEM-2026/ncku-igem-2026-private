@@ -1,30 +1,6 @@
-/* The laser-cut reader in 3D.
- *
- * Nothing here is modelled by hand. Every board is the outline that
- * capture-generator.js cuts, given its thickness and put where
- * CaptureGen.assembly() says it goes: the walls on their deck slots, the
- * roofs in their wall-top notches, the deck on its rails, the enclosure
- * around it. Change the generator and this view changes with it.
- *
- * One thing is not a cut part and is drawn as a plain shape: the cuvette. Parts the drawing gives no exact spot for (the rails,
- * which wall of the enclosure faces which way) say so when picked.
- *
- * A small WebGL 1 renderer, no library and nothing fetched, as the iGEM asset
- * rules require: flat-shaded faces, the board edges drawn over them, an orbit
- * camera, and picking by drawing each part in its own colour off screen.
- * Without WebGL the panel keeps its written description.
- */
 (function (root) {
   'use strict';
 
-  /* ------------------------------------------------------------------
-     TRIANGULATION: a polygon with holes, cut into vertical slabs
-     Every vertex's x starts a new slab, so inside a slab each edge is one
-     straight piece; the edges crossing a slab, sorted bottom to top, pair up
-     (even-odd) into trapezoids, and each trapezoid is two triangles. Exact
-     for any outline and holes that do not cross each other, and it cannot
-     get stuck the way ear clipping can on rows of aligned slots.
-     ------------------------------------------------------------------ */
   function triangulate(outer, holes) {
     var loops = [outer].concat(holes), edges = [], xs = [];
     loops.forEach(function (l) {
@@ -49,7 +25,6 @@
         tris.push([a, b, c], [a, c, d]);
       }
     }
-    // drop the slivers of zero area (a trapezoid that narrows to a point)
     tris = tris.filter(function (t) {
       var p = pts[t[0]], q = pts[t[1]], r = pts[t[2]];
       return Math.abs((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])) > 1e-12;
@@ -63,9 +38,6 @@
     return out;
   }
 
-  /* ------------------------------------------------------------------
-     MESHES: a board = its outline and cuts, given thickness
-     ------------------------------------------------------------------ */
   function boardMesh(part) {
     var p = part.piece, O = part.O, U = part.U, V = part.V, N = part.N;
     function W(q, w) {
@@ -101,7 +73,6 @@
     return { tris: tv, lines: lv };
   }
 
-  // a ball, for the LED's head
   function ballMesh(c, r, n) {
     var tv = [], P = function (i, j) {
       var th = Math.PI * i / n, ph = 2 * Math.PI * j / (2 * n);
@@ -114,9 +85,6 @@
     return { tris: tv, lines: [] };
   }
 
-  /* ------------------------------------------------------------------
-     SMALL MATRIX KIT (column-major, as WebGL wants)
-     ------------------------------------------------------------------ */
   function mul(a, b) {
     var o = new Float32Array(16);
     for (var c = 0; c < 4; c++) for (var r = 0; r < 4; r++) {
@@ -138,14 +106,9 @@
     return new Float32Array([x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0, -dot(x, e), -dot(y, e), -dot(z, e), 1]);
   }
 
-  /* ------------------------------------------------------------------
-     THE VIEWER
-     ------------------------------------------------------------------ */
   var COL = {
     core: [0.20, 0.23, 0.245, 1], coreEdge: [0.56, 0.65, 0.69, 0.75],
-    // the electronics layer is bare plywood: rails and the plate under the sensor slot are drawn as wood
     rail: [0.72, 0.58, 0.40, 1], railEdge: [0.89, 0.77, 0.57, 0.7],
-    // the cuvette plate covers the whole optical layer, so it is drawn as glass: there, but not in the way
     plate: [0.55, 0.64, 0.68, 0.10], plateEdge: [0.70, 0.79, 0.83, 0.85],
     cap: [0.20, 0.23, 0.245, 1], capEdge: [0.56, 0.65, 0.69, 0.75],
     trap: [0.20, 0.23, 0.245, 1], trapEdge: [0.56, 0.65, 0.69, 0.75],
@@ -170,20 +133,17 @@
     if (!stage || !canvas || !ctrls || !readout) return;
     var gl = null;
     try { gl = canvas.getContext('webgl', { antialias: true, alpha: true, preserveDrawingBuffer: true }) || canvas.getContext('experimental-webgl'); } catch (e) { gl = null; }
-    if (!gl) return;   // the written description stays
+    if (!gl) return;
 
     var t = +(el.getAttribute('data-t') || opt.t || 3);
     var A = root.CaptureGen.assembly({ t: t, fit: 0.1, boxFit: 0.1 });
     var K = root.CaptureGen.K, calm = root.matchMedia && root.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* --- the things to draw --- */
     var items = A.parts.map(function (p) {
       var m = boardMesh(p);
       return { name: p.name, kind: p.kind, where: p.where, height: p.height, size: [p.piece.w, p.piece.h, t], group: p.group, mesh: m };
     });
     var cx = (K.cuvL + K.cuvR) / 2, cyy = (K.cuvBot + K.cuvTop) / 2;
-    // the UVette, sized as in the 3D-printed section's parts list (12.5 × 12.5 × 36 mm) and shaped as in its cutaway:
-    // a solid optical block at the bottom, a body 0.4 mm slimmer on each side, and a 2 mm rim 0.9 mm proud at the mouth
     var uv = [boxMesh(cx - 6.25, cyy - 6.25, 0, cx + 6.25, cyy + 6.25, 21.5),
               boxMesh(cx - 5.85, cyy - 5.85, 21.5, cx + 5.85, cyy + 5.85, 34),
               boxMesh(cx - 7.15, cyy - 7.15, 34, cx + 7.15, cyy + 7.15, 36)];
@@ -191,26 +151,20 @@
                  mesh: { tris: [].concat(uv[0].tris, uv[1].tris, uv[2].tris), lines: [].concat(uv[0].lines, uv[1].lines, uv[2].lines) },
                  text: '12.5 × 12.5 × 36 mm, in its 13 × 13 mm pocket: a solid optical block at the bottom, a slimmer body, a rim at the mouth. The 2 mm path faces the LED, the 10 mm path faces the sensor. Bought part, drawn as in the 3D-printed build\'s section.' });
 
-    /* --- the electronics: bought parts as plain shapes, wires routed through the holes the parts provide ---
-       Where each wire goes in or out is fixed by the cut parts (the LED chamber's wire hole, the detection
-       chamber's wire hole, the long side's opening); the path between those points is drawn to show the
-       connection, not traced from the reader. */
-    var zf = A.box.z0 + t, zb = A.box.z0;                 // inside floor, and the table under the enclosure
+    var zf = A.box.z0 + t, zb = A.box.z0;
     var Tx0 = K.T_X0, Tx1 = K.T_X1, Ty0 = K.cuvTop, Rx0 = K.cuvR + t;
-    var SX = (Tx0 + Tx1) / 2, SY = Ty0 + t / 2;           // sensor board: stands in the slot beside the cuvette
+    var SX = (Tx0 + Tx1) / 2, SY = Ty0 + t / 2;
     var BOARD = 'Bought part, drawn as a plain shape; its size is not to scale.';
     function part(name, kind, mesh, text, col) { items.push({ name: name, kind: kind, mesh: mesh, text: text, col: col }); }
     part('AS7341 sensor board (DFRobot SEN0364)', 'sensor', boxMesh(SX - 10.5, SY - 0.8, -t, SX + 10.5, SY + 0.8, 17),
       'Stands upright in the slot beside the cuvette, facing it at 90°, on the plate glued under the deck. ' + BOARD, [0.22, 0.34, 0.46, 1]);
     part('AS7341 sensor chip', 'sensor', boxMesh(SX - 1.6, SY - 1.2, 4, SX + 1.6, SY - 0.8, 7.2),
       'The ten-channel spectral sensor, on the side of the board that faces the cuvette. ' + BOARD, [0.1, 0.1, 0.12, 1]);
-    // the ESP32 is plugged into a half-size breadboard, taped to the base; zE is the top of the breadboard
     var zE = zf + 9.5;
     part('Breadboard', 'elec', boxMesh(20, 22, zf, 102.5, 76.6, zE),
       'Half-size breadboard, taped to the base, with the ESP32 plugged into it. ' + BOARD, [0.88, 0.88, 0.86, 1]);
     part('ESP32 DevKit (ESP32-WROOM-32)', 'elec', boxMesh(22, 30, zE, 73, 58, zE + 1.6),
       'The controller, plugged into the breadboard in the lower layer. Its spot there is illustrative. ' + BOARD, [0.13, 0.17, 0.22, 1]);
-    // the ESP32 is powered over USB; the cable leaves through the opening in one short side (we use a power bank)
     var SP = K.SIDE_PORT, sy = A.box.y0 + t + SP.x + SP.w / 2, sz = A.box.z0 + t + SP.y + SP.h / 2;
     items.push({ name: 'USB cable', kind: 'wire', col: [0.75, 0.77, 0.8, 1],
       mesh: (function () { var tv = [], r = 1.6, pts = [[22, 44, zE + 1.2], [10, 44, zE + 1.2], [10, sy, zE + 1.2], [10, sy, sz], [A.box.x0 - 25, sy, sz]];
@@ -223,8 +177,6 @@
     part('Blue LED (Cree C503B, 470 nm)', 'led', ballMesh([K.cuvL - t - 2.6, K.LED_HOLE.s, K.LED_HOLE.z], 2.5, 8),
       'In the 4 mm hole in the cuvette wall, taped in place, shining straight at the cuvette. ' + BOARD, [0.55, 0.75, 1, 1]);
     var WH = K.WIRE_HOLE, TW = K.T_WIRE_HOLE, FP = K.FRONT_PORT;
-    // the display and the button are fixed to the outside of the long side, side by side, and together cover
-    // its opening; their wires come through the opening from behind
     var fy = A.box.y0 + A.box.Y, fx0 = FP.x, fx1 = FP.x + FP.w, fzc = zf + FP.y + FP.h / 2;
     part('SSD1306 OLED display', 'elec', boxMesh(fx0 - 4.5, fy, fzc - 13.5, fx0 + 22.5, fy + 3.2, fzc + 13.5),
       'Fixed to the outside of the long side, over its opening, beside the button. ' + BOARD, [0.08, 0.1, 0.14, 1]);
@@ -232,7 +184,6 @@
     part('Push button', 'elec', boxMesh(fx0 + 22.5, fy, fzc - 8, fx1 + 10.5, fy + 2.6, fzc + 8),
       'Fixed to the outside of the long side, over its opening, beside the display. One press records a batch of five readings. ' + BOARD, [0.3, 0.3, 0.33, 1]);
     part('Push button cap', 'elec', boxMesh(fx1 + 2.5, fy + 2.6, fzc - 2.5, fx1 + 7.5, fy + 5.6, fzc + 2.5), 'The button itself. ' + BOARD, [0.85, 0.25, 0.2, 1]);
-    // a resistor in the LED line, on the stretch that drops through the LED chamber's wire hole
     part('220 Ω resistor', 'elec', boxMesh(WH.x - 1.2, WH.y - 1.2, -16, WH.x + 1.2, WH.y + 1.2, -9),
       'In the LED line: GPIO25 through 220 Ω to the LED. ' + BOARD, [0.82, 0.72, 0.52, 1]);
 
@@ -252,16 +203,13 @@
       items.push({ name: name, kind: 'wire', mesh: { tris: tv, lines: [] }, col: WIRE[sig].c,
                    text: 'Wire: ' + WIRE[sig].what + '. Drawn to show the connection; the path between holes is not traced from the reader.' });
     }
-    // LED: up through the LED chamber's wire hole, across the chamber to the LED behind its hole in the cuvette wall
     var ledX = K.cuvL - t - 2.5;
     wire('LED wire (GPIO25)', 'led', [[30, 31, zE + 1.6], [30, 31, zf + 8], [WH.x, 31, zf + 8], [WH.x, WH.y, zf + 8], [WH.x, WH.y, 1.2], [ledX, WH.y, 1.2], [ledX, K.LED_HOLE.s + 0.9, 1.2], [ledX, K.LED_HOLE.s + 0.9, K.LED_HOLE.z]]);
     wire('LED ground wire', 'g', [[27, 31, zE + 1.6], [27, 31, zf + 10], [WH.x - 1.6, 31, zf + 10], [WH.x - 1.6, WH.y, zf + 10], [WH.x - 1.6, WH.y, 2.6], [ledX, WH.y, 2.6], [ledX, K.LED_HOLE.s - 0.9, 2.6], [ledX, K.LED_HOLE.s - 0.9, K.LED_HOLE.z]]);
-    // sensor: from the top of the board along the detection chamber, down through its wire hole, to the controller
     [['Sensor 3.3 V wire', 'v', -2.4], ['Sensor ground wire', 'g', -0.8], ['Sensor SDA wire', 'sda', 0.8], ['Sensor SCL wire', 'scl', 2.4]].forEach(function (w, i) {
       var x = SX + w[2];
       wire(w[0], w[1], [[x, SY, 17], [x, SY, 19 + i * 0.01], [x, TW.y, 19], [x, TW.y, zf + 12 + i * 1.3], [x, 56, zf + 12 + i * 1.3], [x, 56, zE + 1.6]]);
     });
-    // display and button: from the controller out through the long side's opening to the back of each
     var portZ = fzc;
     [['OLED 3.3 V wire', 'v', 0], ['OLED ground wire', 'g', 1], ['OLED SDA wire', 'sda', 2], ['OLED SCL wire', 'scl', 3],
      ['Button wire (GPIO13)', 'btn', 15], ['Button ground wire', 'g', 16.4]].forEach(function (w, i) {
@@ -269,24 +217,17 @@
       wire(w[0], w[1], [[x0, 57, zE + 1.6], [x0, 57, z], [x, 57, z], [x, fy + 0.2, z]]);
     });
 
-    /* --- the light, for "Take a reading": each piece has a start, a duration, and either grows along `dir`
-       or fades in. None of it is a measurement; the captions say what each step is. */
     var lights = [];
     function light(mesh, col, start, dur, dir, from, len, fadeAfter) {
       lights.push({ mesh: mesh, col: col, start: start + DARK, dur: dur, dir: dir, from: from, len: len, fadeAfter: fadeAfter && fadeAfter + DARK });
     }
-    var DARK = 0.9;   // the eight samples with the LED off come first
+    var DARK = 0.9;
     var BLUE = [0.2, 0.45, 1.0, 0.92], GREEN = [0.2, 0.85, 0.35, 0.92];
-    // where the beam meets the light trap's sloped plate: its top face rises from the floor at the opening wall
-    // (it starts t·22/29.73 up, the board's own thickness) at 20 mm per 22 mm
     var ly = K.LED_HOLE.s, lz = K.LED_HOLE.z, rampL = Math.hypot(22, 20);
     var hitX = Rx0 + Math.max(0.5, (lz - t * 22 / rampL) * 22 / 20), gz = lz;
-    // the LED lights up
     light(ballMesh([ledX - 0.1, ly, lz], 3.6, 8), [0.35, 0.6, 1, 0.6], 0, 0.4);
-    // blue: from the LED, through the cuvette's 2 mm path, into the light trap, where it ends on the sloped plate
     light(boxMesh(ledX, ly - 1.6, lz - 1.5, hitX, ly + 1.6, lz + 1.5), BLUE, 0.3, 1.1, [1, 0, 0], ledX, hitX - ledX);
     light(boxMesh(hitX - 0.5, ly - 3, lz - 1.5, hitX + 2.5, ly + 3, lz + 3.5), [0.2, 0.45, 1.0, 0.5], 1.4, 0.4);
-    // green: the sample answers as soon as the blue reaches it, sideways at 90°, through the 10 mm path to the sensor
     var tGreen = 0.3 + 1.1 * (cx - ledX) / (hitX - ledX);
     light(boxMesh(cx - 1.8, cyy, gz - 1.8, cx + 1.8, SY - 1.2, gz + 1.8), GREEN, tGreen, 0.7, [0, 1, 0], cyy, SY - 1.2 - cyy);
     var STEPS = [
@@ -300,21 +241,12 @@
     ];
     var END = DARK + 4.6;
 
-    /* the display, as the batch firmware (v5.5) draws it while a batch runs: the tube's ID in large type with
-       "n/5" and a progress bar, and "DONE" with the batch's means once all five readings are in (the first is
-       not counted, so n = 4). The numbers are one real batch from the linearity test: tube H100, the
-       undiluted sfGFP culture, batch 6 in 0922_summary.csv, F3 800.8 and SIG 55.34 (SIG = F5 − k5·F3, the
-       value the screen shows). That file keeps the batch means only, so the screen here leaves out the
-       firmware's "+- SD" and the single readings, rather than make them up. */
     var SCREEN = { id: 'H100', f3: 800.8, sig: 55.34, n: 4 };
     var oled = document.createElement('div'); oled.className = 'lc3d-oled'; oled.hidden = true;
     oled.setAttribute('role', 'img'); oled.setAttribute('aria-label', 'The reader\'s display during the batch');
-    // the caption and the display share one row under the view
     var foot = document.createElement('div'); foot.className = 'lc3d-foot';
     readout.parentNode.insertBefore(foot, readout); foot.appendChild(readout); foot.appendChild(oled);
     function oledAt(T) {
-      // as the firmware draws it: "measuring..." from the press on (the LED-off samples are part of the reading),
-      // 1/5 only once the first reading is complete, DONE only after all five
       var rows, done = T >= DARK + 2.8 ? 1 : 0;
       if (T < END - 0.05) {
         rows = [['big', SCREEN.id, done + '/5'], ['bar', done / 5], ['txt', 'measuring...'], ['txt', ''], ['txt', 'do not touch']];
@@ -333,12 +265,9 @@
       oled.hidden = false;
     }
 
-    /* explode offsets */
     var bx = A.box, mid = [bx.x0 + bx.X / 2, bx.y0 + bx.Y / 2];
     items.forEach(function (it) {
       var o = [0, 0, 0];
-      // "Chambers open" lifts the cuvette plate off and sets each chamber roof aside, away from the cuvette,
-      // so the inside of every chamber can be seen from above; the cuvette stays in its pocket
       if (it.kind === 'plate') o = [0, 0, 70];
       else if (/^L chamber roof/.test(it.name)) o = [-58, 0, 26];
       else if (/^R chamber roof/.test(it.name)) o = [58, 0, 26];
@@ -346,13 +275,11 @@
       it.off = o;
     });
 
-    /* --- GL resources --- */
     function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
     var prog = gl.createProgram();
     gl.attachShader(prog, sh(gl.VERTEX_SHADER,
       'attribute vec3 p; attribute vec3 n; uniform mat4 M; uniform vec3 off; uniform vec3 L; uniform float lit; varying float s; varying vec3 wp;' +
       'void main(){ wp = p + off; gl_Position = M * vec4(wp, 1.0); s = lit > 0.5 ? 0.42 + 0.58 * abs(dot(normalize(n), L)) : 1.0; }'));
-    // cutN, cutD: anything past the plane dot(x, cutN) = cutD is not drawn; that is how a beam grows
     gl.attachShader(prog, sh(gl.FRAGMENT_SHADER,
       'precision mediump float; uniform vec4 col; uniform vec3 cutN; uniform float cutD; varying float s; varying vec3 wp;' +
       'void main(){ if (dot(wp, cutN) > cutD) discard; gl_FragColor = vec4(col.rgb * s, col.a); }'));
@@ -381,7 +308,6 @@
     items.forEach(function (it) { it.tb = upload(it.mesh.tris, true); it.lb = upload(it.mesh.lines, false); });
     lights.forEach(function (l) { l.tb = upload(l.mesh.tris, true); });
 
-    /* --- picking target --- */
     var fbo = gl.createFramebuffer(), ftex = gl.createTexture(), frb = gl.createRenderbuffer(), fw = 0, fh = 0;
     function sizePick(w, h) {
       if (w === fw && h === fh) return;
@@ -397,13 +323,11 @@
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
-    /* --- state --- */
     var mode = 'core', sel = -1, ex = 0, exTo = 0, cam = { yaw: 2.25, pitch: 0.62, dist: MODES.core.dist };
     var target = [64, 50, MODES.core.z], camTo = { dist: cam.dist, z: target[2], x: 64, y: 50 };
 
-    var elecOn = true, anim = null;   // anim: { t0 } while a reading plays, { done: true } after it
+    var elecOn = true, anim = null;
     function visible(it) {
-      // while the light plays, the lifted plate would only be in the way
       if (anim && it.kind === 'plate') return false;
       if (it.kind === 'led') return true;
       return !!MODES[mode].show[it.kind] && (elecOn || (it.kind !== 'elec' && it.kind !== 'wire'));
@@ -433,7 +357,6 @@
       gl.uniform3f(loc.L, 0.38, -0.52, 0.76);
       noCut();
       gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      // opaque faces first, then see-through ones without writing depth
       [false, true].forEach(function (glass) {
         gl.depthMask(!glass);
         items.forEach(function (it, i) {
@@ -456,9 +379,7 @@
       });
       if (anim) {
         var T = anim.done ? END : (now() - anim.t0) / 1000;
-        // the light is drawn through the walls, as an x-ray of where it goes
         gl.disable(gl.DEPTH_TEST);
-        // plain blending, not adding: added onto grey walls, blue and green both wash out to cyan
         gl.uniform1f(loc.lit, 0); gl.uniform3f(loc.off, 0, 0, 0);
         lights.forEach(function (l) {
           var p = Math.max(0, Math.min(1, (T - l.start) / l.dur));
@@ -486,7 +407,6 @@
       gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.disable(gl.BLEND); gl.enable(gl.DEPTH_TEST); gl.depthMask(true);
       gl.uniformMatrix4fv(loc.M, false, matrix()); gl.uniform1f(loc.lit, 0); noCut();
-      // the enclosure and the cuvette plate are glass: pick what is inside first, the glass only where nothing else is
       var px8 = new Uint8Array(4), hit = -1;
       [false, true].forEach(function (glass) {
         if (hit >= 0) return;
@@ -503,7 +423,6 @@
       return hit;
     }
 
-    /* --- sizing and the frame loop --- */
     var dirty = true;
     function fit() {
       var r = canvas.getBoundingClientRect(), d = Math.min(root.devicePixelRatio || 1, 2);
@@ -534,7 +453,6 @@
       root.requestAnimationFrame(frame);
     }
 
-    /* --- the readout --- */
     function fmt(v) { return (Math.round(v * 100) / 100).toString(); }
     var intro = readout.innerHTML;
     function say() {
@@ -553,20 +471,17 @@
       }
       readout.innerHTML = '';
       var b = document.createElement('strong');
-      // the generator's short chamber names, spelled out for a reader
       b.textContent = it.name.replace(/^L chamber/, 'LED chamber').replace(/^R chamber/, 'Light-trap chamber').replace(/^T chamber/, 'Detection chamber');
       readout.appendChild(b);
       readout.appendChild(document.createTextNode(' — ' + txt));
     }
 
-    // during a reading the readout shows what the light is doing
     function caption(text) {
       readout.innerHTML = '';
       var b = document.createElement('strong'); b.textContent = 'Taking a reading';
       readout.appendChild(b); readout.appendChild(document.createTextNode(' — ' + text));
     }
 
-    /* --- controls --- */
     var seg = document.createElement('div'); seg.className = 'hwx-seg'; seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'What to show');
     var buttons = {};
     function setMode(k) {
@@ -584,7 +499,6 @@
     var tools = document.createElement('div'); tools.className = 'hwx-seg';
     function tool(label, fn) { var b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.addEventListener('click', fn); tools.appendChild(b); return b; }
     var go = tool('Take a reading', function () {
-      // open the chambers, look in from above the LED side, and play the light through once
       setMode('open'); sel = -1;
       cam.yaw = 2.6; cam.pitch = 1.38; camTo = { dist: 132, z: 2, x: (K.cuvL + K.cuvR) / 2 + 4, y: (K.cuvBot + K.cuvTop) / 2 + 3 };
       anim = calm ? { done: true, step: STEPS.length - 1 } : { t0: now(), step: -1 };
@@ -602,7 +516,6 @@
     tool('Reset view', function () { cam.yaw = 2.25; cam.pitch = 0.62; camTo = { dist: MODES[mode].dist, z: MODES[mode].z, x: 64, y: 50 }; anim = null; oled.hidden = true; sel = -1; say(); dirty = true; });
     ctrls.appendChild(seg); ctrls.appendChild(tools);
 
-    /* --- pointer and keys --- */
     var drag = null;
     canvas.addEventListener('pointerdown', function (e) { drag = { x: e.clientX, y: e.clientY, moved: 0 }; try { canvas.setPointerCapture(e.pointerId); } catch (er) {} });
     canvas.addEventListener('pointermove', function (e) {

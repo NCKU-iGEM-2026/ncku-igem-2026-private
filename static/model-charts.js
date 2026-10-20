@@ -1,21 +1,8 @@
-// Model page: the three figures.
-//
-// The points are tube means from our own bench sessions, copied out of the
-// per-tube tables of the team's data analysis (P1_DATA_ANALYSIS_2026-09-30,
-// section 4.4). Nothing else about the figures is typed in: every
-// slope, every line and every held-out error is computed here from those
-// twenty points, so a figure cannot drift away from its own data. Add a tube
-// to SESSIONS and all three redraw.
-//
-// No library. If the script never runs, each panel keeps the sentence it
-// shipped with, and the same numbers are in the tables beside it.
 (function () {
   "use strict";
 
   const SVG = "http://www.w3.org/2000/svg";
 
-  // rho: the stock density index of that session (displayed OD read in the
-  // low range, multiplied back by the dilution). tubes: [sample, G, F4].
   const SESSIONS = [
     { id: "16", name: "Mixing session 1", short: "Session 1", date: "2026-09-16", shape: "circle", rho: 2.84, tubes: [
       ["CAL_B03", 0.25, 6.000], ["CAL_B06", 0.50, 19.667],
@@ -34,18 +21,12 @@
     ] },
   ];
 
-  // ---- arithmetic ---------------------------------------------------------
-  // Least squares through the origin, and the error of a line of slope m.
   const slope = (pts) => pts.reduce((a, p) => a + p[0] * p[1], 0) / pts.reduce((a, p) => a + p[0] * p[0], 0);
   const rmse = (pts, m) => Math.sqrt(pts.reduce((a, p) => a + (p[1] - m * p[0]) ** 2, 0) / pts.length);
 
   const byG = (s) => s.tubes.map((t) => [t[1], t[2]]);
   const byX = (s) => s.tubes.map((t) => [t[1] * s.rho, t[2]]);
   const others = (s, f) => SESSIONS.filter((o) => o !== s).flatMap(f);
-  // Leave one recipe out inside a single session: hold out every tube at one
-  // value of G, fit on the rest, predict the ones held out. This is the
-  // reference the cross-session bars are measured against -- how close a
-  // session lands when predicted from itself rather than from the other two.
   const looRecipe = (s) => {
     const pts = byG(s);
     const recipes = [...new Set(pts.map((q) => q[0]))];
@@ -56,7 +37,6 @@
     return Math.sqrt(sq.reduce((a, v) => a + v, 0) / sq.length);
   };
 
-  // ---- drawing ------------------------------------------------------------
   function el(name, attrs, text) {
     const n = document.createElementNS(SVG, name);
     Object.entries(attrs || {}).forEach(([k, v]) => n.setAttribute(k, v));
@@ -64,7 +44,6 @@
     return n;
   }
 
-  // An empty plot with its axes, grid and titles. Returns the two scales.
   function frame(host, o) {
     const W = 760, H = o.h || 400;
     const m = Object.assign({ l: 64, r: 24, t: 22, b: 56 }, o.margin);
@@ -92,7 +71,6 @@
     return { svg, X, Y, W, H, m };
   }
 
-  // The three sessions are told apart by shape as well as by colour.
   function mark(shape, cx, cy, cls, title) {
     let n;
     if (shape === "circle") n = el("circle", { cx, cy, r: 5.6 });
@@ -103,8 +81,6 @@
     return n;
   }
 
-  // Tubes of one session at one abscissa are drawn side by side instead of
-  // on top of each other; the spread is a few pixels and carries no meaning.
   function scatter(p, xOf, xName) {
     SESSIONS.forEach((s) => {
       const groups = new Map();
@@ -124,7 +100,6 @@
     });
   }
 
-  // ---- figure 1: every session has its own slope ---------------------------
   function drawRaw(host) {
     const p = frame(host, {
       x: [0, 1.04], y: [0, 33], xticks: [0, 0.25, 0.5, 0.75, 1], yticks: [0, 5, 10, 15, 20, 25, 30],
@@ -142,7 +117,6 @@
     scatter(p, (s, t) => t[1], "G");
   }
 
-  // ---- figure 2: one slope after conversion --------------------------------
   function drawConverted(host) {
     const all = SESSIONS.flatMap(byX);
     const s = slope(all);
@@ -158,7 +132,6 @@
     scatter(p, (ses, t) => t[1] * ses.rho, "x");
   }
 
-  // ---- figure 3: predicting a session from the other two -------------------
   function drawHeldOut(host) {
     const rows = SESSIONS.map((s) => ({
       s,
@@ -180,16 +153,10 @@
         p.svg.appendChild(bar);
         p.svg.appendChild(el("text", { class: "md-val", x: x + bw / 2, y: p.Y(v) - 7, "text-anchor": "middle" }, v.toFixed(2)));
       });
-      // The reference: what the same tubes cost when predicted from inside
-      // their own session. A dashed rule rather than a third bar, because it
-      // is the target the converted bar has to reach, not a third method.
       const ref = el("line", { class: "md-ref", x1: cx - bw - 10, y1: p.Y(r.own), x2: cx + bw + 10, y2: p.Y(r.own) });
       ref.appendChild(el("title", {}, `${r.s.name} predicted from inside itself: ${r.own.toFixed(2)} counts`));
       p.svg.appendChild(ref);
       p.svg.appendChild(el("text", { class: "md-tick", x: cx, y: p.H - p.m.b + 21, "text-anchor": "middle" }, r.s.short));
-      // The sub-line names the two sessions the slope came from. Without it
-      // "Session 1 held out" says which session is being predicted but not
-      // what it is being predicted from, which is the whole point of the test.
       const from = SESSIONS.filter((o) => o !== r.s).map((o) => o.short.replace("Session ", "")).join(" and ");
       p.svg.appendChild(el("text", { class: "md-tick md-tick-sub", x: cx, y: p.H - p.m.b + 39, "text-anchor": "middle" },
         `predicted from sessions ${from}`));

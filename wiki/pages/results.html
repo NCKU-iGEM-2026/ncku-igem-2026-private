@@ -10,14 +10,7 @@
 
 {% block page_content %}
 
-{# 這一頁和 Engineering 一樣分成兩個系統：Part 01 Detection、Part 02 Inhibition，
-   顏色也和那一頁同一組（detect 用青綠、inhibition 用琥珀），讀者在兩頁之間看到的
-   是同一個識別。每個系統底下的 .res-part 各自從 01 重新編號。
-
-   Detection 目前還沒有內容，先留佔位框；寫的時候把 res-empty 那個 div 換成
-   和 Inhibition 一樣的 <section class="res-part" data-assay="..."> 即可，
-   每一節的標題用 <h3>（<h2> 是系統層級的標題）。 #}
-<div class="container my-4 desc">
+<div class="container my-4 desc" data-toc-style="parts" data-toc-depth="3">
 
   <nav class="res-systems-nav" aria-label="Results by system">
     <a href="#res-detect" data-part="detect">
@@ -30,14 +23,12 @@
     </a>
   </nav>
 
-  {# ===================== Part 01 · Detection ===================== #}
   <section class="res-system" id="res-detect" data-part="detect" aria-labelledby="res-detect-title">
-    <header class="res-system-head">
+    <header class="res-system-head" data-toc-group data-toc-no="1">
       <span class="res-system-num">Part 01</span>
       <h2 class="res-system-title" id="res-detect-title">Detection</h2>
     </header>
 
-  {# ======================== overview ======================== #}
   <section class="res-part" data-assay="overview">
     <h3>Overview</h3>
     <p>
@@ -54,17 +45,14 @@
       plate reader.
     </p>
     <p>
-      Synthetic 3-oxo-C12-HSL has to be dissolved in DMSO, and the amount of
-      DMSO this takes is enough to kill the cells. The plate assay therefore
-      uses PAO1 culture supernatant as its signal source, and the amount of
-      AHL in that supernatant is not known. How the assay was arrived at is
-      described on the
+      The plate assay uses PAO1 culture supernatant as its signal source, and
+      the amount of AHL in that supernatant is not known. How the assay was
+      arrived at is described on the
       <a href="{{ url_for('pages', page='engineering') }}">Engineering</a>
       page.
     </p>
   </section>
 
-  {# ================== plate-based detection ================== #}
   <section class="res-part" data-assay="plate">
     <h3>Fluorescence on plate</h3>
     <p>
@@ -102,7 +90,6 @@
     </div>
   </section>
 
-  {# ====================== time course ======================== #}
   <section class="res-part" data-assay="timecourse">
     <h3>Fluorescence in liquid culture</h3>
     <p>
@@ -139,7 +126,6 @@
     </p>
   </section>
 
-  {# ================ what detection supports ================== #}
   <section class="res-part" data-assay="overall">
     <h3>What the detection module supports</h3>
     <p>
@@ -170,12 +156,11 @@
     <p>
       Two questions remain open, and both are about what the assay compares
       against rather than about whether the circuit works. The plate assay
-      has to use PAO1 supernatant, because synthetic AHL needs enough DMSO
-      to kill the cells, so the amount of signal reaching the cells is not
-      known and no dose&ndash;response could be measured. The liquid-culture
-      control carried the resistance marker without sfGFP, so it establishes
-      that the reporter is expressed rather than that AHL is what switches
-      it on.
+      has to use PAO1 supernatant, so the amount of signal reaching the cells
+      is not known and no dose&ndash;response could be measured. The
+      liquid-culture control carried the resistance marker without sfGFP, so
+      it establishes that the reporter is expressed rather than that AHL is
+      what switches it on.
     </p>
     <p>
       Each has a clear experiment attached: a signal source of known
@@ -189,21 +174,19 @@
   </section>
   </section>
 
-  {# ===================== Part 02 · Inhibition ===================== #}
   <section class="res-system" id="res-inhibition" data-part="inhibition" aria-labelledby="res-inhibition-title">
-    <header class="res-system-head">
+    <header class="res-system-head" data-toc-group data-toc-no="2">
       <span class="res-system-num">Part 02</span>
       <h2 class="res-system-title" id="res-inhibition-title">Inhibition</h2>
     </header>
 
-  {# ======================== overview ======================== #}
   <section class="res-part" data-assay="overview">
     <h3>Overview</h3>
     <p>
       To evaluate the functional effect of our aptamer system, we examined
       three quorum-sensing-associated phenotypes of
       <em>Pseudomonas aeruginosa</em>: swarming motility, pyocyanin
-      production, and biofilm formation.<sup>[1]</sup> The Cb-2 treatment was
+      production, and biofilm formation.<sup><a href="#resref1">[1]</a></sup> The Cb-2 treatment was
       prepared from our engineered retron-Cb-2 system and was the main
       treatment we aimed to evaluate. A16-2 and ALS-5 were chemically
       synthesized reference aptamers from the literature and were included
@@ -235,18 +218,18 @@
     <p>
       The charts show each group as a percentage of that control. In the text
       and the boxes below we report the same numbers as an
-      <strong>inhibition rate</strong>, 100% minus the normalized value: a
-      positive rate means the treatment lowered the phenotype, and a negative
-      rate means it raised it. The &plusmn; SD is the same either way.
+      <strong>inhibition rate</strong>, 100% minus the normalized value.
+      A plain figure is a reduction; a figure carrying a plus sign is a group
+      that went <em>up</em> rather than down, and its box says so. The
+      &plusmn; SD is the same either way.
     </p>
   </section>
 
-  {# ===================== swarming assay ===================== #}
   <section class="res-part" data-assay="swarming">
     <h3>Swarming assay</h3>
     <p>
       Swarming motility was quantified by measuring the relative swarming
-      radius of PAO1 after treatment.<sup>[2]</sup> Details of the assay conditions are
+      radius of PAO1 after treatment.<sup><a href="#resref2">[2]</a></sup> Details of the assay conditions are
       described on the
       <a href="{{ url_for('pages', page='engineering') }}">Engineering</a> page.
     </p>
@@ -257,9 +240,10 @@
         <figcaption>
           <strong>Figure 1A. Swarming of PAO1.</strong>
           Representative plate showing the untreated control (C), curcumin
-          (Cur) and Cb-2 treatment (two spots) after 24&nbsp;h. Lines indicate
-          the measured swarming distance (control: 21.6&nbsp;mm; Cb-2:
-          15.94&nbsp;mm).
+          (Cur) and Cb-2 treatment (two spots) after 24&nbsp;h. The curcumin
+          quadrant is from our early testing and is not part of the
+          quantification in Figure 1B. Lines indicate the measured swarming
+          distance (control: 21.6&nbsp;mm; Cb-2: 15.94&nbsp;mm).
         </figcaption>
       </figure>
       <figure id="fig-1b" class="res-figure">
@@ -280,13 +264,13 @@
         <span class="res-readout-k">A16-2</span>
         <span class="res-readout-src">chemically synthesized</span>
         <span class="res-readout-v">33.74 &plusmn; 18.44%</span>
-        <span class="res-readout-n">inhibition rate versus the untreated control</span>
+        <span class="res-readout-n">inhibition rate versus the untreated control (<em>p</em> &lt; 0.05)</span>
       </li>
       <li>
         <span class="res-readout-k">ALS-5</span>
         <span class="res-readout-src">chemically synthesized</span>
         <span class="res-readout-v">22.19 &plusmn; 14.36%</span>
-        <span class="res-readout-n">inhibition rate versus the untreated control</span>
+        <span class="res-readout-n">inhibition rate versus the untreated control (<em>p</em> &lt; 0.05)</span>
       </li>
       <li class="res-readout-lead">
         <span class="res-readout-k">Cb-2</span>
@@ -297,8 +281,8 @@
       <li>
         <span class="res-readout-k">BL21</span>
         <span class="res-readout-src">extract from cells without the retron</span>
-        <span class="res-readout-v">&minus;2.3 &plusmn; 4.9%</span>
-        <span class="res-readout-n">inhibition rate versus the untreated control &mdash; not significant</span>
+        <span class="res-readout-v">+2.3 &plusmn; 4.9%</span>
+        <span class="res-readout-n">swarming radius went up rather than down &mdash; not significant</span>
       </li>
     </ul>
 
@@ -310,7 +294,6 @@
     </p>
   </section>
 
-  {# =================== pyocyanin inhibition =================== #}
   <section class="res-part" data-assay="pyocyanin">
     <h3>Pyocyanin inhibition</h3>
     <p>
@@ -336,13 +319,13 @@
         <span class="res-readout-k">A16-2</span>
         <span class="res-readout-src">chemically synthesized</span>
         <span class="res-readout-v">19.84 &plusmn; 3.32%</span>
-        <span class="res-readout-n">inhibition rate versus the untreated control</span>
+        <span class="res-readout-n">inhibition rate versus the untreated control (<em>p</em> &lt; 0.01)</span>
       </li>
       <li>
         <span class="res-readout-k">ALS-5</span>
         <span class="res-readout-src">chemically synthesized</span>
         <span class="res-readout-v">18.56 &plusmn; 6.94%</span>
-        <span class="res-readout-n">inhibition rate versus the untreated control</span>
+        <span class="res-readout-n">inhibition rate versus the untreated control (<em>p</em> &lt; 0.05)</span>
       </li>
       <li class="res-readout-lead">
         <span class="res-readout-k">Cb-2</span>
@@ -367,14 +350,13 @@
     </p>
   </section>
 
-  {# ==================== biofilm inhibition ==================== #}
   <section class="res-part" data-assay="biofilm">
     <h3>Biofilm Inhibition</h3>
     <p>
       Biofilm biomass was quantified by crystal violet staining after
       48&nbsp;h of static incubation and normalized to the untreated
-      control.<sup>[1][3]</sup> The full method is on the
-      <a href="{{ url_for('pages', page='lab-book') }}">Protocols</a> page.
+      control.<sup><a href="#resref1">[1]</a><a href="#resref3">[3]</a></sup> The full method is on the
+      <a href="{{ url_for('pages', page='lab-book') }}">Lab Book</a> page.
     </p>
 
     <figure id="fig-3a" class="res-figure res-figure--wide">
@@ -421,8 +403,8 @@
       <li>
         <span class="res-readout-k">BL21</span>
         <span class="res-readout-src">extract from cells without the retron</span>
-        <span class="res-readout-v">&minus;6.9 &plusmn; 7.2%</span>
-        <span class="res-readout-n">inhibition rate versus the untreated control &mdash; not significant</span>
+        <span class="res-readout-v">+6.9 &plusmn; 7.2%</span>
+        <span class="res-readout-n">biofilm biomass went up rather than down &mdash; not significant</span>
       </li>
     </ul>
 
@@ -430,11 +412,10 @@
       This is the largest reduction observed in the retron-Cb-2 group in any
       of the three assays, and the most clearly significant of them. The
       extract control sits slightly above the untreated control rather than
-      below it (an inhibition rate of &minus;6.9%), and not significantly so.
+      below it (biofilm biomass up 6.9%), and not significantly so.
     </p>
   </section>
 
-  {# ===================== overall result ===================== #}
   <section class="res-part" data-assay="overall">
     <h3>Overall result</h3>
     <p>
@@ -453,7 +434,7 @@
       <li>
         <span class="res-readout-k">Pyocyanin</span>
         <span class="res-readout-v">26.3%</span>
-        <span class="res-readout-n">pyocyanin production, the metabolite closest to the circuit</span>
+        <span class="res-readout-n">pyocyanin production, the metabolite closest to the quorum-sensing pathway</span>
       </li>
       <li>
         <span class="res-readout-k">Biofilm</span>
@@ -489,10 +470,10 @@
 
   </section>
 
-
-  {# ======================== references ======================== #}
   <section class="desc-refs res-refs" id="res-refs" aria-labelledby="res-refs-title">
-    <h2 id="res-refs-title">References</h2>
+    <header data-toc-group data-toc-icon="refs" data-toc-apart>
+      <h2 id="res-refs-title">References</h2>
+    </header>
     <ol>
       <li id="resref1">
         Wu, K., Mo, Y., Duan, M., Zheng, Y., Chang, Y., Ding, M., Wang, Z., Wu, S., &amp; Duan, N. (2025). A structure-guided bifunctional aptamer mitigates <i>Pseudomonas aeruginosa</i> virulence and biofilms by disrupting <i>las</i> and <i>rhl</i> quorum sensing systems. <em>Analytical Chemistry</em>, 97(37), 20291&ndash;20302. <a href="https://doi.org/10.1021/acs.analchem.5c03245" target="_blank" rel="noopener">https://doi.org/10.1021/acs.analchem.5c03245</a>

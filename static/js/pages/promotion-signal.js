@@ -1,10 +1,3 @@
-/* ============================================================
-   PROMOTION-SIGNAL.JS — Promotion 頁導覽的背景動畫（Canvas 2D）
-   和首頁 hero 同一套分子粒子場（home.js 的作法），再加上：
-   - 中央的 Capture 定時往外發出一圈訊號波，波掃過的粒子會亮一下
-   - 滑鼠移到某個 session 圓點時，從那個圓點也放出一圈小波
-   - 分頁不可見或導覽不在畫面內時暫停；prefers-reduced-motion 只畫一張靜態圖
-   ============================================================ */
 (function () {
   'use strict';
   var box = document.querySelector('.promo-signal');
@@ -20,9 +13,9 @@
   var mouse = { x: -9999, y: -9999, on: false };
   var rafId = null, visible = true, lastWave = 0;
   var PALETTE = ['#a0e860', '#14b391', '#49c5b6', '#d8b26a', '#d7f5b8'];
-  var WAVE_EVERY = 3200;            // ms between waves from the hub
-  var WAVE_SPEED = 0.085;           // px per ms
-  var BAND = 26;                    // px either side of a wave that lights particles
+  var WAVE_EVERY = 3200;
+  var WAVE_SPEED = 0.085;
+  var BAND = 26;
 
   function size() {
     var r = canvas.getBoundingClientRect();
@@ -56,11 +49,6 @@
 
   function addRing(x, y, max, t) { rings.push({ x: x, y: y, max: max, t0: t }); }
 
-  // Performance: each line used to be its own stroke() with its own colour
-  // string, a few hundred draw calls a frame. Lines are now sorted into
-  // buckets 0.01 of opacity apart and each bucket is drawn as one path. A
-  // line is drawn at most 0.005 of opacity off what it was, under one level
-  // of 255 in any colour channel -- not something an eye can tell apart.
   var STEP = 0.01;
   function buckets(rgb, maxAlpha) {
     var n = Math.ceil(maxAlpha / STEP), b = { style: [], lines: [] };
@@ -73,7 +61,7 @@
   var BONDS = buckets('20,179,145', 0.3);
   var POINTER = buckets('160,232,96', 0.5);
   function addLine(b, alpha, x1, y1, x2, y2) {
-    if (alpha <= 0) return;                    // the colour was clamped to clear
+    if (alpha <= 0) return;
     b.lines[Math.min(b.lines.length - 1, (alpha / STEP) | 0)].push(x1, y1, x2, y2);
   }
   function strokeAll(b) {
@@ -92,16 +80,13 @@
     var i, j, p, q, dx, dy, d2;
     ctx.clearRect(0, 0, W, H);
 
-    // waves from the hub, on a timer
     if (!reduce && t - lastWave > WAVE_EVERY) {
       var h = hub();
       addRing(h.x, h.y, Math.hypot(W, H) * 0.6, t);
       lastWave = t;
     }
-    // age out finished rings
     rings = rings.filter(function (r) { return Math.max(0, t - r.t0) * WAVE_SPEED < r.max; });
 
-    // bonds
     ctx.lineWidth = 1;
     for (i = 0; i < particles.length; i++) {
       p = particles[i];
@@ -122,17 +107,13 @@
     strokeAll(BONDS);
     strokeAll(POINTER);
 
-    // the waves themselves
     for (i = 0; i < rings.length; i++) {
-      // a wave started from performance.now() can be a hair newer than this frame's
-      // timestamp, which would make the radius negative and throw in arc()
       var rg = rings[i], rad = Math.max(0, t - rg.t0) * WAVE_SPEED, fade = 1 - rad / rg.max;
       ctx.strokeStyle = 'rgba(184,245,126,' + (0.42 * fade).toFixed(3) + ')';
       ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(rg.x, rg.y, rad, 0, 7); ctx.stroke();
     }
 
-    // particles
     for (i = 0; i < particles.length; i++) {
       p = particles[i];
       if (!reduce) {
@@ -143,7 +124,6 @@
         if (p.y < -10) p.y = H + 10; if (p.y > H + 10) p.y = -10;
       }
 
-      // lit by a passing wave
       var lit = 0;
       for (j = 0; j < rings.length; j++) {
         var rr0 = Math.max(0, t - rings[j].t0) * WAVE_SPEED;
@@ -177,7 +157,6 @@
   size(); seed();
   if (reduce) draw(0); else start();
 
-  // waves from a session disc when the pointer or keyboard reaches it
   box.querySelectorAll('.promo-node a').forEach(function (a) {
     function pulse() {
       if (reduce) return;
