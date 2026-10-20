@@ -18,43 +18,29 @@
 (function (root) {
   'use strict';
 
-  // ───────────────────────── Fixed design constants (measured at t = 3) ─────────────────────────
   var K = {
-    TAB: 8,                 // tab width
-    T_MIN: 2.8, T_MAX: 3.2, // allowed board thickness range (mm)
-    WALL_INNER_H: 24,       // chamber inner height (wall height = 24 + t)
-    // cuvette pocket (deck coordinates)
+    TAB: 8,
+    T_MIN: 2.8, T_MAX: 3.2,
+    WALL_INNER_H: 24,
     cuvL: 54.77, cuvR: 67.77, cuvBot: 33.2, cuvTop: 46.2, cuvY: 39.7,
-    // L chamber (excitation) inner size
     L_W: 43, L_H: 29,
-    // R chamber (light trap) inner size; its top outer edge sits 0.58 below the top of the cuvette pocket
     R_W: 34, R_H: 30, R_GAP: 0.58,
-    // T chamber (detection) inner size: fixed x range, 42 up from the top of the cuvette pocket
     T_X0: 49.35, T_X1: 71.34, T_Y1: 88.2,
-    // deck and enclosure
     DECK_W: 127.4, DECK_H: 99.4,
     BOX_IN: { x: 128, y: 100, z: 81 },
-    BOX_N: { x: 13, y: 11, z: 9 },      // number of finger segments per edge (odd)
+    BOX_N: { x: 13, y: 11, z: 9 },
     RAIL_H: 12, RAIL_LONG_GAP: 5,
     WIRE_HOLE: { x: 17.13, y: 33.04, r: 3.5 },
-    // wire hole in the T chamber floor (8 x 3 before the fit offset); no wall stands in it
     T_WIRE_HOLE: { x: 60.34, y: 81.46, w: 8, h: 3 },
-    // light holes (position s in deck coordinates, height z above the deck surface)
-    LED_HOLE: { s: 39.7, z: 8, r: 2 },     // centre raised 5 mm from the old drawing's 3, to the vendor's spec (2026-10-08)
-    // Opening from the cuvette into the R chamber (light trap), straight across from the LED.
-    // It was labelled "sensor hole" in earlier drawings; the sensor sits in the T chamber at 90 deg.
-    TRAP_HOLE: { s: 38.99, z: 11.6, r: 4 },   // centre raised 5 mm from the old drawing's 6.6, with the LED hole (2026-10-08)
-    // openings in the enclosure (coordinates from the inner corner of the box)
-    // lid opening, centred over the cuvette pocket (61.27, 39.7); enlarged from 16 x 16 to 25 x 25 (2026-10-08)
+    LED_HOLE: { s: 39.7, z: 8, r: 2 },
+    TRAP_HOLE: { s: 38.99, z: 11.6, r: 4 },
     LID_HOLE: { x: 48.77, y: 27.2, w: 25, h: 25 },
-    LID_CAP_OVER: 1,        // the lid's top square overhangs the opening by this much on each side
-    SENSOR_PLATE_OVER: 5,   // the plate under the sensor slot reaches this far past the slot on every side
+    LID_CAP_OVER: 1,
+    SENSOR_PLATE_OVER: 5,
     FRONT_PORT: { x: 84.46, y: 6.74, w: 26, h: 14.69 },
-    // opening in one short side for the USB cable that powers the ESP32 (restored 2026-10-15: no battery)
     SIDE_PORT: { x: 37.57, y: 12.15, w: 25.99, h: 14.69 }
   };
 
-  // ───────────────────────── Geometry helpers ─────────────────────────
   function key(x, y) { return x.toFixed(5) + ',' + y.toFixed(5); }
   function uniqSorted(a) {
     a = a.slice().sort(function (p, q) { return p - q; });
@@ -63,7 +49,6 @@
     return out;
   }
 
-  // Build a rectilinear outline from a list of rectangle add/subtract operations applied in order. ops: [x0,y0,x1,y1,+1|-1]
   function rectilinear(ops) {
     var xs = [], ys = [];
     ops.forEach(function (o) { xs.push(o[0], o[2]); ys.push(o[1], o[3]); });
@@ -81,7 +66,7 @@
       }
     });
     var f = function (i, j) { return i >= 0 && j >= 0 && i < nx && j < ny && cell[i][j]; };
-    var edges = {}; // start key -> list of [x0,y0,x1,y1]
+    var edges = {};
     function add(x0, y0, x1, y1) { var k = key(x0, y0); (edges[k] = edges[k] || []).push([x0, y0, x1, y1]); }
     for (var i2 = 0; i2 < nx; i2++) for (var j2 = 0; j2 < ny; j2++) {
       if (!cell[i2][j2]) continue;
@@ -120,7 +105,6 @@
   function area(p) { var s = 0; for (var i = 0; i < p.length; i++) { var a = p[i], b = p[(i + 1) % p.length]; s += a[0] * b[1] - b[0] * a[1]; } return s / 2; }
   function rectPts(x0, y0, x1, y1) { return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]; }
 
-  // Part: outline = rectilinear loops (largest is the outer edge, others are holes); cuts = inner openings
   function makePiece(name, group, ops, cuts, note) {
     var loops = rectilinear(ops);
     loops.sort(function (a, b) { return Math.abs(area(b)) - Math.abs(area(a)); });
@@ -137,31 +121,24 @@
       if (c.type === 'circle') c2.push({ type: 'circle', cx: c.cx - minx, cy: c.cy - miny, r: c.r });
       else c2.push({ type: 'poly', pts: c.pts.map(sh) });
     });
-    // ox, oy: where the part's own origin was before it was moved to its lower-left corner (used by assembly())
     return { name: name, group: group, outline: outer.map(sh), cuts: c2, w: maxx - minx, h: maxy - miny, ox: minx, oy: miny, note: note || '' };
   }
 
-  // ───────────────────────── Parametric model ─────────────────────────
   function generate(params) {
     var t = +params.t, f = +params.fit, bf = params.boxFit == null ? 0.1 : +params.boxFit;
     var T = K.TAB, H = K.WALL_INNER_H + t;
     var pieces = [], checks = [];
 
-    // chamber inner rectangles (deck coordinates)
     var Lx1 = K.cuvL - t, Lx0 = Lx1 - K.L_W, Ly1 = K.cuvTop - t, Ly0 = Ly1 - K.L_H;
     var Rx0 = K.cuvR + t, Rx1 = Rx0 + K.R_W, Ry1 = K.cuvTop - K.R_GAP - t, Ry0 = Ry1 - K.R_H;
     var Tx0 = K.T_X0, Tx1 = K.T_X1, Ty0 = K.cuvTop, Ty1 = K.T_Y1;
 
-    // Walls: axis = direction the wall runs; face = its fixed inner face; dir = side its thickness grows toward
-    // s0..s1 = extent on the deck; slots = centers of the feet (= deck slots); holes = light holes
     var walls = [
       { id: 'L1', name: 'L chamber left wall', axis: 'y', face: Lx0, dir: -1, s0: Ly0, s1: Ly1, slots: [Ly0 + 7.25, Ly0 + 22.25] },
       { id: 'L2', name: 'L chamber bottom wall', axis: 'x', face: Ly0, dir: -1, s0: Lx0 - t, s1: Lx1, slots: [Lx0 + 10.25, Lx0 + 24.75] },
       { id: 'L3', name: 'L chamber top wall', axis: 'x', face: Ly1, dir: +1, s0: Lx0 - t, s1: Lx1, slots: [Lx0 + 9, Lx0 + 24.75] },
       { id: 'C1', name: 'Cuvette left wall (Ø4 LED hole)', axis: 'y', face: K.cuvL, dir: -1, s0: Ly0 - t, s1: K.cuvTop, slots: [K.cuvY], holes: [K.LED_HOLE] },
-      // C2 runs 0.08 short of the R chamber corner and 0.5 past the top of the cuvette pocket, as in the cut set
       { id: 'C2', name: 'Cuvette right wall (Ø8 light-trap opening)', axis: 'y', face: K.cuvR, dir: +1, s0: Ry0 - t + 0.08, s1: K.cuvTop + 0.5, slots: [K.cuvY], holes: [K.TRAP_HOLE] },
-      // C3 closes the bottom of the cuvette pocket, centred between C1 and C2
       { id: 'C3', name: 'Cuvette bottom wall (12 mm)', axis: 'x', face: K.cuvBot, dir: -1, s0: (K.cuvL + K.cuvR) / 2 - 6, s1: (K.cuvL + K.cuvR) / 2 + 6, slots: [(K.cuvL + K.cuvR) / 2] },
       { id: 'R1', name: 'R chamber right wall', axis: 'y', face: Rx1, dir: +1, s0: Ry0 - t, s1: Ry1 + t, slots: [Ry0 + 6, Ry0 + 24] },
       { id: 'R2', name: 'R chamber bottom wall', axis: 'x', face: Ry0, dir: -1, s0: Rx0, s1: Rx1, slots: [Rx0 + 8.5, Rx0 + 25.5] },
@@ -172,12 +149,10 @@
     ];
     var W = {}; walls.forEach(function (w) { w.notches = []; W[w.id] = w; });
 
-    // Roofs: inner rectangle + tongues (edge: bottom/top/left/right, at: deck coordinate, wall: the wall it locks into)
     var roofs = [
       { name: 'L chamber roof', x0: Lx0, y0: Ly0, x1: Lx1, y1: Ly1, tabs: [
         { edge: 'bottom', at: Lx0 + 20, wall: 'L2' }, { edge: 'top', at: Lx0 + 20, wall: 'L3' },
         { edge: 'left', at: Ly0 + 14.5, wall: 'L1' }, { edge: 'right', at: Ly0 + 14.5, wall: 'C1' }] },
-      // the R roof is 1 mm deeper than its chamber (0.5 over each long wall), as in the cut set
       { name: 'R chamber roof', x0: Rx0, y0: Ry0 - 0.5, x1: Rx1, y1: Ry1 + 0.5, tabs: [
         { edge: 'bottom', at: Rx0 + 18.5, wall: 'R2' }, { edge: 'top', at: Rx0 + 18.5, wall: 'R3' },
         { edge: 'right', at: Ry0 + 15, wall: 'R1' }] },
@@ -187,7 +162,6 @@
     ];
     roofs.forEach(function (r) { r.tabs.forEach(function (tb) { W[tb.wall].notches.push(tb.at); }); });
 
-    // ── Walls ──
     var deckCuts = [];
     walls.forEach(function (w) {
       var len = w.s1 - w.s0, ops = [[0, 0, len, H, 1]], cuts = [];
@@ -195,20 +169,17 @@
       w.notches.forEach(function (c) { var u = c - w.s0, hw = T / 2 - f; ops.push([u - hw, H - t, u + hw, H, -1]); });
       (w.holes || []).forEach(function (h) { cuts.push({ type: 'circle', cx: h.s - w.s0, cy: h.z, r: h.r }); });
       pieces.push(makePiece(w.name, 'Chamber walls', ops, cuts));
-      // deck slots (receiving side, shrunk by f on each side)
       var mid = w.face + w.dir * t / 2;
       w.slots.forEach(function (c) {
         var a = T / 2 - f, b = t / 2 - f;
         deckCuts.push(w.axis === 'x' ? { type: 'poly', pts: rectPts(c - a, mid - b, c + a, mid + b) }
                                      : { type: 'poly', pts: rectPts(mid - b, c - a, mid + b, c + a) });
       });
-      // wall footprint on the deck (used by the checks)
       var lo = Math.min(w.face, w.face + w.dir * t), hi = Math.max(w.face, w.face + w.dir * t);
       w.foot = w.axis === 'x' ? [w.s0, lo, w.s1, hi] : [lo, w.s0, hi, w.s1];
       w.len = len;
     });
 
-    // ── Roofs ──
     roofs.forEach(function (r) {
       var w = r.x1 - r.x0, h = r.y1 - r.y0, ops = [[0, 0, w, h, 1]];
       r.tabs.forEach(function (tb) {
@@ -221,22 +192,17 @@
       pieces.push(makePiece(r.name, 'Chamber roofs', ops, []));
     });
 
-    // ── Deck ──
-    // the slot beside the cuvette pocket where the sensor board stands upright, facing the cuvette at 90°
     var ss = [Tx0 - t + f, Ty0 + f, Tx1 + t - f, Ty0 + t - f];
     deckCuts.push({ type: 'poly', pts: rectPts(ss[0], ss[1], ss[2], ss[3]) });
-    deckCuts.push({ type: 'circle', cx: K.WIRE_HOLE.x, cy: K.WIRE_HOLE.y, r: K.WIRE_HOLE.r - f });   // wire hole in the L chamber
+    deckCuts.push({ type: 'circle', cx: K.WIRE_HOLE.x, cy: K.WIRE_HOLE.y, r: K.WIRE_HOLE.r - f });
     var tw = K.T_WIRE_HOLE;
-    deckCuts.push({ type: 'poly', pts: rectPts(tw.x - tw.w / 2 + f, tw.y - tw.h / 2 + f, tw.x + tw.w / 2 - f, tw.y + tw.h / 2 - f) }); // wire hole in the T chamber
+    deckCuts.push({ type: 'poly', pts: rectPts(tw.x - tw.w / 2 + f, tw.y - tw.h / 2 + f, tw.x + tw.w / 2 - f, tw.y + tw.h / 2 - f) });
     pieces.push(makePiece('Optical deck', 'Deck', [[0, 0, K.DECK_W, K.DECK_H, 1]], deckCuts));
-    // a plain plate glued under the deck closes the sensor slot from below and carries the sensor board
     var so = K.SENSOR_PLATE_OVER, sp = [ss[0] - f - so, ss[1] - f - so, ss[2] + f + so, ss[3] + f + so];
     pieces.push(makePiece('Sensor support plate (glued under the deck)', 'Deck', [[0, 0, sp[2] - sp[0], sp[3] - sp[1], 1]]));
 
-    // ── Enclosure (finger joints) ──
     var BI = K.BOX_IN, BN = K.BOX_N;
     function panel(name, Wd, Ht, nW, nH, maleW, maleH, cuts) {
-      // maleW: top/bottom edges (length Wd) own the corners; maleH: left/right edges (length Ht) own the corners
       var ops = [[t, t, Wd - t, Ht - t, 1]];
       function band(L, n, male, mk) {
         var w = L / n;
@@ -264,14 +230,12 @@
     panel('Enclosure side', Y, Z, BN.y, BN.z, false, false);
 
 
-    // ───────────────────────── Checks ─────────────────────────
     function ok(msg) { checks.push({ level: 'ok', msg: msg }); }
     function warn(msg) { checks.push({ level: 'warn', msg: msg }); }
     function err(msg) { checks.push({ level: 'error', msg: msg }); }
     if (!(t > 0)) err('Board thickness must be greater than 0');
     if (!(t >= K.T_MIN && t <= K.T_MAX)) err('Board thickness ' + t + ' mm is outside the allowed range ' + K.T_MIN.toFixed(1) + '–' + K.T_MAX.toFixed(1) + ' mm. No files are generated.');
     if (f < 0 || f >= 0.5) warn('Slot fit offset ' + f + ' mm is unusual (the tested design uses 0.1)');
-    // wall footprints must not overlap and must stay on the deck
     var overlaps = [];
     for (var i = 0; i < walls.length; i++) for (var j = i + 1; j < walls.length; j++) {
       var a = walls[i].foot, b = walls[j].foot;
@@ -281,14 +245,12 @@
     if (overlaps.length) err('Walls overlap: ' + overlaps.join(', ')); else ok('No walls overlap on the deck');
     var out = walls.filter(function (w) { var a = w.foot; return a[0] < 0.5 || a[1] < 0.5 || a[2] > K.DECK_W - 0.5 || a[3] > K.DECK_H - 0.5; });
     if (out.length) err('Walls are too close to or past the deck edge: ' + out.map(function (w) { return w.name; }).join(', ')); else ok('All walls sit inside the deck');
-    // every tab must land on its wall
     var bad = [];
     roofs.forEach(function (r) { r.tabs.forEach(function (tb) {
       var w = W[tb.wall]; if (tb.at - T / 2 < w.s0 || tb.at + T / 2 > w.s1) bad.push(r.name + '→' + w.name);
     }); });
     walls.forEach(function (w) { w.slots.forEach(function (c) { if (c - T / 2 < w.s0 || c + T / 2 > w.s1) bad.push(w.name + ' foot'); }); });
     if (bad.length) err('Some tabs run past the end of their wall: ' + bad.join(', ')); else ok('Every foot and roof tongue lines up with its slot or notch');
-    // wire hole stays inside the L chamber
     var wh = K.WIRE_HOLE;
     if (wh.x - wh.r < Lx0 || wh.x + wh.r > Lx1 || wh.y - wh.r < Ly0 || wh.y + wh.r > Ly1) warn('The wire hole is no longer fully inside the L chamber');
     ok('Tabs 8 × ' + fmt(t) + '; deck slots ' + fmt(T - 2 * f) + ' × ' + fmt(t - 2 * f) + '; wall-top notches ' + fmt(T - 2 * f) + ' wide, ' + fmt(t) + ' deep');
@@ -296,8 +258,6 @@
 
     return { params: { t: t, fit: f, boxFit: bf }, pieces: pieces, checks: checks, walls: walls, roofs: roofs, sensorPlate: sp };
   }
-  // Parts without joints. They do not depend on board thickness and may be cut from any board.
-  // Deck support rails: long = inner length − 5; short = inner width − thickness of both long rails
   function fixedPieces(shortRail) {
     var G = 'Parts without joints';
     var longRail = K.BOX_IN.x - K.RAIL_LONG_GAP;
@@ -309,7 +269,6 @@
       kind(makePiece('Deck support rail (long)', G, [[0, 0, longRail, K.RAIL_H, 1]]), 'railLong'),
       makePiece('Deck support rail (short)', G, [[0, 0, shortRail, K.RAIL_H, 1]]),
       makePiece('Deck support rail (short)', G, [[0, 0, shortRail, K.RAIL_H, 1]]),
-      // the lid that closes the opening: one square the size of the opening, glued under one a little larger
       makePiece('Lid (' + K.LID_HOLE.w + '×' + K.LID_HOLE.h + ')', G, [[0, 0, K.LID_HOLE.w, K.LID_HOLE.h, 1]]),
       makePiece('Lid cap (' + (K.LID_HOLE.w + 2 * K.LID_CAP_OVER) + '×' + (K.LID_HOLE.h + 2 * K.LID_CAP_OVER) + ')', G,
         [[0, 0, K.LID_HOLE.w + 2 * K.LID_CAP_OVER, K.LID_HOLE.h + 2 * K.LID_CAP_OVER, 1]]),
@@ -318,7 +277,6 @@
       triangle('Triangle 22×20', G)
     ];
   }
-  // Large parts always go on sheet 1 (they are not used to fill gaps)
   function big(p) { p.big = true; return p; }
   function kind(p, k) { p.kind = k; return p; }
   function triangle(name, group) {
@@ -326,10 +284,8 @@
   }
   function fmt(v) { return (Math.round(v * 100) / 100).toString(); }
 
-  // ───────────────────────── Nesting (MaxRects, 90° rotation allowed) ─────────────────────────
   function layout(pieces, opt) {
     var SW = opt.sheetW, SH = opt.sheetH, g = opt.gap, M = opt.margin;
-    // Each part is padded by the gap g; usable area = sheet minus margins, plus one gap
     var SORTS = {
       side: function (a, b) { return Math.max(b.w, b.h) - Math.max(a.w, a.h) || b.w * b.h - a.w * a.h; },
       area: function (a, b) { return b.w * b.h - a.w * a.h || Math.max(b.w, b.h) - Math.max(a.w, a.h); },
@@ -346,7 +302,6 @@
       sh.free.forEach(function (r) {
         if (w <= r.w + 1e-9 && h <= r.h + 1e-9) {
           var ss = Math.min(r.w - w, r.h - h), ls = Math.max(r.w - w, r.h - h);
-          // prefer bottom-left positions for a tighter layout
           var score = [ss, ls, r.y, r.x];
           if (!best || cmp(score, best.score) < 0) best = { x: r.x, y: r.y, score: score };
         }
@@ -392,7 +347,6 @@
       }
       if (!done) unplaced.push(it.p);
     });
-    // Fill: put opt.fill parts into free space on existing sheets; what does not fit goes to overflow (no new sheet)
     var overflow = [];
     (opt.fill || []).map(function (p) { return { p: p, w: p.w + g, h: p.h + g }; })
       .sort(SORTS[opt.sortFill] || SORTS.area)
@@ -403,8 +357,6 @@
     return { sheets: sheets.length ? sheets : [{ placed: [] }], unplaced: unplaced, overflow: overflow, sheetW: SW, sheetH: SH };
   }
 
-  // Full plan: jointed parts (and large parts) go on sheet 1, small parts without joints fill the gaps, and the rest becomes sheet 2.
-  // Short rail = inner width − thickness of both long rails − 20; a long rail on sheet 1 is t thick, on sheet 2 it is t2.
   function plan(params, lopt) {
     var r = generate(params);
     var jointed = r.pieces.filter(function (x) { return params.includeBox !== false || x.group !== 'Enclosure'; });
@@ -415,7 +367,6 @@
       var bigs = fixed.filter(function (p) { return p.big; }), movable = fixed.filter(function (p) { return !p.big; });
       var main = jointed.concat(bigs);
       best = null;
-      // try several sort orders; keep the one with the fewest sheets and the least area left for sheet 2
       ['side', 'area', 'short', 'perim'].forEach(function (sm) {
         ['area', 'side', 'short'].forEach(function (sf) {
           var lay = layout(main, { sheetW: lopt.sheetW, sheetH: lopt.sheetH, gap: lopt.gap, margin: lopt.margin, fill: movable, sortMain: sm, sortFill: sf });
@@ -434,7 +385,6 @@
     return { r: r, main: best.main, jointed: jointed, fixed: fixed, lay: best.lay, second: second, shortRail: short };
   }
 
-  // map part coordinates to sheet coordinates (rot: 90° counter-clockwise)
   function xf(pl) {
     var p = pl.piece;
     return function (q) {
@@ -442,7 +392,6 @@
     };
   }
 
-  // ───────────────────────── DXF export (R12, closed polylines) ─────────────────────────
   function toDXF(lay, opt) {
     opt = opt || {};
     var L = [], gapX = 20;
@@ -479,15 +428,12 @@
     return L.join('\n') + '\n';
   }
 
-  // ───────────────────────── SVG export (units: mm) ─────────────────────────
-  // opt.preview = true renders the on-page preview (colored by CSS classes, non-scaling strokes)
   function toSVG(lay, opt) {
     opt = opt || {};
     var gapX = 20, nS = Math.max(1, lay.sheets.length), P = !!opt.preview;
     var TW = nS * lay.sheetW + (nS - 1) * gapX, TH = lay.sheetH;
     var o = [], F = P && opt.fit, vb = P ? [-2, -12, TW + 4, TH + 14] : [-2, -2, TW + 4, TH + 4];
     if (F) {
-      // Preview only: crop to the placed parts instead of the whole sheet, at the same scale as the reference width
       var x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
       lay.sheets.forEach(function (sh, si) {
         sh.placed.forEach(function (pl) {
@@ -510,7 +456,6 @@
     lay.sheets.forEach(function (sh, si) {
       var ox = si * (lay.sheetW + gapX);
       if (F) {
-        // cropped preview: no sheet outline or label, the hint above names the sheet
       } else if (P) {
         o.push('<rect class="cg-sheet" x="' + ox + '" y="0" width="' + lay.sheetW + '" height="' + lay.sheetH + '"/>');
         o.push('<text class="cg-sheet-label" x="' + ox + '" y="-4">Sheet ' + (si + 1 + (opt.sheetOffset || 0)) + ' · ' + lay.sheetW + ' × ' + lay.sheetH + '</text>');
@@ -533,7 +478,6 @@
     return o.join('');
   }
 
-  // ───────────────────────── Web interface ─────────────────────────
   function mount(root) {
     if (typeof root === 'string') root = document.querySelector(root);
     if (!root) return;
@@ -617,7 +561,6 @@
         return;
       }
       $('cg-fx-hint').textContent = n + (n === 1 ? ' part does' : ' parts do') + ' not fit on sheet 1 and ' + (n === 1 ? 'is' : 'are') + ' laid out on a second ' + second.sheetW + ' × ' + second.sheetH + ' sheet. These parts do not depend on board thickness, so any board works.';
-      // Crop to the parts and shrink the box so they appear at the same scale as sheet 1
       var fo = { preview: true, fit: true, refW: state.lay.sheets.length * state.lay.sheetW + (state.lay.sheets.length - 1) * 20 + 4, sheetOffset: state.lay.sheets.length };
       $('cg-fx-preview').innerHTML = toSVG(second, fo);
       $('cg-fx-preview').style.width = fo.fitPct ? fo.fitPct.toFixed(2) + '%' : '';
@@ -641,7 +584,6 @@
         '<div class="cg-stat"><span class="cg-stat-k">Sheet 1</span><span class="cg-stat-v">' + lay.sheets.reduce(function (n, sh) { return n + sh.placed.length; }, 0) + '<small> parts</small></span></div>' +
         '<div class="cg-stat"><span class="cg-stat-k">Sheet 2</span><span class="cg-stat-v">' + lay.overflow.length + '<small> parts</small></span></div>' +
 
-        // a badge only when something needs attention; nothing is shown when every check passes
         (errs || warns ? '<div class="cg-pill ' + (errs ? 'is-error' : 'is-warn') + '">' + (errs ? errs + (errs === 1 ? ' problem, do not cut yet' : ' problems, do not cut yet') : warns + (warns === 1 ? ' warning' : ' warnings')) + '</div>' : '');
       var rows = {}, order = [];
       function addRow(x, where) {
@@ -661,7 +603,7 @@
       var nParts = order.reduce(function (n, k) { return n + rows[k].q; }, 0);
       $('cg-parts-sum').textContent = 'Parts list (' + nParts + ' parts)';
       renderSecond(P.second);
-      try { localStorage.setItem('cg-params-v2', JSON.stringify(p)); } catch (e) { /* saving is optional */ }
+      try { localStorage.setItem('cg-params-v2', JSON.stringify(p)); } catch (e) { }
     }
     function fname(ext) { return 'CAPTURE-Screen_t' + fmt(num('cg-t', 3)).replace('.', 'p') + '_fit' + fmt(num('cg-fit', 0.1)).replace('.', 'p') + '.' + ext; }
     function toast(msg) { var el = $('cg-toast'); el.textContent = msg; clearTimeout(toast.h); toast.h = setTimeout(function () { el.textContent = ''; }, 3200); }
@@ -704,22 +646,13 @@
     try {
       var saved = JSON.parse(localStorage.getItem('cg-params-v2') || 'null');
       if (saved && saved.t >= K.T_MIN && saved.t <= K.T_MAX) { $('cg-t').value = (+saved.t).toFixed(2); $('cg-fit').value = (+saved.fit).toFixed(2); $('cg-bfit').value = (+saved.boxFit).toFixed(2); }
-    } catch (e) { /* ignore */ }
+    } catch (e) { }
     run();
   }
 
-  // ───────────────────────── 3D assembly (for the viewer) ─────────────────────────
-  // Every part placed in deck coordinates: x, y as on the deck drawing, z up, z = 0 on the deck's top face.
-  // A point (u, v) of a part's outline lands at O + U·(u + ox) + V·(v + oy); the board's thickness runs along N.
-  // kind: 'core' = chamber parts and deck, 'plate' = the cuvette-holding plate on top of the chambers,
-  //       'trap' = the square and two triangles that slope the light trap's back,
-  //       'under' = the plate glued under the deck that closes the sensor slot and carries the sensor,
-  //       'cap' = the two squares that close the lid opening, 'box' = the enclosure (bare plywood),
-  //       'rail' = deck support rails. Everything except 'box' is coloured matte black.
-  // where: 'cut' = placed from the drawing; 'sized' = placed by its size only (the drawing does not give the spot).
   function assembly(params) {
     var r = generate(params), t = +params.t, out = [];
-    var Rx0 = K.cuvR + t, Ry1 = K.cuvTop - K.R_GAP - t, Ry0 = Ry1 - K.R_H;   // R chamber inside, as in generate()
+    var Rx0 = K.cuvR + t, Ry1 = K.cuvTop - K.R_GAP - t, Ry0 = Ry1 - K.R_H;
     var byName = {}; r.pieces.forEach(function (p) { byName[p.name] = p; });
     function put(p, kind, where, O, U, V, N) {
       out.push({ name: p.name, group: p.group, kind: kind, where: where, piece: p, O: O, U: U, V: V, N: N });
@@ -735,21 +668,16 @@
     put(byName['Optical deck'], 'core', 'cut', [0, 0, -t], [1, 0, 0], [0, 1, 0], [0, 0, t]);
     out[out.length - 1].height = 'about';
     put(byName['Sensor support plate (glued under the deck)'], 'under', 'cut', [r.sensorPlate[0], r.sensorPlate[1], -2 * t], [1, 0, 0], [0, 1, 0], [0, 0, t]);
-    // The box shares the deck's x, y origin (the lid's opening sits centred over the cuvette pocket in
-    // both drawings). The deck's height is not in the drawing: the builder puts it at about half the inside
-    // height, with the electronics below it, so its underside is placed at half of 81 mm.
     var BI = K.BOX_IN, zf = -t - BI.z / 2, X = BI.x + 2 * t, Y = BI.y + 2 * t, Z = BI.z + 2 * t;
     var bo = [-t, -t, zf - t];
     function at(dx, dy, dz) { return [bo[0] + dx, bo[1] + dy, bo[2] + dz]; }
     var sides = [byName['Enclosure side (USB cable opening)'], byName['Enclosure side']];
     put(byName['Enclosure base'], 'box', 'cut', at(0, 0, 0), [1, 0, 0], [0, 1, 0], [0, 0, t]);
     put(r.pieces.filter(function (p) { return /^Enclosure lid/.test(p.name); })[0], 'box', 'cut', at(0, 0, Z - t), [1, 0, 0], [0, 1, 0], [0, 0, t]);
-    // the front's opening is on the detection-chamber side (high y), where the display and button wires come out
     put(byName['Enclosure front (opening for the display and button wires)'], 'box', 'cut', at(0, Y - t, 0), [1, 0, 0], [0, 0, 1], [0, t, 0]);
     put(byName['Enclosure back'], 'box', 'cut', at(0, 0, 0), [1, 0, 0], [0, 0, 1], [0, t, 0]);
     put(sides[0], 'box', 'cut', at(0, 0, 0), [0, 1, 0], [0, 0, 1], [t, 0, 0]);
     put(sides[1], 'box', 'cut', at(X - t, 0, 0), [0, 1, 0], [0, 0, 1], [t, 0, 0]);
-    // Rails: under the deck, two long ones along the long walls and the short one across between them
     var zr = -t - K.RAIL_H, zTop = K.WALL_INNER_H + t, lidZ = bo[2] + Z - t;
     fixedPieces(BI.y - 2 * t).forEach(function (p) {
       if (p.kind === 'railLong') {
@@ -759,16 +687,10 @@
         var nShort = out.filter(function (o) { return /rail \(short\)/.test(o.name); }).length;
         put(p, 'rail', 'sized', [nShort ? 0 : BI.x - t, t, zr], [0, 1, 0], [0, 0, 1], [t, 0, 0]);
       } else if (/^Cuvette plate/.test(p.name)) {
-        // the plain plate lies on the chambers; its 13 x 13 opening holds the cuvette upright
         put(p, 'plate', 'cut', [0, 0, zTop], [1, 0, 0], [0, 1, 0], [0, 0, t]);
       } else if (/^Lid \(/.test(p.name)) {
-        // the lid: the square the size of the opening sits in it, the larger square glued on top of it
         put(p, 'cap', 'cut', [K.LID_HOLE.x, K.LID_HOLE.y, lidZ], [1, 0, 0], [0, 1, 0], [0, 0, t]);
       } else if (/^Triangle|^Square/.test(p.name)) {
-        // light trap: the square's lower edge stands on the floor against the wall with the 8 mm opening and
-        // rises away from it at about 45°, carried by two triangles against the chamber's long walls (right
-        // angle at the far end, 22 mm along the floor, 20 mm up). Next to the opening the triangles are
-        // nearly flat, so they leave it clear. d: the board's own thickness, measured along the floor.
         var L = Math.hypot(22, 20), d = 20 / L * t;
         if (/^Triangle/.test(p.name)) {
           var nTri = out.filter(function (o) { return /^Triangle/.test(o.name); }).length;

@@ -1,11 +1,4 @@
 (function () {
-  // Click (or Enter/Space) any .polaroid-has-bio card to open a modal with a
-  // bigger version of its photo -- still flippable, same front/back images,
-  // same hw-flip mechanism -- and the member's self-introduction below it.
-  // The photo node is cloned from the card itself, square crop and all: the
-  // same 1:1 ratio and per-photo object-position/zoom tuning as the grid
-  // thumbnail, unchanged, just scaled up. That scaling works because those
-  // tweaks are all percentage-based, not fixed pixels.
 
   function buildOverlay() {
     var overlay = document.createElement('div');

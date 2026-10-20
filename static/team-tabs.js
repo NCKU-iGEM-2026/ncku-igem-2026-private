@@ -19,8 +19,6 @@
     if (r.checked) load(r);
   });
 
-  // A link such as team#page-professor or team#content-professor should open
-  // straight on that tab, not whichever one loads checked by default.
   function openFromHash() {
     var id = window.location.hash.slice(1);
     if (!id) return;

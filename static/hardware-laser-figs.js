@@ -1,13 +1,6 @@
-/* Charts for the laser-cut build on the Hardware page (wiki/hardware-laser-cut.html).
-   Every number below is copied from the team's measurement CSVs (2026-09-16 to 09-22);
-   the source file is named above each array. No external library: plain SVG.
-   Each chart draws into <div data-lc-chart="name">. */
 (function () {
   'use strict';
 
-  /* Light palette by default. On the Hardware page's dark ("nexus") theme the colours come
-     from the page's own tokens, the same ones the other build's charts use, and every chart
-     sits on an opaque panel so the drifting background glows never show through the plot. */
   var C = { ink: '#33413a', mute: '#6b7a72', rule: '#dfe8e2', green: '#075a3e', blue: '#2a5fa8', amber: '#b0610f', red: '#a33a2a', panel: '#ffffff' };
   try {
     var cs = getComputedStyle(document.body), tok = function (n) { return cs.getPropertyValue(n).trim(); };
@@ -15,8 +8,8 @@
       C = { ink: tok('--nx-text'), mute: tok('--nx-muted'), rule: tok('--nx-line'), green: tok('--nx-mint'),
             blue: tok('--nx-blue-up'), amber: tok('--nx-warm'), red: '#ef8f7d', panel: tok('--nx-panel') };
     }
-  } catch (e) { /* no styles available: keep the light palette */ }
-  var FONT = 1.45;   /* all chart text, relative to the sizes written below */
+  } catch (e) { }
+  var FONT = 1.45;
   var NS = 'http://www.w3.org/2000/svg';
 
   function el(tag, attrs, parent) {
@@ -60,9 +53,6 @@
 
   var charts = {
 
-    /* 0917_逐筆.csv: the LED stability test, chamber empty, sensor still in its original low position, nothing moved for an hour. Each point is the mean F3 of readings
-       2–5 of a batch (the first reading of each batch is discarded, as in every other result),
-       relative to the first batch. Minutes since the first batch. */
     drift: function (host) {
       var pts = [[0,1.00000],[2.86,0.99576],[5.72,0.99597],[8.57,0.99653],[11.46,0.99387],[14.32,0.99803],[17.28,0.99762],[20.46,0.99905],[23.32,1.00171],[26.18,1.00199],[29.03,1.00262],[31.89,1.00308],[34.75,1.00357],[37.61,1.00373],[40.46,1.00067],[43.32,1.00078],[46.18,0.99931],[49.04,0.99846],[51.89,0.99822],[54.75,0.99708],[57.61,0.99528]];
       legend(host, [[C.green, 'Empty chamber, nothing moved: mean of readings 2–5 of each batch']]);
@@ -80,10 +70,6 @@
       path(s, pts, X, Y, C.green, 2.2); dots(s, pts, X, Y, C.green, 2.8);
     },
 
-    /* 0916_菌液初測.csv, the 28 batches with an OD600 record, in the order measured.
-       Fit: ln F3 = a + b·OD600 + s·[batch ≥ 8]  (b = 0.066, s = −0.517, R² 0.88).
-       Each point is F3 corrected to the mean OD600 (divided by exp(b·(OD600 − mean))),
-       relative to the fitted level before the step. After the step the fit is exp(s) = 0.596. */
     step: function (host) {
       var pts = [[1,1.037],[2,1.055],[3,0.975],[4,1.059],[6,0.959],[7,0.923],[8,0.691],[9,0.626],[10,0.621],[11,0.620],[12,0.586],[13,0.643],[14,0.589],[15,0.571],[16,0.584],[17,0.556],[18,0.653],[19,0.592],[20,0.571],[21,0.634],[22,0.626],[23,0.617],[24,0.644],[25,0.612],[26,0.564],[27,0.449],[28,0.578],[29,0.542]];
       var post = 0.596;
@@ -104,11 +90,6 @@
       text(s, 'Batch, in the order measured', L + pw / 2, H - 6, { size: 10 });
     },
 
-    /* 0922_逐筆.csv, rows with 採用 = Y only: net signal = (F5/F3 of the tube − F5/F3 of the
-       no-sfGFP tube) × 1000, averaged per tube. Zero = the no-sfGFP tube's 8 adopted batches
-       (0.0546). Fit through the origin over the 7 tubes with f > 0: slope 68.7.
-       "extra" = three further low-share tubes with 採用 = N, same zero; plotted open, not fitted
-       (with them the slope would be 68.8, r² 0.95). */
     dose: function (host) {
       var pts = [[0.10,5.30],[0.15,15.28],[0.20,14.80],[0.30,24.88],[0.50,31.27],[0.75,46.71],[1.00,71.76]];
       var extra = [[0.10,3.16],[0.05,7.53],[0.05,12.92]];
@@ -133,9 +114,6 @@
       text(s, 'r² ≈ 0.97', X(0.04), Y(50), { anchor: 'start', size: 12, fill: C.ink, weight: 600 });
     },
 
-    /* The sensor-strain test: lasreader-backup-20261013-0130.json, plan RUN-20261012-3911 (P1), F5/F3 of each
-       reading, current firmware. Blanks are medium alone. Reference lines from 0922 (linearity test): the tube without
-       sfGFP, F5/F3 ≈ 0.055, and the undiluted sfGFP culture H100, ≈ 0.127. */
     sensor: function (host) {
       var pts = [[1,0.0477],[1,0.0485],[1,0.0547],[2,0.0537],[2,0.0557],[2,0.0572],[3,0.0538],[3,0.0541],[3,0.0542],
                  [4,0.0584],[4,0.0604],[5,0.0549],[5,0.0553],[6,0.0561],[6,0.0563],[6,0.0567]];
@@ -166,11 +144,6 @@
       });
     },
 
-    /* 0920_逐筆.csv, the fluorescence test, readings 2–5 of each adopted batch (same batches as its fit).
-       For each culture density d: (F/F3 of the f = 1 tube) − (F/F3 of the f = 0 tube), then the
-       whole curve divided by its own F4 value. F3 is zero by construction. F2 sits next to the
-       excitation and is not read: it is drawn as hollow grey markers and left out of the lines.
-       Order: d = 1, 0.75, 0.5, 0.25. */
     spectrum: function (host) {
       var lbl = ['F1','F2','F3','F4','F5','F6','F7','F8'], wl = [415,445,480,515,555,590,630,680];
       var groups = [
@@ -210,8 +183,6 @@
       text(s, 'Channel (centre wavelength, nm)', L + pw / 2, H - 4, { size: 10 });
     },
 
-    /* Per-channel change when the same blank was lifted out and put back, divided by the mean change across
-       the nine channels. 0920_逐筆.csv, batches 22–23 vs 26–27. */
     flatness: function (host) {
       var lbl = ['F1','F2','F3','F4','F5','F6','F7','F8','Clear'], wl = ['415','445','480','515','555','590','630','680',''];
       var cuvPct = [20.38,14.38,14.05,14.82,17.35,18.96,18.16,16.11,15.91];

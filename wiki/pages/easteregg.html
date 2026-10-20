@@ -22,7 +22,6 @@
     cursor: crosshair;
   }
 
-  /* 背景粒子畫布 */
   #particles {
     position: fixed;
     top: 0;
@@ -33,7 +32,6 @@
     pointer-events: none;
   }
 
-  /* 主容器 */
   .container {
     position: relative;
     z-index: 10;
@@ -43,7 +41,6 @@
     text-align: center;
   }
 
-  /* 頂部霓虹標籤 */
   .tag {
     display: inline-block;
     font-family: 'Orbitron', monospace;
@@ -63,7 +60,6 @@
     50% { box-shadow: 0 0 20px #00f0ffaa; }
   }
 
-  /* 巨大標題 */
   h1 {
     font-family: 'Orbitron', monospace;
     font-weight: 900;
@@ -94,7 +90,6 @@
     opacity: 0.9;
   }
 
-  /* 打字機文字區 */
   .typewriter-box {
     background: rgba(10, 15, 30, 0.7);
     border: 1px solid #00f0ff33;
@@ -139,7 +134,6 @@
     50% { opacity: 0; }
   }
 
-  /* 三個炫砲卡片 */
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -196,7 +190,6 @@
     opacity: 0.9;
   }
 
-  /* 底部大標語 */
   .final-quote {
     margin-top: 60px;
     font-family: 'Orbitron', monospace;
@@ -219,7 +212,6 @@
     letter-spacing: 2px;
   }
 
-  /* 隱藏提示 */
   .secret-hint {
     margin-top: 50px;
     font-size: 0.75rem;
@@ -227,7 +219,6 @@
     letter-spacing: 1px;
   }
 
-  /* ========== 不要點進來 按鈕 ========== */
   .danger-btn {
     display: inline-block;
     margin-top: 40px;
@@ -257,7 +248,6 @@
     transform: scale(0.97);
   }
 
-  /* 滑鼠軌跡 */
   .trail {
     position: fixed;
     width: 8px;
@@ -271,7 +261,6 @@
     transition: transform 0.1s, opacity 0.4s;
   }
 
-  /* 點擊爆炸粒子 */
   .burst {
     position: fixed;
     width: 6px;
@@ -281,7 +270,6 @@
     z-index: 9998;
   }
 
-  /* 隱藏彩蛋訊息 */
   #secret-msg {
     position: fixed;
     top: 50%;
@@ -335,7 +323,6 @@
     color: #050510;
   }
 
-  /* ========== 病毒彈跳視窗樣式 ========== */
   .virus-window {
     position: fixed;
     width: 380px;
@@ -438,7 +425,6 @@
     border-color: #000 #fff #fff #000;
   }
 
-  /* ========== 模擬 Windows 安全性通知（右下角） ========== */
   #toast-stack {
     position: fixed;
     right: 16px;
@@ -520,14 +506,12 @@
     background: rgba(255, 255, 255, 0.0419);
   }
 
-  /* 觸控裝置沒有 hover，✕ 要一直看得到才關得掉 */
   @media (hover: none) {
     .os-toast-close {
       opacity: 1;
     }
   }
 
-  /* ---- Chrome 自己畫的那種淺色通知 ---- */
   .chrome-toast {
     width: 360px;
     max-width: calc(100vw - 32px);
@@ -735,7 +719,6 @@
 <div id="toast-stack"></div>
 
 <script>
-  // ========== 背景粒子系統 ==========
   const canvas = document.getElementById('particles');
   const ctx = canvas.getContext('2d');
   let particles = [];
@@ -800,7 +783,6 @@
   }
   animateParticles();
 
-  // ========== 打字機效果 ==========
   const texts = [
     "目標：Pseudomonas aeruginosa\n它在呼吸器、導管、傷口中形成致命生物膜。\n傳統抗生素正在失效……",
     "解決方案不是更強的抗生素。\n而是切斷它們的通訊網路。\n\n我們捕捉的是 AHL——\n細菌用來協調攻擊的密碼。",
@@ -827,7 +809,6 @@
   }
   setTimeout(type, 800);
 
-  // ========== 滑鼠發光軌跡 ==========
   document.addEventListener('mousemove', e => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
@@ -853,7 +834,6 @@
     });
   });
 
-  // ========== 點擊爆炸粒子 ==========
   document.addEventListener('click', e => {
     if (e.target.classList.contains('danger-btn')) return;
     if (e.target.closest('.virus-window') || e.target.closest('.os-toast')) return;
@@ -887,7 +867,6 @@
     }
   });
 
-  // ========== 鍵盤彩蛋：C-A-P-T-U-R-E ==========
   const code = ['c','a','p','t','u','r','e'];
   let codeIndex = 0;
 
@@ -907,7 +886,6 @@
     document.getElementById('secret-msg').classList.remove('show');
   }
 
-  // ========== 病毒彈跳視窗系統 ==========
   const virusMessages = [
     {
       title: "CRITICAL ERROR - SYSTEM INFECTED",
@@ -943,7 +921,6 @@
     const win = document.createElement('div');
     win.className = 'virus-window';
     
-    // 隨機位置
     const maxX = window.innerWidth - 400;
     const maxY = window.innerHeight - 220;
     const x = Math.max(20, Math.random() * maxX);
@@ -971,19 +948,16 @@
     document.body.appendChild(win);
     virusCount++;
 
-    // 讓視窗可拖曳
     makeDraggable(win);
   }
 
   function fakeClose(btn) {
-    // 假裝關閉，其實再彈一個出來
     const win = btn.closest('.virus-window');
     win.style.animation = 'none';
     win.style.opacity = '0.3';
     
     setTimeout(() => {
       win.remove();
-      // 再彈一個新的
       createVirusWindow(Math.floor(Math.random() * 5));
     }, 150);
   }
@@ -1015,23 +989,18 @@
     showSecurityToast();
     setTimeout(showChromeToast, 2600);
 
-    // 連續彈出 5 個視窗
     for (let i = 0; i < 5; i++) {
       setTimeout(() => {
         createVirusWindow(i);
       }, i * 180);
     }
 
-    // 再過幾秒偷偷再補幾個
     setTimeout(() => {
       createVirusWindow(0);
       createVirusWindow(2);
     }, 2500);
   }
 
-  // ========== 彩蛋：假裝成 Windows 安全性的通知 ==========
-  // 純粹是頁面內的 HTML，不會碰瀏覽器通知權限，也不會真的通知你的裝置。
-  // 圖示是 inline SVG，不依賴任何外部資源。
   const SECURITY_TOAST = {
     app: 'Windows 安全性',
     title: '發現威脅',
@@ -1063,7 +1032,6 @@
   let securityToastShown = false;
 
   function showSecurityToast() {
-    // 一次只會有一則，而且不會自己消失，要按 ✕ 才關
     if (securityToastShown) return;
     securityToastShown = true;
 
@@ -1095,8 +1063,6 @@
     requestAnimationFrame(() => el.classList.add('show'));
   }
 
-  // ---- 第二則：假裝成 Chrome 自己畫的網站通知 ----
-  // 真的 Chrome 通知一定會標出來源網站，所以這裡也照標。
   const CHROME_TOAST = {
     origin: '2026.igem.wiki',
     title: '綠膿桿菌已擴散到您的瀏覽器',
@@ -1156,8 +1122,6 @@
     requestAnimationFrame(() => el.classList.add('show'));
   }
 
-  // 進站兩秒後先跳系統警告，隔一下再補一則 Chrome 的；
-  // 關掉之後按紅色按鈕會再出現一次
   setTimeout(showSecurityToast, 2000);
   setTimeout(showChromeToast, 4600);
 </script>

@@ -1,16 +1,3 @@
-/* ============================================================
-   HOME — the home page: the dish in the banner, then the project
-   in five sections (problem, two systems, light to a number, out of
-   the lab, the map of the wiki). The game, the video, the quiz and
-   the tour keep their own styles in style.css.
-
-   Every moving part is a transform or an opacity, so the browser
-   only has to move layers it has already painted; the one thing
-   that draws every frame is the dish's canvas, and it stops when
-   the banner is off screen (static/js/pages/home.js).
-   ============================================================ */
-
-/* ---- the banner ---- */
 .rx-hero {
   position: relative;
   height: var(--hero-h, min(92svh, 860px));
@@ -31,7 +18,6 @@ html[data-theme="light"] .rx-hero {
 }
 #qsCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
-/* The bottom of the banner fades into the page, so there is no hard edge. */
 .rx-hero {
   --hero-fade: 5rem;
   margin-bottom: 0;
@@ -43,8 +29,6 @@ html[data-theme="light"] .rx-hero {
   position: relative; z-index: 2; text-align: center;
   padding: 0 1.25rem; max-width: 980px;
 }
-/* The bacteria drift behind the title: a soft dark pool keeps it readable
-   whatever is passing underneath. */
 .qs-hero .rx-hero-inner::before {
   content: ""; position: absolute; inset: -18% -12%; z-index: -1;
   background: radial-gradient(closest-side, rgba(8, 24, 30, 0.78), rgba(8, 24, 30, 0.45) 55%, rgba(8, 24, 30, 0));
@@ -75,7 +59,6 @@ html[data-theme="light"] .rx-hero {
 .rx-hero .rx-btn-ghost { color: #d7f5b8; border-color: rgba(215,245,184,0.45); }
 .rx-hero .rx-btn-ghost:hover { color: var(--c-glow); border-color: var(--c-glow); }
 
-/* ---- the dish's controls ---- */
 .qs-hud {
   position: absolute; z-index: 3;
   left: clamp(1rem, 3vw, 2.5rem);
@@ -109,7 +92,6 @@ html[data-theme="light"] .rx-hero {
   background: linear-gradient(90deg, #49c5b6, #eecb86 60%, #ff7a5c);
   transition: transform 0.12s linear;
 }
-/* the quorum threshold: two thirds of the way along (signal 1 of 1.5) */
 
 .qs-meter-state {
   min-width: 8.5em; text-align: right;
@@ -122,7 +104,6 @@ html[data-theme="light"] .rx-hero {
 
 .qs-hint { margin: 0; font-size: 0.82rem; line-height: 1.45; color: rgba(231, 242, 234, 0.8); text-shadow: 0 1px 6px rgba(0,0,0,0.6); }
 
-/* ---- the sections ---- */
 .hx { position: relative; padding: clamp(4rem, 9vw, 7.5rem) 0; }
 .hx-inner { width: min(1180px, 100% - 2.5rem); margin: 0 auto; }
 .hx-kicker {
@@ -134,25 +115,17 @@ html[data-theme="light"] .rx-hero {
   font-size: clamp(2rem, 4.4vw, 3.4rem); color: #f2fff8; margin: 0 0 1.1rem; max-width: 22ch;
 }
 .hx-title em { color: var(--c-glow); }
-/* 這一段的導言刻意用 <br> 斷成兩句各一行，所以不能被 .hx-lead 的 62ch 再切一次：
-   第二句有 95 個字元，62ch 會把它折成兩行。這裡放掉上限，改由 .hx-inner 收邊。
-   代價是視窗窄於約 1360px 時第二句還是會折 -- 以這個長度沒有辦法避免。 */
 .hx-pipe .hx-lead { max-width: none; }
-/* text-wrap: balance 讓瀏覽器把兩三行的導言各行拉成差不多長度，而不是把前一行
-   塞到 62ch 的上限為止 -- 那樣常常在行尾留下一個「a」「the」之類的孤字。不支援的
-   瀏覽器就是原本的斷法，沒有副作用。 */
 .hx-lead { font-size: var(--fs-lead); line-height: 1.7; color: var(--c-text-2); max-width: 62ch; margin: 0 0 2.6rem; text-wrap: balance; }
 :is(#hx-systems, #hx-world) .hx-more { display: inline-block; margin-top: 1.1rem; font-weight: 700; color: var(--c-glow); text-decoration: none; }
 :is(#hx-systems, #hx-world) .hx-more:hover { text-decoration: underline; color: var(--c-glow); }
 
-/* a soft band of light between sections, so they read as chapters */
 .hx + .hx::before {
   content: ""; position: absolute; top: 0; left: 50%; width: min(880px, 80%); height: 1px;
   transform: translateX(-50%);
   background: linear-gradient(90deg, transparent, rgba(160, 232, 96, 0.35), transparent);
 }
 
-/* ---- 1. the problem ---- */
 .hx-problem { padding-top: clamp(3rem, 6vw, 5rem); }
 .hx-figures {
   list-style: none; margin: 0 0 3.2rem; padding: 0;
@@ -182,7 +155,6 @@ html[data-theme="light"] .rx-hero {
   transform: scaleX(var(--h));
   background: linear-gradient(90deg, #eecb86, #e9a55a 55%, #e2574c);
 }
-/* the culture result arrives somewhere in 48-72 h: the last third */
 .hx-wait-zone {
   position: absolute; top: -6px; bottom: -6px; left: 66.67%; right: 0;
   border-radius: 6px; border: 1px dashed rgba(242, 255, 248, 0.55);
@@ -191,7 +163,6 @@ html[data-theme="light"] .rx-hero {
   position: absolute; bottom: calc(100% + 6px); right: 0;
   font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-text-2); white-space: nowrap;
 }
-/* the signal: there from the first hour */
 .hx-wait-signal {
   position: absolute; left: 0; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -4px; border-radius: 50%;
   background: radial-gradient(circle, #fff3c8 0, #eecb86 45%, rgba(238,203,134,0) 72%);
@@ -203,7 +174,6 @@ html[data-theme="light"] .rx-hero {
 }
 @keyframes hx-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.35); opacity: 0.7; } }
 
-/* the native range sits on the rail, invisible but for its thumb */
 .hx-wait-range {
   position: absolute; left: -10px; right: -10px; top: calc(2.2rem - 8px); width: calc(100% + 20px);
   height: 30px; margin: 0; background: transparent; cursor: grab;
@@ -230,11 +200,6 @@ html[data-theme="light"] .rx-hero {
 .hx-wait-read { display: grid; grid-template-columns: 64px 1fr; gap: 3.15rem; align-items: center; }
 .hx-shield { width: 64px; height: 72px; overflow: visible; }
 .hx-shield-shape { fill: rgba(255,255,255,0.04); stroke: rgba(242, 255, 248, 0.5); stroke-width: 2; }
-/* the shield fills as the hours pass: a picture of "already up", not a curve.
-   The rect is already the full shield shape (clipped to hxShieldClip), so
-   there is no sub-region to raise or slide -- fading its opacity in with
-   the hours reads as the whole shield gradually filling in, with no edge
-   moving across it. */
 .hx-shield-level {
   fill: #e2574c;
   opacity: calc(min(1, var(--h) * 1.5) * 0.85);
@@ -246,7 +211,6 @@ html[data-theme="light"] .rx-hero {
 }
 .hx-wait[data-band="late"] .hx-wait-hours { color: #ff9a7e; }
 
-/* ---- 2. two systems ---- */
 .hx-sys {
   border-radius: var(--r-lg); overflow: hidden;
   background: linear-gradient(170deg, rgba(28, 67, 82, 0.6), rgba(10, 26, 33, 0.7));
@@ -273,7 +237,6 @@ html[data-theme="light"] .rx-hero {
 .hx-sys-art { width: 100%; height: auto; overflow: visible; stroke-linecap: round; stroke-linejoin: round; }
 .hx-sys-art text { font-family: "Changa", sans-serif; }
 
-/* the two pictures cross-fade */
 .hx-sys-art .art { opacity: 0; transition: opacity 0.55s ease; }
 .hx-sys[data-sys="detect"] .art-detect,
 .hx-sys[data-sys="capture"] .art-capture { opacity: 1; }
@@ -285,11 +248,10 @@ html[data-theme="light"] .rx-hero {
 .a-tag-dim { fill: #7e988a; font-weight: 500; }
 .a-ahl { fill: #eecb86; stroke: #eecb86; stroke-width: 2.4; }
 
-/* System 1: detect */
 .a-drift { animation: a-drift 3.4s ease-in-out infinite; }
 .a-drift-2 { animation-duration: 4.1s; animation-delay: -1.3s; }
 @keyframes a-drift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(6px, -5px); } }
-.a-ahl-dock { transform: translate(84px, -12px); }   /* step 1: just inside the cell */
+.a-ahl-dock { transform: translate(84px, -12px); }
 .a-lasr-shape { fill: rgba(169, 195, 180, 0.12); stroke: #a9c3b4; stroke-width: 2.4; }
 .a-lasr-t { fill: #d6eadf; font-size: 14px; font-weight: 800; }
 .a-lasr-body { transform-box: fill-box; transform-origin: 50% 50%; }
@@ -314,7 +276,6 @@ html[data-theme="light"] .rx-hero {
 .a-badge circle { fill: #0f2a33; stroke: #4f6a5e; stroke-width: 1.6; }
 .a-badge text { fill: #7e988a; font-size: 12px; font-weight: 800; }
 
-/* the step that is playing: its badge fills in, earlier ones stay lit */
 .hx-sys[data-sys="detect"]:is([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .a-badge-1 circle,
 .hx-sys[data-sys="detect"]:is([data-step="2"], [data-step="3"], [data-step="4"]) .a-badge-2 circle,
 .hx-sys[data-sys="detect"]:is([data-step="3"], [data-step="4"]) .a-badge-3 circle,
@@ -331,15 +292,12 @@ html[data-theme="light"] .rx-hero {
 .hx-sys[data-sys="detect"][data-step="3"] .a-badge-3 text,
 .hx-sys[data-sys="detect"][data-step="4"] .a-badge-4 text { fill: #0a1a21; }
 
-/* 1 hear: the signal crosses the membrane */
 .hx-sys[data-sys="detect"][data-step="1"] .a-ahl-dock { animation: a-enter 1.4s cubic-bezier(0.3, 0.7, 0.3, 1) both; }
 @keyframes a-enter { from { transform: translate(0, 0); } to { transform: translate(84px, -12px); } }
-/* 2 bind: it slots into LasR's pocket */
 .hx-sys[data-sys="detect"][data-step="2"] .a-ahl-dock { transform: translate(142px, -20px); }
 .hx-sys[data-sys="detect"]:is([data-step="2"], [data-step="3"], [data-step="4"]) .a-lasr-shape { stroke: #b8f57e; fill: rgba(184, 245, 126, 0.14); }
 .hx-sys[data-sys="detect"][data-step="2"] .a-lasr-body { animation: a-pop 0.6s 0.55s ease-out; }
 @keyframes a-pop { 50% { transform: scale(1.1); } }
-/* 3 switch: the pair lands on pLasRV and the promoter turns on */
 .hx-sys[data-sys="detect"]:is([data-step="3"], [data-step="4"]) .a-lasr { transform: translate(20px, 79px); }
 .hx-sys[data-sys="detect"]:is([data-step="3"], [data-step="4"]) .a-ahl-dock { transform: translate(162px, 59px); }
 .hx-sys[data-sys="detect"]:is([data-step="3"], [data-step="4"]) :is(.a-op, .a-prom, .a-gene) { stroke: #b8f57e; }
@@ -347,7 +305,6 @@ html[data-theme="light"] .rx-hero {
 .hx-sys[data-sys="detect"]:is([data-step="3"], [data-step="4"]) .a-on { opacity: 1; transition-delay: 0.5s; }
 .hx-sys[data-sys="detect"]:is([data-step="3"], [data-step="4"]) .a-read { opacity: 1; animation: a-read 1.6s 0.6s linear infinite; }
 @keyframes a-read { from { stroke-dashoffset: 22; } to { stroke-dashoffset: -118; } }
-/* 4 glow: sfGFP is made from the gene and the cell lights up */
 .hx-sys[data-sys="detect"][data-step="4"] .a-expr { stroke-dashoffset: 0; }
 .hx-sys[data-sys="detect"][data-step="4"] :is(.a-expr-head, .a-expr-g .a-tag) { opacity: 1; transition-delay: 0.5s; }
 .hx-sys[data-sys="detect"][data-step="4"] .a-barrels { opacity: 1; transition-delay: 0.5s; }
@@ -364,7 +321,6 @@ html[data-theme="light"] .rx-hero {
 @keyframes a-rays { to { stroke-dashoffset: -11; } }
 .hx-sys[data-sys="detect"][data-step="4"] .art-detect .a-cell { stroke: #b8f57e; fill: rgba(184, 245, 126, 0.12); transition-delay: 0.9s; }
 
-/* System 2: capture */
 .a-retron circle { fill: none; stroke: #7e988a; stroke-width: 2.4; }
 .a-msd { fill: none; stroke: #7e988a; stroke-width: 2.4; }
 .a-apt { fill: none; stroke: #b8f57e; stroke-width: 3; }
@@ -372,14 +328,8 @@ html[data-theme="light"] .rx-hero {
 .a-out { opacity: 0; transform: translateX(-70px); }
 .a-bound { opacity: 0; }
 
-/* P. aeruginosa is drawn green, as the organism is named for. Its green sits
-   well below the aptamer's lime and a hue away from E. coli's teal: the
-   nearest pair on the picture is 10.5 apart in OKLab, and the two are at
-   opposite ends of it, differently shaped and both labelled. */
 .a-pa-cell { fill: rgba(76, 175, 106, 0.10); stroke: #4caf6a; stroke-width: 2.2; }
 .a-tag-pa { fill: #4caf6a; font-style: italic; }
-/* The line the two cells talk along. It is the AHL's amber, dashed, because
-   what travels it is signal rather than structure. */
 .a-talk { fill: none; stroke: #eecb86; stroke-width: 2; stroke-dasharray: 4 6; opacity: 0.55; }
 .a-x { fill: none; stroke: #f2fff8; stroke-width: 2.4; stroke-linecap: round; opacity: 0; }
 
@@ -390,12 +340,6 @@ html[data-theme="light"] .rx-hero {
 .hx-sys[data-sys="capture"]:is([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"]) .a-apt-in { opacity: 1; }
 .hx-sys[data-sys="capture"]:is([data-step="3"], [data-step="4"]) .a-cell-open { stroke-dasharray: 10 12; }
 .hx-sys[data-sys="capture"]:is([data-step="2"], [data-step="3"], [data-step="4"]) .a-out { opacity: 1; transform: none; }
-/* Catch, then inhibit: the aptamer closes on one AHL at step 3, and at step 4
-   three of the five in the water are struck out while two are not. Separating
-   the two steps is the point -- taking a molecule out is the act, the
-   population hearing less is the consequence -- and so is leaving two
-   unmarked. The assays measured reductions of a fifth to a third, not
-   silence, and a picture that cut the line would say more than that. */
 .hx-sys[data-sys="capture"]:is([data-step="3"], [data-step="4"]) .a-bound { opacity: 1; }
 .hx-sys[data-sys="capture"][data-step="4"] .a-ahl-caught { opacity: 0.3; }
 .hx-sys[data-sys="capture"][data-step="4"] .a-x { opacity: 1; }
@@ -426,7 +370,6 @@ html[data-theme="light"] .rx-hero {
 .hx-steps button:focus-visible { outline: 2px solid var(--c-glow); outline-offset: 2px; }
 .hx-aside { margin: 1rem 0 0; font-size: 0.88rem; line-height: 1.6; color: var(--c-text-3); }
 
-/* ---- 3. from light to a number ---- */
 .hx-pipe-track {
   list-style: none; margin: 0; padding: 0;
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2.2rem;
@@ -452,7 +395,6 @@ html[data-theme="light"] .rx-hero {
 .hx-stage-text { font-size: 0.92rem; line-height: 1.6; color: var(--c-text-2); }
 .hx-stage-go { margin-top: auto; padding-top: 1rem; font-weight: 700; color: var(--c-glow); }
 
-/* ---- 4. out of the lab ---- */
 .hx-stats { list-style: none; margin: 0 0 3.5rem; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; }
 .hx-stats a {
   display: flex; flex-direction: column; height: 100%; padding: 1.2rem 1.1rem; border-radius: var(--r-lg);
@@ -466,9 +408,6 @@ html[data-theme="light"] .rx-hero {
 
 .hx-world-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; }
 
-/* The partners on a slowly turning ring. The ring turns and each logo turns
-   back the same amount, so the logos stay upright; both are transforms the
-   compositor runs. Pointing at the ring stops it. */
 .hx-orbit-wrap { --d: min(460px, 86vw); position: relative; width: var(--d); aspect-ratio: 1; margin: 0 auto; }
 .hx-orbit-wrap::before {
   content: ""; position: absolute; inset: 40px; border-radius: 50%;
@@ -526,12 +465,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
   --rx: 0deg; --ry: 0deg; --mx: 50%; --my: 0%;
   position: relative; display: block; overflow: hidden; padding: 1.5rem 9rem 1.5rem 1.5rem; border-radius: var(--r-lg);
   text-decoration: none;
-  /* No fill: the olive-to-ink gradient that used to sit here was the only
-     panel in this section carrying one, and the page's own mesh now shows
-     through. The amber rule and its hover brightening still mark the card out.
-     The pointer-following glow went with it -- on a transparent card it read
-     as a stray smudge rather than a highlight -- so --mx/--my are no longer
-     used by anything, though js/pages/home.js still sets them. */
   background: none;
   border: 1px solid rgba(238, 203, 134, 0.3);
   transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
@@ -542,19 +475,7 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
 .hx-game-k { display: block; font-family: "Changa", sans-serif; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: #eecb86; font-weight: 700; }
 .hx-game-name { display: block; font-family: "Changa", sans-serif; font-weight: 800; font-size: 1.45rem; color: #f2fff8; margin: 0.2rem 0 0.5rem; }
 .hx-game-text { display: block; font-size: 0.9rem; line-height: 1.6; color: var(--c-text-2); }
-/* three cards fanned in the corner; they spread when the card is pointed at.
-   right: 2.6rem rather than 1.6: rotating about 50% 110% swings the front
-   card's top-right corner about 28px past its resting edge at 18deg, which is
-   more than 1.6rem of inset allowed, and .hx-game-card clips it (overflow:
-   hidden). 2.6rem leaves roughly 13px of clearance. Still well inside the
-   9rem of padding the text is held off by. */
 .hx-game-cards { position: absolute; right: 2.6rem; top: 50%; width: 64px; height: 88px; margin-top: -44px; }
-/* The three cards are the site's own three accents, so the fan reads as part
-   of the page rather than as clip art: amber at the back, teal in the middle,
-   and the lime-to-teal of the project's own mark in front. The salmon-to-red
-   middle card and the cream rim they all carried were the only colours in
-   this section that appear nowhere else on the site. Hex rather than tokens
-   to match the lines around them; the theme is locked to dark. */
 .hx-game-cards i {
   position: absolute; inset: 0; border-radius: 8px;
   background: linear-gradient(160deg, #b8f57e, #49c5b6); border: 2px solid #e7f2ea;
@@ -569,7 +490,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
 .hx-game-card:hover .hx-game-cards i:nth-child(2) { transform: rotate(-6deg) translateY(-10px); }
 .hx-game-card:hover .hx-game-cards i:nth-child(3) { transform: rotate(18deg) translateY(-4px); }
 
-/* ---- the game ---- */
 .hx-play { padding-top: clamp(3rem, 6vw, 5rem); }
 .hx-play-head { text-align: center; }
 .hx-play-head .hx-kicker { margin-bottom: 0.6rem; }
@@ -577,14 +497,12 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
 .hx-play .cap-page { margin-top: 1.5rem !important; }
 .hx-play .cap-page > h3 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* ---- the video ---- */
 .home-video-frame {
   border-radius: var(--r-lg); overflow: hidden;
   border: 1px solid rgba(20,179,145,0.25);
   box-shadow: 0 24px 60px -30px rgba(6,64,46,0.5);
 }
 
-/* ---- the map of the wiki ---- */
 .hx-map { display: grid; gap: 1.5rem; }
 .hx-map-cols { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.2rem; }
 .hx-map-col { --tone: #b8f57e; }
@@ -598,8 +516,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
   color: var(--tone); margin: 0 0 0.8rem; padding-bottom: 0.6rem; border-bottom: 2px solid var(--tone);
 }
 .hx-map-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.15rem; }
-/* By id: the site colours every link in .container > section, with a
-   selector of a dozen classes (css/editorial.css), and only an id outranks it. */
 #hx-explore .hx-map-col a {
   display: block; padding: 0.42rem 0.6rem; border-radius: var(--r-sm); text-decoration: none;
   color: var(--c-text); font-weight: 600; font-size: 0.95rem;
@@ -609,8 +525,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
   background: color-mix(in srgb, var(--tone) 16%, transparent); color: #f2fff8; transform: translateX(4px);
 }
 .hx-map-col a:focus-visible { outline: 2px solid var(--tone); outline-offset: 1px; }
-/* the lines live in the links for screen readers and narrow screens; on a
-   wide screen the panel below shows the one being pointed at */
 .hx-map-desc { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .hx-map-spot {
   position: relative; display: grid; grid-template-columns: auto 1fr auto; gap: 0.2rem 1.4rem; align-items: center;
@@ -629,7 +543,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
 
 .hx-explore + .container .quiz-invite { margin-top: 0; }
 
-/* ---- narrower screens ---- */
 @media (max-width: 1199.98px) {
   .hx-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .hx-map-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 2rem; }
@@ -664,7 +577,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
   .hx-shield { width: 48px; height: 54px; }
 }
 
-/* ---- reduced motion: everything is shown at rest ---- */
 @media (prefers-reduced-motion: reduce) {
   .hx-orbit, .hx-orbit-face, .hx-wait-signal { animation: none !important; }
   .hx-stage > a, .hx-game-card { transform: none !important; }
@@ -672,7 +584,6 @@ html[data-theme="dark"] .hx-orbit-face img { opacity: 1; }
   .hx-sys-art * { animation: none !important; }
 }
 
-/* ---- print ---- */
 @media print {
   .rx-hero { height: auto; min-height: 0; padding: 2rem 0; background: none !important; -webkit-mask-image: none; mask-image: none; }
   #qsCanvas, .qs-hud, .hx-orbit-wrap, .hx-map-spot { display: none !important; }
