@@ -1,38 +1,12 @@
-/* ===========================================================================
-   The Green Cabinet — online play transport
-
-   Talks to a Firebase Realtime Database over its REST + SSE interface, using
-   only fetch() and EventSource. No third-party script is loaded, so the wiki
-   still serves every asset from iGEM infrastructure.
-
-   TO ENABLE ONLINE PLAY: paste your database URL into ONLINE_CONFIG below.
-   Create a Realtime Database at https://console.firebase.google.com and copy
-   the URL shown there, for example
-       https://the-green-cabinet-default-rtdb.asia-southeast1.firebasedatabase.app
-   Leave it blank and the online button explains that it is not configured
-   rather than failing, so the page never looks broken.
-
-   Suggested database rules — rooms are readable/writable but self-expiring
-   data only, and nothing else in the database is exposed:
-       {
-         "rules": {
-           ".read": false,
-           ".write": false,
-           "rooms": { "$room": { ".read": true, ".write": true } }
-         }
-       }
-   =========================================================================== */
-
 var ONLINE_CONFIG = {
   databaseUrl: "https://igem-boardgame-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
-/* Overridable for local testing without touching the shipped config. */
 (function () {
   try {
     var override = window.localStorage.getItem("tgc_db_url");
     if (override) ONLINE_CONFIG.databaseUrl = override;
-  } catch (e) { /* storage blocked; keep the shipped value */ }
+  } catch (e) { }
 })();
 
 var Net = (function () {
@@ -54,9 +28,6 @@ var Net = (function () {
     });
   }
 
-  /* Subscribe to a path. onValue receives the whole subtree on every change.
-     Firebase streams deltas, so the local mirror is patched and handed back
-     complete — callers never have to reason about partial updates. */
   function subscribe(path, onValue, onError) {
     if (!configured()) {
       if (onError) onError(new Error("not-configured"));
@@ -87,7 +58,7 @@ var Net = (function () {
           var m = JSON.parse(ev.data);
           applyAt(m.path, m.data);
           onValue(mirror);
-        } catch (e) { /* ignore malformed frame */ }
+        } catch (e) { }
       });
       es.addEventListener("patch", function (ev) {
         try {
@@ -97,11 +68,9 @@ var Net = (function () {
             applyAt("/" + prefix.concat(k).join("/"), m.data[k]);
           });
           onValue(mirror);
-        } catch (e) { /* ignore malformed frame */ }
+        } catch (e) { }
       });
       es.onerror = function () {
-        // EventSource reconnects on its own; surface it so the UI can show
-        // a reconnecting state rather than silently freezing.
         if (onError) onError(new Error("stream-interrupted"));
       };
     }
@@ -123,10 +92,6 @@ var Net = (function () {
     push: function (p, v) { return request("POST", p, v); },
     remove: function (p) { return request("DELETE", p); },
     subscribe: subscribe,
-    /* Reachability probe so the UI can degrade instead of hanging.
-       Deliberately reads inside rooms/: the recommended rules close the
-       database root, so probing the root would always look unreachable even
-       when everything is configured correctly. */
     ping: function () {
       if (!configured()) return Promise.reject(new Error("not-configured"));
       return Promise.race([
@@ -137,7 +102,6 @@ var Net = (function () {
   };
 })();
 
-/* Room codes avoid characters that are easy to misread aloud (0/O, 1/I). */
 function makeRoomCode() {
   var alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   var out = "";
@@ -145,7 +109,6 @@ function makeRoomCode() {
   return out;
 }
 
-/* Stable per-device identity so a refresh rejoins as the same seat. */
 function localPlayerId() {
   var id;
   try {

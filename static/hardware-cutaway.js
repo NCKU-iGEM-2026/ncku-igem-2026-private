@@ -1,46 +1,7 @@
-/* CAPTURE-Screen P1 cutaway viewer.
- *
- * A small software renderer: orbit camera, painter's algorithm, canvas 2D, no
- * library. It is written that way so the page loads nothing but its own files,
- * which is what the iGEM asset rules require.
- *
- * Read the provenance note on every part below before reusing a number from it.
- * Coordinates along X come from the plan view on this same page and are real.
- * Y and Z are not: they place parts so the arrangement can be seen, and the
- * parts list on the page says so for each one.
- */
 (function () {
   "use strict";
 
   if (!document.getElementById("hw3d-view")) return;
-
-  /* ==========================================================================
-     MODEL
-     Device coordinates in millimetres. X is the excitation axis (+X toward the
-     light trap), Y is the detection axis (+Y toward the AS7341), Z is up.
-     X = 0 is the centre of the UVette.
-
-     src: "drawn"   -> read off the plan view on this page (5 px = 1 mm on X),
-                       quoted in that page's text, or dimensioned on the 09-12
-                       enclosure DWG.
-          "spec"    -> stated by the team for the enclosure as designed: 80 mm tall,
-                       two layers, UVette through the top plate, ESP32 above the
-                       breadboard, no emission filter.
-          "derived" -> arithmetic on two known numbers, or read off a vendor
-                       photograph's scale bar; the note says which.
-          "todo"    -> NOT established anywhere. Placeholder so the thing can be
-                       drawn. Nothing below invents a measurement.
-
-     Z layout of the 80 mm stack, marked derived because the split is arithmetic
-     on the 3 mm material and the 27 mm upper clear height of the 08-06 drawing,
-     not a number anyone has stated for the 127.4 x 99.4 x 80 box:
-        +16.5 .. +13.5  top plate, 3 mm, with the UVette opening
-        +13.5 .. -13.5  upper layer, 27 mm clear   -> optics, LED, AS7341
-        -13.5 .. -16.5  deck, 3 mm
-        -16.5 .. -60.5  lower layer, 44 mm clear   -> breadboard, ESP32, wiring
-        -60.5 .. -63.5  bottom plate, 3 mm
-     The excitation axis sits at Z = 0, mid-height of the upper layer.
-     ========================================================================== */
 
   var PARTS = [
     {
@@ -154,38 +115,25 @@
     }
   ];
 
-  /* Beams. Endpoints follow the X coordinates above. */
   var BEAMS = [
     { id: "ex", color: "beamEx", pts: [[-40.4, 0, 0], [18.25, 0, 0]], w: 3.2 },
     { id: "exTrap", color: "beamEx", pts: [[18.25, 0, 0], [43.5, 0, 0]], w: 2.2, dash: true },
     { id: "em", color: "beamEm", pts: [[0, 0, 0], [23.2, 0, 0]], w: 3.2, alongY: true }
   ];
 
-  /* The five stations dimensioned on the wiki plan view. */
   var STATIONS = [-33.25, -18.25, 0, 18.25, 45.25];
-
-  /* ==========================================================================
-     PIECE BUILDERS
-     Shape only. None of these introduces a dimension the part's own x/y/z does
-     not already carry: every piece is placed as a fraction of the envelope
-     above, or at the 2.54 mm pitch a breadboard is defined by. They make a part
-     read as the object it is; they are not evidence about the object.
-     ========================================================================== */
 
   function breadboardPieces(p) {
     var x0 = p.x[0], x1 = p.x[1], y0 = p.y[0], y1 = p.y[1], z0 = p.z[0], z1 = p.z[1];
     var yc = (y0 + y1) / 2, top = z1 + 0.02, out = [];
 
     out.push({ kind: "box", x: [x0, x1], y: [y0, y1], z: [z0, z1], color: "bb", solid: true });
-    /* The channel down the middle that separates the two banks. */
     out.push({ kind: "box", x: [x0 + 1.5, x1 - 1.5], y: [yc - 2.4, yc + 2.4], z: [z1 - 1.4, z1 - 0.3], color: "bbDark", solid: true });
 
-    /* Power rails: a red and a blue line down each long edge. */
     [[y0 + 1.6, "railR"], [y0 + 4.4, "beamEx"], [y1 - 4.4, "railR"], [y1 - 1.6, "beamEx"]].forEach(function (r) {
       out.push({ kind: "quadXY", x: [x0 + 4, x1 - 4], y: [r[0] - 0.25, r[0] + 0.25], z: top, color: r[1], flat: true });
     });
 
-    /* Tie points, on the 2.54 mm pitch, five a side either way from the channel. */
     var pitch = 2.54, h = 0.45;
     for (var gx = x0 + 4; gx <= x1 - 4; gx += pitch) {
       for (var k = 0; k < 5; k++) {
@@ -205,22 +153,16 @@
     var x0 = p.x[0], x1 = p.x[1], y0 = p.y[0], y1 = p.y[1], z0 = p.z[0];
     var zHdr = z0 + 3.4, zPcb = zHdr + 1.6;
     return [
-      /* Header strips down both long edges, plugged into the breadboard. */
       { kind: "box", x: [x0, x1], y: [y0, y0 + 2.6], z: [z0, zHdr], color: "pcb", solid: true },
       { kind: "box", x: [x0, x1], y: [y1 - 2.6, y1], z: [z0, zHdr], color: "pcb", solid: true },
       { kind: "box", x: [x0, x1], y: [y0, y1], z: [zHdr, zPcb], color: "pcb", solid: true },
-      /* The WROOM module's metal can at one end. */
       { kind: "box", x: [x0 + 1, x0 + 19], y: [y0 + 4.5, y1 - 4.5], z: [zPcb, zPcb + 3.1], color: "metal", solid: true },
-      /* USB connector overhanging the other end. */
       { kind: "box", x: [x1 - 2, x1 + 1.5], y: [y0 + 9.5, y1 - 9.5], z: [zPcb, zPcb + 2.8], color: "metal", solid: true },
-      /* EN and BOOT buttons flanking it. */
       { kind: "box", x: [x1 - 10, x1 - 6.5], y: [y0 + 3, y0 + 6.5], z: [zPcb, zPcb + 1.6], color: "bbDark", solid: true },
       { kind: "box", x: [x1 - 10, x1 - 6.5], y: [y1 - 6.5, y1 - 3], z: [zPcb, zPcb + 1.6], color: "bbDark", solid: true }
     ];
   }
 
-  /* Laid out from the DFRobot product photo: two mounting holes at the top,
-     two white LEDs flanking the sensor, four pads along the bottom edge. */
   function sen0365Pieces(p) {
     var x0 = p.x[0], x1 = p.x[1], z0 = p.z[0], z1 = p.z[1];
     var yFront = p.y[0], face = yFront - 0.02, out = [];
@@ -235,7 +177,6 @@
     return out;
   }
 
-  /* A 5 mm through-hole LED: flange, barrel, domed lens, two leads. */
   function ledPieces(p) {
     var x0 = p.x[0], x1 = p.x[1], r = p.r;
     return [
@@ -247,7 +188,6 @@
     ];
   }
 
-  /* A cuvette: optical block at the bottom, body above it, rim at the mouth. */
   function uvettePieces(p) {
     var x = p.x, y = p.y, z = p.z;
     return [
@@ -256,10 +196,6 @@
       { kind: "box", x: [x[0] - 0.9, x[1] + 0.9], y: [y[0] - 0.9, y[1] + 0.9], z: [z[1] - 2, z[1]] }
     ];
   }
-
-  /* ==========================================================================
-     SMALL 3D ENGINE: orbit camera, painter's algorithm, canvas 2D.
-     ========================================================================== */
 
   var canvas = document.getElementById("hw3d-view");
   var ctx = canvas.getContext("2d");
@@ -304,7 +240,6 @@
     return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
   }
 
-  /* --- vector helpers --- */
   function sub(a, b) { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
   function cross(a, b) {
     return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
@@ -315,7 +250,6 @@
     return [a[0] / l, a[1] / l, a[2] / l];
   }
 
-  /* --- camera basis, rebuilt every frame --- */
   var basis = null;
   function buildCamera() {
     var target = [-1, 10, -14];
@@ -329,8 +263,6 @@
     var f = norm(sub(target, eye));
     var right = norm(cross(f, [0, 0, 1]));
     var up = cross(right, f);
-    /* Fit the 130 mm box length to ~62% of the width, and the 96 mm from the
-       floor to the top of the UVette to ~72% of the height, whichever binds. */
     var focal = Math.min(1.81 * W, 2.85 * H) * cam.zoom;
     basis = { eye: eye, f: f, right: right, up: up, focal: focal };
   }
@@ -347,7 +279,6 @@
     };
   }
 
-  /* --- primitive builders: each returns {faces:[[p,p,p,p],...], edges:[[p,p],...]} --- */
   function boxGeom(x, y, z) {
     var v = [
       [x[0], y[0], z[0]], [x[1], y[0], z[0]], [x[1], y[1], z[0]], [x[0], y[1], z[0]],
@@ -361,8 +292,6 @@
     };
   }
 
-  /* Cylinder or tube along X. slant tapers the far end face, which is how the
-     angled-wedge trap terminates. */
   function tubeGeom(x, c, ro, ri, seg, slant) {
     seg = seg || 20;
     var faces = [], edges = [], i;
@@ -397,7 +326,6 @@
     return { faces: faces, edges: edges };
   }
 
-  /* A hemisphere capping +X, which is what a 5 mm LED actually looks like. */
   function domeGeom(xb, xt, c, r, seg, rings) {
     var faces = [], prev = null, i, j;
     for (i = 0; i <= rings; i++) {
@@ -419,9 +347,6 @@
     return { faces: faces, edges: [] };
   }
 
-  /* Zero-thickness markings: silkscreen, tie-point holes, pads. They carry no
-     edges, and sit in the depth sort like any other face so nothing shows
-     through the part in front of it. */
   function quadXY(x, y, z) {
     return { faces: [[[x[0], y[0], z], [x[1], y[0], z], [x[1], y[1], z], [x[0], y[1], z]]], edges: [] };
   }
@@ -448,8 +373,6 @@
     return primGeom(p);
   }
 
-  /* A part is either one primitive or an assembly of pieces. Geometry is
-     static, so it is built once and cached; explode moves it at draw time. */
   function piecesOf(p) {
     if (p._pieces) return p._pieces;
     var src = p.pieces ? (typeof p.pieces === "function" ? p.pieces(p) : p.pieces) : null;
@@ -487,7 +410,6 @@
     return true;
   }
 
-  /* --- drawing helpers --- */
   function poly(pts2) {
     ctx.beginPath();
     ctx.moveTo(pts2[0].x, pts2[0].y);
@@ -524,7 +446,6 @@
     return "rgba(" + v[0] + "," + v[1] + "," + v[2] + "," + a + ")";
   }
 
-  /* --- the frame --- */
   var hitFaces = [];
 
   function draw() {
@@ -541,10 +462,8 @@
 
     if (opts.rule) drawGrid(enc);
 
-    /* Enclosure back faces first, so interior parts sit on top of them. */
     if (opts.enc) drawShellFaces(encGeom, false);
 
-    /* Every interior face, sorted far to near. */
     var list = [];
     PARTS.forEach(function (p) {
       if (p.kind === "shell" || !partVisible(p)) return;
@@ -580,7 +499,6 @@
       hitFaces.push({ id: p.id, pts: pts2, d: f.d });
     });
 
-    /* Part edges: this is what makes a transparent part still readable. */
     PARTS.forEach(function (p) {
       if (p.kind === "shell" || !partVisible(p)) return;
       var o = offsetOf(p);
@@ -636,7 +554,6 @@
     ctx.strokeStyle = rgba("frame", 0.85);
     g.edges.forEach(function (e) { segment(e[0], e[1]); });
 
-    /* The opening in the top plate that the UVette drops through. */
     var zt = PARTS[0].z[1], h = 7.2;
     ctx.lineWidth = 1.6;
     ctx.strokeStyle = rgba("sample", 0.95);
@@ -644,7 +561,6 @@
     segment([h, -h, zt], [h, h, zt]);
     segment([h, h, zt], [-h, h, zt]);
     segment([-h, h, zt], [-h, -h, zt]);
-    /* Corner ticks read as a frame rather than a solid box. */
     ctx.lineWidth = 3;
     ctx.strokeStyle = rgba("frame", 0.95);
     g.edges.forEach(function (e) {
@@ -667,7 +583,6 @@
       ctx.strokeStyle = rgba(b.color, 0.92);
       segment(a, c);
       ctx.setLineDash([]);
-      /* arrow head */
       var p = project(c), q = project(a);
       var ang = Math.atan2(p.y - q.y, p.x - q.x);
       ctx.beginPath();
@@ -679,7 +594,6 @@
       ctx.fill();
     });
 
-    /* The 90 degrees between excitation and emission, drawn as an arc. */
     var steps = 14, pts = [];
     for (var i = 0; i <= steps; i++) {
       var t = i / steps * Math.PI / 2;
@@ -759,8 +673,6 @@
     });
   }
 
-  /* Which layer holds what is the one thing the team stated outright, so it is
-     written on the box rather than left to the parts list. */
   function drawLayerTags(enc) {
     var tags = [
       { z: 0, t: "upper layer, 27 mm — optics, LED, AS7341" },
@@ -830,10 +742,6 @@
       ctx.fillText(txt, bx + 3, ly);
     });
   }
-
-  /* ==========================================================================
-     INTERACTION
-     ========================================================================== */
 
   function pointIn(pts, x, y) {
     var inside = false;
@@ -957,14 +865,6 @@
     })(last);
   }
 
-  /* ==========================================================================
-     REGISTER TABLE + READOUT
-     ========================================================================== */
-
-  /* U+2212, the minus sign, not the hyphen toFixed hands back. The two rows
-     with a written label (the enclosure and the deck) have always used it, so
-     a computed row using "-" left one column carrying two different glyphs at
-     two different widths. The numbers are untouched. */
   function fmtMm(v) {
     return (v > 0 ? "+" : v < 0 ? "\u2212" : "") + Math.abs(v).toFixed(2);
   }
@@ -982,8 +882,6 @@
     tr.dataset.id = p.id;
     tr.innerHTML =
       '<td><span class="hw3d-name">' + p.name + "</span></td>" +
-      /* The note had a column here. It is still shown, in the Selection panel
-         above, when a part is picked in the view or in this list. */
       '<td class="hw3d-num">' + fmtX(p) + "</td>";
     tr.addEventListener("click", function () { select(p.id); });
     tr.addEventListener("keydown", function (e) {
@@ -994,9 +892,6 @@
     tbody.appendChild(tr);
   });
 
-  /* The disclosure holding the table. Counted from the rows that were really
-     built, not from PARTS.length: the loop above skips every shell but the
-     enclosure, so the two numbers are not the same. */
   var listBox = document.getElementById("hw3d-parts");
   var listCount = document.getElementById("hw3d-list-count");
   if (listCount) {
@@ -1007,17 +902,11 @@
   if (listBox && listClose) {
     listClose.addEventListener("click", function () {
       listBox.open = false;
-      /* Focus would otherwise be left on a button that has just been folded
-         out of the page, which strands a keyboard user at the end of the
-         document. Send it back to the header they opened it from. */
       var head = listBox.querySelector("summary");
       if (head) head.focus();
     });
   }
 
-  /* On paper there is no opening anything, and a shut <details> prints as a
-     single line where the table should be. Open it for the print, then put it
-     back exactly as the reader had it. */
   if (listBox && window.matchMedia) {
     var wasOpen = false;
     window.addEventListener("beforeprint", function () {
@@ -1052,10 +941,6 @@
     draw();
   }
 
-  /* ==========================================================================
-     BOOT
-     ========================================================================== */
-
   function resize() {
     var r = canvas.parentNode.getBoundingClientRect();
     dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -1074,6 +959,5 @@
 
   select(null);
   resize();
-  /* Fonts change nothing structural, but labels are measured, so redraw once. */
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
 })();

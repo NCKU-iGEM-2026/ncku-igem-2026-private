@@ -1,8 +1,6 @@
 (function () {
   var lastY = window.scrollY;
   var threshold = 8;
-  // Show the back-to-top button once a screenful or so has gone by, so it
-  // never appears while the top of the page is still in view.
   var backToTopAt = 400;
 
   function onScroll() {
@@ -27,8 +25,6 @@
     }
   }
 
-  // Several scroll events can arrive in one frame; the classes only need
-  // setting once per frame, just before it is drawn.
   var queued = false;
   window.addEventListener('scroll', function () {
     if (queued) return;
@@ -46,8 +42,6 @@
       var reduced = window.matchMedia &&
                     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
-      // Scrolling away moves focus nowhere on its own; hand it back to the
-      // top of the document so keyboard users carry on from there.
       var target = document.querySelector('.navbar-brand') || document.body;
       if (target && target.focus) target.focus({ preventScroll: true });
     });

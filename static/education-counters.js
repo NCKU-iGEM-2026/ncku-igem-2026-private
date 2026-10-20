@@ -5,7 +5,6 @@
     var duration = 900;
     var start = null;
 
-    // 每次觸發都換一個新的 token，讓上一次還沒跑完的動畫自己停止，避免疊加
     var token = {};
     el._countToken = token;
     el.textContent = '0' + suffix;
