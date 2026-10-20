@@ -1,6 +1,4 @@
 (function () {
-  // Same count-up as education-counters.js: the tallies and the season total
-  // count from zero once they scroll into view, rather than just appearing.
   function animateCount(el) {
     var target = parseInt(el.getAttribute('data-count-to'), 10) || 0;
     var duration = 900;

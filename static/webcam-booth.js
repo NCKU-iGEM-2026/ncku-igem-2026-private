@@ -44,7 +44,6 @@
   var startBtn, shutterBtn, closeBtn, filterBtns;
   var review, reviewImg, reviewHint, retakeBtn, saveBtn, downloadBtn;
   var stream = null;
-  // 剛拍的那張：預覽用的 blob URL，以及分享到相簿用的 File。
   var shotUrl = null;
   var shotFile = null;
   var activeFilter = 0;
@@ -54,8 +53,6 @@
   function loadFrameImages() {
     FILTERS.forEach(function (f, i) {
       var img = new Image();
-      // 拍照時要把這張圖畫進 canvas 再 toBlob，跨網域的圖沒有這一行會
-      // 污染 canvas，存檔那一步就會丟 SecurityError。
       img.crossOrigin = 'anonymous';
       img.src = FRAME_BASE + f.name + '.avif';
       frameImages[i] = img;
@@ -202,7 +199,6 @@
   }
 
   function photoName() {
-    // 檔名帶拍照時間，連拍好幾張才不會互相覆蓋。
     var d = new Date();
     function pad(n) { return (n < 10 ? '0' : '') + n; }
     return 'ncku-tainan-photobooth-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +

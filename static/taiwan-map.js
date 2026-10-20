@@ -2,8 +2,8 @@
   var OUTLYING_ISLAND_IDS = ['09007', '09020', '10016'];
 
   var INTERACTIVE_COUNTY_IDS = ['10007', '67000'];
-  var INTERACTIVE_COLOR = '#f7f1de';      /* 淡米黃白：有活動的縣市 */
-  var DEFAULT_COUNTY_COLOR = '#0b4a33';   /* 整島不透明深綠（適配 Collaboration 主視覺） */
+  var INTERACTIVE_COLOR = '#f7f1de';
+  var DEFAULT_COUNTY_COLOR = '#0b4a33';
 
   var COUNTY_NAME = {
     '09007': { en: 'Lienchiang', zh: '連江' },
@@ -31,23 +31,23 @@
   };
 
   var SESSIONS = [
-    { lon: 120.4737, lat: 23.9581, county: '10007' },  // 1 溪湖高中，彰化縣溪湖鎮
-    { lon: 120.4353, lat: 23.9384, county: '10007' },  // 2 埔鹽國小，彰化縣埔鹽鄉
-    { lon: 120.2211, lat: 23.1531, county: '67000' },  // 3 西港國小，台南市西港區
-    { lon: 120.1298, lat: 23.1483, county: '67000' },  // 4 篤加國小，台南市七股區
-    { lon: 120.2211, lat: 23.1531, county: '67000' },  // 5 西港國小（二）
-    { lon: 120.2837, lat: 23.3011, county: '67000' },  // 6 歡雅國小，台南市鹽水區
-    { lon: 120.2039, lat: 23.2394, county: '67000' },  // 7 學甲區，台南市
-    { lon: 120.2170, lat: 22.9970, county: '67000' },  // 8 成功大學，台南市
-    { lon: 120.5730, lat: 23.2000, county: '67000' },  // 9 小太陽協會，台南市楠西區
-    { lon: 120.1980, lat: 23.0450, county: '67000' },  // 10 和順國小，台南市安南區
-    { lon: 120.2610, lat: 23.3218, county: '67000' },  // 11 安內國小，台南市鹽水區
-    { lon: 120.1980, lat: 23.0450, county: '67000' },  // 12 和順國小（二）
-    { lon: 120.1568, lat: 23.1530, county: '67000' },  // 13 竹橋國小，台南市七股區
-    { lon: 120.1084, lat: 23.2330, county: '67000' },  // 14 三慈國小，台南市北門區
-    { lon: 120.1686, lat: 22.9966, county: '67000' },  // 15 安平國中，台南市安平區慶平路
-    { lon: 120.2063, lat: 22.9877, county: '67000' },  // 16 台南女中，台南市中西區
-    { lon: 120.2250, lat: 22.9800, county: '67000' }   // 17 幼兒園，台南市（確切地點未提供，暫放市區）
+    { lon: 120.4737, lat: 23.9581, county: '10007' },
+    { lon: 120.4353, lat: 23.9384, county: '10007' },
+    { lon: 120.2211, lat: 23.1531, county: '67000' },
+    { lon: 120.1298, lat: 23.1483, county: '67000' },
+    { lon: 120.2211, lat: 23.1531, county: '67000' },
+    { lon: 120.2837, lat: 23.3011, county: '67000' },
+    { lon: 120.2039, lat: 23.2394, county: '67000' },
+    { lon: 120.2170, lat: 22.9970, county: '67000' },
+    { lon: 120.5730, lat: 23.2000, county: '67000' },
+    { lon: 120.1980, lat: 23.0450, county: '67000' },
+    { lon: 120.2610, lat: 23.3218, county: '67000' },
+    { lon: 120.1980, lat: 23.0450, county: '67000' },
+    { lon: 120.1568, lat: 23.1530, county: '67000' },
+    { lon: 120.1084, lat: 23.2330, county: '67000' },
+    { lon: 120.1686, lat: 22.9966, county: '67000' },
+    { lon: 120.2063, lat: 22.9877, county: '67000' },
+    { lon: 120.2250, lat: 22.9800, county: '67000' }
   ];
 
   function schoolNameFor(pin) {
@@ -218,11 +218,10 @@
 
     container.insertBefore(svg, container.firstChild);
 
-    // hover：亮起（呼吸動畫在 CSS），離開淡滅
     container.addEventListener('mouseenter', function () {
       if (!glowLayer.parentNode) {
         svg.appendChild(glowLayer);
-        void glowLayer.getBoundingClientRect();   // so the fade-in still plays
+        void glowLayer.getBoundingClientRect();
       }
       glowLayer.classList.add('is-lit');
     });
@@ -246,7 +245,7 @@
 
     function insideCounty(id, x, y) {
       var rings = countyPolys[id];
-      if (!rings) return true;               // 沒有這個縣市的輪廓就不限制
+      if (!rings) return true;
       var inside = false;
       for (var r = 0; r < rings.length; r++) {
         var ring = rings[r];
@@ -259,7 +258,6 @@
       return inside;
     }
 
-    // 縣市的概略中心：取所有輪廓點的平均，用來把跑出去的圖釘往回拉。
     var countyCentre = {};
     Object.keys(countyPolys).forEach(function (id) {
       var sx = 0, sy = 0, n = 0;
@@ -276,8 +274,6 @@
         return { el: pinEls[i], x: p[0], y: p[1], county: s.county };
       });
 
-      // 完全同座標的點（同一所學校去了兩次）距離是 0，沒有方向可以推，
-      // 先散成一個小圓圈，給下面的推擠一個起點。
       var groups = [];
       pts.forEach(function (pt) {
         var g = null;
@@ -298,7 +294,6 @@
         });
       });
 
-      // 再把仍然靠太近的成對互相推開，直到全部達到間距。
       for (var pass = 0; pass < 80; pass++) {
         var moved = false;
         for (var i = 0; i < pts.length; i++) {
@@ -317,8 +312,6 @@
         if (!moved) break;
       }
 
-      // 推擠完可能把圖釘推出自己的縣市（台南市區一帶最擠）。
-      // 沿著「圖釘 → 縣市中心」這條線往回走，走到回到縣市內為止。
       pts.forEach(function (pt) {
         var c = countyCentre[pt.county];
         if (!c || insideCounty(pt.county, pt.x, pt.y)) return;
@@ -327,10 +320,9 @@
           var ny = pt.y + (c[1] - pt.y) * t;
           if (insideCounty(pt.county, nx, ny)) { pt.x = nx; pt.y = ny; return; }
         }
-        pt.x = c[0]; pt.y = c[1];          // 極端情況：直接放縣市中心
+        pt.x = c[0]; pt.y = c[1];
       });
 
-      // 圖釘以座標為中心（CSS 有 transform: translate(-50%, -50%)），留半顆邊界
       var half = gap / 2;
       pts.forEach(function (pt) {
         pt.x = Math.max(half, Math.min(pt.x, width - half));
@@ -343,7 +335,6 @@
 
     layoutPins();
 
-    // 圖釘是固定像素、地圖會隨版面縮放，所以視窗大小改變後要重新算一次間距。
     var relayoutTimer = null;
     window.addEventListener('resize', function () {
       clearTimeout(relayoutTimer);
@@ -359,8 +350,6 @@
 
     if (orbitEl && leaderLayer) {
       pinEls.forEach(function (pin, i) {
-        // A real link, like the pin it stands for: one click goes to that
-        // session's section, and the keyboard can reach it.
         var item = document.createElement('a');
         item.className = 'edu-map-orbit-item';
         item.href = pin.getAttribute('href') || '#';
@@ -374,7 +363,6 @@
         var metaEl = item.querySelector('.edu-map-info-meta');
         var photo = pin.getAttribute('data-photo');
         photoEl.style.display = photo ? '' : 'none';
-        // Decoded off the main thread, so the ring keeps turning while it is.
         photoEl.decoding = 'async';
         if (photo) photoEl.src = photo;
         titleEl.textContent = schoolNameFor(pin) || '';
@@ -383,7 +371,6 @@
         metaEl.textContent = meta;
         orbitEl.appendChild(item);
 
-        // 連線是一條細長的 span，用 transform 平移＋旋轉到位（見 CSS）
         var line = document.createElement('span');
         line.className = 'edu-map-leader-line';
         leaderLayer.appendChild(line);
@@ -394,7 +381,6 @@
       });
     }
 
-    // Shortest signed distance from angle a to angle b, in radians.
     function angleDiff(a, b) {
       var d = (a - b) % (2 * Math.PI);
       if (d > Math.PI) d -= 2 * Math.PI;
@@ -407,7 +393,7 @@
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     var geom = null, geomAt = -1e9;
-    var LEADER_MAX = 1400;   // 連線的固定寬度（px），與 CSS .edu-map-leader-line 一致
+    var LEADER_MAX = 1400;
     function measureOrbit() {
       var rr = row.getBoundingClientRect();
       geom = {
@@ -425,11 +411,9 @@
       if (!geom || now === undefined || now - geomAt > 1000) { measureOrbit(); geomAt = now || 0; }
       var cx = geom.w / 2;
       var cy = geom.h / 2;
-      // half a card plus a little air; compact mode uses narrower cards
       var rx = Math.max(0, cx - (geom.compact ? 105 : 140));
       var ry = Math.max(0, cy - 24);
 
-      // 先算：每張卡的位置與狀態（不讀 DOM）
       var frame = orbitItems.map(function (it, i) {
         var angle = it.baseAngle + rotation;
         var active = Math.abs(angleDiff(angle, 0)) < ACTIVE_THRESHOLD ||
@@ -442,7 +426,6 @@
         };
       });
 
-      // 再寫
       orbitItems.forEach(function (it, i) {
         var f = frame[i];
         it.el.style.transform = 'translate3d(' + f.x.toFixed(1) + 'px,' + f.y.toFixed(1) + 'px,0) translate(-50%,-50%)';
@@ -453,9 +436,6 @@
           it.line.style.opacity = f.active ? '' : '0';
         }
         if (f.active) {
-          // 從卡片中心拉到圖釘中心：方向給 rotate，長度用 clip-path 裁。
-          // 不改 width：寬度一變就要排版，而且是整頁一起排、一起重畫；裁切
-          // 只重畫這條線自己那一小層。線本身固定 LEADER_MAX 寬（見 CSS）。
           var dx = f.pin.x - f.x;
           var dy = f.pin.y - f.y;
           var len = Math.sqrt(dx * dx + dy * dy);
@@ -466,11 +446,6 @@
       });
     }
 
-    // ---- Layout modes ---------------------------------------------------
-    // 依「地圖這一列實際可用的寬度」(不是視窗寬度，頁面左側還有側邊欄) 選版面：
-    //   orbit         ≥1010px  環繞卡片，左右各留 280px
-    //   orbit-compact ≥760px   環繞卡片縮小，左右各留 190px，地圖維持 380px 不被擠小
-    //   strip         其餘     地圖維持完整大小，下方放可橫向滑動的照片列
     var ORBIT_MIN = 1010, COMPACT_MIN = 760;
     var orbitOn = false;
     var rowVisible = true;
@@ -482,12 +457,9 @@
       reached = e.pointerType === 'mouse' && !!(e.target.closest &&
                 e.target.closest('.edu-map-orbit-item'));
     }, { passive: true });
-    // Leaving the window sends no pointermove to say so.
     document.addEventListener('mouseout', function (e) {
       if (!e.relatedTarget) reached = false;
     });
-    // Focus is asked every 120 ms rather than every frame: each ask is a style
-    // recalculation.
     var focusAt = -1e9, focused = false;
     var orbitHeld = function (ts) {
       if (ts - focusAt >= 120) {
@@ -497,10 +469,6 @@
       }
       return reached || focused;
     };
-    // Speed eases between 0 and 1 rather than switching, so the ring glides to
-    // a stop and picks up again instead of jerking. It changes by the same
-    // amount every millisecond, so slowing down is an even, gentle brake over
-    // EASE_MS -- not a sharp drop at the start and a long crawl after.
     var EASE_MS = 2000, speed = 1;
     var orbitTick = function (ts) {
       if (lastTs !== null) {
@@ -512,16 +480,12 @@
       }
       lastTs = ts;
       layoutOrbit((elapsed / ROTATION_PERIOD_MS) * 2 * Math.PI, ts);
-      // 30 幀一秒，畫完就睡：一圈 48 秒的漂移用不著跟螢幕刷新（144 Hz 的
-      // 螢幕就是 144 次）一樣快；每一幀都要整頁跑一次樣式、排版與繪製。
       rafId = null;
       orbitTimer = setTimeout(function () {
         orbitTimer = null;
         rafId = requestAnimationFrame(orbitTick);
       }, ORBIT_FRAME_MS - 8);
     };
-    // 只在「環繞卡片有顯示＋地圖在畫面內」時才跑動畫，其餘時間整個停掉；
-    // 旋轉角度以暫停前累積的進度接續，不會跳格。
     var syncOrbit = function () {
       if (reduceMotion) { if (orbitOn) layoutOrbit(0); return; }
       var shouldRun = orbitOn && rowVisible;
@@ -544,12 +508,8 @@
       }, { rootMargin: '100px 0px' }).observe(row);
     }
 
-    // ---- Photo strip (narrow screens) ----------------------------------
-    // 窄螢幕沒有地方放環繞卡片，所以改成地圖下方一排可橫向滑動的照片。
-    // 點圖釘 → 照片列捲到那一張並標示；點照片 → 圖釘亮起。
-    // 已經選中的再點一次，才會跳到下方對應的活動段落。
     var strip = null;
-    var oneTap = false;   // true once the strip is a marquee: a tap on a card goes straight to its section
+    var oneTap = false;
     var stripItems = [];
     var selectedIdx = -1;
 
@@ -600,9 +560,6 @@
         a.appendChild(name);
         a.appendChild(meta);
         a.addEventListener('click', function (e) {
-          // A still row: the first tap picks the card (and brings it to the middle),
-          // the second goes to the section. A marquee never holds still long
-          // enough for that, so there one tap goes straight there.
           if (oneTap) { select(i, false); return; }
           if (selectedIdx !== i) { e.preventDefault(); select(i, true); }
         });
@@ -628,8 +585,8 @@
       row.classList.toggle('is-strip', mode === 'strip');
       if (mode !== 'strip') select(-1);
       orbitOn = mode !== 'strip' && orbitItems.length > 0;
-      layoutPins();   // 地圖寬度變了，圖釘間距要重算
-      geom = null;    // 下一幀重量這一列與圖釘
+      layoutPins();
+      geom = null;
       syncOrbit();
     }
 
@@ -639,16 +596,9 @@
       applyMode();
     }
 
-    // ---- 窄螢幕照片列：跑馬燈 ---------------------------------------
-    // 手機上只看得到 1～2 張，其餘要滑才看得到。這裡讓照片列像跑馬燈一樣
-    // 持續慢慢往左走，最後一張接回第一張，不用滑也看得到全部。
-    // 做法：整排複製成前、中、後三份（複製的是純展示，螢幕閱讀器略過），
-    // 一直待在中間那份，走出中間就減掉／加上一份的寬度，畫面上看不出接縫。
-    // 滑鼠停在照片列上（或手指碰著、鍵盤聚焦）就停，卡片發光；
-    // 看不到照片列、分頁在背景、或系統設定「減少動態效果」時不動。
     if (strip && stripItems.length > 1 && !reduceMotion) {
-      var SPEED = 38;          // px per second
-      var RESUME_MS = 2500;    // after a touch or scroll by hand
+      var SPEED = 38;
+      var RESUME_MS = 2500;
       var before = [], after = [];
       stripItems.forEach(function (el, k) {
         el.setAttribute('data-strip-idx', k);
@@ -658,16 +608,16 @@
           c.setAttribute('aria-hidden', 'true');
           c.setAttribute('tabindex', '-1');
           c.addEventListener('click', function (e) {
-            select(k, false);   // one tap: let the link carry on to the section
+            select(k, false);
           });
           list.push(c);
         });
       });
       before.forEach(function (c) { strip.insertBefore(c, stripItems[0]); });
       after.forEach(function (c) { strip.appendChild(c); });
-      strip.style.scrollSnapType = 'none';   // snapping would fight a moving strip
+      strip.style.scrollSnapType = 'none';
       oneTap = true;
-      strip.classList.add('is-marquee');     // an endless loop has no end to show, so no scroll bar
+      strip.classList.add('is-marquee');
 
       var loopW = 0, pos = 0, driving = false;
       var touchedAt = 0, stripVisible = false, lastT = 0, rafId = 0;
@@ -683,9 +633,6 @@
         if (strip.scrollLeft >= loopW * 2) strip.scrollLeft -= loopW;
         else if (strip.scrollLeft < loopW) strip.scrollLeft += loopW;
       };
-      // Asked of the browser every frame rather than tracked from enter/leave
-      // events: when a click jumps the page away, the pointer never "leaves",
-      // and a remembered flag would keep the strip frozen for good.
       var canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
       var pointerOn = function () { return canHover && strip.matches(':hover'); };
       var keyboardOn = function () {
@@ -700,7 +647,7 @@
         rafId = 0;
         if (!stripVisible || !row.classList.contains('is-strip')) {
           driving = false;
-          return;   // the watchdog below starts it again once the strip is back
+          return;
         }
         var dt = Math.min((t - (lastT || t)) / 1000, 0.1);
         lastT = t;
@@ -712,21 +659,14 @@
           pos += SPEED * dt;
           strip.scrollLeft = pos;
           wrap();
-          if (Math.abs(strip.scrollLeft - pos) > 2) pos = strip.scrollLeft;   // wrapped (or nudged)
+          if (Math.abs(strip.scrollLeft - pos) > 2) pos = strip.scrollLeft;
         }
         rafId = requestAnimationFrame(tick);
       };
       var kick = function () { if (!rafId) { lastT = 0; rafId = requestAnimationFrame(tick); } };
-      // Watchdog. The loop above stops itself while the strip is out of sight or
-      // not in strip layout, and which event should wake it again (scrolling
-      // back, a resize, a scroll bar appearing) is easy to get wrong -- it did
-      // freeze for real readers. A cheap periodic check cannot miss.
       window.setInterval(function () { if (stripVisible) kick(); }, 400);
 
       var touched = function () { touchedAt = Date.now(); };
-      // The card the reader clicked. A click may jump the page down to that
-      // school's section; when they scroll back up the strip carries on from
-      // that card instead of from wherever it had drifted to.
       var returnTo = -1;
       strip.addEventListener('click', function (e) {
         var card = e.target.closest && e.target.closest('.edu-strip-item');
@@ -742,18 +682,17 @@
 
       if ('IntersectionObserver' in window) {
         new IntersectionObserver(function (entries) {
-          stripVisible = entries[entries.length - 1].isIntersecting;   // the newest report, not the oldest
+          stripVisible = entries[entries.length - 1].isIntersecting;
           if (stripVisible && returnTo >= 0) {
             var from = stripItems[returnTo];
             returnTo = -1;
             touchedAt = 0;
-            driving = false;   // so the next frame reads the position set here
+            driving = false;
             strip.scrollTo({ left: from.offsetLeft - (strip.clientWidth - from.offsetWidth) / 2, behavior: 'instant' });
           }
           if (stripVisible) kick();
         }, { threshold: 0.2 }).observe(strip);
       } else { stripVisible = true; kick(); }
-      // the strip is display:none until the map is narrow; start from the middle set once it has a size
       if ('ResizeObserver' in window) new ResizeObserver(function () { loopW = 0; measure(); }).observe(strip);
     }
 
@@ -761,7 +700,6 @@
       var school = schoolNameFor(pin);
       var city = countyLabel((SESSIONS[i] || {}).county);
       if (school) {
-        // the pin has no visible label, so spell it out for screen readers
         pin.setAttribute('aria-label', city ? school + ' - ' + city : school);
       }
     });

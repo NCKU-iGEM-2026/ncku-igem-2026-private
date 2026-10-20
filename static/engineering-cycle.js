@@ -1,28 +1,6 @@
 (function () {
   "use strict";
 
-  /* Engineering: the DBTL ring keeps pace with the reader.
-   *
-   * The ring never turns. Reading down the four stages lights it clockwise,
-   * the way its arrows point: each arrow fills from its tail to its head while
-   * its stage is read, and the head of Learn is reached at the foot of its
-   * part. (A bright point used to ride the leading edge; it was removed on
-   * 2026-10-11. This script still drives one if the markup has it.)
-   * Progress is measured in
-   * stages -- 0 before Design, 1.5 halfway through Build, 4 at the end -- and
-   * each stage runs from the moment its heading reaches the spot a click on
-   * its arrow would scroll it to, until the next one does.
-   *
-   * The stage being read is marked (aria-current) and its arrow stands out
-   * from the dimmed ones ahead; a label turns dark once the sweep has passed
-   * under it. Without this script every arrow shows lit.
-   *
-   * On a narrow screen the ring floats in a corner (style.css); it is shown
-   * only while the stages themselves are on screen, so it does not sit over
-   * the banner or the footer.
-   */
-  /* The page can hold more than one cycle (Detect, then Inhibition): each
-   * .eng-dbtl block is tracked on its own, against its own four stages. */
   var SPAN = 94;
   function clamp(value) { return Math.max(0, Math.min(1, value)); }
 
@@ -32,13 +10,9 @@
     var rail = block.querySelector(".eng-dbtl-rail");
     var stages = block.querySelector(".eng-dbtl-stages");
     var sections = Array.prototype.slice.call(block.querySelectorAll(".eng-dbtl-stage"));
-    /* The spark is optional: the ring works the same without it. */
     if (!figure || !rail || !stages || !sections.length) return null;
     rail.classList.add("is-tracked");
 
-    /* A round that skipped a stage has fewer sweeps than the ring has arrows,
-       so each is matched to its section by stage name rather than by position,
-       and each stage lights from its own bearing on the ring. */
     var steps = sections.map(function (section) {
       var stage = section.getAttribute("data-stage");
       return {
@@ -48,14 +22,9 @@
         label: figure.querySelector('.eng-cycle-label[data-stage="' + stage + '"]')
       };
     });
-    /* Each arrow spans 94deg, from its tail 47deg before its bearing to the tip
-       of its head 47deg after; the bearings are a quarter turn apart, starting
-       at 45deg for Design (engineering.html). */
 
     function progress() {
       var y = window.pageYOffset;
-      /* The last stage ends when this block's foot is most of the way up the
-         screen, or at the foot of the page, whichever comes first. */
       var bottom = stages.getBoundingClientRect().bottom + y;
       var end = Math.min(document.documentElement.scrollHeight - window.innerHeight,
                          bottom - window.innerHeight * 0.3);
@@ -91,7 +60,6 @@
           if (index === current) step.link.setAttribute("aria-current", "step");
           else step.link.removeAttribute("aria-current");
         }
-        /* A label sits at the middle of its arrow, half a stage in. */
         if (step.label) step.label.classList.toggle("is-lit", p >= index + 0.5);
       });
 

@@ -1,22 +1,3 @@
-/* ============================================================
-   EDUCATION — the page's interactive layer (.edx-*)
-
-   Everything here is an enhancement. Without JavaScript every figure shows
-   its real value, every tab panel and both faces of every flip card are on
-   the page, and every certificate link opens its PDF. The script adds the
-   class edx-js to <html> first; the CSS only hides or zeroes anything under
-   that class.
-
-   1. figures count up      [data-edx-to]         (decimals kept as written)
-   2. bars fill             .edx-bar, [data-edx-reveal]  get .is-in when scrolled into view
-   3. tabs                  .edx-tabs              arrow keys move between them
-   4. flip cards            .edx-flip              click / Enter / Space
-   5. certificates          a[data-edx-cert]       opened in a <dialog> on wide
-                                                   screens, a new tab otherwise
-   6. timeline              .edx-timeline          marks the event being read
-   7. quotes                .edu-quote             a 中文 / English switch on the
-                                                   ones that carry both
-   ============================================================ */
 (function () {
   'use strict';
 
@@ -43,7 +24,6 @@
     return Array.prototype.slice.call((root || document).querySelectorAll(sel));
   }
 
-  /* ---- 1. count-up ---------------------------------------------------- */
   onceVisible(all('[data-edx-to]'), function (el) {
     if (reduceMotion) return;
     var raw = el.getAttribute('data-edx-to');
@@ -63,16 +43,12 @@
     window.requestAnimationFrame(step);
   });
 
-  /* ---- 2. bars -------------------------------------------------------- */
   onceVisible(all('.edx-bar, [data-edx-reveal]'), function (el) { el.classList.add('is-in'); }, 0.5);
 
-  /* ---- 3. tabs -------------------------------------------------------- */
   all('.edx-tabs').forEach(function (box) {
     var tabs = all('[role="tab"]', box);
     var panels = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
 
-    /* the step button wraps around, so on the last step it must not still say
-       "Next". The markup holds the normal label; we swap it per step. */
     var nextBtn = box.querySelector('.edx-tabs-next');
     var nextLabel = nextBtn ? nextBtn.innerHTML : '';
     var wrapLabel = '&larr; Back to the first step';
@@ -112,7 +88,6 @@
     select(0, false);
   });
 
-  /* ---- 4. flip cards -------------------------------------------------- */
   all('.edx-flip').forEach(function (btn) {
     btn.setAttribute('aria-pressed', 'false');
     btn.addEventListener('click', function () {
@@ -121,7 +96,6 @@
     });
   });
 
-  /* ---- 5. certificates ------------------------------------------------ */
   var dlg = document.querySelector('.edx-cert-dialog');
   if (dlg && typeof dlg.showModal === 'function') {
     var frame = dlg.querySelector('iframe');
@@ -131,8 +105,6 @@
 
     all('a[data-edx-cert]').forEach(function (a) {
       a.addEventListener('click', function (e) {
-        // A phone's browser does not render an embedded PDF reliably; there
-        // the link just opens the file, as it does without this script.
         if (window.innerWidth < 760) return;
         e.preventDefault();
         lastOpener = a;
@@ -145,7 +117,6 @@
     });
 
     dlg.querySelector('.edx-cert-dialog-close').addEventListener('click', function () { dlg.close(); });
-    // A click on the dimmed backdrop (the dialog element itself, outside its box) closes it.
     dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
     dlg.addEventListener('close', function () {
       frame.src = 'about:blank';
@@ -153,7 +124,6 @@
     });
   }
 
-  /* ---- 6. timeline ---------------------------------------------------- */
   var tl = document.querySelector('.edx-timeline');
   if (tl) {
     var stops = all('a[data-edx-stop]', tl);
@@ -188,7 +158,6 @@
     update();
   }
 
-  /* ---- 7. bilingual quotes -------------------------------------------- */
   var CJK = /[㐀-鿿]/;
   all('.edu-quote').forEach(function (q) {
     var br = q.querySelector('br');
