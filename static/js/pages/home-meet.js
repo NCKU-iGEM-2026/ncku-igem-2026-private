@@ -78,47 +78,84 @@
 
   /* --------------------------------------------- clearing the way -- */
 
-  /* The section before does not simply scroll away: it goes out as this one
-     comes in, so by the time the mark has the screen there is nothing else
-     left on it. One number, written to that section, and the stylesheet
-     turns it into opacity -- doing it here rather than in a second observer
-     keeps it on the same frame as everything else.
+  /* The section before goes out as this one comes in, so by the time the
+     mark has the screen there is nothing else on it. One number, written to
+     that section, and the stylesheet turns it into opacity.
 
-     Measured against the wait panel itself rather than against this section,
-     because the panel is what the reader is looking at: it starts going when
-     the panel reaches the middle of the screen and is gone by the time the
-     panel's middle is near the top. Reading it off this section's top edge
-     instead made the start depend on however much padding happened to sit
-     between the two.
+     Both ends of that fade are worked out from the page rather than picked:
+     it ENDS exactly where the mark takes over, and begins LEAD_VH of
+     scrolling before that. Tying the end to the trigger is the point --
+     measured before, the panel had finished dissolving 247px before the mark
+     started, and that was 247px of scrolling with nothing on screen and
+     nothing happening.
 
-     That also leaves room: the panel is gone well before the hold begins at
-     90% of this section, so the mark never starts over something that is
-     still dissolving. */
+     LEAD_VH is the whole lead-in now, so it is the one number to change if
+     this wants to be longer or shorter. Measured on a 1440x900 screen, it
+     decides where the panel has got to when the dissolve starts:
+
+         0.40  360px   panel's middle at 23% of the screen
+         0.50  450px   at 33%
+         0.60  540px   at 43%
+         0.70  630px   at 53% -- the middle
+
+     which is the trade: beginning with the panel dead centre is 630px of
+     scrolling, and there is no way to have both that and a short lead-in.
+     0.5 is the compromise, nearer the short end. */
+  var LEAD_VH = 0.5;        /* how much scrolling the dissolve takes */
+  var FIRE_VH = 0.15;       /* the mark takes over with its top this far down */
+
   var before = document.getElementById('hx-problem');
-  var panel = document.querySelector('.hx-wait') || before;
-  var clear = -1;
+  var clear = -1, leave = -1;
+
+  function ends() {
+    var vh = window.innerHeight || 1;
+    var y = window.pageYOffset || document.documentElement.scrollTop;
+    var endY = section.getBoundingClientRect().top + y - vh * FIRE_VH;
+    return { vh: vh, y: y, endY: endY, startY: endY - vh * LEAD_VH };
+  }
 
   function fade() {
-    if (!before || !panel) return;
-    var vh = window.innerHeight || 1;
-    var r = panel.getBoundingClientRect();
-    var mid = r.top + r.height / 2;          /* the panel's own middle */
-    var c = (vh / 2 - mid) / (vh * 0.45);
-    c = c < 0 ? 0 : c > 1 ? 1 : c;
-    c = Math.round(c * 100) / 100;
-    if (c === clear) return;
-    clear = c;
-    before.style.setProperty('--meet-clear', String(c));
-    /* A panel at opacity 0 that still takes a click is a trap, and this one
-       has a slider in it. */
-    before.style.pointerEvents = c >= 1 ? 'none' : '';
+    var e = ends();
+
+    if (before) {
+      var c = (e.y - e.startY) / Math.max(1, e.endY - e.startY);
+      c = c < 0 ? 0 : c > 1 ? 1 : c;
+      c = Math.round(c * 100) / 100;
+      if (c !== clear) {
+        clear = c;
+        before.style.setProperty('--meet-clear', String(c));
+        /* A panel at opacity 0 that still takes a click is a trap, and this
+           one has a slider in it. */
+        before.style.pointerEvents = c >= 1 ? 'none' : '';
+      }
+      if (c >= 1) begin();
+    }
+
+    /* And out the other side: once it has played, the mark goes the way the
+       panel went, so the next section arrives on a clear screen too. */
+    if (played && !holding) {
+      var top = section.getBoundingClientRect().top;
+      var l = -top / (e.vh * 0.55);
+      l = l < 0 ? 0 : l > 1 ? 1 : l;
+      l = Math.round(l * 100) / 100;
+      if (l !== leave) {
+        leave = l;
+        stop.style.setProperty('--meet-leave', String(l));
+      }
+    }
   }
 
   var fading = null;
   function onScroll() { if (fading === null) fading = requestAnimationFrame(function () { fading = null; fade(); }); }
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
-  fade();
+  /* Lenis as well as the window, because not every move it makes raises a
+     scroll event: its own scrollTo with immediate fires none at all, which
+     is how this was found -- a page moved to the right place with the
+     dissolve still reading zero. A wheel does fire them, so this was never
+     wrong for a reader, but an anchor jump or a restored scroll position
+     would have left it stale. */
+  if (window.rxLenis && window.rxLenis.on) window.rxLenis.on('scroll', onScroll);
 
   /* ------------------------------------------------------- the moment -- */
 
@@ -141,21 +178,11 @@
     ceiling = setTimeout(release, CEILING_MS);
   }
 
-  /* Starts when the section has all but filled the screen, so it begins on
-     a reader who has arrived rather than one still passing the panel above. */
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.intersectionRatio >= 0.9) { io.disconnect(); begin(); }
-      });
-    }, { threshold: [0.9] });
-    io.observe(section);
-  } else {
-    /* No observer: show it and play, but do not hold -- a page that cannot
-       tell when the reader arrived should not be taking their scroll. */
-    stop.classList.remove('is-armed');
-    stop.classList.add('is-playing');
-  }
+  /* The mark takes over the moment the dissolve finishes, rather than
+     waiting for a ratio of its own: waiting was what left the gap. What is
+     left to travel at that point is FIRE_VH of a screen, which the snap
+     below closes. */
+  fade();
 
   /* Leaving the page with the scroll still taken would be the one way to
      strand someone. */
