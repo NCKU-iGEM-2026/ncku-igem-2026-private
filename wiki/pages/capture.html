@@ -107,28 +107,22 @@
     50% { opacity: 0; }
   }
 
-  body.egg-page .egg-trail,
+  /* Nothing on this page moves for a visitor who asked for less motion:
+     the text is all there at once instead of being typed out. */
+  @media (prefers-reduced-motion: reduce) {
+    body.egg-page .egg-cursor { display: none; }
+    body.egg-page .egg-card { transition: none; }
+    body.egg-page .egg-card:hover { transform: none; }
+  }
+
   body.egg-page .egg-burst {
     position: fixed;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 1500;
-  }
-
-  body.egg-page .egg-trail {
-    width: 8px;
-    height: 8px;
-    margin: -4px 0 0 -4px;
-    background: #00f0ff;
-    box-shadow: 0 0 12px #00f0ff;
-    opacity: 0.7;
-    transition: transform 0.1s, opacity 0.4s;
-  }
-
-  body.egg-page .egg-burst {
     width: 6px;
     height: 6px;
     margin: -3px 0 0 -3px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1500;
   }
 
   body.egg-page .egg-cards {
@@ -181,6 +175,10 @@
     margin-top: 40px;
     font-size: 0.8rem;
     color: #5f7a8c;
+  }
+
+  body.egg-page .egg-hint a {
+    color: #00f0ff;
   }
 
   body.egg-page .egg-secret {
@@ -266,7 +264,11 @@
 
   <div class="egg-quote">Before it captures a life, we capture its message.</div>
 
-  <div class="egg-hint">Psst&hellip; try typing C-A-P-T-U-R-E on your keyboard.</div>
+  <div class="egg-hint">
+    Psst&hellip; try typing C-A-P-T-U-R-E on your keyboard.<br>
+    Looking for the project itself?
+    <a href="{{ url_for('pages', page = 'description') }}">Read the Description page</a>.
+  </div>
 </div>
 
 <div class="egg-secret" id="egg-secret">
@@ -282,6 +284,9 @@
 {% block extra_scripts %}
 <script>
   (() => {
+    const reduced = window.matchMedia &&
+                    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     const canvas = document.getElementById('particles');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -299,24 +304,33 @@
       }));
     }
 
-    function draw() {
+    function paint() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
         ctx.fill();
       }
+    }
+
+    function draw() {
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+      }
+      paint();
       requestAnimationFrame(draw);
     }
 
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', () => {
+      resize();
+      if (reduced) paint();   // the animation loop repaints on its own
+    });
     resize();
-    draw();
+    if (reduced) paint(); else draw();
 
     const texts = [
       "Target: Pseudomonas aeruginosa.\nIt infects patients through ventilators, catheters and open wounds.",
@@ -340,23 +354,15 @@
         }, 3200);
       }
     }
-    setTimeout(type, 800);
-
-    document.addEventListener('mousemove', e => {
-      const t = document.createElement('div');
-      t.className = 'egg-trail';
-      t.style.left = e.clientX + 'px';
-      t.style.top = e.clientY + 'px';
-      document.body.appendChild(t);
-      setTimeout(() => {
-        t.style.opacity = '0';
-        t.style.transform = 'scale(0.3)';
-        setTimeout(() => t.remove(), 400);
-      }, 50);
-    });
+    if (reduced) {
+      typedEl.textContent = texts.join('\n\n');
+    } else {
+      setTimeout(type, 800);
+    }
 
     const burstColors = ['#00f0ff', '#7b61ff', '#ff2d95', '#00ff9d'];
     document.addEventListener('click', e => {
+      if (reduced) return;
       for (let i = 0; i < 18; i++) {
         const p = document.createElement('div');
         const color = burstColors[Math.floor(Math.random() * burstColors.length)];
