@@ -131,13 +131,11 @@
            one is the slider. */
         stage.style.pointerEvents = c >= 1 ? 'none' : '';
       }
-      /* The mark is only ever on screen once the panel's turn is finished.
-         Going down that is the moment it starts; going back up it is the
-         moment it should leave again, because the two sections overlap by a
-         whole screen and the mark, having played, would otherwise sit on top
-         of the panel with both fully opaque. Tying it to the same number
-         covers both directions without either knowing about the other. */
-      stop.classList.toggle('is-behind', c < 1);
+      /* Before it has played, the mark stays hidden until the panel's turn
+         is finished. Once played it stays: scrolling back up it travels down
+         with the page, and with the dwell the panel comes back in above it,
+         stacked rather than overlaid, so there is nothing to hide. */
+      stop.classList.toggle('is-behind', c < 1 && !played);
 
       if (c >= 1) begin();
     }

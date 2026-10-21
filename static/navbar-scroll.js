@@ -10,6 +10,14 @@
     document.body.classList.toggle('navbar-scrolled', y > 20);
     document.body.classList.toggle('show-back-to-top', y > backToTopAt);
 
+    /* The home page's logo animation holds the page, and squares it to the
+       screen first -- often a short jump back up. That is not the reader
+       scrolling up, so the menu is left as it was until the hold ends. */
+    if (document.documentElement.classList.contains('rx-meet-holding')) {
+      lastY = y;
+      return;
+    }
+
     if (y <= 20) {
       document.body.classList.remove('navbar-hidden');
       lastY = y;
