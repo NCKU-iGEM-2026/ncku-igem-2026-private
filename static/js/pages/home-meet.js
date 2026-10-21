@@ -39,6 +39,18 @@
      get; this only hides it for the one case where it is about to be drawn. */
   stop.classList.add('is-armed');
 
+  /* Skip: the mark jumps to its finished state and the scroll is given back
+     at once. Only shown while the page is held, so it never sits on screen
+     with nothing to skip. */
+  var skip = stop.querySelector('[data-meet-skip]');
+  if (skip) {
+    skip.hidden = false;
+    skip.addEventListener('click', function () {
+      stop.classList.add('is-skipped');
+      release();
+    });
+  }
+
   /* ---------------------------------------------------- holding still -- */
 
   function swallow(e) { e.preventDefault(); }
@@ -76,96 +88,15 @@
        halfway: the class stays on and the animations have fill: both. */
   }
 
-  /* ------------------------------------------------- the hours gate -- */
+  /* ------------------------------------------------- the wait panel -- */
 
-  /* The page is held at the wait panel until the hours have run to 72. They
-     run on their own the first time the panel is seen -- home.js does that
-     -- so nobody has to touch anything to get past; the gate is only in the
-     way of someone who scrolls faster than the four and a half seconds it
-     takes, or who grabbed the slider and stopped short, which cancels the
-     automatic run.
-     
-     Not under reduced motion. The automatic run is switched off there too,
-     so the slider would sit at zero and the gate would never lift: a hold
-     with no way out is the one thing this must not be.
-
-     Nothing on screen says the page is being held -- that line was taken
-     out. For almost everyone there is nothing to explain, since the hours
-     run by themselves and the hold is over before it is noticed. The one
-     who is left guessing is the reader who grabbed the slider, stopped part
-     way, and then tried to scroll; the ceiling below is all they have, so
-     it is short rather than generous. */
+  /* The hours run on their own the first time the panel is seen -- home.js
+     does that -- and the reader is free to leave at any point in the run.
+     The page used to be held here until the hours reached 72; it is not any
+     more, because a reader who has read the figures and wants to move on
+     should not have to wait out an animation to do it. The panel still goes
+     out the way it did, over the room box below. */
   var stage = document.querySelector('[data-wait-stage]');
-  var panel = document.querySelector('.hx-wait');
-  var range = document.querySelector('.hx-wait-range');
-  var gateOpen = false, gateHolding = false, gateCeiling = null;
-
-  function gateDone() {
-    return !range || +range.value >= +range.max;
-  }
-
-  function gateRelease() {
-    if (gateOpen) return;
-    gateOpen = true;
-    gateUnhold();
-    if (gateCeiling) { clearTimeout(gateCeiling); gateCeiling = null; }
-  }
-
-  function gateHold(over) {
-    if (gateHolding || gateOpen) return;
-    gateHolding = true;
-    /* The reader's own momentum carries the page some way past the panel's
-       resting place before this runs, and a panel held with its foot off the
-       bottom of the screen is not the panel being read. So it is put back
-       where the stylesheet puts it -- whole, and low -- and held there. */
-    if (over < -1) {
-      var y = Math.max(0, (window.pageYOffset || 0) + over);
-      if (window.rxLenis && window.rxLenis.scrollTo) {
-        window.rxLenis.scrollTo(y, { immediate: true });
-      } else {
-        window.scrollTo(0, y);
-      }
-    }
-    if (window.rxLenis && window.rxLenis.stop) window.rxLenis.stop();
-    window.addEventListener('wheel', swallow, { passive: false });
-    window.addEventListener('touchmove', swallow, { passive: false });
-    window.addEventListener('keydown', onGateKey, true);
-    document.documentElement.classList.add('rx-wait-holding');
-    /* However this goes wrong, it lets go of the page -- and with no line on
-       screen to explain the hold, sooner rather than later. */
-    if (!gateCeiling) gateCeiling = setTimeout(gateRelease, 9000);
-  }
-
-  function gateUnhold() {
-    if (!gateHolding) return;
-    gateHolding = false;
-    window.removeEventListener('wheel', swallow, { passive: false });
-    window.removeEventListener('touchmove', swallow, { passive: false });
-    window.removeEventListener('keydown', onGateKey, true);
-    document.documentElement.classList.remove('rx-wait-holding');
-    if (window.rxLenis && window.rxLenis.start) window.rxLenis.start();
-  }
-
-  function onGateKey(e) {
-    if (e.keyCode === 27 || e.keyCode === 9) { gateRelease(); return; }
-    /* The arrows belong to the slider while it has the focus -- taking them
-       would make the one thing the reader is being asked to do impossible. */
-    if (d_owns(e.target)) return;
-    if (SCROLL_KEYS.indexOf(e.keyCode) !== -1) e.preventDefault();
-  }
-  function d_owns(el) { return el === range; }
-
-  if (range) {
-    range.addEventListener('input', function () { if (gateDone()) gateRelease(); });
-    /* The automatic run writes .value without raising input, so it has to be
-       watched rather than listened to -- and the watch stops the moment it
-       has its answer, rather than ticking for the rest of the visit. */
-    var watch = setInterval(function () {
-      if (gateDone()) { gateRelease(); clearInterval(watch); }
-    }, 200);
-  } else {
-    gateOpen = true;
-  }
 
   /* --------------------------------------------- clearing the way -- */
 
@@ -173,7 +104,7 @@
      the room box below it while Meet is pulled up behind. So the number
      written here is how far through that room the reader is -- 0 with the
      panel whole and low, 1 with it gone and Meet exactly filling the
-     screen. The gate above holds the page at 0 until the hours finish. */
+     screen. */
   var before = document.getElementById('hx-problem');
   var clear = -1, leave = -1;
 
@@ -181,20 +112,6 @@
     var vh = window.innerHeight || 1;
 
     if (stage) {
-      /* The hours run as the panel comes into view, and the page is held for
-         as long as they have not finished -- but not a moment before the
-         panel is all on screen, or the page freezes on a panel with its
-         bottom still below the fold. The place it is held is the one the
-         stylesheet lays out: the stage's top at the top of the screen, which
-         puts the panel whole and low. A panel too tall for that is held by
-         its own top edge instead, so nothing is ever cut off. */
-      if (!gateOpen) {
-        var sr = stage.getBoundingClientRect();
-        var pr = panel ? panel.getBoundingClientRect() : sr;
-        var low = Math.min(sr.top, pr.top);
-        if (low <= 0 && sr.bottom > 0) gateHold(low); else gateUnhold();
-      }
-
       /* Read off the room box below the panel rather than off the panel, so
          the fade and the mark's arrival are measured against the same thing:
          the room is exactly the distance the mark climbs through, so the

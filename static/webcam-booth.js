@@ -41,7 +41,7 @@
   };
 
   var stage, video, canvas, ctx, placeholder;
-  var startBtn, shutterBtn, closeBtn, filterBtns;
+  var startBtn, shutterBtn, flipBtn, closeBtn, filterBtns;
   var review, reviewImg, reviewHint, retakeBtn, saveBtn, downloadBtn;
   var stream = null;
   var shotUrl = null;
@@ -125,7 +125,7 @@
       return;
     }
 
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: facing }, audio: false })
       .then(function (s) {
         stream = s;
         video.srcObject = stream;
@@ -133,7 +133,10 @@
         video.style.display = 'block';
         shutterBtn.disabled = false;
         startBtn.textContent = 'Stop Camera';
+        video.classList.toggle('is-rear', facing === 'environment');
+        showFlipIfTwoCameras();
         resizeCanvas();
+        if (rafId) cancelAnimationFrame(rafId);
         drawLoop();
       })
       .catch(function (err) {
@@ -153,6 +156,32 @@
     placeholder.style.display = 'flex';
     shutterBtn.disabled = true;
     startBtn.textContent = 'Start Camera';
+    if (flipBtn) flipBtn.hidden = true;
+  }
+
+  /* Front and back camera. The button only appears on a touch-first device
+     with more than one camera -- phones and tablets. Counting cameras alone
+     is not enough: a laptop often reports a second one (a phone used as a
+     webcam, or a video-call app's virtual camera). */
+  var facing = 'user';
+  var touchFirst = false;
+  try { touchFirst = window.matchMedia('(pointer: coarse)').matches; } catch (e) {}
+
+  function showFlipIfTwoCameras() {
+    if (!flipBtn || !touchFirst || !navigator.mediaDevices.enumerateDevices) return;
+    navigator.mediaDevices.enumerateDevices().then(function (list) {
+      var cams = list.filter(function (d) { return d.kind === 'videoinput'; });
+      flipBtn.hidden = cams.length < 2 || !stream;
+    }).catch(function () {});
+  }
+
+  function flipCamera() {
+    if (!stream) return;
+    hideReview();
+    stream.getTracks().forEach(function (t) { t.stop(); });
+    stream = null;
+    facing = facing === 'user' ? 'environment' : 'user';
+    startCamera();
   }
 
   function toggleCamera() {
@@ -192,8 +221,10 @@
     var drawH = vh * cover;
 
     shotCtx.save();
-    shotCtx.translate(shot.width, 0);
-    shotCtx.scale(-1, 1);
+    if (facing === 'user') {
+      shotCtx.translate(shot.width, 0);
+      shotCtx.scale(-1, 1);
+    }
     shotCtx.drawImage(video, (shot.width - drawW) / 2, (shot.height - drawH) / 2, drawW, drawH);
     shotCtx.restore();
 
@@ -269,6 +300,7 @@
     placeholder = stage.querySelector('.webcam-placeholder');
     startBtn = document.querySelector('.webcam-start');
     shutterBtn = document.querySelector('.webcam-shutter');
+    flipBtn = document.querySelector('.webcam-flip');
     closeBtn = document.querySelector('.webcam-booth-close');
     filterBtns = Array.prototype.slice.call(document.querySelectorAll('.webcam-filter-btn'));
     review = stage.querySelector('.webcam-review');
@@ -283,6 +315,7 @@
 
     startBtn.addEventListener('click', toggleCamera);
     shutterBtn.addEventListener('click', capturePhoto);
+    if (flipBtn) flipBtn.addEventListener('click', flipCamera);
     retakeBtn.addEventListener('click', hideReview);
     saveBtn.addEventListener('click', savePhoto);
     downloadBtn.addEventListener('click', downloadPhoto);

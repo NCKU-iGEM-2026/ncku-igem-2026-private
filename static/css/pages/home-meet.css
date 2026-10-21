@@ -82,6 +82,12 @@
      this is: at 55svh it was still going at 20%, higher than it should
      finish. */
   --wait-exit: 40svh;
+  /* How far the panel rises, whole, before its fade starts. It is not
+     pinned and nothing stops the scroll: without this the fade began the
+     moment the panel was all on screen, so it was gone before it was read.
+     Dwell plus exit is one screen, which is what has it fade out just as it
+     leaves the top. */
+  --wait-dwell: 60svh;
   --meet-exit: 100svh;   /* the mark's turn into two systems */
 }
 .hx-meet { min-height: calc(100svh + var(--meet-exit)); }
@@ -318,14 +324,10 @@
    than another moving part. */
 .is-playing .hx-meet-title { animation: meet-name 0.60s ease-out 4.05s both; }
 
-/* While the page is held, nothing on it should look like it would scroll. */
-/* Both holds mark the root while they have the scroll -- the hours at the
-   panel, and the mark while it draws. Nothing announces itself; this is only
-   so the page does not twitch while it is held. */
-html.rx-meet-holding,
-html.rx-wait-holding { scrollbar-gutter: stable; }
-html.rx-meet-holding body,
-html.rx-wait-holding body { cursor: default; }
+/* The mark marks the root while it has the scroll. Nothing announces
+   itself; this is only so the page does not twitch while it is held. */
+html.rx-meet-holding { scrollbar-gutter: stable; }
+html.rx-meet-holding body { cursor: default; }
 
 /* ---- the wait panel gets a screen of its own -------------------------
    The same turn as below, one section earlier. The panel is pinned for the
@@ -350,6 +352,7 @@ html.rx-wait-holding body { cursor: default; }
    top, and nowhere to stick, so it scrolled away like any other box while
    the mark climbed over it. The mark's own pin never had this, because its
    room comes from a min-height, which does grow the content box. */
+.hx-wait-dwell { height: var(--wait-dwell); }
 .hx-wait-room { height: var(--wait-exit); }
 
 /* Not pinned. The panel travels with the page and goes out as it rises, so
@@ -399,6 +402,7 @@ html.rx-wait-holding body { cursor: default; }
    ---------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce), print {
   .hx-problem { padding-bottom: clamp(4rem, 9vw, 7.5rem); }
+  .hx-wait-dwell,
   .hx-wait-room { display: none; }
   .hx-wait-stage {
     height: auto;
@@ -410,6 +414,34 @@ html.rx-wait-holding body { cursor: default; }
   .hx-meet + .hx { margin-top: 0; }
   .hx-meet { min-height: 100svh; }
   .hx-meet-stop { position: static; height: auto; min-height: 100svh; }
+}
+
+/* ---- skip ------------------------------------------------------------
+   A ghost button in the corner, there only while the page is held. Skipping
+   runs every animation to its end at once; fill: both keeps the last frame. */
+.hx-meet-skip {
+  position: absolute;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1.25rem, 5vh, 3rem);
+  padding: 0.4rem 1.1rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: 600 0.85rem/1.4 "Changa", sans-serif;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+html.rx-meet-holding .hx-meet-skip { opacity: 0.7; pointer-events: auto; }
+html.rx-meet-holding .hx-meet-skip:hover,
+html.rx-meet-holding .hx-meet-skip:focus-visible { opacity: 1; }
+.is-skipped *,
+.is-skipped *::before,
+.is-skipped *::after {
+  animation-delay: 0s !important;
+  animation-duration: 0.01ms !important;
 }
 
 /* ---- and out the other side -----------------------------------------
