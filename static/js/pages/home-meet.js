@@ -39,6 +39,18 @@
      get; this only hides it for the one case where it is about to be drawn. */
   stop.classList.add('is-armed');
 
+  /* Skip: the mark jumps to its finished state and the scroll is given back
+     at once. Only shown while the page is held, so it never sits on screen
+     with nothing to skip. */
+  var skip = stop.querySelector('[data-meet-skip]');
+  if (skip) {
+    skip.hidden = false;
+    skip.addEventListener('click', function () {
+      stop.classList.add('is-skipped');
+      release();
+    });
+  }
+
   /* ---------------------------------------------------- holding still -- */
 
   function swallow(e) { e.preventDefault(); }
