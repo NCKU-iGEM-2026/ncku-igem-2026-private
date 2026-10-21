@@ -9,7 +9,7 @@ var translations = {
   zh: {
     title: "The Green Cabinet", chooseMode: "選擇遊戲模式",
     pvc: "單機／機器人模式 (PvC)", pvp: "多人對戰模式 (PvP)",
-    pvpTitle: "多人對戰", localPlay: "同一裝置 (Local)", onlinePlay: "線上房間",
+    pvpTitle: "多人對戰", localPlay: "同一裝置 (Local)", onlinePlay: "線上房間", onlineUnavailable: "此版本網站不支援線上房間，請改用同一裝置對戰。",
     back: "返回", setup: "遊戲設定", playerCount: "玩家人數", enterDraft: "進入 SDG 選牌",
     langLabel: "語言", playerType: "操控者",
     draftTitle: "SDG 目標選牌", confirmSDG: "確認選擇 SDG",
@@ -60,7 +60,7 @@ var translations = {
   en: {
     title: "The Green Cabinet", chooseMode: "Choose Game Mode",
     pvc: "Solo / Bot Mode (PvC)", pvp: "Multiplayer (PvP)",
-    pvpTitle: "Multiplayer", localPlay: "Same Device (Local)", onlinePlay: "Online Rooms",
+    pvpTitle: "Multiplayer", localPlay: "Same Device (Local)", onlinePlay: "Online Rooms", onlineUnavailable: "Online rooms aren't supported on this site. Play on the same device instead.",
     back: "Back", setup: "Game Setup", playerCount: "Players", enterDraft: "Enter SDG Draft",
     langLabel: "Language", playerType: "controlled by",
     draftTitle: "SDG Goal Draft", confirmSDG: "Confirm SDG Selection",
@@ -1208,7 +1208,13 @@ document.getElementById("btnLocal").onclick = function() {
   showScreen("setupScreen");
   renderNameInputs("pvp");
 };
-document.getElementById("btnOnline").onclick = openOnlineMenu;
+document.getElementById("btnOnline").onclick = function() {
+  var tip = document.getElementById("onlineTip");
+  tip.textContent = tgcT("onlineUnavailable");
+  tip.classList.add("is-on");
+  clearTimeout(tip._hide);
+  tip._hide = setTimeout(function() { tip.classList.remove("is-on"); }, 3000);
+};
 
 var online = {
   active: false,
