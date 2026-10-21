@@ -207,6 +207,23 @@
       target. The organisms and chemicals behind both routes are set out below;
       the open questions on inhibition are listed under Unfinished Business.
     </p>
+    <p>
+      Between the two sits a third piece that does not yet work, and we describe
+      it here because it is the part of the design with the clearest safety
+      consequences. To get the aptamer out of the cell that makes it, we built
+      an AHL-triggered release module: the LasR-responsive promoter pLasRV
+      driving the E7 lysis protein, so that detecting the signal triggers
+      release rather than a constant leak
+      (<a href="{{ url_for('pages', page='parts') }}">Parts</a>,
+      BBa_26OOQEIP). The plasmid was constructed; the module has not been
+      validated, and no result on this wiki depends on it
+      (<a href="{{ url_for('pages', page='engineering') }}#eng-inhibition-future">Engineering</a>).
+      Two things follow from it even so. E7 lyses the cell that expresses it, so
+      the only thing the circuit kills is its own host. And lysing a
+      Gram-negative cell frees that cell&rsquo;s own lipopolysaccharide along
+      with whatever it was carrying, which is why a released preparation is not
+      the same thing as a purified one &mdash; see Unfinished Business.
+    </p>
 
     <h3>Organisms &amp; risk groups</h3>
     <p>
@@ -267,11 +284,16 @@
       The division of labour matters here. All genetic modification happens in
       <em>E.&nbsp;coli</em>, which is both our detector and our synthetic
       biology tool; <em>P.&nbsp;aeruginosa</em> is only an organism we test
-      against, and is never genetically modified. No toxin genes and no
-      virulence factors were introduced into our chassis. The only
-      antibiotic-resistance genes present are the standard plasmid selection
-      markers required for cloning &mdash; no resistance determinant from a
-      clinical isolate was cloned or transferred.
+      against, and is never genetically modified. No virulence factors were
+      introduced into our chassis, and the only antibiotic-resistance genes
+      present are the standard plasmid selection markers required for cloning
+      &mdash; no resistance determinant from a clinical isolate was cloned or
+      transferred. One gene in the design is lethal, and we would rather name it
+      than leave it to be found: the E7 lysis protein in the release module
+      above. It permeabilises the envelope of the <em>E.&nbsp;coli</em> cell
+      that expresses it and acts on nothing else, so it is neither a toxin
+      directed at another organism nor a virulence factor. Nothing else we added
+      harms a cell.
     </p>
 
     <h3>Chemical safety</h3>
@@ -376,7 +398,10 @@
       <li>
         <strong>We do not enhance anything the bacteria already do.</strong>
         The design goal is to quiet bacterial coordination, rather than to kill
-        and so push virulence or resistance.
+        and so push virulence or resistance. The published circuit we took the
+        release strategy from senses the pathogen and then kills it; ours stops
+        at sensing and quieting, and the only cell our circuit kills is the
+        <em>E.&nbsp;coli</em> that carries it.
       </li>
       <li>
         <strong>We measure molecules, not patients.</strong>
@@ -417,8 +442,10 @@
       <li>
         <strong>Biocontainment design.</strong>
         Our current engineered strains carry no kill switch and no auxotrophic
-        dependency. If this ever moves toward real application, that is a
-        necessary next step.
+        dependency. The AHL-triggered lysis module is not a substitute for one:
+        it fires on the target&rsquo;s signal rather than on escape, it leaves
+        the plasmid behind, and it was never validated. If this ever moves
+        toward real application, proper containment is a necessary next step.
       </li>
       <li>
         <strong>Endotoxin, which a kill switch does not solve.</strong>
