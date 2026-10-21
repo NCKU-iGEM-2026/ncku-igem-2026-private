@@ -6,6 +6,7 @@
 <link href="{{ url_for('static', filename = 'css/motion.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename = 'css/pages/home.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename = 'css/pages/home-why.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename = 'css/pages/home-meet.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block header %}
@@ -235,6 +236,12 @@
       </li>
     </ul>
 
+    {# The panel gets a screen of its own to be pinned in, the same way the
+       mark below does: once the hours have run, it stays where it is and
+       goes out on the spot while Meet turns over it. It sits low in that
+       screen rather than centred, so the figures above it are still the
+       thing being read on the way in. #}
+    <div class="hx-wait-stage" data-wait-stage>
     <div class="hx-wait" data-reveal style="--h:0">
       <div class="hx-wait-head">
         <h3 class="hx-wait-title">The answer arrives too late</h3>
@@ -269,6 +276,55 @@
              data-late="The culture comes back, roughly 48&ndash;72 hours later. By then the biofilm, the shield antibiotics struggle to cross, is already up."><span class="hx-wait-hours">0&nbsp;h</span> The signal is already there, before anything has grown on a plate, and 3-oxo-C12-HSL is characteristic of the organism sending it.</p>
         </div>
       </div>
+    </div>
+    </div>
+    {# The room the pin travels through. It has to be a real box: a sticky
+       child is held inside its container's CONTENT box, so padding below it
+       bought no travel at all -- which is exactly how this was broken. #}
+    <div class="hx-wait-room" aria-hidden="true"></div>
+  </div>
+</section>
+
+{#
+  ============================ Meet Capture ============================
+  The mark drawing itself, between the wait and what the project does about
+  it. Five element drawings stacked and animated; nothing is redrawn in code.
+  Styles and the measured geometry are in static/css/pages/home-meet.css, and
+  the same piece with a frame exporter is in tools/logo-animation/.
+
+  It waits for the reader: the stage carries [data-reveal], and every
+  animation is gated on the .rx-in that motion.js adds when it comes into
+  view. The resting state of the whole stack is the finished mark, so with no
+  JavaScript, in print, or with reduced motion asked for, the logo is simply
+  there.
+#}
+<section class="hx hx-meet" id="hx-meet" aria-labelledby="hx-meet-title">
+  {# The mark plays once, on its own clock, and the page is held still while
+     it does -- static/js/pages/home-meet.js. Esc skips it, reduced motion
+     never starts it, and with no script at all the finished mark is simply
+     there. #}
+  <div class="hx-meet-stop" data-meet-stop>
+    <div class="hx-inner">
+    {# The heading sits inside the stage so it can be placed against the mark
+       rather than against the section: it is pinned just above where the
+       settled mark starts, and follows it at every size. role="img" moves
+       down to the artwork, because a heading inside an element with that
+       role would be dropped from the accessibility tree. #}
+    <div class="hx-meet-stage">
+      <h2 class="hx-meet-title" id="hx-meet-title">Meet</h2>
+      <div class="hx-meet-root" role="img"
+           aria-label="The NCKU-Tainan Capture logo: a DNA double helix curved into a C, with a bacterium lettered NCKU inside it, beside the words NCKU-Tainan Capture.">
+        <div class="hx-meet-mark">
+          <div class="hx-meet-erase">
+            <div class="hx-meet-layer hx-meet-sweep hx-meet-l1"></div>
+          </div>
+          <div class="hx-meet-layer hx-meet-sweep hx-meet-l2"></div>
+          <div class="hx-meet-layer hx-meet-sweep hx-meet-l3"></div>
+          <div class="hx-meet-layer hx-meet-l5"></div>
+        </div>
+        <div class="hx-meet-layer hx-meet-type"></div>
+      </div>
+    </div>
     </div>
   </div>
 </section>
@@ -399,8 +455,8 @@
           <div class="hx-sys-panel" role="tabpanel" id="hxPanelDetect" aria-labelledby="hxTabDetect">
             <h3>Engineered <em>E.&nbsp;coli</em> that fluoresces when it hears AHL</h3>
             <ol class="hx-steps">
-              <li data-step="1"><button type="button"><b>Hear</b><span>3-oxo-C12-HSL, the Las system signal, reaches the cell.</span></button></li>
-              <li data-step="2"><button type="button"><b>Bind</b><span>LasR, the bacterium&rsquo;s own receptor protein, expressed in <em>E.&nbsp;coli</em> BL21(DE3), binds it.</span></button></li>
+              <li data-step="1"><button type="button"><b>Hear</b><span>3-oxo-C12-HSL (AHL), the Las system signal, reaches the cell.</span></button></li>
+              <li data-step="2"><button type="button"><b>Bind</b><span>LasR, the bacterium&rsquo;s own receptor protein, expressed in <em>E.&nbsp;coli</em> TOP10, binds 3-oxo-C12-HSL.</span></button></li>
               <li data-step="3"><button type="button"><b>Switch</b><span>The LasR&ndash;AHL complex binds and turns on the pLasRV promoter, activating the downstream expression.</span></button></li>
               <li data-step="4"><button type="button"><b>Detect</b><span>The cells make sfGFP, so the presence of <em>P.&nbsp;aeruginosa</em> becomes something you can see.</span></button></li>
             </ol>
@@ -846,6 +902,7 @@
 <script src="{{ url_for('static', filename = 'count-up.js') }}"></script>
 <script src="{{ url_for('static', filename = 'js/pages/home.js') }}" defer></script>
 <script src="{{ url_for('static', filename = 'js/pages/hais-reels.js') }}" defer></script>
+<script src="{{ url_for('static', filename = 'js/pages/home-meet.js') }}" defer></script>
 <script>
 (function () {
   var frame = document.querySelector(".home-video-frame iframe[data-src]");

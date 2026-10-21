@@ -127,6 +127,10 @@
   if (!skipLenis && !reduceMotion && typeof window.Lenis === 'function') {
     try {
       var lenis = new window.Lenis({ duration: 0.9, smoothWheel: true });
+      // Reachable so a page can hand the scroll back and forth: the home
+      // page's Meet section stops it while the mark plays. Nothing else
+      // should need it.
+      window.rxLenis = lenis;
       var rafOn = false, stillSince = 0;
       function raf(t) {
         lenis.raf(t);

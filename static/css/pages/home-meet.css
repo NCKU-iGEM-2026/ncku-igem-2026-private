@@ -1,0 +1,430 @@
+/* ============================================================
+   Meet Capture -- the mark drawing itself
+   ============================================================
+   The team's own element drawings, animated. Nothing is redrawn in code:
+   every shape is one of five files on static.igem.wiki, all 1350x1350 with
+   alpha on one shared canvas, so stacking them lines them up. They were
+   uploaded as PNG and the uploads tool re-encoded them to AVIF, which is why
+   the extensions here are .avif; the alpha survives that, checked in a
+   browser against a magenta ground.
+
+   The beats: strand one swept in anticlockwise about the ring's centre, the
+   second strand swept over it, the rungs after that, the NCKU bug swimming
+   down from the top right, the mark shrinking into its place beside the
+   type, and the type wiping in from the left.
+
+   The resting state of everything below is the FINISHED mark, and the
+   animation is what scrubbing turns on. Written that way round, the three
+   cases that are not "someone is scrolling through it" need no rule each:
+   with no JavaScript, in print, and with reduced motion asked for, the
+   finished mark is simply there.
+
+   The same piece exists as a standalone file with a frame exporter in
+   tools/logo-animation/, which is where the geometry here was measured.
+   ============================================================ */
+
+/* Values the browser can interpolate. An unregistered custom property is not
+   animatable -- it jumps from start to end with nothing in between -- so
+   these declarations are what make the sweeps move at all. */
+@property --meet-sweep { syntax: '<number>'; initial-value: 1; inherits: false; }
+@property --meet-erase { syntax: '<number>'; initial-value: 1; inherits: false; }
+@property --meet-wipe  { syntax: '<percentage>'; initial-value: 102%; inherits: false; }
+
+/* A screen to itself: the word and the mark, centred in it, with nothing
+   else in view. */
+/* One screen, with the mark centred in it. The top padding clears the fixed
+   navbar, which takes the first 96px of every viewport; border-box because
+   .hx is not, and without it that padding would be added to the height and
+   push the next section off the bottom edge. svh rather than vh so a phone's
+   collapsing toolbars cannot make it jump. */
+.hx-meet { padding-block: 0; }
+
+/* home.css gives every .hx that follows another .hx a 1px gradient rule, so
+   sections read as chapters. This one is not a chapter in that sense -- it
+   opens on a cleared screen and closes on a mark that has just drawn itself
+   -- and a hairline above and below it frames that like a figure in a book.
+   Both go: the one this section would carry, and the one the section after
+   it would carry because it follows this.
+
+   The sibling combinator has to be repeated in both. home.css's selector
+   carries two classes and a lone .hx-meet does not outweigh it. */
+.hx + .hx-meet::before,
+.hx-meet + .hx::before { content: none; }
+/* The section is one screen plus the exit. The screen is pinned inside it,
+   so once the mark has played it does not scroll away: it stays where it is
+   and goes out on the spot, and the section after climbs over it through the
+   same stretch of scrolling. That is the page turning rather than the page
+   moving.
+
+   --meet-exit is the length of that turn, and the one number to change. It
+   is used twice -- the section's height and the pull on the section after --
+   so the two cannot drift apart.
+
+   It lives on :root, not on .hx-meet. Custom properties reach descendants,
+   not siblings, so declared on the section itself the rule below read its
+   own fallback and the pull came out 0px: no error, no warning, the turn
+   simply did not happen.
+
+   One screen exactly, and that is not a taste: with the section 100svh plus
+   the exit, the screen pinned at 100svh, and the next section pulled up by
+   the exit, the next section's top sits at 100svh down the screen when the
+   pin begins and reaches the top of it after exactly 100svh of scrolling.
+   Any shorter and the turn ends with the next page still part way down --
+   at 70svh it was left 270px short. Any longer and it would already be
+   showing from under the mark while the mark is still drawing. */
+:root {
+  /* The panel's fade, and the distance the mark climbs through -- one
+     number, so the panel reaches nothing exactly as the mark reaches the top
+     of the screen, with no snap between them.
+
+     40svh is where that lands the panel at about a third of the way up.
+     It enters with its middle at 75% of the screen and rises by whatever
+     this is: at 55svh it was still going at 20%, higher than it should
+     finish. */
+  --wait-exit: 40svh;
+  --meet-exit: 100svh;   /* the mark's turn into two systems */
+}
+.hx-meet { min-height: calc(100svh + var(--meet-exit)); }
+
+.hx-meet-stop {
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  padding-block: 6rem 0;
+  display: grid;
+  align-content: center;
+}
+
+/* Whatever follows is pulled up by the length of the turn, so it rises
+   through the screen the mark is still fading out of rather than waiting
+   below for it to finish. Scoped to the sibling, not to #hx-systems, so
+   reordering the page does not leave this pointing at nothing. */
+.hx-meet + .hx { margin-top: calc(-1 * var(--meet-exit)); }
+
+/* The stage is positioned against this, and the word inside it is centred by
+   this. Both were lost once already when the block above was rewritten, and
+   the mark went on looking right while the heading slid to the left margin --
+   so: the stage needs the positioned ancestor, the word needs the alignment. */
+.hx-meet .hx-inner {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+/* Every measurement in this file is a percentage -- the mask centres, the
+   swim, the settle -- so the stack needs no fixed size to be measured
+   against and simply fills whatever the stage is. The artwork's 1350 square
+   is still the coordinate system those percentages were taken in; it just
+   never has to appear here.
+
+   The stage is out of flow and centred, and is deliberately allowed to stand
+   taller than the space it sits in. The artwork is a square but the mark
+   only uses the middle of it -- 15.4% to 79.0% of the height while the ring
+   is at full size, 28.7% to 69.2% once it has settled -- so the square's top
+   and bottom are empty and can hang outside with nothing cut. Sizing it by
+   that square's height instead, as it was, threw away the width the page had
+   going spare, and the settled mark, being wide and short, is what paid: it
+   came out 319px tall on a 1440x900 screen.
+
+   1.57 is 1 / 0.636, the share of the square the ring fills at its tallest.
+   It lets the stage grow until the ring, rather than the empty margin above
+   it, reaches the height available. */
+.hx-meet-stage {
+  position: absolute;
+  top: 50%; left: 50%;
+  translate: -50% -50%;
+  width: min(100%, calc((100svh - 7rem) * 1.57));
+  aspect-ratio: 1;
+}
+.hx-meet-root { position: absolute; inset: 0; }
+
+/* The mark says "Capture" itself, so the heading does not repeat it.
+
+   It is pinned to the mark, not to the section: 71.3% is 100% - 28.7%, the
+   settled mark's own top edge, so the word sits just above it however large
+   the stage has grown. Being inside the stage also means the fade can hang
+   off the same scrub as everything else. */
+.hx-meet-title {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: calc(71.3% + 0.6rem);
+  margin: 0;
+  font-family: "Changa", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
+  /* The page's own body ink, by the token rather than by its value: this is
+     the colour the habitat notes are set in (.hx-why-note), so referring to
+     the variable keeps the two together if it is ever retuned. The word is
+     a label on the mark, not another heading in the stack, which is why it
+     takes body ink rather than the near-white the headings use. */
+  color: var(--c-text-2);
+}
+
+/* --a0 sits here so the sweeps and the eraser share one angle: the strand's
+   upper-right tip, measured from the ring's centre. */
+.hx-meet-mark {
+  position: absolute; inset: 0;
+  transform-origin: 50% 50%;
+  --a0: 60deg;
+  transform: translate(-20.08%, 0.70%) scale(0.6379);   /* at rest: settled */
+}
+
+.hx-meet-layer {
+  position: absolute;
+  inset: 0;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.hx-meet-l1 { background-image: url(https://static.igem.wiki/teams/6379/wiki/logo-animation/logo1.avif); }
+.hx-meet-l2 { background-image: url(https://static.igem.wiki/teams/6379/wiki/logo-animation/logo2.avif); }
+.hx-meet-l3 { background-image: url(https://static.igem.wiki/teams/6379/wiki/logo-animation/logo3.avif); }
+.hx-meet-l5 { background-image: url(https://static.igem.wiki/teams/6379/wiki/logo-animation/logo5.avif); }
+/* The type, in the light cut: both lines white. The logo's own "apture" is
+   pure black, which measures 1.28:1 against this page's ground where WCAG
+   asks 3:1 of text this size -- white is 16.02:1. Several ways of keeping
+   the black were tried and taken out again (a halo, a plate behind it, a
+   keyline, a frosted capsule); this one needs nothing added to the page. */
+.hx-meet-type {
+  background-image: url(https://static.igem.wiki/teams/6379/wiki/logo-animation/logo11.avif);
+}
+
+/* ---- the three anticlockwise sweeps ----------------------------------
+   A conic gradient runs clockwise from its start angle, so a growing wedge
+   [A0, A0 + sweep] opens the wrong way. Winding the start angle backwards by
+   the same amount makes it [A0 - sweep, A0] instead: the leading edge stays
+   put and the trailing edge travels anticlockwise.
+
+   --meet-sweep rests at 1, which is the whole circle, so an unanimated layer
+   is simply fully drawn.
+   -------------------------------------------------------------------- */
+.hx-meet-sweep {
+  -webkit-mask-image:
+    conic-gradient(from calc(var(--a0) - var(--meet-sweep) * 1turn) at 41.5% 47.3%,
+                   #000 0 calc(var(--meet-sweep) * 1turn),
+                   transparent calc(var(--meet-sweep) * 1turn) 1turn);
+  mask-image:
+    conic-gradient(from calc(var(--a0) - var(--meet-sweep) * 1turn) at 41.5% 47.3%,
+                   #000 0 calc(var(--meet-sweep) * 1turn),
+                   transparent calc(var(--meet-sweep) * 1turn) 1turn);
+}
+@keyframes meet-draw { from { --meet-sweep: 0; } to { --meet-sweep: 1; } }
+
+/* ---- logo1 rubbed out behind logo2 ----------------------------------
+   logo2 carries both strands with their crossings drawn, so strand one has a
+   gap where it passes under strand two. logo1 sitting beneath would fill
+   those gaps for as long as logo2 takes to draw, and they would then appear
+   all at once when it was taken away. So logo1 is rubbed out exactly as
+   logo2 is drawn -- same start, same length, same direction, and a mask that
+   is logo2's complement. The wedge one gains is the wedge the other loses.
+
+   --meet-erase rests at 1, fully rubbed out, so at rest logo2 alone carries
+   the ring and the crossings are the drawn ones.
+   -------------------------------------------------------------------- */
+.hx-meet-erase {
+  position: absolute; inset: 0;
+  -webkit-mask-image:
+    conic-gradient(from calc(var(--a0) - var(--meet-erase) * 1turn) at 41.5% 47.3%,
+                   transparent 0 calc(var(--meet-erase) * 1turn),
+                   #000 calc(var(--meet-erase) * 1turn) 1turn);
+  mask-image:
+    conic-gradient(from calc(var(--a0) - var(--meet-erase) * 1turn) at 41.5% 47.3%,
+                   transparent 0 calc(var(--meet-erase) * 1turn),
+                   #000 calc(var(--meet-erase) * 1turn) 1turn);
+}
+@keyframes meet-rub { from { --meet-erase: 0; } to { --meet-erase: 1; } }
+
+/* ---- the type wipes in ----
+   Its own property: --meet-sweep is a number for the conic wedges, this is a
+   length along a line, and one name cannot be both. Rests at 102%, fully in. */
+.hx-meet-type {
+  -webkit-mask-image: linear-gradient(90deg, #000 0 var(--meet-wipe), transparent var(--meet-wipe) 100%);
+  mask-image: linear-gradient(90deg, #000 0 var(--meet-wipe), transparent var(--meet-wipe) 100%);
+}
+@keyframes meet-wipe { from { --meet-wipe: 0%; } to { --meet-wipe: 102%; } }
+
+/* ---- the bug swims in -----------------------------------------------
+   In from the top right, and it never crosses the ring on the way. That is
+   measured, not eyeballed: the ring's upper tail reaches x=953 across rows
+   320-440, while the C's opening leaves everything past x=463 clear between
+   rows 500 and 800. So the route goes down the outside, right of the tail,
+   and only turns in once it is level with the opening. Every pose below was
+   checked against the ring's alpha and overlaps it by zero pixels -- and
+   because the wriggle steps, these poses are the only ones ever drawn, so
+   that check is exact rather than a sample.
+   -------------------------------------------------------------------- */
+@keyframes meet-swim {
+  0%     { transform: translate(54%, -60%) rotate(-22deg); }  /* off the corner */
+  14.3%  { transform: translate(45%, -40%) rotate(16deg); }
+  28.6%  { transform: translate(38%, -20%) rotate(-13deg); }  /* clear of the tail */
+  42.9%  { transform: translate(31%, -4%) rotate(12deg); }    /* level with the opening */
+  57.1%  { transform: translate(19%, 2%) rotate(-9deg); }     /* turning in */
+  71.4%  { transform: translate(9%, -1%) rotate(7deg); }
+  85.7%  { transform: translate(3%, 1%) rotate(-4deg); }
+  100%   { transform: translate(0, 0) rotate(0deg); }
+}
+@keyframes meet-surface { from { opacity: 0; } to { opacity: 1; } }
+@keyframes meet-name { from { opacity: 0; transform: translateY(0.35em); } to { opacity: 1; transform: none; } }
+
+@keyframes meet-settle {
+  from { transform: none; }
+  to   { transform: translate(-20.08%, 0.70%) scale(0.6379); }
+}
+
+/* Armed: the script has it and is waiting for the reader. Nothing of the
+   mark shows, because the whole point is that it draws itself -- seeing the
+   finished logo sitting there first gives away the ending. visibility rather
+   than display so nothing reflows when it comes back, and the stage keeps
+   the size it will play at. */
+/* Armed: the script has it and is waiting for the reader. Behind: the panel
+   above has not finished its turn, so the mark has no business being on
+   screen -- the two sections overlap by a whole screen, and once the mark
+   has played it would otherwise sit on the panel with both fully opaque,
+   which is what scrolling back up used to show.
+
+   visibility rather than display in both cases, so nothing reflows and the
+   stage keeps the size it plays at. */
+.is-armed .hx-meet-stage,
+.is-behind .hx-meet-stage { visibility: hidden; }
+
+/* ---- the beats ------------------------------------------------------
+   Played once, on their own clock, when home-meet.js adds .is-playing --
+   which is also when it takes the scroll, so the mark cannot be scrolled
+   past half-drawn. The whole run is 4.65s.
+
+   Without the script there is no .is-playing, and the resting state above --
+   the finished mark -- stands. Reduced motion is the same: the script
+   returns before it adds anything.
+   -------------------------------------------------------------------- */
+.is-playing .hx-meet-l1    { animation: meet-draw 0.85s linear 0.05s both; }
+.is-playing .hx-meet-erase { animation: meet-rub  0.85s linear 0.80s both; }
+.is-playing .hx-meet-l2    { animation: meet-draw 0.85s linear 0.80s both; }
+.is-playing .hx-meet-l3    { animation: meet-draw 0.75s linear 1.55s both; }
+.is-playing .hx-meet-l5 {
+  animation: meet-swim 0.85s steps(1, end) 2.30s both,
+             /* The fade is pinned to the swim's second pose, 2.30 + 0.85/7:
+                the first leaves 14px of the bug on the canvas, so a fade
+                starting with it would spend itself on nothing. Retime the
+                swim and this has to follow. */
+             meet-surface 0.35s ease-out 2.42s both;
+}
+.is-playing .hx-meet-mark  { animation: meet-settle 0.55s cubic-bezier(.65,0,.25,1) 3.20s both; }
+.is-playing .hx-meet-type  { animation: meet-wipe 0.55s cubic-bezier(.35,0,.2,1) 3.50s both; }
+/* Last, on a mark that is complete and still: the word is a caption rather
+   than another moving part. */
+.is-playing .hx-meet-title { animation: meet-name 0.60s ease-out 4.05s both; }
+
+/* While the page is held, nothing on it should look like it would scroll. */
+/* Both holds mark the root while they have the scroll -- the hours at the
+   panel, and the mark while it draws. Nothing announces itself; this is only
+   so the page does not twitch while it is held. */
+html.rx-meet-holding,
+html.rx-wait-holding { scrollbar-gutter: stable; }
+html.rx-meet-holding body,
+html.rx-wait-holding body { cursor: default; }
+
+/* ---- the wait panel gets a screen of its own -------------------------
+   The same turn as below, one section earlier. The panel is pinned for the
+   length of --meet-exit while it goes out, and Meet is pulled up over it, so
+   the hours do not scroll away -- they stay put and the mark replaces them.
+
+   The room for that travel has to be inside .hx-inner, not on the section:
+   a sticky child only sticks within its own containing block, so padding on
+   the section would let go of it a screen too early.
+
+   It sits low in the screen rather than centred, so on the way in the
+   figures above are still what is being read.                           */
+/* The room for the pin goes inside .hx-inner, because a sticky child only
+   sticks within its own containing block. The section's own bottom padding
+   has to go with it: it sits after .hx-inner, so the pin let go 120px before
+   the section ended, and the turn finished with the mark still that far down
+   the screen. .hx-inner's padding is the whole of the gap now. */
+.hx-problem { padding-bottom: 0; }
+/* The travel is a box, not padding. A sticky child is held inside its
+   container's CONTENT box, so padding on .hx-inner sat outside the range
+   entirely and bought no travel: the panel had a sticky position, a sticky
+   top, and nowhere to stick, so it scrolled away like any other box while
+   the mark climbed over it. The mark's own pin never had this, because its
+   room comes from a min-height, which does grow the content box. */
+.hx-wait-room { height: var(--wait-exit); }
+
+/* Not pinned. The panel travels with the page and goes out as it rises, so
+   by the time it reaches the upper part of the screen there is nothing left
+   of it -- and the mark starts on the clear screen that leaves. It keeps a
+   screen of height with its content at the foot, which is what puts it low
+   on the way in. */
+.hx-wait-stage {
+  height: 100svh;
+  display: grid;
+  align-content: end;
+  padding-bottom: clamp(2rem, 7vh, 5rem);
+  /* A full screen with its content at the foot leaves most of a screen of
+     nothing above it, and that nothing landed between the figures and the
+     panel. The box has to stay a screen tall -- it is what gets pinned --
+     so it is pulled back up instead, and only the empty part of it covers
+     the figures. 30rem is what is left below the pull: the panel's own
+     height and its padding come out of that, leaving a normal gap. */
+  margin-top: calc(-100svh + 30rem);
+  opacity: calc(1 - var(--wait-leave, 0));
+  will-change: opacity;
+}
+
+/* The pull is a whole screen even though the travel is shorter, and the two
+   are allowed to differ here for a reason that does not hold one section
+   further down: Meet is armed and invisible until it plays, so it can
+   already be behind the panel without being seen. That buys a shorter turn
+   -- the panel's fade is --wait-exit of scrolling, not a full screen -- and
+   the arithmetic still lands, because a pull of exactly one screen is what
+   puts the next section's top at the top of the screen when the pin lets
+   go. The mark's own exit cannot do this: what follows it is visible. */
+.hx-problem + .hx { margin-top: -100svh; }
+
+
+
+
+
+/* ---- neither pinned nor overlapped -----------------------------------
+   Reduced motion and print both get the page as a plain stack: no pins, no
+   pulls, nothing overlapping anything.
+
+   This is not tidiness. The pulls lay each section over the one before, and
+   what makes that invisible is the script hiding the mark until it plays --
+   and the script is exactly what does not run under reduced motion. Left
+   as it was, those readers got the finished logo sitting on top of the wait
+   panel, both at once. Caught in a screenshot, not by reasoning.
+   ---------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce), print {
+  .hx-problem { padding-bottom: clamp(4rem, 9vw, 7.5rem); }
+  .hx-wait-room { display: none; }
+  .hx-wait-stage {
+    height: auto;
+    margin-top: 0;
+    padding-bottom: 0;
+    opacity: 1;
+  }
+  .hx-problem + .hx,
+  .hx-meet + .hx { margin-top: 0; }
+  .hx-meet { min-height: 100svh; }
+  .hx-meet-stop { position: static; height: auto; min-height: 100svh; }
+}
+
+/* ---- and out the other side -----------------------------------------
+   Once the mark has played, it goes the way the panel went: home-meet.js
+   writes --meet-leave as the section travels up, so the two systems arrive
+   on a clear screen rather than sliding up behind a finished logo.
+
+   On the stop rather than the stage, so the word goes with the mark.
+
+   No reduced-motion or print rule: the script returns before it writes this
+   in either case, and the fallback 0 leaves the section exactly as it is.
+   Writing opacity:1 back would say the same thing twice -- and the first
+   time that was done for the panel's fade, it quietly defeated the very
+   screenshot meant to check it.                                         */
+.hx-meet-stop {
+  opacity: calc(1 - var(--meet-leave, 0));
+  will-change: opacity;
+}
