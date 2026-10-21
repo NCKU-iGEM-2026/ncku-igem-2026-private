@@ -12,8 +12,6 @@
 
   var isHome = location.pathname.replace(/\/+$/, '') === '' || /\/index\.html$/.test(location.pathname);
 
-  var contentMain = document.querySelector('body > .container') || main;
-
   if (isHome) return;
 
   if (main.querySelector('.edu-sidebar, aside, .board-game-page')) return;
