@@ -88,7 +88,9 @@
      Dwell plus exit is one screen, which is what has it fade out just as it
      leaves the top. */
   --wait-dwell: 60svh;
-  --meet-exit: 100svh;   /* the mark's turn into two systems */
+  /* 0: the mark is not pinned on the way out and nothing overlaps it. Once
+     it has played it scrolls up with the page like any other section. */
+  --meet-exit: 0px;
 }
 .hx-meet { min-height: calc(100svh + var(--meet-exit)); }
 
@@ -445,18 +447,6 @@ html.rx-meet-holding .hx-meet-skip:focus-visible { opacity: 1; }
 }
 
 /* ---- and out the other side -----------------------------------------
-   Once the mark has played, it goes the way the panel went: home-meet.js
-   writes --meet-leave as the section travels up, so the two systems arrive
-   on a clear screen rather than sliding up behind a finished logo.
-
-   On the stop rather than the stage, so the word goes with the mark.
-
-   No reduced-motion or print rule: the script returns before it writes this
-   in either case, and the fallback 0 leaves the section exactly as it is.
-   Writing opacity:1 back would say the same thing twice -- and the first
-   time that was done for the panel's fade, it quietly defeated the very
-   screenshot meant to check it.                                         */
-.hx-meet-stop {
-  opacity: calc(1 - var(--meet-leave, 0));
-  will-change: opacity;
-}
+   Once the mark has played it scrolls up with the page, whole: no fade and
+   no pin (--meet-exit is 0). home-meet.js still writes --meet-leave, but
+   nothing reads it any more.                                             */
