@@ -94,12 +94,28 @@
     );
   }
 
+  var CAPTION = 'NCKU-Tainan 2026・Capture';
+
+  function drawCaption(context, width, height) {
+    var size = Math.max(10, Math.round(height * 0.032));
+    context.save();
+    context.font = '600 ' + size + 'px "Changa", sans-serif';
+    context.textAlign = 'center';
+    context.textBaseline = 'top';
+    context.fillStyle = '#ffffff';
+    context.shadowColor = 'rgba(0, 0, 0, 0.55)';
+    context.shadowBlur = size * 0.35;
+    context.fillText(CAPTION, width / 2, height * 0.03);
+    context.restore();
+  }
+
   function drawLoop() {
     if (!stream) return;
     var w = stage.clientWidth;
     var h = stage.clientHeight;
     ctx.clearRect(0, 0, w, h);
     drawFrame(ctx, activeFilter, w, h);
+    drawCaption(ctx, w, h);
     rafId = requestAnimationFrame(drawLoop);
   }
 
@@ -182,6 +198,7 @@
     shotCtx.restore();
 
     drawFrame(shotCtx, activeFilter, shot.width, shot.height);
+    drawCaption(shotCtx, shot.width, shot.height);
 
     flashEffect();
 
